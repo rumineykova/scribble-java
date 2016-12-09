@@ -87,6 +87,10 @@ public class Job
 		if (!this.noValidation)
 		{
 			runVisitorPassOnAllModules(WFChoiceChecker.class);  // For enabled roles and disjoint enabling messages -- includes connectedness checks
+			
+			// .. add global type assertion WF checks here?
+			//runVisitorPassOnAllModules(AssertionChecker.class) // at this point: should be only parsed global modules
+			
 			runProjectionPasses();
 			runVisitorPassOnAllModules(ReachabilityChecker.class);  // Moved before GlobalModelChecker.class, OK?
 			if (!this.useOldWf)

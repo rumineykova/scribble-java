@@ -209,4 +209,14 @@ public interface ScribDel
 	{
 		return visited;
 	}
+
+	/*default void enterAssertionCheck(ScribNode parent, ScribNode child, ExplicitCorrelationChecker checker) throws ScribbleException
+	{
+		
+	}
+
+	default ScribNode leaveAssertionCheck(ScribNode parent, ScribNode child, AssertionChecker checker, ScribNode visited) throws ScribbleException
+	{
+		return visited;
+	}*/
 }
