@@ -2,6 +2,7 @@ package org.scribble.del;
 
 import org.scribble.ast.ScribNode;
 import org.scribble.main.ScribbleException;
+import org.scribble.visit.AnnotationChecker;
 import org.scribble.visit.InlinedProtocolUnfolder;
 import org.scribble.visit.ProtocolDefInliner;
 import org.scribble.visit.context.EGraphBuilder;
@@ -228,6 +229,16 @@ public interface ScribDel
 	}
 
 	default ScribNode leaveRecRemoval(ScribNode parent, ScribNode child, RecRemover rem, ScribNode visited) throws ScribbleException
+	{
+		return visited;
+	}
+	
+	default void enterAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker) throws ScribbleException
+	{
+		 
+	}
+	
+	default ScribNode leaveAnnotCheck(ScribNode parent, ScribNode child,  AnnotationChecker checker, ScribNode visited) throws ScribbleException
 	{
 		return visited;
 	}

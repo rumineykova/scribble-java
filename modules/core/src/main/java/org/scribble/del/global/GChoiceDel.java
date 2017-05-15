@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.Choice;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GProtocolBlock;
@@ -17,11 +18,13 @@ import org.scribble.main.RuntimeScribbleException;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
+import org.scribble.visit.AnnotationChecker;
 import org.scribble.visit.ProtocolDefInliner;
 import org.scribble.visit.context.Projector;
 import org.scribble.visit.context.env.ProjectionEnv;
 import org.scribble.visit.env.InlineProtocolEnv;
 import org.scribble.visit.wf.WFChoiceChecker;
+import org.scribble.visit.wf.env.AnnotationEnv;
 import org.scribble.visit.wf.env.WFChoiceEnv;
 
 public class GChoiceDel extends ChoiceDel implements GCompoundInteractionNodeDel
@@ -142,4 +145,24 @@ public class GChoiceDel extends ChoiceDel implements GCompoundInteractionNodeDel
 		proj.pushEnv(proj.popEnv().setProjection(projection));
 		return (GChoice) GCompoundInteractionNodeDel.super.leaveProjection(parent, child, proj, gc);
 	}
+	
+
+	@Override
+	public void enterAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker) throws ScribbleException
+	{
+		AnnotationEnv env = checker.peekEnv().enterContext();
+		checker.pushEnv(env);
+	}
+	
+	@Override
+	public ScribNode leaveAnnotCheck(ScribNode parent, ScribNode child,  AnnotationChecker checker, ScribNode visited) throws ScribbleException
+	{
+		/*Choice<?> cho = (Choice<?>) visited;
+		List<AnnotationEnv> annotEnv =
+				cho.getBlocks().stream().map((b) -> (AnnotationEnv) b.del().env()).collect(Collectors.toList());
+		AnnotationEnv merged = checker.popEnv().mergeContexts(annotEnv); 
+		checker.pushEnv(merged);*/
+		return visited;
+	}
+	
 }

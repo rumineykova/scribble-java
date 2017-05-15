@@ -51,9 +51,12 @@ import org.scribble.ast.name.simple.NonRoleParamNode;
 import org.scribble.ast.name.simple.OpNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.ast.name.simple.VarNameNode;
+import org.scribble.sesstype.kind.DataTypeKind;
 import org.scribble.sesstype.kind.Kind;
 import org.scribble.sesstype.kind.NonRoleParamKind;
 import org.scribble.sesstype.kind.PayloadTypeKind;
+import org.scribble.sesstype.kind.VarNameKind;
 import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.Role;
 
@@ -135,4 +138,7 @@ public interface AstFactory
 	LDo LDo(CommonTree source, RoleArgList roles, NonRoleArgList args, LProtocolNameNode proto);
 
 	LProtocolDecl LProjectionDecl(CommonTree source, List<ProtocolDecl.Modifiers> modifiers, GProtocolName fullname, Role self, LProtocolHeader header, LProtocolDef def);  // del extends that of LProtocolDecl 
+
+	<K extends PayloadTypeKind> AnnotPayloadElem<K> AnnotPayloadElem(CommonTree source,
+			VarNameNode varName, DataTypeNode dataType);
 }

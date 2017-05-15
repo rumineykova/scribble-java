@@ -110,6 +110,7 @@ tokens
 	ARGUMENTINSTANTIATIONLIST = 'argument-instantiation-list';
 	//ARGUMENTINSTANTIATION = 'argument-instantiation';
 	PAYLOAD = 'payload';
+	ANNOTPAYLOAD = 'annotpayload'; 
 	//PAYLOADELEMENT = 'payloadelement';
 	DELEGATION = 'delegation';
 	ROLEINSTANTIATIONLIST = 'role-instantiation-list';
@@ -335,6 +336,7 @@ parametername:    simplename;
 recursionvarname: simplename;
 rolename:         simplename;
 scopename:        simplename;
+varname: 		  simplename; 
 
 ambiguousname:
 	simplename
@@ -478,10 +480,14 @@ payloadelement:
 /*	ambiguousname  // Parser doesn't distinguish simple from qualified properly, even with backtrack
 |*/
 	qualifiedname  // This case subsumes simple names  // FIXME: ambiguousqualifiedname (or ambiguousname should just be qualified)
+| varname ':' qualifiedname
+-> 
+	^(ANNOTPAYLOAD varname qualifiedname)
 |
 	protocolname '@' rolename
 ->
 	^(DELEGATION rolename protocolname)
+
 ;
 
 

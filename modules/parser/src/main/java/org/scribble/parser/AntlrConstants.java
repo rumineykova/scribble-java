@@ -10,6 +10,7 @@ public class AntlrConstants
 
 	public static final String MESSAGESIGNATURE_NODE_TYPE = "MESSAGESIGNATURE";
 	public static final String PAYLOAD_NODE_TYPE = "PAYLOAD";
+	public static final String ANNOTPAYLOAD_NODE_TYPE = "ANNOTPAYLOAD";
 	//public static final String PAYLOADELEMENT_NODE_TYPE = "PAYLOADELEMENT";
 	public static final String DELEGATION_NODE_TYPE = "DELEGATION";
 
@@ -92,6 +93,7 @@ public class AntlrConstants
 		ARGUMENTINSTANTIATION,
 		MESSAGESIGNATURE,
 		PAYLOAD,
+		ANNOTPAYLOAD, 
 		PAYLOADELEMENT,
 		DELEGATION,
 

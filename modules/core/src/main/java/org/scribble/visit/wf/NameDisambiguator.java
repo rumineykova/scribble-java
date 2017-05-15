@@ -1,5 +1,6 @@
 package org.scribble.visit.wf;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class NameDisambiguator extends ModuleContextVisitor
 	//private int counter = 1;
 
 	private Set<Role> roles = new HashSet<>();
+	private Set<String> annotPayloads = new HashSet<>();
 	private Map<String, NonRoleParamKind> params = new HashMap<>();
 	//private Set<RecVar> recvars = new HashSet<>();
 	//private Map<RecVar, Deque<RecVar>> recvars = new HashMap<>();
@@ -89,6 +91,7 @@ public class NameDisambiguator extends ModuleContextVisitor
 		this.roles.clear();
 		this.params.clear();
 		this.recvars.clear();  // Should be unnecessary
+		this.annotPayloads.clear(); 
 		
 		//this.pds.clear();  // No: called by ProtocolDecl leaveDisambiguation (i.e. before the above leave override) -- should be unnecessary anyway
 	}
@@ -139,11 +142,21 @@ public class NameDisambiguator extends ModuleContextVisitor
 			this.recvars.put(rv, this.recvars.get(rv) + 1);
 		}
 	}
-
+	
 	public boolean isBoundRecVar(RecVar rv)
 	{
 		//return this.recvars.contains(rv);
 		return this.recvars.containsKey(rv);
+	}
+	
+	public boolean isVarnameInScope(String name)
+	{
+		return this.annotPayloads.contains(name); 
+	}
+	
+	public void addAnnotPaylaod(String name)
+	{
+		this.annotPayloads.add(name); 
 	}
 	
 	//public void removeRecVar(RecVar rv)
@@ -167,6 +180,8 @@ public class NameDisambiguator extends ModuleContextVisitor
 		}
 	}
 
+	
+	
 	/*public String getCanonicalRecVarName(RecVar rv)
 	{
 		return getCanonicalRecVarName(this.getModuleContext().root, this.root.header.getDeclName(), rv.toString() + "_" + this.recvars.get(rv));

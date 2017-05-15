@@ -2,16 +2,22 @@ package org.scribble.del.global;
 
 import java.util.List;
 
+import org.scribble.ast.MessageSigNode;
+import org.scribble.ast.MessageTransfer;
+import org.scribble.ast.PayloadElem;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GMessageTransfer;
 import org.scribble.ast.local.LNode;
 import org.scribble.del.MessageTransferDel;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.Message;
+import org.scribble.sesstype.name.PayloadType;
 import org.scribble.sesstype.name.Role;
+import org.scribble.visit.AnnotationChecker;
 import org.scribble.visit.context.Projector;
 import org.scribble.visit.wf.NameDisambiguator;
 import org.scribble.visit.wf.WFChoiceChecker;
+import org.scribble.visit.wf.env.AnnotationEnv;
 import org.scribble.visit.wf.env.WFChoiceEnv;
 
 public class GMessageTransferDel extends MessageTransferDel implements GSimpleInteractionNodeDel
@@ -73,6 +79,31 @@ public class GMessageTransferDel extends MessageTransferDel implements GSimpleIn
 		return (GMessageTransfer) GSimpleInteractionNodeDel.super.leaveProjection(parent, child, proj, gmt);
 	}
 
+	@Override
+	public MessageTransfer<?> leaveAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker, ScribNode visited) throws ScribbleException
+	{
+		AnnotationEnv env = checker.popEnv();
+		MessageTransfer<?> mt = (MessageTransfer<?>) visited;
+		if (mt.msg.isMessageSigNode())
+		{	
+			Role src = mt.src.toName();
+			List<Role> dest = mt.getDestinationRoles();   
+			
+			for (PayloadElem<?> pe : ((MessageSigNode) mt.msg).payloads.getElements())
+			{
+				PayloadType<?> peType = pe.toPayloadType(); 
+				if (peType.isAnnotPayloadDecl() || peType.isAnnotPayloadInScope())
+				{
+					env.checkIfPayloadValid(peType, src, dest)
+; 				}
+			}
+		}
+		
+		checker.pushEnv(env);
+		
+		return mt; 
+	}
+	
 	/*@Override
 	public ScribNode leaveF17Parsing(ScribNode parent, ScribNode child, F17Parser parser, ScribNode visited) throws ScribbleException
 	{

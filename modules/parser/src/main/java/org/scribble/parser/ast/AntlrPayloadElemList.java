@@ -12,6 +12,7 @@ import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.qualified.GProtocolNameNode;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.ast.name.simple.VarNameNode;
 import org.scribble.parser.AntlrConstants.AntlrNodeType;
 import org.scribble.parser.ScribParser;
 import org.scribble.parser.ast.name.AntlrAmbigName;
@@ -68,6 +69,11 @@ public class AntlrPayloadElemList
 				AmbigNameNode an = AntlrAmbigName.toAmbigNameNode(ct);
 				return AstFactoryImpl.FACTORY.UnaryPayloadElem(ct, an);
 			}
+		} else if (type == AntlrNodeType.ANNOTPAYLOAD)
+		{
+			VarNameNode var = AntlrSimpleName.toVarName(((CommonTree) ct.getChild(0)));
+			DataTypeNode dt = AntlrQualifiedName.toDataTypeNameNode((CommonTree)ct.getChild(1));
+			return AstFactoryImpl.FACTORY.AnnotPayloadElem(ct, var, dt); 
 		}
 		else
 		{

@@ -12,6 +12,7 @@ import org.scribble.ast.name.simple.OpNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.ast.name.simple.ScopeNode;
+import org.scribble.ast.name.simple.VarNameNode;
 import org.scribble.sesstype.kind.DataTypeKind;
 import org.scribble.sesstype.kind.Global;
 import org.scribble.sesstype.kind.Local;
@@ -21,6 +22,7 @@ import org.scribble.sesstype.kind.OpKind;
 import org.scribble.sesstype.kind.RecVarKind;
 import org.scribble.sesstype.kind.RoleKind;
 import org.scribble.sesstype.kind.SigKind;
+import org.scribble.sesstype.kind.VarNameKind;
 
 public class AntlrSimpleName
 {
@@ -88,5 +90,10 @@ public class AntlrSimpleName
 	public static String getName(CommonTree ct)
 	{
 		return ct.getText();
+	}
+
+	public static VarNameNode toVarName(CommonTree ct) {
+		// TODO Auto-generated method stub
+		return (VarNameNode) AstFactoryImpl.FACTORY.SimpleNameNode(ct, VarNameKind.KIND, getName(ct));
 	}
 }

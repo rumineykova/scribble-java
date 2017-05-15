@@ -16,6 +16,7 @@ import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.LProtocolName;
 import org.scribble.sesstype.name.ModuleName;
 import org.scribble.sesstype.name.Role;
+import org.scribble.visit.AnnotationChecker;
 import org.scribble.visit.AstVisitor;
 import org.scribble.visit.InlinedProtocolUnfolder;
 import org.scribble.visit.ProtocolDefInliner;
@@ -103,6 +104,8 @@ public class Job
 			{
 				runVisitorPassOnAllModules(GProtocolValidator.class);
 			}
+			
+			runVisitorPassOnAllModules(AnnotationChecker.class);
 		}
 	}
 

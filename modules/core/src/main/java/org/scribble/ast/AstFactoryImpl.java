@@ -51,6 +51,8 @@ import org.scribble.ast.name.simple.NonRoleParamNode;
 import org.scribble.ast.name.simple.OpNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.ast.name.simple.VarNameNode;
+import org.scribble.del.AnnotPayloadElemDel;
 import org.scribble.del.DefaultDel;
 import org.scribble.del.ImportModuleDel;
 import org.scribble.del.ModuleDel;
@@ -107,6 +109,7 @@ import org.scribble.sesstype.kind.PayloadTypeKind;
 import org.scribble.sesstype.kind.RecVarKind;
 import org.scribble.sesstype.kind.RoleKind;
 import org.scribble.sesstype.kind.SigKind;
+import org.scribble.sesstype.kind.VarNameKind;
 import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.Role;
 
@@ -149,6 +152,16 @@ public class AstFactoryImpl implements AstFactory
 		de = del(de, createDefaultDelegate());
 		return de;
 	}
+	
+	@Override
+	public <K extends PayloadTypeKind> AnnotPayloadElem<K> AnnotPayloadElem(CommonTree source, 
+			VarNameNode varName, DataTypeNode dataType)
+	{
+		AnnotPayloadElem<K> de= new AnnotPayloadElem<>(source, varName, dataType);
+		de = del(de, new AnnotPayloadElemDel());
+		return de;
+	}
+	
 
 	@Override
 	public GDelegationElem GDelegationElem(CommonTree source, GProtocolNameNode proto, RoleNode role)
@@ -398,12 +411,23 @@ public class AstFactoryImpl implements AstFactory
 		{
 			snn = new RoleNode(source, identifier);
 			snn = del(snn, new RoleNodeDel());
+		} 
+		else if (kind.equals(VarNameKind.KIND))
+		{
+			snn = new VarNameNode(source, identifier);
+			snn = del(snn, createDefaultDelegate()); 
 		}
+		
 		if (snn != null)
 		{
 			return castNameNode(kind, snn);
 		}
 
+		if (kind.equals(OpKind.KIND))
+		{
+			snn = new OpNode(source, identifier);
+		}
+		
 		if (kind.equals(OpKind.KIND))
 		{
 			snn = new OpNode(source, identifier);

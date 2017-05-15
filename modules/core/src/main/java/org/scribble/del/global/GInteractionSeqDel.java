@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.Choice;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GInteractionNode;
 import org.scribble.ast.global.GInteractionSeq;
@@ -16,11 +17,13 @@ import org.scribble.ast.local.LNode;
 import org.scribble.del.InteractionSeqDel;
 import org.scribble.del.ScribDelBase;
 import org.scribble.main.ScribbleException;
+import org.scribble.visit.AnnotationChecker;
 import org.scribble.visit.ProtocolDefInliner;
 import org.scribble.visit.context.Projector;
 import org.scribble.visit.context.RecRemover;
 import org.scribble.visit.context.env.ProjectionEnv;
 import org.scribble.visit.env.InlineProtocolEnv;
+import org.scribble.visit.wf.env.AnnotationEnv;
 
 public class GInteractionSeqDel extends InteractionSeqDel
 {
@@ -121,5 +124,12 @@ public class GInteractionSeqDel extends InteractionSeqDel
 						: Stream.of(gi)
 				).collect(Collectors.toList());
 		return AstFactoryImpl.FACTORY.GInteractionSeq(gis.getSource(), gins);
+	}
+	
+	@Override
+	public void enterAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker) throws ScribbleException
+	{
+		AnnotationEnv env = checker.peekEnv().enterContext();
+		checker.pushEnv(env);
 	}
 }

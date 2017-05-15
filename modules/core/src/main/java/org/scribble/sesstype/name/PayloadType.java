@@ -6,7 +6,18 @@ import org.scribble.sesstype.kind.PayloadTypeKind;
 
 public interface PayloadType<K extends PayloadTypeKind> extends Arg<K>
 {
+	
 	default boolean isDataType()
+	{
+		return false;
+	}
+	
+	default boolean isAnnotPayloadDecl()
+	{
+		return false;
+	}
+	
+	default boolean isAnnotPayloadInScope()
 	{
 		return false;
 	}
