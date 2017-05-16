@@ -1,14 +1,15 @@
 package org.scribble.model.global.actions;
 
+import org.scribble.ast.AssertionNode;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 
 public class SReceive extends SAction
 {
-	public SReceive(Role subj, Role obj, MessageId<?> mid, Payload payload)
+	public SReceive(Role subj, Role obj, MessageId<?> mid, Payload payload, AssertionNode assertion)
 	{
-		super(subj, obj, mid, payload);
+		super(subj, obj, mid, payload, assertion);
 	}
 	
 	@Override

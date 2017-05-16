@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AssertionNode;
 import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.Constants;
 import org.scribble.ast.MessageNode;
@@ -42,7 +43,7 @@ public class LReceive extends LMessageTransfer implements LSimpleInteractionNode
 	}
 
 	@Override
-	public LReceive reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests)
+	public LReceive reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion)
 	{
 		ScribDel del = del();
 		LReceive lr = new LReceive(this.source, src, msg, dests);

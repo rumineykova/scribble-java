@@ -8,7 +8,7 @@ public class SDisconnect extends SAction
 {
 	public SDisconnect(Role subj, Role obj)
 	{
-		super(subj, obj, Op.EMPTY_OPERATOR, Payload.EMPTY_PAYLOAD);
+		super(subj, obj, Op.EMPTY_OPERATOR, Payload.EMPTY_PAYLOAD, null);
 	}
 	
 	@Override

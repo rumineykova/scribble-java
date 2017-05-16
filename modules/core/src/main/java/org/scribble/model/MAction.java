@@ -1,5 +1,6 @@
 package org.scribble.model;
 
+import org.scribble.ast.AssertionNode;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.kind.ProtocolKind;
 import org.scribble.sesstype.name.MessageId;
@@ -14,20 +15,28 @@ public abstract class MAction<K extends ProtocolKind>
 	public final Role obj;
 	public final MessageId<?> mid;
 	public final Payload payload;  // EMPTY_PAYLOAD for MessageSigNames
+	public final AssertionNode assertion; 
 	
 	protected MAction(Role obj, MessageId<?> mid, Payload payload)
 	{
 		//this.id = ModelAction.count++;
-
+		this(obj, mid, payload, null); 
+	}
+	
+	protected MAction(Role obj, MessageId<?> mid, Payload payload, AssertionNode assertion)
+	{
+		//this.id = ModelAction.count++;
 		this.obj = obj;
 		this.mid = mid;
 		this.payload = payload;
+		this.assertion = assertion; 
 	}
 	
 	@Override
 	public String toString()
 	{
-		return this.obj + getCommSymbol() + this.mid + this.payload;
+		String assertionToString = this.assertion==null? "": this.assertion.toString();  
+		return this.obj + getCommSymbol() + this.mid + this.payload + assertionToString;
 	}
 
 	public String toStringWithMessageIdHack()
@@ -45,6 +54,7 @@ public abstract class MAction<K extends ProtocolKind>
 		hash = 31 * hash + this.obj.hashCode();
 		hash = 31 * hash + this.mid.hashCode();
 		hash = 31 * hash + this.payload.hashCode();
+		//hash = 31* hash + this.payload.hashCode(); 
 		return hash;
 	}
 

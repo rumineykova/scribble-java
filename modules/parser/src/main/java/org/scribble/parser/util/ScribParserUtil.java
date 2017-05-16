@@ -50,6 +50,7 @@ public class ScribParserUtil
 			case AntlrConstants.GLOBALPROTOCOLBLOCK_NODE_TYPE: return AntlrNodeType.GLOBALPROTOCOLBLOCK;
 			case AntlrConstants.GLOBALINTERACTIONSEQUENCE_NODE_TYPE: return AntlrNodeType.GLOBALINTERACTIONSEQUENCE;
 			case AntlrConstants.GLOBALMESSAGETRANSFER_NODE_TYPE: return AntlrNodeType.GLOBALMESSAGETRANSFER;
+			case AntlrConstants.ANNOTGLOBALMESSAGETRANSFER_NODE_TYPE: return AntlrNodeType.ANNOTGLOBALMESSAGETRANSFER;
 			case AntlrConstants.GLOBALCONNECT_NODE_TYPE: return AntlrNodeType.GLOBALCONNECT;
 			case AntlrConstants.GLOBALWRAP_NODE_TYPE: return AntlrNodeType.GLOBALWRAP;
 			case AntlrConstants.GLOBALDISCONNECT_NODE_TYPE: return AntlrNodeType.GLOBALDISCONNECT;

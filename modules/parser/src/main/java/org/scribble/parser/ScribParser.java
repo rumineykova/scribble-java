@@ -110,6 +110,8 @@ public class ScribParser
 				return AntlrGDisconnect.parseGDisconnect(this, ct);
 			case GLOBALMESSAGETRANSFER:
 				return AntlrGMessageTransfer.parseGMessageTransfer(this, ct);
+			case ANNOTGLOBALMESSAGETRANSFER: 
+				return AntlrGMessageTransfer.parseAnnotGMessageTransfer(this, ct);
 			case GLOBALCHOICE:
 				return AntlrGChoice.parseGChoice(this, ct);
 			case GLOBALRECURSION:

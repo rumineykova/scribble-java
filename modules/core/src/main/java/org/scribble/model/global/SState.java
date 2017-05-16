@@ -52,7 +52,8 @@ public class SState extends MPrettyState<Void, SAction, SState, Global>
 		//Set<Set<Role>> waitfor = Collections.emptySet();
 		Map<Role, Set<ESend>> orphs = this.config.getOrphanMessages();
 		Map<Role, EState> unfinished = this.config.getUnfinishedRoles();
-		return new SStateErrors(stuck, waitfor, orphs, unfinished);
+		Map<Role, EState> unsatAssertion = this.config.getUnsatAssertions(); 
+		return new SStateErrors(stuck, waitfor, orphs, unfinished, unsatAssertion);
 	}
 	
 	@Override

@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.scribble.assertions.AssertionFormula;
+import org.scribble.ast.AssertionNode;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.EStateKind;
@@ -29,15 +31,17 @@ public class SConfig
 	//public final Map<Role, EndpointState> states;
 	public final Map<Role, EFSM> efsms;
 	public final SBuffers buffs;
+	public final AssertionFormula formula;
 	
 	//public WFConfig(Map<Role, EndpointState> state, Map<Role, Map<Role, Send>> buff)
 	//public WFConfig(Map<Role, EndpointState> state, WFBuffers buffs)
-	public SConfig(Map<Role, EFSM> state, SBuffers buffs)
+	public SConfig(Map<Role, EFSM> state, SBuffers buffs, AssertionFormula formula)
 	{
 		this.efsms = Collections.unmodifiableMap(state);
 		//this.buffs = Collections.unmodifiableMap(buff.keySet().stream() .collect(Collectors.toMap((k) -> k, (k) -> Collections.unmodifiableMap(buff.get(k)))));
 		//this.buffs = Collections.unmodifiableMap(buff);
 		this.buffs = buffs;
+		this.formula = formula; 
 	}
 
 	// FIXME: rename: not just termination, could be unconnected/uninitiated
@@ -125,7 +129,16 @@ public class SConfig
 			{
 				throw new RuntimeException("Shouldn't get in here: " + a);
 			}
-			res.add(new SConfig(tmp1, tmp2));
+			
+			AssertionNode assertion = a.isSend()? null: a.assertion; 
+			
+			AssertionFormula formula = new AssertionFormula(this.formula.assertions);
+			
+			if (assertion!=null) {
+				formula.addConstraint(assertion.toString());
+			}
+			
+			res.add(new SConfig(tmp1, tmp2, formula));
 		}
 
 		return res;
@@ -163,7 +176,8 @@ public class SConfig
 				{
 					throw new RuntimeException("Shouldn't get in here: " + a1 + ", " + a2);
 				}
-				res.add(new SConfig(tmp1, tmp2));
+				
+				res.add(new SConfig(tmp1, tmp2, this.formula));
 			}
 		}
 
@@ -208,6 +222,13 @@ public class SConfig
 		}
 		return res;
 	}
+	
+	public Map<Role, EState> getUnsatAssertions() {
+		Map<Role, EState> res = new HashMap<>();
+		// for (Role r : this.efsms.keySet())
+			
+		return res; 
+	}  
 	
 	// Doesn't include locally terminated (single term state does not induce a deadlock cycle) -- i.e. only "bad" deadlocks
 	public Set<Set<Role>> getWaitForErrors()

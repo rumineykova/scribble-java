@@ -1,5 +1,6 @@
 package org.scribble.model.endpoint.actions;
 
+import org.scribble.ast.AssertionNode;
 import org.scribble.model.MAction;
 import org.scribble.model.global.actions.SAction;
 import org.scribble.sesstype.Payload;
@@ -10,14 +11,20 @@ import org.scribble.sesstype.name.Role;
 public abstract class EAction extends MAction<Local>
 {
 	public final Role peer;
+	
 	/*public final MessageId<?> mid;
 	public final Payload payload;  // Empty for MessageSigNames*/
 	
 	protected EAction(Role peer, MessageId<?> mid, Payload payload)
 	{
+		this(peer, mid, payload, null); 
+	}
+	
+	protected EAction(Role peer, MessageId<?> mid, Payload payload, AssertionNode assertion)
+	{
 		/*this.mid = mid;
 		this.payload = payload;*/
-		super(peer, mid, payload);
+		super(peer, mid, payload, assertion);
 		this.peer = peer;
 	}
 	

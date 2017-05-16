@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AssertionNode;
 import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.Constants;
 import org.scribble.ast.MessageNode;
@@ -23,15 +24,15 @@ import org.scribble.visit.context.ProjectedChoiceSubjectFixer;
 public class LSend extends LMessageTransfer
 		implements LSimpleInteractionNode  // Explicitly needed here for getKind
 {
-	public LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	public LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion)
 	{
-		super(source, src, msg, dests);
+		super(source, src, msg, dests, assertion);
 	}
 
 	@Override
 	protected ScribNodeBase copy()
 	{
-		return new LSend(this.source, this.src, this.msg, getDestinations());
+		return new LSend(this.source, this.src, this.msg, getDestinations(), this.assertion);
 	}
 	
 	@Override
@@ -40,14 +41,14 @@ public class LSend extends LMessageTransfer
 		RoleNode src = this.src.clone();
 		MessageNode msg = this.msg.clone();
 		List<RoleNode> dests = ScribUtil.cloneList(getDestinations());
-		return AstFactoryImpl.FACTORY.LSend(this.source, src, msg, dests);
+		return AstFactoryImpl.FACTORY.LSend(this.source, src, msg, dests, this.assertion);
 	}
 
 	@Override
-	public LSend reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests)
+	public LSend reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion)
 	{
 		ScribDel del = del();
-		LSend ls = new LSend(this.source, src, msg, dests);
+		LSend ls = new LSend(this.source, src, msg, dests, assertion);
 		ls = (LSend) ls.del(del);
 		return ls;
 	}

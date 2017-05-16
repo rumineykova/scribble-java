@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.scribble.ast.AssertionNode;
 import org.scribble.model.MAction;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.kind.Global;
@@ -14,9 +15,9 @@ public abstract class SAction extends MAction<Global>
 {
 	public final Role subj;
 
-	public SAction(Role subj, Role obj, MessageId<?> mid, Payload payload)
+	public SAction(Role subj, Role obj, MessageId<?> mid, Payload payload, AssertionNode assertion)
 	{
-		super(obj, mid, payload);
+		super(obj, mid, payload, assertion);
 		this.subj = subj; 
 	}
 

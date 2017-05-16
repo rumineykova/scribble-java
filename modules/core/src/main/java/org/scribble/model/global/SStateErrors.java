@@ -17,17 +17,21 @@ public class SStateErrors
 	public final Set<Set<Role>> waitFor;         // Deadlock cycles
 	public final Map<Role, Set<ESend>> orphans;  // Orphan messages
 	public Map<Role, EState> unfinished;         // Unfinished roles
+	public Map<Role, EState> unsatAssertions;   // Unsatisfiable assertion constraints
 
-	public SStateErrors(Map<Role, EReceive> receptionErrors, Set<Set<Role>> deadlocks, Map<Role, Set<ESend>> orphans, Map<Role, EState> unfinished)
+	public SStateErrors(Map<Role, EReceive> receptionErrors, Set<Set<Role>> deadlocks, 
+			Map<Role, Set<ESend>> orphans, Map<Role, EState> unfinished, Map<Role, EState> unsatAssertions)
 	{
 		this.stuck = Collections.unmodifiableMap(receptionErrors);
 		this.waitFor = Collections.unmodifiableSet(deadlocks);
 		this.orphans = Collections.unmodifiableMap(orphans);
 		this.unfinished = Collections.unmodifiableMap(unfinished);
+		this.unsatAssertions = Collections.unmodifiableMap(unsatAssertions);
 	}
 	
 	public boolean isEmpty()
 	{
-		return this.stuck.isEmpty() && this.waitFor.isEmpty() && this.orphans.isEmpty() && this.unfinished.isEmpty();
+		return this.stuck.isEmpty() && this.waitFor.isEmpty() && 
+				this.orphans.isEmpty() && this.unfinished.isEmpty() && this.unsatAssertions.isEmpty();
 	}
 }

@@ -1,5 +1,6 @@
 package org.scribble.model.endpoint.actions;
 
+import org.scribble.ast.AssertionNode;
 import org.scribble.model.global.actions.SReceive;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
@@ -30,14 +31,20 @@ public class EReceive extends EAction
 
 	public EReceive(Role peer, MessageId<?> mid, Payload payload)
 	{
-		super(peer, mid, payload);
+		super(peer, mid, payload, null);
+		//Receive.RECEIVES.add(this);
+	}
+	
+	public EReceive(Role peer, MessageId<?> mid, Payload payload, AssertionNode assertion)
+	{
+		super(peer, mid, payload, assertion);
 		//Receive.RECEIVES.add(this);
 	}
 	
 	@Override
 	public ESend toDual(Role self)
 	{
-		return new ESend(self, this.mid, this.payload);
+		return new ESend(self, this.mid, this.payload, this.assertion);
 		//return Send.get(self, this.mid, this.payload);
 	}
 
@@ -47,7 +54,7 @@ public class EReceive extends EAction
 	{
 		//return new GModelAction(this.peer, self, this.mid, this.payload);
 		////return GModelAction.get(this.peer, self, this.mid, this.payload);
-		return new SReceive(self, this.peer, this.mid, this.payload);
+		return new SReceive(self, this.peer, this.mid, this.payload, this.assertion);
 
 	}
 	

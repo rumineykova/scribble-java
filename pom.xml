@@ -61,6 +61,7 @@
 		<module>modules/cli</module>
 		<module>dist</module>
     <module>modules/demos</module>
+    <module>scribble-assertions</module>
   </modules>
   
 	<dependencyManagement>

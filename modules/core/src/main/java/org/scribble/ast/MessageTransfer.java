@@ -17,16 +17,23 @@ public abstract class MessageTransfer<K extends ProtocolKind> extends SimpleInte
 	public final RoleNode src;
 	public final MessageNode msg;  // FIXME: ambig may get resolved to an unexpected kind, e.g. DataTypeNode (cf. DoArg, PayloadElem wrappers)
 	private final List<RoleNode> dests;
+	public AssertionNode assertion; 
 
 	protected MessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	{
+		this(source, src, msg,new LinkedList<>(dests), null); 
+	}
+	
+	protected MessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion)
 	{
 		super(source);
 		this.src = src;
 		this.msg = msg;
 		this.dests = new LinkedList<>(dests);
+		this.assertion = assertion; 
 	}
 
-	public abstract MessageTransfer<K> reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests);
+	public abstract MessageTransfer<K> reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion);
 
 	@Override
 	public MessageTransfer<K> visitChildren(AstVisitor nv) throws ScribbleException
@@ -34,7 +41,7 @@ public abstract class MessageTransfer<K extends ProtocolKind> extends SimpleInte
 		RoleNode src = (RoleNode) visitChild(this.src, nv);
 		MessageNode msg = (MessageNode) visitChild(this.msg, nv);
 		List<RoleNode> dests = visitChildListWithClassEqualityCheck(this, this.dests, nv);
-		return reconstruct(src, msg, dests);
+		return reconstruct(src, msg, dests, this.assertion);
 	}
 	
 	public List<RoleNode> getDestinations()

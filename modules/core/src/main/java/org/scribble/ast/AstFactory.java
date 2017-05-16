@@ -123,7 +123,7 @@ public interface AstFactory
 	LProtocolBlock LProtocolBlock(CommonTree source, LInteractionSeq seq);
 	LInteractionSeq LInteractionSeq(CommonTree source, List<LInteractionNode> actions);
 
-	LSend LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests);
+	LSend LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion);
 	LReceive LReceive(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests);
 	LConnect LConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest);
 	LAccept LAccept(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest);
@@ -141,4 +141,9 @@ public interface AstFactory
 
 	<K extends PayloadTypeKind> AnnotPayloadElem<K> AnnotPayloadElem(CommonTree source,
 			VarNameNode varName, DataTypeNode dataType);
+
+	AssertionNode AssertionNode(CommonTree source, String assertion);
+
+	GMessageTransfer GMessageTransfer(CommonTree source, RoleNode src,
+			MessageNode msg, List<RoleNode> dests, AssertionNode assertion);
 }

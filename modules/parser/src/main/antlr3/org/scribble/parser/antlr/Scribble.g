@@ -65,6 +65,7 @@ tokens
 	NO_SCOPE = '__no_scope';
 	//EMPTY_PACKAGENAME = '__empty_packagebame';
 	EMPTY_OPERATOR = '__empty_operator';
+	EMPTY_ASSERTION = '__empty_assertion';
 
 	//EMPTY_PARAMETERDECLLIST = '__empty_parameterdecllist';
 	//EMPTY_ARGUMENTINSTANTIATIONLIST = '__empty_argumentinstantiationlist';
@@ -122,7 +123,9 @@ tokens
 	GLOBALPROTOCOLDEF = 'global-protocol-def';
 	GLOBALPROTOCOLBLOCK = 'global-protocol-block';
 	GLOBALINTERACTIONSEQUENCE = 'global-interaction-sequence';
-	GLOBALMESSAGETRANSFER = 'global-message-transfer';
+	GLOBALMESSAGETRANSFER = 'global-message-transfer'; 
+	ASSERTION = 'global-assertion'; 
+	ANNOTGLOBALMESSAGETRANSFER = 'annot-global-message-transfer'; 
 	GLOBALCONNECT = 'global-connect';
 	GLOBALDISCONNECT = 'global-disconnect';
 	GLOBALWRAP = 'global-wrap';
@@ -296,6 +299,9 @@ fragment SYMBOL:
 	'&' | '?' | '!'	| UNDERSCORE
 ;
 
+
+
+
 // Comes after SYMBOL due to an ANTLR syntax highlighting issue involving
 // quotes.
 // Parser doesn't work without quotes here (e.g. if inlined into parser rules)
@@ -303,6 +309,15 @@ EXTIDENTIFIER:
   '\"' (LETTER | DIGIT | SYMBOL)* '\"'
 	//(LETTER | DIGIT | SYMBOL)*
 ;
+
+EXPR: 
+	'[' (LETTER | DIGIT | OPSYMBOL | WHITESPACE)* ']'
+; 
+
+
+fragment OPSYMBOL: 
+	'=' | '>' | '<'  | '||' | '&&'
+;  
 
 fragment LETTER:
 	'a'..'z' | 'A'..'Z'
@@ -315,8 +330,7 @@ fragment DIGIT:
 fragment UNDERSCORE:
 	'_'
 ;
-
-
+ 
 /****************************************************************************
  * Chapter 3 Syntax (Parser rules)
  ***************************************************************************/
@@ -625,9 +639,13 @@ globalinteraction:
 globalmessagetransfer:
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 	->
-	^(GLOBALMESSAGETRANSFER message rolename rolename+)
+	^(GLOBALMESSAGETRANSFER EMPTY_ASSERTION message rolename rolename+) 
+| 
+	EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
+	->
+	^(ANNOTGLOBALMESSAGETRANSFER {AssertionsParser.ast($EXPR.text)} message rolename rolename+)
 ;
-
+	
 message:
 	messagesignature
 |

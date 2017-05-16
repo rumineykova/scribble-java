@@ -9,7 +9,7 @@ public class SAccept extends SAction
 	public SAccept(Role subj, Role obj, MessageId<?> mid, Payload payload)
 	//public GAccept(Role subj, Role obj)
 	{
-		super(subj, obj, mid, payload);
+		super(subj, obj, mid, payload, null);
 		//super(subj, obj, Op.EMPTY_OPERATOR, Payload.EMPTY_PAYLOAD);
 	}
 	

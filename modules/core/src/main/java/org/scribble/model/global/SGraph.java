@@ -13,6 +13,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.scribble.assertions.AssertionFormula;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.model.MPrettyPrint;
@@ -267,7 +268,7 @@ public class SGraph implements MPrettyPrint
 		Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().toFsm()));
 
 		SBuffers b0 = new SBuffers(efsms.keySet(), !explicit);
-		SConfig c0 = new SConfig(efsms, b0);
+		SConfig c0 = new SConfig(efsms, b0, new AssertionFormula());
 		SState init = new SState(c0);
 
 		Map<Integer, SState> seen = new HashMap<>();
@@ -376,7 +377,8 @@ public class SGraph implements MPrettyPrint
 		return graph;
 	}
 
-	private static void getNextStates(LinkedHashSet<SState> todo, Map<Integer, SState> seen, SState curr, SAction a, List<SConfig> nexts)
+	private static void getNextStates(LinkedHashSet<SState> todo, Map<Integer, SState> seen, 
+			SState curr, SAction a, List<SConfig> nexts)
 	{
 		for (SConfig next : nexts)
 		{

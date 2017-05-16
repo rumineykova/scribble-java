@@ -307,6 +307,14 @@ public class AstFactoryImpl implements AstFactory
 		gmt = del(gmt, new GMessageTransferDel());
 		return gmt;
 	}
+	
+	@Override
+	public GMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion)
+	{
+		GMessageTransfer gmt = new GMessageTransfer(source, src, msg, dests, assertion);
+		gmt = del(gmt, new GMessageTransferDel());
+		return gmt;
+	}
 
 	@Override
 	public GConnect GConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest)
@@ -561,9 +569,9 @@ public class AstFactoryImpl implements AstFactory
 	}
 
 	@Override
-	public LSend LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	public LSend LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion)
 	{
-		LSend ls = new LSend(source, src, msg, dests);
+		LSend ls = new LSend(source, src, msg, dests, assertion);
 		ls = del(ls, new LSendDel());
 		return ls;
 	}
@@ -676,5 +684,12 @@ public class AstFactoryImpl implements AstFactory
 		LProtocolDecl lpd = new LProtocolDecl(source, modifiers, header, def);
 		lpd = ScribNodeBase.del(lpd, new LProjectionDeclDel(fullname, self));
 		return lpd;
+	}
+	
+	@Override
+	public AssertionNode AssertionNode(CommonTree source, String assertion) {
+		AssertionNode node = new AssertionNode(source, assertion); 
+		node = del(node, createDefaultDelegate());
+		return node; 
 	}
 }

@@ -232,7 +232,7 @@ public class AutParser
 			case "!":
 			{
 				Payload payload = (pay != null) ? new Payload(Arrays.asList(pay).stream().map((pe) -> new DataType(pe)).collect(Collectors.toList())) : Payload.EMPTY_PAYLOAD;
-				return new ESend(new Role(peer), getMessageIdHack(msg), payload);  // FIXME: how about MessageSigNames? -- currently OK, treated as empty payload (cf. ModelAction)
+				return new ESend(new Role(peer), getMessageIdHack(msg), payload, null);  // FIXME: how about MessageSigNames? -- currently OK, treated as empty payload (cf. ModelAction)
 			}
 			case "?":
 			{

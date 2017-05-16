@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AssertionNode;
 import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.MessageSigNode;
@@ -19,9 +20,10 @@ import org.scribble.util.ScribParserException;
 
 public class AntlrGMessageTransfer
 {
-	public static final int MESSAGE_CHILD_INDEX = 0;
-	public static final int SOURCE_CHILD_INDEX = 1;
-	public static final int DESTINATION_CHILDREN_START_INDEX = 2;
+	public static final int ASSERTION_CHILD_INDEX = 0;
+	public static final int MESSAGE_CHILD_INDEX = 1;
+	public static final int SOURCE_CHILD_INDEX = 2;
+	public static final int DESTINATION_CHILDREN_START_INDEX = 3;
 
 	public static GMessageTransfer parseGMessageTransfer(ScribParser parser, CommonTree ct) throws ScribParserException
 	{
@@ -30,6 +32,16 @@ public class AntlrGMessageTransfer
 		List<RoleNode> dests = 
 			getDestChildren(ct).stream().map((d) -> AntlrSimpleName.toRoleNode(d)).collect(Collectors.toList());
 		return AstFactoryImpl.FACTORY.GMessageTransfer(ct, src, msg, dests);
+	}
+	
+	public static GMessageTransfer parseAnnotGMessageTransfer(ScribParser parser, CommonTree ct) throws ScribParserException
+	{
+		AssertionNode assertion = parseAssertion(getAssertionChild(ct));   
+		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct));
+		MessageNode msg = parseMessage(parser, getMessageChild(ct));
+		List<RoleNode> dests = 
+			getDestChildren(ct).stream().map((d) -> AntlrSimpleName.toRoleNode(d)).collect(Collectors.toList());
+		return AstFactoryImpl.FACTORY.GMessageTransfer(ct, src, msg, dests, assertion);
 	}
 
 	protected static MessageNode parseMessage(ScribParser parser, CommonTree ct) throws ScribParserException
@@ -60,5 +72,15 @@ public class AntlrGMessageTransfer
 	public static List<CommonTree> getDestChildren(CommonTree ct)
 	{
 		return ScribParserUtil.toCommonTreeList(ct.getChildren().subList(DESTINATION_CHILDREN_START_INDEX, ct.getChildCount()));
+	}
+	
+	public static CommonTree getAssertionChild(CommonTree ct)
+	{
+		return (CommonTree) ct.getChild(ASSERTION_CHILD_INDEX);
+	}
+	
+	public static AssertionNode parseAssertion(CommonTree ct)
+	{
+		return AstFactoryImpl.FACTORY.AssertionNode(ct, ct.getText());
 	}
 }

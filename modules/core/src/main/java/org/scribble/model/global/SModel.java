@@ -67,6 +67,10 @@ public class SModel
 			{
 				errorMsg += "\n    Unfinished roles: " + errors.unfinished;
 			}
+			if (!errors.unsatAssertions.isEmpty())
+			{
+				errorMsg += "\n Unsatisfieable constraints " + errors.unsatAssertions;
+			}
 		}
 		job.debugPrintln("(" + this.graph.proto + ") Checked all states: " + count);  // May include unsafe states
 		//*/

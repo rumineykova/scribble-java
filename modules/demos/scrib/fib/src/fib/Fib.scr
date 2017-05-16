@@ -10,20 +10,23 @@ type <java> "java.lang.Long" from "rt.jar" as Long;
 
 global protocol Adder(role C, role S)
 {
+	[x>10 && y<10]
+	ADD(x:Integer) from C to S;
 	//rec X
 	//{
-		choice at C
-		{
-			ADD(x:Integer) from C to S;
-			RES(x) from S to C;
+	//	choice at C
+	//	{
+	//		[x>10 && y<10]
+	//		ADD(x:Integer) from C to S;
+	//		RES(x) from S to C;
 			//continue X;
-		}
-		or
-		{		
-			RES(y:Integer) from C to S;
+	//	}
+	//	or
+	//	{		
+	//		RES(y:Integer) from C to S;
 			//BYE() from C to S;
 			//BYE() from S to C;
-		}
+	//	}
 	//}
 	
 	// Add use case
