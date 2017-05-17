@@ -3,6 +3,8 @@ package org.scribble.ast;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.assertions.CompFormula;
+import org.scribble.assertions.StmFormula;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GConnect;
 import org.scribble.ast.global.GContinue;
@@ -146,4 +148,5 @@ public interface AstFactory
 
 	GMessageTransfer GMessageTransfer(CommonTree source, RoleNode src,
 			MessageNode msg, List<RoleNode> dests, AssertionNode assertion);
+
 }

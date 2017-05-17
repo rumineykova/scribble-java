@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.assertions.AssertionFormula;
+import org.scribble.assertions.FormulaUtil;
 import org.scribble.ast.AssertionNode;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.EState;
@@ -25,6 +26,8 @@ import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.model.endpoint.actions.EWrapClient;
 import org.scribble.model.endpoint.actions.EWrapServer;
 import org.scribble.sesstype.name.Role;
+import org.sosy_lab.java_smt.api.BooleanFormula;
+import org.sosy_lab.java_smt.api.Formula;
 
 public class SConfig
 {
@@ -130,15 +133,22 @@ public class SConfig
 				throw new RuntimeException("Shouldn't get in here: " + a);
 			}
 			
-			AssertionNode assertion = a.isSend()? null: a.assertion; 
+			AssertionNode assertion = a.isSend()? a.assertion: null; 
 			
-			AssertionFormula formula = new AssertionFormula(this.formula.assertions);
-			
+			AssertionFormula newFormula = null; 
+		
 			if (assertion!=null) {
-				formula.addConstraint(assertion.toString());
+				BooleanFormula currFormula = new AssertionFormula(assertion.getSource()).getZ3Formula();
+				
+				newFormula = this.formula==null || this.formula.getZ3Formula()==null?
+						new AssertionFormula(currFormula):
+						new AssertionFormula(currFormula, this.formula.getZ3Formula()); 
 			}
 			
-			res.add(new SConfig(tmp1, tmp2, formula));
+			// maybe we require a copy this.formula here?
+			AssertionFormula nextFormula = newFormula==null?  this.formula : newFormula;   
+			
+			res.add(new SConfig(tmp1, tmp2, nextFormula));
 		}
 
 		return res;
@@ -225,9 +235,32 @@ public class SConfig
 	
 	public Map<Role, EState> getUnsatAssertions() {
 		Map<Role, EState> res = new HashMap<>();
-		// for (Role r : this.efsms.keySet())
-			
-		return res; 
+		for (Role r : this.efsms.keySet())
+		{
+			Set<ESend> unsafStates = new HashSet<ESend>(); 
+			EFSM s = this.efsms.get(r);
+			for (EAction action : s.getAllFireable())  
+			{
+				if (action.isSend()) {
+					ESend send = (ESend)action;
+					AssertionNode assertion = send.assertion; 
+					if (assertion !=null)
+					{
+						AssertionFormula formula = new AssertionFormula(assertion.getSource()); 
+						BooleanFormula context = this.formula==null? null:this.formula.getZ3Formula();  
+						if (!formula.IsValid(context)) {
+							unsafStates.add(send); 
+						}
+					}
+				}
+				if (!unsafStates.isEmpty())
+				{
+					res.put(r, this.efsms.get(r).curr);
+				}
+				unsafStates.clear();
+			}
+		}
+		return res;
 	}  
 	
 	// Doesn't include locally terminated (single term state does not induce a deadlock cycle) -- i.e. only "bad" deadlocks

@@ -4,6 +4,7 @@ options
 {
 	language = Java;
 	output = AST;
+	ASTLabelType = CommonTree;
 	//backtrack = true;  // backtracking disabled by default? Is it bad to require this option?
 	//memoize = true;
 }
@@ -11,10 +12,12 @@ options
 tokens {
 	ROOT = 'root-node'; 
 	BEXPR = 'binary-expr-node'; 
-	AEXPR = 'arithmetic-expr';  
-	CEXPR = 'compare-expr'; 
+	AEXPR = 'arithmetic-expr'; 
+	BOPNODE = 'binary-op-node'; 
+	CEXPR = 'compare-expr-node'; 
+	VAR = 'var-node'; 
+	VALUE = 'value-node'; 
 }
-
 
 @parser::header
 {
@@ -108,8 +111,8 @@ compexpr: expr COMP expr ->
 
 expr: 
 	variable OP NUMBER -> ^(AEXPR OP variable NUMBER)
-|	variable -> variable
-|	NUMBER -> NUMBER	
+|	variable -> ^(VAR variable)
+|	NUMBER -> ^(VALUE NUMBER)	
 ; 
  
 
