@@ -1,0 +1,117 @@
+module good.extensions.assertions.DbCHistorySensititivy;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Integer;
+type <java> "java.lang.Long" from "rt.jar" as Long;
+
+
+/*
+global protocol Prot(role C, role S)
+{
+	[x<10]
+	ADD(x:Integer) from C to S;
+	
+	[y<10 && x=y]
+	ADD(y:Integer) from C to S;
+}*/
+
+/*
+History Sensitivity
+global protocol Prot(role A, role B, role C)
+{
+	MSG(x:Integer) from A to B;
+	
+	MSG(y:Integer) from B to C;
+	
+	[z>x]
+	MSG(z:Integer) from C to A;
+}*/
+
+/* Temporal Satisfiability
+global protocol Prot(role A, role B)
+{
+	[x<10]
+	MSG(x:Integer) from A to B;
+	[x>y && y>6]
+	MSG(y:Integer) from B to A;
+}*/
+
+
+/*
+//Reverse Temporal Satisfiability that works
+// The checker does not terminate ...why?
+global protocol Prot(role A, role B)
+{
+	[x<10]
+	MSG(x:Integer) from A to B;
+	
+	[x>y && y<6]
+	MSG(y:Integer) from B to A;
+}*/
+
+/*
+// Simple check on that assertion variables are in scope
+global protocol Prot(role A, role B)
+{
+	[x<10]
+	MSG1(x:Integer) from A to B;
+
+}*/
+
+/*
+// using different constraints in choice
+global protocol Prot(role A, role B)
+{
+choice at A {
+	[x<10]
+	MSG1(x:Integer) from A to B;
+	
+	} or {
+	[y>10]
+	MSG2(y:Integer) from A to B;
+	}
+}*/
+
+
+/*
+// Check history sensitivity in choice
+// Does not work for some reason
+global protocol Prot(role A, role B)
+{
+choice at A {
+	[x<10]
+	MSG1(x:Integer) from A to B;
+	
+	} or {
+	[y>x]
+	MSG2(y:Integer) from A to B;
+	}
+}*/
+
+/*
+global protocol Prot(role A, role B)
+{
+rec Loop {
+	choice at A {
+	[x<10]
+	MSG1(x:Integer) from A to B;
+	
+	} or {
+	[y>10]
+	MSG2(y:Integer) from A to B;
+	continue Loop; 
+	}
+}
+}*/
+
+/* Check the message flow
+global protocol Prot(role A, role B, role C, role D)
+{	[x>10]
+	MSG1(x:Integer, y:Integer) from A to B;
+	
+	MSG1(x, y) from B to C;
+	
+	[z<x]
+	MSG1(z:Integer) from C to D;
+}*/
+

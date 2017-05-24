@@ -1,0 +1,80 @@
+module good.extensions.annotations.RepeatedPayloads;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Integer;
+type <java> "java.lang.Long" from "rt.jar" as Long;
+
+
+// Repeated Payloads error
+global protocol Prot(role C, role S)
+{
+	ADD(x:Integer) from C to S;
+	RES(x:Integer) from C to S; 
+}
+
+/*
+global protocol Prot(role A, role B, role C)
+{
+rec Loop {
+	choice at A {
+		ADD(x:Integer) from A to B;  
+		ADD(z:Integer) from B to C;
+		 
+	} or {
+		RES(y:Integer) from A to B;
+		RES(z:Integer) from B to C; 
+		continue Loop;
+		}
+	}
+	
+	RES(z) from B to C; 
+}
+*/
+/*
+// Complicated Message flow
+global protocol Prot(role S, role B, role C, role D)
+{
+	ADD(x:Integer) from C to S;
+	Add(x) from S to B; 
+	
+	ADD(x) from C to B;
+	
+	Add(y:Integer) from C to D; 
+	
+	Add(x) from B to D; 
+	
+	Add(y) from D to S;  
+}*/
+
+/*
+global protocol Prot(role A, role B, role C)
+{
+	choice at A {
+		ADD(x:Integer) from A to B;  
+		ADD(z:Integer) from B to C;  
+	} or {
+		RES(y:Integer) from A to B;
+		RES(z:Integer) from B to C;
+	}
+
+	// RES(y) from B to C; - is not ok 
+	RES(y) from B to C; 
+}
+*/
+/*
+global protocol Prot(role A, role B, role C)
+{
+rec Loop {
+	choice at A {
+		ADD(x:Integer) from A to B;  
+		ADD(z:Integer) from B to C;
+		 
+	} or {
+		RES(y:Integer) from A to B;
+		RES(z:Integer) from B to C; 
+		continue Loop;
+		}
+	}
+	
+	RES(z) from B to C; 
+}*/

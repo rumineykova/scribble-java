@@ -1,0 +1,19 @@
+module good.extensions.annotations.Chioce;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Integer;
+type <java> "java.lang.Long" from "rt.jar" as Long;
+
+
+global protocol Prot(role A, role B, role C)
+{
+	choice at A {
+		ADD(x:Integer) from A to B;  
+		ADD(z:Integer) from B to C;  
+	} or {
+		RES(y:Integer) from A to B;
+		RES(z:Integer) from B to C;
+	}
+
+	RES(y) from B to C; 
+}
