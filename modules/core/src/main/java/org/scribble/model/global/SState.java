@@ -53,7 +53,8 @@ public class SState extends MPrettyState<Void, SAction, SState, Global>
 		Map<Role, Set<ESend>> orphs = this.config.getOrphanMessages();
 		Map<Role, EState> unfinished = this.config.getUnfinishedRoles();
 		Map<Role, EState> unsatAssertion = this.config.getUnsatAssertions(); 
-		return new SStateErrors(stuck, waitfor, orphs, unfinished, unsatAssertion);
+		Map<Role, EState> varsNotInScope = this.config.checkHistorySensitivity();
+		return new SStateErrors(stuck, waitfor, orphs, unfinished, unsatAssertion, varsNotInScope);
 	}
 	
 	@Override

@@ -1,5 +1,12 @@
 package org.scribble.assertions;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.sosy_lab.common.ShutdownManager;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
@@ -13,7 +20,9 @@ import org.sosy_lab.java_smt.api.Formula;
 import org.sosy_lab.java_smt.api.FormulaManager;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.Model;
+import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 import org.sosy_lab.java_smt.api.ProverEnvironment;
+import org.sosy_lab.java_smt.api.QuantifiedFormulaManager;
 import org.sosy_lab.java_smt.api.SolverContext;
 import org.sosy_lab.java_smt.api.SolverContext.ProverOptions;
 import org.sosy_lab.java_smt.api.SolverException;
@@ -23,6 +32,8 @@ public class FormulaUtil {
 	public final FormulaManager fmanager;    
 	public final BooleanFormulaManager bmanager; 
 	public final IntegerFormulaManager imanager; 
+	public final QuantifiedFormulaManager qmanager; 
+	
 	public final SolverContext context; 
 	protected FormulaUtil() throws InvalidConfigurationException{
 		Configuration config = Configuration.defaultConfiguration(); // fromCmdLineArguments([]);
@@ -36,6 +47,7 @@ public class FormulaUtil {
 	        config, logger, shutdown.getNotifier(), Solvers.Z3);
 	    
 	    fmanager = context.getFormulaManager();
+	    this.qmanager = fmanager.getQuantifiedFormulaManager(); 
 	    this.bmanager = fmanager.getBooleanFormulaManager();
 	    this.imanager = fmanager.getIntegerFormulaManager();
 	}
@@ -53,26 +65,59 @@ public class FormulaUtil {
 	      return instance;
 	   }
 	
-	public BooleanFormula addFormula(BooleanFormula f1, BooleanFormula f2){
-		return this.bmanager.and(f1, f2); 
+	public AssertionLogFormula addFormula(StmFormula f1, StmFormula f2) throws AssertionException{
+		BooleanFormula formula = this.bmanager.and((BooleanFormula)f1.getFormula(), (BooleanFormula)f2.getFormula());
+		Set<String> vars = new HashSet<String>(f1.getVars()); 
+		vars.addAll(f2.getVars()); 
+		return new AssertionLogFormula(formula, vars); 
 	}
 	
-	public Boolean IsValid(BooleanFormula f1, BooleanFormula context) {
-		boolean isUnsat = false;   
-		 BooleanFormula formula = context==null? f1 : this.bmanager.implication(f1, context);
-		 
-		 try (ProverEnvironment prover = this.context.newProverEnvironment(ProverOptions.GENERATE_UNSAT_CORE)) {
-		        prover.addConstraint(formula);
-		        isUnsat = prover.isUnsat();
-		        System.out.print(isUnsat);
-		        
-		        if (!isUnsat) {
-		          Model model = prover.getModel();
-		        }
-		      }
-		 catch (SolverException e) {}
-		 catch (InterruptedException e) {}
-		 
-		 return  !isUnsat; 
+	public Boolean isSat(StmFormula assertionFormula, AssertionLogFormula context) {
+		BooleanFormula currFormula;
+		boolean isUnsat = false;
+		try {
+			currFormula = (BooleanFormula) assertionFormula.getFormula();
+			List<IntegerFormula> contextVars; 
+			List<IntegerFormula> vars;
+			Set<String> setVars = assertionFormula.getVars(); 
+						
+			BooleanFormula formula; 
+			if (context!=null)
+			{
+				setVars.removeAll(context.getVars());
+				vars = this.makeVars(new ArrayList<String>(setVars));
+				
+				BooleanFormula contextF = (BooleanFormula) context.getFormula(); 
+				contextVars = this.makeVars(new ArrayList<String>(context.getVars()));
+				formula = vars.isEmpty()?
+						this.qmanager.forall(contextVars, this.bmanager.implication(contextF, currFormula)):
+						this.qmanager.forall(contextVars, 
+											this.bmanager.implication(contextF, 
+												this.qmanager.exists(vars, currFormula)));  
+					
+			} else {
+				vars = this.makeVars(new ArrayList<String>(setVars));
+				formula = vars.isEmpty()? 
+							currFormula:	
+							this.qmanager.exists(vars, currFormula);
+			}
+		
+		try (ProverEnvironment prover = this.context.newProverEnvironment(ProverOptions.GENERATE_UNSAT_CORE)) {
+	        prover.addConstraint(formula);
+	        isUnsat = prover.isUnsat();
+	        
+	        if (!isUnsat) {
+	          Model model = prover.getModel();
+	        }
+	      }
+		catch (SolverException e) {}
+		catch (InterruptedException e) {}
+		}
+		catch (AssertionException e1) {}
+		
+		return  !isUnsat;
+	}
+	public List<IntegerFormula> makeVars(List<String> vars) {
+		return  vars.stream().map(v -> this.imanager.makeVariable(v)).collect(Collectors.toList()); 
 	}
 }

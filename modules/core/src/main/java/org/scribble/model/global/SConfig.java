@@ -9,10 +9,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import org.scribble.assertions.AssertionException;
 import org.scribble.assertions.AssertionFormula;
+import org.scribble.assertions.AssertionLogFormula;
 import org.scribble.assertions.FormulaUtil;
+import org.scribble.assertions.StmFormula;
 import org.scribble.ast.AssertionNode;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.EState;
@@ -25,26 +29,30 @@ import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.model.endpoint.actions.EWrapClient;
 import org.scribble.model.endpoint.actions.EWrapServer;
+import org.scribble.sesstype.kind.PayloadTypeKind;
+import org.scribble.sesstype.name.PayloadType;
 import org.scribble.sesstype.name.Role;
-import org.sosy_lab.java_smt.api.BooleanFormula;
-import org.sosy_lab.java_smt.api.Formula;
+import org.scribble.sesstype.AnnotPayload;
+import org.scribble.sesstype.name.VarName;
 
 public class SConfig
 {
 	//public final Map<Role, EndpointState> states;
 	public final Map<Role, EFSM> efsms;
 	public final SBuffers buffs;
-	public final AssertionFormula formula;
+	public final AssertionLogFormula formula;
+	public final Map<Role, Set<String>> variablesInScope; 
 	
 	//public WFConfig(Map<Role, EndpointState> state, Map<Role, Map<Role, Send>> buff)
 	//public WFConfig(Map<Role, EndpointState> state, WFBuffers buffs)
-	public SConfig(Map<Role, EFSM> state, SBuffers buffs, AssertionFormula formula)
+	public SConfig(Map<Role, EFSM> state, SBuffers buffs, AssertionLogFormula formula, Map<Role, Set<String>> variablesInScope)
 	{
 		this.efsms = Collections.unmodifiableMap(state);
 		//this.buffs = Collections.unmodifiableMap(buff.keySet().stream() .collect(Collectors.toMap((k) -> k, (k) -> Collections.unmodifiableMap(buff.get(k)))));
 		//this.buffs = Collections.unmodifiableMap(buff);
 		this.buffs = buffs;
 		this.formula = formula; 
+		this.variablesInScope = Collections.unmodifiableMap(variablesInScope);
 	}
 
 	// FIXME: rename: not just termination, could be unconnected/uninitiated
@@ -135,20 +143,51 @@ public class SConfig
 			
 			AssertionNode assertion = a.isSend()? a.assertion: null; 
 			
-			AssertionFormula newFormula = null; 
+			AssertionLogFormula newFormula = null; 
 		
 			if (assertion!=null) {
-				BooleanFormula currFormula = new AssertionFormula(assertion.getSource()).getZ3Formula();
+				StmFormula currFormula = new AssertionFormula(assertion.getSource()).getFormula();
 				
-				newFormula = this.formula==null || this.formula.getZ3Formula()==null?
-						new AssertionFormula(currFormula):
-						new AssertionFormula(currFormula, this.formula.getZ3Formula()); 
+				try {
+					newFormula = this.formula==null?
+							new AssertionLogFormula(currFormula.getFormula(), currFormula.getVars()):
+							this.formula.addFormula(currFormula);
+				} catch (AssertionException e) {
+					throw new RuntimeException("cannot parse the asserion"); 
+				} 
 			}
 			
 			// maybe we require a copy this.formula here?
-			AssertionFormula nextFormula = newFormula==null?  this.formula : newFormula;   
+			AssertionLogFormula nextFormula = newFormula==null?  this.formula : newFormula;   
 			
-			res.add(new SConfig(tmp1, tmp2, nextFormula));
+			Map<Role, Set<String>> vars =  new HashMap<Role, Set<String>>(this.variablesInScope); 
+			
+			if (a.isSend()) {
+				for (PayloadType<? extends PayloadTypeKind> elem: a.payload.elems)
+				{
+					if (elem.isAnnotPayloadDecl() || elem.isAnnotPayloadInScope()) {
+						String varName; 
+						if (elem.isAnnotPayloadDecl()){
+							varName = ((AnnotPayload)elem).varName.toString(); 
+							
+							if (!vars.containsKey(r)) {
+								vars.put(r, new HashSet<String>()); 
+							}
+							vars.get(r).add(varName);
+							
+						} else { 
+							varName = ((VarName)elem).toString();}
+						
+						if (!vars.containsKey(a.obj)) {
+							vars.put(a.obj, new HashSet<String>()); 
+						}
+						
+						vars.get(a.obj).add(varName);
+						}
+					}
+			}  
+			
+			res.add(new SConfig(tmp1, tmp2, nextFormula, vars));
 		}
 
 		return res;
@@ -187,7 +226,7 @@ public class SConfig
 					throw new RuntimeException("Shouldn't get in here: " + a1 + ", " + a2);
 				}
 				
-				res.add(new SConfig(tmp1, tmp2, this.formula));
+				res.add(new SConfig(tmp1, tmp2, this.formula, this.variablesInScope));
 			}
 		}
 
@@ -247,8 +286,7 @@ public class SConfig
 					if (assertion !=null)
 					{
 						AssertionFormula formula = new AssertionFormula(assertion.getSource()); 
-						BooleanFormula context = this.formula==null? null:this.formula.getZ3Formula();  
-						if (!formula.IsValid(context)) {
+						if (!FormulaUtil.getInstance().isSat(formula.getFormula(), this.formula)) {
 							unsafStates.add(send); 
 						}
 					}
@@ -261,7 +299,47 @@ public class SConfig
 			}
 		}
 		return res;
-	}  
+	}
+	
+	// For now we are checking that only the sender knows all variables. 
+	public Map<Role, EState> checkHistorySensitivity() {
+		Map<Role, EState> res = new HashMap<>();
+		for (Role r : this.efsms.keySet())
+		{
+			Set<ESend> unknownVars = new HashSet<ESend>(); 
+			EFSM s = this.efsms.get(r);
+			for (EAction action : s.getAllFireable())  
+			{
+				if (action.isSend()) {
+					ESend send = (ESend)action;
+					AssertionNode assertion = send.assertion;
+					
+					Set<String> newVarNames = send.payload.elems.stream()
+							.filter(v-> v.isAnnotPayloadDecl())
+							.map(v -> ((AnnotPayload)v).varName.toString())
+							.collect(Collectors.toSet()); 
+					
+					if (assertion !=null)
+					{
+						AssertionFormula formula = new AssertionFormula(assertion.getSource());
+						Set<String> varNames = formula.getFormula().getVars();
+						varNames.removeAll(newVarNames); 
+						if ((!varNames.isEmpty()) && (!this.variablesInScope.containsKey(r) ||
+							 !this.variablesInScope.get(r).containsAll(varNames)))
+							unknownVars.add(send); 
+					}
+				}
+				if (!unknownVars.isEmpty())
+				{
+					res.put(r, this.efsms.get(r).curr);
+				}
+				
+				unknownVars.clear();
+			}
+		}
+		return res;
+	}
+	
 	
 	// Doesn't include locally terminated (single term state does not induce a deadlock cycle) -- i.e. only "bad" deadlocks
 	public Set<Set<Role>> getWaitForErrors()

@@ -71,6 +71,10 @@ public class SModel
 			{
 				errorMsg += "\n Unsatisfieable constraints " + errors.unsatAssertions;
 			}
+			if (!errors.varsNotInScope.isEmpty())
+			{
+				errorMsg += "\n Assertion variables are not in scope " + errors.varsNotInScope;
+			}
 		}
 		job.debugPrintln("(" + this.graph.proto + ") Checked all states: " + count);  // May include unsafe states
 		//*/

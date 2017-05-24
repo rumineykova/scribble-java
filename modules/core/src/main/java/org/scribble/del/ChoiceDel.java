@@ -56,4 +56,14 @@ public abstract class ChoiceDel extends CompoundInteractionNodeDel
 		checker.pushEnv(merged);
 		return (Choice<?>) super.leaveExplicitCorrelationCheck(parent, child, checker, visited);  // Done merge of children here, super does merge into parent	
 	}
+	
+	
+	@Override
+	public void enterAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker) throws ScribbleException
+	{
+		AnnotationEnv env = checker.peekEnv().enterContext();
+		checker.pushEnv(env);
+	}
+	
+	
 }

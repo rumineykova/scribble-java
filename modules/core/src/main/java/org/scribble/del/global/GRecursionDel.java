@@ -8,7 +8,9 @@ import org.scribble.ast.local.LProtocolBlock;
 import org.scribble.ast.local.LRecursion;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.RecursionDel;
+import org.scribble.del.ScribDelBase;
 import org.scribble.main.ScribbleException;
+import org.scribble.visit.AnnotationChecker;
 import org.scribble.visit.ProtocolDefInliner;
 import org.scribble.visit.context.Projector;
 import org.scribble.visit.context.env.ProjectionEnv;
@@ -50,4 +52,16 @@ public class GRecursionDel extends RecursionDel implements GCompoundInteractionN
 		proj.pushEnv(proj.popEnv().setProjection(projection));
 		return (GRecursion) GCompoundInteractionNodeDel.super.leaveProjection(parent, child, proj, gr);
 	}
+	
+	/*@Override
+	public void enterAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker) throws ScribbleException
+	{
+		ScribDelBase.pushVisitorEnv(this, checker);
+	}
+	
+	@Override
+	public GRecursion leaveAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker, ScribNode visited) throws ScribbleException
+	{
+		return (GRecursion) ScribDelBase.popAndSetVisitorEnv(this, checker, visited);
+	}*/
 }

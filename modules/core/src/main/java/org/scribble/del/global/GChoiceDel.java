@@ -155,14 +155,15 @@ public class GChoiceDel extends ChoiceDel implements GCompoundInteractionNodeDel
 	}
 	
 	@Override
-	public ScribNode leaveAnnotCheck(ScribNode parent, ScribNode child,  AnnotationChecker checker, ScribNode visited) throws ScribbleException
+	public GChoice leaveAnnotCheck(ScribNode parent, ScribNode child,  AnnotationChecker checker, ScribNode visited) throws ScribbleException
 	{
-		/*Choice<?> cho = (Choice<?>) visited;
-		List<AnnotationEnv> annotEnv =
+		GChoice cho = (GChoice) visited;
+		
+		List<AnnotationEnv> benvs =
 				cho.getBlocks().stream().map((b) -> (AnnotationEnv) b.del().env()).collect(Collectors.toList());
-		AnnotationEnv merged = checker.popEnv().mergeContexts(annotEnv); 
-		checker.pushEnv(merged);*/
-		return visited;
+		AnnotationEnv merged = checker.popEnv().mergeContexts(benvs); 
+		checker.pushEnv(merged);
+		return (GChoice) super.leaveAnnotCheck(parent, child, checker, visited);  // Done merge of children here, super does merge into parent	
 	}
 	
 }

@@ -2,6 +2,7 @@ package org.scribble.del.global;
 
 import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.ScribNode;
+import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GInteractionSeq;
 import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.ast.local.LInteractionSeq;
@@ -9,10 +10,12 @@ import org.scribble.ast.local.LProtocolBlock;
 import org.scribble.del.ProtocolBlockDel;
 import org.scribble.del.ScribDelBase;
 import org.scribble.main.ScribbleException;
+import org.scribble.visit.AnnotationChecker;
 import org.scribble.visit.ProtocolDefInliner;
 import org.scribble.visit.context.Projector;
 import org.scribble.visit.context.env.ProjectionEnv;
 import org.scribble.visit.env.InlineProtocolEnv;
+import org.scribble.visit.wf.env.AnnotationEnv;
 
 public class GProtocolBlockDel extends ProtocolBlockDel
 {
@@ -42,5 +45,21 @@ public class GProtocolBlockDel extends ProtocolBlockDel
 		LProtocolBlock projection = gpb.project(proj.peekSelf(), seq);
 		proj.pushEnv(proj.popEnv().setProjection(projection));
 		return (GProtocolBlock) ScribDelBase.popAndSetVisitorEnv(this, proj, gpb);
+	}
+	
+	@Override
+	public void enterAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker) throws ScribbleException
+	{
+		if (parent instanceof GChoice) {
+			ScribDelBase.pushVisitorEnv(this, checker);
+		}
+	}
+	
+	@Override
+	public GProtocolBlock leaveAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker, ScribNode visited) throws ScribbleException
+	{
+		return (parent instanceof GChoice)?
+			(GProtocolBlock) ScribDelBase.popAndSetVisitorEnv(this, checker, visited):
+			(GProtocolBlock)visited; 
 	}
 }

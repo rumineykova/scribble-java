@@ -15,6 +15,7 @@ public class BoolFormula extends StmFormula {
 	BoolOp op; 
 	StmFormula left; 
 	StmFormula right; 
+	BooleanFormula formula; 
 	
 	public BoolFormula(String op, StmFormula left, StmFormula right)
 	{
@@ -28,6 +29,8 @@ public class BoolFormula extends StmFormula {
 			this.op = BoolOp.Or;
 			break;
 		}
+		
+		
 	}
 	
 	@Override
@@ -36,7 +39,7 @@ public class BoolFormula extends StmFormula {
 	}
 	
 	@Override
-	public Formula toFormula() throws AssertionException {
+	protected BooleanFormula toFormula() throws AssertionException {
 		BooleanFormulaManager fmanager = FormulaUtil.getInstance().bmanager;
 		BooleanFormula bleft = (BooleanFormula) this.left.toFormula();
 		BooleanFormula bright = (BooleanFormula) this.right.toFormula();
@@ -62,5 +65,4 @@ public class BoolFormula extends StmFormula {
 		And, 
 		Or
 	}
-	
 }
