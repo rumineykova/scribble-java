@@ -8,11 +8,8 @@ import org.scribble.ast.ScribNode;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.kind.PayloadTypeKind;
-import org.scribble.sesstype.kind.ProtocolKind;
 import org.scribble.sesstype.name.PayloadType;
 import org.scribble.visit.wf.env.AnnotationEnv;
-import org.scribble.visit.wf.env.ExplicitCorrelationEnv;
-import org.scribble.visit.wf.env.ReachabilityEnv;
 
 
 // By default, EnvVisitor only manipulates internal Env stack -- so AST/dels not affected

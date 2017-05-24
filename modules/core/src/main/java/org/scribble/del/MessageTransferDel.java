@@ -1,9 +1,5 @@
 package org.scribble.del;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.scribble.ast.MessageSigNode;
 import org.scribble.ast.MessageTransfer;
@@ -13,16 +9,12 @@ import org.scribble.ast.global.GDelegationElem;
 import org.scribble.del.global.GDelegationElemDel;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.name.MessageId;
-import org.scribble.sesstype.name.PayloadType;
-import org.scribble.sesstype.name.Role;
-import org.scribble.visit.AnnotationChecker;
 import org.scribble.visit.InlinedProtocolUnfolder;
 import org.scribble.visit.ProtocolDefInliner;
 import org.scribble.visit.context.ProtocolDeclContextBuilder;
 import org.scribble.visit.env.UnfoldingEnv;
 import org.scribble.visit.util.MessageIdCollector;
 import org.scribble.visit.util.RoleCollector;
-import org.scribble.visit.wf.env.AnnotationEnv;
 
 public abstract class MessageTransferDel extends SimpleInteractionNodeDel
 {

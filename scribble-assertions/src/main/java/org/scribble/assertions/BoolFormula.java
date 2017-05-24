@@ -1,14 +1,10 @@
 package org.scribble.assertions;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.BooleanFormulaManager;
-import org.sosy_lab.java_smt.api.Formula;
-import org.sosy_lab.java_smt.api.FormulaManager;
-import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 
 public class BoolFormula extends StmFormula {
 

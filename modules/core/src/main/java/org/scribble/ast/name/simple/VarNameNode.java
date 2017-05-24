@@ -6,17 +6,12 @@ import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.PayloadElemNameNode;
 import org.scribble.sesstype.Arg;
-import org.scribble.sesstype.kind.Kind;
 import org.scribble.sesstype.kind.NonRoleArgKind;
-import org.scribble.sesstype.kind.RecVarKind;
-import org.scribble.sesstype.kind.VarNameKind;
-import org.scribble.sesstype.name.Name;
-import org.scribble.sesstype.name.PayloadType;
-import org.scribble.sesstype.name.RecVar;
-import org.scribble.sesstype.name.VarName;
+import org.scribble.sesstype.kind.AnnotVarNameKind;
+import org.scribble.sesstype.name.AnnotVarName;
 
 // Parser Identifier
-public class VarNameNode extends SimpleNameNode<VarNameKind> implements PayloadElemNameNode<VarNameKind>
+public class VarNameNode extends SimpleNameNode<AnnotVarNameKind> implements PayloadElemNameNode<AnnotVarNameKind>
 {
 	public VarNameNode(CommonTree source, String identifier)
 	{
@@ -29,13 +24,13 @@ public class VarNameNode extends SimpleNameNode<VarNameKind> implements PayloadE
 	}
 
 	@Override
-	public VarName toName() {
-		return new VarName(getIdentifier());
+	public AnnotVarName toName() {
+		return new AnnotVarName(getIdentifier());
 	}
 
 	@Override
-	public NameNode<VarNameKind> clone() {
-		return (VarNameNode) AstFactoryImpl.FACTORY.SimpleNameNode(this.source, VarNameKind.KIND, getIdentifier());
+	public NameNode<AnnotVarNameKind> clone() {
+		return (VarNameNode) AstFactoryImpl.FACTORY.SimpleNameNode(this.source, AnnotVarNameKind.KIND, getIdentifier());
 	}
 
 	@Override
@@ -77,7 +72,7 @@ public class VarNameNode extends SimpleNameNode<VarNameKind> implements PayloadE
 	}
 
 	@Override
-	public VarName toPayloadType() {
+	public AnnotVarName toPayloadType() {
 		return toName();
 	}
 }

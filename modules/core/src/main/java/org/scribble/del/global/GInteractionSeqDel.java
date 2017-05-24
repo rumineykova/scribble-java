@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.scribble.ast.AstFactoryImpl;
-import org.scribble.ast.Choice;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GInteractionNode;
 import org.scribble.ast.global.GInteractionSeq;

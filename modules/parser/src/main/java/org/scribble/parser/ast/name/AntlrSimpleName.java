@@ -22,7 +22,7 @@ import org.scribble.sesstype.kind.OpKind;
 import org.scribble.sesstype.kind.RecVarKind;
 import org.scribble.sesstype.kind.RoleKind;
 import org.scribble.sesstype.kind.SigKind;
-import org.scribble.sesstype.kind.VarNameKind;
+import org.scribble.sesstype.kind.AnnotVarNameKind;
 
 public class AntlrSimpleName
 {
@@ -94,6 +94,6 @@ public class AntlrSimpleName
 
 	public static VarNameNode toVarName(CommonTree ct) {
 		// TODO Auto-generated method stub
-		return (VarNameNode) AstFactoryImpl.FACTORY.SimpleNameNode(ct, VarNameKind.KIND, getName(ct));
+		return (VarNameNode) AstFactoryImpl.FACTORY.SimpleNameNode(ct, AnnotVarNameKind.KIND, getName(ct));
 	}
 }

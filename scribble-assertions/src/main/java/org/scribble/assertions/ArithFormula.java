@@ -3,7 +3,6 @@ package org.scribble.assertions;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.sosy_lab.java_smt.api.Formula;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 

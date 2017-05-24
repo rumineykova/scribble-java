@@ -109,7 +109,7 @@ import org.scribble.sesstype.kind.PayloadTypeKind;
 import org.scribble.sesstype.kind.RecVarKind;
 import org.scribble.sesstype.kind.RoleKind;
 import org.scribble.sesstype.kind.SigKind;
-import org.scribble.sesstype.kind.VarNameKind;
+import org.scribble.sesstype.kind.AnnotVarNameKind;
 import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.Role;
 
@@ -420,7 +420,7 @@ public class AstFactoryImpl implements AstFactory
 			snn = new RoleNode(source, identifier);
 			snn = del(snn, new RoleNodeDel());
 		} 
-		else if (kind.equals(VarNameKind.KIND))
+		else if (kind.equals(AnnotVarNameKind.KIND))
 		{
 			snn = new VarNameNode(source, identifier);
 			snn = del(snn, createDefaultDelegate()); 

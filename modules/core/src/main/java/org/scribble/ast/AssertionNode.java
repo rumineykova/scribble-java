@@ -2,16 +2,6 @@ package org.scribble.ast;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.assertions.AssertionFormula;
-import org.scribble.ast.name.qualified.DataTypeNode;
-import org.scribble.ast.name.simple.OpNode;
-import org.scribble.ast.name.simple.VarNameNode;
-import org.scribble.del.ScribDel;
-import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.AnnotPayload;
-import org.scribble.sesstype.kind.OpKind;
-import org.scribble.sesstype.kind.PayloadTypeKind;
-import org.scribble.util.ScribUtil;
-import org.scribble.visit.AstVisitor;
 
 import parser.AssertionsParseException;
 

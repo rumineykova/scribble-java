@@ -10,7 +10,7 @@ import org.scribble.del.ScribDelBase;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.kind.DataTypeKind;
 import org.scribble.sesstype.kind.SigKind;
-import org.scribble.sesstype.kind.VarNameKind;
+import org.scribble.sesstype.kind.AnnotVarNameKind;
 import org.scribble.sesstype.name.AmbigName;
 import org.scribble.visit.wf.NameDisambiguator;
 
@@ -52,7 +52,7 @@ public class AmbigNameNodeDel extends ScribDelBase
 		}
 		else if (disamb.isVarnameInScope(name.toString()))
 		{
-			return AstFactoryImpl.FACTORY.SimpleNameNode(ann.getSource(), VarNameKind.KIND, name.getLastElement());
+			return AstFactoryImpl.FACTORY.SimpleNameNode(ann.getSource(), AnnotVarNameKind.KIND, name.getLastElement());
 		}
 		throw new ScribbleException(ann.getSource(), "Cannot disambiguate name: " + name);
 	}

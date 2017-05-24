@@ -1,7 +1,6 @@
 package org.scribble.assertions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,7 +15,6 @@ import org.sosy_lab.java_smt.SolverContextFactory;
 import org.sosy_lab.java_smt.SolverContextFactory.Solvers;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.BooleanFormulaManager;
-import org.sosy_lab.java_smt.api.Formula;
 import org.sosy_lab.java_smt.api.FormulaManager;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.Model;
@@ -110,10 +108,16 @@ public class FormulaUtil {
 	          Model model = prover.getModel();
 	        }
 	      }
-		catch (SolverException e) {}
-		catch (InterruptedException e) {}
+		catch (SolverException e) {
+			System.err.print("Error in the SMT solver" + e.getMessage());
 		}
-		catch (AssertionException e1) {}
+		catch (InterruptedException e) {
+			System.err.print("The formula was interrupted. Took too long." + e.getMessage()); 
+		}
+		}
+		catch (AssertionException e) {
+			System.err.print("The assertion is not a valid Z3 expression" + e.getMessage()); 
+		}
 		
 		return  !isUnsat;
 	}

@@ -2,7 +2,6 @@ package parser.ast;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.assertions.ArithFormula;
-import org.scribble.assertions.BoolFormula;
 import org.scribble.assertions.StmFormula;
 
 import parser.AssertionsParseException;

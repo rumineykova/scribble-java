@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.scribble.assertions.AssertionException;
@@ -33,7 +32,7 @@ import org.scribble.sesstype.kind.PayloadTypeKind;
 import org.scribble.sesstype.name.PayloadType;
 import org.scribble.sesstype.name.Role;
 import org.scribble.sesstype.AnnotPayload;
-import org.scribble.sesstype.name.VarName;
+import org.scribble.sesstype.name.AnnotVarName;
 
 public class SConfig
 {
@@ -176,7 +175,7 @@ public class SConfig
 							vars.get(r).add(varName);
 							
 						} else { 
-							varName = ((VarName)elem).toString();}
+							varName = ((AnnotVarName)elem).toString();}
 						
 						if (!vars.containsKey(a.obj)) {
 							vars.put(a.obj, new HashSet<String>()); 

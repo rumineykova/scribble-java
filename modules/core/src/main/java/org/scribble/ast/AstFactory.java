@@ -3,8 +3,6 @@ package org.scribble.ast;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.assertions.CompFormula;
-import org.scribble.assertions.StmFormula;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GConnect;
 import org.scribble.ast.global.GContinue;
@@ -54,11 +52,9 @@ import org.scribble.ast.name.simple.OpNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.ast.name.simple.VarNameNode;
-import org.scribble.sesstype.kind.DataTypeKind;
 import org.scribble.sesstype.kind.Kind;
 import org.scribble.sesstype.kind.NonRoleParamKind;
 import org.scribble.sesstype.kind.PayloadTypeKind;
-import org.scribble.sesstype.kind.VarNameKind;
 import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.Role;
 

@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ast.AstFactoryImpl;
-import org.scribble.ast.Choice;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GProtocolBlock;

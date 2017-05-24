@@ -13,8 +13,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.scribble.assertions.AssertionFormula;
-import org.scribble.assertions.AssertionLogFormula;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.model.MPrettyPrint;
