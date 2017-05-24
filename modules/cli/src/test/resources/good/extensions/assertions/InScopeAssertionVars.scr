@@ -1,0 +1,26 @@
+module good.extensions.assertions.InScopeAssertionVars;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Integer;
+type <java> "java.lang.Long" from "rt.jar" as Long;
+
+/*
+//Reverse Temporal Satisfiability that works
+// The checker does not terminate ...why?
+global protocol Prot(role A, role B)
+{
+	[x<10]
+	MSG(x:Integer) from A to B;
+	
+	[x>y && y<6]
+	MSG(y:Integer) from B to A;
+}*/
+
+
+// Simple check on that assertion variables are in scope
+global protocol Prot(role A, role B)
+{
+	[x<10]
+	MSG1(x:Integer) from A to B;
+
+}

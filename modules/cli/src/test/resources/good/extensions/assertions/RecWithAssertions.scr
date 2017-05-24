@@ -1,0 +1,22 @@
+module good.extensions.assertions.RecWithAssertions;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Integer;
+type <java> "java.lang.Long" from "rt.jar" as Long;
+
+
+
+global protocol Prot(role A, role B)
+{
+rec Loop {
+	choice at A {
+	[x<10]
+	MSG1(x:Integer) from A to B;
+	
+	} or {
+	[y>10]
+	MSG2(y:Integer) from A to B;
+	continue Loop; 
+	}
+}
+}

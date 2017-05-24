@@ -1,0 +1,14 @@
+module good.extensions.assertions.UnsatAssertion;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Integer;
+type <java> "java.lang.Long" from "rt.jar" as Long;
+
+global protocol Prot(role C, role S)
+{
+	[x<10]
+	ADD(x:Integer) from C to S;
+	
+	[y>10 && x=y]
+	ADD(y:Integer) from C to S;
+}

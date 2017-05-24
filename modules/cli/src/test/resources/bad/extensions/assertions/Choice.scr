@@ -1,0 +1,20 @@
+module good.extensions.assertions.Choice;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Integer;
+type <java> "java.lang.Long" from "rt.jar" as Long;
+
+
+// Check history sensitivity in choice
+// Does not work for some reason
+global protocol Prot(role A, role B)
+{
+choice at A {
+	[x<10]
+	MSG1(x:Integer) from A to B;
+	
+	} or {
+	[y>x]
+	MSG2(y:Integer) from A to B;
+	}
+}
