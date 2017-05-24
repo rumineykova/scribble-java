@@ -40,7 +40,7 @@ public class AnnotPayload implements PayloadType<AnnotPayloadElemKind>
 	@Override
 	public String toString()
 	{
-		return this.varName.toString() + ' '  + this.dataType.toString();   
+		return this.varName.toString() + ' '  + this.dataType.getSimpleName().toString();   
 	}
 	
 	@Override

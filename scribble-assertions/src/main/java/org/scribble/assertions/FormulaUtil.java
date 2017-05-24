@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.sosy_lab.common.ShutdownManager;
@@ -30,12 +31,14 @@ public class FormulaUtil {
 	public final FormulaManager fmanager;    
 	public final BooleanFormulaManager bmanager; 
 	public final IntegerFormulaManager imanager; 
-	public final QuantifiedFormulaManager qmanager; 
+	public final QuantifiedFormulaManager qmanager;
+	public final LogManager logger; 
 	
 	public final SolverContext context; 
 	protected FormulaUtil() throws InvalidConfigurationException{
+		// TODO: maybe use parameter solver.z3.usePhantomReferences to garbage collect Z3 formula references
 		Configuration config = Configuration.defaultConfiguration(); // fromCmdLineArguments([]);
-	    LogManager logger = BasicLogManager.create(config);
+	    logger = BasicLogManager.create(config);
 	    ShutdownManager shutdown = ShutdownManager.create();
 
 	    // SolverContext is a class wrapping a solver context.
@@ -109,13 +112,16 @@ public class FormulaUtil {
 	        }
 	      }
 		catch (SolverException e) {
-			System.err.print("Error in the SMT solver" + e.getMessage());
+			this.logger.logUserException(Level.INFO, e, "Error thrown by the SMT solver");
+			System.err.print("Error thrown by the SMT solver" + e.getMessage());
 		}
 		catch (InterruptedException e) {
+			this.logger.logUserException(Level.INFO, e, "The formula was interrupted. Took too long");
 			System.err.print("The formula was interrupted. Took too long." + e.getMessage()); 
 		}
 		}
 		catch (AssertionException e) {
+			this.logger.logUserException(Level.INFO, e, "The assertion is not a valid Z3 expression");
 			System.err.print("The assertion is not a valid Z3 expression" + e.getMessage()); 
 		}
 		
