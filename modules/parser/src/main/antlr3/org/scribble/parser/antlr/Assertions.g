@@ -85,8 +85,13 @@ BOP:
 ; 	 	
 
 variable: 
-	IDENTIFIER
+	IDENTIFIER -> ^(VAR IDENTIFIER)
 ; 	  
+
+
+num: 
+	NUMBER -> ^(VALUE NUMBER)	   
+; 
 
 parse:  
   START_TOKEN assertion END_TOKEN -> ^(ROOT assertion)
@@ -94,27 +99,22 @@ parse:
 
 assertion: 
 	bexpr -> bexpr
-| 	compexpr -> compexpr 	
 ; 
 	
-/*	expr (BOP expr)+ -> 
-	^(BEXPR expr ^(BOP expr)*)
-;*/
 bexpr:	 
-   compexpr BOP compexpr 
-   -> 	^(BEXPR compexpr BOP compexpr)
+   compexpr BOP bexpr 
+   -> 	^(BEXPR compexpr BOP bexpr)
+   | compexpr -> compexpr
 ;
 
 compexpr: expr COMP expr -> 
 	^(CEXPR expr COMP expr)
-	| expr -> expr; 
+	| expr -> expr
+; 
 
 expr: 
-	variable OP NUMBER -> ^(AEXPR OP variable NUMBER)
-|	variable -> ^(VAR variable)
-|	NUMBER -> ^(VALUE NUMBER)	
+	variable OP num -> ^(AEXPR OP variable num)
+|	variable -> variable
+|	num -> num
 ; 
- 
-
-
  

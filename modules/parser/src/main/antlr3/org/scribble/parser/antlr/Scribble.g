@@ -316,7 +316,7 @@ EXPR:
 
 
 fragment OPSYMBOL: 
-	'=' | '>' | '<'  | '||' | '&&'
+	'=' | '>' | '<'  | '||' | '&&' | '+' | '-' | '*' 
 ;  
 
 fragment LETTER:

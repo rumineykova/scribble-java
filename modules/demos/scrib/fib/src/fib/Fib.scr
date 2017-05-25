@@ -10,7 +10,7 @@ type <java> "java.lang.Long" from "rt.jar" as Long;
 
 global protocol Adder(role C, role S)
 {
-	[x<10]
+	[x+1<10 && x<9  && x<10]
 	ADD(x:Integer) from C to S;
 	
 	ADD(Integer) from C to S;

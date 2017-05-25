@@ -11,8 +11,8 @@ import parser.FormulaFactoryImpl;
 
 public class ArithFormulaNode implements FormulaNode {
 
-	private static Integer CHILD_OP_INDEX = 1; 
-	private static Integer CHILD_LEFT_FORMULA_INDEX = 0;
+	private static Integer CHILD_OP_INDEX = 0; 
+	private static Integer CHILD_LEFT_FORMULA_INDEX = 1;
 	private static Integer CHILD_RIGHT_FORMULA_INDEX = 2;
 	
 	public static ArithFormula parseArithFormula(
