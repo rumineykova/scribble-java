@@ -36,7 +36,7 @@ public class ArithFormula extends StmFormula {
 	
 	@Override
 	public IntegerFormula toFormula() throws AssertionException {
-		IntegerFormulaManager fmanager = FormulaUtil.getInstance().imanager;
+		IntegerFormulaManager fmanager = SMTWrapper.getInstance().imanager;
 		IntegerFormula fleft = (IntegerFormula) this.left.toFormula();
 		IntegerFormula fright = (IntegerFormula) this.right.toFormula();
 		

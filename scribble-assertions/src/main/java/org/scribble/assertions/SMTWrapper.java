@@ -26,8 +26,9 @@ import org.sosy_lab.java_smt.api.SolverContext;
 import org.sosy_lab.java_smt.api.SolverContext.ProverOptions;
 import org.sosy_lab.java_smt.api.SolverException;
 
-public class FormulaUtil {
-	private static FormulaUtil instance = null;
+public class SMTWrapper {
+	private static SMTWrapper instance = null;
+	
 	public final FormulaManager fmanager;    
 	public final BooleanFormulaManager bmanager; 
 	public final IntegerFormulaManager imanager; 
@@ -35,7 +36,7 @@ public class FormulaUtil {
 	public final LogManager logger; 
 	
 	public final SolverContext context; 
-	protected FormulaUtil() throws InvalidConfigurationException{
+	protected SMTWrapper() throws InvalidConfigurationException{
 		// TODO: maybe use parameter solver.z3.usePhantomReferences to garbage collect Z3 formula references
 		Configuration config = Configuration.defaultConfiguration(); // fromCmdLineArguments([]);
 	    logger = BasicLogManager.create(config);
@@ -53,10 +54,10 @@ public class FormulaUtil {
 	    this.imanager = fmanager.getIntegerFormulaManager();
 	}
 	
-	public static FormulaUtil getInstance()  {
+	public static SMTWrapper getInstance()  {
 	      try {
 			if(instance == null) {
-	         instance = new FormulaUtil();
+	         instance = new SMTWrapper();
 	      } 
 	      }catch (InvalidConfigurationException e)
 	      {
@@ -127,6 +128,7 @@ public class FormulaUtil {
 		
 		return  !isUnsat;
 	}
+	
 	public List<IntegerFormula> makeVars(List<String> vars) {
 		return  vars.stream().map(v -> this.imanager.makeVariable(v)).collect(Collectors.toList()); 
 	}

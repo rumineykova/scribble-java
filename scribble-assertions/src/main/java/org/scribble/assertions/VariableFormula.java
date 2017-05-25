@@ -21,7 +21,7 @@ public class VariableFormula extends StmFormula {
 	
 	@Override
 	public IntegerFormula toFormula() {
-		IntegerFormulaManager fmanager = FormulaUtil.getInstance().imanager;
+		IntegerFormulaManager fmanager = SMTWrapper.getInstance().imanager;
 		return fmanager.makeVariable(this.name);   
 	}
 	

@@ -30,6 +30,6 @@ public class AssertionLogFormula extends StmFormula {
 	public AssertionLogFormula addFormula(StmFormula newFormula) throws AssertionException{		
 		return this.formula==null? 
 				new AssertionLogFormula(newFormula.formula, newFormula.getVars()):	
-				FormulaUtil.getInstance().addFormula(this, newFormula);
+				SMTWrapper.getInstance().addFormula(this, newFormula);
 	}
 }

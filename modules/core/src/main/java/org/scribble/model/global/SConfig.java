@@ -12,9 +12,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.assertions.AssertionException;
-import org.scribble.assertions.AssertionFormula;
 import org.scribble.assertions.AssertionLogFormula;
-import org.scribble.assertions.FormulaUtil;
+import org.scribble.assertions.SMTWrapper;
 import org.scribble.assertions.StmFormula;
 import org.scribble.ast.AssertionNode;
 import org.scribble.model.endpoint.EFSM;
@@ -145,7 +144,7 @@ public class SConfig
 			AssertionLogFormula newFormula = null; 
 		
 			if (assertion!=null) {
-				StmFormula currFormula = new AssertionFormula(assertion.getSource()).getFormula();
+				StmFormula currFormula = assertion.toFormula();
 				
 				try {
 					newFormula = this.formula==null?
@@ -284,8 +283,7 @@ public class SConfig
 					AssertionNode assertion = send.assertion; 
 					if (assertion !=null)
 					{
-						AssertionFormula formula = new AssertionFormula(assertion.getSource()); 
-						if (!FormulaUtil.getInstance().isSat(formula.getFormula(), this.formula)) {
+						if (!SMTWrapper.getInstance().isSat(assertion.toFormula(), this.formula)) {
 							unsafStates.add(send); 
 						}
 					}
@@ -320,8 +318,7 @@ public class SConfig
 					
 					if (assertion !=null)
 					{
-						AssertionFormula formula = new AssertionFormula(assertion.getSource());
-						Set<String> varNames = formula.getFormula().getVars();
+						Set<String> varNames = assertion.toFormula().getVars();
 						varNames.removeAll(newVarNames); 
 						if ((!varNames.isEmpty()) && (!this.variablesInScope.containsKey(r) ||
 							 !this.variablesInScope.get(r).containsAll(varNames)))

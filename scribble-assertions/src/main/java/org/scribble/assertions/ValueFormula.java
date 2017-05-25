@@ -21,7 +21,7 @@ public class ValueFormula extends StmFormula {
 	
 	@Override
 	public IntegerFormula toFormula() {
-		IntegerFormulaManager fmanager = FormulaUtil.getInstance().imanager;
+		IntegerFormulaManager fmanager = SMTWrapper.getInstance().imanager;
 		return fmanager.makeNumber(this.value);  
 	}
 	

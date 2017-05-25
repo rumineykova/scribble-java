@@ -1,9 +1,10 @@
 package org.scribble.ast;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.assertions.AssertionFormula;
+import org.scribble.assertions.StmFormula;
 
 import parser.AssertionsParseException;
+import parser.AssertionsScribParser;
 
 // Cf. DoArg, wrapper for a (unary) name node of potentially unknown kind (needs disamb)
 // PayloadTypeKind is DataType or Local, but Local has its own special subclass (and protocol params not allowed), so this should implicitly be for DataType only
@@ -11,7 +12,8 @@ import parser.AssertionsParseException;
 //public class DataTypeElem extends PayloadElem<DataTypeKind>
 public class AssertionNode extends ScribNodeBase 
 {	
-	private final String assertion; 
+	private final String assertion;
+	private StmFormula formula =  null; 
 	public AssertionNode(CommonTree source, String assertion)
 	{
 		//super(name);
@@ -31,6 +33,17 @@ public class AssertionNode extends ScribNodeBase
 		return this.assertion; 
 	}
 	
+	public StmFormula toFormula() {
+		if (this.formula==null) {
+			try {
+				this.formula = AssertionsScribParser.getInstance().parse((CommonTree)this.source.getChild(0));
+			} catch (AssertionsParseException e) {
+				System.err.print("Assertion cannot be parsed" + e.getMessage());
+			}
+		}
+		return formula; 
+	}
+	
 	@Override
 	public AssertionNode clone() {
 		return (AssertionNode) AstFactoryImpl.FACTORY.AssertionNode(this.source, this.assertion);
@@ -38,12 +51,7 @@ public class AssertionNode extends ScribNodeBase
 	
 	@Override
 	public String toString() {
-		return this.assertion.toString(); 
-	}
-	
-	public AssertionFormula toSMTFormula() throws AssertionsParseException {
-		return new AssertionFormula(this.source); 
-		
+		return this.toFormula().toString(); 
 	}
 
 }

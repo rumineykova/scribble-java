@@ -36,7 +36,7 @@ public class BoolFormula extends StmFormula {
 	
 	@Override
 	protected BooleanFormula toFormula() throws AssertionException {
-		BooleanFormulaManager fmanager = FormulaUtil.getInstance().bmanager;
+		BooleanFormulaManager fmanager = SMTWrapper.getInstance().bmanager;
 		BooleanFormula bleft = (BooleanFormula) this.left.toFormula();
 		BooleanFormula bright = (BooleanFormula) this.right.toFormula();
 		
