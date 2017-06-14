@@ -5,6 +5,7 @@ type <java> "java.lang.Integer" from "rt.jar" as Integer;
 type <java> "java.lang.Long" from "rt.jar" as Long;
 
 
+
 global protocol ProtComplex(role A, role B, role C)
 {
 	choice at A {

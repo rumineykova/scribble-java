@@ -174,52 +174,14 @@ tokens
 	//import org.scribble.main.RuntimeScribbleException;
 }
 
-/*// Was swallowing parser error messages
-@members {
-	//private org.scribble.logging.IssueLogger _logger=null;
-	private String _document=null;
-	private boolean _errorOccurred=false;
-	
-    /*public void setLogger(org.scribble.logging.IssueLogger logger) {
-    	_logger = logger;
-    }* /
-    
-    public void setDocument(String doc) {
-    	_document = doc;
-    }
-    
-    public void emitErrorMessage(String mesg) {
-    	/*if (_logger == null) {
-    		super.emitErrorMessage(mesg);
-    	} else {
-    		_logger.error(org.scribble.parser.antlr.ANTLRMessageUtil.getMessageText(mesg),
-    					org.scribble.parser.antlr.ANTLRMessageUtil.getProperties(mesg, _document));
-    	}* /
-    	_errorOccurred = true;
-    }
-    
-    public boolean isErrorOccurred() {
-    	return(_errorOccurred);
-    }
-}*/
 
 @parser::members
 {
-	/*@Override
-	public void reportError(RecognitionException e)
-	{
-		super.reportError(e);
-		//throw new RuntimeScribbleException(e.getMessage()); 
-		//System.exit(1);
-	}*/
-
+	
 	@Override    
 	public void displayRecognitionError(String[] tokenNames, RecognitionException e)
 	{
-		/*String hdr = getErrorHeader(e);
-		String msg = getErrorMessage(e, tokenNames);
-		//throw new RuntimeException(hdr + ":" + msg);
-  	System.err.println(hdr + ":" + msg);*/
+		
 		super.displayRecognitionError(tokenNames, e);
   	System.exit(1);
 	}
@@ -227,21 +189,10 @@ tokens
 
 @lexer::members
 {
-  /*@Override
-  public void reportError(RecognitionException e)
-  {
-  	super.reportError(e);
-    //throw new RuntimeScribbleException(e.getMessage()); 
-  	//System.exit(1);
-  }*/
-
 	@Override    
 	public void displayRecognitionError(String[] tokenNames, RecognitionException e)
 	{
-		/*String hdr = getErrorHeader(e);
-		String msg = getErrorMessage(e, tokenNames);
-		//throw new RuntimeException(hdr + ":" + msg);
-  	System.err.println(hdr + ":" + msg);*/
+		
 		super.displayRecognitionError(tokenNames, e);
   	System.exit(1);
 	}
@@ -658,13 +609,20 @@ message:
 
 globalconnect:
 	//message CONNECT_KW rolename TO_KW rolename
-	CONNECT_KW rolename TO_KW rolename ';'
+	EXPR CONNECT_KW rolename TO_KW rolename ';'
 	->
-	^(GLOBALCONNECT rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+	^(GLOBALCONNECT {AssertionsParser.ast($EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+|
+	EXPR message CONNECT_KW rolename TO_KW rolename ';'
+	->
+	^(GLOBALCONNECT {AssertionsParser.ast($EXPR.text)} rolename rolename message)
+|	CONNECT_KW rolename TO_KW rolename ';'
+	->
+	^(GLOBALCONNECT EMPTY_ASSERTION rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
 	message CONNECT_KW rolename TO_KW rolename ';'
 	->
-	^(GLOBALCONNECT rolename rolename message)
+	^(GLOBALCONNECT EMPTY_ASSERTION rolename rolename message)
 ;
 /*	'(' connectdecl (',' connectdecl)* ')'
 	->
