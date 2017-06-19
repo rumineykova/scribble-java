@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.scribble.assertions.SMTWrapper;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.model.endpoint.EFSM;
@@ -44,6 +45,8 @@ public class SModel
 				}
 			}
 			SStateErrors errors = s.getErrors();
+			//SMTWrapper.getInstance().close();
+			
 			if (!errors.isEmpty())
 			{
 				// FIXME: getTrace can get stuck when local choice subjects are disabled
