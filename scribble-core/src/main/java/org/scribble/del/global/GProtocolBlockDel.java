@@ -29,11 +29,6 @@ import org.scribble.visit.env.InlineProtocolEnv;
 
 public class GProtocolBlockDel extends ProtocolBlockDel
 {
-	@Override
-	public void enterProjection(ScribNode parent, ScribNode child, Projector proj) throws ScribbleException
-	{
-		ScribDelBase.pushVisitorEnv(this, proj);
-	}
 
 	@Override
 	public ScribNode leaveProtocolInlining(ScribNode parent, ScribNode child, ProtocolDefInliner inl, ScribNode visited) throws ScribbleException
@@ -43,6 +38,12 @@ public class GProtocolBlockDel extends ProtocolBlockDel
 		GProtocolBlock inlined = AstFactoryImpl.FACTORY.GProtocolBlock(gpb.getSource(), seq);
 		inl.pushEnv(inl.popEnv().setTranslation(inlined));
 		return (GProtocolBlock) ScribDelBase.popAndSetVisitorEnv(this, inl, gpb);
+	}
+	
+	@Override
+	public void enterProjection(ScribNode parent, ScribNode child, Projector proj) throws ScribbleException
+	{
+		ScribDelBase.pushVisitorEnv(this, proj);
 	}
 	
 	@Override

@@ -22,6 +22,7 @@ import org.scribble.ast.local.ALSend;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.local.LSendDel;
 import org.scribble.main.ScribbleException;
+import org.scribble.model.endpoint.AESend;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
@@ -46,23 +47,7 @@ public class ALSendDel extends LSendDel
 		Payload payload = ls.msg.isMessageSigNode()  // Hacky?
 					? ((MessageSigNode) ls.msg).payloads.toPayload()
 					: Payload.EMPTY_PAYLOAD;
-		graph.util.addEdge(graph.util.getEntry(), new ESend(peer, mid, payload, ls.assertion), graph.util.getExit());
-		//builder.builder.addEdge(builder.builder.getEntry(), Send.get(peer, mid, payload), builder.builder.getExit());
+		graph.util.addEdge(graph.util.getEntry(), new AESend(peer, mid, payload, ls.assertion), graph.util.getExit());
 		return (ALSend) super.leaveEGraphBuilding(parent, child, graph, ls);
-	}
-
-	// Could make a LMessageTransferDel to factor this out with LReceiveDel
-	@Override
-	public void enterProjectedChoiceSubjectFixing(ScribNode parent, ScribNode child, ProjectedChoiceSubjectFixer fixer)
-	{
-		fixer.setChoiceSubject(((ALSend) child).src.toName());
-	}
-	
-	@Override
-	public LMessageTransfer leaveExplicitCorrelationCheck(ScribNode parent, ScribNode child, ExplicitCorrelationChecker checker, ScribNode visited) throws ScribbleException
-	{
-		LMessageTransfer lmt = (LMessageTransfer) visited;
-		checker.pushEnv(checker.popEnv().disableAccept());
-		return lmt;
 	}
 }
