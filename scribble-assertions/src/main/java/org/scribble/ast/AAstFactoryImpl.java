@@ -18,9 +18,13 @@ import java.util.List;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.global.AGMessageTransfer;
 import org.scribble.ast.local.ALSend;
+import org.scribble.ast.name.qualified.DataTypeNode;
+import org.scribble.ast.name.simple.AVarNameNode;
 import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.del.AAnnotPayloadElemDel;
 import org.scribble.del.global.AGMessageTransferDel;
 import org.scribble.del.local.ALSendDel;
+import org.scribble.sesstype.kind.PayloadTypeKind;
 
 
 public class AAstFactoryImpl extends AstFactoryImpl implements AAstFactory
@@ -53,6 +57,14 @@ public class AAstFactoryImpl extends AstFactoryImpl implements AAstFactory
 		ALSend ls = new ALSend(source, src, msg, dests, assertion);
 		ls = del(ls, new ALSendDel());
 		return ls;
+	}
+	
+	@Override
+	public <K extends PayloadTypeKind> AAnnotPayloadElem<K> AnnotPayloadElem(CommonTree source, AVarNameNode varName, DataTypeNode dataType)
+	{
+		AAnnotPayloadElem<K> de= new AAnnotPayloadElem<>(source, varName, dataType);
+		de = del(de, new AAnnotPayloadElemDel());
+		return de;
 	}
 
 	@Override

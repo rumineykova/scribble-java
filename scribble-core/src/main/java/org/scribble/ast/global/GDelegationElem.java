@@ -28,7 +28,7 @@ import org.scribble.sesstype.name.PayloadType;
 import org.scribble.visit.AstVisitor;
 import org.scribble.visit.context.Projector;
 
-// A "binary name pair" payload elem (current AST hierarchy induces this pattern), cf. UnaryPayloadElem (also differs in no parsing ambig against parameters)
+// A "name pair" payload elem (current AST hierarchy induces this pattern), cf. UnaryPayloadElem (also differs in no parsing ambig against parameters)
 // The this.name will be global kind, but overall this node is local kind
 //public class DelegationElem extends PayloadElem<Local>
 public class GDelegationElem extends ScribNodeBase implements PayloadElem<Local>

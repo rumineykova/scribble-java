@@ -3,16 +3,17 @@ package org.scribble.ast;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.simple.AVarNameNode;
-import org.scribble.del.AScribDel;
+import org.scribble.del.ScribDel;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.AAnnotPayload;
 import org.scribble.sesstype.kind.PayloadTypeKind;
 import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;
 
-public class AAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeBase implements PayloadElem<K>//extends PayloadElem
+// A "name pair", perhaps similar to GDelegationElem -- factor out?
+public class AAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeBase implements PayloadElem<K>
 {
-	public final AVarNameNode varName;   // (Ambig.) DataTypeNode or parameter
+	public final AVarNameNode varName;
 	public final DataTypeNode dataType;
 	
 	public AAnnotPayloadElem(CommonTree source, AVarNameNode varname, DataTypeNode dataType)
@@ -31,25 +32,20 @@ public class AAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeBase 
 	@Override
 	protected AAnnotPayloadElem<K> copy()
 	{
-		//return new UnaryPayloadElem(this.data);
 		return new AAnnotPayloadElem<>(this.source, this.varName, this.dataType);
 	}
 	
 	@Override
 	public AAnnotPayloadElem<K> clone()
 	{
-		//PayloadElemNameNode<DataTypeKind> name = (PayloadElemNameNode<DataTypeKind>) this.data.clone();  // FIXME: make a DataTypeNameNode
-		//PayloadElemNameNode<K> name = (PayloadElemNameNode<K>) this.name.clone();
 		AVarNameNode varname = ScribUtil.checkNodeClassEquality(this.varName, this.varName.clone());
 		DataTypeNode datatype = ScribUtil.checkNodeClassEquality(this.dataType, this.dataType.clone());
-		return AstFactoryImpl.FACTORY.AnnotPayloadElem(this.source, varname, datatype);
+		return AAstFactoryImpl.FACTORY.AnnotPayloadElem(this.source, varname, datatype);
 	}
 
-	//public DataTypeElem reconstruct(PayloadElemNameNode<DataTypeKind> name)
-	//public UnaryPayloadElem reconstruct(DataTypeNode name)
 	public AAnnotPayloadElem<K> reconstruct(AVarNameNode name, DataTypeNode dataType)
 	{
-		AScribDel del = del();
+		ScribDel del = del();
 		AAnnotPayloadElem<K> elem = new AAnnotPayloadElem<>(this.source, name, dataType);
 		elem = ScribNodeBase.del(elem, del);
 		return elem;
@@ -58,29 +54,21 @@ public class AAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeBase 
 	@Override 
 	public AAnnotPayloadElem<K> visitChildren(AstVisitor nv) throws ScribbleException
 	{
-		//PayloadElemNameNode<DataTypeKind> name = (PayloadElemNameNode<DataTypeKind>) visitChild(this.data, nv);
-		//DataTypeNode name = (PayloadElemNameNode<DataTypeKind>) visitChild(this.data, nv);
 		AVarNameNode varName = (AVarNameNode) visitChild(this.varName, nv);  
 		DataTypeNode dataType = (DataTypeNode) visitChild(this.dataType, nv);
-				// FIXME: probably need to record an explicit kind token, for "cast checking"
-				// Cannot use ScribNodeBase.visitChildWithCastCheck because this is not a ProtocolKindNode
-		//PayloadElemNameNode<K> name = (PayloadElemNameNode<K>) visitChildWithClassEqualityCheck(this, this.name, nv);  // No: can be initially Ambig
 		return reconstruct(varName, dataType);
 	}
 	
 	@Override
 	public String toString()
 	{
-		//return this.data.toString();
 		return this.varName.toString() + ' ' +  this.dataType.toString();
 	}
 
 	@Override
-	//public PayloadType<DataTypeKind> toPayloadType()  // Currently can assume the only possible kind is DataTypeKind
-	//public PayloadType<? extends PayloadTypeKind> toPayloadType()  // Currently can assume the only possible kind is DataTypeKind
-	public AAnnotPayload toPayloadType()  // Currently can assume the only possible kind is DataTypeKind
+	public AAnnotPayload toPayloadType()
 	{
-		// TODO: make it PayloadType AnnotPayload 
+		// TODO: make it PayloadType AnnotPayload  // FIXME: means return the actual payload type?
 		return new AAnnotPayload(this.varName.toPayloadType(), this.dataType.toPayloadType());
 	}
 }

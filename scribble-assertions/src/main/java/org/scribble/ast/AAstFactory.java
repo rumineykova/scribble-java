@@ -18,12 +18,18 @@ import java.util.List;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.global.AGMessageTransfer;
 import org.scribble.ast.local.ALSend;
+import org.scribble.ast.name.qualified.DataTypeNode;
+import org.scribble.ast.name.simple.AVarNameNode;
 import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.sesstype.kind.PayloadTypeKind;
 
 
 public interface AAstFactory extends AstFactory
 {
 	AGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion);
 	ALSend LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion);
+
+	<K extends PayloadTypeKind> AAnnotPayloadElem<K> AnnotPayloadElem(CommonTree source, AVarNameNode varName, DataTypeNode dataType);
+
 	AAssertionNode AssertionNode(CommonTree source, String assertion);  // FIXME: should not be String -- parser should parse it
 }
