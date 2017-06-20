@@ -28,11 +28,23 @@ public class AAstFactoryImpl extends AstFactoryImpl implements AAstFactory
 	public static final AAstFactory FACTORY = new AAstFactoryImpl();
 	
 	@Override
+	public AGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	{
+		throw new RuntimeException("[scrib-assert] Shouldn't get in here: " + source);
+	}
+
+	@Override
 	public AGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion)
 	{
 		AGMessageTransfer gmt = new AGMessageTransfer(source, src, msg, dests, assertion);
 		gmt = del(gmt, new AGMessageTransferDel());
 		return gmt;
+	}
+
+	@Override
+	public ALSend LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	{
+		throw new RuntimeException("[scrib-assert] Shouldn't get in here: " + source);
 	}
 
 	@Override
@@ -44,7 +56,8 @@ public class AAstFactoryImpl extends AstFactoryImpl implements AAstFactory
 	}
 
 	@Override
-	public AAssertionNode AssertionNode(CommonTree source, String assertion) {
+	public AAssertionNode AssertionNode(CommonTree source, String assertion)
+	{
 		AAssertionNode node = new AAssertionNode(source, assertion); 
 		node = del(node, createDefaultDelegate());
 		return node; 

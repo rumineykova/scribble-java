@@ -10,37 +10,28 @@ import org.scribble.sesstype.kind.AAnnotVarNameKind;
 import org.scribble.sesstype.kind.NonRoleArgKind;
 import org.scribble.sesstype.name.AAnnotVarName;
 
-// Parser Identifier
 public class AVarNameNode extends SimpleNameNode<AAnnotVarNameKind> implements PayloadElemNameNode<AAnnotVarNameKind>
 {
 	public AVarNameNode(CommonTree source, String identifier)
 	{
 		super(source, identifier);
 	}
-	
-	public String getIdentifier()
+
+	@Override
+	protected ScribNodeBase copy()
 	{
-		return getLastElement();
+		return new AVarNameNode(this.source, getIdentifier());
+	}
+
+	@Override
+	public NameNode<AAnnotVarNameKind> clone()
+	{
+		return (AVarNameNode) AstFactoryImpl.FACTORY.SimpleNameNode(this.source, AAnnotVarNameKind.KIND, getIdentifier());
 	}
 
 	@Override
 	public AAnnotVarName toName() {
 		return new AAnnotVarName(getIdentifier());
-	}
-
-	@Override
-	public NameNode<AAnnotVarNameKind> clone() {
-		return (AVarNameNode) AstFactoryImpl.FACTORY.SimpleNameNode(this.source, AAnnotVarNameKind.KIND, getIdentifier());
-	}
-
-	@Override
-	public boolean canEqual(Object o) {
-		return o instanceof AVarNameNode;
-	}
-
-	@Override
-	protected ScribNodeBase copy() {
-		return new AVarNameNode(this.source, getIdentifier());
 	}
 	
 	@Override
@@ -58,21 +49,28 @@ public class AVarNameNode extends SimpleNameNode<AAnnotVarNameKind> implements P
 	}
 	
 	@Override
+	public boolean canEqual(Object o)
+	{
+		return o instanceof AVarNameNode;
+	}
+
+	@Override
 	public int hashCode()
 	{
-		int hash = 349;
+		int hash = 967;
 		hash = 31 * super.hashCode();
 		return hash;
 	}
 
 	@Override
-	public Arg<? extends NonRoleArgKind> toArg() {
-		// TODO Auto-generated method stub
-		return null;
+	public Arg<? extends NonRoleArgKind> toArg()
+	{
+		throw new RuntimeException("[scrib-assert] TODO: var name node as do-arg: " + this);  // TODO?
 	}
 
 	@Override
-	public AAnnotVarName toPayloadType() {
-		return toName();
+	public AAnnotVarName toPayloadType()
+	{
+		return toName();  // FIXME: Shoudln't this be the type, not the var name?
 	}
 }

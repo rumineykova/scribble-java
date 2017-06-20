@@ -13,38 +13,37 @@
  */
 package org.scribble.ast.local;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AAssertionNode;
-import org.scribble.ast.AAstFactoryImpl;
 import org.scribble.ast.Constants;
 import org.scribble.ast.MessageNode;
+import org.scribble.ast.MessageTransfer;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.simple.RoleNode;
-import org.scribble.del.AScribDel;
-import org.scribble.main.RuntimeScribbleException;
+import org.scribble.del.ScribDel;
 import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.Message;
 import org.scribble.sesstype.kind.Local;
-import org.scribble.sesstype.name.Role;
 import org.scribble.util.ScribUtil;
-import org.scribble.visit.context.ProjectedChoiceSubjectFixer;
+import org.scribble.visit.AstVisitor;
 
-public class ALReceive extends ALMessageTransfer
-		implements LSimpleInteractionNode  // Explicitly needed here for getKind
+@Deprecated
+public class ALReceive extends LReceive
 {
-	public ALReceive(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	public final AAssertionNode assertion;  // null if none specified syntactically
+			// Duplicated in ALSend -- could factour out to in Del, but need to consider immutable pattern
+
+	public ALReceive(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode ass)
 	{
 		super(source, src, msg, dests);
+		this.assertion = ass;
 	}
 
 	@Override
 	protected ScribNodeBase copy()
 	{
-		return new ALReceive(this.source, this.src, this.msg, getDestinations());
+		return new ALReceive(this.source, this.src, this.msg, getDestinations(), this.assertion);
 	}
 	
 	@Override
@@ -53,55 +52,42 @@ public class ALReceive extends ALMessageTransfer
 		RoleNode src = this.src.clone();
 		MessageNode msg = this.msg.clone();
 		List<RoleNode> dests = ScribUtil.cloneList(getDestinations());
-		return AAstFactoryImpl.FACTORY.LReceive(this.source, src, msg, dests);
+		
+		// FIXME: assertion
+		
+		//return AAstFactoryImpl.FACTORY.LReceive(this.source, src, msg, dests);
+		return null;
 	}
 
 	@Override
+	public ALReceive reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests)
+	{
+		throw new RuntimeException("Shouldn't get in here: " + this);
+	}
+	
 	public ALReceive reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion)
 	{
-		AScribDel del = del();
-		ALReceive lr = new ALReceive(this.source, src, msg, dests);
+		ScribDel del = (ScribDel) del();
+		ALReceive lr = new ALReceive(this.source, src, msg, dests, assertion);  // FIXME: assertion
 		lr = (ALReceive) lr.del(del);
 		return lr;
 	}
 
 	@Override
-	public Role inferLocalChoiceSubject(ProjectedChoiceSubjectFixer fixer)
+	public MessageTransfer<Local> visitChildren(AstVisitor nv) throws ScribbleException
 	{
-		fixer.setChoiceSubject(this.src.toName());
-		return this.src.toName();
-	}
+		RoleNode src = (RoleNode) visitChild(this.src, nv);
+		MessageNode msg = (MessageNode) visitChild(this.msg, nv);
+		List<RoleNode> dests = visitChildListWithClassEqualityCheck(this, this.dests, nv);
 
-	// FIXME: shouldn't be needed, but here due to Eclipse bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=436350
-	@Override
-	public Local getKind()
-	{
-		return LSimpleInteractionNode.super.getKind();
+		AAssertionNode ass = this.assertion;  // FIXME: visit
+
+		return reconstruct(src, msg, dests, ass);
 	}
 
 	@Override
 	public String toString()
 	{
-		return this.msg + " " + Constants.FROM_KW + " " + this.src + ";";
-	}
-
-	@Override
-	public LInteractionNode merge(LInteractionNode ln) throws ScribbleException
-	{
-		throw new RuntimeScribbleException("Invalid merge on LReceive: " + this);
-	}
-
-	@Override
-	public boolean canMerge(LInteractionNode ln)
-	{
-		return false;
-	}
-
-	@Override
-	public Set<Message> getEnabling()
-	{
-		Set<Message> enab = new HashSet<>();
-		enab.add(this.msg.toMessage());
-		return enab;
+		return "[" + this.assertion + "]\n" + this.msg + " " + Constants.FROM_KW + " " + this.src + ";";
 	}
 }

@@ -23,10 +23,7 @@ import org.scribble.ast.name.simple.RoleNode;
 
 public interface AAstFactory extends AstFactory
 {
-	ALSend LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion);
-
-	AAssertionNode AssertionNode(CommonTree source, String assertion);
-
 	AGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion);
-
+	ALSend LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion);
+	AAssertionNode AssertionNode(CommonTree source, String assertion);
 }

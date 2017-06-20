@@ -36,7 +36,7 @@ public abstract class MessageTransfer<K extends ProtocolKind> extends SimpleInte
 		super(source);
 		this.src = src;
 		this.msg = msg;
-		this.dests = new LinkedList<>(dests);
+		this.dests = new LinkedList<>(dests);  // FIXME: Collections.unmodifiable?
 	}
 
 	public abstract MessageTransfer<K> reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests);

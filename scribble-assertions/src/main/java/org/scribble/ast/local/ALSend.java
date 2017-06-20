@@ -13,9 +13,7 @@
  */
 package org.scribble.ast.local;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
@@ -23,23 +21,24 @@ import org.scribble.ast.AAssertionNode;
 import org.scribble.ast.AAstFactoryImpl;
 import org.scribble.ast.Constants;
 import org.scribble.ast.MessageNode;
+import org.scribble.ast.MessageTransfer;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.simple.RoleNode;
-import org.scribble.del.AScribDel;
-import org.scribble.main.RuntimeScribbleException;
+import org.scribble.del.ScribDel;
 import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.Message;
 import org.scribble.sesstype.kind.Local;
-import org.scribble.sesstype.name.Role;
 import org.scribble.util.ScribUtil;
-import org.scribble.visit.context.ProjectedChoiceSubjectFixer;
+import org.scribble.visit.AstVisitor;
 
-public class ALSend extends ALMessageTransfer
-		implements LSimpleInteractionNode  // Explicitly needed here for getKind
+public class ALSend extends LSend
 {
-	public ALSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion)
+	public final AAssertionNode assertion;  // null if none specified syntactically  
+			// Duplicated in AGMessageTransfer -- could factour out to in Del, but need to consider immutable pattern
+
+	public ALSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode ass)
 	{
-		super(source, src, msg, dests, assertion);
+		super(source, src, msg, dests);
+		this.assertion = ass;
 	}
 
 	@Override
@@ -54,54 +53,43 @@ public class ALSend extends ALMessageTransfer
 		RoleNode src = this.src.clone();
 		MessageNode msg = this.msg.clone();
 		List<RoleNode> dests = ScribUtil.cloneList(getDestinations());
+		
+		// FIXME: assertion
+		
 		return AAstFactoryImpl.FACTORY.LSend(this.source, src, msg, dests, this.assertion);
 	}
 
 	@Override
+	public ALSend reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests)
+	{
+		throw new RuntimeException("Shouldn't get in here: " + this);
+	}
+	
 	public ALSend reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion)
 	{
-		AScribDel del = del();
-		ALSend ls = new ALSend(this.source, src, msg, dests, assertion);
+		ScribDel del = del();
+		ALSend ls = new ALSend(this.source, src, msg, dests, assertion);  // FIXME: assertion
 		ls = (ALSend) ls.del(del);
 		return ls;
 	}
 
-	// Could make a LMessageTransfer to factor this out with LReceive
 	@Override
-	public Role inferLocalChoiceSubject(ProjectedChoiceSubjectFixer fixer)
+	public MessageTransfer<Local> visitChildren(AstVisitor nv) throws ScribbleException
 	{
-		return this.src.toName();
-	}
+		RoleNode src = (RoleNode) visitChild(this.src, nv);
+		MessageNode msg = (MessageNode) visitChild(this.msg, nv);
+		List<RoleNode> dests = visitChildListWithClassEqualityCheck(this, this.dests, nv);
 
-	// FIXME: shouldn't be needed, but here due to Eclipse bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=436350
-	@Override
-	public Local getKind()
-	{
-		return LSimpleInteractionNode.super.getKind();
+		AAssertionNode ass = this.assertion;  // FIXME: visit
+
+		return reconstruct(src, msg, dests, ass);
 	}
 
 	@Override
 	public String toString()
 	{
-		return this.msg + " " + Constants.TO_KW + " "
+		return "[" + this.assertion + "]\n"
+					+ this.msg + " " + Constants.TO_KW + " "
 					+ getDestinations().stream().map((dest) -> dest.toString()).collect(Collectors.joining(", ")) + ";";
-	}
-
-	@Override
-	public LInteractionNode merge(LInteractionNode ln) throws ScribbleException
-	{
-		throw new RuntimeScribbleException("Invalid merge on LSend: " + this);
-	}
-
-	@Override
-	public boolean canMerge(LInteractionNode ln)
-	{
-		return false;
-	}
-
-	@Override
-	public Set<Message> getEnabling()
-	{
-		return Collections.emptySet();
 	}
 }

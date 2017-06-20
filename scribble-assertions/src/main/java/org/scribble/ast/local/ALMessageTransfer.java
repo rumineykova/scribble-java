@@ -9,6 +9,7 @@ import org.scribble.ast.MessageNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.sesstype.kind.Local;
 
+@Deprecated
 public abstract class ALMessageTransfer extends AMessageTransfer<Local> implements LSimpleInteractionNode
 {
 	public ALMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
