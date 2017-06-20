@@ -65,7 +65,6 @@ tokens
 	NO_SCOPE = '__no_scope';
 	//EMPTY_PACKAGENAME = '__empty_packagebame';
 	EMPTY_OPERATOR = '__empty_operator';
-	EMPTY_ASSERTION = '__empty_assertion';
 
 	//EMPTY_PARAMETERDECLLIST = '__empty_parameterdecllist';
 	//EMPTY_ARGUMENTINSTANTIATIONLIST = '__empty_argumentinstantiationlist';
@@ -111,7 +110,6 @@ tokens
 	ARGUMENTINSTANTIATIONLIST = 'argument-instantiation-list';
 	//ARGUMENTINSTANTIATION = 'argument-instantiation';
 	PAYLOAD = 'payload';
-	ANNOTPAYLOAD = 'annotpayload'; 
 	//PAYLOADELEMENT = 'payloadelement';
 	DELEGATION = 'delegation';
 	ROLEINSTANTIATIONLIST = 'role-instantiation-list';
@@ -123,9 +121,7 @@ tokens
 	GLOBALPROTOCOLDEF = 'global-protocol-def';
 	GLOBALPROTOCOLBLOCK = 'global-protocol-block';
 	GLOBALINTERACTIONSEQUENCE = 'global-interaction-sequence';
-	GLOBALMESSAGETRANSFER = 'global-message-transfer'; 
-	ASSERTION = 'global-assertion'; 
-	ANNOTGLOBALMESSAGETRANSFER = 'annot-global-message-transfer'; 
+	GLOBALMESSAGETRANSFER = 'global-message-transfer';
 	GLOBALCONNECT = 'global-connect';
 	GLOBALDISCONNECT = 'global-disconnect';
 	GLOBALWRAP = 'global-wrap';
@@ -174,14 +170,52 @@ tokens
 	//import org.scribble.main.RuntimeScribbleException;
 }
 
+/*// Was swallowing parser error messages
+@members {
+	//private org.scribble.logging.IssueLogger _logger=null;
+	private String _document=null;
+	private boolean _errorOccurred=false;
+	
+    /*public void setLogger(org.scribble.logging.IssueLogger logger) {
+    	_logger = logger;
+    }* /
+    
+    public void setDocument(String doc) {
+    	_document = doc;
+    }
+    
+    public void emitErrorMessage(String mesg) {
+    	/*if (_logger == null) {
+    		super.emitErrorMessage(mesg);
+    	} else {
+    		_logger.error(org.scribble.parser.antlr.ANTLRMessageUtil.getMessageText(mesg),
+    					org.scribble.parser.antlr.ANTLRMessageUtil.getProperties(mesg, _document));
+    	}* /
+    	_errorOccurred = true;
+    }
+    
+    public boolean isErrorOccurred() {
+    	return(_errorOccurred);
+    }
+}*/
 
 @parser::members
 {
-	
+	/*@Override
+	public void reportError(RecognitionException e)
+	{
+		super.reportError(e);
+		//throw new RuntimeScribbleException(e.getMessage()); 
+		//System.exit(1);
+	}*/
+
 	@Override    
 	public void displayRecognitionError(String[] tokenNames, RecognitionException e)
 	{
-		
+		/*String hdr = getErrorHeader(e);
+		String msg = getErrorMessage(e, tokenNames);
+		//throw new RuntimeException(hdr + ":" + msg);
+  	System.err.println(hdr + ":" + msg);*/
 		super.displayRecognitionError(tokenNames, e);
   	System.exit(1);
 	}
@@ -189,10 +223,21 @@ tokens
 
 @lexer::members
 {
+  /*@Override
+  public void reportError(RecognitionException e)
+  {
+  	super.reportError(e);
+    //throw new RuntimeScribbleException(e.getMessage()); 
+  	//System.exit(1);
+  }*/
+
 	@Override    
 	public void displayRecognitionError(String[] tokenNames, RecognitionException e)
 	{
-		
+		/*String hdr = getErrorHeader(e);
+		String msg = getErrorMessage(e, tokenNames);
+		//throw new RuntimeException(hdr + ":" + msg);
+  	System.err.println(hdr + ":" + msg);*/
 		super.displayRecognitionError(tokenNames, e);
   	System.exit(1);
 	}
@@ -250,9 +295,6 @@ fragment SYMBOL:
 	'&' | '?' | '!'	| UNDERSCORE
 ;
 
-
-
-
 // Comes after SYMBOL due to an ANTLR syntax highlighting issue involving
 // quotes.
 // Parser doesn't work without quotes here (e.g. if inlined into parser rules)
@@ -260,15 +302,6 @@ EXTIDENTIFIER:
   '\"' (LETTER | DIGIT | SYMBOL)* '\"'
 	//(LETTER | DIGIT | SYMBOL)*
 ;
-
-EXPR: 
-	'[' (LETTER | DIGIT | OPSYMBOL | WHITESPACE)* ']'
-; 
-
-
-fragment OPSYMBOL: 
-	'=' | '>' | '<'  | '||' | '&&' | '+' | '-' | '*' 
-;  
 
 fragment LETTER:
 	'a'..'z' | 'A'..'Z'
@@ -281,7 +314,8 @@ fragment DIGIT:
 fragment UNDERSCORE:
 	'_'
 ;
- 
+
+
 /****************************************************************************
  * Chapter 3 Syntax (Parser rules)
  ***************************************************************************/
@@ -301,7 +335,6 @@ parametername:    simplename;
 recursionvarname: simplename;
 rolename:         simplename;
 scopename:        simplename;
-varname: 		  simplename; 
 
 ambiguousname:
 	simplename
@@ -445,14 +478,10 @@ payloadelement:
 /*	ambiguousname  // Parser doesn't distinguish simple from qualified properly, even with backtrack
 |*/
 	qualifiedname  // This case subsumes simple names  // FIXME: ambiguousqualifiedname (or ambiguousname should just be qualified)
-| varname ':' qualifiedname
--> 
-	^(ANNOTPAYLOAD varname qualifiedname)
 |
 	protocolname '@' rolename
 ->
 	^(DELEGATION rolename protocolname)
-
 ;
 
 
@@ -590,13 +619,9 @@ globalinteraction:
 globalmessagetransfer:
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 	->
-	^(GLOBALMESSAGETRANSFER EMPTY_ASSERTION message rolename rolename+) 
-| 
-	EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
-	->
-	^(ANNOTGLOBALMESSAGETRANSFER {AssertionsParser.ast($EXPR.text)} message rolename rolename+)
+	^(GLOBALMESSAGETRANSFER message rolename rolename+)
 ;
-	
+
 message:
 	messagesignature
 |
@@ -609,20 +634,13 @@ message:
 
 globalconnect:
 	//message CONNECT_KW rolename TO_KW rolename
-	EXPR CONNECT_KW rolename TO_KW rolename ';'
+	CONNECT_KW rolename TO_KW rolename ';'
 	->
-	^(GLOBALCONNECT {AssertionsParser.ast($EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
-|
-	EXPR message CONNECT_KW rolename TO_KW rolename ';'
-	->
-	^(GLOBALCONNECT {AssertionsParser.ast($EXPR.text)} rolename rolename message)
-|	CONNECT_KW rolename TO_KW rolename ';'
-	->
-	^(GLOBALCONNECT EMPTY_ASSERTION rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+	^(GLOBALCONNECT rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
 	message CONNECT_KW rolename TO_KW rolename ';'
 	->
-	^(GLOBALCONNECT EMPTY_ASSERTION rolename rolename message)
+	^(GLOBALCONNECT rolename rolename message)
 ;
 /*	'(' connectdecl (',' connectdecl)* ')'
 	->
