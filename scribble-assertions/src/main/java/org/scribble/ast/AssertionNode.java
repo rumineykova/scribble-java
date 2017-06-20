@@ -1,0 +1,57 @@
+package org.scribble.ast;
+
+import org.antlr.runtime.tree.CommonTree;
+import org.scribble.assertions.StmFormula;
+
+import parser.AssertionsParseException;
+import parser.AssertionsScribParser;
+
+// Cf. DoArg, wrapper for a (unary) name node of potentially unknown kind (needs disamb)
+// PayloadTypeKind is DataType or Local, but Local has its own special subclass (and protocol params not allowed), so this should implicitly be for DataType only
+// AST hierarchy requires unary and delegation (binary pair) payloads to be structurally distinguished
+//public class DataTypeElem extends PayloadElem<DataTypeKind>
+public class AssertionNode extends ScribNodeBase 
+{	
+	private final String assertion;
+	private StmFormula formula =  null; 
+	public AssertionNode(CommonTree source, String assertion)
+	{
+		//super(name);
+		//this.data = data;
+		super(source);
+		this.assertion = assertion; 
+	}
+
+	
+	@Override
+	protected AssertionNode copy() {
+		return new AssertionNode(this.source, this.assertion);
+	}
+
+	public String getAssertion()
+	{
+		return this.assertion; 
+	}
+	
+	public StmFormula toFormula() {
+		if (this.formula==null) {
+			try {
+				this.formula = AssertionsScribParser.getInstance().parse((CommonTree)this.source.getChild(0));
+			} catch (AssertionsParseException e) {
+				System.err.print("Assertion cannot be parsed" + e.getMessage());
+			}
+		}
+		return formula; 
+	}
+	
+	@Override
+	public AssertionNode clone() {
+		return (AssertionNode) AAstFactoryImpl.FACTORY.AssertionNode(this.source, this.assertion);
+	}
+	
+	@Override
+	public String toString() {
+		return this.toFormula().toString(); 
+	}
+
+}

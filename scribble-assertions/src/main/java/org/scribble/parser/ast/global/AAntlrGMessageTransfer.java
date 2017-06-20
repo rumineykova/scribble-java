@@ -1,0 +1,99 @@
+/**
+ * Copyright 2008 The Scribble Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+package org.scribble.parser.ast.global;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AssertionNode;
+import org.scribble.ast.AAstFactoryImpl;
+import org.scribble.ast.MessageNode;
+import org.scribble.ast.MessageSigNode;
+import org.scribble.ast.global.GMessageTransfer;
+import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.parser.AntlrConstants.AntlrNodeType;
+import org.scribble.parser.ScribParser;
+import org.scribble.parser.ast.name.AntlrAmbigName;
+import org.scribble.parser.ast.name.AntlrQualifiedName;
+import org.scribble.parser.ast.name.AAntlrSimpleName;
+import org.scribble.parser.util.ScribParserUtil;
+import org.scribble.util.ScribParserException;
+
+public class AAntlrGMessageTransfer
+{
+	public static final int ASSERTION_CHILD_INDEX = 0;
+	public static final int MESSAGE_CHILD_INDEX = 1;
+	public static final int SOURCE_CHILD_INDEX = 2;
+	public static final int DESTINATION_CHILDREN_START_INDEX = 3;
+
+	public static GMessageTransfer parseGMessageTransfer(ScribParser parser, CommonTree ct) throws ScribParserException
+	{
+		RoleNode src = AAntlrSimpleName.toRoleNode(getSourceChild(ct));
+		MessageNode msg = parseMessage(parser, getMessageChild(ct));
+		List<RoleNode> dests = 
+			getDestChildren(ct).stream().map((d) -> AAntlrSimpleName.toRoleNode(d)).collect(Collectors.toList());
+		return AAstFactoryImpl.FACTORY.GMessageTransfer(ct, src, msg, dests);
+	}
+	
+	public static GMessageTransfer parseAnnotGMessageTransfer(ScribParser parser, CommonTree ct) throws ScribParserException
+	{
+		AssertionNode assertion = parseAssertion(getAssertionChild(ct));   
+		RoleNode src = AAntlrSimpleName.toRoleNode(getSourceChild(ct));
+		MessageNode msg = parseMessage(parser, getMessageChild(ct));
+		List<RoleNode> dests = 
+			getDestChildren(ct).stream().map((d) -> AAntlrSimpleName.toRoleNode(d)).collect(Collectors.toList());
+		return AAstFactoryImpl.FACTORY.GMessageTransfer(ct, src, msg, dests, assertion);
+	}
+
+	protected static MessageNode parseMessage(ScribParser parser, CommonTree ct) throws ScribParserException
+	{
+		AntlrNodeType type = ScribParserUtil.getAntlrNodeType(ct);
+		if (type == AntlrNodeType.MESSAGESIGNATURE)
+		{
+			return (MessageSigNode) parser.parse(ct);
+		}
+		else //if (type.equals(AntlrConstants.AMBIGUOUSNAME_NODE_TYPE))
+		{
+			return (ct.getChildCount() == 1)
+				? AntlrAmbigName.toAmbigNameNode(ct)  // parametername or simple messagesignaturename
+				: AntlrQualifiedName.toMessageSigNameNode(ct);
+		}
+	}
+
+	public static CommonTree getMessageChild(CommonTree ct)
+	{
+		return (CommonTree) ct.getChild(MESSAGE_CHILD_INDEX);
+	}
+
+	public static CommonTree getSourceChild(CommonTree ct)
+	{
+		return (CommonTree) ct.getChild(SOURCE_CHILD_INDEX);
+	}
+
+	public static List<CommonTree> getDestChildren(CommonTree ct)
+	{
+		return ScribParserUtil.toCommonTreeList(ct.getChildren().subList(DESTINATION_CHILDREN_START_INDEX, ct.getChildCount()));
+	}
+	
+	public static CommonTree getAssertionChild(CommonTree ct)
+	{
+		return (CommonTree) ct.getChild(ASSERTION_CHILD_INDEX);
+	}
+	
+	public static AssertionNode parseAssertion(CommonTree ct)
+	{
+		return AAstFactoryImpl.FACTORY.AssertionNode(ct, ct.getText());
+	}
+}
