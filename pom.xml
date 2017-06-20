@@ -74,7 +74,6 @@
 		<module>scribble-cli</module>
 		<module>scribble-dist</module>
 		<module>scribble-demos</module>
-    <module>scribble-assertions</module>
 	</modules>
   
 	<dependencyManagement>
