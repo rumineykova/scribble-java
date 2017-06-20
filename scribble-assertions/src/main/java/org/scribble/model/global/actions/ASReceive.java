@@ -18,11 +18,12 @@ import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 
-public class ASReceive extends ASAction
+@Deprecated
+public class ASReceive extends SReceive
 {
 	public ASReceive(Role subj, Role obj, MessageId<?> mid, Payload payload, AAssertionNode assertion)
 	{
-		super(subj, obj, mid, payload, assertion);
+		super(subj, obj, mid, payload);
 	}
 	
 	@Override

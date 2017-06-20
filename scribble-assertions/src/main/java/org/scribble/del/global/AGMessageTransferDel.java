@@ -47,10 +47,13 @@ public class AGMessageTransferDel extends GMessageTransferDel implements AScribD
 			for (PayloadElem<?> pe : ((MessageSigNode) mt.msg).payloads.getElements())
 			{
 				PayloadType<?> peType = pe.toPayloadType(); 
-				//if (peType.isAnnotPayloadDecl() || peType.isAnnotPayloadInScope())
-				if (peType instanceof APayloadType<?>)  // FIXME:
+				if (peType instanceof APayloadType<?>)  // FIXME?
 				{
-					env.checkIfPayloadValid((APayloadType<?>) peType, src, dest); 
+					APayloadType<?> apt = (APayloadType<?>) peType;
+					if (apt.isAnnotPayloadDecl() || apt.isAnnotPayloadInScope())
+					{
+						env.checkIfPayloadValid(apt, src, dest); 
+					}
 				}
 			}
 		}

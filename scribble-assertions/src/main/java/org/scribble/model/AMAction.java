@@ -21,6 +21,7 @@ import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 
 // FIXME: equals/hashCode
+@Deprecated
 public abstract class AMAction<K extends ProtocolKind> extends MAction<K>
 {
 	public final AAssertionNode assertion; 

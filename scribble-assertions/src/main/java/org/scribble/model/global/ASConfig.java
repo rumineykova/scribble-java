@@ -13,11 +13,9 @@
  */
 package org.scribble.model.global;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -29,24 +27,19 @@ import org.scribble.assertions.AssertionLogFormula;
 import org.scribble.assertions.SMTWrapper;
 import org.scribble.assertions.StmFormula;
 import org.scribble.ast.AAssertionNode;
+import org.scribble.model.endpoint.AESend;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.EState;
-import org.scribble.model.endpoint.EStateKind;
-import org.scribble.model.endpoint.actions.EAccept;
-import org.scribble.model.endpoint.actions.EConnect;
-import org.scribble.model.endpoint.actions.EDisconnect;
 import org.scribble.model.endpoint.actions.EAction;
+import org.scribble.model.endpoint.actions.EDisconnect;
 import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.endpoint.actions.ESend;
-import org.scribble.model.endpoint.actions.EWrapClient;
-import org.scribble.model.endpoint.actions.EWrapServer;
-import org.scribble.model.global.SBuffers;
-import org.scribble.model.global.SConfig;
 import org.scribble.sesstype.AAnnotPayload;
 import org.scribble.sesstype.kind.PayloadTypeKind;
-import org.scribble.sesstype.name.APayloadType;
-import org.scribble.sesstype.name.Role;
 import org.scribble.sesstype.name.AAnnotVarName;
+import org.scribble.sesstype.name.APayloadType;
+import org.scribble.sesstype.name.PayloadType;
+import org.scribble.sesstype.name.Role;
 
 // FIXME: equals/hashCode
 public class ASConfig extends SConfig
@@ -100,7 +93,7 @@ public class ASConfig extends SConfig
 				throw new RuntimeException("Shouldn't get in here: " + a);
 			}
 			
-			AAssertionNode assertion = a.isSend()? a.assertion: null; 
+			AAssertionNode assertion = a.isSend() ? ((AESend) a).assertion: null; 
 			
 			AssertionLogFormula newFormula = null; 
 		
@@ -113,39 +106,50 @@ public class ASConfig extends SConfig
 							this.formula.addFormula(currFormula);
 				} catch (AssertionException e) {
 					throw new RuntimeException("cannot parse the asserion"); 
-				} 
+				}
 			}
-			
+
 			// maybe we require a copy this.formula here?
-			AssertionLogFormula nextFormula = newFormula==null?  this.formula : newFormula;   
-			
-			Map<Role, Set<String>> vars =  new HashMap<Role, Set<String>>(this.variablesInScope); 
-			
-			if (a.isSend()) {
-				for (APayloadType<? extends PayloadTypeKind> elem: a.payload.elems)
+			AssertionLogFormula nextFormula = newFormula == null ? this.formula : newFormula;
+
+			Map<Role, Set<String>> vars = new HashMap<Role, Set<String>>(this.variablesInScope);
+
+			if (a.isSend())
+			{
+				for (PayloadType<? extends PayloadTypeKind> elem : a.payload.elems)
 				{
-					if (elem.isAnnotPayloadDecl() || elem.isAnnotPayloadInScope()) {
-						String varName; 
-						if (elem.isAnnotPayloadDecl()){
-							varName = ((AAnnotPayload)elem).varName.toString(); 
-							
-							if (!vars.containsKey(r)) {
-								vars.put(r, new HashSet<String>()); 
+					if (elem instanceof APayloadType<?>) // FIXME?
+					{
+						APayloadType<?> apt = (APayloadType<?>) elem;
+						if (apt.isAnnotPayloadDecl() || apt.isAnnotPayloadInScope())
+						{
+							String varName;
+							if (apt.isAnnotPayloadDecl())
+							{
+								varName = ((AAnnotPayload) elem).varName.toString();
+
+								if (!vars.containsKey(r))
+								{
+									vars.put(r, new HashSet<String>());
+								}
+								vars.get(r).add(varName);
 							}
-							vars.get(r).add(varName);
-							
-						} else { 
-							varName = ((AAnnotVarName)elem).toString();}
-						
-						if (!vars.containsKey(a.obj)) {
-							vars.put(a.obj, new HashSet<String>()); 
-						}
-						
-						vars.get(a.obj).add(varName);
+							else
+							{
+								varName = ((AAnnotVarName) elem).toString();
+							}
+
+							if (!vars.containsKey(a.obj))
+							{
+								vars.put(a.obj, new HashSet<String>());
+							}
+
+							vars.get(a.obj).add(varName);
 						}
 					}
-			}  
-			
+				}
+			}
+
 			res.add(new ASConfig(tmp1, tmp2, nextFormula, vars));
 		}
 
@@ -162,7 +166,7 @@ public class ASConfig extends SConfig
 			{
 				if (action.isSend()) {
 					ESend send = (ESend)action;
-					AAssertionNode assertion = send.assertion; 
+					AAssertionNode assertion = ((AESend) send).assertion; 
 					if (assertion !=null)
 					{
 						if (!SMTWrapper.getInstance().isSat(assertion.toFormula(), this.formula)) {
@@ -190,11 +194,11 @@ public class ASConfig extends SConfig
 			for (EAction action : s.getAllFireable())  
 			{
 				if (action.isSend()) {
-					ESend send = (ESend)action;
+					AESend send = (AESend)action;
 					AAssertionNode assertion = send.assertion;
 					
 					Set<String> newVarNames = send.payload.elems.stream()
-							.filter(v-> v.isAnnotPayloadDecl())
+							.filter(v -> (v instanceof APayloadType<?>) && ((APayloadType<?>) v).isAnnotPayloadDecl())  // FIXME?
 							.map(v -> ((AAnnotPayload)v).varName.toString())
 							.collect(Collectors.toSet()); 
 					
@@ -219,11 +223,10 @@ public class ASConfig extends SConfig
 	}
 
 	@Override
-	public final int hashCode()  // FIXME
+	public final int hashCode()
 	{
-		int hash = 71;
-		hash = 31 * hash + this.efsms.hashCode();
-		hash = 31 * hash + this.buffs.hashCode();
+		int hash = 5507;
+		hash = 31 * hash + super.hashCode();
 		return hash;
 	}
 
@@ -238,13 +241,6 @@ public class ASConfig extends SConfig
 		{
 			return false;
 		}
-		ASConfig c = (ASConfig) o;
-		return this.efsms.equals(c.efsms) && this.buffs.equals(c.buffs);
-	}
-	
-	@Override
-	public String toString()
-	{
-		return "(" + this.efsms + ", " + this.buffs + ")";
+		return super.equals(o);
 	}
 }

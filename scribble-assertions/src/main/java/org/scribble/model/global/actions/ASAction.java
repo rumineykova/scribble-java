@@ -25,6 +25,7 @@ import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 
 // FIXME: extend SAction, not AMAaction (delete the latter)
+@Deprecated
 public abstract class ASAction extends AMAction<Global>
 {
 	public final Role subj;

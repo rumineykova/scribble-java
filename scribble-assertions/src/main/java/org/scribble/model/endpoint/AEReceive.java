@@ -15,11 +15,11 @@ package org.scribble.model.endpoint;
 
 import org.scribble.ast.AAssertionNode;
 import org.scribble.model.global.actions.ASReceive;
-import org.scribble.model.global.actions.SReceive;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 
+@Deprecated
 public class AEReceive extends AEAction
 {
 	/*protected static final Set<Receive> RECEIVES = new HashSet<>();
@@ -56,10 +56,11 @@ public class AEReceive extends AEAction
 	}
 	
 	@Override
-	public AESend toDual(Role self)
+	public AEAction toDual(Role self)
 	{
-		return new AESend(self, this.mid, this.payload, this.assertion);
-		//return Send.get(self, this.mid, this.payload);
+		//return new AESend(self, this.mid, this.payload, this.assertion);
+		////return Send.get(self, this.mid, this.payload);
+		return null;
 	}
 
 	@Override

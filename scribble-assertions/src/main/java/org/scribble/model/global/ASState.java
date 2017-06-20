@@ -34,19 +34,17 @@ public class ASState extends SState
 	{
 		SStateErrors errs = super.getErrors();
 
-		Map<Role, EState> unsatAssertion = ((ASConfig) this.config).getUnsatAssertions();   // FIXME:
+		Map<Role, EState> unsatAssertion = ((ASConfig) this.config).getUnsatAssertions();   // FIXME: replace cast by something better?
 		Map<Role, EState> varsNotInScope = ((ASConfig) this.config).checkHistorySensitivity();
 
 		return new ASStateErrors(errs.stuck, errs.waitFor, errs.orphans, errs.unfinished, unsatAssertion, varsNotInScope);
 	}
 	
-	// FIXME? doesn't use super.hashCode (cf., equals)
 	@Override
 	public int hashCode()
 	{
-		int hash = 79;
-		//int hash = super.hashCode();
-		hash = 31 * hash + this.config.hashCode();
+		int hash = 5503;
+		hash = 31 * hash + super.hashCode();
 		return hash;
 	}
 

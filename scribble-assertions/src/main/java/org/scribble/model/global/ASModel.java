@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.scribble.main.AJob;
+import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.model.global.actions.SAction;
@@ -30,7 +30,8 @@ public class ASModel extends SModel
 		super(graph);
 	}
 
-	public void validate(AJob job) throws ScribbleException
+	@Override
+	public void validate(Job job) throws ScribbleException
 	{
 		SState init = this.graph.init;
 		Map<Integer, SState> states = this.graph.states;
@@ -75,13 +76,13 @@ public class ASModel extends SModel
 			{
 				errorMsg += "\n    Unfinished roles: " + errors.unfinished;
 			}
-			if (!errors.unsatAssertions.isEmpty())
-			{
-				errorMsg += "\n Unsatisfieable constraints " + errors.unsatAssertions;
-			}
 			if (!errors.varsNotInScope.isEmpty())
 			{
-				errorMsg += "\n Assertion variables are not in scope " + errors.varsNotInScope;
+				errorMsg += "\n    Assertion variables are not in scope " + errors.varsNotInScope;
+			}
+			if (!errors.unsatAssertions.isEmpty())
+			{
+				errorMsg += "\n    Unsatisfiable constraints " + errors.unsatAssertions;
 			}
 		}
 		job.debugPrintln("(" + this.graph.proto + ") Checked all states: " + count);  // May include unsafe states

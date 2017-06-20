@@ -18,24 +18,22 @@ import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 
-public class ASSend extends ASAction
+public class ASSend extends SSend
 {
+	public final AAssertionNode assertion;  // Cf., e.g., AGMessageTransfer
+
 	public ASSend(Role subj, Role obj, MessageId<?> mid, Payload payload, AAssertionNode assertion)
 	{
-		super(subj, obj, mid, payload, assertion);
-	}
-	
-	@Override
-	public boolean isSend()
-	{
-		return true;
+		super(subj, obj, mid, payload);
+		this.assertion = assertion;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		int hash = 977;
+		int hash = 5483;
 		hash = 31 * hash + super.hashCode();
+		hash = 31 * hash + this.assertion.hashCode();
 		return hash;
 	}
 
@@ -50,7 +48,8 @@ public class ASSend extends ASAction
 		{
 			return false;
 		}
-		return ((ASSend) o).canEqual(this) && super.equals(o);
+		ASSend as = (ASSend) o;
+		return as.canEqual(this) && super.equals(o) && as.assertion.equals(this.assertion);
 	}
 
 	@Override
@@ -58,10 +57,10 @@ public class ASSend extends ASAction
 	{
 		return o instanceof ASSend;
 	}
-
+	
 	@Override
-	protected String getCommSymbol()
+	public String toString()
 	{
-		return "!";
+		return "[" + this.assertion + "]\n" + super.toString();
 	}
 }

@@ -22,6 +22,7 @@ import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 
 // FIXME: extend EAction, not AMAaction (delete the latter)
+@Deprecated
 public abstract class AEAction extends AMAction<Local>
 {
 	public final Role peer;

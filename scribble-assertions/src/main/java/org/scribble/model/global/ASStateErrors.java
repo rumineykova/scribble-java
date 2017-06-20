@@ -37,6 +37,7 @@ public class ASStateErrors extends SStateErrors
 		this.varsNotInScope =  Collections.unmodifiableMap(varsNotInScope);
 	}
 	
+	@Override
 	public boolean isEmpty()
 	{
 		return super.isEmpty() && this.unsatAssertions.isEmpty() && this.varsNotInScope.isEmpty();
