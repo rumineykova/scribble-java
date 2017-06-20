@@ -15,6 +15,8 @@ import org.scribble.visit.wf.env.AAnnotationEnv;
 
 // By default, EnvVisitor only manipulates internal Env stack -- so AST/dels not affected
 // Attaching Envs to Dels has to be done manually by each pass
+
+...TODO...
 public class AAnnotationChecker extends EnvVisitor<AAnnotationEnv>
 {
 	public Map<String, APayloadType<? extends PayloadTypeKind>> payloads;    

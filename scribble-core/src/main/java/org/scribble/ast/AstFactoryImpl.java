@@ -402,6 +402,8 @@ public class AstFactoryImpl implements AstFactory
 	public <K extends Kind> NameNode<K> SimpleNameNode(CommonTree source, K kind, String identifier)
 	{
 		NameNode<? extends Kind> snn = null;
+		
+		// Without delegates
 		if (kind.equals(RecVarKind.KIND))
 		{
 			snn = new RecVarNode(source, identifier);
@@ -417,6 +419,7 @@ public class AstFactoryImpl implements AstFactory
 			return castNameNode(kind, snn);
 		}
 
+		// With delegates
 		if (kind.equals(OpKind.KIND))
 		{
 			snn = new OpNode(source, identifier);
@@ -466,7 +469,7 @@ public class AstFactoryImpl implements AstFactory
 		return castNameNode(kind, del(qnn, createDefaultDelegate()));
 	}
 	
-	private static <T extends NameNode<K>, K extends Kind> T castNameNode(K kind, NameNode<? extends Kind> n)
+	protected static <T extends NameNode<K>, K extends Kind> T castNameNode(K kind, NameNode<? extends Kind> n)
 	{
 		if (!n.toName().getKind().equals(kind))
 		{

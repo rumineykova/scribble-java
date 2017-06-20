@@ -14,14 +14,14 @@
 package org.scribble.parser.ast.name;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AAstFactoryImpl;
 import org.scribble.ast.name.simple.AVarNameNode;
 import org.scribble.sesstype.kind.AAnnotVarNameKind;
 
 public class AAntlrSimpleName
 {
-	public static AVarNameNode toVarName(CommonTree ct) {
-		// TODO Auto-generated method stub
-		return (AVarNameNode) AstFactoryImpl.FACTORY.SimpleNameNode(ct, AAnnotVarNameKind.KIND, AntlrSimpleName.getName(ct));
+	public static AVarNameNode toVarName(CommonTree ct)
+	{
+		return (AVarNameNode) AAstFactoryImpl.FACTORY.SimpleNameNode(ct, AAnnotVarNameKind.KIND, AntlrSimpleName.getName(ct));
 	}
 }

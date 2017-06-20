@@ -18,13 +18,23 @@ import java.util.List;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.global.AGMessageTransfer;
 import org.scribble.ast.local.ALSend;
+import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.simple.AVarNameNode;
+import org.scribble.ast.name.simple.OpNode;
+import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.AAnnotPayloadElemDel;
 import org.scribble.del.global.AGMessageTransferDel;
 import org.scribble.del.local.ALSendDel;
+import org.scribble.del.name.RecVarNodeDel;
+import org.scribble.del.name.RoleNodeDel;
+import org.scribble.sesstype.kind.AAnnotVarNameKind;
+import org.scribble.sesstype.kind.Kind;
+import org.scribble.sesstype.kind.OpKind;
 import org.scribble.sesstype.kind.PayloadTypeKind;
+import org.scribble.sesstype.kind.RecVarKind;
+import org.scribble.sesstype.kind.RoleKind;
 
 
 public class AAstFactoryImpl extends AstFactoryImpl implements AAstFactory
@@ -73,5 +83,43 @@ public class AAstFactoryImpl extends AstFactoryImpl implements AAstFactory
 		AAssertionNode node = new AAssertionNode(source, assertion); 
 		node = del(node, createDefaultDelegate());
 		return node; 
+	}
+	
+	@Override
+	public <K extends Kind> NameNode<K> SimpleNameNode(CommonTree source, K kind, String identifier)
+	{
+		NameNode<? extends Kind> snn = null;
+		
+		// Without delegates
+		if (kind.equals(RecVarKind.KIND))
+		{
+			snn = new RecVarNode(source, identifier);
+			snn = del(snn, new RecVarNodeDel());
+		}
+		else if (kind.equals(RoleKind.KIND))
+		{
+			snn = new RoleNode(source, identifier);
+			snn = del(snn, new RoleNodeDel());
+		}
+		else if (kind.equals(AAnnotVarNameKind.KIND))
+		{
+			snn = new AVarNameNode(source, identifier);
+			snn = del(snn, createDefaultDelegate()); 
+		}
+		if (snn != null)
+		{
+			return castNameNode(kind, snn);
+		}
+
+		// With delegates
+		if (kind.equals(OpKind.KIND))
+		{
+			snn = new OpNode(source, identifier);
+		}
+		else
+		{
+			throw new RuntimeException("Shouldn't get in here: " + kind);
+		}
+		return castNameNode(kind, del(snn, createDefaultDelegate()));
 	}
 }
