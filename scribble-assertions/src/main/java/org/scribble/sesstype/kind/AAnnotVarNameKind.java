@@ -1,10 +1,10 @@
 package org.scribble.sesstype.kind;
 
-public class AnnotVarNameKind extends AbstractKind implements PayloadTypeKind
+public class AAnnotVarNameKind extends AbstractKind implements PayloadTypeKind
 {
-	public static final AnnotVarNameKind KIND = new AnnotVarNameKind();
+	public static final AAnnotVarNameKind KIND = new AAnnotVarNameKind();
 	
-	protected AnnotVarNameKind()
+	protected AAnnotVarNameKind()
 	{
 
 	}
@@ -32,6 +32,6 @@ public class AnnotVarNameKind extends AbstractKind implements PayloadTypeKind
 	@Override
 	public boolean canEqual(Object o)
 	{
-		return o instanceof DataTypeKind;
+		return o instanceof AAnnotVarNameKind;
 	}
 }

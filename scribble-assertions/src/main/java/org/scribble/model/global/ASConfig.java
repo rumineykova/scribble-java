@@ -42,11 +42,11 @@ import org.scribble.model.endpoint.actions.EWrapClient;
 import org.scribble.model.endpoint.actions.EWrapServer;
 import org.scribble.model.global.SBuffers;
 import org.scribble.model.global.SConfig;
-import org.scribble.sesstype.AnnotPayload;
+import org.scribble.sesstype.AAnnotPayload;
 import org.scribble.sesstype.kind.PayloadTypeKind;
-import org.scribble.sesstype.name.PayloadType;
+import org.scribble.sesstype.name.APayloadType;
 import org.scribble.sesstype.name.Role;
-import org.scribble.sesstype.name.AnnotVarName;
+import org.scribble.sesstype.name.AAnnotVarName;
 
 // FIXME: equals/hashCode
 public class ASConfig extends SConfig
@@ -122,12 +122,12 @@ public class ASConfig extends SConfig
 			Map<Role, Set<String>> vars =  new HashMap<Role, Set<String>>(this.variablesInScope); 
 			
 			if (a.isSend()) {
-				for (PayloadType<? extends PayloadTypeKind> elem: a.payload.elems)
+				for (APayloadType<? extends PayloadTypeKind> elem: a.payload.elems)
 				{
 					if (elem.isAnnotPayloadDecl() || elem.isAnnotPayloadInScope()) {
 						String varName; 
 						if (elem.isAnnotPayloadDecl()){
-							varName = ((AnnotPayload)elem).varName.toString(); 
+							varName = ((AAnnotPayload)elem).varName.toString(); 
 							
 							if (!vars.containsKey(r)) {
 								vars.put(r, new HashSet<String>()); 
@@ -135,7 +135,7 @@ public class ASConfig extends SConfig
 							vars.get(r).add(varName);
 							
 						} else { 
-							varName = ((AnnotVarName)elem).toString();}
+							varName = ((AAnnotVarName)elem).toString();}
 						
 						if (!vars.containsKey(a.obj)) {
 							vars.put(a.obj, new HashSet<String>()); 
@@ -195,7 +195,7 @@ public class ASConfig extends SConfig
 					
 					Set<String> newVarNames = send.payload.elems.stream()
 							.filter(v-> v.isAnnotPayloadDecl())
-							.map(v -> ((AnnotPayload)v).varName.toString())
+							.map(v -> ((AAnnotPayload)v).varName.toString())
 							.collect(Collectors.toSet()); 
 					
 					if (assertion !=null)

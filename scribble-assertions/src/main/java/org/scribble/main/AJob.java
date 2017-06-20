@@ -17,7 +17,7 @@ import java.util.Map;
 
 import org.scribble.ast.Module;
 import org.scribble.sesstype.name.ModuleName;
-import org.scribble.visit.AnnotationChecker;
+import org.scribble.visit.AAnnotationChecker;
 import org.scribble.visit.validation.GProtocolValidator;
 import org.scribble.visit.wf.ReachabilityChecker;
 import org.scribble.visit.wf.WFChoiceChecker;
@@ -44,7 +44,7 @@ public class AJob extends Job
 				runVisitorPassOnAllModules(GProtocolValidator.class);
 			}
 			
-			runVisitorPassOnAllModules(AnnotationChecker.class);
+			runVisitorPassOnAllModules(AAnnotationChecker.class);
 		}
 	}
 }

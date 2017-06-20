@@ -20,7 +20,7 @@ import org.scribble.ast.ScribNode;
 import org.scribble.ast.context.ModuleContext;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.kind.AnnotVarNameKind;
+import org.scribble.sesstype.kind.AAnnotVarNameKind;
 import org.scribble.sesstype.kind.DataTypeKind;
 import org.scribble.sesstype.kind.SigKind;
 import org.scribble.sesstype.name.AmbigName;
@@ -64,7 +64,7 @@ public class AAmbigNameNodeDel extends AmbigNameNodeDel
 
 		else if (disamb.isVarnameInScope(name.toString()))
 		{
-			return AstFactoryImpl.FACTORY.SimpleNameNode(ann.getSource(), AnnotVarNameKind.KIND, name.getLastElement());
+			return AstFactoryImpl.FACTORY.SimpleNameNode(ann.getSource(), AAnnotVarNameKind.KIND, name.getLastElement());
 		}
 
 		throw new ScribbleException(ann.getSource(), "Cannot disambiguate name: " + name);

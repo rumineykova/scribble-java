@@ -1,16 +1,17 @@
 package org.scribble.sesstype;
 
-import org.scribble.sesstype.kind.AnnotPayloadElemKind;
-import org.scribble.sesstype.name.AnnotVarName;
+import org.scribble.sesstype.kind.AAnnotPayloadElemKind;
+import org.scribble.sesstype.name.AAnnotVarName;
 import org.scribble.sesstype.name.DataType;
-import org.scribble.sesstype.name.PayloadType;
+import org.scribble.sesstype.name.APayloadType;
 
-public class AnnotPayload implements PayloadType<AnnotPayloadElemKind>
+// Cf., org.scribble.sesstype.Payload?
+public class AAnnotPayload implements APayloadType<AAnnotPayloadElemKind>
 {
-	public final AnnotVarName varName;
+	public final AAnnotVarName varName;
 	public final DataType dataType;
 	
-	public AnnotPayload(AnnotVarName varName, DataType dataType)
+	public AAnnotPayload(AAnnotVarName varName, DataType dataType)
 	{
 		this.varName = varName; 
 		this.dataType = dataType; 
@@ -23,18 +24,18 @@ public class AnnotPayload implements PayloadType<AnnotPayloadElemKind>
 		{
 			return true;
 		}
-		if (!(o instanceof AnnotPayload))
+		if (!(o instanceof AAnnotPayload))
 		{
 			return false;
 		}
-		AnnotPayload n = (AnnotPayload) o;
+		AAnnotPayload n = (AAnnotPayload) o;
 		return n.canEqual(this) && 
 			n.varName.equals(this.varName) && n.dataType.equals(this.dataType);
 	}
 	
 	public boolean canEqual(Object o)
 	{
-		return o instanceof AnnotPayload;
+		return o instanceof AAnnotPayload;
 	}
 
 	@Override
@@ -53,8 +54,8 @@ public class AnnotPayload implements PayloadType<AnnotPayloadElemKind>
 	}
 
 	@Override
-	public AnnotPayloadElemKind getKind() {
-		return AnnotPayloadElemKind.KIND;
+	public AAnnotPayloadElemKind getKind() {
+		return AAnnotPayloadElemKind.KIND;
 	}
 	
 	@Override

@@ -115,7 +115,7 @@ public class SModel
 		//job.debugPrintln("(" + this.graph.proto + ") Progress satisfied.");  // Also safety... current errorMsg approach
 	}
 	
-	private String termSetToString(Job job, Set<Integer> termset, Map<Integer, SState> all)
+	protected String termSetToString(Job job, Set<Integer> termset, Map<Integer, SState> all)
 	{
 		return job.debug
 				? termset.stream().map((i) -> all.get(i).toString()).collect(Collectors.joining(","))
@@ -123,7 +123,7 @@ public class SModel
 	}
 
 	// ** Could subsume terminal state check, if terminal sets included size 1 with reflexive reachability (but not a good approach)
-	private static Set<Role> checkRoleProgress(Map<Integer, SState> states, SState init, Set<Integer> termset) throws ScribbleException
+	protected static Set<Role> checkRoleProgress(Map<Integer, SState> states, SState init, Set<Integer> termset) throws ScribbleException
 	{
 		Set<Role> starved = new HashSet<>();
 		Iterator<Integer> i = termset.iterator();
@@ -184,7 +184,7 @@ public class SModel
 	}
 
 	// (eventual reception)
-	private static Map<Role, Set<ESend>> checkEventualReception(Map<Integer, SState> states, SState init, Set<Integer> termset) throws ScribbleException
+	protected static Map<Role, Set<ESend>> checkEventualReception(Map<Integer, SState> states, SState init, Set<Integer> termset) throws ScribbleException
 	{
 		Set<Role> roles = states.get(termset.iterator().next()).config.efsms.keySet();
 

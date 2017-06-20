@@ -15,8 +15,8 @@ package org.scribble.del;
 
 import org.scribble.ast.ScribNode;
 import org.scribble.main.ScribbleException;
-import org.scribble.visit.AnnotationChecker;
-import org.scribble.visit.wf.env.AnnotationEnv;
+import org.scribble.visit.AAnnotationChecker;
+import org.scribble.visit.wf.env.AAnnotationEnv;
 
 @Deprecated
 public abstract class AChoiceDel extends ChoiceDel implements AScribDel
@@ -27,9 +27,9 @@ public abstract class AChoiceDel extends ChoiceDel implements AScribDel
 	}
 
 	@Override
-	public void enterAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker) throws ScribbleException
+	public void enterAnnotCheck(ScribNode parent, ScribNode child, AAnnotationChecker checker) throws ScribbleException
 	{
-		AnnotationEnv env = checker.peekEnv().enterContext();
+		AAnnotationEnv env = checker.peekEnv().enterContext();
 		checker.pushEnv(env);
 	}
 	

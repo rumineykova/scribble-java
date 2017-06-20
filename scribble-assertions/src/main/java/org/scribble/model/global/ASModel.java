@@ -13,40 +13,32 @@
  */
 package org.scribble.model.global;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.scribble.assertions.SMTWrapper;
 import org.scribble.main.AJob;
 import org.scribble.main.ScribbleException;
-import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.model.global.actions.SAction;
 import org.scribble.sesstype.name.Role;
 
-public class ASModel
+public class ASModel extends SModel
 {
-	public final ASGraph graph;
-
-	protected ASModel(ASGraph graph)
+	protected ASModel(SGraph graph)
 	{
-		this.graph = graph;
+		super(graph);
 	}
 
 	public void validate(AJob job) throws ScribbleException
 	{
-		ASState init = this.graph.init;
-		Map<Integer, ASState> states = this.graph.states;
+		SState init = this.graph.init;
+		Map<Integer, SState> states = this.graph.states;
 
 		String errorMsg = "";
 
 		int count = 0;
-		for (ASState s : states.values())
+		for (SState s : states.values())
 		{
 			if (job.debug)
 			{
@@ -57,7 +49,7 @@ public class ASModel
 					job.debugPrintln("(" + this.graph.proto + ") Checking states: " + count);
 				}
 			}
-			ASStateErrors errors = s.getErrors();
+			ASStateErrors errors = ((ASState) s).getErrors();
 			//SMTWrapper.getInstance().close();
 			
 			if (!errors.isEmpty())
@@ -105,12 +97,12 @@ public class ASModel
 				/*job.debugPrintln("(" + this.graph.proto + ") Checking terminal set: "
 							+ termset.stream().map((i) -> new Integer(all.get(i).id).toString()).collect(Collectors.joining(",")));  // Incompatible with current errorMsg approach*/
 
-				Set<Role> starved = checkRoleProgress(states, init, termset);
+				Set<Role> starved = SModel.checkRoleProgress(states, init, termset);
 				if (!starved.isEmpty())
 				{
 					errorMsg += "\nRole progress violation for " + starved + " in session state terminal set:\n    " + termSetToString(job, termset, states);
 				}
-				Map<Role, Set<ESend>> ignored = checkEventualReception(states, init, termset);
+				Map<Role, Set<ESend>> ignored = SModel.checkEventualReception(states, init, termset);
 				if (!ignored.isEmpty())
 				{
 					errorMsg += "\nEventual reception violation for " + ignored + " in session state terminal set:\n    " + termSetToString(job, termset, states);
@@ -124,128 +116,5 @@ public class ASModel
 			throw new ScribbleException(errorMsg);
 		}
 		//job.debugPrintln("(" + this.graph.proto + ") Progress satisfied.");  // Also safety... current errorMsg approach
-	}
-	
-	private String termSetToString(AJob job, Set<Integer> termset, Map<Integer, ASState> all)
-	{
-		return job.debug
-				? termset.stream().map((i) -> all.get(i).toString()).collect(Collectors.joining(","))
-				: termset.stream().map((i) -> new Integer(all.get(i).id).toString()).collect(Collectors.joining(","));
-	}
-
-	// ** Could subsume terminal state check, if terminal sets included size 1 with reflexive reachability (but not a good approach)
-	private static Set<Role> checkRoleProgress(Map<Integer, ASState> states, ASState init, Set<Integer> termset) throws ScribbleException
-	{
-		Set<Role> starved = new HashSet<>();
-		Iterator<Integer> i = termset.iterator();
-		ASState s = states.get(i.next());
-		Map<Role, ASState> ss = new HashMap<>();
-		s.config.efsms.keySet().forEach((r) -> ss.put(r, s));
-		while (i.hasNext())
-		{
-			ASState next = states.get(i.next());
-			Map<Role, EFSM> tmp = next.config.efsms;
-			for (Role r : tmp.keySet())
-			{
-				if (ss.get(r) != null)
-				{
-					/*if (!ss.get(r).equals(tmp.get(r)))
-					{	
-						ss.put(r, null);
-					}
-					else*/
-					{
-						for (SAction a : next.getAllActions())
-						{
-							if (a.containsRole(r))
-							{
-								ss.put(r, null);
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-		for (Role r : ss.keySet())
-		{
-			ASState foo = ss.get(r);
-			if (foo != null)
-			{
-				EFSM tmp = foo.config.efsms.get(r);
-				if (tmp != null)
-				{
-					if (!foo.config.canSafelyTerminate(r))
-					{
-						if (s.config.buffs.get(r).values().stream().allMatch((v) -> v == null))
-						{
-							starved.add(r);
-						}
-						/*
-						// Should be redundant given explicit reception error etc checking
-						else
-						{
-							safety.add(r);
-						}*/
-					}
-				}
-			}
-		}
-		return starved;
-	}
-
-	// (eventual reception)
-	private static Map<Role, Set<ESend>> checkEventualReception(Map<Integer, ASState> states, ASState init, Set<Integer> termset) throws ScribbleException
-	{
-		Set<Role> roles = states.get(termset.iterator().next()).config.efsms.keySet();
-
-		Iterator<Integer> i = termset.iterator();
-		Map<Role, Map<Role, ESend>> b0 = states.get(i.next()).config.buffs.getBuffers();
-		while (i.hasNext())
-		{
-			ASState s = states.get(i.next());
-			SBuffers b = s.config.buffs;
-			for (Role r1 : roles)
-			{
-				for (Role r2 : roles)
-				{
-					ESend s0 = b0.get(r1).get(r2);
-					if (s0 != null)
-					{
-						ESend tmp = b.get(r1).get(r2);
-						if (tmp == null)
-						{
-							b0.get(r1).put(r2, null);
-						}
-					}
-				}
-			}
-		}
-	
-		Map<Role, Set<ESend>> ignored = new HashMap<>();
-		for (Role r1 : roles)
-		{
-			for (Role r2 : roles)
-			{
-				ESend m = b0.get(r1).get(r2);
-				if (m != null)
-				{
-					Set<ESend> tmp = ignored.get(r2);
-					if (tmp == null)
-					{
-						tmp = new HashSet<>();
-						ignored.put(r2, tmp);
-					}
-					tmp.add(m);
-				}
-			}
-		}
-		return ignored;
-	}
-	
-	@Override
-	public String toString()
-	{
-		return this.graph.toString();
 	}
 }

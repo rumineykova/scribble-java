@@ -9,26 +9,26 @@ import org.scribble.del.AScribDel;
 import org.scribble.main.AJob;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.kind.PayloadTypeKind;
-import org.scribble.sesstype.name.PayloadType;
-import org.scribble.visit.wf.env.AnnotationEnv;
+import org.scribble.sesstype.name.APayloadType;
+import org.scribble.visit.wf.env.AAnnotationEnv;
 
 
 // By default, EnvVisitor only manipulates internal Env stack -- so AST/dels not affected
 // Attaching Envs to Dels has to be done manually by each pass
-public class AnnotationChecker extends EnvVisitor<AnnotationEnv>
+public class AAnnotationChecker extends EnvVisitor<AAnnotationEnv>
 {
-	public Map<String, PayloadType<? extends PayloadTypeKind>> payloads;    
+	public Map<String, APayloadType<? extends PayloadTypeKind>> payloads;    
 	
-	public AnnotationChecker(AJob job)
+	public AAnnotationChecker(AJob job)
 	{
 		super(job);
-		this.payloads = new HashMap<String, PayloadType<? extends PayloadTypeKind>>(); 
+		this.payloads = new HashMap<String, APayloadType<? extends PayloadTypeKind>>(); 
 	}
 	
 	@Override
-	protected AnnotationEnv makeRootProtocolDeclEnv(ProtocolDecl<?> pd)
+	protected AAnnotationEnv makeRootProtocolDeclEnv(ProtocolDecl<?> pd)
 	{
-		AnnotationEnv env = new AnnotationEnv();
+		AAnnotationEnv env = new AAnnotationEnv();
 		return env;
 	}
 	

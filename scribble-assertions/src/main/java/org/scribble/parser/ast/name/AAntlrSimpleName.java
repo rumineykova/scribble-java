@@ -16,12 +16,12 @@ package org.scribble.parser.ast.name;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.name.simple.VarNameNode;
-import org.scribble.sesstype.kind.AnnotVarNameKind;
+import org.scribble.sesstype.kind.AAnnotVarNameKind;
 
 public class AAntlrSimpleName
 {
 	public static VarNameNode toVarName(CommonTree ct) {
 		// TODO Auto-generated method stub
-		return (VarNameNode) AstFactoryImpl.FACTORY.SimpleNameNode(ct, AnnotVarNameKind.KIND, AntlrSimpleName.getName(ct));
+		return (VarNameNode) AstFactoryImpl.FACTORY.SimpleNameNode(ct, AAnnotVarNameKind.KIND, AntlrSimpleName.getName(ct));
 	}
 }

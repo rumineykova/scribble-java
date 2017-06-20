@@ -29,13 +29,13 @@ import org.scribble.ast.local.LNode;
 import org.scribble.del.InteractionSeqDel;
 import org.scribble.del.ScribDelBase;
 import org.scribble.main.ScribbleException;
-import org.scribble.visit.AnnotationChecker;
+import org.scribble.visit.AAnnotationChecker;
 import org.scribble.visit.ProtocolDefInliner;
 import org.scribble.visit.context.Projector;
 import org.scribble.visit.context.RecRemover;
 import org.scribble.visit.context.env.ProjectionEnv;
 import org.scribble.visit.env.InlineProtocolEnv;
-import org.scribble.visit.wf.env.AnnotationEnv;
+import org.scribble.visit.wf.env.AAnnotationEnv;
 
 public class AGInteractionSeqDel extends InteractionSeqDel
 {
@@ -139,9 +139,9 @@ public class AGInteractionSeqDel extends InteractionSeqDel
 	}
 	
 	@Override
-	public void enterAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker) throws ScribbleException
+	public void enterAnnotCheck(ScribNode parent, ScribNode child, AAnnotationChecker checker) throws ScribbleException
 	{
-		AnnotationEnv env = checker.peekEnv().enterContext();
+		AAnnotationEnv env = checker.peekEnv().enterContext();
 		checker.pushEnv(env);
 	}
 }

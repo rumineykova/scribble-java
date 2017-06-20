@@ -24,13 +24,13 @@ import org.scribble.ast.local.LNode;
 import org.scribble.del.MessageTransferDel;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.Message;
-import org.scribble.sesstype.name.PayloadType;
+import org.scribble.sesstype.name.APayloadType;
 import org.scribble.sesstype.name.Role;
-import org.scribble.visit.AnnotationChecker;
+import org.scribble.visit.AAnnotationChecker;
 import org.scribble.visit.context.Projector;
 import org.scribble.visit.wf.NameDisambiguator;
 import org.scribble.visit.wf.WFChoiceChecker;
-import org.scribble.visit.wf.env.AnnotationEnv;
+import org.scribble.visit.wf.env.AAnnotationEnv;
 import org.scribble.visit.wf.env.WFChoiceEnv;
 
 public class AGMessageTransferDel extends MessageTransferDel implements GSimpleInteractionNodeDel
@@ -93,9 +93,9 @@ public class AGMessageTransferDel extends MessageTransferDel implements GSimpleI
 	}
 
 	@Override
-	public MessageTransfer<?> leaveAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker, ScribNode visited) throws ScribbleException
+	public MessageTransfer<?> leaveAnnotCheck(ScribNode parent, ScribNode child, AAnnotationChecker checker, ScribNode visited) throws ScribbleException
 	{
-		AnnotationEnv env = checker.popEnv();
+		AAnnotationEnv env = checker.popEnv();
 		MessageTransfer<?> mt = (MessageTransfer<?>) visited;
 		if (mt.msg.isMessageSigNode())
 		{	
@@ -104,7 +104,7 @@ public class AGMessageTransferDel extends MessageTransferDel implements GSimpleI
 			
 			for (PayloadElem<?> pe : ((MessageSigNode) mt.msg).payloads.getElements())
 			{
-				PayloadType<?> peType = pe.toPayloadType(); 
+				APayloadType<?> peType = pe.toPayloadType(); 
 				if (peType.isAnnotPayloadDecl() || peType.isAnnotPayloadInScope())
 				{
 					env.checkIfPayloadValid(peType, src, dest)

@@ -15,16 +15,16 @@ package org.scribble.del;
 
 import org.scribble.ast.ScribNode;
 import org.scribble.main.ScribbleException;
-import org.scribble.visit.AnnotationChecker;
+import org.scribble.visit.AAnnotationChecker;
 
 public interface AScribDel extends ScribDel
 {
-	default void enterAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker) throws ScribbleException
+	default void enterAnnotCheck(ScribNode parent, ScribNode child, AAnnotationChecker checker) throws ScribbleException
 	{
 		 
 	}
 	
-	default ScribNode leaveAnnotCheck(ScribNode parent, ScribNode child,  AnnotationChecker checker, ScribNode visited) throws ScribbleException
+	default ScribNode leaveAnnotCheck(ScribNode parent, ScribNode child,  AAnnotationChecker checker, ScribNode visited) throws ScribbleException
 	{
 		return visited;
 	}

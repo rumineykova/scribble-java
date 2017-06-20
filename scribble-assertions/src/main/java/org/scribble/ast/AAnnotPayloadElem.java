@@ -5,7 +5,7 @@ import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.simple.VarNameNode;
 import org.scribble.del.AScribDel;
 import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.AnnotPayload;
+import org.scribble.sesstype.AAnnotPayload;
 import org.scribble.sesstype.kind.PayloadTypeKind;
 import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;
@@ -89,9 +89,9 @@ public class AAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeBase 
 	@Override
 	//public PayloadType<DataTypeKind> toPayloadType()  // Currently can assume the only possible kind is DataTypeKind
 	//public PayloadType<? extends PayloadTypeKind> toPayloadType()  // Currently can assume the only possible kind is DataTypeKind
-	public AnnotPayload toPayloadType()  // Currently can assume the only possible kind is DataTypeKind
+	public AAnnotPayload toPayloadType()  // Currently can assume the only possible kind is DataTypeKind
 	{
 		// TODO: make it PayloadType AnnotPayload 
-		return new AnnotPayload(this.varName.toPayloadType(), this.dataType.toPayloadType());
+		return new AAnnotPayload(this.varName.toPayloadType(), this.dataType.toPayloadType());
 	}
 }

@@ -1,15 +1,15 @@
 package org.scribble.sesstype.name;
-import org.scribble.sesstype.kind.AnnotVarNameKind;
+import org.scribble.sesstype.kind.AAnnotVarNameKind;
 
 
 // Potentially qualified/canonical payload type name; not the AST primitive identifier
-public class AnnotVarName extends AbstractName<AnnotVarNameKind> implements PayloadType<AnnotVarNameKind>
+public class AAnnotVarName extends AbstractName<AAnnotVarNameKind> implements APayloadType<AAnnotVarNameKind>
 {
 	private static final long serialVersionUID = 1L;
 
-	public AnnotVarName(String simplename)
+	public AAnnotVarName(String simplename)
 	{
-		super(AnnotVarNameKind.KIND, simplename);
+		super(AAnnotVarNameKind.KIND, simplename);
 	}
 
 	@Override
@@ -19,17 +19,17 @@ public class AnnotVarName extends AbstractName<AnnotVarNameKind> implements Payl
 		{
 			return true;
 		}
-		if (!(o instanceof AnnotVarName))
+		if (!(o instanceof AAnnotVarName))
 		{
 			return false;
 		}
-		AnnotVarName n = (AnnotVarName) o;
+		AAnnotVarName n = (AAnnotVarName) o;
 		return n.canEqual(this) && super.equals(o);
 	}
 	
 	public boolean canEqual(Object o)
 	{
-		return o instanceof AnnotVarName;
+		return o instanceof AAnnotVarName;
 	}
 
 	@Override

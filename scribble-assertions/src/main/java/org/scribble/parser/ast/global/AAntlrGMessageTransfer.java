@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AssertionNode;
 import org.scribble.ast.AAstFactoryImpl;
+import org.scribble.ast.AssertionNode;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.MessageSigNode;
 import org.scribble.ast.global.GMessageTransfer;
@@ -27,7 +27,7 @@ import org.scribble.parser.AntlrConstants.AntlrNodeType;
 import org.scribble.parser.ScribParser;
 import org.scribble.parser.ast.name.AntlrAmbigName;
 import org.scribble.parser.ast.name.AntlrQualifiedName;
-import org.scribble.parser.ast.name.AAntlrSimpleName;
+import org.scribble.parser.ast.name.AntlrSimpleName;
 import org.scribble.parser.util.ScribParserUtil;
 import org.scribble.util.ScribParserException;
 
@@ -40,20 +40,20 @@ public class AAntlrGMessageTransfer
 
 	public static GMessageTransfer parseGMessageTransfer(ScribParser parser, CommonTree ct) throws ScribParserException
 	{
-		RoleNode src = AAntlrSimpleName.toRoleNode(getSourceChild(ct));
+		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct));
 		MessageNode msg = parseMessage(parser, getMessageChild(ct));
 		List<RoleNode> dests = 
-			getDestChildren(ct).stream().map((d) -> AAntlrSimpleName.toRoleNode(d)).collect(Collectors.toList());
+			getDestChildren(ct).stream().map((d) -> AntlrSimpleName.toRoleNode(d)).collect(Collectors.toList());
 		return AAstFactoryImpl.FACTORY.GMessageTransfer(ct, src, msg, dests);
 	}
 	
 	public static GMessageTransfer parseAnnotGMessageTransfer(ScribParser parser, CommonTree ct) throws ScribParserException
 	{
 		AssertionNode assertion = parseAssertion(getAssertionChild(ct));   
-		RoleNode src = AAntlrSimpleName.toRoleNode(getSourceChild(ct));
+		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct));
 		MessageNode msg = parseMessage(parser, getMessageChild(ct));
 		List<RoleNode> dests = 
-			getDestChildren(ct).stream().map((d) -> AAntlrSimpleName.toRoleNode(d)).collect(Collectors.toList());
+			getDestChildren(ct).stream().map((d) -> AntlrSimpleName.toRoleNode(d)).collect(Collectors.toList());
 		return AAstFactoryImpl.FACTORY.GMessageTransfer(ct, src, msg, dests, assertion);
 	}
 

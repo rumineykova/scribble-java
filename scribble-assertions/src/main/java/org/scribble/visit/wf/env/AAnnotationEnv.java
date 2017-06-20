@@ -10,39 +10,39 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.AnnotPayload;
+import org.scribble.sesstype.AAnnotPayload;
 import org.scribble.sesstype.kind.PayloadTypeKind;
-import org.scribble.sesstype.name.PayloadType;
+import org.scribble.sesstype.name.APayloadType;
 import org.scribble.sesstype.name.Role;
 import org.scribble.visit.env.Env;
 
-public class AnnotationEnv extends Env<AnnotationEnv>
+public class AAnnotationEnv extends Env<AAnnotationEnv>
 {
-	public Map<Role, Set<PayloadType<? extends PayloadTypeKind>>> payloads;
+	public Map<Role, Set<APayloadType<? extends PayloadTypeKind>>> payloads;
 	
-	public AnnotationEnv()
+	public AAnnotationEnv()
 	{
 		this(Collections.emptyMap());
 	}
 	
-	protected AnnotationEnv(Map<Role, Set<PayloadType<? extends PayloadTypeKind>>> payloads)
+	protected AAnnotationEnv(Map<Role, Set<APayloadType<? extends PayloadTypeKind>>> payloads)
 	{
-		this.payloads = new HashMap<Role, Set<PayloadType<? extends PayloadTypeKind>>>(payloads);
+		this.payloads = new HashMap<Role, Set<APayloadType<? extends PayloadTypeKind>>>(payloads);
 	}
 
 	@Override
-	public AnnotationEnv copy()
+	public AAnnotationEnv copy()
 	{
-		return new AnnotationEnv(new HashMap<Role, Set<PayloadType<? extends PayloadTypeKind>>>(this.payloads));
+		return new AAnnotationEnv(new HashMap<Role, Set<APayloadType<? extends PayloadTypeKind>>>(this.payloads));
 	}
 
 	@Override
-	public AnnotationEnv enterContext()
+	public AAnnotationEnv enterContext()
 	{
 		return copy();
 	}
 
-	public boolean checkIfPayloadValid(PayloadType<?> pe, Role src, List<Role> dests) throws ScribbleException 
+	public boolean checkIfPayloadValid(APayloadType<?> pe, Role src, List<Role> dests) throws ScribbleException 
 	{
 		boolean payloadExist = this.payloads.values().stream().anyMatch(x -> x.contains(pe)); 
 		
@@ -58,7 +58,7 @@ public class AnnotationEnv extends Env<AnnotationEnv>
 			}
 		}
 		else if (pe.isAnnotPayloadInScope() && !this.payloads.containsKey(src) || 
-				!this.payloads.get(src).stream().anyMatch(v -> ((AnnotPayload)v).varName.equals(pe)))
+				!this.payloads.get(src).stream().anyMatch(v -> ((AAnnotPayload)v).varName.equals(pe)))
 		{
 			throw new ScribbleException("Payload " + pe.toString() + " is not in scope");
 		}
@@ -66,19 +66,19 @@ public class AnnotationEnv extends Env<AnnotationEnv>
 		{
 			// add the type int to the varname before adding the scope of the payload.
 			for(Role dest: dests) {
-				Optional<PayloadType<? extends PayloadTypeKind>> newPe= this.payloads.get(src).stream()
-						.filter(v -> ((AnnotPayload)v).varName.equals(pe)).findAny(); 
+				Optional<APayloadType<? extends PayloadTypeKind>> newPe= this.payloads.get(src).stream()
+						.filter(v -> ((AAnnotPayload)v).varName.equals(pe)).findAny(); 
 				this.addPayloadToRole(dest, newPe.get());
 			}
 		}
 		return true; 
 	}
 	
-	public void addPayloadToRole(Role role, PayloadType<?> pe) {
+	public void addPayloadToRole(Role role, APayloadType<?> pe) {
 		
 		if (!this.payloads.containsKey(role))
 		{
-			this.payloads.put(role, new HashSet<PayloadType<? extends PayloadTypeKind>>());
+			this.payloads.put(role, new HashSet<APayloadType<? extends PayloadTypeKind>>());
 			
 		}
 		
@@ -87,23 +87,23 @@ public class AnnotationEnv extends Env<AnnotationEnv>
 	}
 	
 	@Override
-	public AnnotationEnv mergeContexts(List<AnnotationEnv> envs)
+	public AAnnotationEnv mergeContexts(List<AAnnotationEnv> envs)
 	{
 		
-		Map<Role, Set<PayloadType<? extends PayloadTypeKind>>> payloads = 
+		Map<Role, Set<APayloadType<? extends PayloadTypeKind>>> payloads = 
 		//		envs.stream().findAny().get().payloads;  
 		//AnnotationEnv env = copy();
 		//Map<Role, HashSet<PayloadType<? extends PayloadTypeKind>>> payloads = 
 				envs.stream().flatMap(e-> e.payloads.entrySet().stream()).
 				collect(Collectors.toMap(
-		                Map.Entry<Role, Set<PayloadType<? extends PayloadTypeKind>>>::getKey,
-		                Map.Entry<Role, Set<PayloadType<? extends PayloadTypeKind>>>::getValue,  
+		                Map.Entry<Role, Set<APayloadType<? extends PayloadTypeKind>>>::getKey,
+		                Map.Entry<Role, Set<APayloadType<? extends PayloadTypeKind>>>::getValue,  
 						(v1, v2) -> {
-							Set<PayloadType<? extends PayloadTypeKind>> s = 
+							Set<APayloadType<? extends PayloadTypeKind>> s = 
 									v1.stream().filter(e -> v2.contains(e)).collect(Collectors.toSet()); 
 							return s; })) ; 
 				
 		
-		return new AnnotationEnv(payloads);  
+		return new AAnnotationEnv(payloads);  
 	}
 }

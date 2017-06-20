@@ -23,7 +23,7 @@ import org.scribble.ast.local.LProtocolBlock;
 import org.scribble.del.ProtocolBlockDel;
 import org.scribble.del.ScribDelBase;
 import org.scribble.main.ScribbleException;
-import org.scribble.visit.AnnotationChecker;
+import org.scribble.visit.AAnnotationChecker;
 import org.scribble.visit.ProtocolDefInliner;
 import org.scribble.visit.context.Projector;
 import org.scribble.visit.context.env.ProjectionEnv;
@@ -60,7 +60,7 @@ public class AGProtocolBlockDel extends ProtocolBlockDel
 	}
 	
 	@Override
-	public void enterAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker) throws ScribbleException
+	public void enterAnnotCheck(ScribNode parent, ScribNode child, AAnnotationChecker checker) throws ScribbleException
 	{
 		if (parent instanceof GChoice) {
 			ScribDelBase.pushVisitorEnv(this, checker);
@@ -68,7 +68,7 @@ public class AGProtocolBlockDel extends ProtocolBlockDel
 	}
 	
 	@Override
-	public GProtocolBlock leaveAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker, ScribNode visited) throws ScribbleException
+	public GProtocolBlock leaveAnnotCheck(ScribNode parent, ScribNode child, AAnnotationChecker checker, ScribNode visited) throws ScribbleException
 	{
 		return (parent instanceof GChoice)?
 			(GProtocolBlock) ScribDelBase.popAndSetVisitorEnv(this, checker, visited):

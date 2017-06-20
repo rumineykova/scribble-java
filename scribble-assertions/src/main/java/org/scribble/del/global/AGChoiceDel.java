@@ -20,27 +20,27 @@ import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GChoice;
 import org.scribble.del.AScribDel;
 import org.scribble.main.ScribbleException;
-import org.scribble.visit.AnnotationChecker;
-import org.scribble.visit.wf.env.AnnotationEnv;
+import org.scribble.visit.AAnnotationChecker;
+import org.scribble.visit.wf.env.AAnnotationEnv;
 
 public class AGChoiceDel extends GChoiceDel implements AScribDel
 {
 
 	@Override
-	public void enterAnnotCheck(ScribNode parent, ScribNode child, AnnotationChecker checker) throws ScribbleException
+	public void enterAnnotCheck(ScribNode parent, ScribNode child, AAnnotationChecker checker) throws ScribbleException
 	{
-		AnnotationEnv env = checker.peekEnv().enterContext();
+		AAnnotationEnv env = checker.peekEnv().enterContext();
 		checker.pushEnv(env);
 	}
 	
 	@Override
-	public GChoice leaveAnnotCheck(ScribNode parent, ScribNode child,  AnnotationChecker checker, ScribNode visited) throws ScribbleException
+	public GChoice leaveAnnotCheck(ScribNode parent, ScribNode child,  AAnnotationChecker checker, ScribNode visited) throws ScribbleException
 	{
 		GChoice cho = (GChoice) visited;
 		
-		List<AnnotationEnv> benvs =
-				cho.getBlocks().stream().map((b) -> (AnnotationEnv) b.del().env()).collect(Collectors.toList());
-		AnnotationEnv merged = checker.popEnv().mergeContexts(benvs); 
+		List<AAnnotationEnv> benvs =
+				cho.getBlocks().stream().map((b) -> (AAnnotationEnv) b.del().env()).collect(Collectors.toList());
+		AAnnotationEnv merged = checker.popEnv().mergeContexts(benvs); 
 		checker.pushEnv(merged);
 		return (GChoice) super.leaveAnnotCheck(parent, child, checker, visited);  // Done merge of children here, super does merge into parent	
 				// FIXME: don't use AChoiceDel super
