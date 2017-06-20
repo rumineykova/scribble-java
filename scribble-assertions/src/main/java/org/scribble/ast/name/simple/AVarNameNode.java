@@ -11,9 +11,9 @@ import org.scribble.sesstype.kind.NonRoleArgKind;
 import org.scribble.sesstype.name.AAnnotVarName;
 
 // Parser Identifier
-public class VarNameNode extends SimpleNameNode<AAnnotVarNameKind> implements PayloadElemNameNode<AAnnotVarNameKind>
+public class AVarNameNode extends SimpleNameNode<AAnnotVarNameKind> implements PayloadElemNameNode<AAnnotVarNameKind>
 {
-	public VarNameNode(CommonTree source, String identifier)
+	public AVarNameNode(CommonTree source, String identifier)
 	{
 		super(source, identifier);
 	}
@@ -30,17 +30,17 @@ public class VarNameNode extends SimpleNameNode<AAnnotVarNameKind> implements Pa
 
 	@Override
 	public NameNode<AAnnotVarNameKind> clone() {
-		return (VarNameNode) AstFactoryImpl.FACTORY.SimpleNameNode(this.source, AAnnotVarNameKind.KIND, getIdentifier());
+		return (AVarNameNode) AstFactoryImpl.FACTORY.SimpleNameNode(this.source, AAnnotVarNameKind.KIND, getIdentifier());
 	}
 
 	@Override
 	public boolean canEqual(Object o) {
-		return o instanceof VarNameNode;
+		return o instanceof AVarNameNode;
 	}
 
 	@Override
 	protected ScribNodeBase copy() {
-		return new VarNameNode(this.source, getIdentifier());
+		return new AVarNameNode(this.source, getIdentifier());
 	}
 	
 	@Override
@@ -50,11 +50,11 @@ public class VarNameNode extends SimpleNameNode<AAnnotVarNameKind> implements Pa
 		{
 			return true;
 		}
-		if (!(o instanceof VarNameNode))
+		if (!(o instanceof AVarNameNode))
 		{
 			return false;
 		}
-		return ((VarNameNode) o).canEqual(this) && super.equals(o);
+		return ((AVarNameNode) o).canEqual(this) && super.equals(o);
 	}
 	
 	@Override

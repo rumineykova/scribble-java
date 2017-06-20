@@ -2,7 +2,7 @@ package org.scribble.ast;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.name.qualified.DataTypeNode;
-import org.scribble.ast.name.simple.VarNameNode;
+import org.scribble.ast.name.simple.AVarNameNode;
 import org.scribble.del.AScribDel;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.AAnnotPayload;
@@ -18,13 +18,13 @@ public class AAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeBase 
 {
 	//public final PayloadElemNameNode<DataTypeKind> name;
 	//public final DataTypeNode data; 
-	public final VarNameNode varName;   // (Ambig.) DataTypeNode or parameter
+	public final AVarNameNode varName;   // (Ambig.) DataTypeNode or parameter
 	public final DataTypeNode dataType;
 	
 	//public DataTypeElem(PayloadElemNameNode<DataTypeKind> name)
 	//public UnaryPayloadlem(DataTypeNode data)
 	//public UnaryPayloadElem(PayloadElemNameNode name)
-	public AAnnotPayloadElem(CommonTree source, VarNameNode varname, DataTypeNode dataType)
+	public AAnnotPayloadElem(CommonTree source, AVarNameNode varname, DataTypeNode dataType)
 	{
 		//super(name);
 		//this.data = data;
@@ -51,14 +51,14 @@ public class AAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeBase 
 	{
 		//PayloadElemNameNode<DataTypeKind> name = (PayloadElemNameNode<DataTypeKind>) this.data.clone();  // FIXME: make a DataTypeNameNode
 		//PayloadElemNameNode<K> name = (PayloadElemNameNode<K>) this.name.clone();
-		VarNameNode varname = ScribUtil.checkNodeClassEquality(this.varName, this.varName.clone());
+		AVarNameNode varname = ScribUtil.checkNodeClassEquality(this.varName, this.varName.clone());
 		DataTypeNode datatype = ScribUtil.checkNodeClassEquality(this.dataType, this.dataType.clone());
 		return AstFactoryImpl.FACTORY.AnnotPayloadElem(this.source, varname, datatype);
 	}
 
 	//public DataTypeElem reconstruct(PayloadElemNameNode<DataTypeKind> name)
 	//public UnaryPayloadElem reconstruct(DataTypeNode name)
-	public AAnnotPayloadElem<K> reconstruct(VarNameNode name, DataTypeNode dataType)
+	public AAnnotPayloadElem<K> reconstruct(AVarNameNode name, DataTypeNode dataType)
 	{
 		AScribDel del = del();
 		AAnnotPayloadElem<K> elem = new AAnnotPayloadElem<>(this.source, name, dataType);
@@ -71,7 +71,7 @@ public class AAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeBase 
 	{
 		//PayloadElemNameNode<DataTypeKind> name = (PayloadElemNameNode<DataTypeKind>) visitChild(this.data, nv);
 		//DataTypeNode name = (PayloadElemNameNode<DataTypeKind>) visitChild(this.data, nv);
-		VarNameNode varName = (VarNameNode) visitChild(this.varName, nv);  
+		AVarNameNode varName = (AVarNameNode) visitChild(this.varName, nv);  
 		DataTypeNode dataType = (DataTypeNode) visitChild(this.dataType, nv);
 				// FIXME: probably need to record an explicit kind token, for "cast checking"
 				// Cannot use ScribNodeBase.visitChildWithCastCheck because this is not a ProtocolKindNode

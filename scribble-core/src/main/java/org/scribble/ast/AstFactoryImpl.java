@@ -641,14 +641,14 @@ public class AstFactoryImpl implements AstFactory
 		return ld;
 	}
 
-	private ScribDel createDefaultDelegate()
+	protected ScribDel createDefaultDelegate()
 	{
 		return new DefaultDel();
 	}
 	
 	// FIXME: factor out
 	//@SuppressWarnings("unchecked")
-	private static <T extends ScribNodeBase> T del(T n, ScribDel del)
+	protected static <T extends ScribNodeBase> T del(T n, ScribDel del)
 	{
 		/*ScribNodeBase ret = n.del(del);  // FIXME: del makes another shallow copy of n
 		if (ret.getClass() != n.getClass())

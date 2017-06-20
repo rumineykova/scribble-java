@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AAstFactoryImpl;
-import org.scribble.ast.AssertionNode;
+import org.scribble.ast.AAssertionNode;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.MessageSigNode;
 import org.scribble.ast.global.GMessageTransfer;
@@ -49,7 +49,7 @@ public class AAntlrGMessageTransfer
 	
 	public static GMessageTransfer parseAnnotGMessageTransfer(ScribParser parser, CommonTree ct) throws ScribParserException
 	{
-		AssertionNode assertion = parseAssertion(getAssertionChild(ct));   
+		AAssertionNode assertion = parseAssertion(getAssertionChild(ct));   
 		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct));
 		MessageNode msg = parseMessage(parser, getMessageChild(ct));
 		List<RoleNode> dests = 
@@ -92,7 +92,7 @@ public class AAntlrGMessageTransfer
 		return (CommonTree) ct.getChild(ASSERTION_CHILD_INDEX);
 	}
 	
-	public static AssertionNode parseAssertion(CommonTree ct)
+	public static AAssertionNode parseAssertion(CommonTree ct)
 	{
 		return AAstFactoryImpl.FACTORY.AssertionNode(ct, ct.getText());
 	}

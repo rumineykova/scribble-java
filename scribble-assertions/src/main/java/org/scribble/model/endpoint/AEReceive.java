@@ -13,7 +13,7 @@
  */
 package org.scribble.model.endpoint;
 
-import org.scribble.ast.AssertionNode;
+import org.scribble.ast.AAssertionNode;
 import org.scribble.model.global.actions.ASReceive;
 import org.scribble.model.global.actions.SReceive;
 import org.scribble.sesstype.Payload;
@@ -49,7 +49,7 @@ public class AEReceive extends AEAction
 		//Receive.RECEIVES.add(this);
 	}
 	
-	public AEReceive(Role peer, MessageId<?> mid, Payload payload, AssertionNode assertion)
+	public AEReceive(Role peer, MessageId<?> mid, Payload payload, AAssertionNode assertion)
 	{
 		super(peer, mid, payload, assertion);
 		//Receive.RECEIVES.add(this);

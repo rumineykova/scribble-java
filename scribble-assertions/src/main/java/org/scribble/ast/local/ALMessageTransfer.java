@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AMessageTransfer;
-import org.scribble.ast.AssertionNode;
+import org.scribble.ast.AAssertionNode;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.sesstype.kind.Local;
@@ -16,7 +16,7 @@ public abstract class ALMessageTransfer extends AMessageTransfer<Local> implemen
 		this(source, src, msg, dests, null);
 	}
 	
-	protected ALMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion)
+	protected ALMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion)
 	{
 		super(source, src, msg, dests, assertion);
 	}

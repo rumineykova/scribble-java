@@ -13,7 +13,7 @@
  */
 package org.scribble.model.endpoint;
 
-import org.scribble.ast.AssertionNode;
+import org.scribble.ast.AAssertionNode;
 import org.scribble.model.AMAction;
 import org.scribble.model.global.actions.SAction;
 import org.scribble.sesstype.Payload;
@@ -34,7 +34,7 @@ public abstract class AEAction extends AMAction<Local>
 		this(peer, mid, payload, null); 
 	}
 	
-	protected AEAction(Role peer, MessageId<?> mid, Payload payload, AssertionNode assertion)
+	protected AEAction(Role peer, MessageId<?> mid, Payload payload, AAssertionNode assertion)
 	{
 		/*this.mid = mid;
 		this.payload = payload;*/

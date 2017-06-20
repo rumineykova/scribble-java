@@ -13,7 +13,7 @@
  */
 package org.scribble.model;
 
-import org.scribble.ast.AssertionNode;
+import org.scribble.ast.AAssertionNode;
 import org.scribble.model.MAction;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.kind.ProtocolKind;
@@ -23,14 +23,14 @@ import org.scribble.sesstype.name.Role;
 // FIXME: equals/hashCode
 public abstract class AMAction<K extends ProtocolKind> extends MAction<K>
 {
-	public final AssertionNode assertion; 
+	public final AAssertionNode assertion; 
 	
 	protected AMAction(Role obj, MessageId<?> mid, Payload payload)
 	{
 		this(obj, mid, payload, null); 
 	}
 	
-	protected AMAction(Role obj, MessageId<?> mid, Payload payload, AssertionNode assertion)
+	protected AMAction(Role obj, MessageId<?> mid, Payload payload, AAssertionNode assertion)
 	{
 		super(obj, mid, payload);
 		this.assertion = assertion; 

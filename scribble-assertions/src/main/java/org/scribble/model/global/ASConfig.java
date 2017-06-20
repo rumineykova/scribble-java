@@ -28,7 +28,7 @@ import org.scribble.assertions.AssertionException;
 import org.scribble.assertions.AssertionLogFormula;
 import org.scribble.assertions.SMTWrapper;
 import org.scribble.assertions.StmFormula;
-import org.scribble.ast.AssertionNode;
+import org.scribble.ast.AAssertionNode;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.EStateKind;
@@ -100,7 +100,7 @@ public class ASConfig extends SConfig
 				throw new RuntimeException("Shouldn't get in here: " + a);
 			}
 			
-			AssertionNode assertion = a.isSend()? a.assertion: null; 
+			AAssertionNode assertion = a.isSend()? a.assertion: null; 
 			
 			AssertionLogFormula newFormula = null; 
 		
@@ -162,7 +162,7 @@ public class ASConfig extends SConfig
 			{
 				if (action.isSend()) {
 					ESend send = (ESend)action;
-					AssertionNode assertion = send.assertion; 
+					AAssertionNode assertion = send.assertion; 
 					if (assertion !=null)
 					{
 						if (!SMTWrapper.getInstance().isSat(assertion.toFormula(), this.formula)) {
@@ -191,7 +191,7 @@ public class ASConfig extends SConfig
 			{
 				if (action.isSend()) {
 					ESend send = (ESend)action;
-					AssertionNode assertion = send.assertion;
+					AAssertionNode assertion = send.assertion;
 					
 					Set<String> newVarNames = send.payload.elems.stream()
 							.filter(v-> v.isAnnotPayloadDecl())

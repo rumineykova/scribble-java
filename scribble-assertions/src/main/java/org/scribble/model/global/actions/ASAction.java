@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.scribble.ast.AssertionNode;
+import org.scribble.ast.AAssertionNode;
 import org.scribble.model.AMAction;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.kind.Global;
@@ -29,7 +29,7 @@ public abstract class ASAction extends AMAction<Global>
 {
 	public final Role subj;
 
-	public ASAction(Role subj, Role obj, MessageId<?> mid, Payload payload, AssertionNode assertion)
+	public ASAction(Role subj, Role obj, MessageId<?> mid, Payload payload, AAssertionNode assertion)
 	{
 		super(obj, mid, payload, assertion);
 		this.subj = subj; 

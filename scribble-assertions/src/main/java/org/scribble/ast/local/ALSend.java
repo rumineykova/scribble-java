@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AssertionNode;
+import org.scribble.ast.AAssertionNode;
 import org.scribble.ast.AAstFactoryImpl;
 import org.scribble.ast.Constants;
 import org.scribble.ast.MessageNode;
@@ -37,7 +37,7 @@ import org.scribble.visit.context.ProjectedChoiceSubjectFixer;
 public class ALSend extends ALMessageTransfer
 		implements LSimpleInteractionNode  // Explicitly needed here for getKind
 {
-	public ALSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion)
+	public ALSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion)
 	{
 		super(source, src, msg, dests, assertion);
 	}
@@ -58,7 +58,7 @@ public class ALSend extends ALMessageTransfer
 	}
 
 	@Override
-	public ALSend reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion)
+	public ALSend reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion)
 	{
 		AScribDel del = del();
 		ALSend ls = new ALSend(this.source, src, msg, dests, assertion);

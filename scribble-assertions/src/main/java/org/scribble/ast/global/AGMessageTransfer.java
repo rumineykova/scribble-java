@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AssertionNode;
+import org.scribble.ast.AAssertionNode;
 import org.scribble.ast.AAstFactoryImpl;
 import org.scribble.ast.Constants;
 import org.scribble.ast.MessageNode;
@@ -41,7 +41,7 @@ public class AGMessageTransfer extends AMessageTransfer<Global> implements GSimp
 		this(source, src, msg, dests, null);
 	}
 
-	public AGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion)
+	public AGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion)
 	{
 		super(source, src, msg, dests, assertion);
 	}
@@ -97,7 +97,7 @@ public class AGMessageTransfer extends AMessageTransfer<Global> implements GSimp
 	}
 
 	@Override
-	public AGMessageTransfer reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion)
+	public AGMessageTransfer reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion)
 	{
 		AScribDel del = del();
 		AGMessageTransfer gmt = new AGMessageTransfer(this.source, src, msg, dests, assertion);

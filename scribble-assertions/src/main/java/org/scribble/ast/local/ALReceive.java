@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AssertionNode;
+import org.scribble.ast.AAssertionNode;
 import org.scribble.ast.AAstFactoryImpl;
 import org.scribble.ast.Constants;
 import org.scribble.ast.MessageNode;
@@ -57,7 +57,7 @@ public class ALReceive extends ALMessageTransfer
 	}
 
 	@Override
-	public ALReceive reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion)
+	public ALReceive reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion)
 	{
 		AScribDel del = del();
 		ALReceive lr = new ALReceive(this.source, src, msg, dests);

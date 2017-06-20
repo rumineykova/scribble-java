@@ -13,14 +13,14 @@
  */
 package org.scribble.model.global.actions;
 
-import org.scribble.ast.AssertionNode;
+import org.scribble.ast.AAssertionNode;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 
 public class ASReceive extends ASAction
 {
-	public ASReceive(Role subj, Role obj, MessageId<?> mid, Payload payload, AssertionNode assertion)
+	public ASReceive(Role subj, Role obj, MessageId<?> mid, Payload payload, AAssertionNode assertion)
 	{
 		super(subj, obj, mid, payload, assertion);
 	}

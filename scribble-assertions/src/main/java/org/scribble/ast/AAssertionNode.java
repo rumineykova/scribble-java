@@ -10,11 +10,11 @@ import parser.AssertionsScribParser;
 // PayloadTypeKind is DataType or Local, but Local has its own special subclass (and protocol params not allowed), so this should implicitly be for DataType only
 // AST hierarchy requires unary and delegation (binary pair) payloads to be structurally distinguished
 //public class DataTypeElem extends PayloadElem<DataTypeKind>
-public class AssertionNode extends ScribNodeBase 
+public class AAssertionNode extends ScribNodeBase 
 {	
 	private final String assertion;
 	private StmFormula formula =  null; 
-	public AssertionNode(CommonTree source, String assertion)
+	public AAssertionNode(CommonTree source, String assertion)
 	{
 		//super(name);
 		//this.data = data;
@@ -24,8 +24,8 @@ public class AssertionNode extends ScribNodeBase
 
 	
 	@Override
-	protected AssertionNode copy() {
-		return new AssertionNode(this.source, this.assertion);
+	protected AAssertionNode copy() {
+		return new AAssertionNode(this.source, this.assertion);
 	}
 
 	public String getAssertion()
@@ -45,8 +45,8 @@ public class AssertionNode extends ScribNodeBase
 	}
 	
 	@Override
-	public AssertionNode clone() {
-		return (AssertionNode) AAstFactoryImpl.FACTORY.AssertionNode(this.source, this.assertion);
+	public AAssertionNode clone() {
+		return (AAssertionNode) AAstFactoryImpl.FACTORY.AssertionNode(this.source, this.assertion);
 	}
 	
 	@Override

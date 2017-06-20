@@ -13,7 +13,7 @@
  */
 package org.scribble.model.endpoint;
 
-import org.scribble.ast.AssertionNode;
+import org.scribble.ast.AAssertionNode;
 import org.scribble.model.global.actions.ASSend;
 import org.scribble.model.global.actions.SSend;
 import org.scribble.sesstype.Payload;
@@ -43,7 +43,7 @@ public class AESend extends AEAction
 		super(peer, mid, payload);
 	}*/
 
-	public AESend(Role peer, MessageId<?> mid, Payload payload, AssertionNode assertion)
+	public AESend(Role peer, MessageId<?> mid, Payload payload, AAssertionNode assertion)
 	{
 		super(peer, mid, payload, assertion);
 		//Send.SENDS.add(this);

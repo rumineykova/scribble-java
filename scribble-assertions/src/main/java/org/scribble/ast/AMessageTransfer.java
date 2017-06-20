@@ -28,14 +28,14 @@ import org.scribble.visit.AstVisitor;
 // FIXME: don't extend here, extend assertion field lower down
 public abstract class AMessageTransfer<K extends ProtocolKind> extends MessageTransfer<K>
 {
-	public AssertionNode assertion; 
+	public AAssertionNode assertion; 
 
 	protected AMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
 	{
 		this(source, src, msg,new LinkedList<>(dests), null); 
 	}
 	
-	protected AMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion)
+	protected AMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion)
 	{
 		super(source, src, msg, dests);
 		this.assertion = assertion; 
@@ -47,7 +47,7 @@ public abstract class AMessageTransfer<K extends ProtocolKind> extends MessageTr
 		return reconstruct(src, msg, dests, null);  // CHECKME: null OK?
 	}
 	
-	public abstract AMessageTransfer<K> reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssertionNode assertion);
+	public abstract AMessageTransfer<K> reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion);
 
 	@Override
 	public AMessageTransfer<K> visitChildren(AstVisitor nv) throws ScribbleException
