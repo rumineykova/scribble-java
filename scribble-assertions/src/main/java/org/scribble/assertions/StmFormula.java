@@ -3,6 +3,7 @@ import java.util.Set;
 
 import org.sosy_lab.java_smt.api.Formula;
 
+// FIXME: rename
 public abstract class StmFormula {
 
 	protected Formula formula; 

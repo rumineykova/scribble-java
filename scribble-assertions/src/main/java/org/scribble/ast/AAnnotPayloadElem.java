@@ -10,24 +10,13 @@ import org.scribble.sesstype.kind.PayloadTypeKind;
 import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;
 
-// Cf. DoArg, wrapper for a (unary) name node of potentially unknown kind (needs disamb)
-// PayloadTypeKind is DataType or Local, but Local has its own special subclass (and protocol params not allowed), so this should implicitly be for DataType only
-// AST hierarchy requires unary and delegation (binary pair) payloads to be structurally distinguished
-//public class DataTypeElem extends PayloadElem<DataTypeKind>
 public class AAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeBase implements PayloadElem<K>//extends PayloadElem
 {
-	//public final PayloadElemNameNode<DataTypeKind> name;
-	//public final DataTypeNode data; 
 	public final AVarNameNode varName;   // (Ambig.) DataTypeNode or parameter
 	public final DataTypeNode dataType;
 	
-	//public DataTypeElem(PayloadElemNameNode<DataTypeKind> name)
-	//public UnaryPayloadlem(DataTypeNode data)
-	//public UnaryPayloadElem(PayloadElemNameNode name)
 	public AAnnotPayloadElem(CommonTree source, AVarNameNode varname, DataTypeNode dataType)
 	{
-		//super(name);
-		//this.data = data;
 		super(source);
 		this.varName = varname;
 		this.dataType = dataType; 

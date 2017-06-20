@@ -25,5 +25,5 @@ public interface AAstFactory extends AstFactory
 {
 	AGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion);
 	ALSend LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode assertion);
-	AAssertionNode AssertionNode(CommonTree source, String assertion);
+	AAssertionNode AssertionNode(CommonTree source, String assertion);  // FIXME: should not be String -- parser should parse it
 }

@@ -34,6 +34,7 @@ public class ALSend extends LSend
 {
 	public final AAssertionNode assertion;  // null if none specified syntactically  
 			// Duplicated in AGMessageTransfer -- could factour out to in Del, but need to consider immutable pattern
+			// (But no ALReceive -- receive has no assertions)
 
 	public ALSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AAssertionNode ass)
 	{
