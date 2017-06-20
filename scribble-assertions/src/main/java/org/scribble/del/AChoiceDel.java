@@ -32,6 +32,4 @@ public abstract class AChoiceDel extends ChoiceDel implements AScribDel
 		AAnnotationEnv env = checker.peekEnv().enterContext();
 		checker.pushEnv(env);
 	}
-	
-	
 }

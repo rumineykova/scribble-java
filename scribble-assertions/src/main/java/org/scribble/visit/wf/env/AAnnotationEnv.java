@@ -1,5 +1,6 @@
 package org.scribble.visit.wf.env;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,7 +54,8 @@ public class AAnnotationEnv extends Env<AAnnotationEnv>
 		else if (pe.isAnnotPayloadDecl() && !payloadExist)
 		{
 			this.addPayloadToRole(src, pe); 
-			for(Role dest: dests) {
+			for(Role dest: dests)
+			{
 				this.addPayloadToRole(dest, pe);
 			}
 		}
@@ -74,22 +76,26 @@ public class AAnnotationEnv extends Env<AAnnotationEnv>
 		return true; 
 	}
 	
-	public void addPayloadToRole(Role role, APayloadType<?> pe) {
-		
+	public void addPayloadToRole(Role role, APayloadType<?> pe)
+	{
 		if (!this.payloads.containsKey(role))
 		{
 			this.payloads.put(role, new HashSet<APayloadType<? extends PayloadTypeKind>>());
 			
 		}
 		
-		
 		this.payloads.get(role).add(pe);
+	}
+	
+	@Override
+	public AAnnotationEnv mergeContext(AAnnotationEnv child)
+	{
+		return mergeContexts(Arrays.asList(child));
 	}
 	
 	@Override
 	public AAnnotationEnv mergeContexts(List<AAnnotationEnv> envs)
 	{
-		
 		Map<Role, Set<APayloadType<? extends PayloadTypeKind>>> payloads = 
 		//		envs.stream().findAny().get().payloads;  
 		//AnnotationEnv env = copy();
@@ -102,7 +108,6 @@ public class AAnnotationEnv extends Env<AAnnotationEnv>
 							Set<APayloadType<? extends PayloadTypeKind>> s = 
 									v1.stream().filter(e -> v2.contains(e)).collect(Collectors.toSet()); 
 							return s; })) ; 
-				
 		
 		return new AAnnotationEnv(payloads);  
 	}

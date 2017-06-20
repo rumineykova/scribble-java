@@ -33,6 +33,7 @@ public class AGChoiceDel extends GChoiceDel implements AScribDel
 		checker.pushEnv(env);
 	}
 	
+	// Cf. GChoiceDel.leaveInlinedWFChoiceCheck
 	@Override
 	public GChoice leaveAnnotCheck(ScribNode parent, ScribNode child,  AAnnotationChecker checker, ScribNode visited) throws ScribbleException
 	{
@@ -42,8 +43,16 @@ public class AGChoiceDel extends GChoiceDel implements AScribDel
 				cho.getBlocks().stream().map((b) -> (AAnnotationEnv) b.del().env()).collect(Collectors.toList());
 		AAnnotationEnv merged = checker.popEnv().mergeContexts(benvs); 
 		checker.pushEnv(merged);
-		return (GChoice) super.leaveAnnotCheck(parent, child, checker, visited);  // Done merge of children here, super does merge into parent	
-				// FIXME: don't use AChoiceDel super
+				// Merged children into one here, now merge it into parent	
+
+		// From CompoundInteractionNodeDel.leaveInlinedWFChoiceCheck
+		// FIXME: don't need to push above, just to pop again here
+		AAnnotationEnv visited_env = checker.popEnv();  // popAndSet current
+		setEnv(visited_env);
+		AAnnotationEnv parent_env = checker.popEnv();  // pop-merge-push parent
+		parent_env = parent_env.mergeContext(visited_env);
+		checker.pushEnv(parent_env);
+		
+		return cho;
 	}
-	
 }

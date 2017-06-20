@@ -35,7 +35,7 @@ public class AVarNameNode extends SimpleNameNode<AAnnotVarNameKind> implements P
 	}
 	
 	@Override
-	public boolean equals(Object o)
+	public boolean equals(Object o)  // FIXME: is equals/hashCode needed for these Nodes?
 	{
 		if (this == o)
 		{
