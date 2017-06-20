@@ -24,7 +24,7 @@ import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.name.APayloadType;
 import org.scribble.sesstype.name.PayloadType;
 import org.scribble.sesstype.name.Role;
-import org.scribble.visit.AAnnotationChecker;
+import org.scribble.visit.wf.AAnnotationChecker;
 import org.scribble.visit.wf.env.AAnnotationEnv;
 
 public class AGMessageTransferDel extends GMessageTransferDel implements AScribDel

@@ -16,7 +16,7 @@ package org.scribble.del.global;
 import org.scribble.ast.ScribNode;
 import org.scribble.del.AScribDel;
 import org.scribble.main.ScribbleException;
-import org.scribble.visit.AAnnotationChecker;
+import org.scribble.visit.wf.AAnnotationChecker;
 import org.scribble.visit.wf.env.AAnnotationEnv;
 
 public class AGInteractionSeqDel extends GInteractionSeqDel implements AScribDel

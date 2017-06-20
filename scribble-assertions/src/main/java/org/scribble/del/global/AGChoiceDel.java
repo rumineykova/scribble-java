@@ -20,7 +20,7 @@ import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GChoice;
 import org.scribble.del.AScribDel;
 import org.scribble.main.ScribbleException;
-import org.scribble.visit.AAnnotationChecker;
+import org.scribble.visit.wf.AAnnotationChecker;
 import org.scribble.visit.wf.env.AAnnotationEnv;
 
 public class AGChoiceDel extends GChoiceDel implements AScribDel

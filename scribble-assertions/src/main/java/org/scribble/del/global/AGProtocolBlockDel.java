@@ -19,7 +19,7 @@ import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.del.AScribDel;
 import org.scribble.del.ScribDelBase;
 import org.scribble.main.ScribbleException;
-import org.scribble.visit.AAnnotationChecker;
+import org.scribble.visit.wf.AAnnotationChecker;
 
 public class AGProtocolBlockDel extends GProtocolBlockDel implements AScribDel
 {

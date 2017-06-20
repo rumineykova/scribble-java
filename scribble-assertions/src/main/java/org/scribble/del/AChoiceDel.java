@@ -15,7 +15,7 @@ package org.scribble.del;
 
 import org.scribble.ast.ScribNode;
 import org.scribble.main.ScribbleException;
-import org.scribble.visit.AAnnotationChecker;
+import org.scribble.visit.wf.AAnnotationChecker;
 import org.scribble.visit.wf.env.AAnnotationEnv;
 
 @Deprecated
