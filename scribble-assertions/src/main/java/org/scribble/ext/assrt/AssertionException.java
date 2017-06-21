@@ -11,18 +11,14 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package parser.ast;
+package org.scribble.ext.assrt;
 
-import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.ValueFormula;
+public class AssertionException extends Exception {
 
-import parser.AssertionsScribParser;
-import parser.FormulaFactoryImpl;
+	private static final long serialVersionUID = 1L;
 
-public class ValueNode implements FormulaNode {
-
-	public static ValueFormula parseValueFormula(
-			AssertionsScribParser assertionsScribParser, CommonTree ct) {
-		return FormulaFactoryImpl.parseValue(ct, ct.getChild(0).getText());
+	public AssertionException(String string) {
+		// TODO Auto-generated constructor stub
 	}
+
 }

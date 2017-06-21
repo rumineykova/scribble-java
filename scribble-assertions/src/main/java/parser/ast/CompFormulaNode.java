@@ -14,8 +14,8 @@
 package parser.ast;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.assertions.CompFormula;
-import org.scribble.assertions.StmFormula;
+import org.scribble.ext.assrt.CompFormula;
+import org.scribble.ext.assrt.StmFormula;
 
 import parser.AssertionsParseException;
 import parser.AssertionsScribParser;

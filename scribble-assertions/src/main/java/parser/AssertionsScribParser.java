@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonErrorNode;
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.assertions.StmFormula;
+import org.scribble.ext.assrt.StmFormula;
 
 import parser.AssertionsAntlrConstants.AssertionNodeType;
 import parser.ast.ArithFormulaNode;

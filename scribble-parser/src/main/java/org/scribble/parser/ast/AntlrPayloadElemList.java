@@ -44,7 +44,7 @@ public class AntlrPayloadElemList
 	}
 
 	//private static PayloadElem parsePayloadElem(CommonTree ct)
-	protected static PayloadElem<?> parsePayloadElem(CommonTree ct)
+	public static PayloadElem<?> parsePayloadElem(CommonTree ct)
 	{
 		AntlrNodeType type = ScribParserUtil.getAntlrNodeType(ct);
 		/*// Parser isn't working to distinguish simple from qualified names (cf. Scribble.g payloadelement)

@@ -45,7 +45,7 @@ public class AntlrGMessageTransfer
 		return AstFactoryImpl.FACTORY.GMessageTransfer(ct, src, msg, dests);
 	}
 
-	protected static MessageNode parseMessage(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static MessageNode parseMessage(ScribParser parser, CommonTree ct) throws ScribParserException
 	{
 		AntlrNodeType type = ScribParserUtil.getAntlrNodeType(ct);
 		if (type == AntlrNodeType.MESSAGESIGNATURE)

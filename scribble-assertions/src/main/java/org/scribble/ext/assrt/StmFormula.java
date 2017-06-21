@@ -11,18 +11,23 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package parser.ast;
+package org.scribble.ext.assrt;
+import java.util.Set;
 
-import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.ValueFormula;
+import org.sosy_lab.java_smt.api.Formula;
 
-import parser.AssertionsScribParser;
-import parser.FormulaFactoryImpl;
+// FIXME: rename
+public abstract class StmFormula {
 
-public class ValueNode implements FormulaNode {
+	protected Formula formula; 
+	protected abstract Formula toFormula() throws AssertionException; 
+	public abstract Set<String> getVars();
 
-	public static ValueFormula parseValueFormula(
-			AssertionsScribParser assertionsScribParser, CommonTree ct) {
-		return FormulaFactoryImpl.parseValue(ct, ct.getChild(0).getText());
+	
+	public Formula getFormula() throws AssertionException{
+		if (this.formula==null) {
+			this.formula = this.toFormula();
+		}
+		return this.formula; 
 	}
 }
