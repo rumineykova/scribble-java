@@ -16,6 +16,7 @@ package org.scribble.parser.ast.global;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.global.GInterruptible;
 import org.scribble.parser.ScribParser;
 import org.scribble.parser.ast.name.AntlrSimpleName;
@@ -28,7 +29,7 @@ public class AntlrGInterruptible
 	public static final int BLOCK_CHILD_INDEX = 1;
 	public static final int INTERRUPT_CHILDREN_START_INDEX = 2;
 
-	public static GInterruptible parseGInterruptible(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static GInterruptible parseGInterruptible(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
 		/*GProtocolBlock block = (GProtocolBlock) parser.parse(getBlockChild(ct));
 		/*List<GInterrupt> interrs = 

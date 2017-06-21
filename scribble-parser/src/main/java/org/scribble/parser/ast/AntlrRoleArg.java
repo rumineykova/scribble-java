@@ -14,7 +14,7 @@
 package org.scribble.parser.ast;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.RoleArg;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.parser.ScribParser;
@@ -24,10 +24,10 @@ public class AntlrRoleArg
 {
 	public static final int ARG_CHILD_INDEX = 0;
 
-	public static RoleArg parseRoleArg(ScribParser parser, CommonTree ct)
+	public static RoleArg parseRoleArg(ScribParser parser, CommonTree ct, AstFactory af)
 	{
-		RoleNode role = AntlrSimpleName.toRoleNode(getArgChild(ct));
-		return AstFactoryImpl.FACTORY.RoleArg(ct, role);
+		RoleNode role = AntlrSimpleName.toRoleNode(getArgChild(ct), af);
+		return af.RoleArg(ct, role);
 	}
 
 	public static CommonTree getArgChild(CommonTree ct)

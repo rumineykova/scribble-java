@@ -14,7 +14,7 @@
 package org.scribble.parser.ast.global;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.NonRoleParamDeclList;
 import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.global.GProtocolHeader;
@@ -29,12 +29,12 @@ public class AntlrGProtocolHeader
 	public static final int PARAMETERDECLLIST_CHILD_INDEX = 1;
 	public static final int ROLEDECLLIST_CHILD_INDEX = 2;
 
-	public static GProtocolHeader parseGProtocolHeader(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static GProtocolHeader parseGProtocolHeader(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
-		GProtocolNameNode name = AntlrSimpleName.toGProtocolNameNode(getNameChild(ct));
-		RoleDeclList rdl = (RoleDeclList) parser.parse(getRoleDeclListChild(ct));
-		NonRoleParamDeclList pdl = (NonRoleParamDeclList) parser.parse(getParamDeclListChild(ct));
-		return AstFactoryImpl.FACTORY.GProtocolHeader(ct, name, rdl, pdl);
+		GProtocolNameNode name = AntlrSimpleName.toGProtocolNameNode(getNameChild(ct), af);
+		RoleDeclList rdl = (RoleDeclList) parser.parse(getRoleDeclListChild(ct), af);
+		NonRoleParamDeclList pdl = (NonRoleParamDeclList) parser.parse(getParamDeclListChild(ct), af);
+		return af.GProtocolHeader(ct, name, rdl, pdl);
 	}
 
 	public static CommonTree getNameChild(CommonTree ct)

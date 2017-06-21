@@ -14,7 +14,7 @@
 package org.scribble.parser.ast.global;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.name.simple.RecVarNode;
@@ -27,11 +27,11 @@ public class AntlrGRecursion
 	public static final int RECURSIONVAR_CHILD_INDEX = 0;
 	public static final int BLOCK_CHILD_INDEX = 1;
 
-	public static GRecursion parseGRecursion(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static GRecursion parseGRecursion(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
-		RecVarNode recvar = AntlrSimpleName.toRecVarNode(getRecVarChild(ct));
-		GProtocolBlock block = (GProtocolBlock) parser.parse(getBlockChild(ct));
-		return AstFactoryImpl.FACTORY.GRecursion(ct, recvar, block);
+		RecVarNode recvar = AntlrSimpleName.toRecVarNode(getRecVarChild(ct), af);
+		GProtocolBlock block = (GProtocolBlock) parser.parse(getBlockChild(ct), af);
+		return af.GRecursion(ct, recvar, block);
 	}
 
 	public static final CommonTree getRecVarChild(CommonTree ct)

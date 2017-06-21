@@ -14,8 +14,8 @@
 package org.scribble.parser.ast;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.MessageSigNameDecl;
-import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.name.qualified.MessageSigNameNode;
 import org.scribble.parser.ScribParser;
 import org.scribble.parser.ast.name.AntlrSimpleName;
@@ -28,7 +28,7 @@ public class AntlrMessageSigDecl
 	public static final int SOURCE_CHILD_INDEX = 2;
 	public static final int ALIAS_CHILD_INDEX = 3;
 
-	public static MessageSigNameDecl parseMessageSigDecl(ScribParser parser, CommonTree ct)
+	public static MessageSigNameDecl parseMessageSigDecl(ScribParser parser, CommonTree ct, AstFactory af)
 	{
 		CommonTree tmp1 = getSchemaChild(ct);
 		String schema = AntlrSimpleName.getName(tmp1);
@@ -36,8 +36,8 @@ public class AntlrMessageSigDecl
 		String extName = AntlrExtIdentifier.getName(tmp2);
 		CommonTree tmp3 = getSourceChild(ct);
 		String source = AntlrExtIdentifier.getName(tmp3);
-		MessageSigNameNode alias = AntlrSimpleName.toMessageSigNameNode(getAliasChild(ct));
-		return AstFactoryImpl.FACTORY.MessageSigNameDecl(ct, schema, extName, source, alias);
+		MessageSigNameNode alias = AntlrSimpleName.toMessageSigNameNode(getAliasChild(ct), af);
+		return af.MessageSigNameDecl(ct, schema, extName, source, alias);
 	}
 
 	public static CommonTree getSchemaChild(CommonTree ct)

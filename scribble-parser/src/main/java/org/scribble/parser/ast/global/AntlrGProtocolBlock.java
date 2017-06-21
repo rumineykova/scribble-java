@@ -14,7 +14,7 @@
 package org.scribble.parser.ast.global;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.global.GInteractionSeq;
 import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.parser.ScribParser;
@@ -24,10 +24,10 @@ public class AntlrGProtocolBlock
 {
 	public static final int INTERACTIONSEQUENCE_CHILD_INDEX = 0;
 
-	public static GProtocolBlock parseGProtocolBlock(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static GProtocolBlock parseGProtocolBlock(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
-		GInteractionSeq gis = (GInteractionSeq) parser.parse(getInteractionSequenceChild(ct));
-		return AstFactoryImpl.FACTORY.GProtocolBlock(ct, gis);
+		GInteractionSeq gis = (GInteractionSeq) parser.parse(getInteractionSequenceChild(ct), af);
+		return af.GProtocolBlock(ct, gis);
 	}
 
 	public static final CommonTree getInteractionSequenceChild(CommonTree ct)

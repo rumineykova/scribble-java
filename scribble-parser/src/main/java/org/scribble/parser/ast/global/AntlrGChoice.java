@@ -17,7 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.ast.name.simple.RoleNode;
@@ -31,17 +31,17 @@ public class AntlrGChoice
 	public static final int SUBJECT_CHILD_INDEX = 0;
 	public static final int BLOCK_CHILDREN_START_INDEX = 1;
 	
-	public static GChoice parseGChoice(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static GChoice parseGChoice(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
-		RoleNode subj = AntlrSimpleName.toRoleNode(getSubjectChild(ct));
+		RoleNode subj = AntlrSimpleName.toRoleNode(getSubjectChild(ct), af);
 		/*List<GProtocolBlock> blocks =
 				getBlockChildren(ct).stream().map((b) -> (GProtocolBlock) parser.parse(b)).collect(Collectors.toList());*/
 		List<GProtocolBlock> blocks = new LinkedList<>();
 		for (CommonTree b : getBlockChildren(ct))
 		{
-			blocks.add((GProtocolBlock) parser.parse(b));
+			blocks.add((GProtocolBlock) parser.parse(b, af));
 		}
-		return AstFactoryImpl.FACTORY.GChoice(ct, subj, blocks);
+		return af.GChoice(ct, subj, blocks);
 	}
 
 	public static CommonTree getSubjectChild(CommonTree ct)

@@ -18,7 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.NonRoleArg;
 import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.NonRoleArgNode;
@@ -34,25 +34,25 @@ import org.scribble.util.ScribParserException;
 public class AntlrNonRoleArgList
 {
 	// Similar to AntlrPayloadElemList
-	public static NonRoleArgList parseNonRoleArgList(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static NonRoleArgList parseNonRoleArgList(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
 		//List<NonRoleArg> as = getArgumentChildren(ct).stream().map((a) -> parseNonRoleArg(parser, a)).collect(Collectors.toList());
 		List<NonRoleArg> as = new LinkedList<>();
 		for (CommonTree a : getArgumentChildren(ct))
 		{
-			as.add(parseNonRoleArg(parser, a));
+			as.add(parseNonRoleArg(parser, a, af));
 		}
-		return AstFactoryImpl.FACTORY.NonRoleArgList(ct, as);
+		return af.NonRoleArgList(ct, as);
 	}
 
 	// Not in own class because not called by ScribbleParser -- called directly from above
-	private static NonRoleArg parseNonRoleArg(ScribParser parser, CommonTree ct) throws ScribParserException
+	private static NonRoleArg parseNonRoleArg(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
 		AntlrNodeType type = ScribParserUtil.getAntlrNodeType(ct);
 		if (type == AntlrNodeType.MESSAGESIGNATURE)
 		{
-			NonRoleArgNode arg = (NonRoleArgNode) parser.parse(ct);
-			return AstFactoryImpl.FACTORY.NonRoleArg(ct, arg);
+			NonRoleArgNode arg = (NonRoleArgNode) parser.parse(ct, af);
+			return af.NonRoleArg(ct, arg);
 		}
 		else
 		{
@@ -69,14 +69,14 @@ public class AntlrNonRoleArgList
 			{
 				if (ct.getChildCount() > 1)
 				{
-					DataTypeNode dt = AntlrQualifiedName.toDataTypeNameNode(ct);
-					return AstFactoryImpl.FACTORY.NonRoleArg(ct, dt);
+					DataTypeNode dt = AntlrQualifiedName.toDataTypeNameNode(ct, af);
+					return af.NonRoleArg(ct, dt);
 				}
 				else
 				{
 					// Similarly to NonRoleArg: cannot syntactically distinguish right now between SimplePayloadTypeNode and ParameterNode
-					AmbigNameNode an = AntlrAmbigName.toAmbigNameNode(ct);
-					return AstFactoryImpl.FACTORY.NonRoleArg(ct, an);
+					AmbigNameNode an = AntlrAmbigName.toAmbigNameNode(ct, af);
+					return af.NonRoleArg(ct, an);
 				}
 			}
 			else

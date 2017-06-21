@@ -14,8 +14,8 @@
 package org.scribble.parser.ast;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.ImportModule;
-import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.name.qualified.ModuleNameNode;
 import org.scribble.parser.ScribParser;
 import org.scribble.parser.ast.name.AntlrQualifiedName;
@@ -28,13 +28,13 @@ public class AntlrImportModule
 
 	private static final String EMPTY_ALIAS = "EMPTY_ALIAS";
 
-	public static ImportModule parseImportModule(ScribParser parser, CommonTree ct)
+	public static ImportModule parseImportModule(ScribParser parser, CommonTree ct, AstFactory af)
 	{
-		ModuleNameNode fmn = AntlrQualifiedName.toModuleNameNode(getModuleNameChild(ct));
+		ModuleNameNode fmn = AntlrQualifiedName.toModuleNameNode(getModuleNameChild(ct), af);
 		ModuleNameNode alias = (hasAlias(ct))
-				? AntlrSimpleName.toModuleNameNode(getAliasChild(ct))
+				? AntlrSimpleName.toModuleNameNode(getAliasChild(ct), af)
 				: null;
-		return AstFactoryImpl.FACTORY.ImportModule(ct, fmn, alias);
+		return af.ImportModule(ct, fmn, alias);
 	}
 
 	public static CommonTree getModuleNameChild(CommonTree ct)

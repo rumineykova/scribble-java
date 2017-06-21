@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.global.GParallel;
 import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.parser.ScribParser;
@@ -25,14 +26,14 @@ import org.scribble.util.ScribParserException;
 
 public class AntlrGParallel
 {
-	public static GParallel parseGParallel(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static GParallel parseGParallel(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
 		/*List<GProtocolBlock> blocks = 
 				getBlockChildren(ct).stream().map((b) -> (GProtocolBlock) parser.parse(b)).collect(Collectors.toList());*/
 		List<GProtocolBlock> blocks = new LinkedList<>();
 		for (CommonTree b : getBlockChildren(ct))
 		{
-			blocks.add((GProtocolBlock) parser.parse(b));
+			blocks.add((GProtocolBlock) parser.parse(b, af));
 		}
 		//return new GParallel(blocks);
 		return null;

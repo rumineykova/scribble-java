@@ -100,7 +100,7 @@ public class MainContext
 		// FIXME: checking main module resource exists at specific location should be factored out to front-end (e.g. CommandLine) -- main module resource is specified at local front end level of abstraction, while MainContext uses abstract resource loading
 		//Pair<Resource, Module> p = this.loader.loadMainModule(mainpath);
 		Resource res = DirectoryResourceLocator.getResourceByFullPath(mainpath);  // FIXME: hardcoded to DirectoryResourceLocator -- main module loading should be factored out to front end (e.g. CommandLine)
-		Module mod = (Module) this.scribParser.parse(this.antlrParser.parseAntlrTree(res));  // FIXME: rename exceptions
+		Module mod = (Module) this.scribParser.parse(this.antlrParser.parseAntlrTree(res), this.af);  // FIXME: rename exceptions
 		checkMainModuleName(mainpath, mod);
 		
 		init(res, mod);
@@ -114,7 +114,7 @@ public class MainContext
 		this(debug, locator, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, f17);
 
 		Resource res = new InlineResource(inline);
-		Module mod = (Module) this.scribParser.parse(this.antlrParser.parseAntlrTree(res));
+		Module mod = (Module) this.scribParser.parse(this.antlrParser.parseAntlrTree(res), this.af);
 
 		init(res, mod);
 	}
@@ -136,7 +136,7 @@ public class MainContext
 				ModuleName modname = ((ImportModule) id).modname.toName();
 				if (!this.parsed.containsKey(modname))
 				{
-					loadAllModules(this.loader.loadModule(modname));
+					loadAllModules(this.loader.loadModule(modname, af));
 				}
 			}
 		}

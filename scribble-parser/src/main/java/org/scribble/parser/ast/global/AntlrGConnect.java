@@ -14,7 +14,7 @@
 package org.scribble.parser.ast.global;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.MessageSigNode;
 import org.scribble.ast.global.GConnect;
@@ -35,27 +35,27 @@ public class AntlrGConnect
 	public static final int SOURCE_CHILD_INDEX = 1;
 	public static final int DESTINATION_CHILD_INDEX = 2;
 
-	public static GConnect parseGConnect(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static GConnect parseGConnect(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
-		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct));
-		MessageNode msg = parseMessage(parser, getMessageChild(ct));
-		RoleNode dest = AntlrSimpleName.toRoleNode(getDestinationChild(ct));
-		return AstFactoryImpl.FACTORY.GConnect(ct, src, msg, dest);
+		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct), af);
+		MessageNode msg = parseMessage(parser, getMessageChild(ct), af);
+		RoleNode dest = AntlrSimpleName.toRoleNode(getDestinationChild(ct), af);
+		return af.GConnect(ct, src, msg, dest);
 		//return AstFactoryImpl.FACTORY.GConnect(src, dest);
 	}
 
-	protected static MessageNode parseMessage(ScribParser parser, CommonTree ct) throws ScribParserException
+	protected static MessageNode parseMessage(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
 		AntlrNodeType type = ScribParserUtil.getAntlrNodeType(ct);
 		if (type == AntlrNodeType.MESSAGESIGNATURE)
 		{
-			return (MessageSigNode) parser.parse(ct);
+			return (MessageSigNode) parser.parse(ct, af);
 		}
 		else //if (type.equals(AntlrConstants.AMBIGUOUSNAME_NODE_TYPE))
 		{
 			return (ct.getChildCount() == 1)
-				? AntlrAmbigName.toAmbigNameNode(ct)  // parametername or simple messagesignaturename
-				: AntlrQualifiedName.toMessageSigNameNode(ct);
+				? AntlrAmbigName.toAmbigNameNode(ct, af)  // parametername or simple messagesignaturename
+				: AntlrQualifiedName.toMessageSigNameNode(ct, af);
 		}
 	}
 

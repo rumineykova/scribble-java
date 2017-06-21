@@ -47,7 +47,7 @@ public class GProtocolDecl extends ProtocolDecl<Global> implements GNode
 	{
 		//Role self = proj.peekSelf();
 		GProtocolHeader gph = getHeader();
-		LProtocolNameNode pn = Projector.makeProjectedSimpleNameNode(gph.getSource(), gph.getDeclName(), self);
+		LProtocolNameNode pn = Projector.makeProjectedSimpleNameNode(af, gph.getSource(), gph.getDeclName(), self);
 		
 		// Move to delegates? -- maybe fully integrate into projection pass
 		RoleDeclList roledecls = this.header.roledecls.project(af, self);

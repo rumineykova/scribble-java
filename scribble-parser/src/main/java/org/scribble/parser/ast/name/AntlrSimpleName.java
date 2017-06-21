@@ -14,7 +14,7 @@
 package org.scribble.parser.ast.name;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.qualified.GProtocolNameNode;
 import org.scribble.ast.name.qualified.LProtocolNameNode;
@@ -40,47 +40,47 @@ public class AntlrSimpleName
 	private static final String ANTLR_EMPTY_OPERATOR = "EMPTY_OPERATOR";
 	//private static final String ANTLR_NO_SCOPE = "NO_SCOPE";
 
-	public static ModuleNameNode toModuleNameNode(CommonTree ct)
+	public static ModuleNameNode toModuleNameNode(CommonTree ct, AstFactory af)
 	{
-		return (ModuleNameNode) AstFactoryImpl.FACTORY.QualifiedNameNode(ct, ModuleKind.KIND, getName(ct));  // Cannot use SimpleNameNode because qualified uses the node's elements, not the node's text itself
+		return (ModuleNameNode) af.QualifiedNameNode(ct, ModuleKind.KIND, getName(ct));  // Cannot use SimpleNameNode because qualified uses the node's elements, not the node's text itself
 	}
 
-	public static GProtocolNameNode toGProtocolNameNode(CommonTree ct)
+	public static GProtocolNameNode toGProtocolNameNode(CommonTree ct, AstFactory af)
 	{
-		return (GProtocolNameNode) AstFactoryImpl.FACTORY.QualifiedNameNode(ct, Global.KIND, getName(ct));  // Cannot use SimpleNameNode because qualified uses the node's elements, not the node's text itself
+		return (GProtocolNameNode) af.QualifiedNameNode(ct, Global.KIND, getName(ct));  // Cannot use SimpleNameNode because qualified uses the node's elements, not the node's text itself
 	}
 
-	public static LProtocolNameNode toLProtocolNameNode(CommonTree ct)
+	public static LProtocolNameNode toLProtocolNameNode(CommonTree ct, AstFactory af)
 	{
-		return (LProtocolNameNode) AstFactoryImpl.FACTORY.QualifiedNameNode(ct, Local.KIND, getName(ct));
+		return (LProtocolNameNode) af.QualifiedNameNode(ct, Local.KIND, getName(ct));
 	}
 
-	public static DataTypeNode toDataTypeNameNode(CommonTree ct)
+	public static DataTypeNode toDataTypeNameNode(CommonTree ct, AstFactory af)
 	{
-		return (DataTypeNode) AstFactoryImpl.FACTORY.QualifiedNameNode(ct, DataTypeKind.KIND, getName(ct));
+		return (DataTypeNode) af.QualifiedNameNode(ct, DataTypeKind.KIND, getName(ct));
 	}
 
-	public static MessageSigNameNode toMessageSigNameNode(CommonTree ct)
+	public static MessageSigNameNode toMessageSigNameNode(CommonTree ct, AstFactory af)
 	{
-		return (MessageSigNameNode) AstFactoryImpl.FACTORY.QualifiedNameNode(ct, SigKind.KIND, getName(ct));
+		return (MessageSigNameNode) af.QualifiedNameNode(ct, SigKind.KIND, getName(ct));
 	}
 
-	public static RoleNode toRoleNode(CommonTree ct)
+	public static RoleNode toRoleNode(CommonTree ct, AstFactory af)
 	{
-		return (RoleNode) AstFactoryImpl.FACTORY.SimpleNameNode(ct, RoleKind.KIND, getName(ct));
+		return (RoleNode) af.SimpleNameNode(ct, RoleKind.KIND, getName(ct));
 	}
 
-	public static <K extends NonRoleParamKind> NonRoleParamNode<K> toParamNode(K kind, CommonTree ct)
+	public static <K extends NonRoleParamKind> NonRoleParamNode<K> toParamNode(K kind, CommonTree ct, AstFactory af)
 	{
-		return AstFactoryImpl.FACTORY.NonRoleParamNode(ct, kind, getName(ct));
+		return af.NonRoleParamNode(ct, kind, getName(ct));
 	}
 	
-	public static OpNode toOpNode(CommonTree ct)
+	public static OpNode toOpNode(CommonTree ct, AstFactory af)
 	{
 		String op = getName(ct);
 		return op.equals(ANTLR_EMPTY_OPERATOR)
-				? (OpNode) AstFactoryImpl.FACTORY.SimpleNameNode(ct, OpKind.KIND, OpNode.EMPTY_OPERATOR_IDENTIFIER)
-				: (OpNode) AstFactoryImpl.FACTORY.SimpleNameNode(ct, OpKind.KIND, getName(ct));
+				? (OpNode) af.SimpleNameNode(ct, OpKind.KIND, OpNode.EMPTY_OPERATOR_IDENTIFIER)
+				: (OpNode) af.SimpleNameNode(ct, OpKind.KIND, getName(ct));
 	}
 	
 	public static ScopeNode toScopeNode(CommonTree ct)
@@ -93,9 +93,9 @@ public class AntlrSimpleName
 		throw new RuntimeException("TODO: " + ct);
 	}
 	
-	public static RecVarNode toRecVarNode(CommonTree ct)
+	public static RecVarNode toRecVarNode(CommonTree ct, AstFactory af)
 	{
-		return (RecVarNode) AstFactoryImpl.FACTORY.SimpleNameNode(ct, RecVarKind.KIND, getName(ct));
+		return (RecVarNode) af.SimpleNameNode(ct, RecVarKind.KIND, getName(ct));
 	}
 
 	public static String getName(CommonTree ct)

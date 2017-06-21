@@ -14,7 +14,7 @@
 package org.scribble.parser.ast.global;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.global.GDisconnect;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.parser.ScribParser;
@@ -26,11 +26,11 @@ public class AntlrGDisconnect
 	public static final int SOURCE_CHILD_INDEX = 0;
 	public static final int DESTINATION_CHILD_INDEX = 1;
 
-	public static GDisconnect parseGDisconnect(ScribParser parser, CommonTree ct)
+	public static GDisconnect parseGDisconnect(ScribParser parser, CommonTree ct, AstFactory af)
 	{
-		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct));
-		RoleNode dest = AntlrSimpleName.toRoleNode(getDestinationChild(ct));
-		return AstFactoryImpl.FACTORY.GDisconnect(ct, src, dest);
+		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct), af);
+		RoleNode dest = AntlrSimpleName.toRoleNode(getDestinationChild(ct), af);
+		return af.GDisconnect(ct, src, dest);
 	}
 
 	public static CommonTree getSourceChild(CommonTree ct)

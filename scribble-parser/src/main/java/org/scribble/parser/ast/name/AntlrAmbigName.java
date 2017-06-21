@@ -14,14 +14,14 @@
 package org.scribble.parser.ast.name;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.name.simple.AmbigNameNode;
 
 public class AntlrAmbigName
 {
-	public static AmbigNameNode toAmbigNameNode(CommonTree ct)
+	public static AmbigNameNode toAmbigNameNode(CommonTree ct, AstFactory af)
 	{
-		return AstFactoryImpl.FACTORY.AmbiguousNameNode(getNameChild(ct), getName(ct));
+		return af.AmbiguousNameNode(getNameChild(ct), getName(ct));
 	}
 
 	private static CommonTree getNameChild(CommonTree ct)

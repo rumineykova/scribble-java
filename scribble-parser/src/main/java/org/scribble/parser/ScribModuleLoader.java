@@ -13,6 +13,7 @@
  */
 package org.scribble.parser;
 
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.Module;
 import org.scribble.main.DefaultModuleLoader;
 import org.scribble.main.ScribbleException;
@@ -39,15 +40,15 @@ public class ScribModuleLoader extends DefaultModuleLoader //implements ModuleLo
 	}
 
 	@Override
-	public Pair<Resource, Module> loadModule(ModuleName modname) throws ScribParserException, ScribbleException
+	public Pair<Resource, Module> loadModule(ModuleName modname, AstFactory af) throws ScribParserException, ScribbleException
 	{
-		Pair<Resource, Module> cached = super.loadModule(modname);
+		Pair<Resource, Module> cached = super.loadModule(modname, af);
 		if (cached != null)
 		{
 			return cached;
 		}	
 		Resource res = this.locator.getResource(modname.toPath());
-		Module parsed = (Module) this.parser.parse(this.antlr.parseAntlrTree(res));
+		Module parsed = (Module) this.parser.parse(this.antlr.parseAntlrTree(res), af);
 		checkModuleName(modname, res, parsed);
 		registerModule(res, parsed);
 		return new Pair<>(res, parsed);

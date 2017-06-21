@@ -14,7 +14,7 @@
 package org.scribble.parser.ast.global;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.RoleArgList;
 import org.scribble.ast.global.GDo;
@@ -29,12 +29,12 @@ public class AntlrGDo
 	public static final int ARGUMENTLIST_CHILD_INDEX = 1;
 	public static final int ROLEINSTANTIATIONLIST_CHILD_INDEX = 2;
 
-	public static GDo parseGDo(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static GDo parseGDo(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
-		RoleArgList ril = (RoleArgList) parser.parse(getRoleArgListChild(ct));
-		NonRoleArgList al = (NonRoleArgList) parser.parse(getNonRoleArgListChild(ct));
-		GProtocolNameNode pnn = AntlrQualifiedName.toGProtocolNameNode(getProtocolNameChild(ct));
-		return AstFactoryImpl.FACTORY.GDo(ct, ril, al, pnn);
+		RoleArgList ril = (RoleArgList) parser.parse(getRoleArgListChild(ct), af);
+		NonRoleArgList al = (NonRoleArgList) parser.parse(getNonRoleArgListChild(ct), af);
+		GProtocolNameNode pnn = AntlrQualifiedName.toGProtocolNameNode(getProtocolNameChild(ct), af);
+		return af.GDo(ct, ril, al, pnn);
 	}
 	
 	public static CommonTree getProtocolNameChild(CommonTree ct)

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.PayloadElem;
 import org.scribble.ast.PayloadElemList;
 import org.scribble.ast.name.qualified.DataTypeNode;
@@ -35,16 +35,16 @@ import org.scribble.parser.util.ScribParserUtil;
 public class AntlrPayloadElemList
 {
 	// Cf. AntlrNonRoleArgList
-	public static PayloadElemList parsePayloadElemList(ScribParser parser, CommonTree ct)
+	public static PayloadElemList parsePayloadElemList(ScribParser parser, CommonTree ct, AstFactory af)
 	{
 		// As in AntlrNonRoleArgList, i.e. payloadelem (NonRoleArg) not directly parsed -- cf. rolearg and nonroleparamdecl, which are directly parsed (not consistent), due to amibgious names
 		//List<PayloadElem> pes = getPayloadElements(ct).stream().map((pe) -> parsePayloadElem(pe)).collect(Collectors.toList());
-		List<PayloadElem<?>> pes = getPayloadElements(ct).stream().map((pe) -> parsePayloadElem(pe)).collect(Collectors.toList());
-		return AstFactoryImpl.FACTORY.PayloadElemList(ct, pes);
+		List<PayloadElem<?>> pes = getPayloadElements(ct).stream().map(pe -> parsePayloadElem(pe, af)).collect(Collectors.toList());
+		return af.PayloadElemList(ct, pes);
 	}
 
 	//private static PayloadElem parsePayloadElem(CommonTree ct)
-	public static PayloadElem<?> parsePayloadElem(CommonTree ct)
+	public static PayloadElem<?> parsePayloadElem(CommonTree ct, AstFactory af)
 	{
 		AntlrNodeType type = ScribParserUtil.getAntlrNodeType(ct);
 		/*// Parser isn't working to distinguish simple from qualified names (cf. Scribble.g payloadelement)
@@ -61,25 +61,25 @@ public class AntlrPayloadElemList
 		}*/
 		if (type == AntlrNodeType.DELEGATION)
 		{
-			RoleNode rn = AntlrSimpleName.toRoleNode((CommonTree) ct.getChild(0));
+			RoleNode rn = AntlrSimpleName.toRoleNode((CommonTree) ct.getChild(0), af);
 			//GProtocolNameNode gpnn = AntlrQualifiedName.toGProtocolNameNode((CommonTree) ct.getChild(1));  // FIXME:
-			GProtocolNameNode gpnn = AntlrQualifiedName.toGProtocolNameNode((CommonTree) ct.getChild(1));
-			return AstFactoryImpl.FACTORY.GDelegationElem(ct, gpnn, rn);
+			GProtocolNameNode gpnn = AntlrQualifiedName.toGProtocolNameNode((CommonTree) ct.getChild(1), af);
+			return af.GDelegationElem(ct, gpnn, rn);
 			//throw new RuntimeException("Shouldn't get in here: " + ct);
 		}
 		else if (type == AntlrNodeType.QUALIFIEDNAME)
 		{
 			if (ct.getChildCount() > 1)
 			{
-				DataTypeNode dt = AntlrQualifiedName.toDataTypeNameNode(ct);
+				DataTypeNode dt = AntlrQualifiedName.toDataTypeNameNode(ct, af);
 				//return AstFactoryImpl.FACTORY.PayloadElem(dt);
-				return AstFactoryImpl.FACTORY.UnaryPayloadElem(ct, dt);  // return and dt share same ct in this case
+				return af.UnaryPayloadElem(ct, dt);  // return and dt share same ct in this case
 			}
 			else
 			{
 				// Similarly to NonRoleArg: cannot syntactically distinguish right now between SimplePayloadTypeNode and ParameterNode
-				AmbigNameNode an = AntlrAmbigName.toAmbigNameNode(ct);
-				return AstFactoryImpl.FACTORY.UnaryPayloadElem(ct, an);
+				AmbigNameNode an = AntlrAmbigName.toAmbigNameNode(ct, af);
+				return af.UnaryPayloadElem(ct, an);
 			}
 		}
 		else

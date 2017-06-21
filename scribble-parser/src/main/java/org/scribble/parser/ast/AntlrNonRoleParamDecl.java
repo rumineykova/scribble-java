@@ -14,7 +14,7 @@
 package org.scribble.parser.ast;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.NonRoleParamDecl;
 import org.scribble.ast.name.simple.NonRoleParamNode;
 import org.scribble.parser.AntlrConstants;
@@ -30,18 +30,18 @@ public class AntlrNonRoleParamDecl
 	public static final int KIND_CHILD_INDEX = 0;
 	public static final int NAME_CHILD_INDEX = 1;
 
-	public static NonRoleParamDecl<? extends NonRoleParamKind> parseNonRoleParamDecl(ScribParser parser, CommonTree ct)
+	public static NonRoleParamDecl<? extends NonRoleParamKind> parseNonRoleParamDecl(ScribParser parser, CommonTree ct, AstFactory af)
 	{
 		Kind kind = parseKind(getKindChild(ct));
 		if (kind.equals(SigKind.KIND))
 		{
-			NonRoleParamNode<SigKind> name = AntlrSimpleName.toParamNode(SigKind.KIND, getNameChild(ct));
-			return AstFactoryImpl.FACTORY.NonRoleParamDecl(ct, SigKind.KIND, name);
+			NonRoleParamNode<SigKind> name = AntlrSimpleName.toParamNode(SigKind.KIND, getNameChild(ct), af);
+			return af.NonRoleParamDecl(ct, SigKind.KIND, name);
 		}
 		else if (kind.equals(DataTypeKind.KIND))
 		{
-			NonRoleParamNode<DataTypeKind> name = AntlrSimpleName.toParamNode(DataTypeKind.KIND, getNameChild(ct));
-			return AstFactoryImpl.FACTORY.NonRoleParamDecl(ct, DataTypeKind.KIND, name);
+			NonRoleParamNode<DataTypeKind> name = AntlrSimpleName.toParamNode(DataTypeKind.KIND, getNameChild(ct), af);
+			return af.NonRoleParamDecl(ct, DataTypeKind.KIND, name);
 		}
 		else
 		{

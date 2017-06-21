@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.ImportDecl;
 import org.scribble.ast.Module;
 import org.scribble.ast.ModuleDecl;
@@ -34,28 +34,28 @@ public class AntlrModule
 {
 	public static final int MODULEDECL_CHILD_INDEX = 0;
 
-	public static Module parseModule(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static Module parseModule(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
-		ModuleDecl md = (ModuleDecl) parser.parse(getModuleDeclChild(ct));
+		ModuleDecl md = (ModuleDecl) parser.parse(getModuleDeclChild(ct), af);
 		List<ImportDecl<?>> ids = new LinkedList<>();
 		List<NonProtocolDecl<?>> ptds = new LinkedList<>();
 		List<ProtocolDecl<?>> pds = new LinkedList<>();
 		for (CommonTree id : getImportDeclChildren(ct))
 		{
-			ImportDecl<?> tmp = (ImportDecl<?>) parser.parse(id);
+			ImportDecl<?> tmp = (ImportDecl<?>) parser.parse(id, af);
 			ids.add(tmp);
 		}
 		for (CommonTree ptd : getDataTypeDeclChildren(ct))
 		{
-			NonProtocolDecl<?> tmp = (NonProtocolDecl<?>) parser.parse(ptd);
+			NonProtocolDecl<?> tmp = (NonProtocolDecl<?>) parser.parse(ptd, af);
 			ptds.add(tmp);
 		}
 		for (CommonTree pd : getProtocolDeclChildren(ct))
 		{
-			ProtocolDecl<?> tmp = (ProtocolDecl<?>) parser.parse(pd);
+			ProtocolDecl<?> tmp = (ProtocolDecl<?>) parser.parse(pd, af);
 			pds.add(tmp);
 		}
-		return AstFactoryImpl.FACTORY.Module(ct, md, ids, ptds, pds);
+		return af.Module(ct, md, ids, ptds, pds);
 	}
 
 	public static CommonTree getModuleDeclChild(CommonTree ct)

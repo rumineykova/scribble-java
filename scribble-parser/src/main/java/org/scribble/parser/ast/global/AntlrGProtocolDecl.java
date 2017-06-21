@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.ast.global.GProtocolDef;
 import org.scribble.ast.global.GProtocolHeader;
@@ -32,10 +32,10 @@ public class AntlrGProtocolDecl
 	//public static final int EXPLICIT_CONNECTIONS_FLAG_INDEX = 2;
 	public static final int MODIFIERS_CHILD_INDEX = 2;
 
-	public static GProtocolDecl parseGPrototocolDecl(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static GProtocolDecl parseGPrototocolDecl(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
-		GProtocolHeader header = (GProtocolHeader) parser.parse(getHeaderChild(ct));
-		GProtocolDef def = (GProtocolDef) parser.parse(getBodyChild(ct));
+		GProtocolHeader header = (GProtocolHeader) parser.parse(getHeaderChild(ct), af);
+		GProtocolDef def = (GProtocolDef) parser.parse(getBodyChild(ct), af);
 		List<GProtocolDecl.Modifiers> modifiers = new LinkedList<>();
 		/*if (isExplicitConnections(ct))
 		{
@@ -53,7 +53,7 @@ public class AntlrGProtocolDecl
 				}
 			}
 		}
-		return AstFactoryImpl.FACTORY.GProtocolDecl(ct, modifiers, header, def);
+		return af.GProtocolDecl(ct, modifiers, header, def);
 	}
 
 	public static CommonTree getHeaderChild(CommonTree ct)

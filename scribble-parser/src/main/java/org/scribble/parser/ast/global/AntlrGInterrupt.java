@@ -16,6 +16,7 @@ package org.scribble.parser.ast.global;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.global.GInterrupt;
 import org.scribble.parser.ScribParser;
 import org.scribble.parser.util.ScribParserUtil;
@@ -27,7 +28,7 @@ public class AntlrGInterrupt
 	public static final int SOURCE_CHILD_INDEX = 0;
 	public static final int MESSAGE_CHILDREN_START_INDEX = 1;
 
-	public static GInterrupt parseGInterrupt(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static GInterrupt parseGInterrupt(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
 		/*RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct));
 		/*List<MessageNode> msgs =

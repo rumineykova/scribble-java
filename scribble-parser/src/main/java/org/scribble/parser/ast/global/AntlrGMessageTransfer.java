@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.MessageSigNode;
 import org.scribble.ast.global.GMessageTransfer;
@@ -36,27 +36,27 @@ public class AntlrGMessageTransfer
 	public static final int SOURCE_CHILD_INDEX = 1;
 	public static final int DESTINATION_CHILDREN_START_INDEX = 2;
 
-	public static GMessageTransfer parseGMessageTransfer(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static GMessageTransfer parseGMessageTransfer(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
-		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct));
-		MessageNode msg = parseMessage(parser, getMessageChild(ct));
+		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct), af);
+		MessageNode msg = parseMessage(af, parser, getMessageChild(ct));
 		List<RoleNode> dests = 
-			getDestChildren(ct).stream().map((d) -> AntlrSimpleName.toRoleNode(d)).collect(Collectors.toList());
-		return AstFactoryImpl.FACTORY.GMessageTransfer(ct, src, msg, dests);
+			getDestChildren(ct).stream().map(d -> AntlrSimpleName.toRoleNode(d, af)).collect(Collectors.toList());
+		return af.GMessageTransfer(ct, src, msg, dests);
 	}
 
-	public static MessageNode parseMessage(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static MessageNode parseMessage(AstFactory af, ScribParser parser, CommonTree ct) throws ScribParserException
 	{
 		AntlrNodeType type = ScribParserUtil.getAntlrNodeType(ct);
 		if (type == AntlrNodeType.MESSAGESIGNATURE)
 		{
-			return (MessageSigNode) parser.parse(ct);
+			return (MessageSigNode) parser.parse(ct, af);
 		}
 		else //if (type.equals(AntlrConstants.AMBIGUOUSNAME_NODE_TYPE))
 		{
 			return (ct.getChildCount() == 1)
-				? AntlrAmbigName.toAmbigNameNode(ct)  // parametername or simple messagesignaturename
-				: AntlrQualifiedName.toMessageSigNameNode(ct);
+				? AntlrAmbigName.toAmbigNameNode(ct, af)  // parametername or simple messagesignaturename
+				: AntlrQualifiedName.toMessageSigNameNode(ct, af);
 		}
 	}
 
