@@ -63,7 +63,7 @@ public class GChoice extends Choice<Global> implements GCompoundInteractionNode
 			{
 				for (int i = 1; i < cs.size(); i++)
 				{
-					merged = merged.merge(null, cs.get(i)); // Merge currently does "nothing"; validation takes direct non-deterministic interpretation -- purpose of syntactic merge is to convert non-det to "equivalent" safe det in certain sitations
+					merged = merged.merge(af, cs.get(i)); // Merge currently does "nothing"; validation takes direct non-deterministic interpretation -- purpose of syntactic merge is to convert non-det to "equivalent" safe det in certain sitations
 				}
 			}
 			catch (ScribbleException e)  // HACK

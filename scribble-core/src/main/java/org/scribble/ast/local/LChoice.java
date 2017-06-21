@@ -100,8 +100,8 @@ public class LChoice extends Choice<Local> implements LCompoundInteractionNode
 			throw new ScribbleException("Cannot merge choices for " + this.subj + " and " + them.subj + ": " + this + ", " + ln);
 		}*/
 		List<LProtocolBlock> blocks = new LinkedList<>();
-		getBlocks().forEach((b) -> blocks.add(b.clone(af)));
-		them.getBlocks().forEach((b) -> blocks.add(b.clone(af)));
+		getBlocks().forEach(b -> blocks.add(b.clone(af)));
+		them.getBlocks().forEach(b -> blocks.add(b.clone(af)));
 		return af.LChoice(this.source, this.subj, blocks);  // Not reconstruct: leave context building to post-projection passes 
 			// Hacky: this.source
 	}

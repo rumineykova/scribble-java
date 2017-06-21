@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.global.GMessageTransfer;
 import org.scribble.ast.name.simple.RoleNode;
@@ -31,13 +32,13 @@ public class AssrtAntlrGMessageTransfer
 {
 	public static final int ASSERTION_CHILD_INDEX = 0;
 
-	public static GMessageTransfer parseAnnotGMessageTransfer(ScribParser parser, CommonTree ct) throws ScribParserException
+	public static GMessageTransfer parseAnnotGMessageTransfer(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
 		AssrtAssertionNode assertion = parseAssertion(getAssertionChild(ct));   
-		RoleNode src = AntlrSimpleName.toRoleNode(AntlrGMessageTransfer.getSourceChild(ct));
-		MessageNode msg = AntlrGMessageTransfer.parseMessage(parser, AntlrGMessageTransfer.getMessageChild(ct));
+		RoleNode src = AntlrSimpleName.toRoleNode(AntlrGMessageTransfer.getSourceChild(ct), af);
+		MessageNode msg = AntlrGMessageTransfer.parseMessage(parser, AntlrGMessageTransfer.getMessageChild(ct), af);
 		List<RoleNode> dests = 
-			AntlrGMessageTransfer.getDestChildren(ct).stream().map((d) -> AntlrSimpleName.toRoleNode(d)).collect(Collectors.toList());
+			AntlrGMessageTransfer.getDestChildren(ct).stream().map(d -> AntlrSimpleName.toRoleNode(d, af)).collect(Collectors.toList());
 		return AssrtAstFactoryImpl.FACTORY.GMessageTransfer(ct, src, msg, dests, assertion);
 	}
 

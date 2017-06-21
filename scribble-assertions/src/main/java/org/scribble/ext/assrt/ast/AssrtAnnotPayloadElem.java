@@ -40,7 +40,7 @@ public class AssrtAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeB
 	}
 	
 	@Override
-	public AssrtAnnotPayloadElem<K> project()
+	public AssrtAnnotPayloadElem<K> project(AstFactory af)
 	{
 		return this;
 	}

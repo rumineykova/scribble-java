@@ -47,9 +47,9 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 	}
 	
 	@Override
-	public LNode project(Role self)
+	public LNode project(AstFactory af, Role self)
 	{
-		LNode proj = super.project(self);
+		LNode proj = super.project(af, self);
 		if (proj instanceof LInteractionSeq)
 		{
 			throw new RuntimeException("[scrib-assert] Self-communication not supported: " + proj);

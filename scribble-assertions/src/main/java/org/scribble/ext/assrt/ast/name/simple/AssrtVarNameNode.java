@@ -15,7 +15,6 @@ package org.scribble.ext.assrt.ast.name.simple;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
-import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.PayloadElemNameNode;
@@ -41,7 +40,7 @@ public class AssrtVarNameNode extends SimpleNameNode<AssrtAnnotVarNameKind> impl
 	@Override
 	public NameNode<AssrtAnnotVarNameKind> clone(AstFactory af)
 	{
-		return (AssrtVarNameNode) AstFactoryImpl.FACTORY.SimpleNameNode(this.source, AssrtAnnotVarNameKind.KIND, getIdentifier());
+		return (AssrtVarNameNode) af.SimpleNameNode(this.source, AssrtAnnotVarNameKind.KIND, getIdentifier());
 	}
 
 	@Override

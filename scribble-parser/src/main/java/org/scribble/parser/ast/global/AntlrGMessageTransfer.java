@@ -39,13 +39,13 @@ public class AntlrGMessageTransfer
 	public static GMessageTransfer parseGMessageTransfer(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
 		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct), af);
-		MessageNode msg = parseMessage(af, parser, getMessageChild(ct));
+		MessageNode msg = parseMessage(parser, getMessageChild(ct), af);
 		List<RoleNode> dests = 
 			getDestChildren(ct).stream().map(d -> AntlrSimpleName.toRoleNode(d, af)).collect(Collectors.toList());
 		return af.GMessageTransfer(ct, src, msg, dests);
 	}
 
-	public static MessageNode parseMessage(AstFactory af, ScribParser parser, CommonTree ct) throws ScribParserException
+	public static MessageNode parseMessage(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
 		AntlrNodeType type = ScribParserUtil.getAntlrNodeType(ct);
 		if (type == AntlrNodeType.MESSAGESIGNATURE)

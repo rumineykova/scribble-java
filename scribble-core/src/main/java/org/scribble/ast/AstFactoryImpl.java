@@ -13,6 +13,7 @@
  */
 package org.scribble.ast;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
@@ -121,16 +122,32 @@ import org.scribble.sesstype.kind.RecVarKind;
 import org.scribble.sesstype.kind.RoleKind;
 import org.scribble.sesstype.kind.SigKind;
 import org.scribble.sesstype.name.GProtocolName;
+import org.scribble.sesstype.name.Op;
 import org.scribble.sesstype.name.Role;
 
 
-public class AstFactoryImpl extends AstFactory
+public class AstFactoryImpl implements AstFactory
 {
 	//public static final AstFactory FACTORY = new AstFactoryImpl();
+
+	private static MessageSigNode UNIT_MESSAGE_SIG_NODE;  // A "constant"
 	
 	public AstFactoryImpl()
 	{
 		
+	}
+	
+  // FIXME: inconsistent wrt. this.source -- it is essentially parsed (in the sense of *omitted* syntax), but not recorded
+	// FIXME: this pattern is not ideal ("exposed" public constructor arg in GWrap/GDisconnect)
+	//     An alternative would be to make subclasses, e.g., UnitMessageSigNode, UnitOp, EmptyPayloadElemList -- but a lot of extra classes
+	protected MessageSigNode UnitMessageSigNode()
+	{
+		if (UNIT_MESSAGE_SIG_NODE == null)
+		{
+			UNIT_MESSAGE_SIG_NODE = MessageSigNode(null, (OpNode) SimpleNameNode(null, OpKind.KIND, Op.EMPTY_OPERATOR.toString()),
+					PayloadElemList(null, Collections.emptyList()));  // Payload.EMPTY_PAYLOAD?
+		}
+		return UNIT_MESSAGE_SIG_NODE;
 	}
 	
 	@Override

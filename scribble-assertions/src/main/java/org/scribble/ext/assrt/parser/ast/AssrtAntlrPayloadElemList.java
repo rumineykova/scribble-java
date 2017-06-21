@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.PayloadElem;
 import org.scribble.ast.PayloadElemList;
 import org.scribble.ast.name.qualified.DataTypeNode;
@@ -32,24 +32,24 @@ import org.scribble.parser.util.ScribParserUtil;
 
 public class AssrtAntlrPayloadElemList
 {
-	public static PayloadElemList parsePayloadElemList(ScribParser parser, CommonTree ct)
+	public static PayloadElemList parsePayloadElemList(ScribParser parser, CommonTree ct, AstFactory af)
 	{
-		List<PayloadElem<?>> pes = AntlrPayloadElemList.getPayloadElements(ct).stream().map((pe) -> parsePayloadElem(pe)).collect(Collectors.toList());
-		return AstFactoryImpl.FACTORY.PayloadElemList(ct, pes);
+		List<PayloadElem<?>> pes = AntlrPayloadElemList.getPayloadElements(ct).stream().map(pe -> parsePayloadElem(pe, af)).collect(Collectors.toList());
+		return af.PayloadElemList(ct, pes);
 	}
 
-	protected static PayloadElem<?> parsePayloadElem(CommonTree ct)
+	protected static PayloadElem<?> parsePayloadElem(CommonTree ct, AstFactory af)
 	{
 		AntlrNodeType type = ScribParserUtil.getAntlrNodeType(ct);
 		if (type == AntlrNodeType.ANNOTPAYLOAD)
 		{
 			AssrtVarNameNode var = AssrtAntlrSimpleName.toVarName(((CommonTree) ct.getChild(0)));
-			DataTypeNode dt = AntlrQualifiedName.toDataTypeNameNode((CommonTree)ct.getChild(1));
+			DataTypeNode dt = AntlrQualifiedName.toDataTypeNameNode((CommonTree)ct.getChild(1), af);
 			return AssrtAstFactoryImpl.FACTORY.AnnotPayloadElem(ct, var, dt); 
 		}
 		else
 		{
-			return AntlrPayloadElemList.parsePayloadElem(ct);
+			return AntlrPayloadElemList.parsePayloadElem(ct, af);
 		}
 	}
 }
