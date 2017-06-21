@@ -11,7 +11,8 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.scribble.main;
+package org.scribble.main;  // N.B. the same package is declared in core
+		// FIXME? should be in core org.scribble.main, but currently here due to Maven dependency restrictions
 
 import java.io.File;
 import java.nio.file.Path;
@@ -33,11 +34,7 @@ import org.scribble.sesstype.name.ModuleName;
 import org.scribble.util.Pair;
 import org.scribble.util.ScribParserException;
 
-
-// N.B. the same package is declared in core
-
 // Scribble tool context for main module
-// FIXME: should be in core org.scribble.main, but currently here due to Maven dependency restrictions
 // MainContext takes ResourceLocator abstractly (e.g. DirectoryResourceLocator), but because abstract Resource itself works off paths, it takes mainpath (rather than something more abstract, e.g. URI, to identify the "main" resource)
 // Resource and ResourceLocator should be made abstract from (file)paths (cf. use of toPath in ScribbleModuleLoader)
 public class MainContext
@@ -89,19 +86,6 @@ public class MainContext
 		this.loader = new ScribModuleLoader(this.locator, this.antlrParser, this.scribParser);
 	}
 
-	// For inline module arg
-	public MainContext(boolean debug, ResourceLocator locator, String inline, boolean useOldWF, boolean noLiveness, boolean minEfsm,
-			boolean fair, boolean noLocalChoiceSubjectCheck, boolean noAcceptCorrelationCheck, boolean noValidation, boolean f17)
-					throws ScribParserException, ScribbleException
-	{
-		this(debug, locator, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, f17);
-
-		Resource res = new InlineResource(inline);
-		Module mod = (Module) this.scribParser.parse(this.antlrParser.parseAntlrTree(res));
-
-		init(res, mod);
-	}
-
 	// Load main module from file system
 	public MainContext(boolean debug, ResourceLocator locator, Path mainpath, boolean useOldWF, boolean noLiveness, boolean minEfsm,
 			boolean fair, boolean noLocalChoiceSubjectCheck, boolean noAcceptCorrelationCheck, boolean noValidation, boolean f17)
@@ -115,6 +99,19 @@ public class MainContext
 		Module mod = (Module) this.scribParser.parse(this.antlrParser.parseAntlrTree(res));  // FIXME: rename exceptions
 		checkMainModuleName(mainpath, mod);
 		
+		init(res, mod);
+	}
+
+	// For inline module arg
+	public MainContext(boolean debug, ResourceLocator locator, String inline, boolean useOldWF, boolean noLiveness, boolean minEfsm,
+			boolean fair, boolean noLocalChoiceSubjectCheck, boolean noAcceptCorrelationCheck, boolean noValidation, boolean f17)
+					throws ScribParserException, ScribbleException
+	{
+		this(debug, locator, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, f17);
+
+		Resource res = new InlineResource(inline);
+		Module mod = (Module) this.scribParser.parse(this.antlrParser.parseAntlrTree(res));
+
 		init(res, mod);
 	}
 
@@ -141,15 +138,15 @@ public class MainContext
 		}
 	}
 	
-	public Map<ModuleName, Module> getParsedModules()
-	{
-		return this.parsed.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().right));
-	}
-	
 	public Job newJob()
 	{
 		return new Job(this.debug, this.getParsedModules(), this.main, this.useOldWF, this.noLiveness, this.minEfsm, this.fair,
 				this.noLocalChoiceSubjectCheck, this.noAcceptCorrelationCheck, this.noValidation);
+	}
+	
+	public Map<ModuleName, Module> getParsedModules()
+	{
+		return this.parsed.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().right));
 	}
 	
 	// Hacky? But not Scribble tool's job to check nested directory location of module fully corresponds to the fullname of module? Cf. Java classes

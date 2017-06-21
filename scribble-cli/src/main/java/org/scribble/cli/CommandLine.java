@@ -109,12 +109,44 @@ public class CommandLine
 			System.exit(1);
 		}
 	}
+	
+	protected MainContext newMainContext() throws ScribParserException, ScribbleException
+	{
+		//boolean jUnit = this.args.containsKey(ArgFlag.JUNIT);
+		boolean debug = this.args.containsKey(ArgFlag.VERBOSE);
+		boolean useOldWF = this.args.containsKey(ArgFlag.OLD_WF);
+		boolean noLiveness = this.args.containsKey(ArgFlag.NO_LIVENESS);
+		boolean minEfsm = this.args.containsKey(ArgFlag.LTSCONVERT_MIN);
+		boolean fair = this.args.containsKey(ArgFlag.FAIR);
+		boolean noLocalChoiceSubjectCheck = this.args.containsKey(ArgFlag.NO_LOCAL_CHOICE_SUBJECT_CHECK);
+		boolean noAcceptCorrelationCheck = this.args.containsKey(ArgFlag.NO_ACCEPT_CORRELATION_CHECK);
+		boolean noValidation = this.args.containsKey(ArgFlag.NO_VALIDATION);
+		boolean f17 = this.args.containsKey(ArgFlag.F17);
+
+		List<Path> impaths = this.args.containsKey(ArgFlag.IMPORT_PATH)
+				? CommandLine.parseImportPaths(this.args.get(ArgFlag.IMPORT_PATH)[0])
+				: Collections.emptyList();
+		ResourceLocator locator = new DirectoryResourceLocator(impaths);
+		if (this.args.containsKey(ArgFlag.INLINE_MAIN_MOD))
+		{
+			return new MainContext(debug, locator, this.args.get(ArgFlag.INLINE_MAIN_MOD)[0], useOldWF, noLiveness, minEfsm, fair,
+					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, f17);
+		}
+		else
+		{
+			Path mainpath = CommandLine.parseMainPath(this.args.get(ArgFlag.MAIN_MOD)[0]);
+			//return new MainContext(jUnit, debug, locator, mainpath, useOldWF, noLiveness);
+			return new MainContext(debug, locator, mainpath, useOldWF, noLiveness, minEfsm, fair,
+					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, f17);
+		}
+	}
 
 	public void run() throws ScribbleException, CommandLineException, ScribParserException
 	{
 		try
 		{
-			Job job = newJob(newMainContext());
+			MainContext mc = newMainContext();
+			Job job = mc.newJob();
 			ScribbleException fail = null;
 			try
 			{
@@ -391,7 +423,7 @@ public class CommandLine
 		if (this.args.containsKey(ArgFlag.API_OUTPUT))
 		{
 			String dir = this.args.get(ArgFlag.API_OUTPUT)[0];
-			f = (path) -> { ScribUtil.handleLambdaScribbleException(() ->
+			f = path -> { ScribUtil.handleLambdaScribbleException(() ->
 							{
 								String tmp = dir + "/" + path;
 								if (this.args.containsKey(ArgFlag.VERBOSE))
@@ -403,7 +435,7 @@ public class CommandLine
 		}
 		else
 		{
-			f = (path) -> { System.out.println(path + ":\n" + classes.get(path)); };
+			f = path -> { System.out.println(path + ":\n" + classes.get(path)); };
 		}
 		classes.keySet().stream().forEach(f);
 	}
@@ -425,43 +457,6 @@ public class CommandLine
 		finally
 		{
 			tmp.delete();
-		}
-	}
-	
-	private Job newJob(MainContext mc)
-	{
-		//Job job = new Job(cjob);  // Doesn't work due to (recursive) maven dependencies
-		return mc.newJob();
-	}
-
-	private MainContext newMainContext() throws ScribParserException, ScribbleException
-	{
-		//boolean jUnit = this.args.containsKey(ArgFlag.JUNIT);
-		boolean debug = this.args.containsKey(ArgFlag.VERBOSE);
-		boolean useOldWF = this.args.containsKey(ArgFlag.OLD_WF);
-		boolean noLiveness = this.args.containsKey(ArgFlag.NO_LIVENESS);
-		boolean minEfsm = this.args.containsKey(ArgFlag.LTSCONVERT_MIN);
-		boolean fair = this.args.containsKey(ArgFlag.FAIR);
-		boolean noLocalChoiceSubjectCheck = this.args.containsKey(ArgFlag.NO_LOCAL_CHOICE_SUBJECT_CHECK);
-		boolean noAcceptCorrelationCheck = this.args.containsKey(ArgFlag.NO_ACCEPT_CORRELATION_CHECK);
-		boolean noValidation = this.args.containsKey(ArgFlag.NO_VALIDATION);
-		boolean f17 = this.args.containsKey(ArgFlag.F17);
-
-		List<Path> impaths = this.args.containsKey(ArgFlag.IMPORT_PATH)
-				? CommandLine.parseImportPaths(this.args.get(ArgFlag.IMPORT_PATH)[0])
-				: Collections.emptyList();
-		ResourceLocator locator = new DirectoryResourceLocator(impaths);
-		if (this.args.containsKey(ArgFlag.INLINE_MAIN_MOD))
-		{
-			return new MainContext(debug, locator, this.args.get(ArgFlag.INLINE_MAIN_MOD)[0], useOldWF, noLiveness, minEfsm, fair,
-					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, f17);
-		}
-		else
-		{
-			Path mainpath = CommandLine.parseMainPath(this.args.get(ArgFlag.MAIN_MOD)[0]);
-			//return new MainContext(jUnit, debug, locator, mainpath, useOldWF, noLiveness);
-			return new MainContext(debug, locator, mainpath, useOldWF, noLiveness, minEfsm, fair,
-					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, f17);
 		}
 	}
 	

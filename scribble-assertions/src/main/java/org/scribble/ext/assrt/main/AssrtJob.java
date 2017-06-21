@@ -20,9 +20,6 @@ import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.name.ModuleName;
-import org.scribble.visit.validation.GProtocolValidator;
-import org.scribble.visit.wf.ReachabilityChecker;
-import org.scribble.visit.wf.WFChoiceChecker;
 
 public class AssrtJob extends Job
 {
@@ -36,16 +33,11 @@ public class AssrtJob extends Job
 	@Override
 	public void runWellFormednessPasses() throws ScribbleException
 	{
+		super.runWellFormednessPasses();
+
+		// Additional
 		if (!this.noValidation)
 		{
-			runVisitorPassOnAllModules(WFChoiceChecker.class);  // For enabled roles and disjoint enabling messages -- includes connectedness checks
-			runProjectionPasses();
-			runVisitorPassOnAllModules(ReachabilityChecker.class);  // Moved before GlobalModelChecker.class, OK?
-			if (!this.useOldWf)
-			{
-				runVisitorPassOnAllModules(GProtocolValidator.class);
-			}
-			
 			runVisitorPassOnAllModules(AssrtAnnotationChecker.class);
 		}
 	}
