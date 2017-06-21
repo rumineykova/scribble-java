@@ -33,7 +33,7 @@ public class NonRoleArg extends DoArg<NonRoleArgNode>
 	@Override
 	public NonRoleArg clone(AstFactory af)
 	{
-		NonRoleArgNode arg = (NonRoleArgNode) getVal().clone(null);
+		NonRoleArgNode arg = (NonRoleArgNode) getVal().clone(af);
 		return af.NonRoleArg(this.source, arg);
 	}
 

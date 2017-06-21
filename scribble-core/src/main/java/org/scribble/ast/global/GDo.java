@@ -54,9 +54,9 @@ public class GDo extends Do<Global> implements GSimpleInteractionNode
 	@Override
 	public GDo clone(AstFactory af)
 	{
-		RoleArgList roles = this.roles.clone(null);
-		NonRoleArgList args = this.args.clone(null);
-		GProtocolNameNode proto = this.getProtocolNameNode().clone(null);
+		RoleArgList roles = this.roles.clone(af);
+		NonRoleArgList args = this.args.clone(af);
+		GProtocolNameNode proto = this.getProtocolNameNode().clone(af);
 		return af.GDo(this.source, roles, args, proto);
 	}
 

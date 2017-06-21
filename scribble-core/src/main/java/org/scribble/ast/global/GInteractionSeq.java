@@ -50,7 +50,7 @@ public class GInteractionSeq extends InteractionSeq<Global> implements GNode
 	@Override
 	public GInteractionSeq clone(AstFactory af)
 	{
-		List<GInteractionNode> gis = ScribUtil.cloneList(getInteractions());
+		List<GInteractionNode> gis = ScribUtil.cloneList(af, getInteractions());
 		return af.GInteractionSeq(this.source, gis);
 	}
 

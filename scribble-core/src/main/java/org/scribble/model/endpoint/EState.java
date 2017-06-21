@@ -23,10 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.scribble.ast.AstFactory;
 import org.scribble.main.ScribbleException;
-import org.scribble.model.MState;
 import org.scribble.model.MPrettyState;
+import org.scribble.model.MState;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.sesstype.kind.Local;
 import org.scribble.sesstype.name.RecVar;
@@ -56,7 +55,7 @@ public class EState extends MPrettyState<RecVar, EAction, EState, Local>
 	..     should be fine, check set of roles on each path is equal, except for accept-guarded initial roles*/
 	public EState unfairTransform()
 	{
-		EState init = this.clone(null);
+		EState init = clone();
 		
 		EState term = MPrettyState.getTerminal(init);
 		Set<EState> seen = new HashSet<>();
@@ -171,7 +170,7 @@ public class EState extends MPrettyState<RecVar, EAction, EState, Local>
 	}
 
 	// Fully clones the reachable graph (i.e. the "general" graph -- cf., EGraph, the specific Scribble concept of an endpoint protocol graph)
-	protected EState clone(AstFactory af)
+	protected EState clone()
 	{
 		Set<EState> all = new HashSet<>();
 		all.add(this);

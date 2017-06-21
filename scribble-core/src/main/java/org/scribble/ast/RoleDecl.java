@@ -37,7 +37,7 @@ public class RoleDecl extends HeaderParamDecl<RoleKind>
 	@Override
 	public RoleDecl clone(AstFactory af)
 	{
-		RoleNode role = (RoleNode) this.name.clone(null);
+		RoleNode role = (RoleNode) this.name.clone(af);
 		return af.RoleDecl(this.source, role);
 	}
 

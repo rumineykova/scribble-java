@@ -46,7 +46,7 @@ public class GContinue extends Continue<Global> implements GSimpleInteractionNod
 	@Override
 	public GContinue clone(AstFactory af)
 	{
-		RecVarNode rv = this.recvar.clone(null);
+		RecVarNode rv = this.recvar.clone(af);
 		return af.GContinue(this.source, rv);
 	}
 

@@ -44,8 +44,8 @@ public class LProtocolDecl extends ProtocolDecl<Local> implements LNode
 	@Override
 	public LProtocolDecl clone(AstFactory af)
 	{
-		LProtocolHeader header = getHeader().clone(null);
-		LProtocolDef def = getDef().clone(null);
+		LProtocolHeader header = getHeader().clone(af);
+		LProtocolDef def = getDef().clone(af);
 		return af.LProtocolDecl(this.source, this.modifiers, header, def);
 	}
 	

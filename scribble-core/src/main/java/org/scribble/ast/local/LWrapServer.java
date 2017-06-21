@@ -47,8 +47,8 @@ public class LWrapServer extends LConnectionAction implements LSimpleInteraction
 	@Override
 	public LWrapServer clone(AstFactory af)
 	{
-		RoleNode src = this.src.clone(null);
-		RoleNode dest = this.dest.clone(null);
+		RoleNode src = this.src.clone(af);
+		RoleNode dest = this.dest.clone(af);
 		return af.LWrapServer(this.source, src, dest);
 	}
 

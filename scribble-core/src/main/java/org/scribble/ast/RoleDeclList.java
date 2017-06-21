@@ -38,7 +38,7 @@ public class RoleDeclList extends HeaderParamDeclList<RoleKind>
 	@Override
 	public RoleDeclList clone(AstFactory af)
 	{
-		List<RoleDecl> decls = ScribUtil.cloneList(getDecls());
+		List<RoleDecl> decls = ScribUtil.cloneList(af, getDecls());
 		return af.RoleDeclList(this.source, decls);
 	}
 

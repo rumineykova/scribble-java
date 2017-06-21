@@ -43,7 +43,7 @@ public class LContinue extends Continue<Local> implements LSimpleInteractionNode
 	@Override
 	public LContinue clone(AstFactory af)
 	{
-		RecVarNode rv = this.recvar.clone(null);
+		RecVarNode rv = this.recvar.clone(af);
 		return af.LContinue(this.source, rv);
 	}
 
@@ -83,7 +83,7 @@ public class LContinue extends Continue<Local> implements LSimpleInteractionNode
 		{
 			throw new ScribbleException("Cannot merge choices for " + this.recvar + " and " + them.recvar + ": " + this + ", " + ln);
 		}
-		return clone(null);
+		return clone(af);
 	}
 
 	@Override

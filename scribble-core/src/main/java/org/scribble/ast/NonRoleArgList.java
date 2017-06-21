@@ -40,7 +40,7 @@ public class NonRoleArgList extends DoArgList<NonRoleArg>
 	@Override
 	public NonRoleArgList clone(AstFactory af)
 	{
-		List<NonRoleArg> args = ScribUtil.cloneList(getDoArgs());
+		List<NonRoleArg> args = ScribUtil.cloneList(af, getDoArgs());
 		return af.NonRoleArgList(this.source, args);
 	}
 

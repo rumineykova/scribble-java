@@ -116,7 +116,7 @@ public class LChoiceDel extends ChoiceDel implements LCompoundInteractionNodeDel
 		LChoice lc = (LChoice) visited;
 		List<LProtocolBlock> blocks = 
 				lc.getBlocks().stream().map((b) -> (LProtocolBlock) ((InlineProtocolEnv) b.del().env()).getTranslation()).collect(Collectors.toList());	
-		RoleNode subj = lc.subj.clone(null);
+		RoleNode subj = lc.subj.clone(inl.job.af);
 		LChoice inlined = inl.job.af.LChoice(lc.getSource(), subj, blocks);
 		inl.pushEnv(inl.popEnv().setTranslation(inlined));
 		return (LChoice) super.leaveProtocolInlining(parent, child, inl, lc);

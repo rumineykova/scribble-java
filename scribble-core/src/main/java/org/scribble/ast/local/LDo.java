@@ -51,9 +51,9 @@ public class LDo extends Do<Local> implements LSimpleInteractionNode
 	@Override
 	public LDo clone(AstFactory af)
 	{
-		RoleArgList roles = this.roles.clone(null);
-		NonRoleArgList args = this.args.clone(null);
-		LProtocolNameNode proto = this.getProtocolNameNode().clone(null);
+		RoleArgList roles = this.roles.clone(af);
+		NonRoleArgList args = this.args.clone(af);
+		LProtocolNameNode proto = this.getProtocolNameNode().clone(af);
 		return af.LDo(this.source, roles, args, proto);
 	}
 	

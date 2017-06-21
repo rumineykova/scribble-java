@@ -48,8 +48,8 @@ public class LWrapClient extends LConnectionAction implements LSimpleInteraction
 	@Override
 	public LWrapClient clone(AstFactory af)
 	{
-		RoleNode src = this.src.clone(null);
-		RoleNode dest = this.dest.clone(null);
+		RoleNode src = this.src.clone(af);
+		RoleNode dest = this.dest.clone(af);
 		return af.LWrapClient(this.source, src, dest);
 	}
 

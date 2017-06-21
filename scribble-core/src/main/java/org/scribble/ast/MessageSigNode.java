@@ -47,8 +47,8 @@ public class MessageSigNode extends ScribNodeBase implements MessageNode
 	@Override
 	public MessageSigNode clone(AstFactory af)
 	{
-		OpNode op = this.op.clone(null);
-		PayloadElemList payload = this.payloads.clone(null);
+		OpNode op = this.op.clone(af);
+		PayloadElemList payload = this.payloads.clone(af);
 		return af.MessageSigNode(this.source, op, payload);
 	}
 	

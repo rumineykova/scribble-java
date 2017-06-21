@@ -54,7 +54,7 @@ public class PayloadElemList extends ScribNodeBase
 	public PayloadElemList clone(AstFactory af)
 	{
 		//List<PayloadElem> elems = ScribUtil.cloneList(this.elems);
-		List<PayloadElem<?>> elems = ScribUtil.cloneList(this.elems);
+		List<PayloadElem<?>> elems = ScribUtil.cloneList(af, this.elems);
 		return af.PayloadElemList(this.source, elems);
 	}
 

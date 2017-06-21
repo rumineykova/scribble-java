@@ -63,10 +63,10 @@ public class Module extends ScribNodeBase
 	@Override
 	public Module clone(AstFactory af)
 	{
-		ModuleDecl moddecl = (ModuleDecl) this.moddecl.clone(null);
-		List<ImportDecl<?>> imports = ScribUtil.cloneList(this.imports);
-		List<NonProtocolDecl<?>> data = ScribUtil.cloneList(this.data);
-		List<ProtocolDecl<?>> protos = ScribUtil.cloneList(this.protos);
+		ModuleDecl moddecl = (ModuleDecl) this.moddecl.clone(af);
+		List<ImportDecl<?>> imports = ScribUtil.cloneList(af, this.imports);
+		List<NonProtocolDecl<?>> data = ScribUtil.cloneList(af, this.data);
+		List<ProtocolDecl<?>> protos = ScribUtil.cloneList(af, this.protos);
 		return af.Module(this.source, moddecl, imports, data, protos);
 	}
 	

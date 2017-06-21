@@ -68,9 +68,9 @@ public class GConnect extends ConnectionAction<Global> implements GSimpleInterac
 	@Override
 	public GConnect clone(AstFactory af)
 	{
-		RoleNode src = this.src.clone(null);
-		MessageNode msg = this.msg.clone(null);
-		RoleNode dest = this.dest.clone(null);
+		RoleNode src = this.src.clone(af);
+		MessageNode msg = this.msg.clone(af);
+		RoleNode dest = this.dest.clone(af);
 		return af.GConnect(this.source, src, msg, dest);
 		//return AstFactoryImpl.FACTORY.GConnect(src, dest);
 	}

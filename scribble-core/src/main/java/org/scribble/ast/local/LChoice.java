@@ -48,8 +48,8 @@ public class LChoice extends Choice<Local> implements LCompoundInteractionNode
 	@Override
 	public LChoice clone(AstFactory af)
 	{
-		RoleNode subj = this.subj.clone(null);
-		List<LProtocolBlock> blocks = ScribUtil.cloneList(getBlocks());
+		RoleNode subj = this.subj.clone(af);
+		List<LProtocolBlock> blocks = ScribUtil.cloneList(af, getBlocks());
 		return af.LChoice(this.source, subj, blocks);
 	}
 

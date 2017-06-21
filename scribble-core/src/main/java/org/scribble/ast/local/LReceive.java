@@ -48,9 +48,9 @@ public class LReceive extends LMessageTransfer implements LSimpleInteractionNode
 	@Override
 	public LReceive clone(AstFactory af)
 	{
-		RoleNode src = this.src.clone(null);
-		MessageNode msg = this.msg.clone(null);
-		List<RoleNode> dests = ScribUtil.cloneList(getDestinations());
+		RoleNode src = this.src.clone(af);
+		MessageNode msg = this.msg.clone(af);
+		List<RoleNode> dests = ScribUtil.cloneList(af, getDestinations());
 		return af.LReceive(this.source, src, msg, dests);
 	}
 

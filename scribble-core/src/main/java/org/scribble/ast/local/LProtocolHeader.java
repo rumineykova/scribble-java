@@ -46,9 +46,9 @@ public class LProtocolHeader extends ProtocolHeader<Local> implements LNode
 	@Override
 	public LProtocolHeader clone(AstFactory af)
 	{
-		LProtocolNameNode name = getNameNode().clone(null);
-		RoleDeclList roledecls = this.roledecls.clone(null);
-		NonRoleParamDeclList paramdecls = this.paramdecls.clone(null);
+		LProtocolNameNode name = getNameNode().clone(af);
+		RoleDeclList roledecls = this.roledecls.clone(af);
+		NonRoleParamDeclList paramdecls = this.paramdecls.clone(af);
 		return af.LProtocolHeader(this.source, name, roledecls, paramdecls);
 	}
 

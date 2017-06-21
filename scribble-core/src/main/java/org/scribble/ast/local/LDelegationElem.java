@@ -47,7 +47,7 @@ public class LDelegationElem extends UnaryPayloadElem<Local>
 	@Override
 	public LDelegationElem clone(AstFactory af)
 	{
-		LProtocolNameNode name = (LProtocolNameNode) this.name.clone(null);
+		LProtocolNameNode name = (LProtocolNameNode) this.name.clone(af);
 		return af.LDelegationElem(this.source, name);
 	}
 

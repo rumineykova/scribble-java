@@ -36,7 +36,7 @@ public class LProtocolDef extends ProtocolDef<Local> implements LNode
 	@Override
 	public LProtocolDef clone(AstFactory af)
 	{
-		LProtocolBlock block = getBlock().clone(null);
+		LProtocolBlock block = getBlock().clone(af);
 		return af.LProtocolDef(this.source, block);
 	}
 

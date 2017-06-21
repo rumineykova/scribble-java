@@ -45,7 +45,7 @@ public class GProtocolDef extends ProtocolDef<Global> implements GNode
 	@Override
 	public GProtocolDef clone(AstFactory af)
 	{
-		GProtocolBlock block = getBlock().clone(null);
+		GProtocolBlock block = getBlock().clone(af);
 		return af.GProtocolDef(this.source, block);
 	}
 

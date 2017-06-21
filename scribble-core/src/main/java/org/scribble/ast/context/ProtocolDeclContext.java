@@ -34,7 +34,7 @@ public abstract class ProtocolDeclContext<K extends ProtocolKind>
 	protected ProtocolDeclContext(Set<Role> roles, DependencyMap<? extends ProtocolName<K>> deps)
 	{
 		this.roles = new HashSet<>(roles);
-		this.deps = deps.clone(null);
+		this.deps = deps.clone();
 	}
 	
 	// Subclass constructor should use the above copy constructor
@@ -49,7 +49,7 @@ public abstract class ProtocolDeclContext<K extends ProtocolKind>
 	{
 		ProtocolDeclContext<K> copy = copy();
 		copy.roles = new HashSet<>(roles);
-		copy.deps = this.deps.clone(null);
+		copy.deps = this.deps.clone();
 		return copy;
 	}
 

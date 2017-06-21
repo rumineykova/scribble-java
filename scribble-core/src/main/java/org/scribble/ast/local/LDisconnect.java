@@ -53,8 +53,8 @@ public class LDisconnect extends LConnectionAction implements LSimpleInteraction
 	@Override
 	public LDisconnect clone(AstFactory af)
 	{
-		RoleNode self = this.self.clone(null);
-		RoleNode peer = this.peer.clone(null);
+		RoleNode self = this.self.clone(af);
+		RoleNode peer = this.peer.clone(af);
 		return af.LDisconnect(this.source, self, peer);
 	}
 

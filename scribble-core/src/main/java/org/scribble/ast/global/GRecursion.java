@@ -48,7 +48,7 @@ public class GRecursion extends Recursion<Global> implements GCompoundInteractio
 
 	public LRecursion project(AstFactory af, Role self, LProtocolBlock block)
 	{
-		RecVarNode recvar = this.recvar.clone(null);
+		RecVarNode recvar = this.recvar.clone(af);
 		LRecursion projection = null;
 		Set<RecVar> rvs = new HashSet<>();
 		rvs.add(recvar.toName());
@@ -160,8 +160,8 @@ public class GRecursion extends Recursion<Global> implements GCompoundInteractio
 	@Override
 	public GRecursion clone(AstFactory af)
 	{
-		RecVarNode recvar = this.recvar.clone(null);
-		GProtocolBlock block = getBlock().clone(null);
+		RecVarNode recvar = this.recvar.clone(af);
+		GProtocolBlock block = getBlock().clone(af);
 		return af.GRecursion(this.source, recvar, block);
 	}
 

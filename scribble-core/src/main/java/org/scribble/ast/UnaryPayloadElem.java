@@ -61,7 +61,7 @@ public class UnaryPayloadElem<K extends PayloadTypeKind> extends ScribNodeBase i
 	{
 		//PayloadElemNameNode<DataTypeKind> name = (PayloadElemNameNode<DataTypeKind>) this.data.clone();  // FIXME: make a DataTypeNameNode
 		//PayloadElemNameNode<K> name = (PayloadElemNameNode<K>) this.name.clone();
-		PayloadElemNameNode<K> name = ScribUtil.checkNodeClassEquality(this.name, this.name.clone(null));
+		PayloadElemNameNode<K> name = ScribUtil.checkNodeClassEquality(this.name, this.name.clone(af));
 		return af.UnaryPayloadElem(this.source, name);
 	}
 

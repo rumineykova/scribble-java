@@ -35,7 +35,7 @@ public class RoleArg extends DoArg<RoleNode>
 	@Override
 	public RoleArg clone(AstFactory af)
 	{
-		RoleNode role = getVal().clone(null);
+		RoleNode role = getVal().clone(af);
 		return af.RoleArg(this.source, role);
 	}
 

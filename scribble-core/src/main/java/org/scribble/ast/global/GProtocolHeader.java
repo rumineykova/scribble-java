@@ -42,9 +42,9 @@ public class GProtocolHeader extends ProtocolHeader<Global> implements GNode
 	@Override
 	public GProtocolHeader clone(AstFactory af)
 	{
-		GProtocolNameNode name = getNameNode().clone(null);
-		RoleDeclList roledecls = this.roledecls.clone(null);
-		NonRoleParamDeclList paramdecls = this.paramdecls.clone(null);
+		GProtocolNameNode name = getNameNode().clone(af);
+		RoleDeclList roledecls = this.roledecls.clone(af);
+		NonRoleParamDeclList paramdecls = this.paramdecls.clone(af);
 		return af.GProtocolHeader(this.source, name, roledecls, paramdecls);
 	}
 

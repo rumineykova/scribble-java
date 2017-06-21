@@ -82,9 +82,9 @@ public class GMessageTransfer extends MessageTransfer<Global> implements GSimple
 	@Override
 	public GMessageTransfer clone(AstFactory af)
 	{
-		RoleNode src = this.src.clone(null);
-		MessageNode msg = this.msg.clone(null);
-		List<RoleNode> dests = ScribUtil.cloneList(getDestinations());
+		RoleNode src = this.src.clone(af);
+		MessageNode msg = this.msg.clone(af);
+		List<RoleNode> dests = ScribUtil.cloneList(af, getDestinations());
 		return af.GMessageTransfer(this.source, src, msg, dests);
 	}
 

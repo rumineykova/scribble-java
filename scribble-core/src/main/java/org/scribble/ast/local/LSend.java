@@ -50,9 +50,9 @@ public class LSend extends LMessageTransfer
 	@Override
 	public LSend clone(AstFactory af)
 	{
-		RoleNode src = this.src.clone(null);
-		MessageNode msg = this.msg.clone(null);
-		List<RoleNode> dests = ScribUtil.cloneList(getDestinations());
+		RoleNode src = this.src.clone(af);
+		MessageNode msg = this.msg.clone(af);
+		List<RoleNode> dests = ScribUtil.cloneList(af, getDestinations());
 		return af.LSend(this.source, src, msg, dests);
 	}
 

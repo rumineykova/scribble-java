@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.scribble.ast.AstFactory;
 import org.scribble.sesstype.name.ProtocolName;
 import org.scribble.sesstype.name.Role;
 
@@ -50,7 +49,7 @@ public abstract class DependencyMap<N extends ProtocolName<?>>  // Maybe better 
 		}
 	}
 	
-	public abstract DependencyMap<N> clone(AstFactory af);
+	public abstract DependencyMap<N> clone();
 
 	public void addProtocolDependency(Role self, N pn, Role target)
 	{

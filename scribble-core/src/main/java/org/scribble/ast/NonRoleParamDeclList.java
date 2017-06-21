@@ -41,7 +41,7 @@ public class NonRoleParamDeclList extends HeaderParamDeclList<NonRoleParamKind>
 	@Override
 	public NonRoleParamDeclList clone(AstFactory af)
 	{
-		List<NonRoleParamDecl<NonRoleParamKind>> decls = ScribUtil.cloneList(getDecls());
+		List<NonRoleParamDecl<NonRoleParamKind>> decls = ScribUtil.cloneList(af, getDecls());
 		return af.NonRoleParamDeclList(this.source, decls);
 	}
 

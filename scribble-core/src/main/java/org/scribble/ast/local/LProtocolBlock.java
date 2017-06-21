@@ -39,7 +39,7 @@ public class LProtocolBlock extends ProtocolBlock<Local> implements LNode
 	@Override
 	public LProtocolBlock clone(AstFactory af)
 	{
-		LInteractionSeq lis = getInteractionSeq().clone(null);
+		LInteractionSeq lis = getInteractionSeq().clone(af);
 		return af.LProtocolBlock(this.source, lis);
 	}
 

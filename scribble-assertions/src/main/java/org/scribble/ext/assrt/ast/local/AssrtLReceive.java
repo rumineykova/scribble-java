@@ -52,8 +52,8 @@ public class AssrtLReceive extends LReceive
 	public AssrtLReceive clone(AstFactory af)
 	{
 		RoleNode src = this.src.clone(null);
-		MessageNode msg = this.msg.clone(null);
-		List<RoleNode> dests = ScribUtil.cloneList(getDestinations());
+		MessageNode msg = this.msg.clone(af);
+		List<RoleNode> dests = ScribUtil.cloneList(af, getDestinations());
 		
 		// FIXME: assertion
 		

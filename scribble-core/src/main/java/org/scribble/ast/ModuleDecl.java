@@ -36,7 +36,7 @@ public class ModuleDecl extends NameDeclNode<ModuleKind>
 	@Override
 	public ModuleDecl clone(AstFactory af)
 	{
-		ModuleNameNode modname = (ModuleNameNode) this.name.clone(null);
+		ModuleNameNode modname = (ModuleNameNode) this.name.clone(af);
 		return af.ModuleDecl(this.source, modname);
 	}
 

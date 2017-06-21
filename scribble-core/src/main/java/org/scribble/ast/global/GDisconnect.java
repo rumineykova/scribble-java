@@ -66,8 +66,8 @@ public class GDisconnect extends ConnectionAction<Global> implements GSimpleInte
 	@Override
 	public GDisconnect clone(AstFactory af)
 	{
-		RoleNode src = this.src.clone(null);
-		RoleNode dest = this.dest.clone(null);
+		RoleNode src = this.src.clone(af);
+		RoleNode dest = this.dest.clone(af);
 		return af.GDisconnect(this.source, src, dest);
 	}
 

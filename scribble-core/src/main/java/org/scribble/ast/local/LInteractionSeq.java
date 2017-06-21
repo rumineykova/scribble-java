@@ -44,7 +44,7 @@ public class LInteractionSeq extends InteractionSeq<Local> implements LNode
 	@Override
 	public LInteractionSeq clone(AstFactory af)
 	{
-		List<LInteractionNode> lis = ScribUtil.cloneList(getInteractions());
+		List<LInteractionNode> lis = ScribUtil.cloneList(af, getInteractions());
 		return af.LInteractionSeq(this.source, lis);
 	}
 

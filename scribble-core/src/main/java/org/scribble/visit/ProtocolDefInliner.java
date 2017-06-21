@@ -16,6 +16,7 @@ package org.scribble.visit;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.Do;
 import org.scribble.ast.InteractionSeq;
 import org.scribble.ast.ProtocolDecl;
@@ -121,7 +122,7 @@ public class ProtocolDefInliner extends SubprotocolVisitor<InlineProtocolEnv>
 			JobContext jc = this.job.getContext();
 			ModuleContext mc = getModuleContext();
 			ProtocolDecl<? extends ProtocolKind> pd = child.getTargetProtocolDecl(jc, mc);
-			ScribNode seq = applySubstitutions(pd.def.block.seq.clone(null));
+			ScribNode seq = applySubstitutions(pd.def.block.seq.clone(this.job.af));
 			seq = seq.accept(this);
 			pushEnv(popEnv().setTranslation(((InlineProtocolEnv) seq.del().env()).getTranslation()));
 			return child;

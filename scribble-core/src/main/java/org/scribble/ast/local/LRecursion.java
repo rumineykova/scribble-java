@@ -52,8 +52,8 @@ public class LRecursion extends Recursion<Local> implements LCompoundInteraction
 	@Override
 	public LRecursion clone(AstFactory af)
 	{
-		RecVarNode recvar = this.recvar.clone(null);
-		LProtocolBlock block = getBlock().clone(null);
+		RecVarNode recvar = this.recvar.clone(af);
+		LProtocolBlock block = getBlock().clone(af);
 		return af.LRecursion(this.source, recvar, block);
 	}
 	
@@ -89,7 +89,7 @@ public class LRecursion extends Recursion<Local> implements LCompoundInteraction
 		{
 			throw new ScribbleException("Cannot merge recursions for " + this.recvar + " and " + them.recvar + ": " + this + ", " + ln);
 		}
-		return af.LRecursion(this.source, this.recvar.clone(null), getBlock().merge(them.getBlock()));  // Not reconstruct: leave context building to post-projection passes
+		return af.LRecursion(this.source, this.recvar.clone(af), getBlock().merge(them.getBlock()));  // Not reconstruct: leave context building to post-projection passes
 				// HACK: this source
 	}
 

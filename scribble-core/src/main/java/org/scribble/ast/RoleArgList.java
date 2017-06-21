@@ -37,7 +37,7 @@ public class RoleArgList extends DoArgList<RoleArg>
 	@Override
 	public RoleArgList clone(AstFactory af)
 	{
-		List<RoleArg> roles = ScribUtil.cloneList(getDoArgs());
+		List<RoleArg> roles = ScribUtil.cloneList(af, getDoArgs());
 		return af.RoleArgList(this.source, roles);
 	}
 

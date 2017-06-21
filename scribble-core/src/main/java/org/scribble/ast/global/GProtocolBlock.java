@@ -45,7 +45,7 @@ public class GProtocolBlock extends ProtocolBlock<Global> implements GNode
 	@Override
 	public GProtocolBlock clone(AstFactory af)
 	{
-		GInteractionSeq gis = getInteractionSeq().clone(null);
+		GInteractionSeq gis = getInteractionSeq().clone(af);
 		return af.GProtocolBlock(this.source, gis);
 	}
 

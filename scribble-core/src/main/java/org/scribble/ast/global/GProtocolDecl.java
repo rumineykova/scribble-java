@@ -67,8 +67,8 @@ public class GProtocolDecl extends ProtocolDecl<Global> implements GNode
 	@Override
 	public GProtocolDecl clone(AstFactory af)
 	{
-		GProtocolHeader header = getHeader().clone(null);
-		GProtocolDef def = getDef().clone(null);
+		GProtocolHeader header = getHeader().clone(af);
+		GProtocolDef def = getDef().clone(af);
 		return af.GProtocolDecl(this.source, this.modifiers, header, def);
 	}
 
