@@ -18,6 +18,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.scribble.ast.AstFactory;
@@ -141,6 +142,7 @@ public class MainContext
 		}
 	}
 	
+	// A Scribble extension should override these "new" methods as appropriate.
 	public Job newJob()
 	{
 		return new Job(this.debug, this.getParsedModules(), this.main, this.useOldWF, this.noLiveness, this.minEfsm, this.fair,
@@ -165,7 +167,9 @@ public class MainContext
 	
 	public Map<ModuleName, Module> getParsedModules()
 	{
-		return this.parsed.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().right));
+		return this.parsed.entrySet().stream().collect(Collectors.toMap(//e -> e.getKey()
+				Entry::getKey
+				, e -> e.getValue().right));
 	}
 	
 	// Hacky? But not Scribble tool's job to check nested directory location of module fully corresponds to the fullname of module? Cf. Java classes

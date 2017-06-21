@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.InteractionNode;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.local.LInteractionNode;
@@ -66,7 +65,7 @@ public class LInteractionSeqDel extends InteractionSeqDel
 				lins.add((LInteractionNode) inlined);
 			}
 		}
-		LInteractionSeq inlined = AstFactoryImpl.FACTORY.LInteractionSeq(lis.getSource(), lins);
+		LInteractionSeq inlined = inl.job.af.LInteractionSeq(lis.getSource(), lins);
 		inl.pushEnv(inl.popEnv().setTranslation(inlined));
 		return (LInteractionSeq) ScribDelBase.popAndSetVisitorEnv(this, inl, lis);
 	}
@@ -144,6 +143,6 @@ public class LInteractionSeqDel extends InteractionSeqDel
 						? ((LRecursion) li).getBlock().getInteractionSeq().getInteractions().stream()
 						: Stream.of(li)
 				).collect(Collectors.toList());
-		return AstFactoryImpl.FACTORY.LInteractionSeq(lis.getSource(), lins);
+		return rem.job.af.LInteractionSeq(lis.getSource(), lins);
 	}
 }

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.Constants;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.MessageTransfer;
@@ -50,10 +51,10 @@ public class AssrtLSend extends LSend
 	}
 	
 	@Override
-	public AssrtLSend clone()
+	public AssrtLSend clone(AstFactory af)
 	{
-		RoleNode src = this.src.clone();
-		MessageNode msg = this.msg.clone();
+		RoleNode src = this.src.clone(null);
+		MessageNode msg = this.msg.clone(null);
 		List<RoleNode> dests = ScribUtil.cloneList(getDestinations());
 		
 		// FIXME: assertion

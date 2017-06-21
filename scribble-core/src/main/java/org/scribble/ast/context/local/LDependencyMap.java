@@ -13,6 +13,7 @@
  */
 package org.scribble.ast.context.local;
 
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.context.DependencyMap;
 import org.scribble.sesstype.name.LProtocolName;
 
@@ -29,7 +30,7 @@ public class LDependencyMap extends DependencyMap<LProtocolName>
 	}
 
 	@Override
-	public LDependencyMap clone()
+	public LDependencyMap clone(AstFactory af)
 	{
 		return new LDependencyMap(this);
 	}

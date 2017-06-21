@@ -14,6 +14,7 @@
 package org.scribble.ext.assrt.ast;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.ext.assrt.StmFormula;
 
@@ -39,7 +40,7 @@ public class AssrtAssertionNode extends ScribNodeBase
 	}
 	
 	@Override
-	public AssrtAssertionNode clone()
+	public AssrtAssertionNode clone(AstFactory af)
 	{
 		return (AssrtAssertionNode) AssrtAstFactoryImpl.FACTORY.AssertionNode(this.source, this.assertion);
 	}

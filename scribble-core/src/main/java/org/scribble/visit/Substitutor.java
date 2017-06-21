@@ -46,11 +46,11 @@ public class Substitutor extends AstVisitor
 
 	public RoleNode getRoleSubstitution(Role role)
 	{
-		return this.rolemap.get(role).clone();
+		return this.rolemap.get(role).clone(null);
 	}
 
 	public NonRoleArgNode getArgumentSubstitution(Arg<? extends NonRoleArgKind> arg)
 	{
-		return (NonRoleArgNode) this.argmap.get(arg).clone();  // Makes new dels that will be discarded in NonRoleParamNode (just as calling the factory manually would)
+		return (NonRoleArgNode) this.argmap.get(arg).clone(null);  // Makes new dels that will be discarded in NonRoleParamNode (just as calling the factory manually would)
 	}
 }

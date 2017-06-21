@@ -139,7 +139,7 @@ public class InlinedProtocolUnfolder extends InlinedProtocolVisitor<UnfoldingEnv
 	public void setRecVar(RecVar recvar, Recursion<?> rec) throws ScribbleException
 	{
 		ProtocolBlock<?> block = (ProtocolBlock<?>) rec.getBlock().accept(this);
-		RecVarNode rv = rec.recvar.clone();
+		RecVarNode rv = rec.recvar.clone(null);
 		Recursion<?> unfolded;
 		if (rec.getKind() == Global.KIND)
 		{

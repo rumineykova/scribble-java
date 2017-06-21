@@ -16,6 +16,7 @@ package org.scribble.ext.assrt.ast.local;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.Constants;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.MessageTransfer;
@@ -48,10 +49,10 @@ public class AssrtLReceive extends LReceive
 	}
 	
 	@Override
-	public AssrtLReceive clone()
+	public AssrtLReceive clone(AstFactory af)
 	{
-		RoleNode src = this.src.clone();
-		MessageNode msg = this.msg.clone();
+		RoleNode src = this.src.clone(null);
+		MessageNode msg = this.msg.clone(null);
 		List<RoleNode> dests = ScribUtil.cloneList(getDestinations());
 		
 		// FIXME: assertion

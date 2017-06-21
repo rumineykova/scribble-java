@@ -16,6 +16,7 @@ package org.scribble.ast.global;
 import java.util.Collections;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.ConnectionAction;
 import org.scribble.ast.Constants;
@@ -44,22 +45,22 @@ public class GWrap extends ConnectionAction<Global> implements GSimpleInteractio
 		super(source, src, UNIT_MESSAGE_SIG_NODE, dest);
 	}
 
-	public LNode project(Role self)
+	public LNode project(AstFactory af, Role self)
 	{
 		Role srcrole = this.src.toName();
 		Role destrole = this.dest.toName();
 		LNode projection = null;
 		if (srcrole.equals(self) || destrole.equals(self))
 		{
-			RoleNode src = (RoleNode) AstFactoryImpl.FACTORY.SimpleNameNode(this.src.getSource(), RoleKind.KIND, this.src.toName().toString());  // clone?
-			RoleNode dest = (RoleNode) AstFactoryImpl.FACTORY.SimpleNameNode(this.dest.getSource(), RoleKind.KIND, this.dest.toName().toString());
+			RoleNode src = (RoleNode) af.SimpleNameNode(this.src.getSource(), RoleKind.KIND, this.src.toName().toString());  // clone?
+			RoleNode dest = (RoleNode) af.SimpleNameNode(this.dest.getSource(), RoleKind.KIND, this.dest.toName().toString());
 			if (srcrole.equals(self))
 			{
-				projection = AstFactoryImpl.FACTORY.LWrapClient(this.source, src, dest);  // src and dest (not self and peer)
+				projection = af.LWrapClient(this.source, src, dest);  // src and dest (not self and peer)
 			}
 			if (destrole.equals(self))
 			{
-				projection = AstFactoryImpl.FACTORY.LWrapServer(this.source, src, dest);
+				projection = af.LWrapServer(this.source, src, dest);
 			}
 		}
 		return projection;
@@ -72,11 +73,11 @@ public class GWrap extends ConnectionAction<Global> implements GSimpleInteractio
 	}
 	
 	@Override
-	public GWrap clone()
+	public GWrap clone(AstFactory af)
 	{
-		RoleNode src = this.src.clone();
-		RoleNode dest = this.dest.clone();
-		return AstFactoryImpl.FACTORY.GWrap(this.source, src, dest);
+		RoleNode src = this.src.clone(null);
+		RoleNode dest = this.dest.clone(null);
+		return af.GWrap(this.source, src, dest);
 	}
 
 	@Override

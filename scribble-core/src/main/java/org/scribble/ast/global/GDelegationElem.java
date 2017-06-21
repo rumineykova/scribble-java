@@ -14,7 +14,7 @@
 package org.scribble.ast.global;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.PayloadElem;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.local.LDelegationElem;
@@ -46,9 +46,9 @@ public class GDelegationElem extends ScribNodeBase implements PayloadElem<Local>
 	}
 	
 	@Override
-	public LDelegationElem project()
+	public LDelegationElem project(AstFactory af)
 	{
-		return AstFactoryImpl.FACTORY.LDelegationElem(this.source, Projector.makeProjectedFullNameNode(this.source, this.proto.toName(), this.role.toName()));
+		return af.LDelegationElem(this.source, Projector.makeProjectedFullNameNode(this.source, this.proto.toName(), this.role.toName()));
 	}
 
 	@Override
@@ -64,11 +64,11 @@ public class GDelegationElem extends ScribNodeBase implements PayloadElem<Local>
 	}
 	
 	@Override
-	public GDelegationElem clone()
+	public GDelegationElem clone(AstFactory af)
 	{
-		GProtocolNameNode name = (GProtocolNameNode) this.proto.clone();
-		RoleNode role = (RoleNode) this.role.clone();
-		return AstFactoryImpl.FACTORY.GDelegationElem(this.source, name, role);
+		GProtocolNameNode name = (GProtocolNameNode) this.proto.clone(null);
+		RoleNode role = (RoleNode) this.role.clone(null);
+		return af.GDelegationElem(this.source, name, role);
 	}
 
 	public GDelegationElem reconstruct(GProtocolNameNode proto, RoleNode role)

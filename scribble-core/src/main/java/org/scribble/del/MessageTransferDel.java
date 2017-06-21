@@ -40,7 +40,7 @@ public abstract class MessageTransferDel extends SimpleInteractionNodeDel
 	public MessageTransfer<?> leaveProtocolInlining(ScribNode parent, ScribNode child, ProtocolDefInliner inl, ScribNode visited) throws ScribbleException
 	{
 		MessageTransfer<?> lr = (MessageTransfer<?>) visited;
-		MessageTransfer<?> inlined = (MessageTransfer<?>) lr.clone();
+		MessageTransfer<?> inlined = (MessageTransfer<?>) lr.clone(null);
 		inl.pushEnv(inl.popEnv().setTranslation(inlined));
 		return (MessageTransfer<?>) super.leaveProtocolInlining(parent, child, inl, lr);
 	}

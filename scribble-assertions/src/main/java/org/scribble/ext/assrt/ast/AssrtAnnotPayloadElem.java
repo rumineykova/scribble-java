@@ -14,6 +14,7 @@
 package org.scribble.ext.assrt.ast;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.PayloadElem;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.qualified.DataTypeNode;
@@ -51,10 +52,10 @@ public class AssrtAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeB
 	}
 	
 	@Override
-	public AssrtAnnotPayloadElem<K> clone()
+	public AssrtAnnotPayloadElem<K> clone(AstFactory af)
 	{
-		AssrtVarNameNode varname = ScribUtil.checkNodeClassEquality(this.varName, this.varName.clone());
-		DataTypeNode datatype = ScribUtil.checkNodeClassEquality(this.dataType, this.dataType.clone());
+		AssrtVarNameNode varname = ScribUtil.checkNodeClassEquality(this.varName, this.varName.clone(null));
+		DataTypeNode datatype = ScribUtil.checkNodeClassEquality(this.dataType, this.dataType.clone(null));
 		return AssrtAstFactoryImpl.FACTORY.AnnotPayloadElem(this.source, varname, datatype);
 	}
 

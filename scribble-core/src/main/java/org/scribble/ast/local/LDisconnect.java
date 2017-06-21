@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.Constants;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.ScribNodeBase;
@@ -50,11 +50,11 @@ public class LDisconnect extends LConnectionAction implements LSimpleInteraction
 	}
 	
 	@Override
-	public LDisconnect clone()
+	public LDisconnect clone(AstFactory af)
 	{
-		RoleNode self = this.self.clone();
-		RoleNode peer = this.peer.clone();
-		return AstFactoryImpl.FACTORY.LDisconnect(this.source, self, peer);
+		RoleNode self = this.self.clone(null);
+		RoleNode peer = this.peer.clone(null);
+		return af.LDisconnect(this.source, self, peer);
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class LDisconnect extends LConnectionAction implements LSimpleInteraction
 	}
 
 	@Override
-	public LInteractionNode merge(LInteractionNode ln) throws ScribbleException
+	public LInteractionNode merge(AstFactory af, LInteractionNode ln) throws ScribbleException
 	{
 		throw new RuntimeScribbleException("Invalid merge on LDisconnect: " + this);
 	}

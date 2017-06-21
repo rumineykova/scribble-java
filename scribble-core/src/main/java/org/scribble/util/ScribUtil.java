@@ -57,7 +57,7 @@ public class ScribUtil
 	
 	public static <N extends ScribNode> List<N> cloneList(List<N> ns)
 	{
-		return ns.stream().map((n) -> checkNodeClassEquality(n, n.clone())).collect(Collectors.toList());
+		return ns.stream().map((n) -> checkNodeClassEquality(n, n.clone(null))).collect(Collectors.toList());
 	}
 	
 	public static <T> T handleLambdaScribbleException(Callable<T> c)

@@ -126,7 +126,7 @@ import org.scribble.sesstype.name.Role;
 
 public class AstFactoryImpl implements AstFactory
 {
-	public static final AstFactory FACTORY = new AstFactoryImpl();
+	//public static final AstFactory FACTORY = new AstFactoryImpl();
 	
 	public AstFactoryImpl()
 	{

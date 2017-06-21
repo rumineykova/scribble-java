@@ -56,7 +56,7 @@ public abstract class ScribNodeBase implements ScribNode
 	protected abstract ScribNodeBase copy();
 	
 	@Override
-	public abstract ScribNodeBase clone();
+	public abstract ScribNodeBase clone(AstFactory af);
 	
 	@Override
 	public final ScribDel del()

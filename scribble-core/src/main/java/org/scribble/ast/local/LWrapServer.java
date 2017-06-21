@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.Constants;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.ScribNodeBase;
@@ -45,11 +45,11 @@ public class LWrapServer extends LConnectionAction implements LSimpleInteraction
 	}
 	
 	@Override
-	public LWrapServer clone()
+	public LWrapServer clone(AstFactory af)
 	{
-		RoleNode src = this.src.clone();
-		RoleNode dest = this.dest.clone();
-		return AstFactoryImpl.FACTORY.LWrapServer(this.source, src, dest);
+		RoleNode src = this.src.clone(null);
+		RoleNode dest = this.dest.clone(null);
+		return af.LWrapServer(this.source, src, dest);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class LWrapServer extends LConnectionAction implements LSimpleInteraction
 	}
 
 	@Override
-	public LInteractionNode merge(LInteractionNode ln) throws ScribbleException
+	public LInteractionNode merge(AstFactory af, LInteractionNode ln) throws ScribbleException
 	{
 		throw new RuntimeScribbleException("Invalid merge on LWrapServer: " + this);
 	}
