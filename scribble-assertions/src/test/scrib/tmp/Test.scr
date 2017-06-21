@@ -12,21 +12,15 @@ type <java> "java.lang.Integer" from "rt.jar" as Int;
 type <java> "java.lang.String" from "rt.jar" as Str;
 
 
-global protocol Proto1(role A, role B)
-{
-	1() from A to B;
-}
-
-
-/*
+//*
 global protocol Proto1(role A, role B, role C)
 {
 	[x<10]
 	1(x:Int) from A to B;  // Integer checked?  i.e., valid domain for z3 (wrt. assertion)
 	//[z>x]
 	//[z=x]
-	//[z=x && z>9]
-	[z<x]
+	[z=x && z>9]
+	//[z<x]
 	2(z:Int) from B to C;
 }
 //*/

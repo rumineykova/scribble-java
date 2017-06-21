@@ -42,8 +42,37 @@ import org.scribble.util.ScribParserException;
 // Resource and ResourceLocator should be made abstract from (file)paths (cf. use of toPath in ScribbleModuleLoader)
 public class MainContext
 {
+
+	// Only "manually" used here for loading main module (which should be factored out to front end) -- otherwise, only used within loader
+	private final AntlrParser antlrParser = newAntlrParser();  // Not encapsulated inside ScribbleParser, because ScribbleParser's main function is to "parse" ANTLR CommonTrees into ModelNodes
+	private final ScribParser scribParser = newScribParser();
+	private final AstFactory af = newAstFactory();
+	
+	// A Scribble extension should override these "new" methods as appropriate.
+	public Job newJob()
+	{
+		return new Job(this.debug, this.getParsedModules(), this.main, this.useOldWF, this.noLiveness, this.minEfsm, this.fair,
+				this.noLocalChoiceSubjectCheck, this.noAcceptCorrelationCheck, this.noValidation,
+				this.af);
+	}
+	
+	public AntlrParser newAntlrParser()
+	{
+		return new AntlrParser();
+	}
+	
+	public ScribParser newScribParser()
+	{
+		return new ScribParser();
+	}
+	
+	public AstFactory newAstFactory()
+	{
+		return new AstFactoryImpl();
+	}
+
 	//public final boolean jUnit;
-	public final boolean debug;
+	public final boolean debug;  // TODO: factor out (cf. CommandLine.newMainContext)
 	public final boolean useOldWF;
 	public final boolean noLiveness;
 	public final boolean minEfsm;
@@ -54,11 +83,6 @@ public class MainContext
 
   // cli only (not in Job)
 	public final boolean f17;
-
-	// Only "manually" used here for loading main module (which should be factored out to front end) -- otherwise, only used within loader
-	private final AntlrParser antlrParser = newAntlrParser();  // Not encapsulated inside ScribbleParser, because ScribbleParser's main function is to "parse" ANTLR CommonTrees into ModelNodes
-	private final ScribParser scribParser = newScribParser();
-	private final AstFactory af = newAstFactory();
 
 	private final ResourceLocator locator;  // Path -> Resource
 	private final ScribModuleLoader loader;  // sesstype.ModuleName -> Pair<Resource, Module>
@@ -142,34 +166,9 @@ public class MainContext
 		}
 	}
 	
-	// A Scribble extension should override these "new" methods as appropriate.
-	public Job newJob()
-	{
-		return new Job(this.debug, this.getParsedModules(), this.main, this.useOldWF, this.noLiveness, this.minEfsm, this.fair,
-				this.noLocalChoiceSubjectCheck, this.noAcceptCorrelationCheck, this.noValidation,
-				this.af);
-	}
-	
-	public AntlrParser newAntlrParser()
-	{
-		return new AntlrParser();
-	}
-	
-	public ScribParser newScribParser()
-	{
-		return new ScribParser();
-	}
-	
-	public AstFactory newAstFactory()
-	{
-		return new AstFactoryImpl();
-	}
-	
 	public Map<ModuleName, Module> getParsedModules()
 	{
-		return this.parsed.entrySet().stream().collect(Collectors.toMap(//e -> e.getKey()
-				Entry::getKey
-				, e -> e.getValue().right));
+		return this.parsed.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> e.getValue().right));
 	}
 	
 	// Hacky? But not Scribble tool's job to check nested directory location of module fully corresponds to the fullname of module? Cf. Java classes
