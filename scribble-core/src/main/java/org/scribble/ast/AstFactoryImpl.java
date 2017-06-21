@@ -124,7 +124,7 @@ import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.Role;
 
 
-public class AstFactoryImpl implements AstFactory
+public class AstFactoryImpl extends AstFactory
 {
 	//public static final AstFactory FACTORY = new AstFactoryImpl();
 	
@@ -326,7 +326,7 @@ public class AstFactoryImpl implements AstFactory
 	@Override
 	public GDisconnect GDisconnect(CommonTree source, RoleNode src, RoleNode dest)
 	{
-		GDisconnect gc = new GDisconnect(source, src, dest);
+		GDisconnect gc = new GDisconnect(source, UnitMessageSigNode(), src, dest);
 		gc = del(gc, new GDisconnectDel());
 		return gc;
 	}
@@ -334,7 +334,7 @@ public class AstFactoryImpl implements AstFactory
 	@Override
 	public GWrap GWrap(CommonTree source, RoleNode src, RoleNode dest)
 	{
-		GWrap gw = new GWrap(source, src, dest);
+		GWrap gw = new GWrap(source, UnitMessageSigNode(), src, dest);
 		gw = del(gw, new GWrapDel());
 		return gw;
 	}
@@ -596,7 +596,7 @@ public class AstFactoryImpl implements AstFactory
 	@Override
 	public LDisconnect LDisconnect(CommonTree source, RoleNode self, RoleNode peer)
 	{
-		LDisconnect lc = new LDisconnect(source, self, peer);
+		LDisconnect lc = new LDisconnect(source, UnitMessageSigNode(), self, peer);
 		lc = del(lc, new LDisconnectDel());
 		return lc;
 	}
@@ -604,7 +604,7 @@ public class AstFactoryImpl implements AstFactory
 	@Override
 	public LWrapClient LWrapClient(CommonTree source, RoleNode self, RoleNode peer)
 	{
-		LWrapClient lwc = new LWrapClient(source, self, peer);
+		LWrapClient lwc = new LWrapClient(source, UnitMessageSigNode(), self, peer);
 		lwc = del(lwc, new LWrapClientDel());
 		return lwc;
 	}
@@ -612,7 +612,7 @@ public class AstFactoryImpl implements AstFactory
 	@Override
 	public LWrapServer LWrapServer(CommonTree source, RoleNode self, RoleNode peer)
 	{
-		LWrapServer lws = new LWrapServer(source, self, peer);
+		LWrapServer lws = new LWrapServer(source, UnitMessageSigNode(), self, peer);
 		lws = del(lws, new LWrapServerDel());
 		return lws;
 	}
