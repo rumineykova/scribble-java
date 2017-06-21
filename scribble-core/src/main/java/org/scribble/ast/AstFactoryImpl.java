@@ -128,6 +128,11 @@ public class AstFactoryImpl implements AstFactory
 {
 	public static final AstFactory FACTORY = new AstFactoryImpl();
 	
+	public AstFactoryImpl()
+	{
+		
+	}
+	
 	@Override
 	public MessageSigNode MessageSigNode(CommonTree source, OpNode op, PayloadElemList payload)
 	{

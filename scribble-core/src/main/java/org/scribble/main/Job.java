@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.Module;
 import org.scribble.codegen.java.endpointapi.SessionApiGenerator;
 import org.scribble.codegen.java.endpointapi.StateChannelApiGenerator;
@@ -60,13 +61,15 @@ public class Job
 	public final boolean noAcceptCorrelationCheck;
 	public final boolean noValidation;
 	
+	public final AstFactory af;
 	private final JobContext jcontext;  // Mutable (Visitor passes replace modules)
 	
 	// Just take MainContext as arg? -- would need to fix Maven dependencies
 	//public Job(boolean jUnit, boolean debug, Map<ModuleName, Module> parsed, ModuleName main, boolean useOldWF, boolean noLiveness)
 	public Job(boolean debug, Map<ModuleName, Module> parsed, ModuleName main,
 			boolean useOldWF, boolean noLiveness, boolean minEfsm, boolean fair, boolean noLocalChoiceSubjectCheck,
-			boolean noAcceptCorrelationCheck, boolean noValidation)
+			boolean noAcceptCorrelationCheck, boolean noValidation,
+			AstFactory af)
 	{
 		//this.jUnit = jUnit;
 		this.debug = debug;
@@ -77,6 +80,8 @@ public class Job
 		this.noLocalChoiceSubjectCheck = noLocalChoiceSubjectCheck;
 		this.noAcceptCorrelationCheck = noAcceptCorrelationCheck;
 		this.noValidation = noValidation;
+		
+		this.af = af;
 
 		this.jcontext = new JobContext(this, parsed, main);  // Single instance per Job and should never be shared
 	}

@@ -15,6 +15,7 @@ package org.scribble.ext.assrt.main;
 
 import java.util.Map;
 
+import org.scribble.ast.AstFactory;
 import org.scribble.ast.Module;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
 import org.scribble.main.Job;
@@ -25,9 +26,10 @@ public class AssrtJob extends Job
 {
 	public AssrtJob(boolean debug, Map<ModuleName, Module> parsed, ModuleName main,
 			boolean useOldWF, boolean noLiveness, boolean minEfsm, boolean fair, boolean noLocalChoiceSubjectCheck,
-			boolean noAcceptCorrelationCheck, boolean noValidation)
+			boolean noAcceptCorrelationCheck, boolean noValidation, 
+			AstFactory af)
 	{
-		super(debug, parsed, main, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation);
+		super(debug, parsed, main, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, af);
 	}
 
 	@Override

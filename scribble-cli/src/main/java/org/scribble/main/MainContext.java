@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.scribble.ast.AstFactory;
+import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.ImportDecl;
 import org.scribble.ast.ImportModule;
 import org.scribble.ast.Module;
@@ -53,8 +55,9 @@ public class MainContext
 	public final boolean f17;
 
 	// Only "manually" used here for loading main module (which should be factored out to front end) -- otherwise, only used within loader
-	private final AntlrParser antlrParser = new AntlrParser();  // Not encapsulated inside ScribbleParser, because ScribbleParser's main function is to "parse" ANTLR CommonTrees into ModelNodes
-	private final ScribParser scribParser = new ScribParser();
+	private final AntlrParser antlrParser = newAntlrParser();  // Not encapsulated inside ScribbleParser, because ScribbleParser's main function is to "parse" ANTLR CommonTrees into ModelNodes
+	private final ScribParser scribParser = newScribParser();
+	private final AstFactory af = newAstFactory();
 
 	private final ResourceLocator locator;  // Path -> Resource
 	private final ScribModuleLoader loader;  // sesstype.ModuleName -> Pair<Resource, Module>
@@ -141,7 +144,23 @@ public class MainContext
 	public Job newJob()
 	{
 		return new Job(this.debug, this.getParsedModules(), this.main, this.useOldWF, this.noLiveness, this.minEfsm, this.fair,
-				this.noLocalChoiceSubjectCheck, this.noAcceptCorrelationCheck, this.noValidation);
+				this.noLocalChoiceSubjectCheck, this.noAcceptCorrelationCheck, this.noValidation,
+				this.af);
+	}
+	
+	public AntlrParser newAntlrParser()
+	{
+		return new AntlrParser();
+	}
+	
+	public ScribParser newScribParser()
+	{
+		return new ScribParser();
+	}
+	
+	public AstFactory newAstFactory()
+	{
+		return new AstFactoryImpl();
 	}
 	
 	public Map<ModuleName, Module> getParsedModules()
