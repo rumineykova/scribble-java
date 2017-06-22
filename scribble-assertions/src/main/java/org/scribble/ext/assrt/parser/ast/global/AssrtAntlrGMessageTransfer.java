@@ -26,19 +26,24 @@ import org.scribble.ext.assrt.ast.AssrtAstFactoryImpl;
 import org.scribble.parser.ScribParser;
 import org.scribble.parser.ast.global.AntlrGMessageTransfer;
 import org.scribble.parser.ast.name.AntlrSimpleName;
+import org.scribble.parser.util.ScribParserUtil;
 import org.scribble.util.ScribParserException;
 
 public class AssrtAntlrGMessageTransfer
 {
 	public static final int ASSERTION_CHILD_INDEX = 0;
+	// "Original" indices "shifted down" -- FIXME: better pattern
+	public static final int MESSAGE_CHILD_INDEX = 1;
+	public static final int SOURCE_CHILD_INDEX = 2;
+	public static final int DESTINATION_CHILDREN_START_INDEX = 3;
 
 	public static GMessageTransfer parseAnnotGMessageTransfer(ScribParser parser, CommonTree ct, AstFactory af) throws ScribParserException
 	{
 		AssrtAssertionNode assertion = parseAssertion(getAssertionChild(ct));   
-		RoleNode src = AntlrSimpleName.toRoleNode(AntlrGMessageTransfer.getSourceChild(ct), af);
-		MessageNode msg = AntlrGMessageTransfer.parseMessage(parser, AntlrGMessageTransfer.getMessageChild(ct), af);
+		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct), af);
+		MessageNode msg = AntlrGMessageTransfer.parseMessage(parser, getMessageChild(ct), af);
 		List<RoleNode> dests = 
-			AntlrGMessageTransfer.getDestChildren(ct).stream().map(d -> AntlrSimpleName.toRoleNode(d, af)).collect(Collectors.toList());
+			getDestChildren(ct).stream().map(d -> AntlrSimpleName.toRoleNode(d, af)).collect(Collectors.toList());
 		return AssrtAstFactoryImpl.FACTORY.GMessageTransfer(ct, src, msg, dests, assertion);
 	}
 
@@ -50,5 +55,21 @@ public class AssrtAntlrGMessageTransfer
 	public static AssrtAssertionNode parseAssertion(CommonTree ct)
 	{
 		return AssrtAstFactoryImpl.FACTORY.AssertionNode(ct, ct.getText());
+	}
+
+	// Following need to be refined to use new indices -- FIXME: better pattern
+	public static CommonTree getMessageChild(CommonTree ct)
+	{
+		return (CommonTree) ct.getChild(MESSAGE_CHILD_INDEX);
+	}
+
+	public static CommonTree getSourceChild(CommonTree ct)
+	{
+		return (CommonTree) ct.getChild(SOURCE_CHILD_INDEX);
+	}
+
+	public static List<CommonTree> getDestChildren(CommonTree ct)
+	{
+		return ScribParserUtil.toCommonTreeList(ct.getChildren().subList(DESTINATION_CHILDREN_START_INDEX, ct.getChildCount()));
 	}
 }

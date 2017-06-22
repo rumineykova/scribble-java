@@ -16,6 +16,7 @@ package org.scribble.ext.assrt.parser;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.ScribNode;
+import org.scribble.ext.assrt.parser.ast.AssrtAntlrPayloadElemList;
 import org.scribble.ext.assrt.parser.ast.global.AssrtAntlrGMessageTransfer;
 import org.scribble.parser.AntlrConstants.AntlrNodeType;
 import org.scribble.parser.ScribParser;
@@ -37,7 +38,12 @@ public class AssrtScribParser extends ScribParser
 		AntlrNodeType type = ScribParserUtil.getAntlrNodeType(ct);
 		switch (type)
 		{
+			case PAYLOAD:  
+				// N.B. will "override" base payload parsing in super
+				// Using AssrtAntlrPayloadElemList to parse both annotated and non-annotated payload elems -- i.e., original AntlrPayloadElemList is now redundant
+				return AssrtAntlrPayloadElemList.parsePayloadElemList(this, ct, af);
 			case ANNOTGLOBALMESSAGETRANSFER: 
+				// N.B. AssrtScribble.g parses this as a separate syntactic category than GLOBALMESSAGETRANSFER (cf. PAYLOAD)
 				return AssrtAntlrGMessageTransfer.parseAnnotGMessageTransfer(this, ct, af);
 			default:
 				return super.parse(ct, af);  // Does checkForAntlrErrors again, but fine

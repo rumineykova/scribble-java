@@ -105,7 +105,6 @@ tokens
 	ARGUMENTINSTANTIATIONLIST = 'argument-instantiation-list';
 	//ARGUMENTINSTANTIATION = 'argument-instantiation';
 	PAYLOAD = 'payload';
-	ANNOTPAYLOAD = 'annotpayload'; 
 	//PAYLOADELEMENT = 'payloadelement';
 	DELEGATION = 'delegation';
 	ROLEINSTANTIATIONLIST = 'role-instantiation-list';
@@ -118,8 +117,6 @@ tokens
 	GLOBALPROTOCOLBLOCK = 'global-protocol-block';
 	GLOBALINTERACTIONSEQUENCE = 'global-interaction-sequence';
 	GLOBALMESSAGETRANSFER = 'global-message-transfer'; 
-	ASSERTION = 'global-assertion'; 
-	ANNOTGLOBALMESSAGETRANSFER = 'annot-global-message-transfer'; 
 	GLOBALCONNECT = 'global-connect';
 	GLOBALDISCONNECT = 'global-disconnect';
 	GLOBALWRAP = 'global-wrap';
@@ -151,6 +148,10 @@ tokens
 	LOCALCATCHES = 'local-catches';
 	LOCALSEND = 'local-send';
 	LOCALRECEIVE = 'local-receive';*/
+
+	ANNOTPAYLOAD = 'annotpayload'; 
+	ASSERTION = 'global-assertion'; 
+	ANNOTGLOBALMESSAGETRANSFER = 'annot-global-message-transfer'; 
 }
 
 
@@ -584,7 +585,8 @@ globalinteraction:
 globalmessagetransfer:
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 	->
-	^(GLOBALMESSAGETRANSFER EMPTY_ASSERTION message rolename rolename+) 
+	//^(GLOBALMESSAGETRANSFER EMPTY_ASSERTION message rolename rolename+) 
+	^(GLOBALMESSAGETRANSFER message rolename rolename+) 
 | 
 	EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 	->
@@ -612,7 +614,8 @@ globalconnect:
 	^(GLOBALCONNECT {AssrtAssertionsParser.ast($EXPR.text)} rolename rolename message)
 |	CONNECT_KW rolename TO_KW rolename ';'
 	->
-	^(GLOBALCONNECT EMPTY_ASSERTION rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+	//^(GLOBALCONNECT EMPTY_ASSERTION rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+	^(GLOBALCONNECT rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
 	message CONNECT_KW rolename TO_KW rolename ';'
 	->

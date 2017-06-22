@@ -42,12 +42,6 @@ import org.scribble.sesstype.kind.RoleKind;
 public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFactory
 {
 	public static final AssrtAstFactory FACTORY = new AssrtAstFactoryImpl();
-	
-	@Override
-	public AssrtGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
-	{
-		throw new RuntimeException("[scrib-assert] Shouldn't get in here: " + source);
-	}
 
 	@Override
 	public AssrtGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertionNode assertion)
@@ -55,12 +49,6 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests, assertion);
 		gmt = del(gmt, new AssrtGMessageTransferDel());
 		return gmt;
-	}
-
-	@Override
-	public AssrtLSend LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
-	{
-		throw new RuntimeException("[scrib-assert] Shouldn't get in here: " + source);
 	}
 
 	@Override

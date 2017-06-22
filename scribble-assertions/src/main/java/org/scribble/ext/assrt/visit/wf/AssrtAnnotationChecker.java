@@ -17,14 +17,15 @@ import org.scribble.ast.ProtocolDecl;
 import org.scribble.ast.ScribNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.del.AssrtScribDel;
-import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.visit.wf.env.AssrtAnnotationEnv;
+import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.visit.EnvVisitor;
 
 public class AssrtAnnotationChecker extends EnvVisitor<AssrtAnnotationEnv>
 {
-	public AssrtAnnotationChecker(AssrtJob job)
+	//public AssrtAnnotationChecker(AssrtJob job)
+	public AssrtAnnotationChecker(Job job)  // FIXME: to fit reflection constructor call in Job.runVisitorPass
 	{
 		super(job);
 	}
