@@ -206,7 +206,7 @@
 						<include>**/*Test.java</include>
 					</includes>
 					<excludes>
-						<exclude>**/AllTest.java</exclude>
+						<exclude>**/ScribAllTest.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
