@@ -36,7 +36,7 @@ public class AssrtJob extends Job
 		super(debug, parsed, main, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, af);
 	}
 
-	// FIXME: factor out as builder util, cf. EGraphBuilderUtil
+	// FIXME: factor out as a builder util, cf. EGraphBuilderUtil
 	@Override
 	protected AssrtSGraph buildSGraph(Map<Role, EGraph> egraphs, boolean explicit, Job job, GProtocolName fullname) throws ScribbleException
 	{

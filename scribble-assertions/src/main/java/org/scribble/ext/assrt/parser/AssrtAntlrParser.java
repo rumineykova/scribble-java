@@ -31,7 +31,7 @@ public class AssrtAntlrParser extends AntlrParser
 	}
 	
 	@Override
-	protected Parser newScribbleParser(CommonTokenStream cts)  // FIXME: need to "cast" Parser to 
+	protected Parser newScribbleParser(CommonTokenStream cts)
 	{
 		return new AssrtScribbleParser(cts);
 	}

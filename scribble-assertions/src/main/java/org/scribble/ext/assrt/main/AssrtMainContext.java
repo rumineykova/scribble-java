@@ -52,6 +52,7 @@ public class AssrtMainContext extends MainContext
 				this.noLocalChoiceSubjectCheck, this.noAcceptCorrelationCheck, this.noValidation,
 				this.af);
 	}
+
 	@Override
 	protected AntlrParser newAntlrParser()
 	{
