@@ -28,9 +28,9 @@ import org.junit.runners.Parameterized.Parameters;
  */
 //@RunWith(value = Parameterized.class)
 @RunWith(Parameterized.class)
-public class AllTest extends BaseTest
+public class ScribAllTest extends ScribTest
 {
-	public AllTest(String example, boolean isBadTest)
+	public ScribAllTest(String example, boolean isBadTest)
 	{
 		super(example, isBadTest);
 	}
@@ -39,8 +39,8 @@ public class AllTest extends BaseTest
 	public static Collection<Object[]> data()
 	{
 		// Test all tests under good and bad root directories
-		String dir_good = ClassLoader.getSystemResource(GoodTest.GOOD_ROOT).getFile();
-		String dir_bad = ClassLoader.getSystemResource(BadTest.BAD_ROOT).getFile();
+		String dir_good = ClassLoader.getSystemResource(ScribGoodTest.GOOD_DIR).getFile();
+		String dir_bad = ClassLoader.getSystemResource(ScribBadTest.BAD_DIR).getFile();
 		List<Object[]> result = new LinkedList<>();
 		result.addAll(Harness.makeTests(GOOD_TEST, dir_good));
 		result.addAll(Harness.makeTests(BAD_TEST, dir_bad));

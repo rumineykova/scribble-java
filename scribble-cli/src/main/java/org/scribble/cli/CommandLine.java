@@ -91,7 +91,7 @@ public class CommandLine
 		new CommandLine(args).run();
 	}
 
-	protected void run() throws CommandLineException, ScribbleException  // ScribbleException is for JUnit testing
+	public void run() throws CommandLineException, ScribbleException  // ScribbleException is for JUnit testing
 	{
 		try
 		{

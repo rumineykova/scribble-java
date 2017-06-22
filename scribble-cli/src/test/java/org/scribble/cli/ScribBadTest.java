@@ -19,12 +19,15 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-// For running all tests under the specified directory as good tests
+// For running all tests under the specified directory as bad tests
 // Needs -Dtest.dir=[test root dir] system property -- Eclipse VM arg: -Dtest.dir=${selected_resource_loc} 
-@RunWith(value = Parameterized.class)
-public class GoodTest extends BaseTest
+//@RunWith(value = Parameterized.class)
+@RunWith(Parameterized.class)
+public class ScribBadTest extends ScribTest
 {
-	public GoodTest(String example, boolean isBadTest)
+	protected static final String BAD_DIR = "bad";
+
+	public ScribBadTest(String example, boolean isBadTest)
 	{
 		super(example, isBadTest);
 	}
@@ -32,8 +35,6 @@ public class GoodTest extends BaseTest
 	@Parameters(name = "{0}")
 	public static Collection<Object[]> data()
 	{
-		//String dir = ClassLoader.getSystemResource(AllTest.GOOD_ROOT).getFile();  // No: checkTestDirProperty does this
-		String dir = AllTest.GOOD_ROOT;
-		return Harness.checkTestDirProperty(AllTest.GOOD_TEST, dir);
+		return Harness.checkTestDirProperty(ScribTest.BAD_TEST, ScribBadTest.BAD_DIR);
 	}
 }

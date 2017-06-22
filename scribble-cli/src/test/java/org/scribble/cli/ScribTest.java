@@ -25,7 +25,7 @@ import org.scribble.main.ScribbleException;
  * Packaging following pattern of putting tests into same package but different directory as classes being tested:
  * (in this case, testing org.scribble.cli.CommandLine -- but this essentially tests most of core/parser)
  */
-public abstract class BaseTest
+public abstract class ScribTest
 {
 	protected static final boolean GOOD_TEST = false;
 	protected static final boolean BAD_TEST = !GOOD_TEST;
@@ -34,14 +34,23 @@ public abstract class BaseTest
 	protected final boolean isBadTest;
 
 	// relative to cli/src/test/resources (or target/test-classes/)
-	protected static final String ALL_ROOT = ".";
-	protected static final String GOOD_ROOT = "good";
-	protected static final String BAD_ROOT = "bad";
+	protected static final String TEST_ROOT_DIR = ".";
 
-	public BaseTest(String example, boolean isBadTest)
+	public ScribTest(String example, boolean isBadTest)
 	{
 		this.example = example;
 		this.isBadTest = isBadTest;
+	}
+	
+	protected String getTestRootDir()
+	{
+		return ScribTest.TEST_ROOT_DIR;
+	}
+	
+	protected void runTest(String dir) throws CommandLineException, ScribbleException
+	{
+		new CommandLine(this.example, CLArgParser.JUNIT_FLAG, CLArgParser.IMPORT_PATH_FLAG, dir).run();
+					// Added JUNIT flag -- but for some reason only bad DoArgList01.scr was breaking without it...
 	}
 
 	@Test
@@ -52,7 +61,7 @@ public abstract class BaseTest
 			// TODO: For now just locate classpath for resources -- later maybe directly execute job
 			/*URL url = ClassLoader.getSystemResource(AllTest.GOOD_ROOT);  // Assume good/bad have same parent
 			String dir = url.getFile().substring(0, url.getFile().length() - ("/" + AllTest.GOOD_ROOT).length());*/
-			String dir = ClassLoader.getSystemResource(BaseTest.ALL_ROOT).getFile();
+			String dir = ClassLoader.getSystemResource(getTestRootDir()).getFile();
 
 			if (File.separator.equals("\\")) // HACK: Windows
 			{
@@ -61,8 +70,9 @@ public abstract class BaseTest
 			
 			// FIXME: read runtime arguments from a config file, e.g. -oldwf, -fair, etc
 			// Also need a way to specify expected tool output (e.g. projections/EFSMs for good, errors for bad)
-			new CommandLine(this.example, CLArgParser.JUNIT_FLAG, CLArgParser.IMPORT_PATH_FLAG, dir).run();
+			//new CommandLine(this.example, CLArgParser.JUNIT_FLAG, CLArgParser.IMPORT_PATH_FLAG, dir).run();
 					// Added JUNIT flag -- but for some reason only bad DoArgList01.scr was breaking without it...
+			runTest(dir);
 			Assert.assertFalse("Expecting exception", this.isBadTest);
 		}
 		catch (ScribbleException e)
