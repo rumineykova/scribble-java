@@ -18,6 +18,7 @@ import java.util.List;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.MessageNode;
+import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GInteractionSeq;
 import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.ast.local.LSend;
@@ -33,6 +34,7 @@ import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
 import org.scribble.ext.assrt.del.AssrtAnnotPayloadElemDel;
+import org.scribble.ext.assrt.del.global.AssrtGChoiceDel;
 import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
@@ -71,6 +73,14 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests, assertion);
 		gmt = del(gmt, new AssrtGMessageTransferDel());
 		return gmt;
+	}
+
+	@Override
+	public GChoice GChoice(CommonTree source, RoleNode subj, List<GProtocolBlock> blocks)
+	{
+		GChoice gc = new GChoice(source, subj, blocks);
+		gc = del(gc, new AssrtGChoiceDel());
+		return gc;
 	}
 
 	@Override

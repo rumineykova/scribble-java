@@ -29,5 +29,5 @@ rec Loop {
 		}
 	}
 	
-	RES(z) from B to C; 
+	RES(z) from B to C;   // FIXME: only need z on all exit loops -- motivation for model checking based WF
 }
