@@ -21,6 +21,7 @@ import org.scribble.ast.MessageNode;
 import org.scribble.ast.local.LSend;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
+import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.ast.name.simple.OpNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
@@ -32,6 +33,7 @@ import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
 import org.scribble.ext.assrt.del.AssrtAnnotPayloadElemDel;
 import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
+import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
 import org.scribble.ext.assrt.sesstype.kind.AssrtAnnotVarNameKind;
 import org.scribble.sesstype.kind.Kind;
 import org.scribble.sesstype.kind.OpKind;
@@ -50,6 +52,14 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests, assertion);
 		gmt = del(gmt, new AssrtGMessageTransferDel());
 		return gmt;
+	}
+
+	@Override
+	public AmbigNameNode AmbiguousNameNode(CommonTree source, String identifier)
+	{
+		AmbigNameNode ann = new AmbigNameNode(source, identifier); 
+		ann = (AmbigNameNode) ann.del(new AssrtAmbigNameNodeDel());
+		return ann;
 	}
 
 	@Override
