@@ -20,7 +20,6 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.scribble.main.ScribbleException;
-import org.scribble.util.ScribParserException;
 
 /*
  * Packaging following pattern of putting tests into same package but different directory as classes being tested:
@@ -62,7 +61,7 @@ public abstract class BaseTest
 			
 			// FIXME: read runtime arguments from a config file, e.g. -oldwf, -fair, etc
 			// Also need a way to specify expected tool output (e.g. projections/EFSMs for good, errors for bad)
-			new CommandLine(this.example, CommandLineArgParser.JUNIT_FLAG, CommandLineArgParser.IMPORT_PATH_FLAG, dir).run();
+			new CommandLine(this.example, CLArgParser.JUNIT_FLAG, CLArgParser.IMPORT_PATH_FLAG, dir).run();
 					// Added JUNIT flag -- but for some reason only bad DoArgList01.scr was breaking without it...
 			Assert.assertFalse("Expecting exception", this.isBadTest);
 		}
@@ -70,7 +69,7 @@ public abstract class BaseTest
 		{
 			Assert.assertTrue("Unexpected exception '" + e.getMessage() + "'", this.isBadTest);
 		}
-		catch (ScribParserException | CommandLineException e)
+		catch (CommandLineException e)
 		{
 			throw new RuntimeException(e);
 		}

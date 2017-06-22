@@ -18,10 +18,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.scribble.cli.CommandLine.ArgFlag;
-
 // String[] -> Map<CommandLine.Arg, String[]> -- Map array values are the arguments associated to each CommandLine.Arg
-public class CommandLineArgParser
+public class CLArgParser
 {
 	// Unique flags
 	public static final String JUNIT_FLAG = "-junit";  // For internal use (JUnit test harness)
@@ -57,59 +55,59 @@ public class CommandLineArgParser
 	public static final String SESSION_API_GEN_FLAG = "-sessapi";
 	public static final String STATECHAN_API_GEN_FLAG = "-chanapi";
 	
-	private static final Map<String, CommandLine.ArgFlag> UNIQUE_FLAGS = new HashMap<>();
+	private static final Map<String, CLArgFlag> UNIQUE_FLAGS = new HashMap<>();
 	{
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.JUNIT_FLAG, CommandLine.ArgFlag.JUNIT);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.VERBOSE_FLAG, CommandLine.ArgFlag.VERBOSE);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.IMPORT_PATH_FLAG, CommandLine.ArgFlag.IMPORT_PATH);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.API_OUTPUT_DIR_FLAG, CommandLine.ArgFlag.API_OUTPUT);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.STATECHAN_SUBTYPES_FLAG, CommandLine.ArgFlag.SCHAN_API_SUBTYPES);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.OLD_WF_FLAG, CommandLine.ArgFlag.OLD_WF);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.LTSCONVERT_MIN_FLAG, CommandLine.ArgFlag.LTSCONVERT_MIN);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.FAIR_FLAG, CommandLine.ArgFlag.FAIR);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.NO_LOCAL_CHOICE_SUBJECT_CHECK, CommandLine.ArgFlag.NO_LOCAL_CHOICE_SUBJECT_CHECK);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.NO_ACCEPT_CORRELATION_CHECK, CommandLine.ArgFlag.NO_ACCEPT_CORRELATION_CHECK);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.DOT_FLAG, CommandLine.ArgFlag.DOT);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.AUT_FLAG, CommandLine.ArgFlag.AUT);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.NO_VALIDATION_FLAG, CommandLine.ArgFlag.NO_VALIDATION);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.INLINE_MAIN_MOD_FLAG, CommandLine.ArgFlag.INLINE_MAIN_MOD);
-		CommandLineArgParser.UNIQUE_FLAGS.put(CommandLineArgParser.F17_FLAG, CommandLine.ArgFlag.F17);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.JUNIT_FLAG, CLArgFlag.JUNIT);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.VERBOSE_FLAG, CLArgFlag.VERBOSE);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.IMPORT_PATH_FLAG, CLArgFlag.IMPORT_PATH);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.API_OUTPUT_DIR_FLAG, CLArgFlag.API_OUTPUT);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.STATECHAN_SUBTYPES_FLAG, CLArgFlag.SCHAN_API_SUBTYPES);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.OLD_WF_FLAG, CLArgFlag.OLD_WF);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.LTSCONVERT_MIN_FLAG, CLArgFlag.LTSCONVERT_MIN);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.FAIR_FLAG, CLArgFlag.FAIR);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.NO_LOCAL_CHOICE_SUBJECT_CHECK, CLArgFlag.NO_LOCAL_CHOICE_SUBJECT_CHECK);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.NO_ACCEPT_CORRELATION_CHECK, CLArgFlag.NO_ACCEPT_CORRELATION_CHECK);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.DOT_FLAG, CLArgFlag.DOT);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.AUT_FLAG, CLArgFlag.AUT);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.NO_VALIDATION_FLAG, CLArgFlag.NO_VALIDATION);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.INLINE_MAIN_MOD_FLAG, CLArgFlag.INLINE_MAIN_MOD);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.F17_FLAG, CLArgFlag.F17);
 	}
 
-	private static final Map<String, CommandLine.ArgFlag> NON_UNIQUE_FLAGS = new HashMap<>();
+	private static final Map<String, CLArgFlag> NON_UNIQUE_FLAGS = new HashMap<>();
 	{
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.PROJECT_FLAG, CommandLine.ArgFlag.PROJECT);
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.EFSM_FLAG, CommandLine.ArgFlag.EFSM);
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.VALIDATION_EFSM_FLAG, CommandLine.ArgFlag.VALIDATION_EFSM);
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.UNFAIR_EFSM_FLAG, CommandLine.ArgFlag.UNFAIR_EFSM);
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.EFSM_PNG_FLAG, CommandLine.ArgFlag.EFSM_PNG);
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.VALIDATION_EFSM_PNG_FLAG, CommandLine.ArgFlag.VALIDATION_EFSM_PNG);
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.UNFAIR_EFSM_PNG_FLAG, CommandLine.ArgFlag.UNFAIR_EFSM_PNG);
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.SGRAPH_FLAG, CommandLine.ArgFlag.SGRAPH);
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.UNFAIR_SGRAPH_FLAG, CommandLine.ArgFlag.UNFAIR_SGRAPH);
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.SGRAPH_PNG_FLAG, CommandLine.ArgFlag.SGRAPH_PNG);
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.UNFAIR_SGRAPH_PNG_FLAG, CommandLine.ArgFlag.UNFAIR_SGRAPH_PNG);
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.API_GEN_FLAG, CommandLine.ArgFlag.API_GEN);
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.SESSION_API_GEN_FLAG, CommandLine.ArgFlag.SESS_API_GEN);
-		CommandLineArgParser.NON_UNIQUE_FLAGS.put(CommandLineArgParser.STATECHAN_API_GEN_FLAG, CommandLine.ArgFlag.SCHAN_API_GEN);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.PROJECT_FLAG, CLArgFlag.PROJECT);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.EFSM_FLAG, CLArgFlag.EFSM);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.VALIDATION_EFSM_FLAG, CLArgFlag.VALIDATION_EFSM);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.UNFAIR_EFSM_FLAG, CLArgFlag.UNFAIR_EFSM);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.EFSM_PNG_FLAG, CLArgFlag.EFSM_PNG);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.VALIDATION_EFSM_PNG_FLAG, CLArgFlag.VALIDATION_EFSM_PNG);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.UNFAIR_EFSM_PNG_FLAG, CLArgFlag.UNFAIR_EFSM_PNG);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.SGRAPH_FLAG, CLArgFlag.SGRAPH);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.UNFAIR_SGRAPH_FLAG, CLArgFlag.UNFAIR_SGRAPH);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.SGRAPH_PNG_FLAG, CLArgFlag.SGRAPH_PNG);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.UNFAIR_SGRAPH_PNG_FLAG, CLArgFlag.UNFAIR_SGRAPH_PNG);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.API_GEN_FLAG, CLArgFlag.API_GEN);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.SESSION_API_GEN_FLAG, CLArgFlag.SESS_API_GEN);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.STATECHAN_API_GEN_FLAG, CLArgFlag.SCHAN_API_GEN);
 	}
 
-	private static final Map<String, CommandLine.ArgFlag> FLAGS = new HashMap<>();
+	private static final Map<String, CLArgFlag> FLAGS = new HashMap<>();
 	{
-		CommandLineArgParser.FLAGS.putAll(CommandLineArgParser.UNIQUE_FLAGS);
-		CommandLineArgParser.FLAGS.putAll(CommandLineArgParser.NON_UNIQUE_FLAGS);
+		CLArgParser.FLAGS.putAll(CLArgParser.UNIQUE_FLAGS);
+		CLArgParser.FLAGS.putAll(CLArgParser.NON_UNIQUE_FLAGS);
 	}
 
 	private final String[] args;
-	private final Map<CommandLine.ArgFlag, String[]> parsed = new HashMap<>();
+	private final Map<CLArgFlag, String[]> parsed = new HashMap<>();
 	
-	public CommandLineArgParser(String[] args) throws CommandLineException
+	public CLArgParser(String[] args) throws CommandLineException
 	{
 		this.args = args;
 		parseArgs();
 	}		
 	
-	public Map<CommandLine.ArgFlag, String[]> getArgs()
+	public Map<CLArgFlag, String[]> getArgs()
 	{
 		return this.parsed;
 	}
@@ -119,7 +117,7 @@ public class CommandLineArgParser
 		for (int i = 0; i < this.args.length; i++)
 		{
 			String arg = this.args[i];
-			if (CommandLineArgParser.FLAGS.containsKey(arg))
+			if (CLArgParser.FLAGS.containsKey(arg))
 			{
 				i = this.parseFlag(i);
 			}
@@ -141,7 +139,7 @@ public class CommandLineArgParser
 	
 	private boolean isMainModuleParsed()
 	{
-		return this.parsed.containsKey(CommandLine.ArgFlag.MAIN_MOD) || this.parsed.containsKey(CommandLine.ArgFlag.INLINE_MAIN_MOD);
+		return this.parsed.containsKey(CLArgFlag.MAIN_MOD) || this.parsed.containsKey(CLArgFlag.INLINE_MAIN_MOD);
 	}
 	
 	// Pre: i is the index of the current flag to parse
@@ -153,11 +151,11 @@ public class CommandLineArgParser
 		switch (flag)
 		{
 			// Unique flags
-			case CommandLineArgParser.IMPORT_PATH_FLAG:
+			case CLArgParser.IMPORT_PATH_FLAG:
 			{
 				return parseImportPath(i);
 			}
-			case CommandLineArgParser.INLINE_MAIN_MOD_FLAG:
+			case CLArgParser.INLINE_MAIN_MOD_FLAG:
 			{
 				if (isMainModuleParsed())
 				{
@@ -165,40 +163,40 @@ public class CommandLineArgParser
 				}
 				return parseInlineMainModule(i);
 			}
-			case CommandLineArgParser.F17_FLAG:
+			case CLArgParser.F17_FLAG:
 			{
 				return parseF17(i);
 			}
-			case CommandLineArgParser.JUNIT_FLAG:
-			case CommandLineArgParser.VERBOSE_FLAG:
-			case CommandLineArgParser.STATECHAN_SUBTYPES_FLAG:
-			case CommandLineArgParser.OLD_WF_FLAG:
-			case CommandLineArgParser.NO_LIVENESS_FLAG:
-			case CommandLineArgParser.LTSCONVERT_MIN_FLAG:
-			case CommandLineArgParser.FAIR_FLAG:
-			case CommandLineArgParser.NO_LOCAL_CHOICE_SUBJECT_CHECK:
-			case CommandLineArgParser.NO_ACCEPT_CORRELATION_CHECK:
-			case CommandLineArgParser.NO_VALIDATION_FLAG:
+			case CLArgParser.JUNIT_FLAG:
+			case CLArgParser.VERBOSE_FLAG:
+			case CLArgParser.STATECHAN_SUBTYPES_FLAG:
+			case CLArgParser.OLD_WF_FLAG:
+			case CLArgParser.NO_LIVENESS_FLAG:
+			case CLArgParser.LTSCONVERT_MIN_FLAG:
+			case CLArgParser.FAIR_FLAG:
+			case CLArgParser.NO_LOCAL_CHOICE_SUBJECT_CHECK:
+			case CLArgParser.NO_ACCEPT_CORRELATION_CHECK:
+			case CLArgParser.NO_VALIDATION_FLAG:
 			{
 				checkAndAddNoArgUniqueFlag(flag, new String[0]);
 				return i;
 			}
-			case CommandLineArgParser.API_OUTPUT_DIR_FLAG:
+			case CLArgParser.API_OUTPUT_DIR_FLAG:
 			{
 				return parseOutput(i);
 			}
-			case CommandLineArgParser.DOT_FLAG:
+			case CLArgParser.DOT_FLAG:
 			{
-				if (this.parsed.containsKey(CommandLineArgParser.UNIQUE_FLAGS.get(AUT_FLAG)))
+				if (this.parsed.containsKey(CLArgParser.UNIQUE_FLAGS.get(AUT_FLAG)))
 				{
 					throw new CommandLineException("Incompatible flags: " + DOT_FLAG + " and " + AUT_FLAG);
 				}
 				checkAndAddNoArgUniqueFlag(flag, new String[0]);
 				return i;
 			}
-			case CommandLineArgParser.AUT_FLAG:
+			case CLArgParser.AUT_FLAG:
 			{
-				if (this.parsed.containsKey(CommandLineArgParser.UNIQUE_FLAGS.get(DOT_FLAG)))
+				if (this.parsed.containsKey(CLArgParser.UNIQUE_FLAGS.get(DOT_FLAG)))
 				{
 					throw new CommandLineException("Incompatible flags: " + DOT_FLAG + " and " + AUT_FLAG);
 				}
@@ -207,32 +205,32 @@ public class CommandLineArgParser
 			}
 
 			// Non-unique flags
-			case CommandLineArgParser.PROJECT_FLAG:
+			case CLArgParser.PROJECT_FLAG:
 			{
 				return parseProject(i);
 			}
-			case CommandLineArgParser.EFSM_FLAG:
-			case CommandLineArgParser.VALIDATION_EFSM_FLAG:
-			case CommandLineArgParser.UNFAIR_EFSM_FLAG:
-			case CommandLineArgParser.API_GEN_FLAG:
-			case CommandLineArgParser.STATECHAN_API_GEN_FLAG:
+			case CLArgParser.EFSM_FLAG:
+			case CLArgParser.VALIDATION_EFSM_FLAG:
+			case CLArgParser.UNFAIR_EFSM_FLAG:
+			case CLArgParser.API_GEN_FLAG:
+			case CLArgParser.STATECHAN_API_GEN_FLAG:
 			{
 				return parseProtoAndRoleArgs(flag, i);
 			}
-			case CommandLineArgParser.EFSM_PNG_FLAG:
-			case CommandLineArgParser.VALIDATION_EFSM_PNG_FLAG:
-			case CommandLineArgParser.UNFAIR_EFSM_PNG_FLAG:
+			case CLArgParser.EFSM_PNG_FLAG:
+			case CLArgParser.VALIDATION_EFSM_PNG_FLAG:
+			case CLArgParser.UNFAIR_EFSM_PNG_FLAG:
 			{
 				return parseProtoRoleAndFileArgs(flag, i);
 			}
-			case CommandLineArgParser.SGRAPH_FLAG:
-			case CommandLineArgParser.UNFAIR_SGRAPH_FLAG:
-			case CommandLineArgParser.SESSION_API_GEN_FLAG:
+			case CLArgParser.SGRAPH_FLAG:
+			case CLArgParser.UNFAIR_SGRAPH_FLAG:
+			case CLArgParser.SESSION_API_GEN_FLAG:
 			{
 				return parseProtoArg(flag, i);
 			}
-			case CommandLineArgParser.SGRAPH_PNG_FLAG:
-			case CommandLineArgParser.UNFAIR_SGRAPH_PNG_FLAG:
+			case CLArgParser.SGRAPH_PNG_FLAG:
+			case CLArgParser.UNFAIR_SGRAPH_PNG_FLAG:
 			{
 				return parseProtoAndFileArgs(flag, i);
 			}
@@ -246,7 +244,7 @@ public class CommandLineArgParser
 
 	private void checkAndAddNoArgUniqueFlag(String flag, String[] args) throws CommandLineException
 	{
-		ArgFlag argFlag = CommandLineArgParser.UNIQUE_FLAGS.get(flag);
+		CLArgFlag argFlag = CLArgParser.UNIQUE_FLAGS.get(flag);
 		if (this.parsed.containsKey(argFlag))
 		{
 			throw new CommandLineException("Duplicate flag: " + flag);
@@ -261,18 +259,18 @@ public class CommandLineArgParser
 			throw new CommandLineException("Missing directory argument");
 		}
 		String dir = this.args[++i];
-		this.parsed.put(CommandLineArgParser.UNIQUE_FLAGS.get(CommandLineArgParser.API_OUTPUT_DIR_FLAG), new String[] { dir } );
+		this.parsed.put(CLArgParser.UNIQUE_FLAGS.get(CLArgParser.API_OUTPUT_DIR_FLAG), new String[] { dir } );
 		return i;
 	}
 
 	private void parseMain(int i) throws CommandLineException
 	{
 		String main = args[i];
-		if (!CommandLineArgParser.validateModuleArg(main))
+		if (!CLArgParser.validateModuleArg(main))
 		{
 			throw new CommandLineException("Bad module arg: " + main);
 		}
-		this.parsed.put(CommandLine.ArgFlag.MAIN_MOD, new String[] { main } );
+		this.parsed.put(CLArgFlag.MAIN_MOD, new String[] { main } );
 	}
 
 	private int parseImportPath(int i) throws CommandLineException
@@ -287,7 +285,7 @@ public class CommandLineArgParser
 			throw new CommandLineException("Scribble module import path '"+ path +"' is not valid\r\n");
 		}
 		//this.parsed.put(CommandLineArgParser.FLAGS.get(CommandLineArgParser.PATH_FLAG), new String[] { path });
-		checkAndAddNoArgUniqueFlag(CommandLineArgParser.IMPORT_PATH_FLAG, new String[] { path });
+		checkAndAddNoArgUniqueFlag(CLArgParser.IMPORT_PATH_FLAG, new String[] { path });
 		return i;
 	}
 
@@ -298,7 +296,7 @@ public class CommandLineArgParser
 			throw new CommandLineException("Missing module definition");
 		}
 		String inline = this.args[++i];
-		checkAndAddNoArgUniqueFlag(CommandLineArgParser.INLINE_MAIN_MOD_FLAG, new String[] { inline });
+		checkAndAddNoArgUniqueFlag(CLArgParser.INLINE_MAIN_MOD_FLAG, new String[] { inline });
 		return i;
 	}
 
@@ -309,7 +307,7 @@ public class CommandLineArgParser
 			throw new CommandLineException("Missing simple global protocol name argument");
 		}
 		String proto = this.args[++i];
-		checkAndAddNoArgUniqueFlag(CommandLineArgParser.F17_FLAG, new String[] { proto });
+		checkAndAddNoArgUniqueFlag(CLArgParser.F17_FLAG, new String[] { proto });
 		return i;
 	}
 	
@@ -325,13 +323,13 @@ public class CommandLineArgParser
 		{
 			throw new RuntimeException("Protocol name '"+ proto +"' is not valid\r\n");
 		}*/
-		concatArgs(CommandLineArgParser.NON_UNIQUE_FLAGS.get(CommandLineArgParser.PROJECT_FLAG), proto, role);
+		concatArgs(CLArgParser.NON_UNIQUE_FLAGS.get(CLArgParser.PROJECT_FLAG), proto, role);
 		return i;
 	}
 
 	private int parseProtoAndRoleArgs(String f, int i) throws CommandLineException
 	{
-		ArgFlag flag = CommandLineArgParser.NON_UNIQUE_FLAGS.get(f);
+		CLArgFlag flag = CLArgParser.NON_UNIQUE_FLAGS.get(f);
 		if ((i + 2) >= this.args.length)
 		{
 			throw new CommandLineException("Missing protocol/role arguments");
@@ -344,7 +342,7 @@ public class CommandLineArgParser
 
 	private int parseProtoRoleAndFileArgs(String f, int i) throws CommandLineException
 	{
-		ArgFlag flag = CommandLineArgParser.NON_UNIQUE_FLAGS.get(f);
+		CLArgFlag flag = CLArgParser.NON_UNIQUE_FLAGS.get(f);
 		if ((i + 3) >= this.args.length)
 		{
 			throw new CommandLineException("Missing protocol/role/file arguments");
@@ -358,7 +356,7 @@ public class CommandLineArgParser
 
 	private int parseProtoArg(String f, int i) throws CommandLineException
 	{
-		ArgFlag flag = CommandLineArgParser.NON_UNIQUE_FLAGS.get(f);
+		CLArgFlag flag = CLArgParser.NON_UNIQUE_FLAGS.get(f);
 		if ((i + 1) >= this.args.length)
 		{
 			throw new CommandLineException("Missing protocol argument");
@@ -370,7 +368,7 @@ public class CommandLineArgParser
 
 	private int parseProtoAndFileArgs(String f, int i) throws CommandLineException
 	{
-		ArgFlag flag = CommandLineArgParser.NON_UNIQUE_FLAGS.get(f);
+		CLArgFlag flag = CLArgParser.NON_UNIQUE_FLAGS.get(f);
 		if ((i + 2) >= this.args.length)
 		{
 			throw new CommandLineException("Missing protocol/file arguments");
@@ -381,7 +379,7 @@ public class CommandLineArgParser
 		return i;
 	}
 	
-	private void concatArgs(ArgFlag flag, String... toAdd)
+	private void concatArgs(CLArgFlag flag, String... toAdd)
 	{
 		String[] args = this.parsed.get(flag);
 		if (args == null)

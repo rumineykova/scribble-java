@@ -44,9 +44,9 @@ public class MainContext
 {
 
 	// Only "manually" used here for loading main module (which should be factored out to front end) -- otherwise, only used within loader
-	private final AntlrParser antlrParser = newAntlrParser();  // Not encapsulated inside ScribbleParser, because ScribbleParser's main function is to "parse" ANTLR CommonTrees into ModelNodes
-	private final ScribParser scribParser = newScribParser();
-	private final AstFactory af = newAstFactory();
+	protected final AntlrParser antlrParser = newAntlrParser();  // Not encapsulated inside ScribbleParser, because ScribbleParser's main function is to "parse" ANTLR CommonTrees into ModelNodes
+	protected final ScribParser scribParser = newScribParser();
+	protected final AstFactory af = newAstFactory();
 	
 	// A Scribble extension should override these "new" methods as appropriate.
 	public Job newJob()
@@ -56,17 +56,17 @@ public class MainContext
 				this.af);
 	}
 	
-	public AntlrParser newAntlrParser()
+	protected AntlrParser newAntlrParser()
 	{
 		return new AntlrParser();
 	}
 	
-	public ScribParser newScribParser()
+	protected ScribParser newScribParser()
 	{
 		return new ScribParser();
 	}
 	
-	public AstFactory newAstFactory()
+	protected AstFactory newAstFactory()
 	{
 		return new AstFactoryImpl();
 	}
@@ -87,7 +87,7 @@ public class MainContext
 	private final ResourceLocator locator;  // Path -> Resource
 	private final ScribModuleLoader loader;  // sesstype.ModuleName -> Pair<Resource, Module>
 
-	private ModuleName main;
+	protected ModuleName main;
 
 	// ModuleName keys are full module names -- parsed are the modules read from file, distinguished from the generated projection modules
 	// Resource recorded for source path

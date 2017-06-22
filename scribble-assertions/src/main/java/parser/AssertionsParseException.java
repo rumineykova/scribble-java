@@ -27,8 +27,10 @@ package parser;
  * the License.
  */
 
-public class AssertionsParseException extends Exception {
-	
+public class AssertionsParseException extends Exception
+{
+	private static final long serialVersionUID = 1L;
+
 	public AssertionsParseException (String arg0)
 	{
 		super(arg0);
