@@ -1,0 +1,194 @@
+//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
+//$ bin/scribblec.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/tmp/Test.scr 
+
+
+//http://sandbox.kidstrythisathome.com/erdos/
+
+
+module Test;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Int;
+type <java> "java.lang.String" from "rt.jar" as Str;
+
+
+// FIXME: debug printing for assertion passes
+
+
+//*
+global protocol Proto1(role A, role B, role C)
+{
+	//[x<10]
+	1(x:Int) from A to B;  // Integer checked?  i.e., valid domain for z3 (wrt. assertion)
+	//[z>x]
+	[z=x]
+	//[z=x && z>9]
+	//[z<x]
+	//[z < 1 && z > 2]
+	2(z:Int) from B to C;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	[x < 123]  // XXX
+	1(x:Str) from A to B;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x:Int) from A to B;  // Locality?
+
+	[x < 10]  // XXX
+	2(y:Int) from A to B;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	choice at A
+	{
+		1(x:Int) from A to B;
+	}
+	or
+	{
+		2(x:Int) from A to B;
+	}
+
+	[x=y]  // Scoping?
+	3(y:Int) from A to B;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	choice at A
+	{
+		1(x:Int) from A to B;
+	}
+	or
+	{
+		2(Str) from A to B;  // XXX
+	}
+	
+	[x=y] 
+	2(y:Int) from A to B;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A
+	{
+		[x > 9]
+		1(x:Int) from A to B;
+	}
+	or
+	{
+		[x < 10]
+		2(x:Int) from A to B;
+	}
+	
+	[x=y]   // OK: there exists a typeable process that satisfies the assertions (i.e., forward x -- means "variable identity", for some meaning of that; how about other implementations?)
+	3(y:Int) from A to B;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A  // FIXME: not terminating -- not related to the choice (doesn't affect satisfiability)
+	{
+		[x > 9]
+		1(x:Int) from A to B;
+		1() from A to C;
+		1(y:Int) from C to B;
+	}
+	or
+	{
+		[x < 10]
+		2(x:Int) from A to B;
+		2() from A to C;
+		2(y:Int) from C to B;
+	}
+	
+	[x=y && x=z]
+	3(z:Int) from A to B;
+}
+//*/
+
+
+// Generate bounded recs as finitely-parameterised (sealed?) state channels?
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	[x = 3]
+	1(x:Int) from A to B;
+}
+//*/
+
+
+/*/
+global protocol Proto1(role A, role B)
+{
+	[false]  // Not supported
+	1(x:Int) from A to B;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	[x=y]
+	1() from A to B;  // Static enforcement?
+
+	1(x:Int) from A to B;
+	[x=y]
+	(y:Int) from A to B;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	[x=/=y]
+	1(x:Int, y:Int) from A to B;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A
+	{
+		[x<10]
+		ADD(x:Int) from A to B;  
+		[z<x]
+		ADD(z:Int) from B to C;
+	}
+	or
+	{
+		RES(y:Int) from A to B;
+		RES(z:Int) from B to C; 
+	}			
+}
+//*/
+
+// "passing" vars across subprotos

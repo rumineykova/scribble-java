@@ -1,0 +1,33 @@
+module good.extensions.annotations.RecWithAnnot;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Integer;
+type <java> "java.lang.Long" from "rt.jar" as Long;
+
+// Recursion with Annotations (Simple)
+global protocol ProtSimple(role C, role S)
+{
+rec Loop {
+	ADD(x:Integer) from C to S;
+	continue Loop; 
+	//ADD(y:Integer) from C to S;
+	} 
+}
+
+// Recursion with Annotations (Complicated)
+global protocol ProtComplex(role A, role B, role C)
+{
+rec Loop {
+	choice at A {
+		ADD(x:Integer) from A to B;  
+		ADD(z:Integer) from B to C;
+		 
+	} or {
+		RES(y:Integer) from A to B;
+		RES(z:Integer) from B to C; 
+		continue Loop;
+		}
+	}
+	
+	RES(z) from B to C;   // FIXME: only need z on all exit loops -- motivation for model checking based WF
+}
