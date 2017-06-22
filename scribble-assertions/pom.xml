@@ -41,4 +41,21 @@
     	<artifactId>antlr-runtime</artifactId>
     </dependency>
   </dependencies>
+  
+	<build>
+		<plugins>
+			<plugin>
+    				<groupId>org.antlr</groupId>
+    				<artifactId>antlr3-maven-plugin</artifactId>
+    				<version>${antlr.version}</version>
+		    		<executions>
+		        		<execution>
+		            			<goals>
+		                			<goal>antlr</goal>
+		            			</goals>
+		        		</execution>
+		    		</executions>
+			</plugin>
+    		</plugins>
+	</build>
 </project>

@@ -1,4 +1,4 @@
-grammar Assertions;
+grammar AssrtAssertions;
 
 options
 {
@@ -32,8 +32,8 @@ tokens {
 
 @members {
   public static CommonTree ast(String source) throws RecognitionException {
-    AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
-    AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
+    AssrtAssertionsLexer lexer = new AssrtAssertionsLexer(new ANTLRStringStream(source));
+    AssrtAssertionsParser parser = new AssrtAssertionsParser(new CommonTokenStream(lexer));
     return (CommonTree)parser.parse().getTree();
   }
 }

@@ -1,10 +1,4 @@
-/*
- * > scribble-java
- * $ java -cp modules/parser/lib/antlr-3.5.2-complete.jar org.antlr.Tool -o modules/parser/target/generated-sources/antlr3 modules/parser/src/main/antlr3/org/scribble/parser/antlr/Scribble.g
- */
-
-
-grammar Scribble;
+grammar AssrtScribble;
 
 
 options
@@ -594,7 +588,7 @@ globalmessagetransfer:
 | 
 	EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 	->
-	^(ANNOTGLOBALMESSAGETRANSFER {AssertionsParser.ast($EXPR.text)} message rolename rolename+)
+	^(ANNOTGLOBALMESSAGETRANSFER {AssrtAssertionsParser.ast($EXPR.text)} message rolename rolename+)
 ;
 	
 message:
@@ -611,11 +605,11 @@ globalconnect:
 	//message CONNECT_KW rolename TO_KW rolename
 	EXPR CONNECT_KW rolename TO_KW rolename ';'
 	->
-	^(GLOBALCONNECT {AssertionsParser.ast($EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+	^(GLOBALCONNECT {AssrtAssertionsParser.ast($EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
 	EXPR message CONNECT_KW rolename TO_KW rolename ';'
 	->
-	^(GLOBALCONNECT {AssertionsParser.ast($EXPR.text)} rolename rolename message)
+	^(GLOBALCONNECT {AssrtAssertionsParser.ast($EXPR.text)} rolename rolename message)
 |	CONNECT_KW rolename TO_KW rolename ';'
 	->
 	^(GLOBALCONNECT EMPTY_ASSERTION rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
