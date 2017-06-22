@@ -13,7 +13,6 @@
  */
 package org.scribble.ext.assrt.visit.wf.env;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,7 +31,7 @@ import org.scribble.visit.env.Env;
 
 public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 {
-	public Map<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>> payloads;
+	public Map<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>> payloads;  // FIXME: privacy
 	
 	public AssrtAnnotationEnv()
 	{
@@ -89,6 +88,7 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 		return true; 
 	}
 	
+	// FIXME: not using immutable pattern
 	public void addPayloadToRole(Role role, AssrtPayloadType<?> pe)
 	{
 		if (!this.payloads.containsKey(role))
@@ -103,9 +103,11 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 	@Override
 	public AssrtAnnotationEnv mergeContext(AssrtAnnotationEnv child)
 	{
-		return mergeContexts(Arrays.asList(child));
+		//return mergeContexts(Arrays.asList(child));
+		return child;  // FIXME: cf. original GChoiceDel.leaveAnnotCheck
 	}
 	
+	// FIXME? not being used to merge into this, as supposed for Env -- factor out separately?
 	@Override
 	public AssrtAnnotationEnv mergeContexts(List<AssrtAnnotationEnv> envs)
 	{
@@ -113,14 +115,16 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 		//		envs.stream().findAny().get().payloads;  
 		//AnnotationEnv env = copy();
 		//Map<Role, HashSet<PayloadType<? extends PayloadTypeKind>>> payloads = 
-				envs.stream().flatMap(e-> e.payloads.entrySet().stream()).
-				collect(Collectors.toMap(
-		                Map.Entry<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>>::getKey,
-		                Map.Entry<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>>::getValue,  
-						(v1, v2) -> {
-							Set<AssrtPayloadType<? extends PayloadTypeKind>> s = 
-									v1.stream().filter(e -> v2.contains(e)).collect(Collectors.toSet()); 
-							return s; })) ; 
+				envs.stream().flatMap(e -> e.payloads.entrySet().stream())
+						.collect(Collectors.toMap(
+								Map.Entry<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>>::getKey,   // e.payloads is: Role -> Set<AsertPayloadType>
+								Map.Entry<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>>::getValue,  
+								(v1, v2) -> {
+									Set<AssrtPayloadType<? extends PayloadTypeKind>> s = 
+											v1.stream().filter(e -> v2.contains(e)).collect(Collectors.toSet());   // Intersection of v1 and v2 sets
+									return s; 
+								})
+						); 
 		
 		return new AssrtAnnotationEnv(payloads);  
 	}

@@ -47,6 +47,14 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	public static final AssrtAstFactory FACTORY = new AssrtAstFactoryImpl();
 
 	@Override
+	public AssrtGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	{
+		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests);
+		gmt = del(gmt, new AssrtGMessageTransferDel());
+		return gmt;
+	}
+
+	@Override
 	public AssrtGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertionNode assertion)
 	{
 		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests, assertion);

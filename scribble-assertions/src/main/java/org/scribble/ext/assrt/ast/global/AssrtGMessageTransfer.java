@@ -40,6 +40,11 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 	public final AssrtAssertionNode assertion;  // null if none specified syntactically  
 			// Duplicated in ALSend/Receive -- could factour out to in Del, but need to consider immutable pattern
 
+	public AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	{
+		this(source, src, msg, dests, null);
+	}
+
 	public AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertionNode assertion)
 	{
 		super(source, src, msg, dests);

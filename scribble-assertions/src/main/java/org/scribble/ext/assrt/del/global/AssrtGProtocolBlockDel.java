@@ -29,7 +29,7 @@ public class AssrtGProtocolBlockDel extends GProtocolBlockDel implements AssrtSc
 	@Override
 	public void enterAnnotCheck(ScribNode parent, ScribNode child, AssrtAnnotationChecker checker) throws ScribbleException
 	{
-		// CHECKME: why only for GChoice?
+		// CHECKME: why only for GChoice? -- Should be left to AssrtGChoiceDel? cf. GChoiceDel.enterInlinedWFChoiceCheck
 		if (parent instanceof GChoice)
 		{
 			ScribDelBase.pushVisitorEnv(this, checker);

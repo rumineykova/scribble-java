@@ -39,6 +39,7 @@ public class AssrtGMessageTransferDel extends GMessageTransferDel implements Ass
 	public MessageTransfer<?> leaveAnnotCheck(ScribNode parent, ScribNode child, AssrtAnnotationChecker checker, ScribNode visited) throws ScribbleException
 	{
 		AssrtAnnotationEnv env = checker.popEnv();
+		
 		MessageTransfer<?> mt = (MessageTransfer<?>) visited;
 		if (mt.msg.isMessageSigNode())
 		{	
