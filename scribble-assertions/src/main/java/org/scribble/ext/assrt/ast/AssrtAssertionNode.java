@@ -16,10 +16,9 @@ package org.scribble.ext.assrt.ast;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.ScribNodeBase;
-import org.scribble.ext.assrt.StmFormula;
-
-import parser.AssertionsParseException;
-import parser.AssertionsScribParser;
+import org.scribble.ext.assrt.ast.formula.StmFormula;
+import org.scribble.ext.assrt.parser.assertions.AssertionsParseException;
+import org.scribble.ext.assrt.parser.assertions.AssertionsScribParser;
 
 // FIXME: visitChildren/reconstruct
 public class AssrtAssertionNode extends ScribNodeBase 

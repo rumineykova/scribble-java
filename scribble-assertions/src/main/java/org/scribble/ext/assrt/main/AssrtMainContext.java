@@ -17,13 +17,13 @@ import java.nio.file.Path;
 
 import org.scribble.ast.AstFactory;
 import org.scribble.ext.assrt.ast.AssrtAstFactoryImpl;
-import org.scribble.ext.assrt.parser.AssrtAntlrParser;
-import org.scribble.ext.assrt.parser.AssrtScribParser;
+import org.scribble.ext.assrt.parser.scribble.AssrtAntlrParser;
+import org.scribble.ext.assrt.parser.scribble.AssrtScribParser;
 import org.scribble.main.MainContext;
 import org.scribble.main.ScribbleException;
 import org.scribble.main.resource.ResourceLocator;
-import org.scribble.parser.AntlrParser;
-import org.scribble.parser.ScribParser;
+import org.scribble.parser.scribble.AntlrParser;
+import org.scribble.parser.scribble.ScribParser;
 import org.scribble.util.ScribParserException;
 
 public class AssrtMainContext extends MainContext
