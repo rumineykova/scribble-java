@@ -152,7 +152,44 @@ public class AssrtSConfig extends SConfig
 				}
 			}
 
-			res.add(new AssrtSConfig(tmp1, tmp2, nextFormula, vars));
+			res.add(new AssrtSConfig(tmp1, tmp2, nextFormula, vars));  // FIXME: factor out with sync and with SConfig -- make an SModelBuilder (factored out with SGraph.buildSGraph), cf. AstFactory
+		}
+
+		return res;
+	}
+
+	public List<SConfig> sync(Role r1, EAction a1, Role r2, EAction a2)
+	{
+		List<SConfig> res = new LinkedList<>();
+		
+		List<EFSM> succs1 = this.efsms.get(r1).fireAll(a1);
+		List<EFSM> succs2 = this.efsms.get(r2).fireAll(a2);
+		for (EFSM succ1 : succs1)
+		{
+			//for (EndpointState succ2 : succs2)
+			for (EFSM succ2 : succs2)
+			{
+				//Map<Role, EndpointState> tmp1 = new HashMap<>(this.states);
+				Map<Role, EFSM> tmp1 = new HashMap<>(this.efsms);
+				tmp1.put(r1, succ1);
+				tmp1.put(r2, succ2);
+				SBuffers tmp2;
+				if (((a1.isConnect() && a2.isAccept()) || (a1.isAccept() && a2.isConnect())))
+						//&& this.buffs.canConnect(r1, r2))
+				{
+					tmp2 = this.buffs.connect(r1, r2);
+				}
+				else if (((a1.isWrapClient() && a2.isWrapServer()) || (a1.isWrapServer() && a2.isWrapClient())))
+				{
+					tmp2 = this.buffs;  // OK, immutable?
+				}
+				else
+				{
+					throw new RuntimeException("Shouldn't get in here: " + a1 + ", " + a2);
+				}
+				
+				res.add(new AssrtSConfig(tmp1, tmp2, this.formula, this.variablesInScope));  // FIXME: factor out with sync and with SConfig -- make an SModelBuilder (factored out with SGraph.buildSGraph), cf. AstFactory
+			}
 		}
 
 		return res;

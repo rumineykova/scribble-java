@@ -22,10 +22,10 @@ import org.scribble.model.global.SStateErrors;
 import org.scribble.sesstype.name.Role;
 
 // FIXME: hashCode/equals
-public class ASState extends SState
+public class AssrtSState extends SState
 {
 	// Unlike EState, SGraph is not just a "simple wrapper" for an existing graph of nodes -- it is a "semantic structure" that needs to be fully built properly (so no arbitrary "toGraph" method; cf., EState)
-	protected ASState(AssrtSConfig config)
+	protected AssrtSState(AssrtSConfig config)
 	{
 		super(config);
 	}
@@ -58,16 +58,16 @@ public class ASState extends SState
 		{
 			return true;
 		}
-		if (!(o instanceof ASState))
+		if (!(o instanceof AssrtSState))
 		{
 			return false;
 		}
-		return ((ASState) o).canEquals(this) && this.config.equals(((ASState) o).config);
+		return ((AssrtSState) o).canEquals(this) && this.config.equals(((AssrtSState) o).config);
 	}
 
 	@Override
 	protected boolean canEquals(MState<?, ?, ?, ?> s)
 	{
-		return s instanceof ASState;
+		return s instanceof AssrtSState;
 	}
 }

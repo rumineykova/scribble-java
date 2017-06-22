@@ -31,6 +31,7 @@ import org.scribble.visit.wf.ExplicitCorrelationChecker;
 
 public class LSendDel extends LMessageTransferDel
 {
+	
 	@Override
 	public ScribNode leaveEGraphBuilding(ScribNode parent, ScribNode child, EGraphBuilder graph, ScribNode visited) throws ScribbleException
 	{

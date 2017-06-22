@@ -17,10 +17,14 @@ import java.util.Map;
 
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.Module;
+import org.scribble.ext.assrt.model.global.AssrtSGraph;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
+import org.scribble.model.endpoint.EGraph;
+import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.ModuleName;
+import org.scribble.sesstype.name.Role;
 
 public class AssrtJob extends Job
 {
@@ -30,6 +34,13 @@ public class AssrtJob extends Job
 			AstFactory af)
 	{
 		super(debug, parsed, main, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, af);
+	}
+
+	// FIXME: factor out as builder util, cf. EGraphBuilderUtil
+	@Override
+	protected AssrtSGraph buildSGraph(Map<Role, EGraph> egraphs, boolean explicit, Job job, GProtocolName fullname) throws ScribbleException
+	{
+		return AssrtSGraph.buildSGraph(egraphs, explicit, this, fullname);
 	}
 
 	@Override

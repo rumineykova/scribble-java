@@ -200,7 +200,7 @@ public class JobContext
 		if (graph == null)
 		{
 			Module proj = getProjection(fullname, role);  // Projected module contains a single protocol
-			EGraphBuilder builder = new EGraphBuilder(this.job);
+			EGraphBuilder builder = new EGraphBuilder(this.job);  // Obtains an EGraphBuilderUtil from Job
 			proj.accept(builder);
 			graph = builder.util.finalise();
 			addEGraph(fulllpn, graph);
@@ -239,7 +239,8 @@ public class JobContext
 			GProtocolDecl gpd = (GProtocolDecl) getModule(fullname.getPrefix()).getProtocolDecl(fullname.getSimpleName());
 			Map<Role, EGraph> egraphs = getEGraphsForSGraphBuilding(fullname, gpd, true);
 			boolean explicit = gpd.modifiers.contains(GProtocolDecl.Modifiers.EXPLICIT);
-			graph = SGraph.buildSGraph(egraphs, explicit, this.job, fullname);
+			//graph = SGraph.buildSGraph(egraphs, explicit, this.job, fullname);
+			graph = this.job.buildSGraph(egraphs, explicit, this.job, fullname);
 			addSGraph(fullname, graph);
 		}
 		return graph;

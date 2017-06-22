@@ -12,16 +12,19 @@ type <java> "java.lang.Integer" from "rt.jar" as Int;
 type <java> "java.lang.String" from "rt.jar" as Str;
 
 
+// FIXME: debug printing for assertion passes
+
+
 //*
 global protocol Proto1(role A, role B, role C)
 {
 	//[x<10]
 	1(x:Int) from A to B;  // Integer checked?  i.e., valid domain for z3 (wrt. assertion)
 	//[z>x]
-	//[z=x]
+	[z=x]
 	//[z=x && z>9]
 	//[z<x]
-	[z < 1 && z > 2]
+	//[z < 1 && z > 2]
 	2(z:Int) from B to C;
 }
 //*/

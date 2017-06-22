@@ -38,6 +38,11 @@ public class AssrtLSend extends LSend
 			// Duplicated in AGMessageTransfer -- could factour out to in Del, but need to consider immutable pattern
 			// (But no ALReceive -- receive has no assertions)
 
+	public AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	{
+		this(source, src, msg, dests, null);
+	}
+
 	public AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertionNode ass)
 	{
 		super(source, src, msg, dests);

@@ -17,19 +17,15 @@ import java.util.List;
 
 import org.scribble.ast.MessageSigNode;
 import org.scribble.ast.ScribNode;
-import org.scribble.ast.local.LMessageTransfer;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.local.LSendDel;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.main.ScribbleException;
-import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 import org.scribble.visit.context.EGraphBuilder;
-import org.scribble.visit.context.ProjectedChoiceSubjectFixer;
-import org.scribble.visit.wf.ExplicitCorrelationChecker;
 
 public class AssrtLSendDel extends LSendDel
 {
@@ -47,7 +43,9 @@ public class AssrtLSendDel extends LSendDel
 		Payload payload = ls.msg.isMessageSigNode()  // Hacky?
 					? ((MessageSigNode) ls.msg).payloads.toPayload()
 					: Payload.EMPTY_PAYLOAD;
-		graph.util.addEdge(graph.util.getEntry(), new AssrtESend(peer, mid, payload, ls.assertion), graph.util.getExit());
-		return (AssrtLSend) super.leaveEGraphBuilding(parent, child, graph, ls);
+		graph.util.addEdge(graph.util.getEntry(), new AssrtESend(peer, mid, payload, ls.assertion), graph.util.getExit());  // FIXME: factor out action building with LSendDel?
+		//return (AssrtLSend) super.leaveEGraphBuilding(parent, child, graph, ls);  // No
+		// FIXME: OK to ignore super?
+		return visited;  // From super of LSendDel
 	}
 }

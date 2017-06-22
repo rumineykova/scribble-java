@@ -26,6 +26,9 @@ import org.scribble.codegen.java.endpointapi.SessionApiGenerator;
 import org.scribble.codegen.java.endpointapi.StateChannelApiGenerator;
 import org.scribble.codegen.java.endpointapi.ioifaces.IOInterfacesGenerator;
 import org.scribble.del.local.LProtocolDeclDel;
+import org.scribble.model.endpoint.EGraph;
+import org.scribble.model.endpoint.EGraphBuilderUtil;
+import org.scribble.model.global.SGraph;
 import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.LProtocolName;
 import org.scribble.sesstype.name.ModuleName;
@@ -84,6 +87,18 @@ public class Job
 		this.af = af;
 
 		this.jcontext = new JobContext(this, parsed, main);  // Single instance per Job and should never be shared
+	}
+	
+	// Scribble extensions should override these "new" methods
+	public EGraphBuilderUtil newEGraphBuilderUtil()
+	{
+		return new EGraphBuilderUtil();
+	}
+	
+	//public SGraphBuilderUtil newSGraphBuilderUtil()  // FIXME TODO
+	protected SGraph buildSGraph(Map<Role, EGraph> egraphs, boolean explicit, Job job, GProtocolName fullname) throws ScribbleException
+	{
+		return SGraph.buildSGraph(egraphs, explicit, this, fullname);
 	}
 
 	public void checkWellFormedness() throws ScribbleException

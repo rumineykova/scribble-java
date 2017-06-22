@@ -53,7 +53,7 @@ public class AssrtSModel extends SModel
 					job.debugPrintln("(" + this.graph.proto + ") Checking states: " + count);
 				}
 			}
-			AssrtSStateErrors errors = ((ASState) s).getErrors();
+			AssrtSStateErrors errors = ((AssrtSState) s).getErrors();
 			//SMTWrapper.getInstance().close();
 			
 			if (!errors.isEmpty())

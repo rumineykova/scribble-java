@@ -18,6 +18,7 @@ import java.util.List;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.MessageNode;
+import org.scribble.ast.local.LSend;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.simple.OpNode;
@@ -49,6 +50,15 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests, assertion);
 		gmt = del(gmt, new AssrtGMessageTransferDel());
 		return gmt;
+	}
+
+	@Override
+	public LSend LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	{
+		//LSend ls = new LSend(source, src, msg, dests);
+		AssrtLSend ls = new AssrtLSend(source, src, msg, dests);
+		ls = del(ls, new AssrtLSendDel());
+		return ls;
 	}
 
 	@Override
