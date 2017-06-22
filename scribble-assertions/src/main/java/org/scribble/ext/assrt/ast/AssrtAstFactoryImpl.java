@@ -18,6 +18,8 @@ import java.util.List;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.MessageNode;
+import org.scribble.ast.global.GInteractionSeq;
+import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.ast.local.LSend;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
@@ -32,6 +34,7 @@ import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
 import org.scribble.ext.assrt.del.AssrtAnnotPayloadElemDel;
 import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
+import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
 import org.scribble.ext.assrt.sesstype.kind.AssrtAnnotVarNameKind;
@@ -45,6 +48,14 @@ import org.scribble.sesstype.kind.RoleKind;
 public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFactory
 {
 	public static final AssrtAstFactory FACTORY = new AssrtAstFactoryImpl();
+
+	@Override
+	public GProtocolBlock GProtocolBlock(CommonTree source, GInteractionSeq seq)
+	{
+		GProtocolBlock gpb = new GProtocolBlock(source, seq);
+		gpb = del(gpb, new AssrtGProtocolBlockDel());
+		return gpb;
+	}
 
 	@Override
 	public AssrtGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
