@@ -28,14 +28,6 @@ import org.scribble.util.ScribParserException;
 
 public class AssrtMainContext extends MainContext
 {
-	@Override
-	public AssrtJob newJob()
-	{
-		return new AssrtJob(this.debug, this.getParsedModules(), this.main, this.useOldWF, this.noLiveness, this.minEfsm, this.fair,
-				this.noLocalChoiceSubjectCheck, this.noAcceptCorrelationCheck, this.noValidation,
-				this.af);
-	}
-
 	// Load main module from file system
 	public AssrtMainContext(boolean debug, ResourceLocator locator, Path mainpath, boolean useOldWF, boolean noLiveness, boolean minEfsm,
 			boolean fair, boolean noLocalChoiceSubjectCheck, boolean noAcceptCorrelationCheck, boolean noValidation, boolean f17)
@@ -53,6 +45,13 @@ public class AssrtMainContext extends MainContext
 		throw new RuntimeException("[scrib-assert] Shouldn't get in here:\n" + inline);
 	}
 
+	@Override
+	public AssrtJob newJob()
+	{
+		return new AssrtJob(this.debug, this.getParsedModules(), this.main, this.useOldWF, this.noLiveness, this.minEfsm, this.fair,
+				this.noLocalChoiceSubjectCheck, this.noAcceptCorrelationCheck, this.noValidation,
+				this.af);
+	}
 	@Override
 	protected AntlrParser newAntlrParser()
 	{
