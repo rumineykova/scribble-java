@@ -240,7 +240,7 @@ public class JobContext
 			Map<Role, EGraph> egraphs = getEGraphsForSGraphBuilding(fullname, gpd, true);
 			boolean explicit = gpd.modifiers.contains(GProtocolDecl.Modifiers.EXPLICIT);
 			//graph = SGraph.buildSGraph(egraphs, explicit, this.job, fullname);
-			graph = this.job.buildSGraph(egraphs, explicit, this.job, fullname);
+			graph = this.job.buildSGraph(this.job, fullname, egraphs, explicit);
 			addSGraph(fullname, graph);
 		}
 		return graph;
