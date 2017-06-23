@@ -24,6 +24,12 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl implements AssrtEM
 {
 
 	@Override
+	public ESend newESend(Role peer, MessageId<?> mid, Payload payload)
+	{
+		throw new RuntimeException("[scrib-assert] Shouldn't get in here: ");
+	}
+
+	@Override
 	public ESend newAssrtESend(Role peer, MessageId<?> mid, Payload payload, AssrtAssertionNode assertion)
 	{
 		return new AssrtESend(this, peer, mid, payload, assertion);

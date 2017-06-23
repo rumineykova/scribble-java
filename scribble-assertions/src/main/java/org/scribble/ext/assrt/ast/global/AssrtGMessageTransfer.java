@@ -62,7 +62,7 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 		else if (proj instanceof LSend)
 		{
 			LSend ls = (LSend) proj;
-			proj = AssrtAstFactoryImpl.FACTORY.LSend(ls.getSource(), ls.src, ls.msg, ls.getDestinations(), this.assertion);
+			proj = AssrtAstFactoryImpl.FACTORY.AssrtLSend(ls.getSource(), ls.src, ls.msg, ls.getDestinations(), this.assertion);
 		}
 		return proj;
 	}
@@ -82,7 +82,7 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 		
 		// FIXME: assertion
 		
-		return AssrtAstFactoryImpl.FACTORY.GMessageTransfer(this.source, src, msg, dests, this.assertion);
+		return AssrtAstFactoryImpl.FACTORY.AssrtGMessageTransfer(this.source, src, msg, dests, this.assertion);
 	}
 
 	@Override

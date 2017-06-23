@@ -64,7 +64,7 @@ public class AssrtLSend extends LSend
 		
 		// FIXME: assertion
 		
-		return AssrtAstFactoryImpl.FACTORY.LSend(this.source, src, msg, dests, this.assertion);
+		return AssrtAstFactoryImpl.FACTORY.AssrtLSend(this.source, src, msg, dests, this.assertion);
 	}
 
 	@Override

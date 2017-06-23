@@ -1,4 +1,4 @@
-module good.extensions.annotations.ChioceOutOfScopeVar;
+module good.extensions.annotations.ChoiceOutOfScopeVar;
 
 
 type <java> "java.lang.Integer" from "rt.jar" as Integer;

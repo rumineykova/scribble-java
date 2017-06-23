@@ -57,12 +57,13 @@ public class AssrtSConfig extends SConfig
 		this.variablesInScope = Collections.unmodifiableMap(variablesInScope);
 	}
 	
+	// FIXME: factor out better with super?
 	@Override
 	//public List<ASConfig> fire(Role r, EAction a)
-	public List<SConfig> fire(Role r, EAction a)  // FIXME
+	public List<SConfig> fire(Role r, EAction a)
 	{
 		//List<ASConfig> res = new LinkedList<>();
-		List<SConfig> res = new LinkedList<>();  // FIXME
+		List<SConfig> res = new LinkedList<>();
 		
 		//List<EndpointState> succs = this.states.get(r).takeAll(a);
 		List<EFSM> succs = this.efsms.get(r).fireAll(a);
@@ -159,44 +160,16 @@ public class AssrtSConfig extends SConfig
 		return res;
 	}
 
+	@Override
 	public List<SConfig> sync(Role r1, EAction a1, Role r2, EAction a2)
 	{
-		List<SConfig> res = new LinkedList<>();
-		
-		List<EFSM> succs1 = this.efsms.get(r1).fireAll(a1);
-		List<EFSM> succs2 = this.efsms.get(r2).fireAll(a2);
-		for (EFSM succ1 : succs1)
-		{
-			//for (EndpointState succ2 : succs2)
-			for (EFSM succ2 : succs2)
-			{
-				//Map<Role, EndpointState> tmp1 = new HashMap<>(this.states);
-				Map<Role, EFSM> tmp1 = new HashMap<>(this.efsms);
-				tmp1.put(r1, succ1);
-				tmp1.put(r2, succ2);
-				SBuffers tmp2;
-				if (((a1.isConnect() && a2.isAccept()) || (a1.isAccept() && a2.isConnect())))
-						//&& this.buffs.canConnect(r1, r2))
-				{
-					tmp2 = this.buffs.connect(r1, r2);
-				}
-				else if (((a1.isWrapClient() && a2.isWrapServer()) || (a1.isWrapServer() && a2.isWrapClient())))
-				{
-					tmp2 = this.buffs;  // OK, immutable?
-				}
-				else
-				{
-					throw new RuntimeException("Shouldn't get in here: " + a1 + ", " + a2);
-				}
-				
-				res.add(((AssrtSModelFactory) this.sf).newAssrtSConfig(tmp1, tmp2, this.formula, this.variablesInScope));  // FIXME: factor out with sync and with SConfig -- make an SModelBuilder (factored out with SGraph.buildSGraph), cf. AstFactory
-			}
-		}
-
-		return res;
+		AssrtSModelFactory sf = (AssrtSModelFactory) this.sf;
+		return super.sync(r1, a1, r2, a2).stream()  // Not efficient, but reduces code duplication
+				.map(c -> sf.newAssrtSConfig(c.efsms, c.buffs, this.formula, this.variablesInScope)).collect(Collectors.toList());
 	}
 	
-	public Map<Role, EState> getUnsatAssertions() {
+	public Map<Role, EState> getUnsatAssertions()
+	{
 		Map<Role, EState> res = new HashMap<>();
 		for (Role r : this.efsms.keySet())
 		{
@@ -205,9 +178,9 @@ public class AssrtSConfig extends SConfig
 			for (EAction action : s.getAllFireable())  
 			{
 				if (action.isSend()) {
-					ESend send = (ESend)action;
-					AssrtAssertionNode assertion = ((AssrtESend) send).assertion; 
-					if (assertion !=null)
+					AssrtESend send = (AssrtESend)action;
+					AssrtAssertionNode assertion = send.assertion; 
+					if (assertion != null)
 					{
 						if (!SMTWrapper.getInstance().isSat(assertion.toFormula(), this.formula)) {
 							unsafStates.add(send); 
@@ -225,7 +198,8 @@ public class AssrtSConfig extends SConfig
 	}
 	
 	// For now we are checking that only the sender knows all variables. 
-	public Map<Role, EState> checkHistorySensitivity() {
+	public Map<Role, EState> checkHistorySensitivity()
+	{
 		Map<Role, EState> res = new HashMap<>();
 		for (Role r : this.efsms.keySet())
 		{

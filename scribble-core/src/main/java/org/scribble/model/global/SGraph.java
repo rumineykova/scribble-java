@@ -24,13 +24,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.model.MPrettyPrint;
 import org.scribble.model.endpoint.EFSM;
-import org.scribble.model.endpoint.EGraph;
 import org.scribble.model.endpoint.EStateKind;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.model.global.actions.SAction;
@@ -177,10 +175,8 @@ public class SGraph implements MPrettyPrint
 			return this.reach;
 		}
 
-		Map<Integer, Integer> idToIndex = new HashMap<>(); // state ID -> array
-																												// index
-		Map<Integer, Integer> indexToId = new HashMap<>(); // array index -> state
-																												// ID
+		Map<Integer, Integer> idToIndex = new HashMap<>(); // state ID -> array index
+		Map<Integer, Integer> indexToId = new HashMap<>(); // array index -> state ID
 		int i = 0;
 		for (SState s : this.states.values())
 		{
@@ -271,18 +267,13 @@ public class SGraph implements MPrettyPrint
 	// Factory method: not fully integrated with SGraph constructor because of Job arg (debug printing)
 	// Also checks for non-deterministic payloads
 	// Maybe refactor into an SGraph builder util; cf., EGraphBuilderUtil -- but not Visitor (cf., EndpointGraphBuilder), this isn't an AST algorithm
-	public static SGraph buildSGraph(Job job, GProtocolName fullname, Map<Role, EGraph> egraphs, boolean explicit) throws ScribbleException
+	public static SGraph buildSGraph(Job job, GProtocolName fullname, SConfig c0) throws ScribbleException
 	{
-		for (Role r : egraphs.keySet())
-		{
-			job.debugPrintln("(" + fullname + ") Building global model using EFSM for " + r + ":\n" + egraphs.get(r).init.toDot());
-		}
-
-		Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().toFsm()));
+		/*Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().toFsm()));
 
 		SBuffers b0 = new SBuffers(job.ef, efsms.keySet(), !explicit);
 
-		SConfig c0 = job.sf.newSConfig(efsms, b0);
+		SConfig c0 = job.sf.newSConfig(efsms, b0);*/
 		SState init = job.sf.newSState(c0);
 
 		Map<Integer, SState> seen = new HashMap<>();
@@ -391,7 +382,8 @@ public class SGraph implements MPrettyPrint
 		return graph;
 	}
 
-	private static void getNextStates(SModelFactory sf, LinkedHashSet<SState> todo, Map<Integer, SState> seen, SState curr, SAction a, List<SConfig> nexts)
+	private static void getNextStates(SModelFactory sf, LinkedHashSet<SState> todo,
+			Map<Integer, SState> seen, SState curr, SAction a, List<SConfig> nexts)
 	{
 		for (SConfig next : nexts)
 		{

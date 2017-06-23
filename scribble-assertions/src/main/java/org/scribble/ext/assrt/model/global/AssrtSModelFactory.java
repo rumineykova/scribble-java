@@ -20,14 +20,10 @@ import org.scribble.ext.assrt.ast.formula.AssertionLogFormula;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.global.SBuffers;
 import org.scribble.model.global.SConfig;
-import org.scribble.model.global.SGraph;
 import org.scribble.model.global.SModelFactory;
-import org.scribble.model.global.SState;
-import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.Role;
 
 public interface AssrtSModelFactory extends SModelFactory
 {
 	SConfig newAssrtSConfig(Map<Role, EFSM> state, SBuffers buffs, AssertionLogFormula formula, Map<Role, Set<String>> variablesInScope);
-	SGraph newAssrtSGraph(GProtocolName proto, Map<Integer, SState> states, SState init);
 }

@@ -26,9 +26,12 @@ import org.scribble.codegen.java.endpointapi.SessionApiGenerator;
 import org.scribble.codegen.java.endpointapi.StateChannelApiGenerator;
 import org.scribble.codegen.java.endpointapi.ioifaces.IOInterfacesGenerator;
 import org.scribble.del.local.LProtocolDeclDel;
+import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.EGraph;
 import org.scribble.model.endpoint.EGraphBuilderUtil;
 import org.scribble.model.endpoint.EModelFactory;
+import org.scribble.model.global.SBuffers;
+import org.scribble.model.global.SConfig;
 import org.scribble.model.global.SGraph;
 import org.scribble.model.global.SModelFactory;
 import org.scribble.sesstype.name.GProtocolName;
@@ -102,10 +105,23 @@ public class Job
 		return new EGraphBuilderUtil(this.ef);
 	}
 	
+	// FIXME: refactor
+	protected SConfig createInitSConfig(Job job, Map<Role, EGraph> egraphs, boolean explicit)
+	{
+		Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().toFsm()));
+		SBuffers b0 = new SBuffers(job.ef, efsms.keySet(), !explicit);
+		return job.sf.newSConfig(efsms, b0);
+	}
+	
 	//public SGraphBuilderUtil newSGraphBuilderUtil()  // FIXME TODO
 	protected SGraph buildSGraph(Map<Role, EGraph> egraphs, boolean explicit, Job job, GProtocolName fullname) throws ScribbleException
 	{
-		return SGraph.buildSGraph(this, fullname, egraphs, explicit);
+		for (Role r : egraphs.keySet())
+		{
+			// FIXME: refactor
+			job.debugPrintln("(" + fullname + ") Building global model using EFSM for " + r + ":\n" + egraphs.get(r).init.toDot());
+		}
+		return SGraph.buildSGraph(this, fullname, createInitSConfig(this, egraphs, explicit));
 	}
 
 	public void checkWellFormedness() throws ScribbleException
