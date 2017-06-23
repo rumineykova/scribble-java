@@ -57,7 +57,7 @@ public class AssrtJob extends Job
 	
 	// FIXME: refactor
 	@Override
-	protected SConfig createInitSConfig(Job job, Map<Role, EGraph> egraphs, boolean explicit)
+	protected SConfig createInitialSConfig(Job job, Map<Role, EGraph> egraphs, boolean explicit)
 	{
 		Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().toFsm()));
 		SBuffers b0 = new SBuffers(job.ef, efsms.keySet(), !explicit);

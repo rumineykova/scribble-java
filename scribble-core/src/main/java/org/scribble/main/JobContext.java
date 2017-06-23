@@ -269,7 +269,7 @@ public class JobContext
 			GProtocolDecl gpd = (GProtocolDecl) getModule(fullname.getPrefix()).getProtocolDecl(fullname.getSimpleName());
 			Map<Role, EGraph> egraphs = getEGraphsForSGraphBuilding(fullname, gpd, false);
 			boolean explicit = gpd.modifiers.contains(GProtocolDecl.Modifiers.EXPLICIT);
-			graph = SGraph.buildSGraph(this.job, fullname, this.job.createInitSConfig(job, egraphs, explicit));
+			graph = SGraph.buildSGraph(this.job, fullname, this.job.createInitialSConfig(job, egraphs, explicit));
 			addUnfairSGraph(fullname, graph);
 		}
 		return graph;
