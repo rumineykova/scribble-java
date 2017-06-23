@@ -105,8 +105,8 @@ public class Job
 		return new EGraphBuilderUtil(this.ef);
 	}
 	
-	// FIXME: refactor
-	protected SConfig createInitSConfig(Job job, Map<Role, EGraph> egraphs, boolean explicit)
+	// FIXME: refactor into a builder -- and maybe do as an initial state rather than config
+	protected SConfig createInitialSConfig(Job job, Map<Role, EGraph> egraphs, boolean explicit)
 	{
 		Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().toFsm()));
 		SBuffers b0 = new SBuffers(job.ef, efsms.keySet(), !explicit);
@@ -121,7 +121,7 @@ public class Job
 			// FIXME: refactor
 			job.debugPrintln("(" + fullname + ") Building global model using EFSM for " + r + ":\n" + egraphs.get(r).init.toDot());
 		}
-		return SGraph.buildSGraph(this, fullname, createInitSConfig(this, egraphs, explicit));
+		return SGraph.buildSGraph(this, fullname, createInitialSConfig(this, egraphs, explicit));
 	}
 
 	public void checkWellFormedness() throws ScribbleException
