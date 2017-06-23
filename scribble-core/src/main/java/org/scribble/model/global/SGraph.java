@@ -49,6 +49,7 @@ public class SGraph implements MPrettyPrint
 	private Map<Integer, Set<Integer>> reach; // State ID -> reachable states (not reflexive)
 	private Set<Set<Integer>> termSets;
 
+	// Unlike EState, SGraph is not just a "simple wrapper" for an existing graph of nodes -- it is a "semantic structure" that needs to be fully built properly (so no arbitrary "toGraph" method; cf., EState)
 	protected SGraph(GProtocolName proto, Map<Integer, SState> states, SState init)
 	{
 		this.proto = proto;
