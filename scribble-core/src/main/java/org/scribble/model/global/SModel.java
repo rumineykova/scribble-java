@@ -56,7 +56,15 @@ public class SModel
 					job.debugPrintln("(" + this.graph.proto + ") Checking states: " + count);
 				}
 			}
-			errorMsg = appendSafetyErrorMessages(errorMsg, init, s);
+			SStateErrors errors = s.getErrors();
+			if (!errors.isEmpty())
+			{
+				// FIXME: getTrace can get stuck when local choice subjects are disabled
+				List<SAction> trace = this.graph.getTrace(init, s);  // FIXME: getTrace broken on non-det self loops?
+				//errorMsg += "\nSafety violation(s) at " + s.toString() + ":\n    Trace=" + trace;
+				errorMsg += "\nSafety violation(s) at session state " + s.id + ":\n    Trace=" + trace;
+			}
+			errorMsg = appendSafetyErrorMessages(errorMsg, errors);
 		}
 		job.debugPrintln("(" + this.graph.proto + ") Checked all states: " + count);  // May include unsafe states
 		//*/
@@ -76,7 +84,7 @@ public class SModel
 				errorMsg = appendProgressErrorMessages(errorMsg, starved, ignored, job, states, termset);
 			}
 		}
-		
+
 		if (!errorMsg.equals(""))
 		{
 			//throw new ScribbleException("\n" + init.toDot() + errorMsg);
@@ -85,30 +93,8 @@ public class SModel
 		//job.debugPrintln("(" + this.graph.proto + ") Progress satisfied.");  // Also safety... current errorMsg approach
 	}
 
-	protected String appendProgressErrorMessages(String errorMsg, Set<Role> starved, Map<Role, Set<ESend>> ignored,
-			Job job, Map<Integer, SState> states, Set<Integer> termset)
+	protected String appendSafetyErrorMessages(String errorMsg, SStateErrors errors)
 	{
-		if (!starved.isEmpty())
-		{
-			errorMsg += "\nRole progress violation for " + starved + " in session state terminal set:\n    " + termSetToString(job, termset, states);
-		}
-		if (!ignored.isEmpty())
-		{
-			errorMsg += "\nEventual reception violation for " + ignored + " in session state terminal set:\n    " + termSetToString(job, termset, states);
-		}
-		return errorMsg;
-	}
-
-	protected String appendSafetyErrorMessages(String errorMsg, SState init, SState s)
-	{
-		SStateErrors errors = s.getErrors();
-		if (!errors.isEmpty())
-		{
-			// FIXME: getTrace can get stuck when local choice subjects are disabled
-			List<SAction> trace = this.graph.getTrace(init, s);  // FIXME: getTrace broken on non-det self loops?
-			//errorMsg += "\nSafety violation(s) at " + s.toString() + ":\n    Trace=" + trace;
-			errorMsg += "\nSafety violation(s) at session state " + s.id + ":\n    Trace=" + trace;
-		}
 		if (!errors.stuck.isEmpty())
 		{
 			errorMsg += "\n    Stuck messages: " + errors.stuck;  // Deadlock from reception error
@@ -124,6 +110,20 @@ public class SModel
 		if (!errors.unfinished.isEmpty())
 		{
 			errorMsg += "\n    Unfinished roles: " + errors.unfinished;
+		}
+		return errorMsg;
+	}
+
+	protected String appendProgressErrorMessages(String errorMsg, Set<Role> starved, Map<Role, Set<ESend>> ignored,
+			Job job, Map<Integer, SState> states, Set<Integer> termset)
+	{
+		if (!starved.isEmpty())
+		{
+			errorMsg += "\nRole progress violation for " + starved + " in session state terminal set:\n    " + termSetToString(job, termset, states);
+		}
+		if (!ignored.isEmpty())
+		{
+			errorMsg += "\nEventual reception violation for " + ignored + " in session state terminal set:\n    " + termSetToString(job, termset, states);
 		}
 		return errorMsg;
 	}

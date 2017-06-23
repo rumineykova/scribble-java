@@ -1,4 +1,4 @@
-module good.extensions.assertions.DbCHistorySensititivy;
+module bad.extensions.assertions.DbCHistorySensititivy;
 
 
 type <java> "java.lang.Integer" from "rt.jar" as Integer;

@@ -1,4 +1,4 @@
-module good.extensions.assertions.Choice;
+module bad.extensions.assertions.Choice;
 
 
 type <java> "java.lang.Integer" from "rt.jar" as Integer;

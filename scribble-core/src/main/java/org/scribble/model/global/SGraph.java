@@ -56,10 +56,10 @@ public class SGraph implements MPrettyPrint
 		this.reach = getReachabilityMap();
 	}
 	
-	public SModel toModel()
+	/*public SModel toModel()
 	{
 		return new SModel(this);
-	}
+	}*/
 
 	public Set<Set<Integer>> getTerminalSets()
 	{

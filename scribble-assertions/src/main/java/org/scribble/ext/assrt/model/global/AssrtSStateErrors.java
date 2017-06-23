@@ -42,4 +42,10 @@ public class AssrtSStateErrors extends SStateErrors
 	{
 		return super.isEmpty() && this.unsatAssertions.isEmpty() && this.varsNotInScope.isEmpty();
 	}
+	
+	@Override
+	public String toString()
+	{
+		return super.toString() + ", unsatAssertions=" + this.unsatAssertions + ", varsNotInScope=" + this.varsNotInScope;
+	}
 }

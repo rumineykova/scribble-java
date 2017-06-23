@@ -90,4 +90,10 @@ public class SModelFactoryImpl implements SModelFactory
 	{
 		return new SConfig(this, state, buffs);
 	}
+	
+	@Override
+	public SModel newSModel(SGraph g)
+	{
+		return new SModel(g);
+	}
 }

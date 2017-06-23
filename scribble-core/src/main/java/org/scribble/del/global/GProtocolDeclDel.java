@@ -139,7 +139,8 @@ public class GProtocolDeclDel extends ProtocolDeclDel<Global>
 	{
 		JobContext jc = job.getContext();
 		SGraph graph = (fair) ? jc.getSGraph(fullname) : jc.getUnfairSGraph(fullname);
-		graph.toModel().validate(job);
+		//graph.toModel().validate(job);
+		job.sf.newSModel(graph).validate(job);
 	}
 }
 

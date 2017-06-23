@@ -20,6 +20,8 @@ import org.scribble.ext.assrt.ast.formula.AssertionLogFormula;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.global.SBuffers;
 import org.scribble.model.global.SConfig;
+import org.scribble.model.global.SGraph;
+import org.scribble.model.global.SModel;
 import org.scribble.model.global.SModelFactoryImpl;
 import org.scribble.model.global.SState;
 import org.scribble.sesstype.name.Role;
@@ -43,5 +45,11 @@ public class AssrtSModelFactoryImpl extends SModelFactoryImpl implements AssrtSM
 	public SState newSState(SConfig config)
 	{
 		return new AssrtSState((AssrtSConfig) config);
+	}
+	
+	@Override
+	public SModel newSModel(SGraph g)
+	{
+		return new AssrtSModel(g);
 	}
 }

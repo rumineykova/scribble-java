@@ -1,4 +1,4 @@
-module good.extensions.assertions.RecWithAssertions;
+module bad.extensions.assertions.RecWithAssertions;
 
 
 type <java> "java.lang.Integer" from "rt.jar" as Integer;

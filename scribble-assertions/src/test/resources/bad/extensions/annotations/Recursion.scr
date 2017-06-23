@@ -1,4 +1,4 @@
-module good.extensions.annotations.Recursion;
+module bad.extensions.annotations.Recursion;
 
 
 type <java> "java.lang.Integer" from "rt.jar" as Integer;

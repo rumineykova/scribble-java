@@ -41,4 +41,5 @@ public interface SModelFactory
 	SState newSState(SConfig config);
 	SGraph newSGraph(GProtocolName proto, Map<Integer, SState> states, SState init);
 	SConfig newSConfig(Map<Role, EFSM> state, SBuffers buffs);
+	SModel newSModel(SGraph g);
 }

@@ -1,4 +1,4 @@
-module good.extensions.assertions.DbCTemporalSat;
+module bad.extensions.assertions.DbCTemporalSat;
 
 
 type <java> "java.lang.Integer" from "rt.jar" as Integer;

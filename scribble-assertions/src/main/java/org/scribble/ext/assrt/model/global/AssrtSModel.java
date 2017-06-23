@@ -15,7 +15,7 @@ package org.scribble.ext.assrt.model.global;
 
 import org.scribble.model.global.SGraph;
 import org.scribble.model.global.SModel;
-import org.scribble.model.global.SState;
+import org.scribble.model.global.SStateErrors;
 
 public class AssrtSModel extends SModel
 {
@@ -25,17 +25,17 @@ public class AssrtSModel extends SModel
 	}
 
 	@Override
-	protected String appendSafetyErrorMessages(String errorMsg, SState init, SState s)
+	protected String appendSafetyErrorMessages(String errorMsg, SStateErrors errors)
 	{
-		AssrtSStateErrors errors = (AssrtSStateErrors) s.getErrors();
-		super.appendSafetyErrorMessages(errorMsg, init, s);
-		if (!errors.varsNotInScope.isEmpty())
+		AssrtSStateErrors errs = (AssrtSStateErrors) errors;
+		errorMsg = super.appendSafetyErrorMessages(errorMsg, errs);
+		if (!errs.varsNotInScope.isEmpty())
 		{
-			errorMsg += "\n    Assertion variables are not in scope " + errors.varsNotInScope;
+			errorMsg += "\n    Assertion variables are not in scope " + errs.varsNotInScope;
 		}
-		if (!errors.unsatAssertions.isEmpty())
+		if (!errs.unsatAssertions.isEmpty())
 		{
-			errorMsg += "\n    Unsatisfiable constraints " + errors.unsatAssertions;
+			errorMsg += "\n    Unsatisfiable constraints " + errs.unsatAssertions;
 		}
 		return errorMsg;
 	}
