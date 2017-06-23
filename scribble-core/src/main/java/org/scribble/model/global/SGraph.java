@@ -24,13 +24,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.model.MPrettyPrint;
 import org.scribble.model.endpoint.EFSM;
-import org.scribble.model.endpoint.EGraph;
 import org.scribble.model.endpoint.EStateKind;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.model.global.actions.SAction;
@@ -49,6 +47,7 @@ public class SGraph implements MPrettyPrint
 	private Map<Integer, Set<Integer>> reach; // State ID -> reachable states (not reflexive)
 	private Set<Set<Integer>> termSets;
 
+	// Unlike EState, SGraph is not just a "simple wrapper" for an existing graph of nodes -- it is a "semantic structure" that needs to be fully built properly (so no arbitrary "toGraph" method; cf., EState)
 	protected SGraph(GProtocolName proto, Map<Integer, SState> states, SState init)
 	{
 		this.proto = proto;
@@ -57,10 +56,10 @@ public class SGraph implements MPrettyPrint
 		this.reach = getReachabilityMap();
 	}
 	
-	public SModel toModel()
+	/*public SModel toModel()
 	{
 		return new SModel(this);
-	}
+	}*/
 
 	public Set<Set<Integer>> getTerminalSets()
 	{
@@ -176,10 +175,8 @@ public class SGraph implements MPrettyPrint
 			return this.reach;
 		}
 
-		Map<Integer, Integer> idToIndex = new HashMap<>(); // state ID -> array
-																												// index
-		Map<Integer, Integer> indexToId = new HashMap<>(); // array index -> state
-																												// ID
+		Map<Integer, Integer> idToIndex = new HashMap<>(); // state ID -> array index
+		Map<Integer, Integer> indexToId = new HashMap<>(); // array index -> state ID
 		int i = 0;
 		for (SState s : this.states.values())
 		{
@@ -270,18 +267,14 @@ public class SGraph implements MPrettyPrint
 	// Factory method: not fully integrated with SGraph constructor because of Job arg (debug printing)
 	// Also checks for non-deterministic payloads
 	// Maybe refactor into an SGraph builder util; cf., EGraphBuilderUtil -- but not Visitor (cf., EndpointGraphBuilder), this isn't an AST algorithm
-	public static SGraph buildSGraph(Map<Role, EGraph> egraphs, boolean explicit, Job job, GProtocolName fullname) throws ScribbleException
+	public static SGraph buildSGraph(Job job, GProtocolName fullname, SConfig c0) throws ScribbleException
 	{
-		for (Role r : egraphs.keySet())
-		{
-			job.debugPrintln("(" + fullname + ") Building global model using EFSM for " + r + ":\n" + egraphs.get(r).init.toDot());
-		}
+		/*Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().toFsm()));
 
-		Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().toFsm()));
+		SBuffers b0 = new SBuffers(job.ef, efsms.keySet(), !explicit);
 
-		SBuffers b0 = new SBuffers(efsms.keySet(), !explicit);
-		SConfig c0 = new SConfig(efsms, b0);
-		SState init = new SState(c0);
+		SConfig c0 = job.sf.newSConfig(efsms, b0);*/
+		SState init = job.sf.newSState(c0);
 
 		Map<Integer, SState> seen = new HashMap<>();
 		LinkedHashSet<SState> todo = new LinkedHashSet<>();
@@ -349,7 +342,7 @@ public class SGraph implements MPrettyPrint
 				{
 					if (a.isSend() || a.isReceive() || a.isDisconnect())
 					{
-						getNextStates(todo, seen, curr, a.toGlobal(r), curr.fire(r, a));
+						getNextStates(job.sf, todo, seen, curr, a.toGlobal(job.sf, r), curr.fire(r, a));
 					}
 					else if (a.isAccept() || a.isConnect())
 					{	
@@ -359,8 +352,8 @@ public class SGraph implements MPrettyPrint
 						{
 							as.remove(d);  // Removes one occurrence
 							//getNextStates(seen, todo, curr.sync(r, a, a.peer, d));
-							SAction g = (a.isConnect()) ? a.toGlobal(r) : d.toGlobal(a.peer);  // Edge will be drawn as the connect, but should be read as the sync. of both -- something like "r1, r2: sync" may be more consistent (or take a set of actions as the edge label)
-							getNextStates(todo, seen, curr, g, curr.sync(r, a, a.peer, d));
+							SAction g = (a.isConnect()) ? a.toGlobal(job.sf, r) : d.toGlobal(job.sf, a.peer);  // Edge will be drawn as the connect, but should be read as the sync. of both -- something like "r1, r2: sync" may be more consistent (or take a set of actions as the edge label)
+							getNextStates(job.sf, todo, seen, curr, g, curr.sync(r, a, a.peer, d));
 						}
 					}
 					else if (a.isWrapClient() || a.isWrapServer())
@@ -370,8 +363,8 @@ public class SGraph implements MPrettyPrint
 						if (as != null && as.contains(w))
 						{
 							as.remove(w);  // Removes one occurrence
-							SAction g = (a.isConnect()) ? a.toGlobal(r) : w.toGlobal(a.peer);
-							getNextStates(todo, seen, curr, g, curr.sync(r, a, a.peer, w));
+							SAction g = (a.isConnect()) ? a.toGlobal(job.sf, r) : w.toGlobal(job.sf, a.peer);
+							getNextStates(job.sf, todo, seen, curr, g, curr.sync(r, a, a.peer, w));
 						}
 					}
 					else
@@ -382,18 +375,19 @@ public class SGraph implements MPrettyPrint
 			}
 		}
 
-		SGraph graph = new SGraph(fullname, seen, init);
+		SGraph graph = job.sf.newSGraph(fullname, seen, init);
 
 		job.debugPrintln("(" + fullname + ") Built global model..\n" + graph.init.toDot() + "\n(" + fullname + ") .." + graph.states.size() + " states");
 
 		return graph;
 	}
 
-	private static void getNextStates(LinkedHashSet<SState> todo, Map<Integer, SState> seen, SState curr, SAction a, List<SConfig> nexts)
+	private static void getNextStates(SModelFactory sf, LinkedHashSet<SState> todo,
+			Map<Integer, SState> seen, SState curr, SAction a, List<SConfig> nexts)
 	{
 		for (SConfig next : nexts)
 		{
-			SState news = new SState(next);
+			SState news = sf.newSState(next);
 			SState succ = null; 
 			//if (seen.contains(succ))  // FIXME: make a SGraph builder
 			/*if (seen.containsValue(succ))

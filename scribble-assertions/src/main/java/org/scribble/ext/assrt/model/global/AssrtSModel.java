@@ -13,18 +13,9 @@
  */
 package org.scribble.ext.assrt.model.global;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.scribble.main.Job;
-import org.scribble.main.ScribbleException;
-import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.model.global.SGraph;
 import org.scribble.model.global.SModel;
-import org.scribble.model.global.SState;
-import org.scribble.model.global.actions.SAction;
-import org.scribble.sesstype.name.Role;
+import org.scribble.model.global.SStateErrors;
 
 public class AssrtSModel extends SModel
 {
@@ -34,91 +25,18 @@ public class AssrtSModel extends SModel
 	}
 
 	@Override
-	public void validate(Job job) throws ScribbleException
+	protected String appendSafetyErrorMessages(String errorMsg, SStateErrors errors)
 	{
-		SState init = this.graph.init;
-		Map<Integer, SState> states = this.graph.states;
-
-		String errorMsg = "";
-
-		int count = 0;
-		for (SState s : states.values())
+		AssrtSStateErrors errs = (AssrtSStateErrors) errors;
+		errorMsg = super.appendSafetyErrorMessages(errorMsg, errs);
+		if (!errs.varsNotInScope.isEmpty())
 		{
-			if (job.debug)
-			{
-				count++;
-				if (count % 50 == 0)
-				{
-					//job.debugPrintln("(" + this.graph.proto + ") Checking safety: " + count + " states");
-					job.debugPrintln("(" + this.graph.proto + ") Checking states: " + count);
-				}
-			}
-			AssrtSStateErrors errors = ((AssrtSState) s).getErrors();
-			//SMTWrapper.getInstance().close();
-			
-			if (!errors.isEmpty())
-			{
-				// FIXME: getTrace can get stuck when local choice subjects are disabled
-				List<SAction> trace = this.graph.getTrace(init, s);  // FIXME: getTrace broken on non-det self loops?
-				//errorMsg += "\nSafety violation(s) at " + s.toString() + ":\n    Trace=" + trace;
-				errorMsg += "\nSafety violation(s) at session state " + s.id + ":\n    Trace=" + trace;
-			}
-			if (!errors.stuck.isEmpty())
-			{
-				errorMsg += "\n    Stuck messages: " + errors.stuck;  // Deadlock from reception error
-			}
-			if (!errors.waitFor.isEmpty())
-			{
-				errorMsg += "\n    Wait-for errors: " + errors.waitFor;  // Deadlock from input-blocked cycles, terminated dependencies, etc
-			}
-			if (!errors.orphans.isEmpty())
-			{
-				errorMsg += "\n    Orphan messages: " + errors.orphans;  // FIXME: add sender of orphan to error message 
-			}
-			if (!errors.unfinished.isEmpty())
-			{
-				errorMsg += "\n    Unfinished roles: " + errors.unfinished;
-			}
-			if (!errors.varsNotInScope.isEmpty())
-			{
-				errorMsg += "\n    Assertion variables are not in scope " + errors.varsNotInScope;
-			}
-			if (!errors.unsatAssertions.isEmpty())
-			{
-				errorMsg += "\n    Unsatisfiable constraints " + errors.unsatAssertions;
-			}
+			errorMsg += "\n    Assertion variables are not in scope " + errs.varsNotInScope;
 		}
-		job.debugPrintln("(" + this.graph.proto + ") Checked all states: " + count);  // May include unsafe states
-		//*/
-		
-		if (!job.noProgress)
+		if (!errs.unsatAssertions.isEmpty())
 		{
-			//job.debugPrintln("(" + this.graph.proto + ") Checking progress: ");  // Incompatible with current errorMsg approach*/
-
-			Set<Set<Integer>> termsets = this.graph.getTerminalSets();
-			for (Set<Integer> termset : termsets)
-			{
-				/*job.debugPrintln("(" + this.graph.proto + ") Checking terminal set: "
-							+ termset.stream().map((i) -> new Integer(all.get(i).id).toString()).collect(Collectors.joining(",")));  // Incompatible with current errorMsg approach*/
-
-				Set<Role> starved = SModel.checkRoleProgress(states, init, termset);
-				if (!starved.isEmpty())
-				{
-					errorMsg += "\nRole progress violation for " + starved + " in session state terminal set:\n    " + termSetToString(job, termset, states);
-				}
-				Map<Role, Set<ESend>> ignored = SModel.checkEventualReception(states, init, termset);
-				if (!ignored.isEmpty())
-				{
-					errorMsg += "\nEventual reception violation for " + ignored + " in session state terminal set:\n    " + termSetToString(job, termset, states);
-				}
-			}
+			errorMsg += "\n    Unsatisfiable constraints " + errs.unsatAssertions;
 		}
-		
-		if (!errorMsg.equals(""))
-		{
-			//throw new ScribbleException("\n" + init.toDot() + errorMsg);
-			throw new ScribbleException(errorMsg);
-		}
-		//job.debugPrintln("(" + this.graph.proto + ") Progress satisfied.");  // Also safety... current errorMsg approach
+		return errorMsg;
 	}
 }

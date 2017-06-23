@@ -1,4 +1,4 @@
-module good.extensions.assertions.UnsatAssertion;
+module bad.extensions.assertions.UnsatAssertion;
 
 
 type <java> "java.lang.Integer" from "rt.jar" as Integer;

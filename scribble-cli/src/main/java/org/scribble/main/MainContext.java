@@ -30,6 +30,10 @@ import org.scribble.main.resource.DirectoryResourceLocator;
 import org.scribble.main.resource.InlineResource;
 import org.scribble.main.resource.Resource;
 import org.scribble.main.resource.ResourceLocator;
+import org.scribble.model.endpoint.EModelFactory;
+import org.scribble.model.endpoint.EModelFactoryImpl;
+import org.scribble.model.global.SModelFactory;
+import org.scribble.model.global.SModelFactoryImpl;
 import org.scribble.parser.scribble.AntlrParser;
 import org.scribble.parser.scribble.ScribModuleLoader;
 import org.scribble.parser.scribble.ScribParser;
@@ -46,14 +50,17 @@ public class MainContext
 	// Only "manually" used here for loading main module (which should be factored out to front end) -- otherwise, only used within loader
 	protected final AntlrParser antlrParser = newAntlrParser();  // Not encapsulated inside ScribbleParser, because ScribbleParser's main function is to "parse" ANTLR CommonTrees into ModelNodes
 	protected final ScribParser scribParser = newScribParser();
+
 	protected final AstFactory af = newAstFactory();
+	protected final EModelFactory ef = newEModelFactory();
+	protected final SModelFactory sf = newSModelFactory();
 	
 	// A Scribble extension should override these "new" methods as appropriate.
 	public Job newJob()
 	{
 		return new Job(this.debug, this.getParsedModules(), this.main, this.useOldWF, this.noLiveness, this.minEfsm, this.fair,
 				this.noLocalChoiceSubjectCheck, this.noAcceptCorrelationCheck, this.noValidation,
-				this.af);
+				this.af, this.ef, this.sf);
 	}
 	
 	protected AntlrParser newAntlrParser()
@@ -69,6 +76,16 @@ public class MainContext
 	protected AstFactory newAstFactory()
 	{
 		return new AstFactoryImpl();
+	}
+	
+	protected EModelFactory newEModelFactory()
+	{
+		return new EModelFactoryImpl();
+	}
+	
+	protected SModelFactory newSModelFactory()
+	{
+		return new SModelFactoryImpl();
 	}
 
 	//public final boolean jUnit;

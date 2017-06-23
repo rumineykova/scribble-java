@@ -11,15 +11,19 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.scribble.model.endpoint;
+package org.scribble.ext.assrt.model.global;
 
-// FIXME: consider that enums cannot be "extended"
-public enum EStateKind
+import java.util.Map;
+import java.util.Set;
+
+import org.scribble.ext.assrt.ast.formula.AssertionLogFormula;
+import org.scribble.model.endpoint.EFSM;
+import org.scribble.model.global.SBuffers;
+import org.scribble.model.global.SConfig;
+import org.scribble.model.global.SModelFactory;
+import org.scribble.sesstype.name.Role;
+
+public interface AssrtSModelFactory extends SModelFactory
 {
-	OUTPUT,      // SEND, CONNECT and WRAP_CLIENT
-	UNARY_INPUT,
-	POLY_INPUT,
-	TERMINAL,
-	ACCEPT,      // Unary/multi accept?
-	WRAP_SERVER,
+	SConfig newAssrtSConfig(Map<Role, EFSM> state, SBuffers buffs, AssertionLogFormula formula, Map<Role, Set<String>> variablesInScope);
 }

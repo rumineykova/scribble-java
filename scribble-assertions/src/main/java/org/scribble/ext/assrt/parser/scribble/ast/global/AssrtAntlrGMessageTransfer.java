@@ -44,7 +44,7 @@ public class AssrtAntlrGMessageTransfer
 		MessageNode msg = AntlrGMessageTransfer.parseMessage(parser, getMessageChild(ct), af);
 		List<RoleNode> dests = 
 			getDestChildren(ct).stream().map(d -> AntlrSimpleName.toRoleNode(d, af)).collect(Collectors.toList());
-		return AssrtAstFactoryImpl.FACTORY.GMessageTransfer(ct, src, msg, dests, assertion);
+		return AssrtAstFactoryImpl.FACTORY.AssrtGMessageTransfer(ct, src, msg, dests, assertion);
 	}
 
 	public static CommonTree getAssertionChild(CommonTree ct)

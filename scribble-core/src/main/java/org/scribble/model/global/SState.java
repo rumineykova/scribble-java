@@ -34,8 +34,8 @@ public class SState extends MPrettyState<Void, SAction, SState, Global>
 {
 	public final SConfig config;
 	
-	// Unlike EState, SGraph is not just a "simple wrapper" for an existing graph of nodes -- it is a "semantic structure" that needs to be fully built properly (so no arbitrary "toGraph" method; cf., EState)
-	protected SState(SConfig config)
+	//protected SState(SConfig config)
+	protected SState(SConfig config)  // FIXME: now publically mutable
 	{
 		super(Collections.emptySet());
 		this.config = config;

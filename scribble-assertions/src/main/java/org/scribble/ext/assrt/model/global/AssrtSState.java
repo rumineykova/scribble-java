@@ -24,12 +24,12 @@ import org.scribble.sesstype.name.Role;
 // FIXME: hashCode/equals
 public class AssrtSState extends SState
 {
-	// Unlike EState, SGraph is not just a "simple wrapper" for an existing graph of nodes -- it is a "semantic structure" that needs to be fully built properly (so no arbitrary "toGraph" method; cf., EState)
 	protected AssrtSState(AssrtSConfig config)
 	{
 		super(config);
 	}
 	
+	@Override
 	public AssrtSStateErrors getErrors()
 	{
 		SStateErrors errs = super.getErrors();

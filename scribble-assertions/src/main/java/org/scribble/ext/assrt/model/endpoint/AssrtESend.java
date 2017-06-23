@@ -15,23 +15,25 @@ package org.scribble.ext.assrt.model.endpoint;
 
 import org.scribble.ext.assrt.ast.AssrtAssertionNode;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
+import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.actions.ESend;
+import org.scribble.model.global.SModelFactory;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 
 public class AssrtESend extends ESend
 {
-	public final AssrtAssertionNode assertion;  // Cf., e.g., ALSend
+	public final AssrtAssertionNode assertion;  // Cf., e.g., ALSend  // FIXME: should not be the AST node
 
-	public AssrtESend(Role peer, MessageId<?> mid, Payload payload, AssrtAssertionNode assertion)
+	public AssrtESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtAssertionNode assertion)
 	{
-		super(peer, mid, payload);
+		super(ef, peer, mid, payload);
 		this.assertion = assertion;
 	}
 
 	@Override
-	public AssrtSSend toGlobal(Role self)
+	public AssrtSSend toGlobal(SModelFactory sf, Role self)
 	{
 		return new AssrtSSend(self, this.peer, this.mid, this.payload, this.assertion);
 	}
@@ -56,7 +58,9 @@ public class AssrtESend extends ESend
 			return false;
 		}
 		AssrtESend as = (AssrtESend) o;
-		return as.canEqual(this) && super.equals(o) && as.assertion.equals(this.assertion);
+		return as.canEqual(this) && super.equals(o)
+				&& ((as.assertion == null && this.assertion == null)
+						|| (as.assertion != null && this.assertion != null && as.assertion.equals(this.assertion)));
 	}
 
 	@Override
@@ -68,6 +72,6 @@ public class AssrtESend extends ESend
 	@Override
 	public String toString()
 	{
-		return "[" + this.assertion + "]\n" + super.toString();
+		return "[" + this.assertion + "]" + super.toString();
 	}
 }

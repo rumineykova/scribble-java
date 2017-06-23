@@ -50,7 +50,9 @@ public class AssrtSSend extends SSend
 			return false;
 		}
 		AssrtSSend as = (AssrtSSend) o;
-		return as.canEqual(this) && super.equals(o) && as.assertion.equals(this.assertion);
+		return as.canEqual(this) && super.equals(o) 
+				&& ((as.assertion == null && this.assertion == null)
+						|| (as.assertion != null && this.assertion != null && as.assertion.equals(this.assertion)));
 	}
 
 	@Override
@@ -62,6 +64,6 @@ public class AssrtSSend extends SSend
 	@Override
 	public String toString()
 	{
-		return "[" + this.assertion + "]\n" + super.toString();
+		return "[" + this.assertion + "]" + super.toString();
 	}
 }

@@ -11,15 +11,16 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.scribble.model.endpoint;
+package org.scribble.ext.assrt.model.endpoint;
 
-// FIXME: consider that enums cannot be "extended"
-public enum EStateKind
+import org.scribble.ext.assrt.ast.AssrtAssertionNode;
+import org.scribble.model.endpoint.EModelFactory;
+import org.scribble.model.endpoint.actions.ESend;
+import org.scribble.sesstype.Payload;
+import org.scribble.sesstype.name.MessageId;
+import org.scribble.sesstype.name.Role;
+
+public interface AssrtEModelFactory extends EModelFactory
 {
-	OUTPUT,      // SEND, CONNECT and WRAP_CLIENT
-	UNARY_INPUT,
-	POLY_INPUT,
-	TERMINAL,
-	ACCEPT,      // Unary/multi accept?
-	WRAP_SERVER,
+	ESend newAssrtESend(Role peer, MessageId<?> mid, Payload payload, AssrtAssertionNode assertion);
 }

@@ -26,9 +26,14 @@ import org.scribble.codegen.java.endpointapi.SessionApiGenerator;
 import org.scribble.codegen.java.endpointapi.StateChannelApiGenerator;
 import org.scribble.codegen.java.endpointapi.ioifaces.IOInterfacesGenerator;
 import org.scribble.del.local.LProtocolDeclDel;
+import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.EGraph;
 import org.scribble.model.endpoint.EGraphBuilderUtil;
+import org.scribble.model.endpoint.EModelFactory;
+import org.scribble.model.global.SBuffers;
+import org.scribble.model.global.SConfig;
 import org.scribble.model.global.SGraph;
+import org.scribble.model.global.SModelFactory;
 import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.LProtocolName;
 import org.scribble.sesstype.name.ModuleName;
@@ -64,15 +69,18 @@ public class Job
 	public final boolean noAcceptCorrelationCheck;
 	public final boolean noValidation;
 	
-	public final AstFactory af;
 	private final JobContext jcontext;  // Mutable (Visitor passes replace modules)
+
+	public final AstFactory af;
+	public final EModelFactory ef;
+	public final SModelFactory sf;
 	
 	// Just take MainContext as arg? -- would need to fix Maven dependencies
 	//public Job(boolean jUnit, boolean debug, Map<ModuleName, Module> parsed, ModuleName main, boolean useOldWF, boolean noLiveness)
 	public Job(boolean debug, Map<ModuleName, Module> parsed, ModuleName main,
 			boolean useOldWF, boolean noLiveness, boolean minEfsm, boolean fair, boolean noLocalChoiceSubjectCheck,
 			boolean noAcceptCorrelationCheck, boolean noValidation,
-			AstFactory af)
+			AstFactory af, EModelFactory ef, SModelFactory sf)
 	{
 		//this.jUnit = jUnit;
 		this.debug = debug;
@@ -85,6 +93,8 @@ public class Job
 		this.noValidation = noValidation;
 		
 		this.af = af;
+		this.ef = ef;
+		this.sf = sf;
 
 		this.jcontext = new JobContext(this, parsed, main);  // Single instance per Job and should never be shared
 	}
@@ -92,13 +102,26 @@ public class Job
 	// Scribble extensions should override these "new" methods
 	public EGraphBuilderUtil newEGraphBuilderUtil()
 	{
-		return new EGraphBuilderUtil();
+		return new EGraphBuilderUtil(this.ef);
+	}
+	
+	// FIXME: refactor
+	protected SConfig createInitSConfig(Job job, Map<Role, EGraph> egraphs, boolean explicit)
+	{
+		Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().toFsm()));
+		SBuffers b0 = new SBuffers(job.ef, efsms.keySet(), !explicit);
+		return job.sf.newSConfig(efsms, b0);
 	}
 	
 	//public SGraphBuilderUtil newSGraphBuilderUtil()  // FIXME TODO
 	protected SGraph buildSGraph(Map<Role, EGraph> egraphs, boolean explicit, Job job, GProtocolName fullname) throws ScribbleException
 	{
-		return SGraph.buildSGraph(egraphs, explicit, this, fullname);
+		for (Role r : egraphs.keySet())
+		{
+			// FIXME: refactor
+			job.debugPrintln("(" + fullname + ") Building global model using EFSM for " + r + ":\n" + egraphs.get(r).init.toDot());
+		}
+		return SGraph.buildSGraph(this, fullname, createInitSConfig(this, egraphs, explicit));
 	}
 
 	public void checkWellFormedness() throws ScribbleException
