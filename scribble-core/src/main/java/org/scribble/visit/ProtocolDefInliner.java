@@ -16,7 +16,6 @@ package org.scribble.visit;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.scribble.ast.AstFactory;
 import org.scribble.ast.Do;
 import org.scribble.ast.InteractionSeq;
 import org.scribble.ast.ProtocolDecl;

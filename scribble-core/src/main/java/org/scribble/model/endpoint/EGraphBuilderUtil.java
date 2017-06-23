@@ -26,6 +26,7 @@ import java.util.Set;
 import org.scribble.main.ScribbleException;
 import org.scribble.model.GraphBuilderUtil;
 import org.scribble.model.endpoint.actions.EAction;
+import org.scribble.model.global.SModelFactory;
 import org.scribble.model.global.actions.SAction;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.kind.Local;
@@ -47,9 +48,12 @@ public class EGraphBuilderUtil extends GraphBuilderUtil<RecVar, EAction, EState,
 
 	private final Deque<List<EState>> pred = new LinkedList<>();
 	private final Deque<List<EAction>> prev = new LinkedList<>();
+	
+	public final EModelFactory ef;
 
-	public EGraphBuilderUtil()
+	public EGraphBuilderUtil(EModelFactory ef)
 	{
+		this.ef = ef;
 		clear();
 	}
 
@@ -287,7 +291,7 @@ public class EGraphBuilderUtil extends GraphBuilderUtil<RecVar, EAction, EState,
 		/*this.contStates.add(s);
 		this.contRecVars.add(rv);*/
 		EState entry = getRecursionEntry(rv);
-		addEdgeAux(s, new IntermediateContinueEdge(rv), entry);
+		addEdgeAux(s, new IntermediateContinueEdge(this.ef, rv), entry);
 		//addEdge(s, new IntermediateContinueEdge(rv), entry); // **FIXME: broken on purpose for testing
 	}
 
@@ -438,9 +442,9 @@ public class EGraphBuilderUtil extends GraphBuilderUtil<RecVar, EAction, EState,
 
 class IntermediateContinueEdge extends EAction
 {
-	public IntermediateContinueEdge(RecVar rv)
+	public IntermediateContinueEdge(EModelFactory ef, RecVar rv)
 	{
-		super(Role.EMPTY_ROLE, new Op(rv.toString()), Payload.EMPTY_PAYLOAD);  // HACK
+		super(ef, Role.EMPTY_ROLE, new Op(rv.toString()), Payload.EMPTY_PAYLOAD);  // HACK
 	}
 	
 	@Override
@@ -450,7 +454,7 @@ class IntermediateContinueEdge extends EAction
 	}
 
 	@Override
-	public SAction toGlobal(Role self)
+	public SAction toGlobal(SModelFactory sf, Role self)
 	{
 		throw new RuntimeException("Shouldn't get in here: " + this);
 	}

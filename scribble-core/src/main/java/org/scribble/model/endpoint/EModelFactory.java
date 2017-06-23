@@ -17,8 +17,11 @@ import java.util.Set;
 
 import org.scribble.model.endpoint.actions.EAccept;
 import org.scribble.model.endpoint.actions.EConnect;
+import org.scribble.model.endpoint.actions.EDisconnect;
 import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.endpoint.actions.ESend;
+import org.scribble.model.endpoint.actions.EWrapClient;
+import org.scribble.model.endpoint.actions.EWrapServer;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.RecVar;
@@ -26,10 +29,13 @@ import org.scribble.sesstype.name.Role;
 
 public interface EModelFactory
 {
-	EConnect newEConnect(Role peer, MessageId<?> mid, Payload payload);
-	EAccept newEAccpt(Role peer, MessageId<?> mid, Payload payload);
 	ESend newESend(Role peer, MessageId<?> mid, Payload payload);
 	EReceive newEReceive(Role peer, MessageId<?> mid, Payload payload);
+	EConnect newEConnect(Role peer, MessageId<?> mid, Payload payload);
+	EAccept newEAccept(Role peer, MessageId<?> mid, Payload payload);
+	EDisconnect newEDisconnect(Role peer);
+	EWrapClient newEWrapClient(Role peer);
+	EWrapServer newEWrapServer(Role peer);
 
 	EState newEState(Set<RecVar> labs);
 }

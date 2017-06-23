@@ -16,9 +16,13 @@ package org.scribble.model.global;
 import java.util.Map;
 
 import org.scribble.model.endpoint.EFSM;
+import org.scribble.model.global.actions.SAccept;
 import org.scribble.model.global.actions.SConnect;
+import org.scribble.model.global.actions.SDisconnect;
 import org.scribble.model.global.actions.SReceive;
 import org.scribble.model.global.actions.SSend;
+import org.scribble.model.global.actions.SWrapClient;
+import org.scribble.model.global.actions.SWrapServer;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.MessageId;
@@ -27,12 +31,6 @@ import org.scribble.sesstype.name.Role;
 // Separate E/SModelFactories fits protected E/SState constructor pattern
 public class SModelFactoryImpl implements SModelFactory
 {
-	@Override
-	public SConnect newSConnect(Role subj, Role obj, MessageId<?> mid, Payload payload)
-	{
-		return new SConnect(subj, obj, mid, payload);
-	}
-
 	@Override
 	public SSend newSSend(Role subj, Role obj, MessageId<?> mid, Payload payload)
 	{
@@ -43,6 +41,36 @@ public class SModelFactoryImpl implements SModelFactory
 	public SReceive newSReceive(Role subj, Role obj, MessageId<?> mid, Payload payload)
 	{
 		return new SReceive(subj, obj, mid, payload);
+	}
+
+	@Override
+	public SConnect newSConnect(Role subj, Role obj, MessageId<?> mid, Payload payload)
+	{
+		return new SConnect(subj, obj, mid, payload);
+	}
+	
+	@Override
+	public SAccept newSAccept(Role subj, Role obj, MessageId<?> mid, Payload payload)
+	{
+		return new SAccept(subj, obj, mid, payload);
+	}
+
+	@Override
+	public SDisconnect newSDisconnect(Role subj, Role obj)
+	{
+		return new SDisconnect(subj, obj);
+	}
+
+	@Override
+	public SWrapClient newSWrapClient(Role subj, Role obj)
+	{
+		return new SWrapClient(subj, obj);
+	}
+
+	@Override
+	public SWrapServer newSWrapServer(Role subj, Role obj)
+	{
+		return new SWrapServer(subj, obj);
 	}
 
 	@Override
@@ -60,6 +88,6 @@ public class SModelFactoryImpl implements SModelFactory
 	@Override
 	public SConfig newSConfig(Map<Role, EFSM> state, SBuffers buffs)
 	{
-		return new SConfig(state, buffs);
+		return new SConfig(this, state, buffs);
 	}
 }

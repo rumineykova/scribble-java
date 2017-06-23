@@ -22,6 +22,9 @@ import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.model.endpoint.EGraph;
+import org.scribble.model.endpoint.EModelFactory;
+import org.scribble.model.global.SGraph;
+import org.scribble.model.global.SModelFactory;
 import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.ModuleName;
 import org.scribble.sesstype.name.Role;
@@ -31,16 +34,16 @@ public class AssrtJob extends Job
 	public AssrtJob(boolean debug, Map<ModuleName, Module> parsed, ModuleName main,
 			boolean useOldWF, boolean noLiveness, boolean minEfsm, boolean fair, boolean noLocalChoiceSubjectCheck,
 			boolean noAcceptCorrelationCheck, boolean noValidation, 
-			AstFactory af)
+			AstFactory af, EModelFactory ef, SModelFactory sf)
 	{
-		super(debug, parsed, main, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, af);
+		super(debug, parsed, main, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, af, ef, sf);
 	}
 
 	// FIXME: factor out as a builder util, cf. EGraphBuilderUtil
 	@Override
-	protected AssrtSGraph buildSGraph(Map<Role, EGraph> egraphs, boolean explicit, Job job, GProtocolName fullname) throws ScribbleException
+	protected SGraph buildSGraph(Map<Role, EGraph> egraphs, boolean explicit, Job job, GProtocolName fullname) throws ScribbleException
 	{
-		return AssrtSGraph.buildSGraph(egraphs, explicit, this, fullname);
+		return AssrtSGraph.buildSGraph(this, fullname, egraphs, explicit);
 	}
 
 	@Override

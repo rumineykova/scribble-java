@@ -49,7 +49,7 @@ public class AssrtSGraph extends SGraph
 	}
 	
 	// FIXME: refactor and factor out with SGraph
-	public static AssrtSGraph buildSGraph(Map<Role, EGraph> egraphs, boolean explicit, Job job, GProtocolName fullname) throws ScribbleException
+	public static SGraph buildSGraph(Job job, GProtocolName fullname, Map<Role, EGraph> egraphs, boolean explicit) throws ScribbleException
 	{
 		for (Role r : egraphs.keySet())
 		{
@@ -58,8 +58,8 @@ public class AssrtSGraph extends SGraph
 
 		Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().toFsm()));
 
-		SBuffers b0 = new SBuffers(efsms.keySet(), !explicit);
-		AssrtSConfig c0 = new AssrtSConfig(efsms, b0, null, new HashMap<Role, Set<String>>());  // The other places SConfigs are created are SConfig fire/sync
+		SBuffers b0 = new SBuffers(job.ef, efsms.keySet(), !explicit);
+		AssrtSConfig c0 = new AssrtSConfig(job.sf, efsms, b0, null, new HashMap<Role, Set<String>>());  // The other places SConfigs are created are SConfig fire/sync
 		SState init = new AssrtSState(c0);
 
 		Map<Integer, SState> seen = new HashMap<>();
@@ -128,7 +128,7 @@ public class AssrtSGraph extends SGraph
 				{
 					if (a.isSend() || a.isReceive() || a.isDisconnect())
 					{
-						getNextStates(todo, seen, curr, a.toGlobal(r), curr.fire(r, a));
+						getNextStates(todo, seen, curr, a.toGlobal(job.sf, r), curr.fire(r, a));
 					}
 					else if (a.isAccept() || a.isConnect())
 					{	
@@ -138,7 +138,7 @@ public class AssrtSGraph extends SGraph
 						{
 							as.remove(d);  // Removes one occurrence
 							//getNextStates(seen, todo, curr.sync(r, a, a.peer, d));
-							SAction g = (a.isConnect()) ? a.toGlobal(r) : d.toGlobal(a.peer);  // Edge will be drawn as the connect, but should be read as the sync. of both -- something like "r1, r2: sync" may be more consistent (or take a set of actions as the edge label)
+							SAction g = (a.isConnect()) ? a.toGlobal(job.sf, r) : d.toGlobal(job.sf, a.peer);  // Edge will be drawn as the connect, but should be read as the sync. of both -- something like "r1, r2: sync" may be more consistent (or take a set of actions as the edge label)
 							getNextStates(todo, seen, curr, g, curr.sync(r, a, a.peer, d));
 						}
 					}
@@ -149,7 +149,7 @@ public class AssrtSGraph extends SGraph
 						if (as != null && as.contains(w))
 						{
 							as.remove(w);  // Removes one occurrence
-							SAction g = (a.isConnect()) ? a.toGlobal(r) : w.toGlobal(a.peer);
+							SAction g = (a.isConnect()) ? a.toGlobal(job.sf, r) : w.toGlobal(job.sf, a.peer);
 							getNextStates(todo, seen, curr, g, curr.sync(r, a, a.peer, w));
 						}
 					}
@@ -161,7 +161,7 @@ public class AssrtSGraph extends SGraph
 			}
 		}
 
-		AssrtSGraph graph = new AssrtSGraph(fullname, seen, init);
+		SGraph graph = ((AssrtSModelFactory) job.sf).newAssrtSGraph(fullname, seen, init);
 
 		job.debugPrintln("(" + fullname + ") Built global model..\n" + graph.init.toDot() + "\n(" + fullname + ") .." + graph.states.size() + " states");
 

@@ -39,6 +39,7 @@ import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.model.global.SBuffers;
 import org.scribble.model.global.SConfig;
+import org.scribble.model.global.SModelFactory;
 import org.scribble.sesstype.kind.PayloadTypeKind;
 import org.scribble.sesstype.name.PayloadType;
 import org.scribble.sesstype.name.Role;
@@ -49,9 +50,9 @@ public class AssrtSConfig extends SConfig
 	public final AssertionLogFormula formula;
 	public final Map<Role, Set<String>> variablesInScope; 
 	
-	public AssrtSConfig(Map<Role, EFSM> state, SBuffers buffs, AssertionLogFormula formula, Map<Role, Set<String>> variablesInScope)
+	protected AssrtSConfig(SModelFactory sf, Map<Role, EFSM> state, SBuffers buffs, AssertionLogFormula formula, Map<Role, Set<String>> variablesInScope)
 	{
-		super(state, buffs);
+		super(sf, state, buffs);
 		this.formula = formula; 
 		this.variablesInScope = Collections.unmodifiableMap(variablesInScope);
 	}
@@ -152,7 +153,7 @@ public class AssrtSConfig extends SConfig
 				}
 			}
 
-			res.add(new AssrtSConfig(tmp1, tmp2, nextFormula, vars));  // FIXME: factor out with sync and with SConfig -- make an SModelBuilder (factored out with SGraph.buildSGraph), cf. AstFactory
+			res.add(((AssrtSModelFactory) this.sf).newAssrtSConfig(tmp1, tmp2, nextFormula, vars));  // FIXME: factor out with sync and with SConfig -- make an SModelBuilder (factored out with SGraph.buildSGraph), cf. AstFactory
 		}
 
 		return res;
@@ -188,7 +189,7 @@ public class AssrtSConfig extends SConfig
 					throw new RuntimeException("Shouldn't get in here: " + a1 + ", " + a2);
 				}
 				
-				res.add(new AssrtSConfig(tmp1, tmp2, this.formula, this.variablesInScope));  // FIXME: factor out with sync and with SConfig -- make an SModelBuilder (factored out with SGraph.buildSGraph), cf. AstFactory
+				res.add(((AssrtSModelFactory) this.sf).newAssrtSConfig(tmp1, tmp2, this.formula, this.variablesInScope));  // FIXME: factor out with sync and with SConfig -- make an SModelBuilder (factored out with SGraph.buildSGraph), cf. AstFactory
 			}
 		}
 
