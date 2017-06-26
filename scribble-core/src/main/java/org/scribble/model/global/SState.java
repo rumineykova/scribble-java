@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.scribble.model.MState;
 import org.scribble.model.MPrettyState;
+import org.scribble.model.MState;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.model.endpoint.actions.EReceive;
@@ -39,6 +39,12 @@ public class SState extends MPrettyState<Void, SAction, SState, Global>
 	{
 		super(Collections.emptySet());
 		this.config = config;
+	}
+	
+	@Override
+	protected void addEdge(SAction a, SState s)  // For access from SGraphBuilderUtil
+	{
+		super.addEdge(a, s);
 	}
 	
 	// Based on config semantics, not "static" graph edges (cf., super.getAllActions) -- used to build global model graph

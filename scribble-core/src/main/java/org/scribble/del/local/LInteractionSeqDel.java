@@ -116,7 +116,8 @@ public class LInteractionSeqDel extends InteractionSeqDel
 				}
 				else
 				{
-					EState tmp = conv.util.newState(Collections.emptySet());
+					EState tmp = //conv.util.newState(Collections.emptySet());
+							conv.util.ef.newEState(Collections.emptySet());
 					conv.util.setExit(tmp);
 					child.getInteractions().get(i).accept(conv);
 					conv.util.setEntry(conv.util.getExit());  // exit may not be tmp, entry/exit can be modified, e.g. continue

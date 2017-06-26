@@ -108,21 +108,20 @@ public class AutParser
 		{
 			term = terms.iterator().next();
 		}
-		EGraphBuilderUtil builder = new EGraphBuilderUtil(ef);
-		builder.reset();
+		EGraphBuilderUtil util = new EGraphBuilderUtil(ef);
 		Map<Integer, EState> map = new HashMap<>();
-		map.put(init, builder.getEntry());
+		map.put(init, util.getEntry());
 		if (term != -1)
 		{
-			map.put(term, builder.getExit());
+			map.put(term, util.getExit());
 		}
-		map.put(init, builder.getEntry());
+		map.put(init, util.getEntry());
 		//for (int i : edges.keySet())
 		for (int i : as.keySet())
 		{
 			if (i != init && i != term)
 			{
-				map.put(i, builder.newState(Collections.emptySet()));
+				map.put(i, util.ef.newEState(Collections.emptySet()));
 			}
 		}
 		//for (int i : succs)
@@ -130,7 +129,7 @@ public class AutParser
 		{
 			if (!map.containsKey(i) && i != init && i != term)
 			{
-				map.put(i, builder.newState(Collections.emptySet()));
+				map.put(i, util.ef.newEState(Collections.emptySet()));
 			}
 		}
 		//for (int i : edges.keySet())
@@ -149,12 +148,12 @@ public class AutParser
 				{
 					int succ = is.next();
 					//builder.addEdge(s, parseIOAction(a), map.get(tmp.get(a)));
-					builder.addEdge(s, parseIOAction(ef, a), map.get(succ));
+					util.addEdge(s, parseIOAction(ef, a), map.get(succ));
 				}
 			}
 		}
 		//return builder.finalise();
-		return new EGraph(builder.getEntry(), builder.getExit());
+		return new EGraph(util.getEntry(), util.getExit());
 	}
 	
 	// Cf. getCommSymbol of IOActions

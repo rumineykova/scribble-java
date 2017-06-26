@@ -14,6 +14,7 @@
 package org.scribble.model.endpoint;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +39,8 @@ import org.scribble.sesstype.name.Role;
 // Tailored to support graph building from syntactic local protocol choice and recursion
 public class EGraphBuilderUtil extends GraphBuilderUtil<RecVar, EAction, EState, Local>
 {
+	public final EModelFactory ef;
+
 	private final Map<RecVar, Deque<EState>> recvars = new HashMap<>();
 	//private final Map<RecVar, Deque<Set<EAction>>> enacting = new HashMap<>();  // First action(s) inside a rec scope ("enacting" means how to enact an unguarded choice-continue)
 	private final Map<RecVar, Deque<List<EAction>>> enacting = new HashMap<>();
@@ -48,13 +51,12 @@ public class EGraphBuilderUtil extends GraphBuilderUtil<RecVar, EAction, EState,
 
 	private final Deque<List<EState>> pred = new LinkedList<>();
 	private final Deque<List<EAction>> prev = new LinkedList<>();
-	
-	public final EModelFactory ef;
 
 	public EGraphBuilderUtil(EModelFactory ef)
 	{
 		this.ef = ef;
-		clear();
+		//clear();
+		reset();
 	}
 
 	protected void clear()
@@ -63,25 +65,27 @@ public class EGraphBuilderUtil extends GraphBuilderUtil<RecVar, EAction, EState,
 		this.enacting.clear();
 
 		this.pred.clear();
-		this.prev.clear();
 		this.pred.push(new LinkedList<>());
+
+		this.prev.clear();
 		this.prev.push(new LinkedList<>());
 		
 		this.enactingMap.clear();
 	}
 	
-	@Override
+	//@Override
 	public void reset()
 	{
 		clear();
-		super.reset();
+		//super.reset();
+		init(this.ef.newEState(Collections.emptySet()), this.ef.newEState(Collections.emptySet()));
 	}
 	
-	@Override
+	/*@Override
 	public EState newState(Set<RecVar> labs)
 	{
 		return new EState(labs);
-	}
+	}*/
 
 	// Records 's' as predecessor state, and 'a' as previous action and the "enacting action" for "fresh" recursion scopes
 	@Override
