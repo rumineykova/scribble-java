@@ -38,7 +38,7 @@ public class SGraphBuilderUtil extends GraphBuilderUtil<Void, SAction, SState, G
 {
 	public final SModelFactory sf;
 
-	public SGraphBuilderUtil(SModelFactory sf)
+	protected SGraphBuilderUtil(SModelFactory sf)
 	{
 		this.sf = sf;
 		reset();
@@ -64,7 +64,7 @@ public class SGraphBuilderUtil extends GraphBuilderUtil<Void, SAction, SState, G
 	//public SGraph buildSGraph(Job job, GProtocolName fullname, SConfig c0) throws ScribbleException
 	public SGraph buildSGraph(Job job, GProtocolName fullname, Map<Role, EGraph> egraphs, boolean explicit) throws ScribbleException
 	{
-		/*Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().toFsm()));
+		/*Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().toFsm()));
 
 		SBuffers b0 = new SBuffers(job.ef, efsms.keySet(), !explicit);*/
 

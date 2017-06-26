@@ -32,6 +32,12 @@ import org.scribble.sesstype.name.Role;
 public class SModelFactoryImpl implements SModelFactory
 {
 	@Override
+	public SGraphBuilderUtil newSGraphBuilderUtil()
+	{
+		return new SGraphBuilderUtil(this);
+	}
+
+	@Override
 	public SSend newSSend(Role subj, Role obj, MessageId<?> mid, Payload payload)
 	{
 		return new SSend(subj, obj, mid, payload);

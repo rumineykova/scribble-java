@@ -28,6 +28,11 @@ import org.scribble.sesstype.name.Role;
 
 public class AssrtSModelFactoryImpl extends SModelFactoryImpl implements AssrtSModelFactory
 {
+	@Override
+	public AssrtSGraphBuilderUtil newSGraphBuilderUtil()
+	{
+		return new AssrtSGraphBuilderUtil(this);
+	}
 
 	@Override
 	public SConfig newSConfig(Map<Role, EFSM> state, SBuffers buffs)

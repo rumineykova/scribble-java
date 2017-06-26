@@ -164,7 +164,7 @@ public class AssrtSConfig extends SConfig
 	public List<SConfig> sync(Role r1, EAction a1, Role r2, EAction a2)
 	{
 		AssrtSModelFactory sf = (AssrtSModelFactory) this.sf;
-		return super.sync(r1, a1, r2, a2).stream()  // Not efficient, but reduces code duplication
+		return super.sync(r1, a1, r2, a2).stream()  // Inefficient, but reduces code duplication
 				.map(c -> sf.newAssrtSConfig(c.efsms, c.buffs, this.formula, this.variablesInScope)).collect(Collectors.toList());
 	}
 	

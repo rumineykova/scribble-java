@@ -72,6 +72,8 @@ public class Job
 	public final AstFactory af;
 	public final EModelFactory ef;
 	public final SModelFactory sf;
+
+	private final SGraphBuilderUtil sgbu;
 	
 	// Just take MainContext as arg? -- would need to fix Maven dependencies
 	//public Job(boolean jUnit, boolean debug, Map<ModuleName, Module> parsed, ModuleName main, boolean useOldWF, boolean noLiveness)
@@ -94,6 +96,8 @@ public class Job
 		this.ef = ef;
 		this.sf = sf;
 
+		this.sgbu = sf.newSGraphBuilderUtil();
+
 		this.jcontext = new JobContext(this, parsed, main);  // Single instance per Job and should never be shared
 	}
 	
@@ -112,7 +116,7 @@ public class Job
 			debugPrintln("(" + fullname + ") Building global model using EFSM for " + r + ":\n" + egraphs.get(r).init.toDot());
 		}
 		//return SGraph.buildSGraph(this, fullname, createInitialSConfig(this, egraphs, explicit));
-		return new SGraphBuilderUtil(this.sf).buildSGraph(this, fullname, egraphs, explicit);  // FIXME: factor out util
+		return this.sgbu.buildSGraph(this, fullname, egraphs, explicit);  // FIXME: factor out util
 	}
 
 	public void checkWellFormedness() throws ScribbleException

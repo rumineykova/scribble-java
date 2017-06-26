@@ -30,6 +30,8 @@ import org.scribble.sesstype.name.Role;
 
 public interface SModelFactory
 {
+	SGraphBuilderUtil newSGraphBuilderUtil();  // Directly created and used by Job.buildSGraph -- cf. EGraphBuilderUtil, encapsulated by EGraphBuilder AST visitor
+	
 	SSend newSSend(Role subj, Role obj, MessageId<?> mid, Payload payload);
 	SReceive newSReceive(Role subj, Role obj, MessageId<?> mid, Payload payload);
 	SConnect newSConnect(Role subj, Role obj, MessageId<?> mid, Payload payload);
