@@ -36,7 +36,7 @@ import org.scribble.sesstype.name.Role;
 
 public class SBuffers
 {
-	private final EModelFactory ef;
+	private final EModelFactory ef;  // FIXME: only used by wrapable -- refactor?
 	
 	private final Map<Role, Map<Role, Boolean>> connected = new HashMap<>();
 	private final Map<Role, Map<Role, ESend>> buffs = new HashMap<>();  // dest -> src -> msg

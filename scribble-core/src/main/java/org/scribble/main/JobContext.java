@@ -240,7 +240,7 @@ public class JobContext
 			Map<Role, EGraph> egraphs = getEGraphsForSGraphBuilding(fullname, gpd, true);
 			boolean explicit = gpd.modifiers.contains(GProtocolDecl.Modifiers.EXPLICIT);
 			//graph = SGraph.buildSGraph(egraphs, explicit, this.job, fullname);
-			graph = this.job.buildSGraph(this.job, fullname, egraphs, explicit);
+			graph = this.job.buildSGraph(fullname, egraphs, explicit);
 			addSGraph(fullname, graph);
 		}
 		return graph;
@@ -269,7 +269,8 @@ public class JobContext
 			GProtocolDecl gpd = (GProtocolDecl) getModule(fullname.getPrefix()).getProtocolDecl(fullname.getSimpleName());
 			Map<Role, EGraph> egraphs = getEGraphsForSGraphBuilding(fullname, gpd, false);
 			boolean explicit = gpd.modifiers.contains(GProtocolDecl.Modifiers.EXPLICIT);
-			graph = SGraph.buildSGraph(this.job, fullname, this.job.createInitialSConfig(job, egraphs, explicit));
+			//graph = SGraph.buildSGraph(this.job, fullname, this.job.createInitialSConfig(job, egraphs, explicit));
+			graph = this.job.buildSGraph(fullname, egraphs, explicit);
 			addUnfairSGraph(fullname, graph);
 		}
 		return graph;

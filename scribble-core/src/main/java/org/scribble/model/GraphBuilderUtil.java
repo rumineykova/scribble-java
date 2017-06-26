@@ -52,7 +52,7 @@ public abstract class GraphBuilderUtil
 		addEdgeAux(s, a, succ);
 	}
 
-	// Simply a visibility workaround helper -- cf., addEdge: public method that may be overridden
+	// Just a visibility workaround helper -- cf. addEdge: public method that may be overridden
 	protected final void addEdgeAux(S s, A a, S succ)
 	{
 		s.addEdge(a, succ);
