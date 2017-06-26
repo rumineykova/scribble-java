@@ -28,7 +28,7 @@
 
  	<artifactId>scribble-dist</artifactId>
 	<packaging>pom</packaging>
-	<name>Scribble::Distribution</name>
+	<name>scribble-dist</name>
 	<description>Scribble distribution.</description>
 
 	<dependencies>

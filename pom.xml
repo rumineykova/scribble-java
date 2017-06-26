@@ -5,7 +5,7 @@
 	<artifactId>parent</artifactId>
 	<version>0.4.4-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Scribble</name>
+	<name>scribble-java</name>
 	<url>http://www.scribble.org</url>
 	<description>
 		Scribble
