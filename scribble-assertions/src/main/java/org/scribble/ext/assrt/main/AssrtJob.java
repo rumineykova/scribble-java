@@ -15,6 +15,7 @@ package org.scribble.ext.assrt.main;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,7 @@ public class AssrtJob extends Job
 	@Override
 	protected SConfig createInitialSConfig(Job job, Map<Role, EGraph> egraphs, boolean explicit)
 	{
-		Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().toFsm()));
+		Map<Role, EFSM> efsms = egraphs.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> e.getValue().toFsm()));
 		SBuffers b0 = new SBuffers(job.ef, efsms.keySet(), !explicit);
 		return ((AssrtSModelFactory) job.sf).newAssrtSConfig(efsms, b0, null, new HashMap<Role, Set<String>>());
 	}

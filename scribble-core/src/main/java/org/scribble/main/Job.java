@@ -113,7 +113,7 @@ public class Job
 		return job.sf.newSConfig(efsms, b0);
 	}
 	
-	//public SGraphBuilderUtil newSGraphBuilderUtil()  // FIXME TODO
+	//public SGraphBuilderUtil newSGraphBuilderUtil()  // FIXME TODO global builder util
 	protected SGraph buildSGraph(Job job, GProtocolName fullname, Map<Role, EGraph> egraphs, boolean explicit) throws ScribbleException
 	{
 		for (Role r : egraphs.keySet())

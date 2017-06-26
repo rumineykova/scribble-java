@@ -13,12 +13,8 @@
  */
 package org.scribble.model;
 
-import java.util.Collections;
-import java.util.Set;
-
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.kind.ProtocolKind;
-import org.scribble.sesstype.name.RecVar;
 
 // Helper class for EndpointGraphBuilder -- can access the protected setters of S
 public abstract class GraphBuilderUtil
@@ -27,19 +23,21 @@ public abstract class GraphBuilderUtil
 	protected S entry;
 	protected S exit;   // Tracking exit is convenient for merges (otherwise have to generate dummy merge nodes)
 	
-	public GraphBuilderUtil()
+	protected GraphBuilderUtil()
 	{
 
 	}
 	
-	// Separated from constructor in order to use newState
-	public void reset()
+	protected void init(S entry, S exit)  // Should be used by subclass constructor and reset
 	{
-		this.entry = newState(Collections.emptySet());
-		this.exit = newState(Collections.emptySet());
+		this.entry = entry;//newState(Collections.emptySet());
+		this.exit = exit;//newState(Collections.emptySet());
 	}
 	
-	public abstract S newState(Set<RecVar> labs);
+	// Separated from constructor in order to use newState
+	public abstract void reset();
+	
+	//public abstract S newState(Set<RecVar> labs);
 	
 	public void addEntryLabel(L lab)
 	{
