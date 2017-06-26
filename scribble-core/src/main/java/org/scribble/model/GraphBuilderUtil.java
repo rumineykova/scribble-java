@@ -18,7 +18,10 @@ import org.scribble.sesstype.kind.ProtocolKind;
 
 // Helper class for EndpointGraphBuilder -- can access the protected setters of S
 public abstract class GraphBuilderUtil
-		<L, A extends MAction<K>, S extends MState<L, A, S, K>, K extends ProtocolKind>
+		<L,                             // Labels on states (cosmetic)
+		 A extends MAction<K>,          // Action type: labels on edges
+		 S extends MState<L, A, S, K>,  // State type
+		 K extends ProtocolKind>        // Global/local actions/states -- Need to quantify K explicitly
 {
 	protected S entry;
 	protected S exit;   // Tracking exit is convenient for merges (otherwise have to generate dummy merge nodes)
