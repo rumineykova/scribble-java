@@ -55,6 +55,8 @@ public class MainContext
 	protected final EModelFactory ef = newEModelFactory();
 	protected final SModelFactory sf = newSModelFactory();
 	
+	//protected final JScribbleApiGen jgen;  // No: API gen depends on the Job
+	
 	// A Scribble extension should override these "new" methods as appropriate.
 	public Job newJob()
 	{

@@ -15,16 +15,12 @@ package org.scribble.main;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.Module;
-import org.scribble.codegen.java.endpointapi.SessionApiGenerator;
-import org.scribble.codegen.java.endpointapi.StateChannelApiGenerator;
-import org.scribble.codegen.java.endpointapi.ioifaces.IOInterfacesGenerator;
 import org.scribble.del.local.LProtocolDeclDel;
 import org.scribble.model.endpoint.EGraph;
 import org.scribble.model.endpoint.EGraphBuilderUtil;
@@ -53,7 +49,7 @@ import org.scribble.visit.wf.NameDisambiguator;
 import org.scribble.visit.wf.ReachabilityChecker;
 import org.scribble.visit.wf.WFChoiceChecker;
 
-// A "compiler job" front-end that supports operations comprising one or more visitor passes over the AST
+// A "compiler job" front-end that supports operations comprising visitor passes over the AST and/or local/global models
 public class Job
 {
 	// FIXME: verbose/debug printing parameter: should be in MainContext, but currently cannot access that class directly from here
@@ -201,7 +197,7 @@ public class Job
 				Collectors.toMap((lpn) -> lpn, (lpn) -> this.jcontext.getModule(lpn.getPrefix())));
 	}
 
-	public Map<String, String> generateSessionApi(GProtocolName fullname) throws ScribbleException
+	/*public Map<String, String> generateSessionApi(GProtocolName fullname) throws ScribbleException
 	{
 		debugPrintPass("Running " + SessionApiGenerator.class + " for " + fullname);
 		SessionApiGenerator sg = new SessionApiGenerator(this, fullname);
@@ -215,7 +211,7 @@ public class Job
 		/*if (this.jcontext.getEndpointGraph(fullname, self) == null)
 		{
 			buildGraph(fullname, self);
-		}*/
+		}* /
 		debugPrintPass("Running " + StateChannelApiGenerator.class + " for " + fullname + "@" + self);
 		StateChannelApiGenerator apigen = new StateChannelApiGenerator(this, fullname, self);
 		IOInterfacesGenerator iogen = null;
@@ -236,7 +232,7 @@ public class Job
 			api.putAll(iogen.generateApi());
 		}
 		return api;
-	}
+	}*/
 	
 	public void runVisitorPassOnAllModules(Class<? extends AstVisitor> c) throws ScribbleException
 	{
@@ -306,6 +302,6 @@ public class Job
 	
 	private void debugPrintPass(String s)
 	{
-		debugPrintln("\n[Step] " + s);
+		debugPrintln("\n[Job] " + s);
 	}
 }
