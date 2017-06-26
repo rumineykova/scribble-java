@@ -39,7 +39,7 @@ public class SessionApiGenerator extends ApiGenerator
 	public static final String GPROTOCOLNAME_CLASS = "org.scribble.sesstype.name.GProtocolName";
 	public static final String OP_CLASS = "org.scribble.sesstype.name.Op";
 	public static final String ROLE_CLASS = "org.scribble.sesstype.name.Role";
-	public static final String SESSION_CLASS = "org.scribble.net.session.Session";
+	public static final String SESSION_CLASS = "org.scribble.runtime.net.session.Session";
 	public static final String SESSIONTYPEFACTORY_CLASS = "org.scribble.sesstype.SessionTypeFactory";
 
 	private static final String IMPATH_FIELD = "IMPATH";

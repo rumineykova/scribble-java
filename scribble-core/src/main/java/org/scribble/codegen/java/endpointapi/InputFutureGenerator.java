@@ -34,7 +34,7 @@ import org.scribble.sesstype.name.PayloadType;
 
 public class InputFutureGenerator extends AuxStateChannelTypeGenerator
 {
-	protected static final String SCRIBFUTURE_CLASS = "org.scribble.net.ScribFuture";
+	protected static final String SCRIBFUTURE_CLASS = "org.scribble.runtime.net.ScribFuture";
 
 	private final EAction a;
 

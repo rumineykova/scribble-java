@@ -74,7 +74,8 @@
 		<module>scribble-cli</module>
 		<module>scribble-dist</module>
 		<module>scribble-demos</module>
-	</modules>
+    <module>scribble-runtime</module>
+  </modules>
   
 	<dependencyManagement>
 		<dependencies> 
@@ -96,6 +97,11 @@
 			<dependency>
 				<groupId>org.scribble</groupId>
 				<artifactId>scribble-demos</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.scribble</groupId>
+				<artifactId>scribble-runtime</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
@@ -220,7 +226,7 @@
 					<consoleOutput>false</consoleOutput>
 					<suppressionsLocation>checkstyle/suppressions.xml</suppressionsLocation>
 					<failsOnError>false</failsOnError>
-					<useFile />
+					<useFile/>
 				</configuration>
 				<dependencies>
 					<dependency>
