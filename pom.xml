@@ -5,7 +5,7 @@
 	<artifactId>parent</artifactId>
 	<version>0.4.4-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Scribble</name>
+	<name>scribble-java</name>
 	<url>http://www.scribble.org</url>
 	<description>
 		Scribble
@@ -73,8 +73,8 @@
 		<module>scribble-parser</module>
 		<module>scribble-cli</module>
 		<module>scribble-dist</module>
-		<module>scribble-demos</module>
-	</modules>
+    <module>scribble-runtime</module>
+  </modules>
   
 	<dependencyManagement>
 		<dependencies> 
@@ -95,7 +95,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.scribble</groupId>
-				<artifactId>scribble-demos</artifactId>
+				<artifactId>scribble-runtime</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
@@ -220,7 +220,7 @@
 					<consoleOutput>false</consoleOutput>
 					<suppressionsLocation>checkstyle/suppressions.xml</suppressionsLocation>
 					<failsOnError>false</failsOnError>
-					<useFile />
+					<useFile/>
 				</configuration>
 				<dependencies>
 					<dependency>
@@ -260,6 +260,7 @@
 						<exclude>**/IGNORE</exclude>
 						<exclude>bin/*.sh</exclude>
 						<exclude>**/*.swp</exclude>
+						<exclude>scribble-demos/**/*</exclude>
 					</excludes>
 				</configuration>
 				<executions>
