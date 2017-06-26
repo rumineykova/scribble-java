@@ -74,6 +74,7 @@
 		<module>scribble-cli</module>
 		<module>scribble-dist</module>
     <module>scribble-runtime</module>
+    <module>scribble-codegen</module>
   </modules>
   
 	<dependencyManagement>
@@ -96,6 +97,11 @@
 			<dependency>
 				<groupId>org.scribble</groupId>
 				<artifactId>scribble-runtime</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.scribble</groupId>
+				<artifactId>scribble-codegen</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.scribble.ast.Module;
 import org.scribble.ast.ProtocolDecl;
 import org.scribble.ast.global.GProtocolDecl;
+import org.scribble.codegen.java.JEndpointApiGen;
 import org.scribble.main.Job;
 import org.scribble.main.JobContext;
 import org.scribble.main.MainContext;
@@ -348,13 +349,14 @@ public class CommandLine
 	{
 		JobContext jcontext = job.getContext();
 		String[] args = this.args.get(CLArgFlag.API_GEN);
+		JEndpointApiGen jgen = new JEndpointApiGen(job);  // FIXME: refactor (generalise -- use new API)
 		for (int i = 0; i < args.length; i += 2)
 		{
 			GProtocolName fullname = checkGlobalProtocolArg(jcontext, args[i]);
-			Map<String, String> sessClasses = job.generateSessionApi(fullname);
+			Map<String, String> sessClasses = jgen.generateSessionApi(fullname);
 			outputClasses(sessClasses);
 			Role role = checkRoleArg(jcontext, fullname, args[i+1]);
-			Map<String, String> scClasses = job.generateStateChannelApi(fullname, role, this.args.containsKey(CLArgFlag.SCHAN_API_SUBTYPES));
+			Map<String, String> scClasses = jgen.generateStateChannelApi(fullname, role, this.args.containsKey(CLArgFlag.SCHAN_API_SUBTYPES));
 			outputClasses(scClasses);
 		}
 	}
@@ -363,10 +365,11 @@ public class CommandLine
 	{
 		JobContext jcontext = job.getContext();
 		String[] args = this.args.get(CLArgFlag.SESS_API_GEN);
+		JEndpointApiGen jgen = new JEndpointApiGen(job);  // FIXME: refactor (generalise -- use new API)
 		for (String fullname : args)
 		{
 			GProtocolName gpn = checkGlobalProtocolArg(jcontext, fullname);
-			Map<String, String> classes = job.generateSessionApi(gpn);
+			Map<String, String> classes = jgen.generateSessionApi(gpn);
 			outputClasses(classes);
 		}
 	}
@@ -375,11 +378,12 @@ public class CommandLine
 	{
 		JobContext jcontext = job.getContext();
 		String[] args = this.args.get(CLArgFlag.SCHAN_API_GEN);
+		JEndpointApiGen jgen = new JEndpointApiGen(job);  // FIXME: refactor (generalise -- use new API)
 		for (int i = 0; i < args.length; i += 2)
 		{
 			GProtocolName fullname = checkGlobalProtocolArg(jcontext, args[i]);
 			Role role = checkRoleArg(jcontext, fullname, args[i+1]);
-			Map<String, String> classes = job.generateStateChannelApi(fullname, role, this.args.containsKey(CLArgFlag.SCHAN_API_SUBTYPES));
+			Map<String, String> classes = jgen.generateStateChannelApi(fullname, role, this.args.containsKey(CLArgFlag.SCHAN_API_SUBTYPES));
 			outputClasses(classes);
 		}
 	}
@@ -396,7 +400,7 @@ public class CommandLine
 								String tmp = dir + "/" + path;
 								if (this.args.containsKey(CLArgFlag.VERBOSE))
 								{
-									System.out.println("\n[DEBUG] Writing to: " + tmp);
+									System.out.println("[DEBUG] Writing to: " + tmp);
 								}
 								ScribUtil.writeToFile(tmp, classes.get(path)); return null; 
 							}); };
