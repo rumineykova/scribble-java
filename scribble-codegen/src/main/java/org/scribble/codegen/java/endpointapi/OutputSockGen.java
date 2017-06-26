@@ -30,9 +30,9 @@ import org.scribble.sesstype.name.DataType;
 import org.scribble.sesstype.name.MessageSigName;
 import org.scribble.sesstype.name.PayloadType;
 
-public class OutputSocketGenerator extends ScribSocketGenerator
+public class OutputSockGen extends ScribSockGen
 {
-	public OutputSocketGenerator(StateChannelApiGenerator apigen, EState curr)
+	public OutputSockGen(StateChannelApiGenerator apigen, EState curr)
 	{
 		super(apigen, curr);
 	}
@@ -222,7 +222,7 @@ public class OutputSocketGenerator extends ScribSocketGenerator
 					throw new ScribbleException("[TODO] API generation not supported for non- data type payloads: " + pt);
 				}
 				DataTypeDecl dtd = main.getDataTypeDecl((DataType) pt);  // FIXME: might not belong to main module  // TODO: if not DataType
-				ScribSocketGenerator.checkJavaDataTypeDecl(dtd);
+				ScribSockGen.checkJavaDataTypeDecl(dtd);
 				mb.addParameters(dtd.extName + " " + as.next());
 			}
 		}
@@ -232,7 +232,7 @@ public class OutputSocketGenerator extends ScribSocketGenerator
 	{
 		final String MESSAGE_PARAM = "m";
 
-		ScribSocketGenerator.checkMessageSigNameDecl(msd);
+		ScribSockGen.checkMessageSigNameDecl(msd);
 		mb.addParameters(msd.extName + " " + MESSAGE_PARAM);
 	}
 }

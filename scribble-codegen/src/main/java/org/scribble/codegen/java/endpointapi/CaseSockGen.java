@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 import org.scribble.ast.MessageSigNameDecl;
 import org.scribble.ast.Module;
-import org.scribble.codegen.java.endpointapi.ioifaces.BranchInterfaceGenerator;
-import org.scribble.codegen.java.endpointapi.ioifaces.IOStateInterfaceGenerator;
+import org.scribble.codegen.java.endpointapi.ioifaces.BranchIfaceGen;
+import org.scribble.codegen.java.endpointapi.ioifaces.IOStateIfaceGen;
 import org.scribble.codegen.java.util.ClassBuilder;
 import org.scribble.codegen.java.util.FieldBuilder;
 import org.scribble.codegen.java.util.JavaBuilder;
@@ -30,9 +30,9 @@ import org.scribble.sesstype.name.DataType;
 import org.scribble.sesstype.name.MessageSigName;
 import org.scribble.sesstype.name.Role;
 
-public class CaseSocketGenerator extends ScribSocketGenerator
+public class CaseSockGen extends ScribSockGen
 {
-	public CaseSocketGenerator(StateChannelApiGenerator apigen, EState curr)
+	public CaseSockGen(StateChannelApiGenerator apigen, EState curr)
 	{
 		super(apigen, curr);
 	}
@@ -66,7 +66,7 @@ public class CaseSocketGenerator extends ScribSocketGenerator
 	protected MethodBuilder addConstructor()
 	{
 		String branchName = this.apigen.getSocketClassName(curr);  // Name of "parent" branch class (curr state is the branch state)
-		String enumClassName = branchName + "." + BranchSocketGenerator.getBranchEnumClassName(this.apigen, this.curr);
+		String enumClassName = branchName + "." + BranchSockGen.getBranchEnumClassName(this.apigen, this.curr);
 
 		MethodBuilder ctor = super.addConstructor();
 		ctor.addParameters(enumClassName + " " + CASE_OP_PARAM, StateChannelApiGenerator.SCRIBMESSAGE_CLASS + " " + CASE_MESSAGE_PARAM);
@@ -80,7 +80,7 @@ public class CaseSocketGenerator extends ScribSocketGenerator
 	protected void addMethods() throws ScribbleException
 	{
 		String branchName = this.apigen.getSocketClassName(curr);  // Name of "parent" branch class (curr state is the branch state)
-		String enumClassName = branchName + "." + BranchSocketGenerator.getBranchEnumClassName(this.apigen, this.curr);
+		String enumClassName = branchName + "." + BranchSockGen.getBranchEnumClassName(this.apigen, this.curr);
 		//String className = newClassName();  // Name of branch-receive class
 
 		FieldBuilder fb1 = this.cb.newField(CASE_OP_FIELD);  // The op enum, for convenient switch/if/etc by user (correctly derived by code generation from the received ScribMessage)
@@ -108,7 +108,7 @@ public class CaseSocketGenerator extends ScribSocketGenerator
 			MethodBuilder mb = this.cb.newMethod("getOp");
 			mb.addAnnotations("@Override");
 			mb.addModifiers(JavaBuilder.PUBLIC);
-			mb.setReturn(IOStateInterfaceGenerator.getIOStateInterfaceName(self, this.curr) + "." + BranchInterfaceGenerator.getBranchInterfaceEnumName(self, this.curr));
+			mb.setReturn(IOStateIfaceGen.getIOStateInterfaceName(self, this.curr) + "." + BranchIfaceGen.getBranchInterfaceEnumName(self, this.curr));
 			mb.addBodyLine(JavaBuilder.RETURN + " " + JavaBuilder.THIS + "." + CASE_OP_FIELD + ";");
 		}
 
@@ -119,7 +119,7 @@ public class CaseSocketGenerator extends ScribSocketGenerator
 	private MethodBuilder makeReceiveHeader(ClassBuilder cb, EAction a, EState succ) throws ScribbleException
 	{
 		MethodBuilder mb = cb.newMethod();
-		ReceiveSocketGenerator.setReceiveHeaderWithoutReturnType(this.apigen, a, mb);
+		ReceiveSockGen.setReceiveHeaderWithoutReturnType(this.apigen, a, mb);
 		setNextSocketReturnType(this.apigen, mb, succ);
 		return mb;
 	}
@@ -133,7 +133,7 @@ public class CaseSocketGenerator extends ScribSocketGenerator
 		{
 			mb.addBodyLine(JavaBuilder.SUPER + ".use();");
 			addBranchCheck(getSessionApiOpConstant(a.mid), mb, CASE_MESSAGE_FIELD);
-			ReceiveSocketGenerator.addPayloadBuffSetters(main, a, mb);
+			ReceiveSockGen.addPayloadBuffSetters(main, a, mb);
 		}
 		else //if (a.mid.isMessageSigName())
 		{
@@ -223,12 +223,12 @@ public class CaseSocketGenerator extends ScribSocketGenerator
 		mb.addExceptions(StateChannelApiGenerator.SCRIBBLERUNTIMEEXCEPTION_CLASS, "java.io.IOException", "ClassNotFoundException");//, "ExecutionException", "InterruptedException");
 		if (a.mid.isOp())
 		{
-			ReceiveSocketGenerator.addReceiveOpParams(mb, main, a, true);
+			ReceiveSockGen.addReceiveOpParams(mb, main, a, true);
 		}
 		else //if (a.mid.isMessageSigName())
 		{
 			MessageSigNameDecl msd = main.getMessageSigDecl(((MessageSigName) a.mid).getSimpleName());  // FIXME: might not belong to main module
-			ReceiveSocketGenerator.addReceiveMessageSigNameParams(mb, msd, true);
+			ReceiveSockGen.addReceiveMessageSigNameParams(mb, msd, true);
 		}
 	}
 

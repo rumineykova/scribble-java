@@ -13,36 +13,29 @@
  */
 package org.scribble.codegen.java.endpointapi;
 
-import org.scribble.model.endpoint.EState;
+import java.util.Map;
 
-public class EndSocketGenerator extends ScribSocketGenerator
+import org.scribble.main.Job;
+import org.scribble.sesstype.name.GProtocolName;
+
+// Basic pattern: use TypeGenerators to create all necessary TypeBuilders and cache them, and generateApi should call build on all as a final step
+public abstract class ApiGen
 {
-	public EndSocketGenerator(StateChannelApiGenerator apigen, EState curr)
+	protected final Job job;
+	protected final GProtocolName gpn;  // full name
+
+	public ApiGen(Job job, GProtocolName fullname)
 	{
-		super(apigen, curr);
+		this.job = job;
+		this.gpn = fullname;
 	}
 	
-	@Override
-	protected String getClassName()
+	// Return: key (package and Java class file path) -> val (Java class source) 
+	// FIXME: Path instead of String key?
+	public abstract Map<String, String> generateApi();
+	
+	public Job getJob()
 	{
-		return GENERATED_ENDSOCKET_NAME;
-	}
-
-	@Override
-	protected String getSuperClassType()
-	{
-		return ENDSOCKET_CLASS + "<" + getSessionClassName() + ", " + getSelfClassName() + ">";
-	}
-
-	@Override
-	protected void addImports()
-	{
-		super.addImports();
-	}
-
-	@Override
-	protected void addMethods()
-	{
-
+		return this.job;
 	}
 }

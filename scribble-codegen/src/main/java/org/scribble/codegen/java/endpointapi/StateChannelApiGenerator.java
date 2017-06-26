@@ -35,7 +35,7 @@ import org.scribble.visit.context.Projector;
 
 // FIXME: selector(?) hanging on runtimeexception (from message formatter)
 // FIXME: consume futures before wrap/reconnect
-public class StateChannelApiGenerator extends ApiGenerator
+public class StateChannelApiGenerator extends ApiGen
 {
 	public static final String SCRIBMESSAGE_CLASS = "org.scribble.runtime.net.ScribMessage";
 	public static final String SCRIBBLERUNTIMEEXCEPTION_CLASS = "org.scribble.main.ScribbleRuntimeException";
@@ -74,7 +74,7 @@ public class StateChannelApiGenerator extends ApiGenerator
 		EState term = EState.getTerminal(this.init);
 		if (term != null)
 		{
-			ClassBuilder cb = new EndSocketGenerator(this, term).generateType();
+			ClassBuilder cb = new EndSockGen(this, term).generateType();
 			this.types.put(cb.getName(), cb);
 		}
 	}
@@ -160,22 +160,22 @@ public class StateChannelApiGenerator extends ApiGenerator
 				/*Set<IOAction> as = curr.getTakeable();
 				if (as.stream().allMatch((a) -> a.isSend()))*/
 				{
-					return new OutputSocketGenerator(this, curr).generateType();
+					return new OutputSockGen(this, curr).generateType();
 				}
 				//throw new RuntimeException("TODO: " + curr.toLongString());
 			}
 			case ACCEPT:
 			{
-				return new AcceptSocketGenerator(this, curr).generateType();
+				return new AcceptSockGen(this, curr).generateType();
 			}
 			case UNARY_INPUT:
 			{
-				return new ReceiveSocketGenerator(this, curr).generateType();
+				return new ReceiveSockGen(this, curr).generateType();
 			}
 			case POLY_INPUT:
 			{
 				// Receive only
-				return new BranchSocketGenerator(this, curr).generateType();
+				return new BranchSockGen(this, curr).generateType();
 			}
 			default:
 			{

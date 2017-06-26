@@ -26,9 +26,9 @@ import org.scribble.sesstype.name.DataType;
 import org.scribble.sesstype.name.MessageSigName;
 import org.scribble.sesstype.name.PayloadType;
 
-public class ReceiveSocketGenerator extends ScribSocketGenerator
+public class ReceiveSockGen extends ScribSockGen
 {
-	public ReceiveSocketGenerator(StateChannelApiGenerator apigen, EState curr)
+	public ReceiveSockGen(StateChannelApiGenerator apigen, EState curr)
 	{
 		super(apigen, curr);
 	}
@@ -56,7 +56,7 @@ public class ReceiveSocketGenerator extends ScribSocketGenerator
 		EAction a = curr.getActions().iterator().next();
 		//String nextClass = this.apigen.getSocketClassName(curr.accept(a));
 		EState succ = curr.getSuccessor(a);
-		ClassBuilder futureClass = new InputFutureGenerator(this.apigen, this.cb, a).generateType();  // Wraps all payload elements as fields (set by future completion)
+		ClassBuilder futureClass = new InputFutureGen(this.apigen, this.cb, a).generateType();  // Wraps all payload elements as fields (set by future completion)
 		// FIXME: problem if package and protocol have the same name -- still?
 		this.apigen.addTypeDecl(futureClass);
 
@@ -186,7 +186,7 @@ public class ReceiveSocketGenerator extends ScribSocketGenerator
 					throw new ScribbleException("[TODO] API generation not supported for non- data type payloads: " + pt);
 				}
 				DataTypeDecl dtd = main.getDataTypeDecl((DataType) pt);  // TODO: if not DataType
-				ScribSocketGenerator.checkJavaDataTypeDecl(dtd);
+				ScribSockGen.checkJavaDataTypeDecl(dtd);
 				mb.addParameters(buffSuper + dtd.extName + "> " + RECEIVE_ARG_PREFIX + i++);
 			}
 		}
@@ -208,7 +208,7 @@ public class ReceiveSocketGenerator extends ScribSocketGenerator
 
 	protected static void addReceiveMessageSigNameParams(MethodBuilder mb, MessageSigNameDecl msd, boolean superr) throws ScribbleException
 	{
-		ScribSocketGenerator.checkMessageSigNameDecl(msd);
+		ScribSockGen.checkMessageSigNameDecl(msd);
 		mb.addParameters(BUF_CLASS + "<" + ((superr) ? "? " + JavaBuilder.SUPER + " " : "") + msd.extName + "> " + RECEIVE_ARG_PREFIX);
 	}
 

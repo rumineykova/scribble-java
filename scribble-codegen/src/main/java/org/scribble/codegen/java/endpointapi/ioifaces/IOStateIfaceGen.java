@@ -35,14 +35,14 @@ import org.scribble.sesstype.name.Role;
 
 // Cf. ScribSocketGenerator
 // Partial I/O State I/f generator -- Successor Interfaces and cast methods added later
-public abstract class IOStateInterfaceGenerator extends IOInterfaceGenerator
+public abstract class IOStateIfaceGen extends IOIfaceGen
 {
 	public static final Comparator<EAction> IOACTION_COMPARATOR = new Comparator<EAction>()
 			{
 				@Override
 				public int compare(EAction a1, EAction a2)
 				{
-					return ActionInterfaceGenerator.getActionInterfaceName(a1).compareTo(ActionInterfaceGenerator.getActionInterfaceName(a2));
+					return ActionIfaceGen.getActionInterfaceName(a1).compareTo(ActionIfaceGen.getActionInterfaceName(a2));
 				}
 			};
 
@@ -51,7 +51,7 @@ public abstract class IOStateInterfaceGenerator extends IOInterfaceGenerator
 	protected final InterfaceBuilder ib = new InterfaceBuilder();
 
 	// Preds can be null
-	public IOStateInterfaceGenerator(StateChannelApiGenerator apigen, Map<EAction, InterfaceBuilder> actions, EState curr)
+	public IOStateIfaceGen(StateChannelApiGenerator apigen, Map<EAction, InterfaceBuilder> actions, EState curr)
 	{
 		super(apigen, curr);
 		this.actions = Collections.unmodifiableMap(actions);
@@ -105,7 +105,7 @@ public abstract class IOStateInterfaceGenerator extends IOInterfaceGenerator
 			if (a.isSend() || a.isReceive())  // HACK FIXME
 			{
 				String actif = this.actions.get(a).getName();
-				this.ib.addParameters("__Succ" + i + " extends " + SuccessorInterfaceGenerator.getSuccessorInterfaceName(a));
+				this.ib.addParameters("__Succ" + i + " extends " + SuccessorIfaceGen.getSuccessorInterfaceName(a));
 				this.ib.addInterfaces(actif + "<__Succ" + i + ">");
 				i++;
 			}
@@ -138,7 +138,7 @@ public abstract class IOStateInterfaceGenerator extends IOInterfaceGenerator
 			default:          throw new RuntimeException("(TODO) I/O interface generation: " + s.getStateKind());
 		}
 		name = name + "_" + self + "_" + s.getActions().stream().sorted(IOACTION_COMPARATOR)
-				.map((a) -> ActionInterfaceGenerator.getActionString(a)).collect(Collectors.joining("__"));
+				.map((a) -> ActionIfaceGen.getActionString(a)).collect(Collectors.joining("__"));
 		checkIOStateInterfaceNameLength(name);
 		return name;
 	}

@@ -27,12 +27,12 @@ import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.MessageSigName;
 
 // Factor out
-public class HandlerInterfaceGenerator extends AuxStateChannelTypeGenerator
+public class HandlerIfaceGen extends AuxStateChanTypeGen
 {
 	private final EState curr;
 
 	// Pre: cb is the BranchSocketBuilder
-	public HandlerInterfaceGenerator(StateChannelApiGenerator apigen, ClassBuilder parent, EState curr)
+	public HandlerIfaceGen(StateChannelApiGenerator apigen, ClassBuilder parent, EState curr)
 	{
 		super(apigen, parent);
 		this.curr = curr;
@@ -64,7 +64,7 @@ public class HandlerInterfaceGenerator extends AuxStateChannelTypeGenerator
 			setHandleMethodHeaderWithoutParamTypes(this.apigen, mb3);
 			if (succ.isTerminal())
 			{
-				mb3.addParameters(ScribSocketGenerator.GENERATED_ENDSOCKET_NAME + " schan");  // FIXME: factor out
+				mb3.addParameters(ScribSockGen.GENERATED_ENDSOCKET_NAME + " schan");  // FIXME: factor out
 			}
 			else
 			{
@@ -101,12 +101,12 @@ public class HandlerInterfaceGenerator extends AuxStateChannelTypeGenerator
 
 		if (a.mid.isOp())
 		{	
-			ReceiveSocketGenerator.addReceiveOpParams(mb, apigen.getMainModule(), a, false);
+			ReceiveSockGen.addReceiveOpParams(mb, apigen.getMainModule(), a, false);
 		}
 		else //if (a.mid.isMessageSigName())
 		{
 			MessageSigNameDecl msd = main.getMessageSigDecl(((MessageSigName) a.mid).getSimpleName());  // FIXME: might not belong to main module
-			ReceiveSocketGenerator.addReceiveMessageSigNameParams(mb, msd, false);
+			ReceiveSockGen.addReceiveMessageSigNameParams(mb, msd, false);
 		}
 	}
 

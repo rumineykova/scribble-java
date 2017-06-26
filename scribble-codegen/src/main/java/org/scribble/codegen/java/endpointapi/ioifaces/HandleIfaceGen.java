@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.scribble.codegen.java.endpointapi.HandlerInterfaceGenerator;
-import org.scribble.codegen.java.endpointapi.ScribSocketGenerator;
+import org.scribble.codegen.java.endpointapi.HandlerIfaceGen;
+import org.scribble.codegen.java.endpointapi.ScribSockGen;
 import org.scribble.codegen.java.endpointapi.SessionApiGenerator;
 import org.scribble.codegen.java.util.InterfaceBuilder;
 import org.scribble.codegen.java.util.JavaBuilder;
@@ -30,13 +30,13 @@ import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.Role;
 
 // Cf. HandlerInterfaceGenerator
-public class HandleInterfaceGenerator extends IOStateInterfaceGenerator
+public class HandleIfaceGen extends IOStateIfaceGen
 {
 	//private final IOInterfacesGenerator iogen;
 	
 	private final Map<EAction, InterfaceBuilder> caseActions;
 
-	public HandleInterfaceGenerator(IOInterfacesGenerator iogen, Map<EAction, InterfaceBuilder> actions, EState curr, Map<EAction, InterfaceBuilder> caseActions)
+	public HandleIfaceGen(IOInterfacesGenerator iogen, Map<EAction, InterfaceBuilder> actions, EState curr, Map<EAction, InterfaceBuilder> caseActions)
 	{
 		super(iogen.apigen, actions, curr);
 		//this.iogen = iogen;
@@ -80,7 +80,7 @@ public class HandleInterfaceGenerator extends IOStateInterfaceGenerator
 		// Duplicated from BranchInterfaceGenerator
 		for (EAction a : this.curr.getActions().stream().sorted(IOACTION_COMPARATOR).collect(Collectors.toList()))
 		{
-			this.ib.addParameters("__Succ" + i + " extends " + SuccessorInterfaceGenerator.getSuccessorInterfaceName(a));
+			this.ib.addParameters("__Succ" + i + " extends " + SuccessorIfaceGen.getSuccessorInterfaceName(a));
 			this.ib.addInterfaces(this.caseActions.get(a).getName() + "<__Succ" + i + ">");
 			i++;
 		}
@@ -132,10 +132,10 @@ public class HandleInterfaceGenerator extends IOStateInterfaceGenerator
 			HandlerInterfaceGenerator.addHandleMethodOpAndPayloadParams(this.apigen, a, mb);*/
 
 			MethodBuilder mb = this.ib.newAbstractMethod();
-			HandlerInterfaceGenerator.setHandleMethodHeaderWithoutParamTypes(this.apigen, mb);
+			HandlerIfaceGen.setHandleMethodHeaderWithoutParamTypes(this.apigen, mb);
 			//setHandleMethodSuccessorParam(this.iogen, self, succ, mb);
 			mb.addParameters("__Succ" + i++ + " schan");
-			HandlerInterfaceGenerator.addHandleMethodOpAndPayloadParams(this.apigen, a, mb);
+			HandlerIfaceGen.addHandleMethodOpAndPayloadParams(this.apigen, a, mb);
 		}
 	}
 
@@ -144,11 +144,11 @@ public class HandleInterfaceGenerator extends IOStateInterfaceGenerator
 	{
 		if (succ.isTerminal())
 		{
-			mb.addParameters(ScribSocketGenerator.ENDSOCKET_CLASS + "<?, ?> end");
+			mb.addParameters(ScribSockGen.ENDSOCKET_CLASS + "<?, ?> end");
 		}
 		else
 		{
-			InterfaceBuilder next = iogen.getIOStateInterface(IOStateInterfaceGenerator.getIOStateInterfaceName(self, succ));  // Select/Receive/Branch
+			InterfaceBuilder next = iogen.getIOStateInterface(IOStateIfaceGen.getIOStateInterfaceName(self, succ));  // Select/Receive/Branch
 			String ret = next.getName() + "<";
 			/*//ret += "<" + next.getParameters().stream().map((p) -> "__Succ" + i++).collect(Collectors.joining(", ")) + ">";  // FIXME: fragile?
 			boolean first = true;
@@ -173,7 +173,7 @@ public class HandleInterfaceGenerator extends IOStateInterfaceGenerator
 		
 			//Map<IOAction, Integer> ount = new HashMap<>();
 			boolean first = true;
-			for (EAction a : succ.getActions().stream().sorted(IOStateInterfaceGenerator.IOACTION_COMPARATOR).collect(Collectors.toList()))
+			for (EAction a : succ.getActions().stream().sorted(IOStateIfaceGen.IOACTION_COMPARATOR).collect(Collectors.toList()))
 			{
 				int offset;
 				if (!count.containsKey(a))
@@ -207,8 +207,8 @@ public class HandleInterfaceGenerator extends IOStateInterfaceGenerator
 	{
 		// FIXME: factor out (CaseInterfaceGenerator, IOStateInterfaceGenerator.getIOStateInterfaceName)
 		String name = "Handle_" + self + "_" + s.getActions().stream().sorted(IOACTION_COMPARATOR)
-				.map((a) -> ActionInterfaceGenerator.getActionString(a)).collect(Collectors.joining("__"));
-		IOStateInterfaceGenerator.checkIOStateInterfaceNameLength(name);
+				.map((a) -> ActionIfaceGen.getActionString(a)).collect(Collectors.joining("__"));
+		IOStateIfaceGen.checkIOStateInterfaceNameLength(name);
 		return name;
 	}
 }

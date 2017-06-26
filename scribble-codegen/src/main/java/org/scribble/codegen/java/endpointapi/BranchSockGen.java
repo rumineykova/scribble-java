@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 import org.scribble.ast.DataTypeDecl;
 import org.scribble.ast.MessageSigNameDecl;
 import org.scribble.ast.Module;
-import org.scribble.codegen.java.endpointapi.ioifaces.BranchInterfaceGenerator;
-import org.scribble.codegen.java.endpointapi.ioifaces.HandleInterfaceGenerator;
-import org.scribble.codegen.java.endpointapi.ioifaces.IOStateInterfaceGenerator;
-import org.scribble.codegen.java.endpointapi.ioifaces.SuccessorInterfaceGenerator;
+import org.scribble.codegen.java.endpointapi.ioifaces.BranchIfaceGen;
+import org.scribble.codegen.java.endpointapi.ioifaces.HandleIfaceGen;
+import org.scribble.codegen.java.endpointapi.ioifaces.IOStateIfaceGen;
+import org.scribble.codegen.java.endpointapi.ioifaces.SuccessorIfaceGen;
 import org.scribble.codegen.java.util.ClassBuilder;
 import org.scribble.codegen.java.util.EnumBuilder;
 import org.scribble.codegen.java.util.JavaBuilder;
@@ -34,9 +34,9 @@ import org.scribble.sesstype.name.MessageSigName;
 import org.scribble.sesstype.name.PayloadType;
 import org.scribble.sesstype.name.Role;
 
-public class BranchSocketGenerator extends ScribSocketGenerator
+public class BranchSockGen extends ScribSockGen
 {
-	public BranchSocketGenerator(StateChannelApiGenerator apigen, EState curr)
+	public BranchSockGen(StateChannelApiGenerator apigen, EState curr)
 	{
 		super(apigen, curr);
 	}
@@ -66,7 +66,7 @@ public class BranchSocketGenerator extends ScribSocketGenerator
 		Module main = this.apigen.getMainModule();
 
 		//String next = constructCaseClass(curr, main);
-		ClassBuilder caseclass = new CaseSocketGenerator(this.apigen, this.curr).generateType();
+		ClassBuilder caseclass = new CaseSockGen(this.apigen, this.curr).generateType();
 		String next = caseclass.getName();
 		String enumClass = getBranchEnumClassName(this.apigen, this.curr);
 
@@ -96,7 +96,7 @@ public class BranchSocketGenerator extends ScribSocketGenerator
 			addHandleMethod(ROLE_PARAM, MESSAGE_VAR, OP, main, peer);
 		}
 
-		this.apigen.addTypeDecl(new HandlerInterfaceGenerator(this.apigen, this.cb, this.curr).generateType());
+		this.apigen.addTypeDecl(new HandlerIfaceGen(this.apigen, this.cb, this.curr).generateType());
 	}
 
 	private void addBranchMethod(final String ROLE_PARAM, final String MESSAGE_VAR, final String OPENUM_VAR, final String OP,
@@ -134,8 +134,8 @@ public class BranchSocketGenerator extends ScribSocketGenerator
 	private String addBranchCallbackMethod(final String ROLE_PARAM, Role peer)
 	{
 		boolean first;
-		String handlerif = HandlerInterfaceGenerator.getHandlerInterfaceName(this.cb.getName());
-		String handleif = HandleInterfaceGenerator.getHandleInterfaceName(this.apigen.getSelf(), this.curr);
+		String handlerif = HandlerIfaceGen.getHandlerInterfaceName(this.cb.getName());
+		String handleif = HandleIfaceGen.getHandleInterfaceName(this.apigen.getSelf(), this.curr);
 		MethodBuilder mb2 = this.cb.newMethod("branch");
 		mb2.addParameters(SessionApiGenerator.getRoleClassName(peer) + " " + ROLE_PARAM);
 		//mb2.addParameters("java.util.concurrent.Callable<" + ifname + "> branch");
@@ -145,7 +145,7 @@ public class BranchSocketGenerator extends ScribSocketGenerator
 		mb2.addExceptions(StateChannelApiGenerator.SCRIBBLERUNTIMEEXCEPTION_CLASS, "IOException", "ClassNotFoundException");//, "ExecutionException", "InterruptedException");
 		first = true;
 		handleif += "<";
-		for (EAction a : this.curr.getActions().stream().sorted(IOStateInterfaceGenerator.IOACTION_COMPARATOR).collect(Collectors.toList()))
+		for (EAction a : this.curr.getActions().stream().sorted(IOStateIfaceGen.IOACTION_COMPARATOR).collect(Collectors.toList()))
 		{
 			if (first)
 			{
@@ -158,7 +158,7 @@ public class BranchSocketGenerator extends ScribSocketGenerator
 			EState succ = this.curr.getSuccessor(a);
 			if (succ.isTerminal())
 			{
-				handleif += ScribSocketGenerator.GENERATED_ENDSOCKET_NAME;
+				handleif += ScribSockGen.GENERATED_ENDSOCKET_NAME;
 			}
 			else
 			{
@@ -248,9 +248,9 @@ public class BranchSocketGenerator extends ScribSocketGenerator
 		boolean first;
 		MethodBuilder mb4 = this.cb.newMethod("handle");
 		mb4.addParameters(SessionApiGenerator.getRoleClassName(peer) + " " + ROLE_PARAM);
-		String tmp = HandleInterfaceGenerator.getHandleInterfaceName(this.apigen.getSelf(), this.curr) + "<";
-		tmp += this.curr.getActions().stream().sorted(IOStateInterfaceGenerator.IOACTION_COMPARATOR)
-				.map((a) -> SuccessorInterfaceGenerator.getSuccessorInterfaceName(a)).collect(Collectors.joining(", ")) + ">";
+		String tmp = HandleIfaceGen.getHandleInterfaceName(this.apigen.getSelf(), this.curr) + "<";
+		tmp += this.curr.getActions().stream().sorted(IOStateIfaceGen.IOACTION_COMPARATOR)
+				.map((a) -> SuccessorIfaceGen.getSuccessorInterfaceName(a)).collect(Collectors.joining(", ")) + ">";
 		mb4.addParameters(tmp + " handler");
 		mb4.setReturn(JavaBuilder.VOID);
 		mb4.addModifiers(JavaBuilder.PUBLIC);
@@ -279,7 +279,7 @@ public class BranchSocketGenerator extends ScribSocketGenerator
 			//if (!succ.isTerminal())
 			{
 				//FIXME: factor out with addReturn?
-				 ln += JavaBuilder.NEW + " " + (succ.isTerminal() ? ScribSocketGenerator.GENERATED_ENDSOCKET_NAME : this.apigen.getSocketClassName(succ)) + "(" + SCRIBSOCKET_SE_FIELD + ", true), ";
+				 ln += JavaBuilder.NEW + " " + (succ.isTerminal() ? ScribSockGen.GENERATED_ENDSOCKET_NAME : this.apigen.getSocketClassName(succ)) + "(" + SCRIBSOCKET_SE_FIELD + ", true), ";
 			}
 			ln += getSessionApiOpConstant(a.mid);
 					
@@ -318,14 +318,14 @@ public class BranchSocketGenerator extends ScribSocketGenerator
 		//return (IOInterfacesGenerator.skipIOInterfacesGeneration(apigen.getInitialState()))
 		return apigen.skipIOInterfacesGeneration
 				? apigen.getSocketClassName(curr) + "_Enum"
-				: BranchInterfaceGenerator.getBranchInterfaceEnumName(apigen.getSelf(), curr);
+				: BranchIfaceGen.getBranchInterfaceEnumName(apigen.getSelf(), curr);
 	}
 
 	// branch callback, that doesn't just call handle (cf. addBranchCallbackMethod) -- hack, callback apigen while i/o i/f's not supported for connect/accept/etc
 	private void addDirectBranchCallbackMethod(final String ROLE_PARAM, 
 			final String MESSAGE_VAR, final String OP, Module main, Role peer)
 	{
-		String handlerif = HandlerInterfaceGenerator.getHandlerInterfaceName(this.cb.getName());
+		String handlerif = HandlerIfaceGen.getHandlerInterfaceName(this.cb.getName());
 		MethodBuilder mb2 = this.cb.newMethod("branch");
 		mb2.addParameters(SessionApiGenerator.getRoleClassName(peer) + " " + ROLE_PARAM);
 		mb2.addParameters(handlerif + " handler");
@@ -364,7 +364,7 @@ public class BranchSocketGenerator extends ScribSocketGenerator
 			//if (!succ.isTerminal())
 			{
 				//FIXME: factor out with addReturn?
-				 ln += JavaBuilder.NEW + " " + (succ.isTerminal() ? ScribSocketGenerator.GENERATED_ENDSOCKET_NAME : this.apigen.getSocketClassName(succ)) + "(" + SCRIBSOCKET_SE_FIELD + ", true), ";
+				 ln += JavaBuilder.NEW + " " + (succ.isTerminal() ? ScribSockGen.GENERATED_ENDSOCKET_NAME : this.apigen.getSocketClassName(succ)) + "(" + SCRIBSOCKET_SE_FIELD + ", true), ";
 			}
 			ln += getSessionApiOpConstant(a.mid);
 					

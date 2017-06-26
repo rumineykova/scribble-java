@@ -15,9 +15,9 @@ package org.scribble.codegen.java.endpointapi.ioifaces;
 
 import java.util.Map;
 
-import org.scribble.codegen.java.endpointapi.InputFutureGenerator;
-import org.scribble.codegen.java.endpointapi.ReceiveSocketGenerator;
-import org.scribble.codegen.java.endpointapi.ScribSocketGenerator;
+import org.scribble.codegen.java.endpointapi.InputFutureGen;
+import org.scribble.codegen.java.endpointapi.ReceiveSockGen;
+import org.scribble.codegen.java.endpointapi.ScribSockGen;
 import org.scribble.codegen.java.endpointapi.SessionApiGenerator;
 import org.scribble.codegen.java.endpointapi.StateChannelApiGenerator;
 import org.scribble.codegen.java.util.InterfaceBuilder;
@@ -27,9 +27,9 @@ import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.sesstype.name.GProtocolName;
 
-public class ReceiveInterfaceGenerator extends IOStateInterfaceGenerator
+public class ReceiveIfaceGen extends IOStateIfaceGen
 {
-	public ReceiveInterfaceGenerator(StateChannelApiGenerator apigen, Map<EAction, InterfaceBuilder> actions, EState curr)
+	public ReceiveIfaceGen(StateChannelApiGenerator apigen, Map<EAction, InterfaceBuilder> actions, EState curr)
 	{
 		super(apigen, actions, curr);
 	}
@@ -58,12 +58,12 @@ public class ReceiveInterfaceGenerator extends IOStateInterfaceGenerator
 		EAction first = this.curr.getActions().iterator().next();
 
 		MethodBuilder mb = this.ib.newAbstractMethod();
-		ReceiveSocketGenerator.setAsyncDiscardHeaderWithoutReturnType(this.apigen, first, mb, InputFutureGenerator.getInputFutureName(this.apigen.getSocketClassName(this.curr)));
+		ReceiveSockGen.setAsyncDiscardHeaderWithoutReturnType(this.apigen, first, mb, InputFutureGen.getInputFutureName(this.apigen.getSocketClassName(this.curr)));
 		this.ib.addImports(SessionApiGenerator.getOpsPackageName(gpn) + ".*");
 		EState succ = this.curr.getSuccessor(first);
 		if (succ.isTerminal())
 		{
-			ScribSocketGenerator.setNextSocketReturnType(this.apigen, mb, succ);
+			ScribSockGen.setNextSocketReturnType(this.apigen, mb, succ);
 		}
 		else
 		{

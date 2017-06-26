@@ -32,14 +32,14 @@ import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.MessageSigName;
 import org.scribble.sesstype.name.PayloadType;
 
-public class InputFutureGenerator extends AuxStateChannelTypeGenerator
+public class InputFutureGen extends AuxStateChanTypeGen
 {
 	protected static final String SCRIBFUTURE_CLASS = "org.scribble.runtime.net.ScribFuture";
 
 	private final EAction a;
 
 	// Pre: cb is ReceiveSocketBuilder
-	public InputFutureGenerator(StateChannelApiGenerator apigen, ClassBuilder parent, EAction a)
+	public InputFutureGen(StateChannelApiGenerator apigen, ClassBuilder parent, EAction a)
 	{
 		super(apigen, parent);
 		this.a = a;
@@ -80,7 +80,7 @@ public class InputFutureGenerator extends AuxStateChannelTypeGenerator
 						throw new ScribbleException("[TODO] API generation not supported for non- data type payloads: " + pt);
 					}
 					DataTypeDecl dtd = main.getDataTypeDecl((DataType) pt);
-					ScribSocketGenerator.checkJavaDataTypeDecl(dtd);
+					ScribSockGen.checkJavaDataTypeDecl(dtd);
 					String type = dtd.extName;
 					types.add(type);
 					FieldBuilder f = future.newField("pay" + i++);
@@ -92,7 +92,7 @@ public class InputFutureGenerator extends AuxStateChannelTypeGenerator
 		else
 		{
 			MessageSigNameDecl msd = main.getMessageSigDecl(((MessageSigName) a.mid).getSimpleName());
-			ScribSocketGenerator.checkMessageSigNameDecl(msd);
+			ScribSockGen.checkMessageSigNameDecl(msd);
 			String type = msd.extName;
 			types.add(type);
 			FieldBuilder f = future.newField("msg");

@@ -29,7 +29,7 @@ import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 
 // Parameterize on output class type
-public abstract class ScribSocketGenerator extends StateChannelTypeGenerator
+public abstract class ScribSockGen extends StateChanTypeGen
 {
 	public static final String JAVA_SCHEMA = "java";  // FIXME: factor out
 	
@@ -70,7 +70,7 @@ public abstract class ScribSocketGenerator extends StateChannelTypeGenerator
 
 	protected final ClassBuilder cb = new ClassBuilder();
 	
-	public ScribSocketGenerator(StateChannelApiGenerator apigen, EState curr)
+	public ScribSockGen(StateChannelApiGenerator apigen, EState curr)
 	{
 		super(apigen);
 		this.curr = curr;
@@ -269,7 +269,7 @@ public abstract class ScribSocketGenerator extends StateChannelTypeGenerator
 	
 	protected static void checkJavaSchema(NonProtocolDecl<?> npd) throws ScribbleException
 	{
-		if (!npd.schema.equals(ScribSocketGenerator.JAVA_SCHEMA))  // FIXME: factor out
+		if (!npd.schema.equals(ScribSockGen.JAVA_SCHEMA))  // FIXME: factor out
 		{
 			throw new ScribbleException(npd.getSource(), "Unsupported data type schema: " + npd.schema);
 		}

@@ -34,7 +34,7 @@ import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 import org.scribble.visit.util.MessageIdCollector;
 
-public class SessionApiGenerator extends ApiGenerator
+public class SessionApiGenerator extends ApiGen
 {
 	public static final String GPROTOCOLNAME_CLASS = "org.scribble.sesstype.name.GProtocolName";
 	public static final String OP_CLASS = "org.scribble.sesstype.name.Op";

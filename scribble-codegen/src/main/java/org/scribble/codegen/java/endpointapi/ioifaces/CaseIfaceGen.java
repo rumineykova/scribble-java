@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.scribble.codegen.java.endpointapi.CaseSocketGenerator;
-import org.scribble.codegen.java.endpointapi.ScribSocketGenerator;
+import org.scribble.codegen.java.endpointapi.CaseSockGen;
+import org.scribble.codegen.java.endpointapi.ScribSockGen;
 import org.scribble.codegen.java.endpointapi.SessionApiGenerator;
 import org.scribble.codegen.java.endpointapi.StateChannelApiGenerator;
 import org.scribble.codegen.java.util.AbstractMethodBuilder;
@@ -31,9 +31,9 @@ import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.Role;
 
-public class CaseInterfaceGenerator extends IOStateInterfaceGenerator
+public class CaseIfaceGen extends IOStateIfaceGen
 {
-	public CaseInterfaceGenerator(StateChannelApiGenerator apigen, Map<EAction, InterfaceBuilder> actions, EState curr)
+	public CaseIfaceGen(StateChannelApiGenerator apigen, Map<EAction, InterfaceBuilder> actions, EState curr)
 	{
 		super(apigen, actions, curr);
 	}
@@ -71,7 +71,7 @@ public class CaseInterfaceGenerator extends IOStateInterfaceGenerator
 		String name = super.getIOStateInterfaceName(self, this.curr);
 
 		AbstractMethodBuilder op = this.ib.newAbstractMethod("getOp");
-		op.setReturn(name + "." + BranchInterfaceGenerator.getBranchInterfaceEnumName(self, this.curr));
+		op.setReturn(name + "." + BranchIfaceGen.getBranchInterfaceEnumName(self, this.curr));
 	}
 				
 	protected void addCaseReceiveDiscardMethods()
@@ -85,11 +85,11 @@ public class CaseInterfaceGenerator extends IOStateInterfaceGenerator
 		for (EAction a : as.stream().sorted(IOACTION_COMPARATOR).collect(Collectors.toList()))
 		{
 			MethodBuilder mb = this.ib.newAbstractMethod();
-			CaseSocketGenerator.setCaseReceiveDiscardHeaderWithoutReturnType(this.apigen, a, mb); 
+			CaseSockGen.setCaseReceiveDiscardHeaderWithoutReturnType(this.apigen, a, mb); 
 			EState succ = this.curr.getSuccessor(a);
 			if (succ.isTerminal())
 			{
-				ScribSocketGenerator.setNextSocketReturnType(this.apigen, mb, succ);
+				ScribSockGen.setNextSocketReturnType(this.apigen, mb, succ);
 			}
 			else
 			{
@@ -106,6 +106,6 @@ public class CaseInterfaceGenerator extends IOStateInterfaceGenerator
 	{
 		//return "Case_" + braif.substring("Branch_".length(), braif.length());
 		return "Case_" + self + "_" + s.getActions().stream().sorted(IOACTION_COMPARATOR)
-				.map((a) -> ActionInterfaceGenerator.getActionString(a)).collect(Collectors.joining("__"));
+				.map((a) -> ActionIfaceGen.getActionString(a)).collect(Collectors.joining("__"));
 	}
 }

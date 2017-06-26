@@ -20,9 +20,9 @@ import org.scribble.codegen.java.util.MethodBuilder;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAction;
 
-public class AcceptSocketGenerator extends ScribSocketGenerator
+public class AcceptSockGen extends ScribSockGen
 {
-	public AcceptSocketGenerator(StateChannelApiGenerator apigen, EState curr)
+	public AcceptSockGen(StateChannelApiGenerator apigen, EState curr)
 	{
 		super(apigen, curr);
 	}

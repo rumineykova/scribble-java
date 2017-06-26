@@ -14,14 +14,14 @@
 package org.scribble.codegen.java.endpointapi.ioifaces;
 
 import org.scribble.codegen.java.endpointapi.StateChannelApiGenerator;
-import org.scribble.codegen.java.endpointapi.StateChannelTypeGenerator;
+import org.scribble.codegen.java.endpointapi.StateChanTypeGen;
 import org.scribble.model.endpoint.EState;
 
-public abstract class IOInterfaceGenerator extends StateChannelTypeGenerator
+public abstract class IOIfaceGen extends StateChanTypeGen
 {
 	protected final EState curr;
 
-	public IOInterfaceGenerator(StateChannelApiGenerator apigen, EState curr)
+	public IOIfaceGen(StateChannelApiGenerator apigen, EState curr)
 	{
 		super(apigen);
 		this.curr = curr;

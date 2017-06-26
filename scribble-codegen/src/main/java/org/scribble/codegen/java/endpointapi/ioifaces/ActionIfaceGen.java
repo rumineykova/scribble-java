@@ -13,8 +13,8 @@
  */
 package org.scribble.codegen.java.endpointapi.ioifaces;
 
-import org.scribble.codegen.java.endpointapi.ReceiveSocketGenerator;
-import org.scribble.codegen.java.endpointapi.OutputSocketGenerator;
+import org.scribble.codegen.java.endpointapi.ReceiveSockGen;
+import org.scribble.codegen.java.endpointapi.OutputSockGen;
 import org.scribble.codegen.java.endpointapi.SessionApiGenerator;
 import org.scribble.codegen.java.endpointapi.StateChannelApiGenerator;
 import org.scribble.codegen.java.util.AbstractMethodBuilder;
@@ -27,12 +27,12 @@ import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.PayloadType;
 
-public class ActionInterfaceGenerator extends IOInterfaceGenerator
+public class ActionIfaceGen extends IOIfaceGen
 {
 	private final EAction a;
 	private final InterfaceBuilder ib = new InterfaceBuilder();
 
-	public ActionInterfaceGenerator(StateChannelApiGenerator apigen, EState curr, EAction a)
+	public ActionIfaceGen(StateChannelApiGenerator apigen, EState curr, EAction a)
 	{
 		super(apigen, curr);
 		this.a = a;
@@ -50,7 +50,7 @@ public class ActionInterfaceGenerator extends IOInterfaceGenerator
 		this.ib.addImports(SessionApiGenerator.getRolesPackageName(gpn) + ".*");
 		this.ib.addImports(SessionApiGenerator.getOpsPackageName(gpn) + ".*");
 		this.ib.addModifiers(JavaBuilder.PUBLIC);
-		this.ib.addParameters("__Succ extends " + SuccessorInterfaceGenerator.getSuccessorInterfaceName(this.a));
+		this.ib.addParameters("__Succ extends " + SuccessorIfaceGen.getSuccessorInterfaceName(this.a));
 		AbstractMethodBuilder mb = this.ib.newAbstractMethod();  // FIXME: factor out with ReceiveSocketBuilder
 		//AbstractMethodBuilder mb2 = null;
 		if (this.a instanceof EReceive)
@@ -61,7 +61,7 @@ public class ActionInterfaceGenerator extends IOInterfaceGenerator
 			}
 			//else*/
 			{
-				ReceiveSocketGenerator.setReceiveHeaderWithoutReturnType(this.apigen, this.a, mb);
+				ReceiveSockGen.setReceiveHeaderWithoutReturnType(this.apigen, this.a, mb);
 				/*if (this.curr.getAcceptable().size() == 1)  // FIXME: action interface should not depend on curr state -- should generate this method in the IO State I/f, not here
 				{
 					mb2 = this.ib.newAbstractMethod();
@@ -76,7 +76,7 @@ public class ActionInterfaceGenerator extends IOInterfaceGenerator
 		}
 		else //if (this.a instanceof Send)
 		{
-			OutputSocketGenerator.setSendHeaderWithoutReturnType(this.apigen, this.a, mb);
+			OutputSockGen.setSendHeaderWithoutReturnType(this.apigen, this.a, mb);
 		}
 		/*EndpointState succ = this.curr.accept(this.a);
 		if (succ.isTerminal())

@@ -17,11 +17,11 @@ import org.scribble.codegen.java.util.TypeBuilder;
 import org.scribble.main.ScribbleException;
 
 // Build a (top-level) type declaration for the API generation output
-public abstract class StateChannelTypeGenerator
+public abstract class StateChanTypeGen
 {
 	protected final StateChannelApiGenerator apigen;
 
-	public StateChannelTypeGenerator(StateChannelApiGenerator apigen)
+	public StateChanTypeGen(StateChannelApiGenerator apigen)
 	{
 		this.apigen = apigen;
 	}
