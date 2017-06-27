@@ -26,6 +26,7 @@ import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
@@ -42,8 +43,6 @@ import org.scribble.sesstype.kind.PayloadTypeKind;
 
 public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFactory
 {
-	public static final AssrtAstFactory FACTORY = new AssrtAstFactoryImpl();
-
 	@Override
 	public GProtocolBlock GProtocolBlock(CommonTree source, GInteractionSeq seq)
 	{
@@ -113,9 +112,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtAssertionNode AssertionNode(CommonTree source, String assertion)
+	//public AssrtAssertionNode AssertionNode(CommonTree source, String assertion)
+	public AssrtAssertionNode AssertionNode(CommonTree source, SmtFormula f)
 	{
-		AssrtAssertionNode node = new AssrtAssertionNode(source, assertion); 
+		//AssrtAssertionNode node = new AssrtAssertionNode(source, assertion); 
+		AssrtAssertionNode node = new AssrtAssertionNode(source, f); 
 		node = del(node, createDefaultDelegate());
 		return node; 
 	}

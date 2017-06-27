@@ -41,6 +41,7 @@ public class AssrtAssertParser  // Cf. ScribParser
 		return AssrtAssertParser.instance;
 	}
 
+	// ct should be the first child of the root node of the assertion subtree (i.e., AssrtAntlrGMessageTransfer.getAssertionChild.getChild(0))
 	public SmtFormula parse(CommonTree ct) //throws AssertionsParseException
 	{
 		ScribParser.checkForAntlrErrors(ct);

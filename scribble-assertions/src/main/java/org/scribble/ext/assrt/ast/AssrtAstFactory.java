@@ -20,6 +20,7 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
@@ -33,5 +34,5 @@ public interface AssrtAstFactory extends AstFactory
 
 	<K extends PayloadTypeKind> AssrtAnnotPayloadElem<K> AnnotPayloadElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType);
 
-	AssrtAssertionNode AssertionNode(CommonTree source, String assertion);  // FIXME: should not be String -- parser should parse it
+	AssrtAssertionNode AssertionNode(CommonTree source, SmtFormula f);
 }

@@ -28,7 +28,7 @@ import org.scribble.ast.local.LSend;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtAssertionNode;
-import org.scribble.ext.assrt.ast.AssrtAstFactoryImpl;
+import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.kind.Global;
 import org.scribble.sesstype.name.Role;
@@ -37,8 +37,8 @@ import org.scribble.visit.AstVisitor;
 
 public class AssrtGMessageTransfer extends GMessageTransfer
 {
-	public final AssrtAssertionNode assertion;  // null if not specified
-			// Duplicated in ALSend/Receive -- could factour out to in Del, but need to consider immutable pattern
+	public final AssrtAssertionNode ass;  // null if not specified
+			// Duplicated in ALSend -- could factour out to in Del, but need to consider immutable pattern
 
 	public AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
 	{
@@ -48,7 +48,7 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 	public AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertionNode assertion)
 	{
 		super(source, src, msg, dests);
-		this.assertion = assertion;
+		this.ass = assertion;
 	}
 	
 	@Override
@@ -62,7 +62,7 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 		else if (proj instanceof LSend)
 		{
 			LSend ls = (LSend) proj;
-			proj = AssrtAstFactoryImpl.FACTORY.AssrtLSend(ls.getSource(), ls.src, ls.msg, ls.getDestinations(), this.assertion);
+			proj = ((AssrtAstFactory) af).AssrtLSend(ls.getSource(), ls.src, ls.msg, ls.getDestinations(), this.ass);
 		}
 		return proj;
 	}
@@ -70,7 +70,7 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 	@Override
 	protected AssrtGMessageTransfer copy()
 	{
-		return new AssrtGMessageTransfer(this.source, this.src, this.msg, getDestinations(), this.assertion);
+		return new AssrtGMessageTransfer(this.source, this.src, this.msg, getDestinations(), this.ass);
 	}
 	
 	@Override
@@ -79,16 +79,14 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 		RoleNode src = this.src.clone(af);
 		MessageNode msg = this.msg.clone(af);
 		List<RoleNode> dests = ScribUtil.cloneList(af, getDestinations());
-		
-		// FIXME: assertion
-		
-		return AssrtAstFactoryImpl.FACTORY.AssrtGMessageTransfer(this.source, src, msg, dests, this.assertion);
+		AssrtAssertionNode assertion = (this.ass == null) ? null : this.ass.clone(af);
+		return ((AssrtAstFactory) af).AssrtGMessageTransfer(this.source, src, msg, dests, assertion);
 	}
 
 	@Override
 	public AssrtGMessageTransfer reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests)
 	{
-		throw new RuntimeException("Shouldn't get in here: " + this);
+		throw new RuntimeException("[scrib-assert] Shouldn't get in here: " + this);
 	}
 
 	public AssrtGMessageTransfer reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertionNode assertion)
@@ -105,16 +103,14 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 		RoleNode src = (RoleNode) visitChild(this.src, nv);
 		MessageNode msg = (MessageNode) visitChild(this.msg, nv);
 		List<RoleNode> dests = visitChildListWithClassEqualityCheck(this, this.dests, nv);
-
-		AssrtAssertionNode ass = this.assertion;  // FIXME: visit
-
+		AssrtAssertionNode ass = (this.ass == null) ? null : (AssrtAssertionNode) visitChild(this.ass, nv);
 		return reconstruct(src, msg, dests, ass);
 	}
 
 	@Override
 	public String toString()
 	{
-		return "[" + this.assertion + "]\n"
+		return "[" + this.ass + "]\n"
 					+ this.msg + " " + Constants.FROM_KW + " " + this.src + " " + Constants.TO_KW + " "
 					+ getDestinations().stream().map((dest) -> dest.toString()).collect(Collectors.joining(", ")) + ";";
 	}

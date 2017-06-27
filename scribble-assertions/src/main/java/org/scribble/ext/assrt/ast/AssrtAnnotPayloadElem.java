@@ -56,7 +56,7 @@ public class AssrtAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeB
 	{
 		AssrtVarNameNode varname = ScribUtil.checkNodeClassEquality(this.varName, this.varName.clone(af));
 		DataTypeNode datatype = ScribUtil.checkNodeClassEquality(this.dataType, this.dataType.clone(af));
-		return AssrtAstFactoryImpl.FACTORY.AnnotPayloadElem(this.source, varname, datatype);
+		return ((AssrtAstFactory) af).AnnotPayloadElem(this.source, varname, datatype);
 	}
 
 	public AssrtAnnotPayloadElem<K> reconstruct(AssrtVarNameNode name, DataTypeNode dataType)

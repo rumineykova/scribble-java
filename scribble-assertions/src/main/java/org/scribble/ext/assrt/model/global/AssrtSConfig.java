@@ -102,7 +102,7 @@ public class AssrtSConfig extends SConfig
 			AssertionLogFormula newFormula = null; 
 		
 			if (assertion!=null) {
-				SmtFormula currFormula = assertion.toFormula();
+				SmtFormula currFormula = assertion.getFormula();
 				
 				try {
 					newFormula = this.formula==null?
@@ -182,7 +182,7 @@ public class AssrtSConfig extends SConfig
 					AssrtAssertionNode assertion = send.assertion; 
 					if (assertion != null)
 					{
-						if (!SMTWrapper.getInstance().isSat(assertion.toFormula(), this.formula)) {
+						if (!SMTWrapper.getInstance().isSat(assertion.getFormula(), this.formula)) {
 							unsafStates.add(send); 
 						}
 					}
@@ -218,7 +218,7 @@ public class AssrtSConfig extends SConfig
 					
 					if (assertion !=null)
 					{
-						Set<String> varNames = assertion.toFormula().getVars();
+						Set<String> varNames = assertion.getFormula().getVars();
 						varNames.removeAll(newVarNames); 
 						if ((!varNames.isEmpty()) && (!this.variablesInScope.containsKey(r) ||
 							 !this.variablesInScope.get(r).containsAll(varNames)))

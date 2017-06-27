@@ -15,42 +15,64 @@ package org.scribble.ext.assrt.ast;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
+import org.scribble.ast.ScribNode;
 import org.scribble.ast.ScribNodeBase;
+import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.formula.SmtFormula;
-import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
+import org.scribble.main.ScribbleException;
+import org.scribble.visit.AstVisitor;
 
 // FIXME: visitChildren/reconstruct
 public class AssrtAssertionNode extends ScribNodeBase 
 {	
-	private final String assertion;  // FIXME: should be parsed earlier (by parser) -- cf. toFormula
-	private SmtFormula formula =  null; 
+	//private final String assertion;  // FIXME: should be String for a more general annotations feature
 
-	public AssrtAssertionNode(CommonTree source, String assertion)
+	private SmtFormula formula;  // Not a ScribNode (no clone/copy/accept/etc -- but is immutable)
+
+	//public AssrtAssertionNode(CommonTree source, String assertion)
+	public AssrtAssertionNode(CommonTree source, SmtFormula formula)
 	{
 		super(source);
-		this.assertion = assertion; 
+		//this.assertion = assertion; 
+		this.formula = formula; 
 	}
 	
 	@Override
 	protected AssrtAssertionNode copy()
 	{
-		return new AssrtAssertionNode(this.source, this.assertion);
+		//return new AssrtAssertionNode(this.source, this.assertion);
+		return new AssrtAssertionNode(this.source, this.formula);
 	}
 	
 	@Override
 	public AssrtAssertionNode clone(AstFactory af)
 	{
-		return (AssrtAssertionNode) AssrtAstFactoryImpl.FACTORY.AssertionNode(this.source, this.assertion);
+		//return (AssrtAssertionNode) AssrtAstFactoryImpl.FACTORY.AssertionNode(this.source, this.assertion);
+		return (AssrtAssertionNode) ((AssrtAstFactory) af).AssertionNode(this.source, this.formula);  // formula is immutable
 	}
 
-	public String getAssertion()
+	/*public String getAssertion()
 	{
 		return this.assertion; 
+	}*/
+	
+	protected AssrtAssertionNode reconstruct(SmtFormula f)
+	{
+		ScribDel del = del();
+		AssrtAssertionNode an = new AssrtAssertionNode(this.source, f);
+		an = (AssrtAssertionNode) an.del(del);
+		return an;
+	}
+
+	@Override
+	public ScribNode visitChildren(AstVisitor nv) throws ScribbleException
+	{
+		return reconstruct(this.formula);  // formula cannot be visited (not a ScribNode)
 	}
 	
-	public SmtFormula toFormula()
+	public SmtFormula getFormula()
 	{
-		if (this.formula == null)
+		/*if (this.formula == null)
 		{
 			//try
 			{
@@ -59,14 +81,15 @@ public class AssrtAssertionNode extends ScribNodeBase
 			/*catch (AssertionsParseException e)
 			{
 				System.err.print("Assertion cannot be parsed" + e.getMessage());
-			}*/
-		}
-		return formula;
+			}* /
+		}*/
+		return this.formula;
 	}
 	
 	@Override
 	public String toString()
 	{
-		return this.toFormula().toString(); 
+		//return this.toFormula().toString(); 
+		return this.formula.toString(); 
 	}
 }

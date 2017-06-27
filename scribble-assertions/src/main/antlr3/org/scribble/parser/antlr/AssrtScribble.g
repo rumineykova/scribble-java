@@ -149,9 +149,9 @@ tokens
 	LOCALSEND = 'local-send';
 	LOCALRECEIVE = 'local-receive';*/
 
-	ANNOTPAYLOAD = 'annotpayload'; 
+	ASSRTPAYLOADELEM = 'annotpayloadelem'; 
 	ASSERTION = 'global-assertion'; 
-	ANNOTGLOBALMESSAGETRANSFER = 'annot-global-message-transfer'; 
+	ASSRTGLOBALMESSAGETRANSFER = 'annot-global-message-transfer'; 
 }
 
 
@@ -442,7 +442,7 @@ payloadelement:
 	qualifiedname  // This case subsumes simple names  // FIXME: ambiguousqualifiedname (or ambiguousname should just be qualified)
 | varname ':' qualifiedname
 -> 
-	^(ANNOTPAYLOAD varname qualifiedname)
+	^(ASSRTPAYLOADELEM varname qualifiedname)
 |
 	protocolname '@' rolename
 ->
@@ -590,7 +590,7 @@ globalmessagetransfer:
 | 
 	EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 	->
-	^(ANNOTGLOBALMESSAGETRANSFER {AssrtAssertionsParser.ast($EXPR.text)} message rolename rolename+)
+	^(ASSRTGLOBALMESSAGETRANSFER {AssrtAssertionsParser.ast($EXPR.text)} message rolename rolename+)
 ;
 	
 message:
