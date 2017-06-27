@@ -30,6 +30,11 @@
 			<groupId>org.scribble</groupId>
 			<artifactId>scribble-cli</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.scribble</groupId>
+			<artifactId>scribble-test</artifactId>
+		</dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
