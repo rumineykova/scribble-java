@@ -20,7 +20,6 @@ import org.scribble.ext.assrt.util.SMTWrapper;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
-
 public class ArithFormula extends StmFormula {
 
 	ArithOp op;
