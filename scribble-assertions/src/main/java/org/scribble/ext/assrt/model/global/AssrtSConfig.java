@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import org.scribble.ext.assrt.ast.AssrtAssertionNode;
 import org.scribble.ext.assrt.ast.formula.AssertionException;
 import org.scribble.ext.assrt.ast.formula.AssertionLogFormula;
-import org.scribble.ext.assrt.ast.formula.StmFormula;
+import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.sesstype.AssrtAnnotPayload;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotVarName;
@@ -102,7 +102,7 @@ public class AssrtSConfig extends SConfig
 			AssertionLogFormula newFormula = null; 
 		
 			if (assertion!=null) {
-				StmFormula currFormula = assertion.toFormula();
+				SmtFormula currFormula = assertion.toFormula();
 				
 				try {
 					newFormula = this.formula==null?

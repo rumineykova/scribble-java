@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.ast.formula.AssertionException;
 import org.scribble.ext.assrt.ast.formula.AssertionLogFormula;
-import org.scribble.ext.assrt.ast.formula.StmFormula;
+import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.sosy_lab.common.ShutdownManager;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
@@ -92,14 +92,14 @@ public class SMTWrapper {
 	      return instance;
 	   }
 	
-	public AssertionLogFormula addFormula(StmFormula f1, StmFormula f2) throws AssertionException{
+	public AssertionLogFormula addFormula(SmtFormula f1, SmtFormula f2) throws AssertionException{
 		BooleanFormula formula = this.bmanager.and((BooleanFormula)f1.getFormula(), (BooleanFormula)f2.getFormula());
 		Set<String> vars = new HashSet<String>(f1.getVars()); 
 		vars.addAll(f2.getVars()); 
 		return new AssertionLogFormula(formula, vars); 
 	}
 	
-	public Boolean isSat(StmFormula assertionFormula, AssertionLogFormula context) {
+	public Boolean isSat(SmtFormula assertionFormula, AssertionLogFormula context) {
 		boolean isUnsat = false;
 		
 		try {
@@ -137,7 +137,7 @@ public class SMTWrapper {
 		return  !isUnsat;
 	}
 
-	private BooleanFormula buildFormula(StmFormula assertionFormula,
+	private BooleanFormula buildFormula(SmtFormula assertionFormula,
 			AssertionLogFormula context) throws AssertionException {
 		BooleanFormula currFormula;
 		currFormula = (BooleanFormula) assertionFormula.getFormula();

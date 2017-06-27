@@ -17,7 +17,7 @@ import java.util.Set;
 import org.sosy_lab.java_smt.api.Formula;
 
 // FIXME: rename
-public abstract class StmFormula {
+public abstract class SmtFormula {
 
 	protected Formula formula; 
 	protected abstract Formula toFormula() throws AssertionException; 

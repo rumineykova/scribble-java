@@ -20,13 +20,13 @@ import org.scribble.ext.assrt.util.SMTWrapper;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
-public class ArithFormula extends StmFormula {
+public class ArithFormula extends SmtFormula {
 
 	ArithOp op;
-	StmFormula left;
-	StmFormula right;
+	SmtFormula left;
+	SmtFormula right;
 
-	public ArithFormula(String op, StmFormula left, StmFormula right)
+	public ArithFormula(String op, SmtFormula left, SmtFormula right)
 	{
 		this.left = left;
 		this.right = right;

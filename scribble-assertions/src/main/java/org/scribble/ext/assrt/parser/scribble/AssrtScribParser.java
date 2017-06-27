@@ -18,13 +18,15 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.ScribNode;
 import org.scribble.ext.assrt.parser.scribble.ast.AssrtAntlrPayloadElemList;
 import org.scribble.ext.assrt.parser.scribble.ast.global.AssrtAntlrGMessageTransfer;
+import org.scribble.parser.scribble.AntlrConstants;
 import org.scribble.parser.scribble.ScribParser;
-import org.scribble.parser.scribble.ScribParserUtil;
-import org.scribble.parser.scribble.AntlrConstants.AntlrNodeType;
 import org.scribble.util.ScribParserException;
 
 public class AssrtScribParser extends ScribParser
 {
+	// FIXME: refactor pattern -- cannot extend existing node type enum though
+	public static final String ANNOTGLOBALMESSAGETRANSFER_NODE_TYPE = "ANNOTGLOBALMESSAGETRANSFER";
+
 	public AssrtScribParser()
 	{
 
@@ -35,18 +37,17 @@ public class AssrtScribParser extends ScribParser
 	{
 		ScribParser.checkForAntlrErrors(ct);
 		
-		AntlrNodeType type = ScribParserUtil.getAntlrNodeType(ct);
+		String type = ct.getToken().getText();  // Duplicated from ScribParserUtil.getAntlrNodeType
 		switch (type)
 		{
-			case PAYLOAD:  
-				// N.B. will "override" base payload parsing in super
-				// Using AssrtAntlrPayloadElemList to parse both annotated and non-annotated payload elems -- i.e., original AntlrPayloadElemList is now redundant
-				return AssrtAntlrPayloadElemList.parsePayloadElemList(this, ct, af);
-			case ANNOTGLOBALMESSAGETRANSFER: 
-				// N.B. AssrtScribble.g parses this as a separate syntactic category than GLOBALMESSAGETRANSFER (cf. PAYLOAD)
-				return AssrtAntlrGMessageTransfer.parseAnnotGMessageTransfer(this, ct, af);
-			default:
-				return super.parse(ct, af);  // Does checkForAntlrErrors again, but fine
+			// N.B. will "override" base payload parsing in super -- FIXME: hacky
+			// AssrtAntlrPayloadElemList used to parse both annotated and non-annotated payload elems -- i.e., original AntlrPayloadElemList is now redundant
+			case AntlrConstants.PAYLOAD_NODE_TYPE:     return AssrtAntlrPayloadElemList.parsePayloadElemList(this, ct, af);
+			
+			// N.B. AssrtScribble.g parses this as a separate syntactic category than GLOBALMESSAGETRANSFER (cf. PAYLOAD)
+			case ANNOTGLOBALMESSAGETRANSFER_NODE_TYPE: return AssrtAntlrGMessageTransfer.parseAnnotGMessageTransfer(this, ct, af);
+
+			default: return super.parse(ct, af);
 		}
 	}
 }

@@ -16,15 +16,14 @@ package org.scribble.ext.assrt.ast;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.ScribNodeBase;
-import org.scribble.ext.assrt.ast.formula.StmFormula;
-import org.scribble.ext.assrt.parser.assertions.AssertionsParseException;
-import org.scribble.ext.assrt.parser.assertions.AssertionsScribParser;
+import org.scribble.ext.assrt.ast.formula.SmtFormula;
+import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
 
 // FIXME: visitChildren/reconstruct
 public class AssrtAssertionNode extends ScribNodeBase 
 {	
 	private final String assertion;  // FIXME: should be parsed earlier (by parser) -- cf. toFormula
-	private StmFormula formula =  null; 
+	private SmtFormula formula =  null; 
 
 	public AssrtAssertionNode(CommonTree source, String assertion)
 	{
@@ -49,18 +48,18 @@ public class AssrtAssertionNode extends ScribNodeBase
 		return this.assertion; 
 	}
 	
-	public StmFormula toFormula()
+	public SmtFormula toFormula()
 	{
 		if (this.formula == null)
 		{
-			try
+			//try
 			{
-				this.formula = AssertionsScribParser.getInstance().parse((CommonTree) this.source.getChild(0));  // FIXME: should be parsed by parser
+				this.formula = AssrtAssertParser.getInstance().parse((CommonTree) this.source.getChild(0));  // FIXME: should be parsed by parser
 			}
-			catch (AssertionsParseException e)
+			/*catch (AssertionsParseException e)
 			{
 				System.err.print("Assertion cannot be parsed" + e.getMessage());
-			}
+			}*/
 		}
 		return formula;
 	}

@@ -20,7 +20,7 @@ import org.scribble.ext.assrt.util.SMTWrapper;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
-public class AssertionVariableFormula extends StmFormula {
+public class AssertionVariableFormula extends SmtFormula {
 
 	private String name; 
 	public AssertionVariableFormula(String name){
