@@ -36,7 +36,7 @@ import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
-import org.scribble.ext.assrt.sesstype.kind.AssrtAnnotVarNameKind;
+import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
 import org.scribble.sesstype.kind.Kind;
 import org.scribble.sesstype.kind.PayloadTypeKind;
 
@@ -61,7 +61,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtGMessageTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertionNode assertion)
+	public AssrtGMessageTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
 	{
 		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests, assertion);
 		gmt = del(gmt, new AssrtGMessageTransferDel());
@@ -95,7 +95,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtLSend AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertionNode assertion)
+	public AssrtLSend AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
 	{
 		AssrtLSend ls = new AssrtLSend(source, src, msg, dests, assertion);
 		ls = del(ls, new AssrtLSendDel());
@@ -104,7 +104,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	
 	// An "additional" category, does not "replace" an existing one -- cf. AssrtGMessageTransfer
 	@Override
-	public <K extends PayloadTypeKind> AssrtAnnotPayloadElem<K> AnnotPayloadElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType)
+	public <K extends PayloadTypeKind> AssrtAnnotPayloadElem<K> AssrtAnnotPayloadElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType)
 	{
 		AssrtAnnotPayloadElem<K> de= new AssrtAnnotPayloadElem<>(source, varName, dataType);
 		de = del(de, new AssrtAnnotPayloadElemDel());
@@ -113,10 +113,10 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 
 	@Override
 	//public AssrtAssertionNode AssertionNode(CommonTree source, String assertion)
-	public AssrtAssertionNode AssertionNode(CommonTree source, SmtFormula f)
+	public AssrtAssertion AssrtAssertion(CommonTree source, SmtFormula f)
 	{
 		//AssrtAssertionNode node = new AssrtAssertionNode(source, assertion); 
-		AssrtAssertionNode node = new AssrtAssertionNode(source, f); 
+		AssrtAssertion node = new AssrtAssertion(source, f); 
 		node = del(node, createDefaultDelegate());
 		return node; 
 	}
@@ -124,7 +124,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	@Override
 	public <K extends Kind> NameNode<K> SimpleNameNode(CommonTree source, K kind, String identifier)
 	{
-		if (kind.equals(AssrtAnnotVarNameKind.KIND))
+		if (kind.equals(AssrtVarNameKind.KIND))
 		{
 			NameNode<? extends Kind> snn = new AssrtVarNameNode(source, identifier);
 			snn = del(snn, createDefaultDelegate()); 

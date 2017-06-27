@@ -13,7 +13,7 @@
  */
 package org.scribble.ext.assrt.model.global.actions;
 
-import org.scribble.ext.assrt.ast.AssrtAssertionNode;
+import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.model.global.actions.SSend;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
@@ -21,9 +21,9 @@ import org.scribble.sesstype.name.Role;
 
 public class AssrtSSend extends SSend
 {
-	public final AssrtAssertionNode assertion;  // Cf., e.g., AGMessageTransfer
+	public final AssrtAssertion assertion;  // Cf., e.g., AGMessageTransfer
 
-	public AssrtSSend(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtAssertionNode assertion)
+	public AssrtSSend(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtAssertion assertion)
 	{
 		super(subj, obj, mid, payload);
 		this.assertion = assertion;

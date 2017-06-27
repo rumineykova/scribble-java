@@ -16,13 +16,13 @@ package org.scribble.ext.assrt.parser.scribble.ast.name;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
-import org.scribble.ext.assrt.sesstype.kind.AssrtAnnotVarNameKind;
+import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
 import org.scribble.parser.scribble.ast.name.AntlrSimpleName;
 
 public class AssrtAntlrSimpleName  // Cf. AntlrSimpleName
 {
-	public static AssrtVarNameNode toVarName(CommonTree ct, AssrtAstFactory af)
+	public static AssrtVarNameNode toVarNameNode(CommonTree ct, AssrtAstFactory af)
 	{
-		return (AssrtVarNameNode) af.SimpleNameNode(ct, AssrtAnnotVarNameKind.KIND, AntlrSimpleName.getName(ct));
+		return (AssrtVarNameNode) af.SimpleNameNode(ct, AssrtVarNameKind.KIND, AntlrSimpleName.getName(ct));
 	}
 }

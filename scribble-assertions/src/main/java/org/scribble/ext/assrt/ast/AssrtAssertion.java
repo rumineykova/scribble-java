@@ -23,14 +23,14 @@ import org.scribble.main.ScribbleException;
 import org.scribble.visit.AstVisitor;
 
 // FIXME: visitChildren/reconstruct
-public class AssrtAssertionNode extends ScribNodeBase 
+public class AssrtAssertion extends ScribNodeBase 
 {	
 	//private final String assertion;  // FIXME: should be String for a more general annotations feature
 
 	private SmtFormula formula;  // Not a ScribNode (no clone/copy/accept/etc -- but is immutable)
 
 	//public AssrtAssertionNode(CommonTree source, String assertion)
-	public AssrtAssertionNode(CommonTree source, SmtFormula formula)
+	public AssrtAssertion(CommonTree source, SmtFormula formula)
 	{
 		super(source);
 		//this.assertion = assertion; 
@@ -38,17 +38,17 @@ public class AssrtAssertionNode extends ScribNodeBase
 	}
 	
 	@Override
-	protected AssrtAssertionNode copy()
+	protected AssrtAssertion copy()
 	{
 		//return new AssrtAssertionNode(this.source, this.assertion);
-		return new AssrtAssertionNode(this.source, this.formula);
+		return new AssrtAssertion(this.source, this.formula);
 	}
 	
 	@Override
-	public AssrtAssertionNode clone(AstFactory af)
+	public AssrtAssertion clone(AstFactory af)
 	{
 		//return (AssrtAssertionNode) AssrtAstFactoryImpl.FACTORY.AssertionNode(this.source, this.assertion);
-		return (AssrtAssertionNode) ((AssrtAstFactory) af).AssertionNode(this.source, this.formula);  // formula is immutable
+		return (AssrtAssertion) ((AssrtAstFactory) af).AssrtAssertion(this.source, this.formula);  // formula is immutable
 	}
 
 	/*public String getAssertion()
@@ -56,11 +56,11 @@ public class AssrtAssertionNode extends ScribNodeBase
 		return this.assertion; 
 	}*/
 	
-	protected AssrtAssertionNode reconstruct(SmtFormula f)
+	protected AssrtAssertion reconstruct(SmtFormula f)
 	{
 		ScribDel del = del();
-		AssrtAssertionNode an = new AssrtAssertionNode(this.source, f);
-		an = (AssrtAssertionNode) an.del(del);
+		AssrtAssertion an = new AssrtAssertion(this.source, f);
+		an = (AssrtAssertion) an.del(del);
 		return an;
 	}
 

@@ -29,10 +29,10 @@ import org.scribble.sesstype.kind.PayloadTypeKind;
 
 public interface AssrtAstFactory extends AstFactory
 {
-	AssrtGMessageTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertionNode assertion);
-	AssrtLSend AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertionNode assertion);
+	AssrtGMessageTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion);
+	AssrtLSend AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion);
 
-	<K extends PayloadTypeKind> AssrtAnnotPayloadElem<K> AnnotPayloadElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType);
+	<K extends PayloadTypeKind> AssrtAnnotPayloadElem<K> AssrtAnnotPayloadElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType);
 
-	AssrtAssertionNode AssertionNode(CommonTree source, SmtFormula f);
+	AssrtAssertion AssrtAssertion(CommonTree source, SmtFormula f);
 }

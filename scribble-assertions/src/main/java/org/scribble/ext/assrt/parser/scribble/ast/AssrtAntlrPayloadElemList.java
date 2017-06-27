@@ -45,11 +45,11 @@ public class AssrtAntlrPayloadElemList
 		String type = ct.getToken().getText();  // Duplicated from ScribParserUtil.getAntlrNodeType  // FIXME: factor out with AssrtScribParser.parse
 		switch (type)
 		{
-			case AssrtScribParser.ASSRTPAYLOADELEM_NODE_TYPE:
+			case AssrtScribParser.ASSRT_ANNOTPAYLOADELEM_NODE_TYPE:
 			{
-				AssrtVarNameNode var = AssrtAntlrSimpleName.toVarName(getVarNameChild(ct), af);
+				AssrtVarNameNode var = AssrtAntlrSimpleName.toVarNameNode(getVarNameChild(ct), af);
 				DataTypeNode dt = AntlrQualifiedName.toDataTypeNameNode(getDataTypeChild(ct), af);
-				return ((AssrtAstFactory) af).AnnotPayloadElem(ct, var, dt); 
+				return ((AssrtAstFactory) af).AssrtAnnotPayloadElem(ct, var, dt); 
 			}
 			default: return AntlrPayloadElemList.parsePayloadElem(ct, af);
 		}

@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.sesstype.AssrtAnnotPayload;
+import org.scribble.ext.assrt.sesstype.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtPayloadType;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.kind.PayloadTypeKind;
@@ -72,7 +72,7 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 			}
 		}
 		else if (pe.isAnnotPayloadInScope() && !this.payloads.containsKey(src) || 
-				!this.payloads.get(src).stream().anyMatch(v -> ((AssrtAnnotPayload)v).varName.equals(pe)))
+				!this.payloads.get(src).stream().anyMatch(v -> ((AssrtAnnotDataType)v).varName.equals(pe)))
 		{
 			throw new ScribbleException("Payload " + pe.toString() + " is not in scope");
 		}
@@ -81,7 +81,7 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 			// add the type int to the varname before adding the scope of the payload.
 			for(Role dest: dests) {
 				Optional<AssrtPayloadType<? extends PayloadTypeKind>> newPe= this.payloads.get(src).stream()
-						.filter(v -> ((AssrtAnnotPayload)v).varName.equals(pe)).findAny(); 
+						.filter(v -> ((AssrtAnnotDataType)v).varName.equals(pe)).findAny(); 
 				this.addPayloadToRole(dest, newPe.get());
 			}
 		}

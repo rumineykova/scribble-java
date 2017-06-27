@@ -20,7 +20,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.global.GMessageTransfer;
 import org.scribble.ast.name.simple.RoleNode;
-import org.scribble.ext.assrt.ast.AssrtAssertionNode;
+import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
@@ -43,7 +43,7 @@ public class AssrtAntlrGMessageTransfer
 	public static GMessageTransfer parseAssrtGMessageTransfer(ScribParser parser, CommonTree ct, AssrtAstFactory af) throws ScribParserException
 	{
 		//AssrtAssertionNode assertion = parseAssertion(((AssrtScribParser) parser).ap, getAssertionChild(ct));   
-		AssrtAssertionNode assertion = parseAssertion(((AssrtScribParser) parser).ap, getAssertionChild(ct), af);   
+		AssrtAssertion assertion = parseAssertion(((AssrtScribParser) parser).ap, getAssertionChild(ct), af);   
 
 		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct), af);
 		MessageNode msg = AntlrGMessageTransfer.parseMessage(parser, getMessageChild(ct), af);
@@ -52,12 +52,12 @@ public class AssrtAntlrGMessageTransfer
 		return ((AssrtAstFactory) af).AssrtGMessageTransfer(ct, src, msg, dests, assertion);
 	}
 	
-	public static AssrtAssertionNode parseAssertion(AssrtAssertParser ap, CommonTree ct, AssrtAstFactory af)
+	public static AssrtAssertion parseAssertion(AssrtAssertParser ap, CommonTree ct, AssrtAstFactory af)
 	{
 		//return AssrtAstFactoryImpl.FACTORY.AssertionNode(ct, ct.getText());
 		CommonTree tmp = (CommonTree) ct.getChild(0);  // Formula node to parse  // FIXME: factor out?
 		SmtFormula f = ap.parse(tmp);
-		return ((AssrtAstFactory) af).AssertionNode(ct, f);
+		return ((AssrtAstFactory) af).AssrtAssertion(ct, f);
 	}
 
 	public static CommonTree getAssertionChild(CommonTree ct)

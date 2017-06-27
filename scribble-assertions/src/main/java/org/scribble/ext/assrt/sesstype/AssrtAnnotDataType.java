@@ -14,17 +14,17 @@
 package org.scribble.ext.assrt.sesstype;
 
 import org.scribble.ext.assrt.sesstype.kind.AssrtAnnotPayloadElemKind;
-import org.scribble.ext.assrt.sesstype.name.AssrtAnnotVarName;
+import org.scribble.ext.assrt.sesstype.name.AssrtVarName;
 import org.scribble.ext.assrt.sesstype.name.AssrtPayloadType;
 import org.scribble.sesstype.name.DataType;
 
 // Cf., org.scribble.sesstype.Payload?
-public class AssrtAnnotPayload implements AssrtPayloadType<AssrtAnnotPayloadElemKind>
+public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotPayloadElemKind>
 {
-	public final AssrtAnnotVarName varName;
+	public final AssrtVarName varName;
 	public final DataType dataType;
 	
-	public AssrtAnnotPayload(AssrtAnnotVarName varName, DataType dataType)
+	public AssrtAnnotDataType(AssrtVarName varName, DataType dataType)
 	{
 		this.varName = varName; 
 		this.dataType = dataType; 
@@ -37,18 +37,18 @@ public class AssrtAnnotPayload implements AssrtPayloadType<AssrtAnnotPayloadElem
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtAnnotPayload))
+		if (!(o instanceof AssrtAnnotDataType))
 		{
 			return false;
 		}
-		AssrtAnnotPayload n = (AssrtAnnotPayload) o;
+		AssrtAnnotDataType n = (AssrtAnnotDataType) o;
 		return n.canEqual(this) && 
 			n.varName.equals(this.varName) && n.dataType.equals(this.dataType);
 	}
 	
 	public boolean canEqual(Object o)
 	{
-		return o instanceof AssrtAnnotPayload;
+		return o instanceof AssrtAnnotDataType;
 	}
 
 	@Override

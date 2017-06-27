@@ -20,7 +20,7 @@ import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
-import org.scribble.ext.assrt.sesstype.AssrtAnnotPayload;
+import org.scribble.ext.assrt.sesstype.AssrtAnnotDataType;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.kind.PayloadTypeKind;
 import org.scribble.util.ScribUtil;
@@ -56,7 +56,7 @@ public class AssrtAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeB
 	{
 		AssrtVarNameNode varname = ScribUtil.checkNodeClassEquality(this.varName, this.varName.clone(af));
 		DataTypeNode datatype = ScribUtil.checkNodeClassEquality(this.dataType, this.dataType.clone(af));
-		return ((AssrtAstFactory) af).AnnotPayloadElem(this.source, varname, datatype);
+		return ((AssrtAstFactory) af).AssrtAnnotPayloadElem(this.source, varname, datatype);
 	}
 
 	public AssrtAnnotPayloadElem<K> reconstruct(AssrtVarNameNode name, DataTypeNode dataType)
@@ -82,9 +82,9 @@ public class AssrtAnnotPayloadElem<K extends PayloadTypeKind> extends ScribNodeB
 	}
 
 	@Override
-	public AssrtAnnotPayload toPayloadType()
+	public AssrtAnnotDataType toPayloadType()
 	{
-		// TODO: make it PayloadType AnnotPayload  // FIXME: means return the actual payload type?
-		return new AssrtAnnotPayload(this.varName.toPayloadType(), this.dataType.toPayloadType());
+		// TODO: make it PayloadType AnnotPayload  // FIXME: means return just the data type?  but maybe the var is needed
+		return new AssrtAnnotDataType(this.varName.toPayloadType(), this.dataType.toPayloadType());
 	}
 }

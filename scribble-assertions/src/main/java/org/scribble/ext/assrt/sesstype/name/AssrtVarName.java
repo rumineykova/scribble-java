@@ -12,17 +12,17 @@
  * the License.
  */
 package org.scribble.ext.assrt.sesstype.name;
-import org.scribble.ext.assrt.sesstype.kind.AssrtAnnotVarNameKind;
+import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
 import org.scribble.sesstype.name.AbstractName;
 
 
-public class AssrtAnnotVarName extends AbstractName<AssrtAnnotVarNameKind> implements AssrtPayloadType<AssrtAnnotVarNameKind>
+public class AssrtVarName extends AbstractName<AssrtVarNameKind> implements AssrtPayloadType<AssrtVarNameKind>
 {
 	private static final long serialVersionUID = 1L;
 
-	public AssrtAnnotVarName(String simplename)
+	public AssrtVarName(String simplename)
 	{
-		super(AssrtAnnotVarNameKind.KIND, simplename);
+		super(AssrtVarNameKind.KIND, simplename);
 	}
 
 	@Override
@@ -32,17 +32,17 @@ public class AssrtAnnotVarName extends AbstractName<AssrtAnnotVarNameKind> imple
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtAnnotVarName))
+		if (!(o instanceof AssrtVarName))
 		{
 			return false;
 		}
-		AssrtAnnotVarName n = (AssrtAnnotVarName) o;
+		AssrtVarName n = (AssrtVarName) o;
 		return n.canEqual(this) && super.equals(o);
 	}
 	
 	public boolean canEqual(Object o)
 	{
-		return o instanceof AssrtAnnotVarName;
+		return o instanceof AssrtVarName;
 	}
 
 	@Override

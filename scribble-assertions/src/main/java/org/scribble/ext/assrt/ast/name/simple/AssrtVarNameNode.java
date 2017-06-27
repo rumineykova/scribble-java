@@ -19,12 +19,12 @@ import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.PayloadElemNameNode;
 import org.scribble.ast.name.simple.SimpleNameNode;
-import org.scribble.ext.assrt.sesstype.kind.AssrtAnnotVarNameKind;
-import org.scribble.ext.assrt.sesstype.name.AssrtAnnotVarName;
+import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
+import org.scribble.ext.assrt.sesstype.name.AssrtVarName;
 import org.scribble.sesstype.Arg;
 import org.scribble.sesstype.kind.NonRoleArgKind;
 
-public class AssrtVarNameNode extends SimpleNameNode<AssrtAnnotVarNameKind> implements PayloadElemNameNode<AssrtAnnotVarNameKind>
+public class AssrtVarNameNode extends SimpleNameNode<AssrtVarNameKind> implements PayloadElemNameNode<AssrtVarNameKind>
 {
 	public AssrtVarNameNode(CommonTree source, String identifier)
 	{
@@ -38,14 +38,14 @@ public class AssrtVarNameNode extends SimpleNameNode<AssrtAnnotVarNameKind> impl
 	}
 
 	@Override
-	public NameNode<AssrtAnnotVarNameKind> clone(AstFactory af)
+	public NameNode<AssrtVarNameKind> clone(AstFactory af)
 	{
-		return (AssrtVarNameNode) af.SimpleNameNode(this.source, AssrtAnnotVarNameKind.KIND, getIdentifier());
+		return (AssrtVarNameNode) af.SimpleNameNode(this.source, AssrtVarNameKind.KIND, getIdentifier());
 	}
 
 	@Override
-	public AssrtAnnotVarName toName() {
-		return new AssrtAnnotVarName(getIdentifier());
+	public AssrtVarName toName() {
+		return new AssrtVarName(getIdentifier());
 	}
 	
 	@Override
@@ -83,7 +83,7 @@ public class AssrtVarNameNode extends SimpleNameNode<AssrtAnnotVarNameKind> impl
 	}
 
 	@Override
-	public AssrtAnnotVarName toPayloadType()
+	public AssrtVarName toPayloadType()
 	{
 		return toName();  // FIXME: Shoudln't this be the type, not the var name?
 	}

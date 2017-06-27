@@ -17,11 +17,11 @@ import org.scribble.sesstype.kind.AbstractKind;
 import org.scribble.sesstype.kind.DataTypeKind;
 import org.scribble.sesstype.kind.PayloadTypeKind;
 
-public class AssrtAnnotVarNameKind extends AbstractKind implements PayloadTypeKind
+public class AssrtVarNameKind extends AbstractKind implements PayloadTypeKind
 {
-	public static final AssrtAnnotVarNameKind KIND = new AssrtAnnotVarNameKind();
+	public static final AssrtVarNameKind KIND = new AssrtVarNameKind();
 	
-	protected AssrtAnnotVarNameKind()
+	protected AssrtVarNameKind()
 	{
 
 	}
@@ -49,6 +49,6 @@ public class AssrtAnnotVarNameKind extends AbstractKind implements PayloadTypeKi
 	@Override
 	public boolean canEqual(Object o)
 	{
-		return o instanceof AssrtAnnotVarNameKind;
+		return o instanceof AssrtVarNameKind;
 	}
 }
