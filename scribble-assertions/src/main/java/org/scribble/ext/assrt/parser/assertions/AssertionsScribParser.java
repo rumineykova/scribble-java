@@ -28,7 +28,7 @@ import org.scribble.ext.assrt.parser.assertions.ast.formula.VarNode;
 
 // ANTLR CommonTree -> ScribNode
 // Parses ANTLR nodes into ScribNodes using the parser.ast.Antlr[...] helper classes
-public class AssertionsScribParser
+public class AssertionsScribParser  // For parsing ANTLR assertion trees into Scribble assertion tree, Cf. ScribParser
 {
 	protected AssertionsScribParser() {}
 	public static AssertionsScribParser getInstance() {

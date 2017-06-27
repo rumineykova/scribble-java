@@ -23,7 +23,7 @@ import org.scribble.ext.assrt.parser.assertions.AssertionsScribParser;
 // FIXME: visitChildren/reconstruct
 public class AssrtAssertionNode extends ScribNodeBase 
 {	
-	private final String assertion;  // FIXME: should be earlier parsed
+	private final String assertion;  // FIXME: should be parsed earlier (by parser) -- cf. toFormula
 	private StmFormula formula =  null; 
 
 	public AssrtAssertionNode(CommonTree source, String assertion)
@@ -55,14 +55,14 @@ public class AssrtAssertionNode extends ScribNodeBase
 		{
 			try
 			{
-				this.formula = AssertionsScribParser.getInstance().parse((CommonTree)this.source.getChild(0));  // FIXME: should be parsed by parser
+				this.formula = AssertionsScribParser.getInstance().parse((CommonTree) this.source.getChild(0));  // FIXME: should be parsed by parser
 			}
 			catch (AssertionsParseException e)
 			{
 				System.err.print("Assertion cannot be parsed" + e.getMessage());
 			}
 		}
-		return formula; 
+		return formula;
 	}
 	
 	@Override

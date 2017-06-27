@@ -52,7 +52,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		return gpb;
 	}
 
-	// Non-annotated message transfers still created as AssrtGMessageTransfer -- null assertion, but AssrtGMessageTransferDel still needed
+	// Non-annotated message transfers still created as AssrtGMessageTransfer -- null assertion, but AssrtGMessageTransferDel is still needed
 	@Override
 	public AssrtGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
 	{

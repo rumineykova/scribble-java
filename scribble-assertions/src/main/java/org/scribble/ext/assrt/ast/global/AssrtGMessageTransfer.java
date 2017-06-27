@@ -37,7 +37,7 @@ import org.scribble.visit.AstVisitor;
 
 public class AssrtGMessageTransfer extends GMessageTransfer
 {
-	public final AssrtAssertionNode assertion;  // null if none specified syntactically  
+	public final AssrtAssertionNode assertion;  // null if not specified
 			// Duplicated in ALSend/Receive -- could factour out to in Del, but need to consider immutable pattern
 
 	public AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
@@ -55,7 +55,7 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 	public LNode project(AstFactory af, Role self)
 	{
 		LNode proj = super.project(af, self);
-		if (proj instanceof LInteractionSeq)
+		if (proj instanceof LInteractionSeq)  // From super, if self communication
 		{
 			throw new RuntimeException("[scrib-assert] Self-communication not supported: " + proj);
 		}
