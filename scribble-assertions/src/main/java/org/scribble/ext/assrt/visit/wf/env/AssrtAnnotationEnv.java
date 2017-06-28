@@ -23,28 +23,25 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVarName;
+import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.sesstype.name.Role;
 import org.scribble.visit.env.Env;
 
 public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 {
-	//private Map<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>> payloadTypes;  // "Knowledge" or "ownership" ?
+	// "May" analysis
+	private Map<Role, Set<AssrtAnnotDataType>> decls;  // Var declaration binding  // Role is the src role of the transfer -- not important?
 
-	private Map<Role, Set<AssrtAnnotDataType>> decls;  // Var declaration binding  // Role is the src role of the transfer -- not important?  // FIXME: clarify as a "may" check
-
-	private Map<Role, Set<AssrtDataTypeVarName>> vars;  // "Knowledge" of var (given by message passing)  // FIXME: do by model checking rather than syntactically?
-			// FIXME: clarify as a "must" check
+	// "Must" analysis
+	private Map<Role, Set<AssrtDataTypeVar>> vars;  // "Knowledge" of var (according to message passing)  // FIXME: do by model checking rather than syntactically?
 	
 	public AssrtAnnotationEnv()
 	{
 		this(Collections.emptyMap(), Collections.emptyMap());
 	}
 	
-	//protected AssrtAnnotationEnv(Map<Role, Set<AssrtPayloadType<?>>> payloads)
-	protected AssrtAnnotationEnv(Map<Role, Set<AssrtAnnotDataType>> decls, Map<Role, Set<AssrtDataTypeVarName>> vars)
+	protected AssrtAnnotationEnv(Map<Role, Set<AssrtAnnotDataType>> decls, Map<Role, Set<AssrtDataTypeVar>> vars)
 	{
-		//this.payloadTypes = new HashMap<>(payloads);
 		this.decls = new HashMap<>(decls);
 		this.vars = new HashMap<>(vars);
 	}
@@ -52,7 +49,6 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 	@Override
 	public AssrtAnnotationEnv copy()
 	{
-		//return new AssrtAnnotationEnv(new HashMap<Role, Set<AssrtPayloadType<?>>>(this.payloadTypes));
 		return new AssrtAnnotationEnv(new HashMap<>(this.decls), new HashMap<>(this.vars));
 	}
 
@@ -63,82 +59,15 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 	}
 
 	// "Global" syntactic scoping -- binding insensitive to roles (and DataType)
-	public boolean isDataTypeVarBound(AssrtDataTypeVarName v)
+	public boolean isDataTypeVarBound(AssrtDataTypeVar v)
 	{
 		return this.decls.values().stream().flatMap(s -> s.stream()).anyMatch(adt -> adt.var.equals(v));
 	}
 	
-	public boolean isDataTypeVarKnown(Role r, AssrtDataTypeVarName avn)
+	public boolean isDataTypeVarKnown(Role r, AssrtDataTypeVar avn)
 	{
-		Set<AssrtDataTypeVarName> tmp = this.vars.get(r);
+		Set<AssrtDataTypeVar> tmp = this.vars.get(r);
 		return tmp != null && tmp.stream().anyMatch(v -> v.equals(avn));
-	}
-
-	/*// FIXME: refactor exception throwing into the del
-	public boolean isAnnotVarDeclValid(AssrtAnnotDataType adt, Role src, List<Role> dests) throws ScribbleException 
-	{
-		if (this.payloadTypes.values().stream().anyMatch(x -> x.contains(adt)))  // FIXME: needs both var and data type to be the same?
-		{
-			return false;
-		}
-		addPayloadToRole(src, adt); 
-		dests.forEach(d -> addPayloadToRole(d, adt));
-		return true;
-	}
-	
-	public boolean isAnnotVarNameValid(AssrtVarName pe, Role src, List<Role> dests) throws ScribbleException 
-	{
-		if (!this.payloadTypes.containsKey(src) || !this.payloadTypes.get(src).stream().anyMatch(v -> ((AssrtAnnotDataType) v).varName.equals(pe)))
-		{
-			throw new ScribbleException("Payload " + pe.toString() + " is not in scope");
-		}
-
-		// add the type int to the varname before adding the scope of the payload.
-		for(Role dest: dests)
-		{
-			Optional<AssrtPayloadType<?>> newPe = this.payloadTypes.get(src).stream()
-					.filter(v -> ((AssrtAnnotDataType) v).varName.equals(pe)).findAny(); 
-			addPayloadToRole(dest, newPe.get());
-		}
-		return true;
-	}*/
-
-	// Also records src as "knowing" adt.var
-	public AssrtAnnotationEnv addAnnotDataType(Role src, AssrtAnnotDataType adt)
-	{
-		AssrtAnnotationEnv copy = copy();
-		copy.addAnnotDataTypeAux(src, adt);
-		copy.addDataTypeVarNameAux(src, adt.var);
-		return copy;
-	}
-	
-	private void addAnnotDataTypeAux(Role role, AssrtAnnotDataType adt)
-	{
-		Set<AssrtAnnotDataType> tmp = this.decls.get(role);
-		if (tmp == null)
-		{
-			tmp = new HashSet<>();
-			this.decls.put(role, tmp);
-		}
-		tmp.add(adt);
-	}
-
-	public AssrtAnnotationEnv addDataTypeVarName(Role role, AssrtDataTypeVarName v)
-	{
-		AssrtAnnotationEnv copy = copy();
-		copy.addDataTypeVarNameAux(role, v);
-		return copy;
-	}
-	
-	private void addDataTypeVarNameAux(Role role, AssrtDataTypeVarName v)
-	{
-		Set<AssrtDataTypeVarName> tmp = this.vars.get(role);
-		if (tmp == null)
-		{
-			tmp = new HashSet<>();
-			this.vars.put(role, tmp);
-		}
-		tmp.add(v);
 	}
 
 	@Override
@@ -153,34 +82,69 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 	{
 		AssrtAnnotationEnv copy = copy();
 
-		// Take "intersection" for both decls and vars? -- implicitly handles vars "inherited" from before, e.g., a choice
-		Set<Role> declRoles = children.stream()
-				.flatMap(e -> e.decls.keySet().stream())
-				.filter(r -> children.stream().map(e -> e.decls.keySet()).allMatch(ks -> ks.contains(r)))
-				.collect(Collectors.toSet());
-		Map<Role, Set<AssrtAnnotDataType>> decls = new HashMap<>();
-		for (Role r : declRoles)
-		{
-			decls.put(r, children.stream().map(c -> c.decls.get(r))
-					 .reduce((s1, s2) -> s1.stream().filter(s2::contains).collect(Collectors.toSet())).get()
-			);
-		}
+		// "Union"
+		Map<Role, Set<AssrtAnnotDataType>> decls = children.stream()
+				.flatMap(c -> c.decls.entrySet().stream())
+				.collect(Collectors.toMap(
+						Map.Entry<Role, Set<AssrtAnnotDataType>>::getKey,
+						Map.Entry<Role, Set<AssrtAnnotDataType>>::getValue,
+						(v1, v2) -> { v1.addAll(v2); return v1; }
+				));
 		copy.decls = decls;
 		
+		// "Intersection" -- implicitly handles vars "inherited" from before, e.g., a choice
 		Set<Role> varsRoles = children.stream()  // FIXME: factor out with above?
 				.flatMap(e -> e.vars.keySet().stream())
 				.filter(r -> children.stream().map(e -> e.vars.keySet()).allMatch(ks -> ks.contains(r)))
 				.collect(Collectors.toSet());
-		Map<Role, Set<AssrtDataTypeVarName>> vars = new HashMap<>();
+		Map<Role, Set<AssrtDataTypeVar>> vars = new HashMap<>();
 		for (Role r : varsRoles)
 		{
 			vars.put(r, children.stream().map(c -> c.vars.get(r))
-					 .reduce((s1, s2) -> s1.stream().filter(s2::contains).collect(Collectors.toSet())).get()
+					 .reduce((s1, s2) -> s1.stream().filter(s2::contains).collect(Collectors.toSet())).get()  // Is there a "contains" directly for Stream? (i.e., bypass Set.contains)
 			);
 		}
 		copy.vars = vars;
 		
 		return copy;
+	}
+
+	// Also bootstraps src as "knowing" adt.var
+	public AssrtAnnotationEnv addAnnotDataType(Role src, AssrtAnnotDataType adt)
+	{
+		AssrtAnnotationEnv copy = copy();
+		copy.addAnnotDataTypeAux(src, adt);
+		copy.addDataTypeVarNameAux(src, adt.var);
+		return copy;
+	}
+
+	public AssrtAnnotationEnv addDataTypeVarName(Role role, AssrtDataTypeVar v)
+	{
+		AssrtAnnotationEnv copy = copy();
+		copy.addDataTypeVarNameAux(role, v);
+		return copy;
+	}
+	
+	private void addAnnotDataTypeAux(Role role, AssrtAnnotDataType adt)
+	{
+		Set<AssrtAnnotDataType> tmp = this.decls.get(role);
+		if (tmp == null)
+		{
+			tmp = new HashSet<>();
+			this.decls.put(role, tmp);
+		}
+		tmp.add(adt);
+	}
+	
+	private void addDataTypeVarNameAux(Role role, AssrtDataTypeVar v)
+	{
+		Set<AssrtDataTypeVar> tmp = this.vars.get(role);
+		if (tmp == null)
+		{
+			tmp = new HashSet<>();
+			this.vars.put(role, tmp);
+		}
+		tmp.add(v);
 	}
 	
 	@Override
@@ -188,6 +152,8 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 	{
 		return "[decls=" + this.decls + ", vars=" + this.vars + "]";
 	}
+	
+	
 
 	/*public boolean checkIfPayloadValid(AssrtPayloadType<?> pe, Role src, List<Role> dests) throws ScribbleException 
 	{

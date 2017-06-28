@@ -16,6 +16,54 @@ type <java> "java.lang.String" from "rt.jar" as Str;
 
 
 //*
+global protocol Proto1(role A, role B)
+{
+	choice at A
+	{
+		1(x:Int) from A to B;
+	}
+	or
+	{
+		2(y:Int) from A to B;
+	}
+	2(z:Int) from A to B; 
+	//2(y:Int) from A to B;  // Uncomment is bad
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C, role D)
+{
+	1(x:Int) from A to B;
+	2(x:Int) from C to D;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x:Int) from A to B;
+	2(x:Int) from B to A;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x:Int) from A to B;
+	2(x:Int) from A to B;
+}
+//*/
+
+
+//---
+
+
+
+/*
 global protocol Proto1(role A, role B, role C)
 {
 	rec X

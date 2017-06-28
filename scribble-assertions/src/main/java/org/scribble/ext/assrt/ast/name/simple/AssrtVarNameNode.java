@@ -20,7 +20,7 @@ import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.PayloadElemNameNode;
 import org.scribble.ast.name.simple.SimpleNameNode;
 import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
-import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVarName;
+import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.sesstype.Arg;
 import org.scribble.sesstype.kind.NonRoleArgKind;
 
@@ -45,8 +45,8 @@ public class AssrtVarNameNode extends SimpleNameNode<AssrtVarNameKind> implement
 	}
 
 	@Override
-	public AssrtDataTypeVarName toName() {
-		return new AssrtDataTypeVarName(getIdentifier());
+	public AssrtDataTypeVar toName() {
+		return new AssrtDataTypeVar(getIdentifier());
 	}
 	
 	@Override
@@ -84,7 +84,7 @@ public class AssrtVarNameNode extends SimpleNameNode<AssrtVarNameKind> implement
 	}
 
 	@Override
-	public AssrtDataTypeVarName toPayloadType()
+	public AssrtDataTypeVar toPayloadType()
 	{
 		return toName();  // FIXME: Shoudln't this be the type, not the var name?
 	}

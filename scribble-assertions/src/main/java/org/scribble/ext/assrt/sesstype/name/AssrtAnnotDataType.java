@@ -19,10 +19,10 @@ import org.scribble.sesstype.name.DataType;
 // In name package like GDelegationType -- FIXME: maybe refactor (both) out of name, and (Assrt)PayloadType
 public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotPayloadElemKind>
 {
-	public final AssrtDataTypeVarName var;
+	public final AssrtDataTypeVar var;
 	public final DataType data;  // FIXME: generalise?
 	
-	public AssrtAnnotDataType(AssrtDataTypeVarName varName, DataType dataType)
+	public AssrtAnnotDataType(AssrtDataTypeVar varName, DataType dataType)
 	{
 		this.var = varName; 
 		this.data = dataType; 

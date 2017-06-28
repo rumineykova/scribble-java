@@ -23,7 +23,7 @@ import org.scribble.del.global.GMessageTransferDel;
 import org.scribble.ext.assrt.del.AssrtScribDel;
 import org.scribble.ext.assrt.sesstype.name.AssrtPayloadType;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVarName;
+import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
 import org.scribble.ext.assrt.visit.wf.env.AssrtAnnotationEnv;
 import org.scribble.main.ScribbleException;
@@ -54,10 +54,6 @@ public class AssrtGMessageTransferDel extends GMessageTransferDel implements Ass
 				if (peType instanceof AssrtPayloadType<?>)
 				{
 					AssrtPayloadType<?> apt = (AssrtPayloadType<?>) peType;
-					/*if (apt.isAnnotVarDecl() || apt.isAnnotVarName())
-					{
-						env.checkIfPayloadValid(apt, src, dests); 
-					}*/
 					if (apt.isAnnotVarDecl())
 					{
 						AssrtAnnotDataType adt = (AssrtAnnotDataType) apt;
@@ -66,22 +62,21 @@ public class AssrtGMessageTransferDel extends GMessageTransferDel implements Ass
 							throw new ScribbleException("Payload var " + pe + " is already declared."); 
 						}
 						env = env.addAnnotDataType(src, adt); 
-						for (Role d : dests)
+						for (Role dest : dests)
 						{
-							//env = env.addAnnotDataType(d, adt);
-							env = env.addDataTypeVarName(d, adt.var);
+							env = env.addDataTypeVarName(dest, adt.var);
 						}
 					}
 					else //if (apt.isAnnotVarName())
 					{
-						AssrtDataTypeVarName v = (AssrtDataTypeVarName) apt;
+						AssrtDataTypeVar v = (AssrtDataTypeVar) apt;
 						if (!env.isDataTypeVarKnown(src, v))
 						{
 							throw new ScribbleException("Payload var " + pe + " is not in scope for role: " + src);
 						}
-						for (Role d : dests)
+						for (Role dest : dests)
 						{
-							env = env.addDataTypeVarName(d, v);
+							env = env.addDataTypeVarName(dest, v);
 						}
 					}
 				}
