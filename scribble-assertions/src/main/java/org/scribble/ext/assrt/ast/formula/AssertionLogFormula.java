@@ -20,7 +20,7 @@ import org.scribble.ext.assrt.util.SMTWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.Formula;
 
-public class AssertionLogFormula extends StmFormula {
+public class AssertionLogFormula extends SmtFormula {
 	
 	Set<String> vars; 
 	
@@ -41,7 +41,7 @@ public class AssertionLogFormula extends StmFormula {
 		return vars; 
 	}
 	
-	public AssertionLogFormula addFormula(StmFormula newFormula) throws AssertionException{		
+	public AssertionLogFormula addFormula(SmtFormula newFormula) throws AssertionException{		
 		return this.formula==null? 
 				new AssertionLogFormula(newFormula.formula, newFormula.getVars()):	
 				SMTWrapper.getInstance().addFormula(this, newFormula);

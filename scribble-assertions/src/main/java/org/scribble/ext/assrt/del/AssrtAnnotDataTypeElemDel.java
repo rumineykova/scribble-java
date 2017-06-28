@@ -11,23 +11,21 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.scribble.ext.assrt.del.global;
+package org.scribble.ext.assrt.del;
 
 import org.scribble.ast.ScribNode;
-import org.scribble.del.global.GInteractionSeqDel;
-import org.scribble.ext.assrt.del.AssrtScribDel;
-import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
-import org.scribble.ext.assrt.visit.wf.env.AssrtAnnotationEnv;
+import org.scribble.del.ScribDelBase;
+import org.scribble.ext.assrt.ast.AssrtAnnotDataTypeElem;
+import org.scribble.ext.assrt.visit.wf.AssrtNameDisambiguator;
 import org.scribble.main.ScribbleException;
+import org.scribble.visit.wf.NameDisambiguator;
 
-public class AssrtGInteractionSeqDel extends GInteractionSeqDel implements AssrtScribDel
+public class AssrtAnnotDataTypeElemDel extends ScribDelBase
 {
-	
-	// CHECKME: is this needed?  How about leave?
 	@Override
-	public void enterAnnotCheck(ScribNode parent, ScribNode child, AssrtAnnotationChecker checker) throws ScribbleException
+	public void enterDisambiguation(ScribNode parent, ScribNode child, NameDisambiguator disamb) throws ScribbleException
 	{
-		AssrtAnnotationEnv env = checker.peekEnv().enterContext();
-		checker.pushEnv(env);
+		AssrtAnnotDataTypeElem<?> payload = (AssrtAnnotDataTypeElem<?>) child;
+		((AssrtNameDisambiguator) disamb).addAnnotPaylaod(payload.varName.toString());
 	}
 }

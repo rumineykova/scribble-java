@@ -26,7 +26,7 @@ package org.scribble.ext.assrt.parser.assertions;
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-
+@Deprecated
 public class AssertionsParseException extends Exception
 {
 	private static final long serialVersionUID = 1L;

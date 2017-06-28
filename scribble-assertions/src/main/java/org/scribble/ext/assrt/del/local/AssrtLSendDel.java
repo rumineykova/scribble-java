@@ -43,7 +43,7 @@ public class AssrtLSendDel extends LSendDel
 		Payload payload = ls.msg.isMessageSigNode()  // Hacky?
 					? ((MessageSigNode) ls.msg).payloads.toPayload()
 					: Payload.EMPTY_PAYLOAD;
-		builder.util.addEdge(builder.util.getEntry(), ((AssrtEModelFactory) builder.job.ef).newAssrtESend(peer, mid, payload, ls.assertion), builder.util.getExit());  // FIXME: factor out action building with LSendDel?
+		builder.util.addEdge(builder.util.getEntry(), ((AssrtEModelFactory) builder.job.ef).newAssrtESend(peer, mid, payload, ls.ass), builder.util.getExit());  // FIXME: factor out action building with LSendDel?
 		//return (AssrtLSend) super.leaveEGraphBuilding(parent, child, graph, ls);  // No
 		// FIXME: OK to ignore super?
 		return visited;  // From super of LSendDel

@@ -21,13 +21,13 @@ import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
-public class CompFormula extends StmFormula {
+public class CompFormula extends SmtFormula {
 
 	CompOp op; 
-	StmFormula left; 
-	StmFormula right; 
+	SmtFormula left; 
+	SmtFormula right; 
 	
-	public CompFormula(String op, StmFormula left, StmFormula right)
+	public CompFormula(String op, SmtFormula left, SmtFormula right)
 	{
 		this.left = left; 
 		this.right = right; 

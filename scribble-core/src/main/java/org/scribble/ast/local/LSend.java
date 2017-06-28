@@ -1,5 +1,12 @@
 /**
  * Copyright 2008 The Scribble Authors
+
+	// FIXME: shouldn't be needed, but here due to Eclipse bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=436350
+	@Override
+	public Local getKind()
+	{
+		return LSimpleInteractionNode.super.getKind();
+	}
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -28,7 +35,6 @@ import org.scribble.del.ScribDel;
 import org.scribble.main.RuntimeScribbleException;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.Message;
-import org.scribble.sesstype.kind.Local;
 import org.scribble.sesstype.name.Role;
 import org.scribble.util.ScribUtil;
 import org.scribble.visit.context.ProjectedChoiceSubjectFixer;
@@ -72,13 +78,6 @@ public class LSend extends LMessageTransfer
 		return this.src.toName();
 	}
 
-	// FIXME: shouldn't be needed, but here due to Eclipse bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=436350
-	@Override
-	public Local getKind()
-	{
-		return LSimpleInteractionNode.super.getKind();
-	}
-
 	@Override
 	public String toString()
 	{
@@ -103,4 +102,11 @@ public class LSend extends LMessageTransfer
 	{
 		return Collections.emptySet();
 	}
+
+	/*// FIXME: shouldn't be needed, but here due to Eclipse bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=436350
+	@Override
+	public Local getKind()
+	{
+		return LSimpleInteractionNode.super.getKind();
+	}*/
 }

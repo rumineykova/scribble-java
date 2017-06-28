@@ -13,7 +13,7 @@
  */
 package org.scribble.ext.assrt.model.endpoint;
 
-import org.scribble.ext.assrt.ast.AssrtAssertionNode;
+import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.model.endpoint.EModelFactoryImpl;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.sesstype.Payload;
@@ -30,7 +30,7 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl implements AssrtEM
 	}
 
 	@Override
-	public ESend newAssrtESend(Role peer, MessageId<?> mid, Payload payload, AssrtAssertionNode assertion)
+	public ESend newAssrtESend(Role peer, MessageId<?> mid, Payload payload, AssrtAssertion assertion)
 	{
 		return new AssrtESend(this, peer, mid, payload, assertion);
 	}

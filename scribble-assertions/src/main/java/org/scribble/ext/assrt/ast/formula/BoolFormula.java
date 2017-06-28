@@ -20,14 +20,14 @@ import org.scribble.ext.assrt.util.SMTWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.BooleanFormulaManager;
 
-public class BoolFormula extends StmFormula {
+public class BoolFormula extends SmtFormula {
 
 	BoolOp op; 
-	StmFormula left; 
-	StmFormula right; 
+	SmtFormula left; 
+	SmtFormula right; 
 	BooleanFormula formula; 
 	
-	public BoolFormula(String op, StmFormula left, StmFormula right)
+	public BoolFormula(String op, SmtFormula left, SmtFormula right)
 	{
 		this.left = left; 
 		this.right = right; 

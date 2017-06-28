@@ -18,11 +18,17 @@ import java.util.Map;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.Module;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
+import org.scribble.ext.assrt.visit.wf.AssrtNameDisambiguator;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.global.SModelFactory;
 import org.scribble.sesstype.name.ModuleName;
+import org.scribble.visit.ProtocolDefInliner;
+import org.scribble.visit.context.ModuleContextBuilder;
+import org.scribble.visit.context.ProtocolDeclContextBuilder;
+import org.scribble.visit.util.RoleCollector;
+import org.scribble.visit.wf.DelegationProtocolRefChecker;
 
 public class AssrtJob extends Job
 {
@@ -32,6 +38,19 @@ public class AssrtJob extends Job
 			AstFactory af, EModelFactory ef, SModelFactory sf)
 	{
 		super(debug, parsed, main, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, af, ef, sf);
+	}
+	
+	@Override
+	public void runContextBuildingPasses() throws ScribbleException
+	{
+		runVisitorPassOnAllModules(ModuleContextBuilder.class);
+
+		runVisitorPassOnAllModules(AssrtNameDisambiguator.class);  // FIXME: factor out overriding pattern?
+
+		runVisitorPassOnAllModules(ProtocolDeclContextBuilder.class);
+		runVisitorPassOnAllModules(DelegationProtocolRefChecker.class);
+		runVisitorPassOnAllModules(RoleCollector.class);
+		runVisitorPassOnAllModules(ProtocolDefInliner.class);
 	}
 
 	@Override

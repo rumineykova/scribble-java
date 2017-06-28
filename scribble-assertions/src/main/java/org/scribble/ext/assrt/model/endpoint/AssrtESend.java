@@ -13,7 +13,7 @@
  */
 package org.scribble.ext.assrt.model.endpoint;
 
-import org.scribble.ext.assrt.ast.AssrtAssertionNode;
+import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.actions.ESend;
@@ -24,9 +24,9 @@ import org.scribble.sesstype.name.Role;
 
 public class AssrtESend extends ESend
 {
-	public final AssrtAssertionNode assertion;  // Cf., e.g., ALSend  // FIXME: should not be the AST node
+	public final AssrtAssertion assertion;  // Cf., e.g., ALSend  // FIXME: should not be the AST node
 
-	public AssrtESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtAssertionNode assertion)
+	public AssrtESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtAssertion assertion)
 	{
 		super(ef, peer, mid, payload);
 		this.assertion = assertion;

@@ -20,7 +20,7 @@ import org.scribble.ext.assrt.util.SMTWrapper;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
-public class ValueFormula extends StmFormula {
+public class ValueFormula extends SmtFormula {
 
 	private Integer value; 
 	public ValueFormula(String value){

@@ -11,23 +11,21 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.scribble.ext.assrt.sesstype;
+package org.scribble.ext.assrt.sesstype.name;
 
 import org.scribble.ext.assrt.sesstype.kind.AssrtAnnotPayloadElemKind;
-import org.scribble.ext.assrt.sesstype.name.AssrtAnnotVarName;
-import org.scribble.ext.assrt.sesstype.name.AssrtPayloadType;
 import org.scribble.sesstype.name.DataType;
 
-// Cf., org.scribble.sesstype.Payload?
-public class AssrtAnnotPayload implements AssrtPayloadType<AssrtAnnotPayloadElemKind>
+// In name package like GDelegationType -- FIXME: maybe refactor (both) out of name, and (Assrt)PayloadType
+public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotPayloadElemKind>
 {
-	public final AssrtAnnotVarName varName;
-	public final DataType dataType;
+	public final AssrtDataTypeVar var;
+	public final DataType data;  // FIXME: generalise?
 	
-	public AssrtAnnotPayload(AssrtAnnotVarName varName, DataType dataType)
+	public AssrtAnnotDataType(AssrtDataTypeVar varName, DataType dataType)
 	{
-		this.varName = varName; 
-		this.dataType = dataType; 
+		this.var = varName; 
+		this.data = dataType; 
 	}
 
 	@Override
@@ -37,32 +35,32 @@ public class AssrtAnnotPayload implements AssrtPayloadType<AssrtAnnotPayloadElem
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtAnnotPayload))
+		if (!(o instanceof AssrtAnnotDataType))
 		{
 			return false;
 		}
-		AssrtAnnotPayload n = (AssrtAnnotPayload) o;
+		AssrtAnnotDataType n = (AssrtAnnotDataType) o;
 		return n.canEqual(this) && 
-			n.varName.equals(this.varName) && n.dataType.equals(this.dataType);
+			n.var.equals(this.var) && n.data.equals(this.data);
 	}
 	
 	public boolean canEqual(Object o)
 	{
-		return o instanceof AssrtAnnotPayload;
+		return o instanceof AssrtAnnotDataType;
 	}
 
 	@Override
 	public String toString()
 	{
-		return this.varName.toString() + ' '  + this.dataType.getSimpleName().toString();   
+		return this.var.toString() + ' '  + this.data.getSimpleName().toString();   
 	}
 	
 	@Override
 	public int hashCode()
 	{
 		int hash = 2767;
-		hash = hash*31 + this.dataType.hashCode(); 
-		hash = hash*31 + this.varName.hashCode();
+		hash = hash*31 + this.data.hashCode(); 
+		hash = hash*31 + this.var.hashCode();
 		return hash;
 	}
 
@@ -72,7 +70,7 @@ public class AssrtAnnotPayload implements AssrtPayloadType<AssrtAnnotPayloadElem
 	}
 	
 	@Override
-	public boolean isAnnotPayloadDecl()
+	public boolean isAnnotVarDecl()
 	{
 		return true;
 	}

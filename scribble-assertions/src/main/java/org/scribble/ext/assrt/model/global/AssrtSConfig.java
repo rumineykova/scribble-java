@@ -22,13 +22,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.ast.AssrtAssertionNode;
+import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.formula.AssertionException;
 import org.scribble.ext.assrt.ast.formula.AssertionLogFormula;
-import org.scribble.ext.assrt.ast.formula.StmFormula;
+import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
-import org.scribble.ext.assrt.sesstype.AssrtAnnotPayload;
-import org.scribble.ext.assrt.sesstype.name.AssrtAnnotVarName;
+import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.sesstype.name.AssrtPayloadType;
 import org.scribble.ext.assrt.util.SMTWrapper;
 import org.scribble.model.endpoint.EFSM;
@@ -97,12 +97,12 @@ public class AssrtSConfig extends SConfig
 				throw new RuntimeException("Shouldn't get in here: " + a);
 			}
 			
-			AssrtAssertionNode assertion = a.isSend() ? ((AssrtESend) a).assertion: null; 
+			AssrtAssertion assertion = a.isSend() ? ((AssrtESend) a).assertion: null; 
 			
 			AssertionLogFormula newFormula = null; 
 		
 			if (assertion!=null) {
-				StmFormula currFormula = assertion.toFormula();
+				SmtFormula currFormula = assertion.getFormula();
 				
 				try {
 					newFormula = this.formula==null?
@@ -125,12 +125,12 @@ public class AssrtSConfig extends SConfig
 					if (elem instanceof AssrtPayloadType<?>) // FIXME?
 					{
 						AssrtPayloadType<?> apt = (AssrtPayloadType<?>) elem;
-						if (apt.isAnnotPayloadDecl() || apt.isAnnotPayloadInScope())
+						if (apt.isAnnotVarDecl() || apt.isAnnotVarName())
 						{
 							String varName;
-							if (apt.isAnnotPayloadDecl())
+							if (apt.isAnnotVarDecl())
 							{
-								varName = ((AssrtAnnotPayload) elem).varName.toString();
+								varName = ((AssrtAnnotDataType) elem).var.toString();
 
 								if (!vars.containsKey(r))
 								{
@@ -140,7 +140,7 @@ public class AssrtSConfig extends SConfig
 							}
 							else
 							{
-								varName = ((AssrtAnnotVarName) elem).toString();
+								varName = ((AssrtDataTypeVar) elem).toString();
 							}
 
 							if (!vars.containsKey(a.obj))
@@ -179,10 +179,10 @@ public class AssrtSConfig extends SConfig
 			{
 				if (action.isSend()) {
 					AssrtESend send = (AssrtESend)action;
-					AssrtAssertionNode assertion = send.assertion; 
+					AssrtAssertion assertion = send.assertion; 
 					if (assertion != null)
 					{
-						if (!SMTWrapper.getInstance().isSat(assertion.toFormula(), this.formula)) {
+						if (!SMTWrapper.getInstance().isSat(assertion.getFormula(), this.formula)) {
 							unsafStates.add(send); 
 						}
 					}
@@ -209,16 +209,16 @@ public class AssrtSConfig extends SConfig
 			{
 				if (action.isSend()) {
 					AssrtESend send = (AssrtESend)action;
-					AssrtAssertionNode assertion = send.assertion;
+					AssrtAssertion assertion = send.assertion;
 					
 					Set<String> newVarNames = send.payload.elems.stream()
-							.filter(v -> (v instanceof AssrtPayloadType<?>) && ((AssrtPayloadType<?>) v).isAnnotPayloadDecl())  // FIXME?
-							.map(v -> ((AssrtAnnotPayload)v).varName.toString())
+							.filter(v -> (v instanceof AssrtPayloadType<?>) && ((AssrtPayloadType<?>) v).isAnnotVarDecl())  // FIXME?
+							.map(v -> ((AssrtAnnotDataType)v).var.toString())
 							.collect(Collectors.toSet()); 
 					
 					if (assertion !=null)
 					{
-						Set<String> varNames = assertion.toFormula().getVars();
+						Set<String> varNames = assertion.getFormula().getVars();
 						varNames.removeAll(newVarNames); 
 						if ((!varNames.isEmpty()) && (!this.variablesInScope.containsKey(r) ||
 							 !this.variablesInScope.get(r).containsAll(varNames)))

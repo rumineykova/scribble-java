@@ -19,22 +19,34 @@ import java.util.stream.Collectors;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GChoice;
 import org.scribble.del.global.GChoiceDel;
-import org.scribble.ext.assrt.del.AssrtScribDel;
+import org.scribble.ext.assrt.del.AssrtICompoundInteractionNodeDel;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
 import org.scribble.ext.assrt.visit.wf.env.AssrtAnnotationEnv;
 import org.scribble.main.ScribbleException;
 
-public class AssrtGChoiceDel extends GChoiceDel implements AssrtScribDel
+public class AssrtGChoiceDel extends GChoiceDel implements AssrtICompoundInteractionNodeDel
 {
 
 	@Override
+	public GChoice leaveAnnotCheck(ScribNode parent, ScribNode child,  AssrtAnnotationChecker checker, ScribNode visited) throws ScribbleException
+	{
+		// Cf. GChoiceDel.leaveInlinedWFChoiceCheck
+		GChoice cho = (GChoice) visited;
+		List<AssrtAnnotationEnv> benvs = cho.getBlocks().stream()
+				.map(b -> (AssrtAnnotationEnv) b.del().env()).collect(Collectors.toList());
+		AssrtAnnotationEnv merged = checker.popEnv().mergeContexts(benvs); 
+		checker.pushEnv(merged);
+		return (GChoice) AssrtICompoundInteractionNodeDel.super.leaveAnnotCheck(parent, child, checker, visited);  // Replaces base popAndSet to do pop, merge and set
+	}
+
+	/*@Override
 	public void enterAnnotCheck(ScribNode parent, ScribNode child, AssrtAnnotationChecker checker) throws ScribbleException
 	{
 		AssrtAnnotationEnv env = checker.peekEnv().enterContext();
 		checker.pushEnv(env);
-	}
+	}*/
 	
-	// Cf. GChoiceDel.leaveInlinedWFChoiceCheck
+	/*// Cf. GChoiceDel.leaveInlinedWFChoiceCheck
 	@Override
 	public GChoice leaveAnnotCheck(ScribNode parent, ScribNode child,  AssrtAnnotationChecker checker, ScribNode visited) throws ScribbleException
 	{
@@ -55,5 +67,5 @@ public class AssrtGChoiceDel extends GChoiceDel implements AssrtScribDel
 		checker.pushEnv(parent_env);
 		
 		return cho;
-	}
+	}*/
 }
