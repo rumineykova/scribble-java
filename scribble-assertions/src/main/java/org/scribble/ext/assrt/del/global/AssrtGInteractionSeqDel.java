@@ -13,21 +13,18 @@
  */
 package org.scribble.ext.assrt.del.global;
 
-import org.scribble.ast.ScribNode;
 import org.scribble.del.global.GInteractionSeqDel;
 import org.scribble.ext.assrt.del.AssrtScribDel;
-import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
-import org.scribble.ext.assrt.visit.wf.env.AssrtAnnotationEnv;
-import org.scribble.main.ScribbleException;
 
+@Deprecated
 public class AssrtGInteractionSeqDel extends GInteractionSeqDel implements AssrtScribDel
 {
 	
-	// CHECKME: is this needed?  How about leave?
+	/*// CHECKME: is this needed?  How about leave?
 	@Override
 	public void enterAnnotCheck(ScribNode parent, ScribNode child, AssrtAnnotationChecker checker) throws ScribbleException
 	{
 		AssrtAnnotationEnv env = checker.peekEnv().enterContext();
 		checker.pushEnv(env);
-	}
+	}*/
 }

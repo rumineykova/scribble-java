@@ -86,6 +86,7 @@ public class WFChoiceEnv extends Env<WFChoiceEnv>
 		return mergeContexts(Arrays.asList(child));
 	}
 
+	// FIXME: refactor to use Stream.reduce?
 	@Override
 	public WFChoiceEnv mergeContexts(List<WFChoiceEnv> children)
 	{

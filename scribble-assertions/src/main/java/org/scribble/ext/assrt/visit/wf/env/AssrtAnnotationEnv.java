@@ -31,8 +31,10 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 {
 	//private Map<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>> payloadTypes;  // "Knowledge" or "ownership" ?
 
-	private Map<Role, Set<AssrtAnnotDataType>> decls;  // Var declaration binding  // FIXME: roles not important
+	private Map<Role, Set<AssrtAnnotDataType>> decls;  // Var declaration binding  // Role is the src role of the transfer -- not important?  // FIXME: clarify as a "may" check
+
 	private Map<Role, Set<AssrtDataTypeVarName>> vars;  // "Knowledge" of var (given by message passing)  // FIXME: do by model checking rather than syntactically?
+			// FIXME: clarify as a "must" check
 	
 	public AssrtAnnotationEnv()
 	{
@@ -63,12 +65,13 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 	// "Global" syntactic scoping -- binding insensitive to roles (and DataType)
 	public boolean isDataTypeVarBound(AssrtDataTypeVarName v)
 	{
-		return this.decls.values().stream().flatMap(s -> s.stream()).anyMatch(adt -> adt.varName.equals(v));
+		return this.decls.values().stream().flatMap(s -> s.stream()).anyMatch(adt -> adt.var.equals(v));
 	}
 	
 	public boolean isDataTypeVarKnown(Role r, AssrtDataTypeVarName avn)
 	{
-		return this.vars.get(r).stream().anyMatch(v -> v.equals(avn));
+		Set<AssrtDataTypeVarName> tmp = this.vars.get(r);
+		return tmp != null && tmp.stream().anyMatch(v -> v.equals(avn));
 	}
 
 	/*// FIXME: refactor exception throwing into the del
@@ -100,10 +103,12 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 		return true;
 	}*/
 
-	public AssrtAnnotationEnv addAnnotDataType(Role role, AssrtAnnotDataType adt)
+	// Also records src as "knowing" adt.var
+	public AssrtAnnotationEnv addAnnotDataType(Role src, AssrtAnnotDataType adt)
 	{
 		AssrtAnnotationEnv copy = copy();
-		copy.addAnnotDataTypeAux(role, adt);
+		copy.addAnnotDataTypeAux(src, adt);
+		copy.addDataTypeVarNameAux(src, adt.var);
 		return copy;
 	}
 	
@@ -134,6 +139,54 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 			this.vars.put(role, tmp);
 		}
 		tmp.add(v);
+	}
+
+	@Override
+	public AssrtAnnotationEnv mergeContext(AssrtAnnotationEnv child)
+	{
+		return mergeContexts(Arrays.asList(child));
+	}
+	
+  // Cf. WFChoiceEnv merge pattern -- unlike WFChoiceEnv, no env "clearing" on choice enter -- child envs are originally direct copies of parent, so can merge for updated parent directly from children (cf. "running" merge parameterised on original parent)
+	@Override
+	public AssrtAnnotationEnv mergeContexts(List<AssrtAnnotationEnv> children)
+	{
+		AssrtAnnotationEnv copy = copy();
+
+		// Take "intersection" for both decls and vars? -- implicitly handles vars "inherited" from before, e.g., a choice
+		Set<Role> declRoles = children.stream()
+				.flatMap(e -> e.decls.keySet().stream())
+				.filter(r -> children.stream().map(e -> e.decls.keySet()).allMatch(ks -> ks.contains(r)))
+				.collect(Collectors.toSet());
+		Map<Role, Set<AssrtAnnotDataType>> decls = new HashMap<>();
+		for (Role r : declRoles)
+		{
+			decls.put(r, children.stream().map(c -> c.decls.get(r))
+					 .reduce((s1, s2) -> s1.stream().filter(s2::contains).collect(Collectors.toSet())).get()
+			);
+		}
+		copy.decls = decls;
+		
+		Set<Role> varsRoles = children.stream()  // FIXME: factor out with above?
+				.flatMap(e -> e.vars.keySet().stream())
+				.filter(r -> children.stream().map(e -> e.vars.keySet()).allMatch(ks -> ks.contains(r)))
+				.collect(Collectors.toSet());
+		Map<Role, Set<AssrtDataTypeVarName>> vars = new HashMap<>();
+		for (Role r : varsRoles)
+		{
+			vars.put(r, children.stream().map(c -> c.vars.get(r))
+					 .reduce((s1, s2) -> s1.stream().filter(s2::contains).collect(Collectors.toSet())).get()
+			);
+		}
+		copy.vars = vars;
+		
+		return copy;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "[decls=" + this.decls + ", vars=" + this.vars + "]";
 	}
 
 	/*public boolean checkIfPayloadValid(AssrtPayloadType<?> pe, Role src, List<Role> dests) throws ScribbleException 
@@ -208,65 +261,5 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 						); 
 		
 		return new AssrtAnnotationEnv(payloads);  
-	}*/
-
-	@Override
-	public AssrtAnnotationEnv mergeContext(AssrtAnnotationEnv child)
-	{
-		return mergeContexts(Arrays.asList(child));
-	}
-	
-  // Cf. WFChoiceEnv merge pattern -- unlike WFChoiceEnv, no env "clearing" on choice enter -- child envs are originally direct copies of parent, so can merge for updated parent directly from children
-	@Override
-	public AssrtAnnotationEnv mergeContexts(List<AssrtAnnotationEnv> children)
-	{
-		AssrtAnnotationEnv copy = copy();
-		/*for (AssrtAnnotationEnv child : children)
-		{
-			mergeDecls(this, copy.decls, child.decls);
-			mergeVars(this, copy.vars, child.vars);
-		}*/
-
-		// Take "intersection" for both decls and vars?
-		Set<Role> declRoles = children.stream()
-				.flatMap(e -> e.decls.keySet().stream())
-				.filter(r -> children.stream().map(e -> e.decls.keySet()).allMatch(ks -> ks.contains(r)))
-				.collect(Collectors.toSet());
-		Map<Role, Set<AssrtAnnotDataType>> foo = new HashMap<>();
-		for (Role r : declRoles)
-		{
-			foo.put(r, children.stream().flatMap(c -> 
-					c.decls.values().stream())
-					 .reduce((s1, s2) -> s1.stream().filter(s2::contains).collect(Collectors.toSet())).get()
-			);
-		}
-		copy.decls = foo;
-		
-		Set<Role> varsRoles = children.stream()
-				.flatMap(e -> e.vars.keySet().stream())
-				.filter(r -> children.stream().map(e -> e.vars.keySet()).allMatch(ks -> ks.contains(r)))
-				.collect(Collectors.toSet());
-		Map<Role, Set<AssrtDataTypeVarName>> bar = new HashMap<>();
-		for (Role r : varsRoles)
-		{
-			bar.put(r, children.stream().flatMap(c -> 
-					c.vars.values().stream())
-					 .reduce((s1, s2) -> s1.stream().filter(s2::contains).collect(Collectors.toSet())).get()
-			);
-		}
-		copy.vars = bar;
-		
-		return copy;
-	}
-
-  /*// Cf. WFChoiceEnv merge pattern
-	private static void mergeDecls(AssrtAnnotationEnv orig, Map<Role, Set<AssrtAnnotDataType>> running, Map<Role, Set<AssrtAnnotDataType>> child)
-	{
-
-	}
-
-	private static void mergeVars(AssrtAnnotationEnv orig, Map<Role, Set<AssrtVarName>> running, Map<Role, Set<AssrtVarName>> child)
-	{
-		
 	}*/
 }

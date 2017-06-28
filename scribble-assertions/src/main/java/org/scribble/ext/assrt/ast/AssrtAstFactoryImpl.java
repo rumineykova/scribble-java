@@ -21,10 +21,14 @@ import org.scribble.ast.MessageNode;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GInteractionSeq;
 import org.scribble.ast.global.GProtocolBlock;
+import org.scribble.ast.global.GRecursion;
+import org.scribble.ast.local.LInteractionSeq;
+import org.scribble.ast.local.LProtocolBlock;
 import org.scribble.ast.local.LSend;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.simple.AmbigNameNode;
+import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
@@ -34,6 +38,8 @@ import org.scribble.ext.assrt.del.AssrtAnnotPayloadElemDel;
 import org.scribble.ext.assrt.del.global.AssrtGChoiceDel;
 import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
+import org.scribble.ext.assrt.del.global.AssrtGRecursionDel;
+import org.scribble.ext.assrt.del.local.AssrtLProtocolBlockDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
 import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
@@ -74,6 +80,14 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		GChoice gc = new GChoice(source, subj, blocks);
 		gc = del(gc, new AssrtGChoiceDel());
 		return gc;
+	}
+
+	@Override
+	public GRecursion GRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block)
+	{
+		GRecursion gr = new GRecursion(source, recvar, block);
+		gr = del(gr, new AssrtGRecursionDel());
+		return gr;
 	}
 
 	@Override
@@ -133,4 +147,13 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 
 		return super.SimpleNameNode(source, kind, identifier);
 	}
+
+	@Override
+	public LProtocolBlock LProtocolBlock(CommonTree source, LInteractionSeq seq)
+	{
+		LProtocolBlock lpb = new LProtocolBlock(source, seq);
+		lpb = del(lpb, new AssrtLProtocolBlockDel());
+		return lpb;
+	}
+
 }

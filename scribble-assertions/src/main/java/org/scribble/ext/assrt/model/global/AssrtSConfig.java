@@ -130,7 +130,7 @@ public class AssrtSConfig extends SConfig
 							String varName;
 							if (apt.isAnnotVarDecl())
 							{
-								varName = ((AssrtAnnotDataType) elem).varName.toString();
+								varName = ((AssrtAnnotDataType) elem).var.toString();
 
 								if (!vars.containsKey(r))
 								{
@@ -213,7 +213,7 @@ public class AssrtSConfig extends SConfig
 					
 					Set<String> newVarNames = send.payload.elems.stream()
 							.filter(v -> (v instanceof AssrtPayloadType<?>) && ((AssrtPayloadType<?>) v).isAnnotVarDecl())  // FIXME?
-							.map(v -> ((AssrtAnnotDataType)v).varName.toString())
+							.map(v -> ((AssrtAnnotDataType)v).var.toString())
 							.collect(Collectors.toSet()); 
 					
 					if (assertion !=null)

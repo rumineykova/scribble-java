@@ -40,9 +40,9 @@ public class AssrtGMessageTransferDel extends GMessageTransferDel implements Ass
 	@Override
 	public MessageTransfer<?> leaveAnnotCheck(ScribNode parent, ScribNode child, AssrtAnnotationChecker checker, ScribNode visited) throws ScribbleException
 	{
-		AssrtAnnotationEnv env = checker.popEnv();
-		
 		MessageTransfer<?> mt = (MessageTransfer<?>) visited;
+		AssrtAnnotationEnv env = checker.popEnv();
+
 		if (mt.msg.isMessageSigNode())
 		{	
 			Role src = mt.src.toName();
@@ -61,14 +61,15 @@ public class AssrtGMessageTransferDel extends GMessageTransferDel implements Ass
 					if (apt.isAnnotVarDecl())
 					{
 						AssrtAnnotDataType adt = (AssrtAnnotDataType) apt;
-						if (env.isDataTypeVarBound(adt.varName))
+						if (env.isDataTypeVarBound(adt.var))
 						{
-							throw new ScribbleException("Payload " + pe.toString() + " is already declared"); 
+							throw new ScribbleException("Payload var " + pe + " is already declared."); 
 						}
 						env = env.addAnnotDataType(src, adt); 
 						for (Role d : dests)
 						{
-							env = env.addAnnotDataType(d, adt);
+							//env = env.addAnnotDataType(d, adt);
+							env = env.addDataTypeVarName(d, adt.var);
 						}
 					}
 					else //if (apt.isAnnotVarName())
@@ -76,7 +77,7 @@ public class AssrtGMessageTransferDel extends GMessageTransferDel implements Ass
 						AssrtDataTypeVarName v = (AssrtDataTypeVarName) apt;
 						if (!env.isDataTypeVarKnown(src, v))
 						{
-							throw new ScribbleException("Payload " + pe.toString() + " is not in scope");
+							throw new ScribbleException("Payload var " + pe + " is not in scope for role: " + src);
 						}
 						for (Role d : dests)
 						{

@@ -19,13 +19,13 @@ import org.scribble.sesstype.name.DataType;
 // In name package like GDelegationType -- FIXME: maybe refactor (both) out of name, and (Assrt)PayloadType
 public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotPayloadElemKind>
 {
-	public final AssrtDataTypeVarName varName;
-	public final DataType dataType;  // FIXME: generalise?
+	public final AssrtDataTypeVarName var;
+	public final DataType data;  // FIXME: generalise?
 	
 	public AssrtAnnotDataType(AssrtDataTypeVarName varName, DataType dataType)
 	{
-		this.varName = varName; 
-		this.dataType = dataType; 
+		this.var = varName; 
+		this.data = dataType; 
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotPayloadEle
 		}
 		AssrtAnnotDataType n = (AssrtAnnotDataType) o;
 		return n.canEqual(this) && 
-			n.varName.equals(this.varName) && n.dataType.equals(this.dataType);
+			n.var.equals(this.var) && n.data.equals(this.data);
 	}
 	
 	public boolean canEqual(Object o)
@@ -52,15 +52,15 @@ public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotPayloadEle
 	@Override
 	public String toString()
 	{
-		return this.varName.toString() + ' '  + this.dataType.getSimpleName().toString();   
+		return this.var.toString() + ' '  + this.data.getSimpleName().toString();   
 	}
 	
 	@Override
 	public int hashCode()
 	{
 		int hash = 2767;
-		hash = hash*31 + this.dataType.hashCode(); 
-		hash = hash*31 + this.varName.hashCode();
+		hash = hash*31 + this.data.hashCode(); 
+		hash = hash*31 + this.var.hashCode();
 		return hash;
 	}
 
