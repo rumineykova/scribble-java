@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.sesstype.AssrtAnnotDataType;
-import org.scribble.ext.assrt.sesstype.name.AssrtVarName;
+import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVarName;
 import org.scribble.sesstype.name.Role;
 import org.scribble.visit.env.Env;
 
@@ -32,7 +32,7 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 	//private Map<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>> payloadTypes;  // "Knowledge" or "ownership" ?
 
 	private Map<Role, Set<AssrtAnnotDataType>> decls;  // Var declaration binding  // FIXME: roles not important
-	private Map<Role, Set<AssrtVarName>> vars;  // "Knowledge" of var (given by message passing)  // FIXME: do by model checking rather than syntactically?
+	private Map<Role, Set<AssrtDataTypeVarName>> vars;  // "Knowledge" of var (given by message passing)  // FIXME: do by model checking rather than syntactically?
 	
 	public AssrtAnnotationEnv()
 	{
@@ -40,7 +40,7 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 	}
 	
 	//protected AssrtAnnotationEnv(Map<Role, Set<AssrtPayloadType<?>>> payloads)
-	protected AssrtAnnotationEnv(Map<Role, Set<AssrtAnnotDataType>> decls, Map<Role, Set<AssrtVarName>> vars)
+	protected AssrtAnnotationEnv(Map<Role, Set<AssrtAnnotDataType>> decls, Map<Role, Set<AssrtDataTypeVarName>> vars)
 	{
 		//this.payloadTypes = new HashMap<>(payloads);
 		this.decls = new HashMap<>(decls);
@@ -61,12 +61,12 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 	}
 
 	// "Global" syntactic scoping -- binding insensitive to roles (and DataType)
-	public boolean isDataTypeVarBound(AssrtVarName v)
+	public boolean isDataTypeVarBound(AssrtDataTypeVarName v)
 	{
 		return this.decls.values().stream().flatMap(s -> s.stream()).anyMatch(adt -> adt.varName.equals(v));
 	}
 	
-	public boolean isDataTypeVarKnown(Role r, AssrtVarName avn)
+	public boolean isDataTypeVarKnown(Role r, AssrtDataTypeVarName avn)
 	{
 		return this.vars.get(r).stream().anyMatch(v -> v.equals(avn));
 	}
@@ -118,16 +118,16 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 		tmp.add(adt);
 	}
 
-	public AssrtAnnotationEnv addDataTypeVarName(Role role, AssrtVarName v)
+	public AssrtAnnotationEnv addDataTypeVarName(Role role, AssrtDataTypeVarName v)
 	{
 		AssrtAnnotationEnv copy = copy();
 		copy.addDataTypeVarNameAux(role, v);
 		return copy;
 	}
 	
-	private void addDataTypeVarNameAux(Role role, AssrtVarName v)
+	private void addDataTypeVarNameAux(Role role, AssrtDataTypeVarName v)
 	{
-		Set<AssrtVarName> tmp = this.vars.get(role);
+		Set<AssrtDataTypeVarName> tmp = this.vars.get(role);
 		if (tmp == null)
 		{
 			tmp = new HashSet<>();
@@ -246,7 +246,7 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 				.flatMap(e -> e.vars.keySet().stream())
 				.filter(r -> children.stream().map(e -> e.vars.keySet()).allMatch(ks -> ks.contains(r)))
 				.collect(Collectors.toSet());
-		Map<Role, Set<AssrtVarName>> bar = new HashMap<>();
+		Map<Role, Set<AssrtDataTypeVarName>> bar = new HashMap<>();
 		for (Role r : varsRoles)
 		{
 			bar.put(r, children.stream().flatMap(c -> 

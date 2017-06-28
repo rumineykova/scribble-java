@@ -16,11 +16,11 @@ package org.scribble.ext.assrt.sesstype.name;
 import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
 import org.scribble.sesstype.name.AbstractName;
 
-public class AssrtVarName extends AbstractName<AssrtVarNameKind> implements AssrtPayloadType<AssrtVarNameKind>
+public class AssrtDataTypeVarName extends AbstractName<AssrtVarNameKind> implements AssrtPayloadType<AssrtVarNameKind>
 {
 	private static final long serialVersionUID = 1L;
 
-	public AssrtVarName(String simplename)
+	public AssrtDataTypeVarName(String simplename)
 	{
 		super(AssrtVarNameKind.KIND, simplename);
 	}
@@ -32,17 +32,17 @@ public class AssrtVarName extends AbstractName<AssrtVarNameKind> implements Assr
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtVarName))
+		if (!(o instanceof AssrtDataTypeVarName))
 		{
 			return false;
 		}
-		AssrtVarName n = (AssrtVarName) o;
+		AssrtDataTypeVarName n = (AssrtDataTypeVarName) o;
 		return n.canEqual(this) && super.equals(o);
 	}
 	
 	public boolean canEqual(Object o)
 	{
-		return o instanceof AssrtVarName;
+		return o instanceof AssrtDataTypeVarName;
 	}
 
 	@Override

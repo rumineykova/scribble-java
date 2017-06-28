@@ -21,9 +21,9 @@ import org.scribble.ast.PayloadElem;
 import org.scribble.ast.ScribNode;
 import org.scribble.del.global.GMessageTransferDel;
 import org.scribble.ext.assrt.del.AssrtScribDel;
-import org.scribble.ext.assrt.sesstype.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtPayloadType;
-import org.scribble.ext.assrt.sesstype.name.AssrtVarName;
+import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVarName;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
 import org.scribble.ext.assrt.visit.wf.env.AssrtAnnotationEnv;
 import org.scribble.main.ScribbleException;
@@ -51,7 +51,7 @@ public class AssrtGMessageTransferDel extends GMessageTransferDel implements Ass
 			for (PayloadElem<?> pe : ((MessageSigNode) mt.msg).payloads.getElements())
 			{
 				PayloadType<?> peType = pe.toPayloadType(); 
-				if (peType instanceof AssrtPayloadType<?>)  // FIXME?
+				if (peType instanceof AssrtPayloadType<?>)
 				{
 					AssrtPayloadType<?> apt = (AssrtPayloadType<?>) peType;
 					/*if (apt.isAnnotVarDecl() || apt.isAnnotVarName())
@@ -73,7 +73,7 @@ public class AssrtGMessageTransferDel extends GMessageTransferDel implements Ass
 					}
 					else //if (apt.isAnnotVarName())
 					{
-						AssrtVarName v = (AssrtVarName) apt;
+						AssrtDataTypeVarName v = (AssrtDataTypeVarName) apt;
 						if (!env.isDataTypeVarKnown(src, v))
 						{
 							throw new ScribbleException("Payload " + pe.toString() + " is not in scope");

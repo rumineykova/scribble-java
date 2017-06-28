@@ -27,8 +27,8 @@ import org.scribble.ext.assrt.ast.formula.AssertionException;
 import org.scribble.ext.assrt.ast.formula.AssertionLogFormula;
 import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
-import org.scribble.ext.assrt.sesstype.AssrtAnnotDataType;
-import org.scribble.ext.assrt.sesstype.name.AssrtVarName;
+import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVarName;
 import org.scribble.ext.assrt.sesstype.name.AssrtPayloadType;
 import org.scribble.ext.assrt.util.SMTWrapper;
 import org.scribble.model.endpoint.EFSM;
@@ -140,7 +140,7 @@ public class AssrtSConfig extends SConfig
 							}
 							else
 							{
-								varName = ((AssrtVarName) elem).toString();
+								varName = ((AssrtDataTypeVarName) elem).toString();
 							}
 
 							if (!vars.containsKey(a.obj))

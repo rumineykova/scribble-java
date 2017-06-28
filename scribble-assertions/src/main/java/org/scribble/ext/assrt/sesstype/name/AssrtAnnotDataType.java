@@ -11,20 +11,18 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.scribble.ext.assrt.sesstype;
+package org.scribble.ext.assrt.sesstype.name;
 
 import org.scribble.ext.assrt.sesstype.kind.AssrtAnnotPayloadElemKind;
-import org.scribble.ext.assrt.sesstype.name.AssrtVarName;
-import org.scribble.ext.assrt.sesstype.name.AssrtPayloadType;
 import org.scribble.sesstype.name.DataType;
 
-// Cf., org.scribble.sesstype.Payload?
+// In name package like GDelegationType -- FIXME: maybe refactor (both) out of name, and (Assrt)PayloadType
 public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotPayloadElemKind>
 {
-	public final AssrtVarName varName;
+	public final AssrtDataTypeVarName varName;
 	public final DataType dataType;  // FIXME: generalise?
 	
-	public AssrtAnnotDataType(AssrtVarName varName, DataType dataType)
+	public AssrtAnnotDataType(AssrtDataTypeVarName varName, DataType dataType)
 	{
 		this.varName = varName; 
 		this.dataType = dataType; 
