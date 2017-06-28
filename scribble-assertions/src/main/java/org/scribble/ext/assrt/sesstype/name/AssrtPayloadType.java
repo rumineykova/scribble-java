@@ -20,12 +20,12 @@ import org.scribble.sesstype.name.PayloadType;
 public interface AssrtPayloadType<K extends PayloadTypeKind> extends PayloadType<K>
 {
 
-	default boolean isAnnotPayloadDecl()
+	default boolean isAnnotVarDecl()
 	{
 		return false;
 	}
 	
-	default boolean isAnnotPayloadInScope()
+	default boolean isAnnotVarName()
 	{
 		return false;
 	}

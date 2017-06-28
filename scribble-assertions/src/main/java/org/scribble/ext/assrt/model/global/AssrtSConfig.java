@@ -125,10 +125,10 @@ public class AssrtSConfig extends SConfig
 					if (elem instanceof AssrtPayloadType<?>) // FIXME?
 					{
 						AssrtPayloadType<?> apt = (AssrtPayloadType<?>) elem;
-						if (apt.isAnnotPayloadDecl() || apt.isAnnotPayloadInScope())
+						if (apt.isAnnotVarDecl() || apt.isAnnotVarName())
 						{
 							String varName;
-							if (apt.isAnnotPayloadDecl())
+							if (apt.isAnnotVarDecl())
 							{
 								varName = ((AssrtAnnotDataType) elem).varName.toString();
 
@@ -212,7 +212,7 @@ public class AssrtSConfig extends SConfig
 					AssrtAssertion assertion = send.assertion;
 					
 					Set<String> newVarNames = send.payload.elems.stream()
-							.filter(v -> (v instanceof AssrtPayloadType<?>) && ((AssrtPayloadType<?>) v).isAnnotPayloadDecl())  // FIXME?
+							.filter(v -> (v instanceof AssrtPayloadType<?>) && ((AssrtPayloadType<?>) v).isAnnotVarDecl())  // FIXME?
 							.map(v -> ((AssrtAnnotDataType)v).varName.toString())
 							.collect(Collectors.toSet()); 
 					

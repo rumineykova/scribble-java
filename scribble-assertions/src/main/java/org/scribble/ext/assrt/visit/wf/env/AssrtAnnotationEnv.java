@@ -13,40 +13,45 @@
  */
 package org.scribble.ext.assrt.visit.wf.env;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.sesstype.AssrtAnnotDataType;
-import org.scribble.ext.assrt.sesstype.name.AssrtPayloadType;
-import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.kind.PayloadTypeKind;
+import org.scribble.ext.assrt.sesstype.name.AssrtVarName;
 import org.scribble.sesstype.name.Role;
 import org.scribble.visit.env.Env;
 
 public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 {
-	public Map<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>> payloads;  // FIXME: privacy
+	//private Map<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>> payloadTypes;  // "Knowledge" or "ownership" ?
+
+	private Map<Role, Set<AssrtAnnotDataType>> decls;  // Var declaration binding  // FIXME: roles not important
+	private Map<Role, Set<AssrtVarName>> vars;  // "Knowledge" of var (given by message passing)  // FIXME: do by model checking rather than syntactically?
 	
 	public AssrtAnnotationEnv()
 	{
-		this(Collections.emptyMap());
+		this(Collections.emptyMap(), Collections.emptyMap());
 	}
 	
-	protected AssrtAnnotationEnv(Map<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>> payloads)
+	//protected AssrtAnnotationEnv(Map<Role, Set<AssrtPayloadType<?>>> payloads)
+	protected AssrtAnnotationEnv(Map<Role, Set<AssrtAnnotDataType>> decls, Map<Role, Set<AssrtVarName>> vars)
 	{
-		this.payloads = new HashMap<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>>(payloads);
+		//this.payloadTypes = new HashMap<>(payloads);
+		this.decls = new HashMap<>(decls);
+		this.vars = new HashMap<>(vars);
 	}
 
 	@Override
 	public AssrtAnnotationEnv copy()
 	{
-		return new AssrtAnnotationEnv(new HashMap<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>>(this.payloads));
+		//return new AssrtAnnotationEnv(new HashMap<Role, Set<AssrtPayloadType<?>>>(this.payloadTypes));
+		return new AssrtAnnotationEnv(new HashMap<>(this.decls), new HashMap<>(this.vars));
 	}
 
 	@Override
@@ -55,34 +60,111 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 		return copy();
 	}
 
-	public boolean checkIfPayloadValid(AssrtPayloadType<?> pe, Role src, List<Role> dests) throws ScribbleException 
+	// "Global" syntactic scoping -- binding insensitive to roles (and DataType)
+	public boolean isDataTypeVarBound(AssrtVarName v)
 	{
-		boolean payloadExist = this.payloads.values().stream().anyMatch(x -> x.contains(pe)); 
-		
-		if (pe.isAnnotPayloadDecl() && payloadExist)
+		return this.decls.values().stream().flatMap(s -> s.stream()).anyMatch(adt -> adt.varName.equals(v));
+	}
+	
+	public boolean isDataTypeVarKnown(Role r, AssrtVarName avn)
+	{
+		return this.vars.get(r).stream().anyMatch(v -> v.equals(avn));
+	}
+
+	/*// FIXME: refactor exception throwing into the del
+	public boolean isAnnotVarDeclValid(AssrtAnnotDataType adt, Role src, List<Role> dests) throws ScribbleException 
+	{
+		if (this.payloadTypes.values().stream().anyMatch(x -> x.contains(adt)))  // FIXME: needs both var and data type to be the same?
 		{
-			throw new ScribbleException("Payload " + pe.toString() + " is already declared"); 
+			return false;
 		}
-		else if (pe.isAnnotPayloadDecl() && !payloadExist)
-		{
-			this.addPayloadToRole(src, pe); 
-			for(Role dest: dests)
-			{
-				this.addPayloadToRole(dest, pe);
-			}
-		}
-		else if (pe.isAnnotPayloadInScope() && !this.payloads.containsKey(src) || 
-				!this.payloads.get(src).stream().anyMatch(v -> ((AssrtAnnotDataType)v).varName.equals(pe)))
+		addPayloadToRole(src, adt); 
+		dests.forEach(d -> addPayloadToRole(d, adt));
+		return true;
+	}
+	
+	public boolean isAnnotVarNameValid(AssrtVarName pe, Role src, List<Role> dests) throws ScribbleException 
+	{
+		if (!this.payloadTypes.containsKey(src) || !this.payloadTypes.get(src).stream().anyMatch(v -> ((AssrtAnnotDataType) v).varName.equals(pe)))
 		{
 			throw new ScribbleException("Payload " + pe.toString() + " is not in scope");
 		}
-		else if (pe.isAnnotPayloadInScope())
+
+		// add the type int to the varname before adding the scope of the payload.
+		for(Role dest: dests)
+		{
+			Optional<AssrtPayloadType<?>> newPe = this.payloadTypes.get(src).stream()
+					.filter(v -> ((AssrtAnnotDataType) v).varName.equals(pe)).findAny(); 
+			addPayloadToRole(dest, newPe.get());
+		}
+		return true;
+	}*/
+
+	public AssrtAnnotationEnv addAnnotDataType(Role role, AssrtAnnotDataType adt)
+	{
+		AssrtAnnotationEnv copy = copy();
+		copy.addAnnotDataTypeAux(role, adt);
+		return copy;
+	}
+	
+	private void addAnnotDataTypeAux(Role role, AssrtAnnotDataType adt)
+	{
+		Set<AssrtAnnotDataType> tmp = this.decls.get(role);
+		if (tmp == null)
+		{
+			tmp = new HashSet<>();
+			this.decls.put(role, tmp);
+		}
+		tmp.add(adt);
+	}
+
+	public AssrtAnnotationEnv addDataTypeVarName(Role role, AssrtVarName v)
+	{
+		AssrtAnnotationEnv copy = copy();
+		copy.addDataTypeVarNameAux(role, v);
+		return copy;
+	}
+	
+	private void addDataTypeVarNameAux(Role role, AssrtVarName v)
+	{
+		Set<AssrtVarName> tmp = this.vars.get(role);
+		if (tmp == null)
+		{
+			tmp = new HashSet<>();
+			this.vars.put(role, tmp);
+		}
+		tmp.add(v);
+	}
+
+	/*public boolean checkIfPayloadValid(AssrtPayloadType<?> pe, Role src, List<Role> dests) throws ScribbleException 
+	{
+		boolean payloadExist = this.payloadTypes.values().stream().anyMatch(x -> x.contains(pe)); 
+		
+		if (pe.isAnnotVarDecl() && payloadExist)
+		{
+			throw new ScribbleException("Payload " + pe.toString() + " is already declared"); 
+		}
+		else if (pe.isAnnotVarDecl() && !payloadExist)
+		{
+			addPayloadToRole(src, pe); 
+			for(Role dest: dests)
+			{
+				addPayloadToRole(dest, pe);
+			}
+		}
+		else if (pe.isAnnotVarName() && !this.payloadTypes.containsKey(src)
+				|| !this.payloadTypes.get(src).stream().anyMatch(v -> ((AssrtAnnotDataType) v).varName.equals(pe)))
+		{
+			throw new ScribbleException("Payload " + pe.toString() + " is not in scope");
+		}
+		else if (pe.isAnnotVarName())
 		{
 			// add the type int to the varname before adding the scope of the payload.
-			for(Role dest: dests) {
-				Optional<AssrtPayloadType<? extends PayloadTypeKind>> newPe= this.payloads.get(src).stream()
-						.filter(v -> ((AssrtAnnotDataType)v).varName.equals(pe)).findAny(); 
-				this.addPayloadToRole(dest, newPe.get());
+			for(Role dest: dests)
+			{
+				Optional<AssrtPayloadType<?>> newPe = this.payloadTypes.get(src).stream()
+						.filter(v -> ((AssrtAnnotDataType) v).varName.equals(pe)).findAny(); 
+				addPayloadToRole(dest, newPe.get());
 			}
 		}
 		return true; 
@@ -91,16 +173,15 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 	// FIXME: not using immutable pattern
 	public void addPayloadToRole(Role role, AssrtPayloadType<?> pe)
 	{
-		if (!this.payloads.containsKey(role))
+		if (!this.payloadTypes.containsKey(role))
 		{
-			this.payloads.put(role, new HashSet<AssrtPayloadType<? extends PayloadTypeKind>>());
+			this.payloadTypes.put(role, new HashSet<AssrtPayloadType<? extends PayloadTypeKind>>());
 			
 		}
-		
-		this.payloads.get(role).add(pe);
-	}
+		this.payloadTypes.get(role).add(pe);
+	}*/
 	
-	@Override
+	/*@Override
 	public AssrtAnnotationEnv mergeContext(AssrtAnnotationEnv child)
 	{
 		//return mergeContexts(Arrays.asList(child));
@@ -115,7 +196,7 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 		//		envs.stream().findAny().get().payloads;  
 		//AnnotationEnv env = copy();
 		//Map<Role, HashSet<PayloadType<? extends PayloadTypeKind>>> payloads = 
-				envs.stream().flatMap(e -> e.payloads.entrySet().stream())
+				envs.stream().flatMap(e -> e.payloadTypes.entrySet().stream())
 						.collect(Collectors.toMap(
 								Map.Entry<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>>::getKey,   // e.payloads is: Role -> Set<AsertPayloadType>
 								Map.Entry<Role, Set<AssrtPayloadType<? extends PayloadTypeKind>>>::getValue,  
@@ -127,5 +208,65 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 						); 
 		
 		return new AssrtAnnotationEnv(payloads);  
+	}*/
+
+	@Override
+	public AssrtAnnotationEnv mergeContext(AssrtAnnotationEnv child)
+	{
+		return mergeContexts(Arrays.asList(child));
 	}
+	
+  // Cf. WFChoiceEnv merge pattern -- unlike WFChoiceEnv, no env "clearing" on choice enter -- child envs are originally direct copies of parent, so can merge for updated parent directly from children
+	@Override
+	public AssrtAnnotationEnv mergeContexts(List<AssrtAnnotationEnv> children)
+	{
+		AssrtAnnotationEnv copy = copy();
+		/*for (AssrtAnnotationEnv child : children)
+		{
+			mergeDecls(this, copy.decls, child.decls);
+			mergeVars(this, copy.vars, child.vars);
+		}*/
+
+		// Take "intersection" for both decls and vars?
+		Set<Role> declRoles = children.stream()
+				.flatMap(e -> e.decls.keySet().stream())
+				.filter(r -> children.stream().map(e -> e.decls.keySet()).allMatch(ks -> ks.contains(r)))
+				.collect(Collectors.toSet());
+		Map<Role, Set<AssrtAnnotDataType>> foo = new HashMap<>();
+		for (Role r : declRoles)
+		{
+			foo.put(r, children.stream().flatMap(c -> 
+					c.decls.values().stream())
+					 .reduce((s1, s2) -> s1.stream().filter(s2::contains).collect(Collectors.toSet())).get()
+			);
+		}
+		copy.decls = foo;
+		
+		Set<Role> varsRoles = children.stream()
+				.flatMap(e -> e.vars.keySet().stream())
+				.filter(r -> children.stream().map(e -> e.vars.keySet()).allMatch(ks -> ks.contains(r)))
+				.collect(Collectors.toSet());
+		Map<Role, Set<AssrtVarName>> bar = new HashMap<>();
+		for (Role r : varsRoles)
+		{
+			bar.put(r, children.stream().flatMap(c -> 
+					c.vars.values().stream())
+					 .reduce((s1, s2) -> s1.stream().filter(s2::contains).collect(Collectors.toSet())).get()
+			);
+		}
+		copy.vars = bar;
+		
+		return copy;
+	}
+
+  /*// Cf. WFChoiceEnv merge pattern
+	private static void mergeDecls(AssrtAnnotationEnv orig, Map<Role, Set<AssrtAnnotDataType>> running, Map<Role, Set<AssrtAnnotDataType>> child)
+	{
+
+	}
+
+	private static void mergeVars(AssrtAnnotationEnv orig, Map<Role, Set<AssrtVarName>> running, Map<Role, Set<AssrtVarName>> child)
+	{
+		
+	}*/
 }

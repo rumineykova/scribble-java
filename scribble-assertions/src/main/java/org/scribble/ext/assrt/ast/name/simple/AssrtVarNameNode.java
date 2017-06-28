@@ -24,6 +24,7 @@ import org.scribble.ext.assrt.sesstype.name.AssrtVarName;
 import org.scribble.sesstype.Arg;
 import org.scribble.sesstype.kind.NonRoleArgKind;
 
+// N.B. used both directly as a PayloadElemNameNode and for the annotation in AssrtAnnotDataTypeElem
 public class AssrtVarNameNode extends SimpleNameNode<AssrtVarNameKind> implements PayloadElemNameNode<AssrtVarNameKind>
 {
 	public AssrtVarNameNode(CommonTree source, String identifier)

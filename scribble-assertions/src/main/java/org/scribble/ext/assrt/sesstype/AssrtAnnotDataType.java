@@ -22,7 +22,7 @@ import org.scribble.sesstype.name.DataType;
 public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotPayloadElemKind>
 {
 	public final AssrtVarName varName;
-	public final DataType dataType;
+	public final DataType dataType;  // FIXME: generalise?
 	
 	public AssrtAnnotDataType(AssrtVarName varName, DataType dataType)
 	{
@@ -72,7 +72,7 @@ public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotPayloadEle
 	}
 	
 	@Override
-	public boolean isAnnotPayloadDecl()
+	public boolean isAnnotVarDecl()
 	{
 		return true;
 	}

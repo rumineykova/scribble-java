@@ -104,9 +104,9 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	
 	// An "additional" category, does not "replace" an existing one -- cf. AssrtGMessageTransfer
 	@Override
-	public <K extends PayloadTypeKind> AssrtAnnotPayloadElem<K> AssrtAnnotPayloadElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType)
+	public <K extends PayloadTypeKind> AssrtAnnotDataTypeElem<K> AssrtAnnotPayloadElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType)
 	{
-		AssrtAnnotPayloadElem<K> de= new AssrtAnnotPayloadElem<>(source, varName, dataType);
+		AssrtAnnotDataTypeElem<K> de= new AssrtAnnotDataTypeElem<>(source, varName, dataType);
 		de = del(de, new AssrtAnnotPayloadElemDel());
 		return de;
 	}

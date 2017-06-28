@@ -12,9 +12,9 @@
  * the License.
  */
 package org.scribble.ext.assrt.sesstype.name;
+
 import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
 import org.scribble.sesstype.name.AbstractName;
-
 
 public class AssrtVarName extends AbstractName<AssrtVarNameKind> implements AssrtPayloadType<AssrtVarNameKind>
 {
@@ -54,7 +54,7 @@ public class AssrtVarName extends AbstractName<AssrtVarNameKind> implements Assr
 	}
 	
 	@Override
-	public boolean isAnnotPayloadInScope()
+	public boolean isAnnotVarName()
 	{
 		return true;
 	}
