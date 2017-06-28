@@ -34,7 +34,7 @@ import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
-import org.scribble.ext.assrt.del.AssrtAnnotPayloadElemDel;
+import org.scribble.ext.assrt.del.AssrtAnnotDataTypeElemDel;
 import org.scribble.ext.assrt.del.global.AssrtGChoiceDel;
 import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
@@ -121,7 +121,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	public <K extends PayloadTypeKind> AssrtAnnotDataTypeElem<K> AssrtAnnotPayloadElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType)
 	{
 		AssrtAnnotDataTypeElem<K> de= new AssrtAnnotDataTypeElem<>(source, varName, dataType);
-		de = del(de, new AssrtAnnotPayloadElemDel());
+		de = del(de, new AssrtAnnotDataTypeElemDel());
 		return de;
 	}
 

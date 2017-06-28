@@ -27,9 +27,9 @@ import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;
 
 // A "name pair", perhaps similar to GDelegationElem -- factor out?
+	// This is an "Elem" -- "Elems" are the elements of PayloadElemList, while PayloadElemNameNode (like DataTypeNode) are the values (an attribute) of the elems
 public class AssrtAnnotDataTypeElem<K extends PayloadTypeKind> extends ScribNodeBase implements PayloadElem<K>
 {
-	// "Elems" are the elements of PayloadElemList, while PayloadElemNameNode (like DataTypeNode) are the values (an attribute) of the elems
 	public final AssrtVarNameNode varName;  // Using AssrtVarNameNode both as the annotation (as here), and as a PayloadElemNameNode -- like the below DataTypeNode
 	public final DataTypeNode dataType;
 	

@@ -20,7 +20,7 @@ import org.scribble.ext.assrt.visit.wf.AssrtNameDisambiguator;
 import org.scribble.main.ScribbleException;
 import org.scribble.visit.wf.NameDisambiguator;
 
-public class AssrtAnnotPayloadElemDel extends ScribDelBase
+public class AssrtAnnotDataTypeElemDel extends ScribDelBase
 {
 	@Override
 	public void enterDisambiguation(ScribNode parent, ScribNode child, NameDisambiguator disamb) throws ScribbleException
