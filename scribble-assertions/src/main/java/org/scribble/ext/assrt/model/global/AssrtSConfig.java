@@ -88,10 +88,10 @@ public class AssrtSConfig extends SConfig
 				tmp3.put(r, null);
 			}*/
 			SBuffers tmp2 = 
-					a.isSend()       ? this.buffs.send(r, (ESend) a)
-				: a.isReceive()    ? this.buffs.receive(r, (EReceive) a)
-				: a.isDisconnect() ? this.buffs.disconnect(r, (EDisconnect) a)
-				: null;
+						a.isSend()       ? this.buffs.send(r, (ESend) a)
+					: a.isReceive()    ? this.buffs.receive(r, (EReceive) a)
+					: a.isDisconnect() ? this.buffs.disconnect(r, (EDisconnect) a)
+					: null;
 			if (tmp2 == null)
 			{
 				throw new RuntimeException("Shouldn't get in here: " + a);
@@ -198,7 +198,7 @@ public class AssrtSConfig extends SConfig
 	}
 	
 	// For now we are checking that only the sender knows all variables. 
-	public Map<Role, EState> checkHistorySensitivity()
+	public Map<Role, EState> checkHistorySensitivity()  // Not the full "formal" HS -- here, checking again "knowledge by message flow"? (already done syntactically?)
 	{
 		Map<Role, EState> res = new HashMap<>();
 		for (Role r : this.efsms.keySet())
@@ -207,13 +207,14 @@ public class AssrtSConfig extends SConfig
 			EFSM s = this.efsms.get(r);
 			for (EAction action : s.getAllFireable())  
 			{
-				if (action.isSend()) {
+				if (action.isSend())
+				{
 					AssrtESend send = (AssrtESend)action;
 					AssrtAssertion assertion = send.assertion;
 					
 					Set<String> newVarNames = send.payload.elems.stream()
 							.filter(v -> (v instanceof AssrtPayloadType<?>) && ((AssrtPayloadType<?>) v).isAnnotVarDecl())  // FIXME?
-							.map(v -> ((AssrtAnnotDataType)v).var.toString())
+							.map(v -> ((AssrtAnnotDataType) v).var.toString())
 							.collect(Collectors.toSet()); 
 					
 					if (assertion !=null)
