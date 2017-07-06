@@ -27,6 +27,7 @@ import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.sesstype.name.Role;
 import org.scribble.visit.env.Env;
 
+// FIXME: check and refactor syntactic checks with AssrtNameDisambiguator
 public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 {
 	// "May" analysis
