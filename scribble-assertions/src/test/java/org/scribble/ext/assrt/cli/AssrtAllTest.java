@@ -1,16 +1,3 @@
-/**
- * Copyright 2008 The Scribble Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
 package org.scribble.ext.assrt.cli;
 
 import java.util.Collection;
@@ -21,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.scribble.cli.Harness;
+import org.scribble.cli.ScribTest;
 
 @RunWith(Parameterized.class)
 public class AssrtAllTest extends AssrtBaseTest
@@ -36,8 +24,8 @@ public class AssrtAllTest extends AssrtBaseTest
 		String dir_good = ClassLoader.getSystemResource(AssrtGoodTest.GOOD_DIR).getFile();
 		String dir_bad = ClassLoader.getSystemResource(AssrtBadTest.BAD_DIR).getFile();
 		List<Object[]> result = new LinkedList<>();
-		result.addAll(Harness.makeTests(GOOD_TEST, dir_good));
-		result.addAll(Harness.makeTests(BAD_TEST, dir_bad));
+		result.addAll(Harness.makeTests(ScribTest.GOOD_TEST, dir_good));
+		result.addAll(Harness.makeTests(ScribTest.BAD_TEST, dir_bad));
 		return result;
 	}
 }
