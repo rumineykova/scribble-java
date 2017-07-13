@@ -9,7 +9,6 @@ import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.visit.AstVisitor;
 
-// FIXME: visitChildren/reconstruct
 public class AssrtAssertion extends ScribNodeBase 
 {	
 	//private final String assertion;  // FIXME: should be String for a more general annotations feature

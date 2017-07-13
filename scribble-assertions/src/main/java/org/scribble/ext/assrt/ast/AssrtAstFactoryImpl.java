@@ -143,5 +143,4 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		lpb = del(lpb, new AssrtLProtocolBlockDel());
 		return lpb;
 	}
-
 }

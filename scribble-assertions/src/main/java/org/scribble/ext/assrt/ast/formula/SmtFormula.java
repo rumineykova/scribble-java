@@ -8,11 +8,11 @@ public abstract class SmtFormula
 {
 	protected Formula formula;
 
-	protected abstract Formula toFormula() throws AssertionException;
+	protected abstract Formula toFormula() throws AssertionParseException;
 
 	public abstract Set<String> getVars();
 
-	public Formula getFormula() throws AssertionException
+	public Formula getFormula() throws AssertionParseException
 	{
 		if (this.formula == null)
 		{

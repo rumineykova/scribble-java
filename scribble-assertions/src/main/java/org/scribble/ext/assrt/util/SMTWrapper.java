@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.ast.formula.AssertionException;
+import org.scribble.ext.assrt.ast.formula.AssertionParseException;
 import org.scribble.ext.assrt.ast.formula.AssertionLogFormula;
 import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.sosy_lab.common.ShutdownManager;
@@ -79,7 +79,7 @@ public class SMTWrapper {
 	      return instance;
 	   }
 	
-	public AssertionLogFormula addFormula(SmtFormula f1, SmtFormula f2) throws AssertionException{
+	public AssertionLogFormula addFormula(SmtFormula f1, SmtFormula f2) throws AssertionParseException{
 		BooleanFormula formula = this.bmanager.and((BooleanFormula)f1.getFormula(), (BooleanFormula)f2.getFormula());
 		Set<String> vars = new HashSet<String>(f1.getVars()); 
 		vars.addAll(f2.getVars()); 
@@ -116,7 +116,7 @@ public class SMTWrapper {
 				executor.shutdown();
 			}
 		}
-		catch (AssertionException e) {
+		catch (AssertionParseException e) {
 			this.logger.logUserException(Level.INFO, e, "The assertion is not a valid Z3 expression");
 			System.err.print("The assertion is not a valid Z3 expression" + e.getMessage()); 
 		}
@@ -125,7 +125,7 @@ public class SMTWrapper {
 	}
 
 	private BooleanFormula buildFormula(SmtFormula assertionFormula,
-			AssertionLogFormula context) throws AssertionException {
+			AssertionLogFormula context) throws AssertionParseException {
 		BooleanFormula currFormula;
 		currFormula = (BooleanFormula) assertionFormula.getFormula();
 		List<IntegerFormula> contextVars; 

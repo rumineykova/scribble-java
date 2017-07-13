@@ -37,7 +37,7 @@ public class CompFormula extends SmtFormula {
 	}
 	
 	@Override
-	public BooleanFormula toFormula() throws AssertionException {
+	public BooleanFormula toFormula() throws AssertionParseException {
 		IntegerFormulaManager fmanager = SMTWrapper.getInstance().imanager;
 		IntegerFormula fleft = (IntegerFormula) this.left.toFormula();
 		IntegerFormula fright = (IntegerFormula) this.right.toFormula();
@@ -50,7 +50,7 @@ public class CompFormula extends SmtFormula {
 		case Eq:
 			return fmanager.equal(fleft, fright);  
 		default:
-			throw new AssertionException("No matchin ooperation for boolean formula"); 
+			throw new AssertionParseException("No matchin ooperation for boolean formula"); 
 		}		
 	}
 	

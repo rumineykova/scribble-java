@@ -36,7 +36,7 @@ public class BoolFormula extends SmtFormula {
 	}
 	
 	@Override
-	protected BooleanFormula toFormula() throws AssertionException {
+	protected BooleanFormula toFormula() throws AssertionParseException {
 		BooleanFormulaManager fmanager = SMTWrapper.getInstance().bmanager;
 		BooleanFormula bleft = (BooleanFormula) this.left.toFormula();
 		BooleanFormula bright = (BooleanFormula) this.right.toFormula();
@@ -47,7 +47,7 @@ public class BoolFormula extends SmtFormula {
 		case Or:
 			return fmanager.or(bleft,bright); 
 		default:
-			throw new AssertionException("No matchin ooperation for boolean formula"); 
+			throw new AssertionParseException("No matchin ooperation for boolean formula"); 
 		}		
 	}
 	

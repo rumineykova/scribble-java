@@ -15,6 +15,13 @@ type <java> "java.lang.String" from "rt.jar" as Str;
 // FIXME: debug printing for assertion passes
 
 
+global protocol Proto1(role A, role B)
+{
+	1(Int) from A to B;
+}
+
+
+
 /*
 global protocol Proto1(role A, role B)
 {
@@ -62,7 +69,7 @@ global protocol Proto1(role A, role B)
 //---
 
 
-//*
+/*
 global protocol Proto1(role A, role B)
 {
 	(y:Int) from A to C;
@@ -81,11 +88,11 @@ global protocol Proto1(role A, role B)
 //*/
 
 
-//*
+/*
 global protocol Proto1(role A, role B, role C)
 {
 	/*rec X
-	{*/
+	{* /
 		choice at A
 		{
 			1(y:Int) from A to B;

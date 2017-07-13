@@ -36,7 +36,7 @@ public class ArithFormula extends SmtFormula {
 	}
 
 	@Override
-	public IntegerFormula toFormula() throws AssertionException {
+	public IntegerFormula toFormula() throws AssertionParseException {
 		IntegerFormulaManager fmanager = SMTWrapper.getInstance().imanager;
 		IntegerFormula fleft = (IntegerFormula) this.left.toFormula();
 		IntegerFormula fright = (IntegerFormula) this.right.toFormula();
@@ -49,7 +49,7 @@ public class ArithFormula extends SmtFormula {
 		case Mult:
 			return fmanager.multiply(fleft, fright);
 		default:
-			throw new AssertionException("No matchin ooperation for boolean formula");
+			throw new AssertionParseException("No matchin ooperation for boolean formula");
 		}
 	}
 

@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.ast.AssrtAssertion;
-import org.scribble.ext.assrt.ast.formula.AssertionException;
+import org.scribble.ext.assrt.ast.formula.AssertionParseException;
 import org.scribble.ext.assrt.ast.formula.AssertionLogFormula;
 import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
@@ -95,7 +95,7 @@ public class AssrtSConfig extends SConfig
 					newFormula = this.formula==null?
 							new AssertionLogFormula(currFormula.getFormula(), currFormula.getVars()):
 							this.formula.addFormula(currFormula);
-				} catch (AssertionException e) {
+				} catch (AssertionParseException e) {
 					throw new RuntimeException("cannot parse the asserion"); 
 				}
 			}

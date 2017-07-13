@@ -1,10 +1,10 @@
 package org.scribble.ext.assrt.ast.formula;
 
-public class AssertionException extends Exception {
+public class AssertionParseException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public AssertionException(String string) {
+	public AssertionParseException(String string) {
 		// TODO Auto-generated constructor stub
 	}
 

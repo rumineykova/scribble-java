@@ -19,7 +19,7 @@ public class AssertionLogFormula extends SmtFormula {
 	}
 	
 	@Override
-	protected BooleanFormula toFormula() throws AssertionException {
+	protected BooleanFormula toFormula() throws AssertionParseException {
 		return (BooleanFormula) this.formula; 
 	}
 	
@@ -28,7 +28,7 @@ public class AssertionLogFormula extends SmtFormula {
 		return vars; 
 	}
 	
-	public AssertionLogFormula addFormula(SmtFormula newFormula) throws AssertionException{		
+	public AssertionLogFormula addFormula(SmtFormula newFormula) throws AssertionParseException{		
 		return this.formula==null? 
 				new AssertionLogFormula(newFormula.formula, newFormula.getVars()):	
 				SMTWrapper.getInstance().addFormula(this, newFormula);
