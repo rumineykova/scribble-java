@@ -1,11 +1,11 @@
 //Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
-//$ bin/scribblec.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/tmp/Test.scr 
+//$ bin/scribblec.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtTest.scr 
 
 
 //http://sandbox.kidstrythisathome.com/erdos/
 
 
-module Test;
+module assrt.tmp.AssrtTest;
 
 
 type <java> "java.lang.Integer" from "rt.jar" as Int;

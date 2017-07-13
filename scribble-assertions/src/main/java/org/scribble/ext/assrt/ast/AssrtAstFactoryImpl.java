@@ -47,6 +47,7 @@ import org.scribble.sesstype.kind.Kind;
 import org.scribble.sesstype.kind.PayloadTypeKind;
 
 
+// FIXME: separate modified-del-only from new categories
 public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFactory
 {
 	@Override

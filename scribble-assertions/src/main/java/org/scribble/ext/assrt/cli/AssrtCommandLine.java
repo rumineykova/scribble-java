@@ -28,6 +28,15 @@ import org.scribble.util.ScribParserException;
 
 public class AssrtCommandLine extends CommandLine
 {
+
+	public AssrtCommandLine(String... args) throws CommandLineException
+	{
+		super(args);
+		if (this.args.containsKey(CLArgFlag.INLINE_MAIN_MOD))
+		{
+			throw new RuntimeException("[scrib-assert] Inline modules not supported:\n" + this.args.get(CLArgFlag.INLINE_MAIN_MOD));
+		}
+	}
 	
 	// Based on CommandLine.newMainContext
 	protected AssrtMainContext newMainContext() throws ScribParserException, ScribbleException
@@ -56,15 +65,6 @@ public class AssrtCommandLine extends CommandLine
 			Path mainpath = CommandLine.parseMainPath(this.args.get(CLArgFlag.MAIN_MOD)[0]);
 			return new AssrtMainContext(debug, locator, mainpath, useOldWF, noLiveness, minEfsm, fair,
 					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, f17);
-		}
-	}
-	
-	public AssrtCommandLine(String... args) throws CommandLineException
-	{
-		super(args);
-		if (this.args.containsKey(CLArgFlag.INLINE_MAIN_MOD))
-		{
-			throw new RuntimeException("[scrib-assert] Inline modules not supported:\n" + this.args.get(CLArgFlag.INLINE_MAIN_MOD));
 		}
 	}
 
