@@ -1,6 +1,7 @@
 package org.scribble.ext.assrt.core.ast.global;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -65,36 +66,36 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 				return af.AssrtCoreLRecVar(rvs.iterator().next());
 			}
 
-			Map<AssrtCoreAction, AssrtCoreLType> filtered = projs.entrySet().stream()
-				.filter(e -> !e.getValue().equals(AssrtCoreLEnd.END))
+			List<AssrtCoreLChoice> filtered = projs.values().stream()
+				.filter(v -> !v.equals(AssrtCoreLEnd.END))
 				//.collect(Collectors.toMap(e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getKey, e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getValue));
-				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+				.map(v -> (AssrtCoreLChoice) v)
+				.collect(Collectors.toList());
 		
 			if (filtered.size() == 0)
 			{
 				return AssrtCoreLEnd.END;
 			}
 		
-			Set<Role> roles = filtered.values().stream().map(v -> ((AssrtCoreLChoice) v).role).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
+			Set<Role> roles = filtered.stream().map(v -> v.role).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
 			if (roles.size() > 1)
 			{
 				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + subj + ": mixed peer roles: " + roles);
 			}
-			Set<AssrtCoreActionKind<?>> kinds = filtered.values().stream().map(v -> ((AssrtCoreLChoice) v).kind).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
+			Set<AssrtCoreActionKind<?>> kinds = filtered.stream().map(v -> v.kind).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
 			if (kinds.size() > 1)
 			{
 				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + subj + ": mixed action kinds: " + kinds);
 			}
 			
 			Map<AssrtCoreAction, AssrtCoreLType> merged = new HashMap<>();
-			filtered.values().forEach(v ->
+			filtered.forEach(v ->
 			{
-				AssrtCoreLChoice lc = (AssrtCoreLChoice) v;
-				if (!lc.kind.equals(AssrtCoreLActionKind.RECEIVE))
+				if (!v.kind.equals(AssrtCoreLActionKind.RECEIVE))
 				{
-					throw new RuntimeException("[assrt-core] Shouldn't get here: " + lc);  // By role-enabling?
+					throw new RuntimeException("[assrt-core] Shouldn't get here: " + v);  // By role-enabling?
 				}
-				lc.cases.entrySet().forEach(e ->
+				v.cases.entrySet().forEach(e ->
 				{
 					AssrtCoreAction k = e.getKey();
 					AssrtCoreLType b = e.getValue();
