@@ -31,7 +31,7 @@ public class AssrtCoreAstFactory
 		return new AssrtCoreAction(op, pay, ass);
 	}
 	
-	public AssrtCoreGChoice GChoice(Role src, AssrtCoreGActionKind kind, Role dest, Map<AssrtCoreAction, AssrtCoreGType> cases)
+	public AssrtCoreGChoice AssrtCoreGChoice(Role src, AssrtCoreGActionKind kind, Role dest, Map<AssrtCoreAction, AssrtCoreGType> cases)
 	{
 		return new AssrtCoreGChoice(src, kind, dest, cases);
 	}
@@ -41,17 +41,17 @@ public class AssrtCoreAstFactory
 		return new F17GDisconnect(src, dest);
 	}*/
 	
-	public AssrtCoreGRec GRec(RecVar recvar, AssrtCoreGType body)
+	public AssrtCoreGRec AssrtCoreGRec(RecVar recvar, AssrtCoreGType body)
 	{
 		return new AssrtCoreGRec(recvar, body);
 	}
 	
-	public AssrtCoreGRecVar GRecVar(RecVar var)
+	public AssrtCoreGRecVar AssrtCoreGRecVar(RecVar var)
 	{
 		return new AssrtCoreGRecVar(var);
 	}
 
-	public AssrtCoreGEnd GEnd()
+	public AssrtCoreGEnd AssrtCoreGEnd()
 	{
 		return AssrtCoreGEnd.END;
 	}

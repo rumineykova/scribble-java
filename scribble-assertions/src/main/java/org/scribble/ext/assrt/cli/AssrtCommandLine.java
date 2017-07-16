@@ -5,12 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.scribble.ast.Module;
-import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.cli.CLArgFlag;
 import org.scribble.cli.CommandLine;
 import org.scribble.cli.CommandLineException;
-import org.scribble.del.ModuleDel;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGType;
 import org.scribble.ext.assrt.main.AssrtMainContext;
@@ -115,7 +112,7 @@ public class AssrtCommandLine extends CommandLine
 	
 	// Refactor into AssrtJob?
 
-	private static void parseAndCheckWF(Job job, GProtocolName simpname) throws ScribbleException, ScribParserException
+	/*private static void parseAndCheckWF(Job job, GProtocolName simpname) throws ScribbleException, ScribParserException
 	{
 		assrtPreContextBuilding(job);
 		
@@ -124,16 +121,16 @@ public class AssrtCommandLine extends CommandLine
 		/*if (simpname.toString().equals("[F17AllTest]")) // HACK: F17AllTest
 		{
 			simpname = main.getGlobalProtocolDecls().iterator().next().getHeader().getNameNode().toName();
-		}*/
+		}* /
 
-		if (!main.hasProtocolDecl(simpname))
+		/*if (!main.hasProtocolDecl(simpname))
 		{
 			throw new ScribbleException("Global protocol not found: " + simpname);
 		}
-		GProtocolDecl gpd = (GProtocolDecl) main.getProtocolDecl(simpname);
+		GProtocolDecl gpd = (GProtocolDecl) main.getProtocolDecl(simpname);* /
 		
-		parseAndCheckWF(job, main, gpd);
-	}
+		parseAndCheckWF(job, main, simpname);
+	}*/
 	
 	private static void assrtPreContextBuilding(Job job) throws ScribbleException
 	{
@@ -143,13 +140,15 @@ public class AssrtCommandLine extends CommandLine
 	}
 
 	// Pre: f17PreContextBuilding
-	private static void parseAndCheckWF(Job job, Module main, GProtocolDecl gpd) throws ScribbleException, ScribParserException
+	private static void parseAndCheckWF(Job job, GProtocolName simpname) throws ScribbleException, ScribParserException
 	{
-		AssrtCoreGType gt = new AssrtCoreGProtocolDeclTranslator(job).translate(((ModuleDel) main.del()).getModuleContext(), gpd);
+		assrtPreContextBuilding(job);
+
+		AssrtCoreGType gt = new AssrtCoreGProtocolDeclTranslator(job).translate(simpname);
 		
 		job.debugPrintln
 		//System.out.println
-			("[f17] Translated:\n  " + gt);
+			("\n[assrt-core] Translated:\n  " + gt);
 
 		/*Map<Role, F17LType> P0 = new HashMap<>();
 		F17Projector p = new F17Projector();

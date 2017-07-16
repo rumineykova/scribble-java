@@ -2,18 +2,18 @@ package org.scribble.ext.assrt.core.ast;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import org.scribble.sesstype.kind.ProtocolKind;
 import org.scribble.sesstype.name.Role;
 
-public abstract class AssrtCoreChoice<A extends AssrtCoreAction, C extends AssrtCoreType> implements AssrtCoreType
+public abstract class AssrtCoreChoice<A extends AssrtCoreAction, C extends AssrtCoreType, K extends ProtocolKind> implements AssrtCoreType
 {
 	public final Role src;  // Singleton -- no disconnect for now
-	public final AssrtCoreActionKind kind;
+	public final AssrtCoreActionKind<K> kind;
 	public final Role dest;
 	public final Map<A, C> cases;
 	
-	public AssrtCoreChoice(Role src, AssrtCoreActionKind kind, Role dest, Map<A, C> cases)
+	public AssrtCoreChoice(Role src, AssrtCoreActionKind<K> kind, Role dest, Map<A, C> cases)
 	{
 		this.src = src;
 		this.kind = kind;
@@ -41,19 +41,6 @@ public abstract class AssrtCoreChoice<A extends AssrtCoreAction, C extends Assrt
 	}*/
 	
 	@Override
-	public String toString()
-	{
-		String s = 
-				
-				this.cases.entrySet().stream().map((e) -> e.getKey() + "." + e.getValue()).collect(Collectors.joining(" + "));
-		if (this.cases.size() > 1)
-		{
-			s = "(" + s + ")";
-		}
-		return s;
-	}
-	
-	@Override
 	public int hashCode()
 	{
 		int hash = 29;
@@ -75,10 +62,11 @@ public abstract class AssrtCoreChoice<A extends AssrtCoreAction, C extends Assrt
 		{
 			return false;
 		}
-		AssrtCoreChoice<?, ?> them = (AssrtCoreChoice<?, ?>) obj;
+		AssrtCoreChoice<?, ?, ?> them = (AssrtCoreChoice<?, ?, ?>) obj; 
 		return them.canEquals(this)
 				&& this.src.equals(them.src) && this.kind.equals(them.kind) && this.dest.equals(them.dest) && this.cases.equals(them.cases);
 				// FIXME: check A, C are equal
+				// FIXME: check kind
 	}
 	
 	@Override

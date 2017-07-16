@@ -1,13 +1,15 @@
 package org.scribble.ext.assrt.core.ast.global;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreChoice;
 import org.scribble.ext.assrt.core.ast.global.action.AssrtCoreGActionKind;
+import org.scribble.sesstype.kind.Global;
 import org.scribble.sesstype.name.Role;
 
-public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCoreGType> implements AssrtCoreGType
+public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCoreGType, Global> implements AssrtCoreGType
 {
 	public AssrtCoreGChoice(Role subj, AssrtCoreGActionKind kind, Role dest, Map<AssrtCoreAction, AssrtCoreGType> cases)
 	{
@@ -40,5 +42,17 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtCoreGChoice;
+	}
+
+	@Override
+	public String toString()
+	{
+		String s = this.cases.entrySet().stream()
+				.map(e -> e.getKey() + "." + e.getValue()).collect(Collectors.joining(", "));
+		if (this.cases.size() > 1)
+		{
+			s = "{ " + s + " }";
+		}
+		return this.src.toString() + this.kind + this.dest + ":" + s;  // toString needed?
 	}
 }
