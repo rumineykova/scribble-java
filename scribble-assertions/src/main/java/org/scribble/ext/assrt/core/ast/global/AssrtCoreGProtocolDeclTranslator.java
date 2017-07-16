@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.scribble.ast.MessageSigNode;
-import org.scribble.ast.Module;
 import org.scribble.ast.PayloadElem;
 import org.scribble.ast.UnaryPayloadElem;
 import org.scribble.ast.global.GChoice;
@@ -33,7 +32,6 @@ import org.scribble.ext.assrt.core.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
-import org.scribble.ext.assrt.core.ast.global.action.AssrtCoreGActionKind;
 import org.scribble.ext.assrt.main.AssrtException;
 import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
 import org.scribble.main.Job;
@@ -41,7 +39,6 @@ import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.kind.DataTypeKind;
 import org.scribble.sesstype.kind.Global;
 import org.scribble.sesstype.kind.RecVarKind;
-import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.PayloadType;
 import org.scribble.sesstype.name.RecVar;
 import org.scribble.sesstype.name.Role;
@@ -49,9 +46,8 @@ import org.scribble.sesstype.name.Role;
 
 public class AssrtCoreGProtocolDeclTranslator
 {
-	private final AssrtCoreAstFactory af = new AssrtCoreAstFactory();
-	
 	private final Job job;
+	private final AssrtCoreAstFactory af;
 	
 	private static int varCounter = 1;
 	private static int recCounter = 1;
@@ -68,9 +64,10 @@ public class AssrtCoreGProtocolDeclTranslator
 	
 	//private static DataType UNIT_TYPE;
 
-	public AssrtCoreGProtocolDeclTranslator(Job job)
+	public AssrtCoreGProtocolDeclTranslator(Job job, AssrtCoreAstFactory af)
 	{
 		this.job = job;
+		this.af = af;
 		
 		/*if (F17GProtocolDeclTranslator.UNIT_TYPE == null)
 		{
@@ -78,15 +75,8 @@ public class AssrtCoreGProtocolDeclTranslator
 		}*/
 	}
 
-	public AssrtCoreGType translate(GProtocolName simpname) throws ScribbleException
+	public AssrtCoreGType translate(GProtocolDecl gpd) throws ScribbleException
 	{
-		Module main = this.job.getContext().getMainModule();
-		//ModuleContext mc = ((ModuleDel) main.del()).getModuleContext();
-		if (!main.hasProtocolDecl(simpname))
-		{
-			throw new ScribbleException("[assrt-core] Global protocol not found: " + simpname);
-		}
-		GProtocolDecl gpd = (GProtocolDecl) main.getProtocolDecl(simpname);
 		GProtocolDef inlined = ((GProtocolDefDel) gpd.def.del()).getInlinedProtocolDef();
 		return parseSeq(inlined.getBlock().getInteractionSeq().getInteractions(), new HashMap<>(), false, false);
 	}
@@ -229,6 +219,10 @@ public class AssrtCoreGProtocolDeclTranslator
 
 		Role src = parseSourceRole(gmt);
 		Role dest = parseDestinationRole(gmt);
+		if (src.equals(dest))
+		{
+			throw new RuntimeException("Shouldn't get in here (self-communication): " + gmt);
+		}
 		
 		AssrtCoreGActionKind kind = AssrtCoreGActionKind.MESSAGE;
 		
@@ -260,7 +254,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		{
 			//return Payload.EMPTY_PAYLOAD;
 
-			DataTypeNode dtn = (DataTypeNode) ((AssrtAstFactory) this.job.af).QualifiedNameNode(null, DataTypeKind.KIND, "_UNIT");
+			DataTypeNode dtn = (DataTypeNode) ((AssrtAstFactory) this.job.af).QualifiedNameNode(null, DataTypeKind.KIND, "_Unit");
 			AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
 			return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, dtn);  // null source OK?
 		}

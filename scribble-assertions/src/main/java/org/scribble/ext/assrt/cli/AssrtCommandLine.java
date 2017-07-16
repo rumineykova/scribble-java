@@ -2,20 +2,26 @@ package org.scribble.ext.assrt.cli;
 
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.scribble.ast.Module;
+import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.cli.CLArgFlag;
 import org.scribble.cli.CommandLine;
 import org.scribble.cli.CommandLineException;
+import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGType;
+import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
 import org.scribble.ext.assrt.main.AssrtMainContext;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.main.resource.DirectoryResourceLocator;
 import org.scribble.main.resource.ResourceLocator;
 import org.scribble.sesstype.name.GProtocolName;
+import org.scribble.sesstype.name.Role;
 import org.scribble.util.ScribParserException;
 import org.scribble.visit.context.RecRemover;
 
@@ -144,25 +150,33 @@ public class AssrtCommandLine extends CommandLine
 	{
 		assrtPreContextBuilding(job);
 
-		AssrtCoreGType gt = new AssrtCoreGProtocolDeclTranslator(job).translate(simpname);
+		Module main = job.getContext().getMainModule();
+		//ModuleContext mc = ((ModuleDel) main.del()).getModuleContext();
+		if (!main.hasProtocolDecl(simpname))
+		{
+			throw new ScribbleException("[assrt-core] Global protocol not found: " + simpname);
+		}
+		GProtocolDecl gpd = (GProtocolDecl) main.getProtocolDecl(simpname);
+
+		AssrtCoreAstFactory af = new AssrtCoreAstFactory();
+		AssrtCoreGType gt = new AssrtCoreGProtocolDeclTranslator(job, af).translate(gpd);
 		
 		job.debugPrintln
 		//System.out.println
 			("\n[assrt-core] Translated:\n  " + gt);
 
-		/*Map<Role, F17LType> P0 = new HashMap<>();
-		F17Projector p = new F17Projector();
+		Map<Role, AssrtCoreLType> P0 = new HashMap<>();
 		for (Role r : gpd.header.roledecls.getRoles())
 		{
-			F17LType lt = p.project(gt, r, Collections.emptySet());
+			AssrtCoreLType lt = gt.project(af, r);
 			P0.put(r, lt);
 
 			job.debugPrintln
 			//System.out.println
-				("[f17] Projected onto " + r + ":\n  " + lt);
+				("\n[assrt-core] Projected onto " + r + ":\n  " + lt);
 		}
 
-		F17EGraphBuilder builder = new F17EGraphBuilder(job.ef);
+		/*F17EGraphBuilder builder = new F17EGraphBuilder(job.ef);
 		Map<Role, EState> E0 = new HashMap<>();
 		for (Role r : P0.keySet())
 		{
@@ -171,7 +185,7 @@ public class AssrtCommandLine extends CommandLine
 
 			job.debugPrintln
 			//System.out.println
-					("[f17] Built endpoint graph for " + r + ":\n" + g.toDot());
+					("\n[assrt-core] Built endpoint graph for " + r + ":\n" + g.toDot());
 		}*/
 
 		//validate(job, gpd.isExplicitModifier(), E0);  //TODO
@@ -186,7 +200,7 @@ public class AssrtCommandLine extends CommandLine
 
 				job.debugPrintln
 				//System.out.println
-						("[f17] Unfair transform for " + r + ":\n" + u.toDot());
+						("\n[assrt-core] Unfair transform for " + r + ":\n" + u.toDot());
 			}
 			
 			//validate(job, gpd.isExplicitModifier(), U0, true);  //TODO

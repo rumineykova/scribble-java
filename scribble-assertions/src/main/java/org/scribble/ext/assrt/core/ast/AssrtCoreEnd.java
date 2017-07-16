@@ -8,7 +8,7 @@ public abstract class AssrtCoreEnd implements AssrtCoreType
 	{
 		return "end";
 	}
-	
+
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -18,16 +18,12 @@ public abstract class AssrtCoreEnd implements AssrtCoreType
 		}
 		return ((AssrtCoreEnd) obj).canEquals(this);
 	}
-	
-	@Override
-	public boolean canEquals(Object o)
-	{
-		return o instanceof AssrtCoreEnd;
-	}
+
+	public abstract boolean canEquals(Object o);
 
 	@Override
 	public int hashCode()
 	{
-		return 997;
+		return 31*2447;
 	}
 }

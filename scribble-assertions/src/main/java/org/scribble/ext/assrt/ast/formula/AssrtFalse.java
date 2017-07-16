@@ -12,7 +12,7 @@ public class AssrtFalse extends SmtFormula
 	@Override
 	public String toString()
 	{
-		return "false"; 
+		return "False"; 
 	}
 	
 	@Override

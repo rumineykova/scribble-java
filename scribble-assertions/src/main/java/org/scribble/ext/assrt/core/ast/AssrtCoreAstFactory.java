@@ -5,12 +5,18 @@ import java.util.Map;
 import org.scribble.ast.name.simple.OpNode;
 import org.scribble.ext.assrt.ast.AssrtAnnotDataTypeElem;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
+import org.scribble.ext.assrt.core.ast.global.AssrtCoreGActionKind;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGChoice;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGEnd;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGRec;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGRecVar;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGType;
-import org.scribble.ext.assrt.core.ast.global.action.AssrtCoreGActionKind;
+import org.scribble.ext.assrt.core.ast.local.AssrtCoreLActionKind;
+import org.scribble.ext.assrt.core.ast.local.AssrtCoreLChoice;
+import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
+import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRec;
+import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRecVar;
+import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
 import org.scribble.sesstype.kind.DataTypeKind;
 import org.scribble.sesstype.name.RecVar;
 import org.scribble.sesstype.name.Role;
@@ -56,50 +62,49 @@ public class AssrtCoreAstFactory
 		return AssrtCoreGEnd.END;
 	}
 
-	/*
-	public F17LChoice LChoice(Map<F17LAction, F17LType> cases)
+	public AssrtCoreLChoice AssrtCoreLChoice(Role role, AssrtCoreLActionKind kind, Map<AssrtCoreAction, AssrtCoreLType> cases)
 	{
-		return new F17LChoice(cases);
+		return new AssrtCoreLChoice(role, kind, cases);
 	}
 	
-	public F17LSend LSend(Role self, Role peer, Op op, Payload pay)
+	/*public AssrtCoreLSend LSend(Role self, Role peer, Op op, Payload pay)
 	{
-		return new F17LSend(self, peer, op, pay);
+		return new AssrtCoreLSend(self, peer, op, pay);
 	}
 	
-	public F17LReceive LReceive(Role self, Role peer, Op op, Payload pay)
+	public AssrtCoreLReceive LReceive(Role self, Role peer, Op op, Payload pay)
 	{
-		return new F17LReceive(self, peer, op, pay);
+		return new AssrtCoreLReceive(self, peer, op, pay);
 	}
 	
-	public F17LConnect LConnect(Role self, Role peer, Op op, Payload pay)
+	public AssrtCoreLConnect LConnect(Role self, Role peer, Op op, Payload pay)
 	{
-		return new F17LConnect(self, peer, op, pay);
+		return new AssrtCoreLConnect(self, peer, op, pay);
 	}
 	
-	public F17LAccept LAccept(Role self, Role peer, Op op, Payload pay)
+	public AssrtCoreLAccept LAccept(Role self, Role peer, Op op, Payload pay)
 	{
-		return new F17LAccept(self, peer, op, pay);
+		return new AssrtCoreLAccept(self, peer, op, pay);
+	}*/
+	
+	/*public AssrtCoreLDisconnect LDisconnect(Role self, Role peer)
+	{
+		return new AssrtCoreLDisconnect(self, peer);
+	}*/
+	
+	public AssrtCoreLRec AssrtCoreLRec(RecVar recvar, AssrtCoreLType body)
+	{
+		return new AssrtCoreLRec(recvar, body);
 	}
 	
-	public F17LDisconnect LDisconnect(Role self, Role peer)
+	public AssrtCoreLRecVar AssrtCoreLRecVar(RecVar var)
 	{
-		return new F17LDisconnect(self, peer);
-	}
-	
-	public F17LRec LRec(RecVar recvar, F17LType body)
-	{
-		return new F17LRec(recvar, body);
-	}
-	
-	public F17LRecVar LRecVar(RecVar var)
-	{
-		return new F17LRecVar(var);
+		return new AssrtCoreLRecVar(var);
 	}
 
-	public F17LEnd LEnd()
+	public AssrtCoreLEnd AssrtCoreLEnd()
 	{
-		//return new F17LEnd();
-		return F17LEnd.END;
-	}*/
+		//return new AssrtCoreLEnd();
+		return AssrtCoreLEnd.END;
+	}
 }

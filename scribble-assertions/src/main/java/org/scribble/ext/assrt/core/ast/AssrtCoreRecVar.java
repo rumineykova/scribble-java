@@ -30,10 +30,7 @@ public abstract class AssrtCoreRecVar implements AssrtCoreType
 	}
 	
 	@Override
-	public boolean canEquals(Object o)
-	{
-		return o instanceof AssrtCoreRecVar;
-	}
+	public abstract boolean canEquals(Object o);
 
 	@Override
 	public int hashCode()

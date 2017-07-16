@@ -4,7 +4,7 @@ import org.scribble.sesstype.name.RecVar;
 
 public abstract class AssrtCoreRec<B extends AssrtCoreType> implements AssrtCoreType
 {
-	public final RecVar recvar;
+	public final RecVar recvar;  // FIXME: RecVarNode?  (Cf. AssrtCoreAction.op/pay)
 	public final B body;
 	
 	public AssrtCoreRec(RecVar recvar, B body)
@@ -36,10 +36,7 @@ public abstract class AssrtCoreRec<B extends AssrtCoreType> implements AssrtCore
 	}
 	
 	@Override
-	public boolean canEquals(Object o)
-	{
-		return o instanceof AssrtCoreRec;
-	}
+	public abstract boolean canEquals(Object o);
 	
 	@Override
 	public int hashCode()

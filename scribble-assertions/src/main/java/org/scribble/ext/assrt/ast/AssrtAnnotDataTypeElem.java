@@ -66,7 +66,7 @@ public class AssrtAnnotDataTypeElem<K extends PayloadTypeKind> extends ScribNode
 	@Override
 	public String toString()
 	{
-		return this.varName.toString() + ' ' +  this.dataType.toString();
+		return this.varName.toString() + ": " +  this.dataType.toString();
 	}
 
 	@Override

@@ -2,22 +2,22 @@ package org.scribble.ext.assrt.core.ast;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.scribble.sesstype.kind.ProtocolKind;
 import org.scribble.sesstype.name.Role;
 
 public abstract class AssrtCoreChoice<A extends AssrtCoreAction, C extends AssrtCoreType, K extends ProtocolKind> implements AssrtCoreType
 {
-	public final Role src;  // Singleton -- no disconnect for now
+	public final Role role;  // FIXME: RoleNode?  Cf. AssrtCoreAction.op/pay
 	public final AssrtCoreActionKind<K> kind;
-	public final Role dest;
 	public final Map<A, C> cases;
 	
-	public AssrtCoreChoice(Role src, AssrtCoreActionKind<K> kind, Role dest, Map<A, C> cases)
+	// Pre: cases.size() > 1
+	public AssrtCoreChoice(Role role, AssrtCoreActionKind<K> kind, Map<A, C> cases)
 	{
-		this.src = src;
+		this.role = role;
 		this.kind = kind;
-		this.dest = dest;
 		this.cases = Collections.unmodifiableMap(cases);
 	}
 	
@@ -44,9 +44,8 @@ public abstract class AssrtCoreChoice<A extends AssrtCoreAction, C extends Assrt
 	public int hashCode()
 	{
 		int hash = 29;
-		hash = 31 * hash + this.src.hashCode();
+		hash = 31 * hash + this.role.hashCode();
 		hash = 31 * hash + this.kind.hashCode();
-		hash = 31 * hash + this.dest.hashCode();
 		hash = 31 * hash + this.cases.hashCode();
 		return hash;
 	}
@@ -64,7 +63,7 @@ public abstract class AssrtCoreChoice<A extends AssrtCoreAction, C extends Assrt
 		}
 		AssrtCoreChoice<?, ?, ?> them = (AssrtCoreChoice<?, ?, ?>) obj; 
 		return them.canEquals(this)
-				&& this.src.equals(them.src) && this.kind.equals(them.kind) && this.dest.equals(them.dest) && this.cases.equals(them.cases);
+				&& this.role.equals(them.role) && this.kind.equals(them.kind) && this.cases.equals(them.cases);
 				// FIXME: check A, C are equal
 				// FIXME: check kind
 	}
@@ -73,5 +72,20 @@ public abstract class AssrtCoreChoice<A extends AssrtCoreAction, C extends Assrt
 	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtCoreChoice;
+	}
+	
+	protected String casesToString()
+	{
+		String s = this.cases.entrySet().stream()
+				.map(e -> e.getKey() + "." + e.getValue()).collect(Collectors.joining(", "));
+		if (this.cases.size() > 1)
+		{
+			s = "{ " + s + " }";
+		}
+		else
+		{
+			s = ":" + s;
+		}
+		return s;
 	}
 }
