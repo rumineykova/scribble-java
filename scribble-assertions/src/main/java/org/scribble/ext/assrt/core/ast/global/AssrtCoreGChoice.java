@@ -56,14 +56,21 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 		}
 		else
 		{
-			if (projs.values().stream().allMatch(v -> (v instanceof AssrtCoreLRecVar)))
+			if (projs.values().stream().anyMatch(v -> (v instanceof AssrtCoreLRecVar)))
 			{
-				Set<RecVar> rvs = projs.values().stream().map(v -> ((AssrtCoreLRecVar) v).var).collect(Collectors.toSet());
-				if (rvs.size() > 1)
+				if (projs.values().stream().anyMatch(v -> !(v instanceof AssrtCoreLRecVar)))
 				{
-					throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + subj + ": mixed unguarded rec vars: " + rvs);
+					throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + subj + ": cannot merge unguarded rec vars.");
 				}
-				return af.AssrtCoreLRecVar(rvs.iterator().next());
+				else
+				{
+					Set<RecVar> rvs = projs.values().stream().map(v -> ((AssrtCoreLRecVar) v).var).collect(Collectors.toSet());
+					if (rvs.size() > 1)
+					{
+						throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + subj + ": mixed unguarded rec vars: " + rvs);
+					}
+					return af.AssrtCoreLRecVar(rvs.iterator().next());
+				}
 			}
 
 			List<AssrtCoreLChoice> filtered = projs.values().stream()
