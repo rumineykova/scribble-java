@@ -7,6 +7,7 @@ import org.scribble.ext.assrt.util.SMTWrapper;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
+// Variable occurrence
 public class AssertionVariableFormula extends SmtFormula {
 
 	private String name; 

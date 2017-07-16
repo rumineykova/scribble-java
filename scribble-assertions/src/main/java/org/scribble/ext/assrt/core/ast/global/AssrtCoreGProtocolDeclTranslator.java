@@ -25,7 +25,7 @@ import org.scribble.del.global.GProtocolDefDel;
 import org.scribble.ext.assrt.ast.AssrtAnnotDataTypeElem;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.formula.AssrtTrue;
+import org.scribble.ext.assrt.ast.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
 import org.scribble.ext.assrt.core.AssrtCoreSyntaxException;
@@ -294,7 +294,7 @@ public class AssrtCoreGProtocolDeclTranslator
 	private AssrtAssertion parseAssertion(GMessageTransfer gmt)
 	{
 		AssrtAssertion ass = ((AssrtGMessageTransfer) gmt).ass;
-		return (ass == null) ? ((AssrtAstFactory) this.job.af).AssrtAssertion(null, new AssrtTrue()) : ass;
+		return (ass == null) ? ((AssrtAstFactory) this.job.af).AssrtAssertion(null, new AssrtTrueFormula()) : ass;
 			// FIXME: singleton constant
 	}
 

@@ -7,6 +7,7 @@ import org.scribble.ext.assrt.util.SMTWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.BooleanFormulaManager;
 
+// Binary boolean
 public class BoolFormula extends SmtFormula {
 
 	BoolOp op; 

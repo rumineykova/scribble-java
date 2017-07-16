@@ -8,6 +8,7 @@ import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
+// Binary comparison
 public class CompFormula extends SmtFormula {
 
 	CompOp op; 

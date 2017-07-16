@@ -6,6 +6,7 @@ public class AssertionParseException extends Exception {
 
 	public AssertionParseException(String string) {
 		// TODO Auto-generated constructor stub
+		super(string);
 	}
 
 }

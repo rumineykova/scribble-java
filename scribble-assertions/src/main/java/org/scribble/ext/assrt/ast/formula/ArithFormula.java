@@ -7,6 +7,7 @@ import org.scribble.ext.assrt.util.SMTWrapper;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
+// Binary arithmetic
 public class ArithFormula extends SmtFormula {
 
 	ArithOp op;
