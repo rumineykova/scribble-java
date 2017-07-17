@@ -9,8 +9,6 @@ options
 	language = Java;
 	output = AST;
 	ASTLabelType = CommonTree;
-	//backtrack = true;  // backtracking disabled by default? Is it bad to require this option?
-	//memoize = true;
 }
 
 tokens {
@@ -19,11 +17,11 @@ tokens {
 
 	ROOT = 'root-node'; 
 	BEXPR = 'binary-expr-node'; 
-	AEXPR = 'arithmetic-expr'; 
-	BOPNODE = 'binary-op-node'; 
 	CEXPR = 'compare-expr-node'; 
+	AEXPR = 'arithmetic-expr'; 
 	VAR = 'var-node'; 
 	VALUE = 'value-node'; 
+
 	TRUE_FORMULA = 'formula-true';
 	FALSE_FORMULA = 'formula-false';
 }
@@ -38,13 +36,22 @@ tokens {
 	package org.scribble.parser.antlr;
 }
 
-
-@members {
-  public static CommonTree ast(String source) throws RecognitionException {
-    AssrtAssertionsLexer lexer = new AssrtAssertionsLexer(new ANTLRStringStream(source));
-    AssrtAssertionsParser parser = new AssrtAssertionsParser(new CommonTokenStream(lexer));
-    return (CommonTree)parser.parse().getTree();
-  }
+@parser::members
+{
+	@Override    
+	public void displayRecognitionError(String[] tokenNames, RecognitionException e)
+	{
+		super.displayRecognitionError(tokenNames, e);
+  	System.exit(1);
+	}
+  
+	public static CommonTree antlrParse(String source) throws RecognitionException
+	{
+		source = source.substring(1, source.length());
+		AssrtAssertionsLexer lexer = new AssrtAssertionsLexer(new ANTLRStringStream(source));
+		AssrtAssertionsParser parser = new AssrtAssertionsParser(new CommonTokenStream(lexer));
+		return (CommonTree) parser.parse().getTree();
+	}
 }
 
 // Not referred to explicitly, deals with whitespace implicitly (don't delete this)
@@ -71,55 +78,48 @@ NUMBER:
 	(DIGIT)*	 
 ; 
 
-START_TOKEN: '@'; 
-END_TOKEN: ';'; 
-//START_TOKEN: '\"'; 
-//END_TOKEN: '\"'; 
 
-/*ASSERTION: 
-	(LETTER | DIGIT | OPSYMBOL | WHITESPACE)*
-; */
-
-COMP:
+BIN_COMP_OP:
     '>' | '<' | '='		 
 ; 
 
-OP:	 
+BIN_ARITH_OP:	 
   '+' | '-' | '*' 	
 ; 
 
-BOP:
+BIN_BOOL_OP:
    '||' | '&&'
 ; 	 	
 
+
 variable: 
-	IDENTIFIER -> ^(VAR IDENTIFIER)
+	IDENTIFIER
+->
+	^(VAR IDENTIFIER)
 ; 	  
 
-
 num: 
-	NUMBER -> ^(VALUE NUMBER)	   
+	NUMBER
+->
+	^(VALUE NUMBER)	   
 ; 
 
 parse:  
- assertion -> ^(ROOT assertion)
-;
-//  START_TOKEN assertion END_TOKEN -> ^(ROOT assertion)
-
-assertion: 
-	boolexpr
+	bool_expr
+->
+	^(ROOT bool_expr)
 ;
 
-boolexpr:
+bool_expr:
 	bin_bool_expr
 |
 	unary_bool_expr
 ;
-
+	
 bin_bool_expr:
-	'(' unary_bool_expr BOP boolexpr ')'
+	'(' unary_bool_expr BIN_BOOL_OP bool_expr ')'
 ->
-	^(BEXPR unary_bool_expr BOP boolexpr)
+	^(BEXPR unary_bool_expr BIN_BOOL_OP bool_expr)
 ;
 
 unary_bool_expr:
@@ -131,18 +131,16 @@ unary_bool_expr:
 ->
 	^(FALSE_FORMULA)
 |
-	compexpr
+	bin_comp_expr
 ; 
 
-	
-
-compexpr:
-	expr COMP expr
+bin_comp_expr:
+	'(' arith_expr BIN_COMP_OP arith_expr ')'
 -> 
-	^(CEXPR expr COMP expr)
+	^(CEXPR arith_expr BIN_COMP_OP arith_expr)
 ; 
 
-expr: 
+arith_expr: 
 	unary_arith_expr
 |
 	binary_arith_expr
@@ -155,7 +153,7 @@ unary_arith_expr:
 ;
  
 binary_arith_expr:
-	'(' unary_arith_expr OP expr ')'
+	'(' unary_arith_expr BIN_ARITH_OP arith_expr ')'
 ->
-	^(AEXPR unary_arith_expr OP expr)
+	^(AEXPR unary_arith_expr BIN_ARITH_OP arith_expr)
 ;

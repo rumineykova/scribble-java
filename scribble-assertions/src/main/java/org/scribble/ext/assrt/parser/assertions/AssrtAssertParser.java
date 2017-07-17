@@ -44,7 +44,7 @@ public class AssrtAssertParser  // Cf. ScribParser
 			case VALUE: return AntlrValueNode.parseValueFormula(this, ct);
 			
 			case FALSE: return AntlrFormulaFactoryImpl.AssrtFalseFormula();
-			case TRUE: return AntlrFormulaFactoryImpl.AssrtTrueFormula();
+			case TRUE:  return AntlrFormulaFactoryImpl.AssrtTrueFormula();
 			
 			default:    throw new RuntimeException("Unknown ANTLR node type: " + type);
 		}

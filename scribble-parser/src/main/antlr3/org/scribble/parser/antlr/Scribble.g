@@ -208,6 +208,7 @@ tokens
 		//System.exit(1);
 	}*/
 
+	// Abort tool run on parsing errors (and display user-friendly message) -- obsoletes CommonErrorNode check?
 	@Override    
 	public void displayRecognitionError(String[] tokenNames, RecognitionException e)
 	{

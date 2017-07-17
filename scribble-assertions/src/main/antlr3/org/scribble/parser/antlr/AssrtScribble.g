@@ -176,11 +176,9 @@ tokens
 
 @parser::members
 {
-	
 	@Override    
 	public void displayRecognitionError(String[] tokenNames, RecognitionException e)
 	{
-		
 		super.displayRecognitionError(tokenNames, e);
   	System.exit(1);
 	}
@@ -595,7 +593,7 @@ globalmessagetransfer:
 | 
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';' ASSRT_EXPR 
 	->
-	^(ASSRT_GLOBALMESSAGETRANSFER {AssrtAssertionsParser.ast($ASSRT_EXPR.text.substring(1, $ASSRT_EXPR.text.length()))} message rolename rolename+)
+	^(ASSRT_GLOBALMESSAGETRANSFER { AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text) } message rolename rolename+)
 ;
 //	ASSRT_EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 	
@@ -614,12 +612,12 @@ globalconnect:
 	//ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
 	CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
 	->
-	^(GLOBALCONNECT {AssrtAssertionsParser.ast($ASSRT_EXPR.text.substring(1, $ASSRT_EXPR.text.length()))} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+	^(GLOBALCONNECT {AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
 	//ASSRT_EXPR message CONNECT_KW rolename TO_KW rolename ';'
 	message CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
 	->
-	^(GLOBALCONNECT {AssrtAssertionsParser.ast($ASSRT_EXPR.text.substring(1, $ASSRT_EXPR.text.length()))} rolename rolename message)
+	^(GLOBALCONNECT {AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename message)
 |	CONNECT_KW rolename TO_KW rolename ';'
 	->
 	//^(GLOBALCONNECT EMPTY_ASSERTION rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature

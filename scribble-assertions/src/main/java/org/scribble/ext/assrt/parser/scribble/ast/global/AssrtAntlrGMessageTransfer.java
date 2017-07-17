@@ -41,6 +41,8 @@ public class AssrtAntlrGMessageTransfer
 	
 	public static AssrtAssertion parseAssertion(AssrtAssertParser ap, CommonTree ct, AssrtAstFactory af)
 	{
+		ScribParser.checkForAntlrErrors(ct);  // Check ct root
+
 		//return AssrtAstFactoryImpl.FACTORY.AssertionNode(ct, ct.getText());
 		CommonTree tmp = (CommonTree) ct.getChild(0);  // Formula node to parse  // FIXME: factor out?
 		SmtFormula f = ap.parse(tmp);
