@@ -1,5 +1,8 @@
+//$ java -cp scribble-parser/lib/antlr-3.5.2-complete.jar org.antlr.Tool -o scribble-assertions/target/generated-sources/antlr3 scribble-assertions/src/main/antlr3/org/scribble/parser/antlr/AssrtAssertions.g
+
 // Windows:
 //$ java -cp scribble-parser/lib/antlr-3.5.2-complete.jar org.antlr.Tool -o scribble-assertions/target/generated-sources/antlr3/org/scribble/parser/antlr scribble-assertions/src/main/antlr3/org/scribble/parser/antlr/AssrtAssertions.g
+//$ mv scribble-assertions/target/generated-sources/antlr3/org/scribble/parser/antlr/AssrtAssertions.tokens scribble-assertions/target/generated-sources/antlr3/
 
 
 grammar AssrtAssertions;

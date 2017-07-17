@@ -18,8 +18,7 @@ type <java> "java.lang.String" from "rt.jar" as Str;
 //*
 global protocol Proto1(role A, role B)
 {
-	1() from A to B;	@ (True && ((x+1) > 1)) ;
-	
+	1() from A to B;	@(True && ((x+1) > 1));
 }
 
 //*/
