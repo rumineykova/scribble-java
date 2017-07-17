@@ -11,6 +11,6 @@ global protocol Prot(role A, role B, role C)
 	
 	MSG(y:Integer) from B to C;
 	
-	[z>x]
-	MSG(z:Integer) from C to A;
+	//[z>x]
+	MSG(z:Integer) from C to A;  @ z>x ;
 }

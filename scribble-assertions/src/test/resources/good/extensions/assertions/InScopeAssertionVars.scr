@@ -20,7 +20,7 @@ global protocol Prot(role A, role B)
 // Simple check on that assertion variables are in scope
 global protocol Prot(role A, role B)
 {
-	[x<10]
-	MSG1(x:Integer) from A to B;
+	//[x<10]
+	MSG1(x:Integer) from A to B;  @ x<10 ;
 
 }

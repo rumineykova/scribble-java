@@ -10,11 +10,11 @@ type <java> "java.lang.Long" from "rt.jar" as Long;
 global protocol Prot(role A, role B)
 {
 choice at A {
-	[x<10]
-	MSG1(x:Integer) from A to B;
+	//[x<10]
+	MSG1(x:Integer) from A to B;  @ x<10 ;
 	
 	} or {
-	[y>x]
-	MSG2(y:Integer) from A to B;
+	//[y>x]
+	MSG2(y:Integer) from A to B;  @ y>x ;
 	}
 }

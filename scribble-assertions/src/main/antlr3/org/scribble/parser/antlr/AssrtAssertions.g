@@ -75,8 +75,8 @@ NUMBER:
 	(DIGIT)*	 
 ; 
 
-START_TOKEN: '['; 
-END_TOKEN: ']'; 
+START_TOKEN: '@'; 
+END_TOKEN: ';'; 
 //START_TOKEN: '\"'; 
 //END_TOKEN: '\"'; 
 

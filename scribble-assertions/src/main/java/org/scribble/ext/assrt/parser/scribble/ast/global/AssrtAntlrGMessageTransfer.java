@@ -44,10 +44,6 @@ public class AssrtAntlrGMessageTransfer
 		//return AssrtAstFactoryImpl.FACTORY.AssertionNode(ct, ct.getText());
 		CommonTree tmp = (CommonTree) ct.getChild(0);  // Formula node to parse  // FIXME: factor out?
 		SmtFormula f = ap.parse(tmp);
-		
-		System.out.println("aaa: " + ct + " " + ct.getChildCount());
-		System.out.println("bbb: " + f);
-		
 		return ((AssrtAstFactory) af).AssrtAssertion(ct, f);
 	}
 
