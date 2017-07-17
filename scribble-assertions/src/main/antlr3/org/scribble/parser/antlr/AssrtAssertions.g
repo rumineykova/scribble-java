@@ -156,5 +156,5 @@ unary_arith_expr:
 binary_arith_expr:
 	'(' unary_arith_expr OP expr ')'
 ->
-	^(AEXPR OP unary_arith_expr expr)
+	^(AEXPR unary_arith_expr OP expr)
 ;
