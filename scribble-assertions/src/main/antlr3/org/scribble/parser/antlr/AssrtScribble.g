@@ -247,8 +247,6 @@ fragment SYMBOL:
 ;
 
 
-
-
 // Comes after SYMBOL due to an ANTLR syntax highlighting issue involving
 // quotes.
 // Parser doesn't work without quotes here (e.g. if inlined into parser rules)
@@ -256,15 +254,6 @@ EXTIDENTIFIER:
   '\"' (LETTER | DIGIT | SYMBOL)* '\"'
 	//(LETTER | DIGIT | SYMBOL)*
 ;
-
-EXPR: 
-	'[' (LETTER | DIGIT | OPSYMBOL | WHITESPACE)* ']'
-; 
-
-
-fragment OPSYMBOL: 
-	'=' | '>' | '<'  | '||' | '&&' | '+' | '-' | '*' 
-;  
 
 fragment LETTER:
 	'a'..'z' | 'A'..'Z'
@@ -277,6 +266,16 @@ fragment DIGIT:
 fragment UNDERSCORE:
 	'_'
 ;
+
+
+ASSRT_EXPR: 
+	'[' (LETTER | DIGIT | ASSRT_SYMBOL | WHITESPACE)* ']'
+; 
+
+fragment ASSRT_SYMBOL: 
+	'=' | '>' | '<'  | '||' | '&&' | '+' | '-' | '*' 
+;  
+
  
 /****************************************************************************
  * Chapter 3 Syntax (Parser rules)
@@ -589,9 +588,9 @@ globalmessagetransfer:
 	//^(GLOBALMESSAGETRANSFER EMPTY_ASSERTION message rolename rolename+) 
 	^(GLOBALMESSAGETRANSFER message rolename rolename+) 
 | 
-	EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
+	ASSRT_EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 	->
-	^(ASSRT_GLOBALMESSAGETRANSFER {AssrtAssertionsParser.ast($EXPR.text)} message rolename rolename+)
+	^(ASSRT_GLOBALMESSAGETRANSFER {AssrtAssertionsParser.ast($ASSRT_EXPR.text)} message rolename rolename+)
 ;
 	
 message:
@@ -606,13 +605,13 @@ message:
 
 globalconnect:
 	//message CONNECT_KW rolename TO_KW rolename
-	EXPR CONNECT_KW rolename TO_KW rolename ';'
+	ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
 	->
-	^(GLOBALCONNECT {AssrtAssertionsParser.ast($EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+	^(GLOBALCONNECT {AssrtAssertionsParser.ast($ASSRT_EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
-	EXPR message CONNECT_KW rolename TO_KW rolename ';'
+	ASSRT_EXPR message CONNECT_KW rolename TO_KW rolename ';'
 	->
-	^(GLOBALCONNECT {AssrtAssertionsParser.ast($EXPR.text)} rolename rolename message)
+	^(GLOBALCONNECT {AssrtAssertionsParser.ast($ASSRT_EXPR.text)} rolename rolename message)
 |	CONNECT_KW rolename TO_KW rolename ';'
 	->
 	//^(GLOBALCONNECT EMPTY_ASSERTION rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature

@@ -1,5 +1,5 @@
 //Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
-//$ bin/scribblec.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtTest.scr 
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtTest.scr 
 
 
 //http://sandbox.kidstrythisathome.com/erdos/
@@ -18,8 +18,11 @@ type <java> "java.lang.String" from "rt.jar" as Str;
 //*
 global protocol Proto1(role A, role B)
 {
-	[True]  // FIXME: parse
+	//[(True && ((x+1) > 1))]  // FIXME: parse
+	[True && True]
+	//[True && True)]
 	1() from A to B;	
+
 }
 //*/
 
@@ -55,6 +58,7 @@ global protocol Proto1(role A, role B)
 		{
 			3(Int) from A to B;
 		}
+	
 	}
 	or
 	{
