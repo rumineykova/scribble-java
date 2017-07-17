@@ -55,10 +55,6 @@ WHITESPACE:
 	}
 ;
 
-/*fragment OPSYMBOL: 
-	'=' | '>' | '<'  | '||' | '&&'
-;*/ 
-
 fragment LETTER:
 	'a'..'z' | 'A'..'Z'
 ;
@@ -106,8 +102,9 @@ num:
 ; 
 
 parse:  
-  START_TOKEN assertion END_TOKEN -> ^(ROOT assertion)
+ assertion -> ^(ROOT assertion)
 ;
+//  START_TOKEN assertion END_TOKEN -> ^(ROOT assertion)
 
 assertion: 
 	boolexpr
