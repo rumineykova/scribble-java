@@ -143,6 +143,8 @@ compexpr:
 
 expr: 
 	unary_arith_expr
+|
+	binary_arith_expr
 ; 
 
 unary_arith_expr: 
@@ -151,9 +153,8 @@ unary_arith_expr:
 	num
 ;
  
-/*	variable OP num
+binary_arith_expr:
+	'(' unary_arith_expr OP expr ')'
 ->
-	^(AEXPR OP variable num)
-|*/
-
-
+	^(AEXPR OP unary_arith_expr expr)
+;
