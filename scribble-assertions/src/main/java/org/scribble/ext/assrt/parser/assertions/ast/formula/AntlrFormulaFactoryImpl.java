@@ -3,6 +3,8 @@ package org.scribble.ext.assrt.parser.assertions.ast.formula;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.ast.formula.ArithFormula;
 import org.scribble.ext.assrt.ast.formula.AssertionVariableFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtFalseFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.ast.formula.BoolFormula;
 import org.scribble.ext.assrt.ast.formula.CompFormula;
 import org.scribble.ext.assrt.ast.formula.SmtFormula;
@@ -10,7 +12,7 @@ import org.scribble.ext.assrt.ast.formula.ValueFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
 
 
-public class FormulaFactoryImpl {
+public class AntlrFormulaFactoryImpl {
 
 	public static BoolFormula parseBoolFormula(
 			AssrtAssertParser assertionsScribParser, CommonTree ct) {
@@ -37,4 +39,13 @@ public class FormulaFactoryImpl {
 		return new ArithFormula(op, left, right); 
 	}
 	
+	public static AssrtTrueFormula AssrtTrueFormula() 
+	{
+		return new AssrtTrueFormula();
+	}
+	
+	public static AssrtFalseFormula AssrtFalseFormula() 
+	{
+		return new AssrtFalseFormula();
+	}
 }

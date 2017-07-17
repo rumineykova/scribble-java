@@ -14,8 +14,8 @@ import org.scribble.util.ScribParserException;
 public class AssrtScribParser extends ScribParser
 {
 	// FIXME: refactor pattern (cf. AntlrConstants) -- cannot extend existing node type enum though
-	public static final String ASSRT_GLOBALMESSAGETRANSFER_NODE_TYPE = "ASSRTGLOBALMESSAGETRANSFER";
-	public static final String ASSRT_ANNOTPAYLOADELEM_NODE_TYPE = "ANNOTPAYLOADELEM";
+	public static final String ASSRT_GLOBALMESSAGETRANSFER_NODE_TYPE = "ASSRT_GLOBALMESSAGETRANSFER";
+	public static final String ASSRT_ANNOTPAYLOADELEM_NODE_TYPE = "ASSRT_ANNOTPAYLOADELEM";
 	
 	public final AssrtAssertParser ap = AssrtAssertParser.getInstance();
 

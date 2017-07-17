@@ -6,6 +6,7 @@ import java.util.Set;
 import org.scribble.ext.assrt.util.SMTWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
+// FIXME: declare singleton constant
 public class AssrtTrueFormula extends SmtFormula
 {
 	

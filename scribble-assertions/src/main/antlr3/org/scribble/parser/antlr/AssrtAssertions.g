@@ -10,6 +10,9 @@ options
 }
 
 tokens {
+	TRUE_KW = 'True';
+	FALSE_KW = 'False';
+
 	ROOT = 'root-node'; 
 	BEXPR = 'binary-expr-node'; 
 	AEXPR = 'arithmetic-expr'; 
@@ -17,6 +20,8 @@ tokens {
 	CEXPR = 'compare-expr-node'; 
 	VAR = 'var-node'; 
 	VALUE = 'value-node'; 
+	TRUE_FORMULA = 'formula-true';
+	FALSE_FORMULA = 'formula-false';
 }
 
 @parser::header
@@ -38,6 +43,7 @@ tokens {
   }
 }
 
+// Not referred to explicitly, deals with whitespace implicitly (don't delete this)
 WHITESPACE:
 	('\t' | ' ' | '\r' | '\n'| '\u000C')+
 	{
@@ -45,9 +51,9 @@ WHITESPACE:
 	}
 ;
 
-fragment OPSYMBOL: 
+/*fragment OPSYMBOL: 
 	'=' | '>' | '<'  | '||' | '&&'
-;  
+;*/ 
 
 fragment LETTER:
 	'a'..'z' | 'A'..'Z'
@@ -99,22 +105,39 @@ parse:
 
 assertion: 
 	bexpr -> bexpr
+|
+	TRUE_KW
+->
+	^(TRUE_FORMULA)
+|
+	FALSE_KW
+->
+	^(FALSE_FORMULA)
 ; 
 	
 bexpr:	 
    compexpr BOP bexpr 
-   -> 	^(BEXPR compexpr BOP bexpr)
-   | compexpr -> compexpr
+->
+	^(BEXPR compexpr BOP bexpr)
+|
+	compexpr
 ;
 
-compexpr: expr COMP expr -> 
+compexpr:
+	expr COMP expr
+-> 
 	^(CEXPR expr COMP expr)
-	| expr -> expr
+|
+	expr
 ; 
 
 expr: 
-	variable OP num -> ^(AEXPR OP variable num)
-|	variable -> variable
-|	num -> num
+	variable OP num
+->
+	^(AEXPR OP variable num)
+|
+	variable
+|
+	num
 ; 
  

@@ -16,6 +16,9 @@ public class AssrtParserUtil  // Cf. ScribParserUtil
 			case AssrtAntlrConstants.VAR_NODE_TYPE:   return AssrtAntlrNodeType.VAR;
 			case AssrtAntlrConstants.VALUE_NODE_TYPE: return AssrtAntlrNodeType.VALUE;
 
+			case AssrtAntlrConstants.FALSE_NODE_TYPE: return AssrtAntlrNodeType.FALSE;
+			case AssrtAntlrConstants.TRUE_NODE_TYPE: return AssrtAntlrNodeType.TRUE;
+
 			// Nodes without a "node type", e.g. parameter names, fall in here
 			default: throw new RuntimeException("Unknown ANTLR node type label for assertion of type: " + type);
 		}

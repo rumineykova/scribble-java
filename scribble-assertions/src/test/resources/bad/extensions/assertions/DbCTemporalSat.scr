@@ -7,8 +7,8 @@ type <java> "java.lang.Long" from "rt.jar" as Long;
 // Temporal Satisfiability
 global protocol Prot(role A, role B)
 {
-	[x<10]
-	MSG(x:Integer) from A to B;
+	/*[x<10]
+	MSG(x:Integer) from A to B;*/
 	[x>y && y>6]
 	MSG(y:Integer) from B to A;
 }

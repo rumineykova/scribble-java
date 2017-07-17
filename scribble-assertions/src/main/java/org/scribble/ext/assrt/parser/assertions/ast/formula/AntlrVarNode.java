@@ -4,12 +4,12 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.ast.formula.AssertionVariableFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
 
-public class VarNode implements FormulaNode {
+public class AntlrVarNode implements AntlrFormulaNode {
 
 	public static AssertionVariableFormula parseVarFormula(
 			AssrtAssertParser assertionsScribParser, CommonTree ct) {
 		
-		return FormulaFactoryImpl.parseVariable(ct, ct.getChild(0).getText());
+		return AntlrFormulaFactoryImpl.parseVariable(ct, ct.getChild(0).getText());
 	}
 
 }

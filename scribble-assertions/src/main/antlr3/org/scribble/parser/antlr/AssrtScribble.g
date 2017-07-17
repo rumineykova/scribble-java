@@ -149,8 +149,8 @@ tokens
 	LOCALRECEIVE = 'local-receive';*/
 
 	//ASSERTION = 'global-assertion'; 
-	ANNOTPAYLOADELEM = 'annot-payload-elem'; 
-	ASSRTGLOBALMESSAGETRANSFER = 'global-message-transfer-with-assertion';   // May be a null (true) assertion
+	ASSRT_ANNOTPAYLOADELEM = 'annot-payload-elem'; 
+	ASSRT_GLOBALMESSAGETRANSFER = 'global-message-transfer-with-assertion';   // May be a null (true) assertion
 }
 
 
@@ -200,6 +200,8 @@ tokens
 /*
  * Section 2.1 White space (Section 2.1)
  */
+
+// Not referred to explicitly, deals with whitespace implicitly (don't delete this)
 WHITESPACE:
 	('\t' | ' ' | '\r' | '\n'| '\u000C')+
 	{
@@ -441,7 +443,7 @@ payloadelement:
 	qualifiedname  // This case subsumes simple names  // FIXME: ambiguousqualifiedname (or ambiguousname should just be qualified)
 | varname ':' qualifiedname
 -> 
-	^(ANNOTPAYLOADELEM varname qualifiedname)
+	^(ASSRT_ANNOTPAYLOADELEM varname qualifiedname)
 |
 	protocolname '@' rolename
 ->
@@ -589,7 +591,7 @@ globalmessagetransfer:
 | 
 	EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 	->
-	^(ASSRTGLOBALMESSAGETRANSFER {AssrtAssertionsParser.ast($EXPR.text)} message rolename rolename+)
+	^(ASSRT_GLOBALMESSAGETRANSFER {AssrtAssertionsParser.ast($EXPR.text)} message rolename rolename+)
 ;
 	
 message:

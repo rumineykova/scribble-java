@@ -9,9 +9,12 @@ public class AssrtAntlrConstants  // Cf. AntlrConstants
 	public static final String VAR_NODE_TYPE = "VAR";
 	public static final String VALUE_NODE_TYPE = "VALUE";
 
+	public static final String FALSE_NODE_TYPE = "FALSE_FORMULA";
+	public static final String TRUE_NODE_TYPE = "TRUE_FORMULA";
+
 	public enum AssrtAntlrNodeType
 	{
 		// For AssrtScribParser
-		BEXPR, CEXPR, AEXPR, VAR, VALUE
+		BEXPR, CEXPR, AEXPR, VAR, VALUE, FALSE, TRUE
 	}
 }

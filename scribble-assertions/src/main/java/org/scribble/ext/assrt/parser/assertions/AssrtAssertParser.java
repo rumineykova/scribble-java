@@ -3,11 +3,12 @@ package org.scribble.ext.assrt.parser.assertions;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrConstants.AssrtAntlrNodeType;
-import org.scribble.ext.assrt.parser.assertions.ast.formula.ArithFormulaNode;
-import org.scribble.ext.assrt.parser.assertions.ast.formula.BoolFormulaNode;
-import org.scribble.ext.assrt.parser.assertions.ast.formula.CompFormulaNode;
-import org.scribble.ext.assrt.parser.assertions.ast.formula.ValueNode;
-import org.scribble.ext.assrt.parser.assertions.ast.formula.VarNode;
+import org.scribble.ext.assrt.parser.assertions.ast.formula.AntlrArithFormulaNode;
+import org.scribble.ext.assrt.parser.assertions.ast.formula.AntlrBoolFormulaNode;
+import org.scribble.ext.assrt.parser.assertions.ast.formula.AntlrCompFormulaNode;
+import org.scribble.ext.assrt.parser.assertions.ast.formula.AntlrFormulaFactoryImpl;
+import org.scribble.ext.assrt.parser.assertions.ast.formula.AntlrValueNode;
+import org.scribble.ext.assrt.parser.assertions.ast.formula.AntlrVarNode;
 import org.scribble.parser.scribble.ScribParser;
 
 public class AssrtAssertParser  // Cf. ScribParser
@@ -36,11 +37,15 @@ public class AssrtAssertParser  // Cf. ScribParser
 		AssrtAntlrNodeType type = AssrtParserUtil.getAntlrNodeType(ct);
 		switch (type)
 		{
-			case BEXPR: return BoolFormulaNode.parseBoolFormula(this, ct);
-			case CEXPR: return CompFormulaNode.parseCompFormula(this, ct);
-			case AEXPR: return ArithFormulaNode.parseArithFormula(this, ct);
-			case VAR:   return VarNode.parseVarFormula(this, ct);
-			case VALUE: return ValueNode.parseValueFormula(this, ct);
+			case BEXPR: return AntlrBoolFormulaNode.parseBoolFormula(this, ct);
+			case CEXPR: return AntlrCompFormulaNode.parseCompFormula(this, ct);
+			case AEXPR: return AntlrArithFormulaNode.parseArithFormula(this, ct);
+			case VAR:   return AntlrVarNode.parseVarFormula(this, ct);
+			case VALUE: return AntlrValueNode.parseValueFormula(this, ct);
+			
+			case FALSE: return AntlrFormulaFactoryImpl.AssrtFalseFormula();
+			case TRUE: return AntlrFormulaFactoryImpl.AssrtTrueFormula();
+			
 			default:    throw new RuntimeException("Unknown ANTLR node type: " + type);
 		}
 	}

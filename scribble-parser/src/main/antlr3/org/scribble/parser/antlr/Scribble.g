@@ -250,6 +250,8 @@ tokens
 /*
  * Section 2.1 White space (Section 2.1)
  */
+
+// Not referred to explicitly, deals with whitespace implicitly (don't delete this)
 WHITESPACE:
 	('\t' | ' ' | '\r' | '\n'| '\u000C')+
 	{
