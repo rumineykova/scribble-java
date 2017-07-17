@@ -19,7 +19,7 @@ public interface AssrtAstFactory extends AstFactory
 	AssrtGMessageTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion);
 	AssrtLSend AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion);
 
-	<K extends PayloadTypeKind> AssrtAnnotDataTypeElem<K> AssrtAnnotPayloadElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType);
+	<K extends PayloadTypeKind> AssrtAnnotDataTypeElem<K> AssrtAnnotDataTypeElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType);
 
 	AssrtAssertion AssrtAssertion(CommonTree source, SmtFormula f);
 }

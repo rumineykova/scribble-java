@@ -13,6 +13,6 @@ public class AssrtAnnotDataTypeElemDel extends ScribDelBase
 	public void enterDisambiguation(ScribNode parent, ScribNode child, NameDisambiguator disamb) throws ScribbleException
 	{
 		AssrtAnnotDataTypeElem<?> payload = (AssrtAnnotDataTypeElem<?>) child;
-		((AssrtNameDisambiguator) disamb).addAnnotPaylaod(payload.varName.toString());
+		((AssrtNameDisambiguator) disamb).addAnnotPaylaod(payload.var.toString());
 	}
 }

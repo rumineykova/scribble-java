@@ -275,9 +275,9 @@ public class AssrtCoreGProtocolDeclTranslator
 				throw new AssrtException("[assrt-core] Delegation not supported: " + tmp);
 			}
 
-			if (pe instanceof AssrtAnnotDataTypeElem<?>)  // FIXME: implicitly DataType anyway (remove redundant type parameter)
+			if (pe instanceof AssrtAnnotDataTypeElem<?>)  // Type parameter is the payload DataType
 			{
-				return ((AssrtAnnotDataTypeElem<DataTypeKind>) pe).toPayloadType();
+				return ((AssrtAnnotDataTypeElem<?>) pe).toPayloadType();
 			}
 
 			UnaryPayloadElem<?> upe = (UnaryPayloadElem<?>) pe;

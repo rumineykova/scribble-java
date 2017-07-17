@@ -1,10 +1,10 @@
 package org.scribble.ext.assrt.sesstype.name;
 
-import org.scribble.ext.assrt.sesstype.kind.AssrtAnnotPayloadElemKind;
+import org.scribble.ext.assrt.sesstype.kind.AssrtAnnotDataTypeKind;
 import org.scribble.sesstype.name.DataType;
 
 // In name package like GDelegationType -- FIXME: maybe refactor (both) out of name, and (Assrt)PayloadType
-public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotPayloadElemKind>
+public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotDataTypeKind>
 {
 	public final AssrtDataTypeVar var;
 	public final DataType data;  // FIXME: generalise?
@@ -13,6 +13,18 @@ public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotPayloadEle
 	{
 		this.var = varName; 
 		this.data = dataType; 
+	}
+
+	@Override
+	public AssrtAnnotDataTypeKind getKind()
+	{
+		return AssrtAnnotDataTypeKind.KIND;
+	}
+	
+	@Override
+	public boolean isAnnotVarDecl()
+	{
+		return true;
 	}
 
 	@Override
@@ -48,16 +60,5 @@ public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotPayloadEle
 		hash = hash*31 + this.data.hashCode(); 
 		hash = hash*31 + this.var.hashCode();
 		return hash;
-	}
-
-	@Override
-	public AssrtAnnotPayloadElemKind getKind() {
-		return AssrtAnnotPayloadElemKind.KIND;
-	}
-	
-	@Override
-	public boolean isAnnotVarDecl()
-	{
-		return true;
 	}
 }

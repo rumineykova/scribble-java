@@ -35,7 +35,7 @@ public class AssrtScribParser extends ScribParser
 		{
 			// N.B. will "override" base payload parsing in super -- FIXME: hacky
 			// AssrtAntlrPayloadElemList used to parse both annotated and non-annotated payload elems -- i.e., original AntlrPayloadElemList is now redundant
-			case AntlrConstants.PAYLOAD_NODE_TYPE:     return AssrtAntlrPayloadElemList.parsePayloadElemList(this, ct, aaf);
+			case AntlrConstants.PAYLOAD_NODE_TYPE:      return AssrtAntlrPayloadElemList.parsePayloadElemList(this, ct, aaf);
 			
 			// N.B. AssrtScribble.g parses this as a separate syntactic category than GLOBALMESSAGETRANSFER (cf. PAYLOAD)
 			case ASSRT_GLOBALMESSAGETRANSFER_NODE_TYPE: return AssrtAntlrGMessageTransfer.parseAssrtGMessageTransfer(this, ct, aaf);

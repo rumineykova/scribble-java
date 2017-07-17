@@ -14,17 +14,17 @@ import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;
 
 // A "name pair", perhaps similar to GDelegationElem -- factor out?
-	// This is an "Elem" -- "Elems" are the elements of PayloadElemList, while PayloadElemNameNode (like DataTypeNode) are the values (an attribute) of the elems
+// This is an "Elem" -- "Elems" are the elements of PayloadElemList, while PayloadElemNameNode (like DataTypeNode) are the values (an attribute) of the elems
 public class AssrtAnnotDataTypeElem<K extends PayloadTypeKind> extends ScribNodeBase implements PayloadElem<K>
 {
-	public final AssrtVarNameNode varName;  // Using AssrtVarNameNode both as the annotation (as here), and as a PayloadElemNameNode -- like the below DataTypeNode
-	public final DataTypeNode dataType;
+	public final AssrtVarNameNode var;  // Using AssrtVarNameNode both as the annotation (as here), and as a PayloadElemNameNode -- like the below DataTypeNode
+	public final DataTypeNode data;
 	
-	public AssrtAnnotDataTypeElem(CommonTree source, AssrtVarNameNode varname, DataTypeNode dataType)
+	public AssrtAnnotDataTypeElem(CommonTree source, AssrtVarNameNode var, DataTypeNode data)
 	{
 		super(source);
-		this.varName = varname;
-		this.dataType = dataType; 
+		this.var = var;
+		this.data = data; 
 	}
 	
 	@Override
@@ -36,21 +36,21 @@ public class AssrtAnnotDataTypeElem<K extends PayloadTypeKind> extends ScribNode
 	@Override
 	protected AssrtAnnotDataTypeElem<K> copy()
 	{
-		return new AssrtAnnotDataTypeElem<>(this.source, this.varName, this.dataType);
+		return new AssrtAnnotDataTypeElem<>(this.source, this.var, this.data);
 	}
 	
 	@Override
 	public AssrtAnnotDataTypeElem<K> clone(AstFactory af)
 	{
-		AssrtVarNameNode varname = ScribUtil.checkNodeClassEquality(this.varName, this.varName.clone(af));
-		DataTypeNode datatype = ScribUtil.checkNodeClassEquality(this.dataType, this.dataType.clone(af));
-		return ((AssrtAstFactory) af).AssrtAnnotPayloadElem(this.source, varname, datatype);
+		AssrtVarNameNode var = ScribUtil.checkNodeClassEquality(this.var, this.var.clone(af));
+		DataTypeNode data = ScribUtil.checkNodeClassEquality(this.data, this.data.clone(af));
+		return ((AssrtAstFactory) af).AssrtAnnotDataTypeElem(this.source, var, data);
 	}
 
-	public AssrtAnnotDataTypeElem<K> reconstruct(AssrtVarNameNode name, DataTypeNode dataType)
+	public AssrtAnnotDataTypeElem<K> reconstruct(AssrtVarNameNode var, DataTypeNode data)
 	{
 		ScribDel del = del();
-		AssrtAnnotDataTypeElem<K> elem = new AssrtAnnotDataTypeElem<>(this.source, name, dataType);
+		AssrtAnnotDataTypeElem<K> elem = new AssrtAnnotDataTypeElem<>(this.source, var, data);
 		elem = ScribNodeBase.del(elem, del);
 		return elem;
 	}
@@ -58,21 +58,21 @@ public class AssrtAnnotDataTypeElem<K extends PayloadTypeKind> extends ScribNode
 	@Override 
 	public AssrtAnnotDataTypeElem<K> visitChildren(AstVisitor nv) throws ScribbleException
 	{
-		AssrtVarNameNode varName = (AssrtVarNameNode) visitChild(this.varName, nv);  
-		DataTypeNode dataType = (DataTypeNode) visitChild(this.dataType, nv);
-		return reconstruct(varName, dataType);
+		AssrtVarNameNode var = (AssrtVarNameNode) visitChild(this.var, nv);  
+		DataTypeNode data = (DataTypeNode) visitChild(this.data, nv);
+		return reconstruct(var, data);
 	}
 	
 	@Override
 	public String toString()
 	{
-		return this.varName.toString() + ": " +  this.dataType.toString();
+		return this.var.toString() + ": " +  this.data.toString();
 	}
 
 	@Override
 	public AssrtAnnotDataType toPayloadType()
 	{
 		// TODO: make it PayloadType AnnotPayload  // FIXME: means return just the data type?  but maybe the var is needed
-		return new AssrtAnnotDataType(this.varName.toPayloadType(), this.dataType.toPayloadType());
+		return new AssrtAnnotDataType(this.var.toPayloadType(), this.data.toPayloadType());
 	}
 }
