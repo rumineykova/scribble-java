@@ -110,10 +110,15 @@ assertion:
 ;
 
 boolexpr:
-	bin_bool_expr:
-	'(' bexpr ')' -> bexpr
+	bin_bool_expr
 |
 	unary_bool_expr
+;
+
+bin_bool_expr:
+	'(' bexpr ')'
+->
+	bexpr
 ;
 
 unary_bool_expr:
