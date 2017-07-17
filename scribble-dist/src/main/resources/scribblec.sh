@@ -25,10 +25,10 @@
 
 
 # ANTLR 3 runtime location (if no lib jar)
-ANTLR=
-  # e.g., '~/.m2/repository/org/antlr/antlr-runtime/3.4/antlr-runtime-3.4.jar'
-  # or    '/cygdrive/c/Users/[User]/.m2/repository/org/antlr/antlr-runtime/3.4/antlr-runtime-3.4.jar'
-  # (i.e., the Maven install location)
+ANTLR='scribble-parser/lib/antlr-3.5.2-complete.jar'
+  # or the Maven install location, e.g.,
+  #     '~/.m2/repository/org/antlr/antlr-runtime/3.4/antlr-runtime-3.4.jar'
+  # or  '/cygdrive/c/Users/[User]/.m2/repository/org/antlr/antlr-runtime/3.4/antlr-runtime-3.4.jar'
 
 DIR=`dirname "$0"`   # Default (script is in scribble-java rootdir)
 #DIR=`dirname "$0"`/.. # (E.g., script is in rootdir/bin)

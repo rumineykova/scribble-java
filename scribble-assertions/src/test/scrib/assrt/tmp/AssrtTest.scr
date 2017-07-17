@@ -15,13 +15,18 @@ type <java> "java.lang.String" from "rt.jar" as Str;
 // FIXME: debug printing for assertion passes
 
 
+// - assertion validation
+// - receive assertions -- why receive assertions?  should WF imply receive assertions always true?
+// - explicit connections
+
+
 //*
 global protocol Proto1(role A, role B)
 {
 	1() from A to B;	@(True && ((x+1) > 1));
 }
-
 //*/
+
 
 /*
 global protocol Proto1(role A, role B, role C)
