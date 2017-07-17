@@ -142,6 +142,10 @@ compexpr:
 ; 
 
 expr: 
+	unary_arith_expr
+; 
+
+unary_arith_expr: 
 	variable
 |
 	num
