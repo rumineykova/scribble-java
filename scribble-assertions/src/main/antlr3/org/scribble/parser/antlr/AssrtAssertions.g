@@ -73,6 +73,8 @@ NUMBER:
 
 START_TOKEN: '['; 
 END_TOKEN: ']'; 
+//START_TOKEN: '\"'; 
+//END_TOKEN: '\"'; 
 
 /*ASSERTION: 
 	(LETTER | DIGIT | OPSYMBOL | WHITESPACE)*
@@ -104,8 +106,17 @@ parse:
 ;
 
 assertion: 
-	bexpr -> bexpr
+	boolexpr
+;
+
+boolexpr:
+	bin_bool_expr:
+	'(' bexpr ')' -> bexpr
 |
+	unary_bool_expr
+;
+
+unary_bool_expr:
 	TRUE_KW
 ->
 	^(TRUE_FORMULA)
@@ -114,6 +125,7 @@ assertion:
 ->
 	^(FALSE_FORMULA)
 ; 
+
 	
 bexpr:	 
    compexpr BOP bexpr 

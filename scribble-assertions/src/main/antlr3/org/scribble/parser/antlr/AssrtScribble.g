@@ -272,8 +272,10 @@ ASSRT_EXPR:
 	'[' (LETTER | DIGIT | ASSRT_SYMBOL | WHITESPACE)* ']'
 ; 
 
+//	'[' (LETTER | DIGIT | ASSRT_SYMBOL | WHITESPACE)* ']'
+
 fragment ASSRT_SYMBOL: 
-	'=' | '>' | '<'  | '||' | '&&' | '+' | '-' | '*' 
+	'=' | '>' | '<'  | '||' | '&&' | '+' | '-' | '*' | '(' | ')'
 ;  
 
  
@@ -588,10 +590,11 @@ globalmessagetransfer:
 	//^(GLOBALMESSAGETRANSFER EMPTY_ASSERTION message rolename rolename+) 
 	^(GLOBALMESSAGETRANSFER message rolename rolename+) 
 | 
-	ASSRT_EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
+	message FROM_KW rolename TO_KW rolename (',' rolename )* ';' '@' ASSRT_EXPR 
 	->
 	^(ASSRT_GLOBALMESSAGETRANSFER {AssrtAssertionsParser.ast($ASSRT_EXPR.text)} message rolename rolename+)
 ;
+//	ASSRT_EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 	
 message:
 	messagesignature
@@ -605,11 +608,13 @@ message:
 
 globalconnect:
 	//message CONNECT_KW rolename TO_KW rolename
-	ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
+	//ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
+	CONNECT_KW rolename TO_KW rolename ';' '@' ASSRT_EXPR 
 	->
 	^(GLOBALCONNECT {AssrtAssertionsParser.ast($ASSRT_EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
-	ASSRT_EXPR message CONNECT_KW rolename TO_KW rolename ';'
+	//ASSRT_EXPR message CONNECT_KW rolename TO_KW rolename ';'
+	message CONNECT_KW rolename TO_KW rolename ';' '@' ASSRT_EXPR 
 	->
 	^(GLOBALCONNECT {AssrtAssertionsParser.ast($ASSRT_EXPR.text)} rolename rolename message)
 |	CONNECT_KW rolename TO_KW rolename ';'
