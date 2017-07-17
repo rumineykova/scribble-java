@@ -116,9 +116,9 @@ boolexpr:
 ;
 
 bin_bool_expr:
-	'(' bexpr ')'
+	'(' unary_bool_expr BOP boolexpr ')'
 ->
-	bexpr
+	^(BEXPR unary_bool_expr BOP boolexpr)
 ;
 
 unary_bool_expr:
@@ -129,32 +129,27 @@ unary_bool_expr:
 	FALSE_KW
 ->
 	^(FALSE_FORMULA)
+|
+	compexpr
 ; 
 
 	
-bexpr:	 
-   compexpr BOP bexpr 
-->
-	^(BEXPR compexpr BOP bexpr)
-|
-	compexpr
-;
 
 compexpr:
 	expr COMP expr
 -> 
 	^(CEXPR expr COMP expr)
-|
-	expr
 ; 
 
 expr: 
-	variable OP num
-->
-	^(AEXPR OP variable num)
-|
 	variable
 |
 	num
-; 
+;
  
+/*	variable OP num
+->
+	^(AEXPR OP variable num)
+|*/
+
+

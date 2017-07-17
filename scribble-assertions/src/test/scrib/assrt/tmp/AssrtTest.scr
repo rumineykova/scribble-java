@@ -21,7 +21,8 @@ global protocol Proto1(role A, role B)
 	//[(True && ((x+1) > 1))]  // FIXME: parse
 	//[True && True]
 	//[True && True)]
-	1() from A to B;	@[True]
+	1() from A to B;	@[x < 1]
+
 
 }
 //*/
