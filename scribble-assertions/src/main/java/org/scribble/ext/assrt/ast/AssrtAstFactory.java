@@ -11,7 +11,6 @@ import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
-import org.scribble.sesstype.kind.PayloadTypeKind;
 
 
 public interface AssrtAstFactory extends AstFactory
@@ -19,7 +18,7 @@ public interface AssrtAstFactory extends AstFactory
 	AssrtGMessageTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion);
 	AssrtLSend AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion);
 
-	<K extends PayloadTypeKind> AssrtAnnotDataTypeElem<K> AssrtAnnotDataTypeElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType);
+	AssrtAnnotDataTypeElem AssrtAnnotDataTypeElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType);
 
 	AssrtAssertion AssrtAssertion(CommonTree source, SmtFormula f);
 }

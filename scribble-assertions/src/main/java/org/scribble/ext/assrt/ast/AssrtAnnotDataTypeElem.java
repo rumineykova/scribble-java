@@ -9,13 +9,13 @@ import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.kind.PayloadTypeKind;
+import org.scribble.sesstype.kind.DataTypeKind;
 import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;
 
 // A "name pair", perhaps similar to GDelegationElem -- factor out?
 // This is an "Elem" -- "Elems" are the elements of PayloadElemList, while PayloadElemNameNode (like DataTypeNode) are the values (an attribute) of the elems
-public class AssrtAnnotDataTypeElem<K extends PayloadTypeKind> extends ScribNodeBase implements PayloadElem<K>
+public class AssrtAnnotDataTypeElem extends ScribNodeBase implements PayloadElem<DataTypeKind>
 {
 	public final AssrtVarNameNode var;  // Using AssrtVarNameNode both as the annotation (as here), and as a PayloadElemNameNode -- like the below DataTypeNode
 	public final DataTypeNode data;
@@ -28,35 +28,35 @@ public class AssrtAnnotDataTypeElem<K extends PayloadTypeKind> extends ScribNode
 	}
 	
 	@Override
-	public AssrtAnnotDataTypeElem<K> project(AstFactory af)
+	public AssrtAnnotDataTypeElem project(AstFactory af)
 	{
 		return this;
 	}
 
 	@Override
-	protected AssrtAnnotDataTypeElem<K> copy()
+	protected AssrtAnnotDataTypeElem copy()
 	{
-		return new AssrtAnnotDataTypeElem<>(this.source, this.var, this.data);
+		return new AssrtAnnotDataTypeElem(this.source, this.var, this.data);
 	}
 	
 	@Override
-	public AssrtAnnotDataTypeElem<K> clone(AstFactory af)
+	public AssrtAnnotDataTypeElem clone(AstFactory af)
 	{
 		AssrtVarNameNode var = ScribUtil.checkNodeClassEquality(this.var, this.var.clone(af));
 		DataTypeNode data = ScribUtil.checkNodeClassEquality(this.data, this.data.clone(af));
 		return ((AssrtAstFactory) af).AssrtAnnotDataTypeElem(this.source, var, data);
 	}
 
-	public AssrtAnnotDataTypeElem<K> reconstruct(AssrtVarNameNode var, DataTypeNode data)
+	public AssrtAnnotDataTypeElem reconstruct(AssrtVarNameNode var, DataTypeNode data)
 	{
 		ScribDel del = del();
-		AssrtAnnotDataTypeElem<K> elem = new AssrtAnnotDataTypeElem<>(this.source, var, data);
+		AssrtAnnotDataTypeElem elem = new AssrtAnnotDataTypeElem(this.source, var, data);
 		elem = ScribNodeBase.del(elem, del);
 		return elem;
 	}
 
 	@Override 
-	public AssrtAnnotDataTypeElem<K> visitChildren(AstVisitor nv) throws ScribbleException
+	public AssrtAnnotDataTypeElem visitChildren(AstVisitor nv) throws ScribbleException
 	{
 		AssrtVarNameNode var = (AssrtVarNameNode) visitChild(this.var, nv);  
 		DataTypeNode data = (DataTypeNode) visitChild(this.data, nv);

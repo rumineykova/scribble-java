@@ -35,7 +35,6 @@ import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.kind.DataTypeKind;
 import org.scribble.sesstype.kind.Global;
 import org.scribble.sesstype.kind.RecVarKind;
 import org.scribble.sesstype.name.DataType;
@@ -275,22 +274,22 @@ public class AssrtCoreGProtocolDeclTranslator
 				throw new AssrtException("[assrt-core] Delegation not supported: " + tmp);
 			}
 
-			if (pe instanceof AssrtAnnotDataTypeElem<?>)  // Type parameter is the payload DataType
+			if (pe instanceof AssrtAnnotDataTypeElem)
 			{
-				return ((AssrtAnnotDataTypeElem<?>) pe).toPayloadType();
+				return ((AssrtAnnotDataTypeElem) pe).toPayloadType();
 			}
-
-			UnaryPayloadElem<?> upe = (UnaryPayloadElem<?>) pe;
-			PayloadType<?> type = upe.toPayloadType();
-			if (!type.isDataType())
+			else
 			{
-				throw new AssrtCoreSyntaxException(upe.getSource(), "[assrt-core] Non- data type kind payload not supported: " + upe);
+				UnaryPayloadElem<?> upe = (UnaryPayloadElem<?>) pe;
+				PayloadType<?> type = upe.toPayloadType();
+				if (!type.isDataType())
+				{
+					throw new AssrtCoreSyntaxException(upe.getSource(), "[assrt-core] Non- data type kind payload not supported: " + upe);
+				}
+				/*AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
+				return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, (DataTypeNode) upe.name);  // null source OK?*/
+				return new AssrtAnnotDataType(new AssrtDataTypeVar("_x" + nextVarIndex()), ((DataTypeNode) upe.name).toName());
 			}
-			
-			/*AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
-
-			return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, (DataTypeNode) upe.name);  // null source OK?*/
-			return new AssrtAnnotDataType(new AssrtDataTypeVar("_x" + nextVarIndex()), ((DataTypeNode) upe.name).toName());
 		}
 	}
 

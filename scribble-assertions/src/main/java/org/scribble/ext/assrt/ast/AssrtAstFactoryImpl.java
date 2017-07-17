@@ -31,7 +31,6 @@ import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
 import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
 import org.scribble.sesstype.kind.Kind;
-import org.scribble.sesstype.kind.PayloadTypeKind;
 
 
 // FIXME: separate modified-del-only from new categories
@@ -106,9 +105,9 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	
 	// An "additional" category, does not "replace" an existing one -- cf. AssrtGMessageTransfer
 	@Override
-	public <K extends PayloadTypeKind> AssrtAnnotDataTypeElem<K> AssrtAnnotDataTypeElem(CommonTree source, AssrtVarNameNode var, DataTypeNode data)
+	public AssrtAnnotDataTypeElem AssrtAnnotDataTypeElem(CommonTree source, AssrtVarNameNode var, DataTypeNode data)
 	{
-		AssrtAnnotDataTypeElem<K> de = new AssrtAnnotDataTypeElem<>(source, var, data);
+		AssrtAnnotDataTypeElem de = new AssrtAnnotDataTypeElem(source, var, data);
 		de = del(de, new AssrtAnnotDataTypeElemDel());
 		return de;
 	}

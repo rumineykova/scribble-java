@@ -23,7 +23,7 @@ import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;
 
 
-// FIXME: make abstract, and make a DataTypeElem subclass (alongside LDelegationElem)
+// FIXME: make abstract, and make a DataTypeElem subclass with DataTypeKind parameter instance (alongside LDelegationElem)
 
 // Cf. DoArg, wrapper for a (unary) name node of potentially unknown kind (needs disamb)
 // PayloadTypeKind is DataType or Local, but Local has its own special subclass (and protocol params not allowed), so this should implicitly be for DataType only
