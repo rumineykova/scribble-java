@@ -59,6 +59,6 @@ public class AssrtESend extends ESend
 	@Override
 	public String toString()
 	{
-		return "[" + this.assertion + "]" + super.toString();
+		return super.toString() + "@" + this.assertion + ";";
 	}
 }

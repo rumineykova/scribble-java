@@ -79,8 +79,9 @@ public class AssrtLSend extends LSend
 	@Override
 	public String toString()
 	{
-		return "[" + this.ass + "]\n"
-					+ this.msg + " " + Constants.TO_KW + " "
-					+ getDestinations().stream().map((dest) -> dest.toString()).collect(Collectors.joining(", ")) + ";";
+		return 
+				  this.msg + " " + Constants.TO_KW + " "
+				+ getDestinations().stream().map(dest -> dest.toString()).collect(Collectors.joining(", "))
+				+ "; @" + this.ass + ";";
 	}
 }

@@ -10,6 +10,26 @@ import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 // Binary comparison
 public class CompFormula extends SmtFormula {
+	
+	enum CompOp
+	{
+		GreaterThan, 
+		LessThan, 
+		Eq;
+		
+		@Override
+		public String toString()
+		{
+			switch (this)
+			{
+				case GreaterThan: return ">";
+				case LessThan: return "<";
+				case Eq: return "=";
+				default: throw new RuntimeException("Won't get in here: " + this);
+			}
+		}
+	}
+	
 
 	CompOp op; 
 	SmtFormula left; 
@@ -21,7 +41,7 @@ public class CompFormula extends SmtFormula {
 		this.right = right; 
 		switch (op) {
 		case ">": 
-			this.op = CompOp.BiggerThan;
+			this.op = CompOp.GreaterThan;
 			break; 
 		case "<":
 			this.op = CompOp.LessThan;
@@ -34,7 +54,7 @@ public class CompFormula extends SmtFormula {
 	
 	@Override
 	public String toString() {
-		return this.left.toString() + ' '  + this.op + ' ' + this.right.toString(); 
+		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")"; 
 	}
 	
 	@Override
@@ -44,7 +64,7 @@ public class CompFormula extends SmtFormula {
 		IntegerFormula fright = (IntegerFormula) this.right.toFormula();
 		
 		switch(this.op) {
-		case BiggerThan: 
+		case GreaterThan: 
 			return fmanager.greaterThan(fleft,fright); 
 		case LessThan:
 			return fmanager.lessThan(fleft,fright);
@@ -61,11 +81,4 @@ public class CompFormula extends SmtFormula {
 		vars.addAll(this.right.getVars()); 
 		return vars; 
 	}
-	
-	enum CompOp{
-		BiggerThan, 
-		LessThan, 
-		Eq
-	}
-	
 }

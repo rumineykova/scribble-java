@@ -50,7 +50,7 @@ public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotDataTypeKi
 	@Override
 	public String toString()
 	{
-		return this.var.toString() + ' '  + this.data.getSimpleName().toString();   
+		return this.var + ": "  + this.data.getSimpleName();   
 	}
 	
 	@Override

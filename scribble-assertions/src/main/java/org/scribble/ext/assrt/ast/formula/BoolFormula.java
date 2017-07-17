@@ -8,7 +8,24 @@ import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.BooleanFormulaManager;
 
 // Binary boolean
-public class BoolFormula extends SmtFormula {
+public class BoolFormula extends SmtFormula
+{
+	enum BoolOp
+	{
+		And, 
+		Or;
+		
+		@Override
+		public String toString()
+		{
+			switch (this)
+			{
+				case And: return "&&";
+				case Or: return "||";
+				default: throw new RuntimeException("Won't get in here: " + this);
+			}
+		}
+	}
 
 	BoolOp op; 
 	SmtFormula left; 
@@ -27,13 +44,11 @@ public class BoolFormula extends SmtFormula {
 			this.op = BoolOp.Or;
 			break;
 		}
-		
-		
 	}
 	
 	@Override
 	public String toString() {
-		return this.left.toString() + ' '  + this.op + ' ' + this.right.toString(); 
+		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";  
 	}
 	
 	@Override
@@ -57,10 +72,5 @@ public class BoolFormula extends SmtFormula {
 		Set<String> vars = new HashSet<String>(this.left.getVars()); 
 		vars.addAll(this.right.getVars()); 
 		return vars; 
-	}
-	
-	enum BoolOp{
-		And, 
-		Or
 	}
 }

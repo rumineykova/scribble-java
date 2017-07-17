@@ -7,8 +7,28 @@ import org.scribble.ext.assrt.util.SMTWrapper;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
+
 // Binary arithmetic
-public class ArithFormula extends SmtFormula {
+public class ArithFormula extends SmtFormula
+{
+	enum ArithOp
+	{
+		Add,
+		Substract,
+		Mult;
+		
+		@Override
+		public String toString()
+		{
+			switch (this)
+			{
+				case Add: return "+";
+				case Mult: return "*";
+				case Substract: return "-";
+				default: throw new RuntimeException("Won't get in here: " + this);
+			}
+		}
+	}
 
 	ArithOp op;
 	SmtFormula left;
@@ -33,7 +53,7 @@ public class ArithFormula extends SmtFormula {
 
 	@Override
 	public String toString() {
-		return this.left.toString() + ' '  + this.op + ' ' + this.right.toString();
+		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";
 	}
 
 	@Override
@@ -60,11 +80,4 @@ public class ArithFormula extends SmtFormula {
 		vars.addAll(this.right.getVars());
 		return vars;
 	}
-
-	enum ArithOp{
-		Add,
-		Substract,
-		Mult
-	}
-
 }
