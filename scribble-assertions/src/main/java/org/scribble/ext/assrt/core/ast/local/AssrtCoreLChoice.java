@@ -15,6 +15,12 @@ public class AssrtCoreLChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 	}
 	
 	@Override
+	public AssrtCoreLActionKind getKind()
+	{
+		return (AssrtCoreLActionKind) super.kind;
+	}
+	
+	@Override
 	public int hashCode()
 	{
 		int hash = 2399;

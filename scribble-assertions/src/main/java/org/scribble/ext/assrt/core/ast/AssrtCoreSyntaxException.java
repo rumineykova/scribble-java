@@ -1,4 +1,4 @@
-package org.scribble.ext.assrt.core;
+package org.scribble.ext.assrt.core.ast;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.main.AssrtException;

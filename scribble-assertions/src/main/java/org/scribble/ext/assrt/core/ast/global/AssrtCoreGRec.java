@@ -1,8 +1,8 @@
 package org.scribble.ext.assrt.core.ast.global;
 
-import org.scribble.ext.assrt.core.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreRec;
+import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;

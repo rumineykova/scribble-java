@@ -15,9 +15,10 @@ type <java> "java.lang.String" from "rt.jar" as Str;
 // FIXME: debug printing for assertion passes
 
 
-/*
+//*
 global protocol Proto1(role A, role B)
 {
+	[True]  // FIXME: parse
 	1() from A to B;	
 }
 //*/
@@ -39,7 +40,7 @@ global protocol Proto1(role A, role B, role C)
 //*/
 
 
-//*
+/*
 global protocol Proto1(role A, role B)
 {
 	choice at A

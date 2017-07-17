@@ -151,7 +151,6 @@ public class AssrtCommandLine extends CommandLine
 		assrtPreContextBuilding(job);
 
 		Module main = job.getContext().getMainModule();
-		//ModuleContext mc = ((ModuleDel) main.del()).getModuleContext();
 		if (!main.hasProtocolDecl(simpname))
 		{
 			throw new ScribbleException("[assrt-core] Global protocol not found: " + simpname);

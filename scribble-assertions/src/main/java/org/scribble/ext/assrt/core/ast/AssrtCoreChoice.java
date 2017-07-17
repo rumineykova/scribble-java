@@ -21,6 +21,8 @@ public abstract class AssrtCoreChoice<A extends AssrtCoreAction, C extends Assrt
 		this.cases = Collections.unmodifiableMap(cases);
 	}
 	
+	public abstract AssrtCoreActionKind<K> getKind();
+	
 	/*@Override
 	public Set<RecVar> freeVariables()
 	{

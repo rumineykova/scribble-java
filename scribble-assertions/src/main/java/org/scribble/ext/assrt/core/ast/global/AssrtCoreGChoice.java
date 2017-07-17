@@ -7,11 +7,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.core.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreChoice;
+import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLActionKind;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLChoice;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
@@ -33,11 +33,11 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 		this.dest = dest;
 	}
 	
+	@Override
 	public AssrtCoreGActionKind getKind()
 	{
 		return (AssrtCoreGActionKind) this.kind;
 	}
-	
 
 	@Override
 	public AssrtCoreLType project(AssrtCoreAstFactory af, Role subj) throws AssrtCoreSyntaxException
