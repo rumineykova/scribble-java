@@ -7,11 +7,10 @@ type <java> "java.lang.Long" from "rt.jar" as Long;
 
 // Check the message flow
 global protocol Prot1(role A, role B, role C, role D)
-{	[x>10]
-	MSG1(x:Integer, y:Integer) from A to B;
+{	
+	MSG1(x:Integer, y:Integer) from A to B; @[x>10]
 	
 	MSG1(x, y) from B to C;
 	
-	[z<x]
-	MSG1(z:Integer) from C to D;
+	MSG1(z:Integer) from C to D; @[z<x]
 }
