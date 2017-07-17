@@ -8,6 +8,7 @@ import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.BooleanFormulaManager;
 
 // Binary boolean
+// Top-level formula of assertions
 public class BoolFormula extends SmtFormula
 {
 	enum BoolOp

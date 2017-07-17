@@ -18,14 +18,14 @@ tokens {
 	TRUE_KW = 'True';
 	FALSE_KW = 'False';
 
-	ROOT = 'root-node'; 
+	ROOT  = 'root-node'; 
 	BEXPR = 'binary-expr-node'; 
 	CEXPR = 'compare-expr-node'; 
 	AEXPR = 'arithmetic-expr'; 
-	VAR = 'var-node'; 
+	VAR   = 'var-node'; 
 	VALUE = 'value-node'; 
 
-	TRUE_FORMULA = 'formula-true';
+	TRUE_FORMULA  = 'formula-true';
 	FALSE_FORMULA = 'formula-false';
 }
 
