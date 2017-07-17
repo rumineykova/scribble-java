@@ -15,11 +15,14 @@ import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGType;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
+import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEGraphBuilder;
 import org.scribble.ext.assrt.main.AssrtMainContext;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.main.resource.DirectoryResourceLocator;
 import org.scribble.main.resource.ResourceLocator;
+import org.scribble.model.endpoint.EGraph;
+import org.scribble.model.endpoint.EState;
 import org.scribble.sesstype.name.GProtocolName;
 import org.scribble.sesstype.name.Role;
 import org.scribble.util.ScribParserException;
@@ -175,7 +178,7 @@ public class AssrtCommandLine extends CommandLine
 				("\n[assrt-core] Projected onto " + r + ":\n  " + lt);
 		}
 
-		/*F17EGraphBuilder builder = new F17EGraphBuilder(job.ef);
+		AssrtCoreEGraphBuilder builder = new AssrtCoreEGraphBuilder(job.ef);
 		Map<Role, EState> E0 = new HashMap<>();
 		for (Role r : P0.keySet())
 		{
@@ -185,7 +188,7 @@ public class AssrtCommandLine extends CommandLine
 			job.debugPrintln
 			//System.out.println
 					("\n[assrt-core] Built endpoint graph for " + r + ":\n" + g.toDot());
-		}*/
+		}
 
 		//validate(job, gpd.isExplicitModifier(), E0);  //TODO
 

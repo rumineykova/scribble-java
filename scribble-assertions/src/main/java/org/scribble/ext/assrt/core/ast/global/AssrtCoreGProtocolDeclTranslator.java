@@ -11,6 +11,7 @@ import org.scribble.ast.PayloadElem;
 import org.scribble.ast.UnaryPayloadElem;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GContinue;
+import org.scribble.ast.global.GDelegationElem;
 import org.scribble.ast.global.GInteractionNode;
 import org.scribble.ast.global.GMessageTransfer;
 import org.scribble.ast.global.GProtocolBlock;
@@ -266,15 +267,11 @@ public class AssrtCoreGProtocolDeclTranslator
 		else
 		{
 			PayloadElem<?> pe = msn.payloads.getElements().get(0);
-			String tmp = pe.toString().trim();
-
-			int i = tmp.indexOf('@');  // FIXME: check by type instead
-			if (i != -1)
+			if (pe instanceof GDelegationElem)  // Already ruled out by parsing?
 			{
-				throw new AssrtException("[assrt-core] Delegation not supported: " + tmp);
+				throw new AssrtException("[assrt-core] Delegation not supported: " + pe);
 			}
-
-			if (pe instanceof AssrtAnnotDataTypeElem)
+			else if (pe instanceof AssrtAnnotDataTypeElem)
 			{
 				return ((AssrtAnnotDataTypeElem) pe).toPayloadType();
 			}
