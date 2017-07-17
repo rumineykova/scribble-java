@@ -27,8 +27,7 @@ public class AssrtAnnotDataType implements AssrtPayloadType<AssrtAnnotPayloadEle
 			return false;
 		}
 		AssrtAnnotDataType n = (AssrtAnnotDataType) o;
-		return n.canEqual(this) && 
-			n.var.equals(this.var) && n.data.equals(this.data);
+		return n.canEqual(this) && n.var.equals(this.var) && n.data.equals(this.data);
 	}
 	
 	public boolean canEqual(Object o)

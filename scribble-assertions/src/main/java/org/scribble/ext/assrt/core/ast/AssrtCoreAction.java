@@ -1,23 +1,20 @@
 package org.scribble.ext.assrt.core.ast;
 
-import org.scribble.ast.name.simple.OpNode;
-import org.scribble.ext.assrt.ast.AssrtAnnotDataTypeElem;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
-import org.scribble.sesstype.kind.DataTypeKind;
+import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
+import org.scribble.sesstype.name.Op;
 
 
 public //abstract
 class AssrtCoreAction
 {
-	/*public final Op op;
-	public final AssrtAnnotDataType pay;*/  // Not syntax -- but OK/better?
-
-	public final OpNode op;
-	public final AssrtAnnotDataTypeElem<DataTypeKind> pay;
+	public final Op op;
+	//public final AssrtAnnotDataTypeElem<DataTypeKind> pay;
+	public final AssrtAnnotDataType pay;
 	public final AssrtAssertion ass;  // cnf?  Set?
 	
-	//public AssrtCoreAction(Op op, AssrtAnnotDataType pay, AssrtAssertion ass)
-	public AssrtCoreAction(OpNode op, AssrtAnnotDataTypeElem<DataTypeKind> pay, AssrtAssertion ass)
+	public AssrtCoreAction(Op op, AssrtAnnotDataType pay, AssrtAssertion ass)
+	//public AssrtCoreAction(OpNode op, AssrtAnnotDataTypeElem<DataTypeKind> pay, AssrtAssertion ass)
 	{
 		this.op = op;
 		this.pay = pay;

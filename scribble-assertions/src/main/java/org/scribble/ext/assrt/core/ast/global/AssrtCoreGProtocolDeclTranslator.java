@@ -19,7 +19,6 @@ import org.scribble.ast.global.GProtocolDef;
 import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.global.GSimpleInteractionNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
-import org.scribble.ast.name.simple.OpNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.global.GProtocolDefDel;
 import org.scribble.ext.assrt.ast.AssrtAnnotDataTypeElem;
@@ -27,18 +26,20 @@ import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
-import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.main.AssrtException;
-import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
+import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.kind.DataTypeKind;
 import org.scribble.sesstype.kind.Global;
 import org.scribble.sesstype.kind.RecVarKind;
+import org.scribble.sesstype.name.DataType;
+import org.scribble.sesstype.name.Op;
 import org.scribble.sesstype.name.PayloadType;
 import org.scribble.sesstype.name.RecVar;
 import org.scribble.sesstype.name.Role;
@@ -46,6 +47,8 @@ import org.scribble.sesstype.name.Role;
 
 public class AssrtCoreGProtocolDeclTranslator
 {
+	public static final DataType UNIT_DATATYPE = new DataType("_Unit");  // FIXME: move
+	
 	private final Job job;
 	private final AssrtCoreAstFactory af;
 	
@@ -195,9 +198,9 @@ public class AssrtCoreGProtocolDeclTranslator
 			for (Entry<AssrtCoreAction, AssrtCoreGType> e : tmp.cases.entrySet())
 			{
 				AssrtCoreAction k = e.getKey();
-				if (cases.keySet().stream().anyMatch(x -> x.op.toName().equals(k.op.toName())))
+				if (cases.keySet().stream().anyMatch(x -> x.op.equals(k.op)))
 				{
-					throw new AssrtCoreSyntaxException(gc.getSource(), "[assrt-core] Non-deterministic actions not supported: " + k.op.toName());
+					throw new AssrtCoreSyntaxException(gc.getSource(), "[assrt-core] Non-deterministic actions not supported: " + k.op);
 				}
 				cases.put(k, e.getValue());
 			}
@@ -209,8 +212,9 @@ public class AssrtCoreGProtocolDeclTranslator
 	// Parses message interactions as unary choices
 	private AssrtCoreGChoice parseGMessageTransfer(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, GMessageTransfer gmt) throws AssrtException 
 	{
-		OpNode op = parseOp(gmt);
-		AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
+		Op op = parseOp(gmt);
+		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
+		AssrtAnnotDataType pay = parsePayload(gmt);
 		AssrtAssertion ass = parseAssertion(gmt);
 		
 		AssrtCoreAction a = this.af.action(op, pay, ass);
@@ -231,19 +235,18 @@ public class AssrtCoreGProtocolDeclTranslator
 		return this.af.AssrtCoreGChoice(src, kind, dest, cases);
 	}
 
-	private OpNode parseOp(GMessageTransfer gmt) throws AssrtCoreSyntaxException
+	private Op parseOp(GMessageTransfer gmt) throws AssrtCoreSyntaxException
 	{
 		if (!gmt.msg.isMessageSigNode())
 		{
 			throw new AssrtCoreSyntaxException(gmt.msg.getSource(), " [assrt-core] Not supported: " + gmt.msg);  // TODO: MessageSigName
 		}
 		MessageSigNode msn = ((MessageSigNode) gmt.msg);
-		//return msn.op.toName();
-		return msn.op;
+		return msn.op.toName();
 	}
 
-	//private AssrtAnnotDataType parsePayload(GMessageTransfer gmt)
-	private AssrtAnnotDataTypeElem<DataTypeKind> parsePayload(GMessageTransfer gmt) throws AssrtException
+	private AssrtAnnotDataType parsePayload(GMessageTransfer gmt) throws AssrtException, AssrtCoreSyntaxException
+	//private AssrtAnnotDataTypeElem<DataTypeKind> parsePayload(GMessageTransfer gmt) throws AssrtException
 	{
 		if (!gmt.msg.isMessageSigNode())
 		{
@@ -252,11 +255,10 @@ public class AssrtCoreGProtocolDeclTranslator
 		MessageSigNode msn = ((MessageSigNode) gmt.msg);
 		if (msn.payloads.getElements().isEmpty())
 		{
-			//return Payload.EMPTY_PAYLOAD;
-
-			DataTypeNode dtn = (DataTypeNode) ((AssrtAstFactory) this.job.af).QualifiedNameNode(null, DataTypeKind.KIND, "_Unit");
+			/*DataTypeNode dtn = (DataTypeNode) ((AssrtAstFactory) this.job.af).QualifiedNameNode(null, DataTypeKind.KIND, "_Unit");
 			AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
-			return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, dtn);  // null source OK?
+			return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, dtn);  // null source OK?*/
+			return new AssrtAnnotDataType(new AssrtDataTypeVar("_x" + nextVarIndex()), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE);
 		}
 		else if (msn.payloads.getElements().size() > 1)
 		{
@@ -275,7 +277,7 @@ public class AssrtCoreGProtocolDeclTranslator
 
 			if (pe instanceof AssrtAnnotDataTypeElem<?>)  // FIXME: implicitly DataType anyway (remove redundant type parameter)
 			{
-				return (AssrtAnnotDataTypeElem<DataTypeKind>) pe;
+				return ((AssrtAnnotDataTypeElem<DataTypeKind>) pe).toPayloadType();
 			}
 
 			UnaryPayloadElem<?> upe = (UnaryPayloadElem<?>) pe;
@@ -285,9 +287,10 @@ public class AssrtCoreGProtocolDeclTranslator
 				throw new AssrtCoreSyntaxException(upe.getSource(), "[assrt-core] Non- data type kind payload not supported: " + upe);
 			}
 			
-			AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
+			/*AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
 
-			return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, (DataTypeNode) upe.name);  // null source OK?
+			return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, (DataTypeNode) upe.name);  // null source OK?*/
+			return new AssrtAnnotDataType(new AssrtDataTypeVar("_x" + nextVarIndex()), ((DataTypeNode) upe.name).toName());
 		}
 	}
 
