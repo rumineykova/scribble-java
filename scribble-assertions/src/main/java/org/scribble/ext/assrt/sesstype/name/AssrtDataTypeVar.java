@@ -3,7 +3,7 @@ package org.scribble.ext.assrt.sesstype.name;
 import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
 import org.scribble.sesstype.name.AbstractName;
 
-public class AssrtDataTypeVar extends AbstractName<AssrtVarNameKind> implements AssrtPayloadType<AssrtVarNameKind>
+public class AssrtDataTypeVar extends AbstractName<AssrtVarNameKind> implements AssrtPayloadElemType<AssrtVarNameKind>
 {
 	private static final long serialVersionUID = 1L;
 

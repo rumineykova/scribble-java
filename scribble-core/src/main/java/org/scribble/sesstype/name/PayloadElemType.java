@@ -17,7 +17,7 @@ import org.scribble.sesstype.Arg;
 import org.scribble.sesstype.kind.PayloadTypeKind;
 
 
-public interface PayloadType<K extends PayloadTypeKind> extends Arg<K>
+public interface PayloadElemType<K extends PayloadTypeKind> extends Arg<K>
 {
 	default boolean isDataType()
 	{

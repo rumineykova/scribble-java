@@ -18,7 +18,7 @@ import org.scribble.ast.name.PayloadElemNameNode;
 import org.scribble.del.ScribDel;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.kind.PayloadTypeKind;
-import org.scribble.sesstype.name.PayloadType;
+import org.scribble.sesstype.name.PayloadElemType;
 import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;
 
@@ -101,7 +101,7 @@ public class UnaryPayloadElem<K extends PayloadTypeKind> extends ScribNodeBase i
 	@Override
 	//public PayloadType<DataTypeKind> toPayloadType()  // Currently can assume the only possible kind is DataTypeKind
 	//public PayloadType<? extends PayloadTypeKind> toPayloadType()  // Currently can assume the only possible kind is DataTypeKind
-	public PayloadType<K> toPayloadType()  // Currently can assume the only possible kind is DataTypeKind
+	public PayloadElemType<K> toPayloadType()  // Currently can assume the only possible kind is DataTypeKind
 	{
 		//return this.data.toPayloadType();
 		return this.name.toPayloadType();

@@ -16,7 +16,7 @@ import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.sesstype.name.AssrtPayloadType;
+import org.scribble.ext.assrt.sesstype.name.AssrtPayloadElemType;
 import org.scribble.ext.assrt.util.SMTWrapper;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.EState;
@@ -28,7 +28,7 @@ import org.scribble.model.global.SBuffers;
 import org.scribble.model.global.SConfig;
 import org.scribble.model.global.SModelFactory;
 import org.scribble.sesstype.kind.PayloadTypeKind;
-import org.scribble.sesstype.name.PayloadType;
+import org.scribble.sesstype.name.PayloadElemType;
 import org.scribble.sesstype.name.Role;
 
 // FIXME: equals/hashCode
@@ -107,11 +107,11 @@ public class AssrtSConfig extends SConfig
 
 			if (a.isSend())
 			{
-				for (PayloadType<? extends PayloadTypeKind> elem : a.payload.elems)
+				for (PayloadElemType<? extends PayloadTypeKind> elem : a.payload.elems)
 				{
-					if (elem instanceof AssrtPayloadType<?>) // FIXME?
+					if (elem instanceof AssrtPayloadElemType<?>) // FIXME?
 					{
-						AssrtPayloadType<?> apt = (AssrtPayloadType<?>) elem;
+						AssrtPayloadElemType<?> apt = (AssrtPayloadElemType<?>) elem;
 						if (apt.isAnnotVarDecl() || apt.isAnnotVarName())
 						{
 							String varName;
@@ -200,7 +200,7 @@ public class AssrtSConfig extends SConfig
 					AssrtAssertion assertion = send.assertion;
 					
 					Set<String> newVarNames = send.payload.elems.stream()
-							.filter(v -> (v instanceof AssrtPayloadType<?>) && ((AssrtPayloadType<?>) v).isAnnotVarDecl())  // FIXME?
+							.filter(v -> (v instanceof AssrtPayloadElemType<?>) && ((AssrtPayloadElemType<?>) v).isAnnotVarDecl())  // FIXME?
 							.map(v -> ((AssrtAnnotDataType) v).var.toString())
 							.collect(Collectors.toSet()); 
 					

@@ -40,7 +40,7 @@ import org.scribble.sesstype.kind.Global;
 import org.scribble.sesstype.kind.RecVarKind;
 import org.scribble.sesstype.name.DataType;
 import org.scribble.sesstype.name.Op;
-import org.scribble.sesstype.name.PayloadType;
+import org.scribble.sesstype.name.PayloadElemType;
 import org.scribble.sesstype.name.RecVar;
 import org.scribble.sesstype.name.Role;
 
@@ -262,7 +262,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		}
 		else if (msn.payloads.getElements().size() > 1)
 		{
-			throw new AssrtCoreSyntaxException(msn.getSource(), "[assrt-core] Payload with more than one ekement not supported: " + gmt.msg);
+			throw new AssrtCoreSyntaxException(msn.getSource(), "[assrt-core] Payload with more than one element not supported: " + gmt.msg);
 		}
 		else
 		{
@@ -278,7 +278,7 @@ public class AssrtCoreGProtocolDeclTranslator
 			else
 			{
 				UnaryPayloadElem<?> upe = (UnaryPayloadElem<?>) pe;
-				PayloadType<?> type = upe.toPayloadType();
+				PayloadElemType<?> type = upe.toPayloadType();
 				if (!type.isDataType())
 				{
 					throw new AssrtCoreSyntaxException(upe.getSource(), "[assrt-core] Non- data type kind payload not supported: " + upe);

@@ -1,10 +1,10 @@
 package org.scribble.ext.assrt.sesstype.name;
 
 import org.scribble.sesstype.kind.PayloadTypeKind;
-import org.scribble.sesstype.name.PayloadType;
+import org.scribble.sesstype.name.PayloadElemType;
 
 
-public interface AssrtPayloadType<K extends PayloadTypeKind> extends PayloadType<K>
+public interface AssrtPayloadElemType<K extends PayloadTypeKind> extends PayloadElemType<K>
 {
 
 	default boolean isAnnotVarDecl()
