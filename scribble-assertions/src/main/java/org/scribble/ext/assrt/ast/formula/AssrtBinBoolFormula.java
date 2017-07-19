@@ -76,7 +76,7 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 	@Override
 	public Set<String> getVars()
 	{
-		Set<String> vars = new HashSet<String>(this.left.getVars()); 
+		Set<String> vars = new HashSet<>(this.left.getVars()); 
 		vars.addAll(this.right.getVars()); 
 		return vars; 
 	}

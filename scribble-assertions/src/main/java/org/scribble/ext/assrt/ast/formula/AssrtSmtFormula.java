@@ -7,7 +7,8 @@ import org.sosy_lab.java_smt.api.Formula;
 public abstract class AssrtSmtFormula<F extends Formula>
 {
 	protected F formula;
-
+	
+	// FIXME: List<AssrtVarFormula>
 	public abstract Set<String> getVars();
 
 	protected abstract F toJavaSmtFormula(); //throws AssertionParseException;

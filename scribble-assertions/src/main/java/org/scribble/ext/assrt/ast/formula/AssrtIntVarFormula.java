@@ -33,7 +33,7 @@ public class AssrtIntVarFormula extends AssrtArithFormula
 	@Override
 	public Set<String> getVars()
 	{
-		Set<String> vars = new HashSet<String>();
+		Set<String> vars = new HashSet<>();
 		vars.add(this.name); 
 		return vars; 
 	}

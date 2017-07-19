@@ -1,6 +1,7 @@
 package org.scribble.ext.assrt.ast.formula;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
@@ -25,7 +26,7 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	@Override
 	public Set<String> getVars()
 	{
-		return vars; 
+		return new HashSet<>(vars); 
 	}
 	
 	//public AssrtLogFormula addFormula(AssrtSmtFormula newFormula) throws AssertionParseException{		

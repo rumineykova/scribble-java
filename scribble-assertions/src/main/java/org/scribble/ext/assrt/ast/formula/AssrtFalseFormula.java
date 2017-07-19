@@ -21,7 +21,8 @@ public class AssrtFalseFormula extends AssrtBoolFormula
 	}
 	
 	@Override
-	public Set<String> getVars(){
+	public Set<String> getVars()
+	{
 		return Collections.emptySet(); 
 	}
 }

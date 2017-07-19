@@ -1,6 +1,6 @@
 package org.scribble.ext.assrt.ast.formula;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
@@ -32,7 +32,6 @@ public class AssrtValueFormula extends AssrtArithFormula
 	@Override
 	public Set<String> getVars()
 	{
-		Set<String> vars = new HashSet<String>(); 
-		return vars; 
+		return Collections.emptySet();	
 	}
 }
