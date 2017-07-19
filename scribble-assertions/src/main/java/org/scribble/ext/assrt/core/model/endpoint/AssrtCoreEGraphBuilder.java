@@ -87,12 +87,12 @@ public class AssrtCoreEGraphBuilder
 		{
 			//AssrtCoreLSend ls = (AssrtCoreLSend) a;
 			//return this.util.ef.newESend(r, a.op, new Payload(Arrays.asList(a.pay)));  // FIXME: assertion model actions
-			return ef.newAssrtESend(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
+			return ef.newAssrtESend(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass.getFormula());
 		}
 		else if (k.equals(AssrtCoreLActionKind.RECEIVE))
 		{
 			//AssrtCoreLReceive lr = (AssrtCoreLReceive) a;
-			return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
+			return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass.getFormula());
 
 			// FIXME: local receive assertions -- why needed exactly?  should WF imply receive assertion always true?
 

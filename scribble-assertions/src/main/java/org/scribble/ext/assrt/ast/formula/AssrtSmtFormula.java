@@ -5,6 +5,7 @@ import java.util.Set;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.sosy_lab.java_smt.api.Formula;
 
+// FIXME: equals/hashCode? -- e.g., for AssrtESend/Receive?
 public abstract class AssrtSmtFormula<F extends Formula>
 {
 	protected F formula;
@@ -20,5 +21,11 @@ public abstract class AssrtSmtFormula<F extends Formula>
 			this.formula = toJavaSmtFormula();
 		}
 		return this.formula;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return this.formula.toString();
 	}
 }

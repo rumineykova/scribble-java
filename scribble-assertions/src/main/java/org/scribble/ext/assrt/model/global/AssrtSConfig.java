@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.ast.formula.AssrtLogFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
@@ -83,12 +82,12 @@ public class AssrtSConfig extends SConfig
 				throw new RuntimeException("Shouldn't get in here: " + a);
 			}
 			
-			AssrtAssertion assertion = a.isSend() ? ((AssrtESend) a).assertion: null; 
+			AssrtBoolFormula assertion = a.isSend() ? ((AssrtESend) a).bf: null; 
 			
 			AssrtLogFormula newFormula = null; 
 		
 			if (assertion!=null) {
-				AssrtBoolFormula currFormula = assertion.getFormula();
+				AssrtBoolFormula currFormula = assertion;
 				
 				//try
 				{
@@ -168,10 +167,10 @@ public class AssrtSConfig extends SConfig
 			{
 				if (action.isSend()) {
 					AssrtESend send = (AssrtESend)action;
-					AssrtAssertion assertion = send.assertion; 
+					AssrtBoolFormula assertion = send.bf; 
 					if (assertion != null)
 					{
-						if (!JavaSmtWrapper.getInstance().isSat(assertion.getFormula(), this.formula)) {
+						if (!JavaSmtWrapper.getInstance().isSat(assertion, this.formula)) {
 							unsafStates.add(send); 
 						}
 					}
@@ -199,7 +198,7 @@ public class AssrtSConfig extends SConfig
 				if (action.isSend())
 				{
 					AssrtESend send = (AssrtESend)action;
-					AssrtAssertion assertion = send.assertion;
+					AssrtBoolFormula assertion = send.bf;
 					
 					Set<String> newVarNames = send.payload.elems.stream()
 							.filter(v -> (v instanceof AssrtPayloadElemType<?>) && ((AssrtPayloadElemType<?>) v).isAnnotVarDecl())  // FIXME?
@@ -208,7 +207,7 @@ public class AssrtSConfig extends SConfig
 					
 					if (assertion !=null)
 					{
-						Set<String> varNames = assertion.getFormula().getVars().stream().map(v -> v.toString()).collect(Collectors.toSet());
+						Set<String> varNames = assertion.getVars().stream().map(v -> v.toString()).collect(Collectors.toSet());
 						varNames.removeAll(newVarNames); 
 						if ((!varNames.isEmpty()) && (!this.variablesInScope.containsKey(r) ||
 							 !this.variablesInScope.get(r).containsAll(varNames)))

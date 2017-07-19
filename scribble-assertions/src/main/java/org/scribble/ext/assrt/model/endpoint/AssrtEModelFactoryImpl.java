@@ -1,6 +1,6 @@
 package org.scribble.ext.assrt.model.endpoint;
 
-import org.scribble.ext.assrt.ast.AssrtAssertion;
+import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.model.endpoint.EModelFactoryImpl;
 import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.endpoint.actions.ESend;
@@ -24,14 +24,15 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl implements AssrtEM
 	}
 
 	@Override
-	public AssrtESend newAssrtESend(Role peer, MessageId<?> mid, Payload payload, AssrtAssertion assertion)
+	//public AssrtESend newAssrtESend(Role peer, MessageId<?> mid, Payload payload, AssrtAssertion assertion)
+	public AssrtESend newAssrtESend(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
 	{
-		return new AssrtESend(this, peer, mid, payload, assertion);
+		return new AssrtESend(this, peer, mid, payload, bf);
 	}
 
 	@Override
-	public AssrtEReceive newAssrtEReceive(Role peer, MessageId<?> mid, Payload payload, AssrtAssertion assertion)
+	public AssrtEReceive newAssrtEReceive(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
 	{
-		return new AssrtEReceive(this, peer, mid, payload, assertion);
+		return new AssrtEReceive(this, peer, mid, payload, bf);
 	}
 }

@@ -7,7 +7,7 @@ import org.scribble.ast.ScribNode;
 import org.scribble.ast.local.LReceive;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.local.LReceiveDel;
-import org.scribble.ext.assrt.ast.AssrtAstFactory;
+import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AssrtFormulaFactoryImpl;
 import org.scribble.main.ScribbleException;
@@ -33,9 +33,12 @@ public class AssrtLReceiveDel extends LReceiveDel
 		Payload payload = lr.msg.isMessageSigNode()  // Hacky?
 					? ((MessageSigNode) lr.msg).payloads.toPayload()
 					: Payload.EMPTY_PAYLOAD;
-		builder.util.addEdge(builder.util.getEntry(), ((AssrtEModelFactory) builder.job.ef).newAssrtEReceive(peer, mid, payload, 
-				((AssrtAstFactory) builder.job.af).AssrtAssertion(null, AssrtFormulaFactoryImpl.AssrtTrueFormula())),  // FIXME: null source?  // FIXME: AssrtLReceive?
-				//lr.ass),
+					
+		//AssrtBoolFormula bf = (ls.ass == null) ? AssrtFormulaFactoryImpl.AssrtTrueFormula() : ls.ass.getFormula();
+		AssrtBoolFormula bf = AssrtFormulaFactoryImpl.AssrtTrueFormula();  // FIXME: AssrtLReceive?
+					
+		builder.util.addEdge(builder.util.getEntry(),
+				((AssrtEModelFactory) builder.job.ef).newAssrtEReceive(peer, mid, payload, bf),
 				builder.util.getExit());  // FIXME: factor out action building with super?
 		//return (AssrtLReceive) super.leaveEGraphBuilding(parent, child, graph, ls);  // No
 		// CHECKME: OK to ignore super?

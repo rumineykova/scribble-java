@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AssrtFormulaFactoryImpl;
@@ -269,7 +268,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 									tmp.add(((AssrtAnnotDataType) pe).var);
 								}
 							});
-							return ((AssrtESend) a).assertion.getFormula().getVars().stream().anyMatch(v -> !tmp.contains(v));
+							return ((AssrtESend) a).bf.getVars().stream().anyMatch(v -> !tmp.contains(v));
 						}
 						else
 						{
@@ -481,7 +480,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					putK(K, es.peer, v);
 					
 					//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
-					putF(F, v, es.assertion.getFormula());
+					putF(F, v, es.bf);
 					
 					//...can only send if true? (by API gen assertion failure means definitely not sending it) -- unsat as bad terminal state (safety error)?  no: won't catch all assert errors (branches)
 					// check assertion satisfiable?  i.e., satisfiability part of operational semantics for model construction? or just record constraints and check later?
@@ -753,9 +752,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 // FIXME TODO
 class AssrtCoreEBot extends AssrtESend
 {
-	public AssrtCoreEBot(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtAssertion assertion)
+	public AssrtCoreEBot(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
 	{
-		super(ef, peer, mid, payload, assertion);
+		super(ef, peer, mid, payload, bf);
 	}
 }
 
