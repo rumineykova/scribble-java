@@ -149,27 +149,35 @@ public class JavaSmtWrapper
 		Set<String> setVars = assertionFormula.getVars()
 				.stream().map(v -> v.toString()).collect(Collectors.toSet()); 
 				
-		BooleanFormula formula; 
-		if (context!=null)
+		BooleanFormula formula = null; 
+
+		if (context != null)  // FIXME: refactor (shouldn't be null?)
 		{
-			setVars.removeAll(context.getVars());
-			vars = this.makeVars(new ArrayList<String>(setVars));
-			
 			BooleanFormula contextF = (BooleanFormula) context.getJavaSmtFormula(); 
-			contextVars = this.makeVars(new ArrayList<>(context.getVars()
-																		.stream().map(v -> v.toString()).collect(Collectors.toSet())
-					));
-			formula = vars.isEmpty()?
-					this.qfm.forall(contextVars, this.bfm.implication(contextF, currFormula)):
-					this.qfm.forall(contextVars, 
-										this.bfm.implication(contextF, 
-											this.qfm.exists(vars, currFormula)));  
+			
+			if (!contextF.equals(this.bfm.makeTrue()))  // FIXME: factor out as a constant
+			{
+				setVars.removeAll(context.getVars().stream().map(v -> v.toString()).collect(Collectors.toList()));
+				vars = this.makeVars(new ArrayList<>(setVars));
 				
-		} else {
-			vars = this.makeVars(new ArrayList<String>(setVars));
-			formula = vars.isEmpty()? 
-						currFormula:	
-						this.qfm.exists(vars, currFormula);
+				contextVars = this.makeVars(new ArrayList<>(context.getVars()
+																			.stream().map(v -> v.toString()).collect(Collectors.toSet())
+						));
+				
+				formula = vars.isEmpty()
+						? this.qfm.forall(contextVars, this.bfm.implication(contextF, currFormula))
+						: this.qfm.forall(contextVars, this.bfm.implication(contextF, this.qfm.exists(vars, currFormula)));  
+					
+			}		
+		}
+
+		if (formula == null)
+		{
+			
+				vars = this.makeVars(new ArrayList<String>(setVars));
+				formula = vars.isEmpty()? 
+							currFormula:	
+							this.qfm.exists(vars, currFormula);
 		}
 		return formula;
 	}
@@ -199,6 +207,6 @@ public class JavaSmtWrapper
 	 
 	public List<IntegerFormula> makeVars(List<String> vars)
 	{
-		return  vars.stream().map(v -> this.ifm.makeVariable(v)).collect(Collectors.toList()); 
+		return vars.stream().map(v -> this.ifm.makeVariable(v)).collect(Collectors.toList()); 
 	}
 }

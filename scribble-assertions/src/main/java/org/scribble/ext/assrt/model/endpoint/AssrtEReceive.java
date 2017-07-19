@@ -66,9 +66,9 @@ public class AssrtEReceive extends EReceive
 		return o instanceof AssrtEReceive;
 	}
 	
-	/*@Override
+	@Override
 	public String toString()
 	{
-		return super.toString() + "@" + this.assertion + ";";
-	}*/
+		return super.toString() + "@" + this.bf + ";";
+	}
 }

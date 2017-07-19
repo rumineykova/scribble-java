@@ -49,7 +49,7 @@ public class AssrtSState extends SState
 		{
 			return false;
 		}
-		return ((AssrtSState) o).canEquals(this) && this.config.equals(((AssrtSState) o).config);
+		return super.equals(o);  // Does canEquals
 	}
 
 	@Override

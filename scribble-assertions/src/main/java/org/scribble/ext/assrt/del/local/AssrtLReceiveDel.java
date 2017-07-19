@@ -28,7 +28,7 @@ public class AssrtLReceiveDel extends LReceiveDel
 		{
 			throw new ScribbleException("[TODO] EFSM building for multicast not supported: " + lr);
 		}
-		Role peer = dests.get(0).toName();
+		Role peer = lr.src.toName();
 		MessageId<?> mid = lr.msg.toMessage().getId();
 		Payload payload = lr.msg.isMessageSigNode()  // Hacky?
 					? ((MessageSigNode) lr.msg).payloads.toPayload()

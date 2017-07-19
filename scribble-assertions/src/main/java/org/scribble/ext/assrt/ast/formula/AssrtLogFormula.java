@@ -37,4 +37,10 @@ public class AssrtLogFormula extends AssrtBoolFormula
 				? new AssrtLogFormula(newFormula.formula, newFormula.getVars())
 				:	JavaSmtWrapper.getInstance().addFormula(this, newFormula);
 	}
+	
+	@Override
+	public String toString()
+	{
+		return super.toString();  // FIXME: prints this.formula which is a Java-SMT formula, not AssrtBoolFormula like others
+	}
 }

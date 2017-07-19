@@ -25,7 +25,6 @@ import org.scribble.del.global.GProtocolDefDel;
 import org.scribble.ext.assrt.ast.AssrtAnnotDataTypeElem;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;

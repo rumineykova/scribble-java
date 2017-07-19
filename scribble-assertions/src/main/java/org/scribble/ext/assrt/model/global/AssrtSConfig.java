@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.ast.formula.AssrtLogFormula;
+import org.scribble.ext.assrt.model.endpoint.AssrtEReceive;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
@@ -82,7 +83,19 @@ public class AssrtSConfig extends SConfig
 				throw new RuntimeException("Shouldn't get in here: " + a);
 			}
 			
-			AssrtBoolFormula assertion = a.isSend() ? ((AssrtESend) a).bf: null; 
+			AssrtBoolFormula assertion;
+			if (a.isSend()) 
+			{
+				assertion = ((AssrtESend) a).bf;
+			}
+			else if (a.isReceive()) 
+			{
+				assertion = ((AssrtEReceive) a).bf;
+			}
+			else
+			{
+				throw new RuntimeException("[assrt] TODO: " + a);
+			}
 			
 			AssrtLogFormula newFormula = null; 
 		
