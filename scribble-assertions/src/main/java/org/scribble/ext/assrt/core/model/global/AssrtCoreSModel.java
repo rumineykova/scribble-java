@@ -33,7 +33,7 @@ public class AssrtCoreSModel
 		this.termSets = findTerminalSets();
 	}
 	
-	public F17SafetyErrors getSafetyErrors()
+	public AssrtCoreSafetyErrors getSafetyErrors()
 	{
 		/*Set<AssrtCoreSState> conns = this.allStates.values().stream().filter(AssrtCoreSState::isConnectionError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> disconns = this.allStates.values().stream().filter(AssrtCoreSState::isDisconnectedError).collect(Collectors.toSet());
@@ -47,7 +47,7 @@ public class AssrtCoreSModel
 		Set<AssrtCoreSState> portOwners = this.allStates.values().stream().filter(AssrtCoreSState::isPortOwnershipError).collect(Collectors.toSet());*/
 		
 		//return new F17SafetyErrors(conns, disconns, unconns, syncs, recepts, unfins, orphans, portOpens, portOwners);
-		return new F17SafetyErrors(null, null, null, null, recepts, unfins, orphans, null, null);
+		return new AssrtCoreSafetyErrors(null, null, null, null, recepts, unfins, orphans, null, null);
 	}
 	
 	public boolean isActive(AssrtCoreSState s, Role r)
@@ -55,7 +55,7 @@ public class AssrtCoreSModel
 		return AssrtCoreSState.isActive(s.getP().get(r), this.E0.get(r).id);
 	}
 	
-	public F17ProgressErrors getProgressErrors()
+	public AssrtCoreProgressErrors getProgressErrors()
 	{
 		Map<Role, Set<Set<AssrtCoreSState>>> roleProgress = new HashMap<>();
 				/*this.E0.keySet().stream().collect(Collectors.toMap((r) -> r, (r) ->
@@ -108,7 +108,7 @@ public class AssrtCoreSModel
 			}
 		}
 		
-		return new F17ProgressErrors(roleProgress, eventualReception);
+		return new AssrtCoreProgressErrors(roleProgress, eventualReception);
 	}
 	
 	// Revised "eventual reception" -- 1-bounded stable property with subject role side condition
