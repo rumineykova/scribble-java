@@ -9,6 +9,7 @@ import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.visit.AstVisitor;
 
+// In general, should be an action "annotation" -- but currently only used for boolean assertions
 public class AssrtAssertion extends ScribNodeBase 
 {	
 	//private final String assertion;  // FIXME: should be String for a more general annotations feature

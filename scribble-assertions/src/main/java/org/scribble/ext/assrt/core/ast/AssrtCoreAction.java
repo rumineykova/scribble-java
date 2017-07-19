@@ -11,7 +11,7 @@ class AssrtCoreAction
 	public final Op op;
 	//public final AssrtAnnotDataTypeElem<DataTypeKind> pay;
 	public final AssrtAnnotDataType pay;
-	public final AssrtAssertion ass;  // cnf?  Set?
+	public final AssrtAssertion ass;  // cnf?  Set?  // Not null -- empty ass set to True by AssrtCoreGProtocolDeclTranslator
 	
 	public AssrtCoreAction(Op op, AssrtAnnotDataType pay, AssrtAssertion ass)
 	//public AssrtCoreAction(OpNode op, AssrtAnnotDataTypeElem<DataTypeKind> pay, AssrtAssertion ass)

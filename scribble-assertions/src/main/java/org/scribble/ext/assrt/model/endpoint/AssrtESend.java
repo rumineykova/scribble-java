@@ -11,12 +11,20 @@ import org.scribble.sesstype.name.Role;
 
 public class AssrtESend extends ESend
 {
-	public final AssrtAssertion assertion;  // Cf., e.g., ALSend  // FIXME: should not be the AST node
+	public final AssrtAssertion assertion;  // Cf., e.g., ALSend  // Not null -- empty set to True by parsing
+			// FIXME: should not be the AST node
 
 	public AssrtESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtAssertion assertion)
 	{
 		super(ef, peer, mid, payload);
 		this.assertion = assertion;
+	}
+
+	@Override
+	public AssrtEReceive toDual(Role self)
+	{
+		//return super.toDual(self);  // FIXME: assertion? -- currently ignoring assertions for model building
+		return ((AssrtEModelFactory) this.ef).newAssrtEReceive(self, this.mid, this.payload, this.assertion);
 	}
 
 	@Override
@@ -45,9 +53,8 @@ public class AssrtESend extends ESend
 			return false;
 		}
 		AssrtESend as = (AssrtESend) o;
-		return as.canEqual(this) && super.equals(o)
-				&& ((as.assertion == null && this.assertion == null)
-						|| (as.assertion != null && this.assertion != null && as.assertion.equals(this.assertion)));
+		return super.equals(o)  // Does canEquals
+				&& this.assertion.equals(as.assertion);
 	}
 
 	@Override

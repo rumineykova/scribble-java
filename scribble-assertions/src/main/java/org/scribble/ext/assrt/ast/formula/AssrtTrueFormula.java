@@ -9,6 +9,10 @@ import org.sosy_lab.java_smt.api.BooleanFormula;
 // FIXME: declare singleton constant
 public class AssrtTrueFormula extends AssrtBoolFormula
 {
+	public AssrtTrueFormula()
+	{
+		
+	}
 	
 	@Override
 	public String toString()

@@ -8,7 +8,7 @@ import org.scribble.sesstype.name.Role;
 
 public class AssrtSSend extends SSend
 {
-	public final AssrtAssertion assertion;  // Cf., e.g., AGMessageTransfer
+	public final AssrtAssertion assertion;  // Cf., e.g., AGMessageTransfer  // Not null (cf. AssrtESend)
 
 	public AssrtSSend(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtAssertion assertion)
 	{
@@ -37,9 +37,8 @@ public class AssrtSSend extends SSend
 			return false;
 		}
 		AssrtSSend as = (AssrtSSend) o;
-		return as.canEqual(this) && super.equals(o) 
-				&& ((as.assertion == null && this.assertion == null)
-						|| (as.assertion != null && this.assertion != null && as.assertion.equals(this.assertion)));
+		return super.equals(o)  // Does canEqual
+				&& this.assertion.equals(as.assertion);
 	}
 
 	@Override
@@ -51,6 +50,6 @@ public class AssrtSSend extends SSend
 	@Override
 	public String toString()
 	{
-		return "[" + this.assertion + "]" + super.toString();
+		return super.toString() + "@" + this.assertion + ";";
 	}
 }

@@ -18,6 +18,9 @@ import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGType;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEGraphBuilder;
+import org.scribble.ext.assrt.core.model.global.AssrtCoreSModel;
+import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelBuilder;
+import org.scribble.ext.assrt.core.model.global.AssrtCoreSafetyErrors;
 import org.scribble.ext.assrt.main.AssrtException;
 import org.scribble.ext.assrt.main.AssrtMainContext;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
@@ -176,7 +179,6 @@ public class AssrtCommandLine extends CommandLine
 		if (dups.size() > 0)
 		{
 			throw new AssrtException("[assrt-core] Repeat data type annotation variable declarations not allowed: " + dups);
-			
 		}
 
 		Map<Role, AssrtCoreLType> P0 = new HashMap<>();
@@ -198,7 +200,7 @@ public class AssrtCommandLine extends CommandLine
 			job.debugPrintln("\n[assrt-core] Built endpoint graph for " + r + ":\n" + g.toDot());
 		}
 
-		//validate(job, gpd.isExplicitModifier(), E0);  //TODO
+		validate(job, gpd.isExplicitModifier(), E0);  // TODO
 
 		/*if (!job.fair)
 		{
@@ -221,35 +223,31 @@ public class AssrtCommandLine extends CommandLine
 		//return gt;
 	}
 
-	/*private static void validate(Job job, boolean isExplicit, Map<Role, EState> E0, boolean... unfair) throws F17Exception
+	private static void validate(Job job, boolean isExplicit, Map<Role, EState> E0, boolean... unfair) throws AssrtException
 	{
-		F17SModel m = new F17SModelBuilder(job.sf).build(E0, isExplicit);
+		AssrtCoreSModel m = new AssrtCoreSModelBuilder(job.sf).build(E0, isExplicit);
 
-		job.debugPrintln
-		//System.out.println
-				("[f17] Built model:\n" + m.toDot());
+		job.debugPrintln("\n[assrt-core] Built model:\n" + m.toDot());
 		
-		if (unfair.length == 0)
+		/*if (unfair.length == 0 || !unfair[0])
 		{
-			F17SafetyErrors serrs = m.getSafetyErrors();
+			AssrtCoreSafetyErrors serrs = m.getSafetyErrors();
 			if (serrs.isSafe())
 			{
-				job.debugPrintln
-				//System.out.println
-						("[f17] Protocol safe.");
+				job.debugPrintln("\n[assrt-core] Protocol safe.");
 			}
 			else
 			{
-				throw new F17Exception("[f17] Protocol not safe.\n" + serrs);
+				throw new AssrtException("[assrt-core] Protocol not safe:\n" + serrs);
 			}
-		}
+		}*/
 		
-		F17ProgressErrors perrs = m.getProgressErrors();
+		/*F17ProgressErrors perrs = m.getProgressErrors();
 		if (perrs.satisfiesProgress())
 		{
 			job.debugPrintln
 			//System.out.println
-					("[f17] " + ((unfair.length == 0) ? "Fair protocol" : "Protocol") + " satisfies progress.");
+					("\n[f17] " + ((unfair.length == 0) ? "Fair protocol" : "Protocol") + " satisfies progress.");
 		}
 		else
 		{
@@ -271,7 +269,7 @@ public class AssrtCommandLine extends CommandLine
 				}
 			}
 			
-			throw new F17Exception("[f17] " + ((unfair.length == 0) ? "Fair protocol" : "Protocol") + " violates progress.\n" + perrs);
-		}
-	}*/
+			throw new F17Exception("\n[f17] " + ((unfair.length == 0) ? "Fair protocol" : "Protocol") + " violates progress.\n" + perrs);
+		}*/
+	}
 }

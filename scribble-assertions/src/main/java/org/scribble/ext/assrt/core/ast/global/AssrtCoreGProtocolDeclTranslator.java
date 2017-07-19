@@ -288,6 +288,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		}
 	}
 
+	// Empty assertions generated as True
 	private AssrtAssertion parseAssertion(GMessageTransfer gmt)
 	{
 		AssrtAssertion ass = ((AssrtGMessageTransfer) gmt).ass;

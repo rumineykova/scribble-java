@@ -243,12 +243,24 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		/*return this.P.entrySet().stream().anyMatch((e) -> isInactive(e.getValue(), E0.get(e.getKey()).id)
 				&& (this.P.keySet().stream().anyMatch((r) -> hasMessage(e.getKey(), r))));*/
-		return this.P.entrySet().stream().anyMatch((e) -> isInactive(e.getValue(), E0.get(e.getKey()).id)
-				&& (this.P.keySet().stream().anyMatch((r) -> hasMessage(e.getKey(), r))
+		return this.P.entrySet().stream().anyMatch(e ->
+				   isInactive(e.getValue(), E0.get(e.getKey()).id)
+				&& (this.P.keySet().stream().anyMatch(r -> hasMessage(e.getKey(), r))
 						//|| !this.owned.get(e.getKey()).isEmpty()  
 						
 								// FIXME: need AnnotEConnect to consume owned properly
 
+				));
+	}
+	
+	public boolean isUnknownDataTypeVarError()
+	{
+		return this.P.entrySet().stream().anyMatch(e ->
+				e.getValue().getAllActions().stream().anyMatch(a -> 
+						   (a instanceof AssrtESend)  // FIXME: receive assertions
+						&& ((AssrtESend) a).assertion.getFormula().getVars().stream().anyMatch(v ->
+									!this.K.get(e.getKey()).contains(v)
+						   )
 				));
 	}
 	
@@ -260,12 +272,17 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			Role self = e.getKey();
 			EState s = e.getValue();
 			res.put(self, new LinkedList<>());
+			
+			System.out.println("bbb: "+ s.getActions());
+			
 			for (EAction a : s.getActions())
 			{
 				if (a.isSend())
 				{
 					AssrtESend es = (AssrtESend) a;
 					getSendFireable(res, self, es);
+
+					System.out.println("ccc: "+ s.getActions());
 				}
 				else if (a.isReceive())
 				{
@@ -289,7 +306,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}*/
 				else
 				{
-					throw new RuntimeException("[f17] Shouldn't get in here: " + a);
+					throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
 				}
 			}
 		}
@@ -299,7 +316,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private void getSendFireable(Map<Role, List<EAction>> res, Role self, AssrtESend es)
 	{
 		if //(!isConnected(self, es.peer) || this.Q.get(es.peer).get(self) != null)
-				(!hasMessage(self, es.peer))  // FIXME: for connect
+				(hasMessage(es.peer, self))  // FIXME: for connect
 		{
 			return;
 		}

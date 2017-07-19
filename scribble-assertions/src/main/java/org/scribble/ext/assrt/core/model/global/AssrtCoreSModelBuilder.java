@@ -40,6 +40,9 @@ public class AssrtCoreSModelBuilder
 			seen.put(curr.id, curr);
 
 			Map<Role, List<EAction>> fireable = curr.getFireable();
+			
+			System.out.println("aaa: " + fireable);
+			
 			Set<Entry<Role, List<EAction>>> es = new HashSet<>(fireable.entrySet());
 			while (!es.isEmpty())
 			{
@@ -54,7 +57,7 @@ public class AssrtCoreSModelBuilder
 				{
 					// cf. SState.getNextStates
 					final AssrtCoreSState tmp;
-					if (a.isSend() || a.isReceive() || a.isDisconnect())
+					if (a.isSend() || a.isReceive())// || a.isDisconnect())
 					{
 						tmp = curr.fire(self, a);
 					}
@@ -85,13 +88,13 @@ public class AssrtCoreSModelBuilder
 					AssrtCoreSState next = tmp;  // Base case
 					if (seen.values().contains(tmp))
 					{
-						next = seen.values().stream().filter((s) -> s.equals(tmp)).iterator().next();
+						next = seen.values().stream().filter(s -> s.equals(tmp)).iterator().next();
 					}
 					else if (todo.contains(tmp))
 					{
-						next = todo.stream().filter((s) -> s.equals(tmp)).iterator().next();
+						next = todo.stream().filter(s -> s.equals(tmp)).iterator().next();
 					}
-					curr.addEdge(a.toGlobal(sf, self), next);
+					curr.addEdge(a.toGlobal(this.sf, self), next);
 					curr.addSubject(self);
 					if (!seen.values().contains(next) && !todo.contains(next))
 					{

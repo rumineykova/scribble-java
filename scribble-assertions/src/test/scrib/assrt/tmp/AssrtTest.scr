@@ -2,7 +2,7 @@
 //$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtTest.scr 
 
 
-//http://sandbox.kidstrythisathome.com/erdos/
+// http://sandbox.kidstrythisathome.com/erdos/
 
 
 module assrt.tmp.AssrtTest;
@@ -20,11 +20,11 @@ type <java> "java.lang.String" from "rt.jar" as Str;
 // - explicit connections
 
 
-/*
+//*
 global protocol Proto1(role A, role B)
 {
 	1(x:Int) from A to B;	@(True && ((x+1) > 1));
-	2(x:Int) from A to B;
+	2(y:Int) from A to B; @(z > 1);
 }
 //*/
 
@@ -46,7 +46,7 @@ global protocol Proto1(role A, role B, role C)
 //*/
 
 
-//*
+/*
 global protocol Proto1(role A, role B)
 {
 	choice at A

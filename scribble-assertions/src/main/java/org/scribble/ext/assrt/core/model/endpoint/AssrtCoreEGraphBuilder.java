@@ -82,18 +82,19 @@ public class AssrtCoreEGraphBuilder
 	
 	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreAction a)
 	{
+		AssrtEModelFactory ef = (AssrtEModelFactory) this.util.ef;  // FIXME: factor out
 		if (k.equals(AssrtCoreLActionKind.SEND))
 		{
 			//AssrtCoreLSend ls = (AssrtCoreLSend) a;
 			//return this.util.ef.newESend(r, a.op, new Payload(Arrays.asList(a.pay)));  // FIXME: assertion model actions
-			return ((AssrtEModelFactory) this.util.ef).newAssrtESend(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
+			return ef.newAssrtESend(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
 		}
 		else if (k.equals(AssrtCoreLActionKind.RECEIVE))
 		{
 			//AssrtCoreLReceive lr = (AssrtCoreLReceive) a;
-			return this.util.ef.newEReceive(r, a.op, new Payload(Arrays.asList(a.pay)));  // FIXME: assertion model actions
+			return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
 
-			// FIXME: local receive assertions -- why needed exactly?
+			// FIXME: local receive assertions -- why needed exactly?  should WF imply receive assertion always true?
 
 		}
 		/*else if (a instanceof AssrtCoreLConnect)
