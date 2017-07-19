@@ -33,7 +33,8 @@ public class AssrtLSendDel extends LSendDel
 					? ((MessageSigNode) ls.msg).payloads.toPayload()
 					: Payload.EMPTY_PAYLOAD;
 		
-		AssrtBoolFormula bf = (ls.ass == null) ? AssrtFormulaFactoryImpl.AssrtTrueFormula() : ls.ass.getFormula();
+		//AssrtBoolFormula bf = (ls.ass == null) ? AssrtFormulaFactoryImpl.AssrtTrueFormula() : ls.ass.getFormula();
+		AssrtBoolFormula bf = AssrtFormulaFactoryImpl.AssrtTrueFormula();  // FIXME: because AssrtLReceiveDel makes True (because no AssrtLReceive with assertion) and toDual/getFireable needs direct correspondence
 					
 		builder.util.addEdge(builder.util.getEntry(),
 				((AssrtEModelFactory) builder.job.ef).newAssrtESend(peer, mid, payload, bf),  // FIXME: factor out action building with LSendDel?

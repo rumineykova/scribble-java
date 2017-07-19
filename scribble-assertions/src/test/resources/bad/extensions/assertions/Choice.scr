@@ -15,6 +15,6 @@ choice at A {
 	
 	} or {
 	//[y>x]
-	MSG2(y:Integer) from A to B;  @(y > x);
+	MSG2(y:Integer) from A to B;  @(y > x);  ..FIXME:
 	}
 }

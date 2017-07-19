@@ -31,6 +31,7 @@ import org.scribble.sesstype.name.PayloadElemType;
 import org.scribble.sesstype.name.Role;
 
 // FIXME: equals/hashCode
+// FIXME: override getFireable to check send ass implies recv ass
 public class AssrtSConfig extends SConfig
 {
 	public final AssrtLogFormula formula;
