@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.formula.BoolFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AssrtFormulaFactoryImpl;
@@ -17,12 +18,15 @@ import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.model.MPrettyState;
 import org.scribble.model.MState;
+import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.EStateKind;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.global.actions.SAction;
+import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.kind.Global;
+import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.PayloadElemType;
 import org.scribble.sesstype.name.Role;
 
@@ -718,9 +722,16 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 }
 
 
-/*class F17EBot extends ESend
+// FIXME TODO
+class AssrtCoreEBot extends AssrtESend
 {
-	public F17EBot()
+	public AssrtCoreEBot(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtAssertion assertion)
+	{
+		super(ef, peer, mid, payload, assertion);
+	}
+}
+
+/*public F17EBot()
 	{
 		super(null, Role.EMPTY_ROLE, Op.EMPTY_OPERATOR, Payload.EMPTY_PAYLOAD);  // null ef OK?
 	}
