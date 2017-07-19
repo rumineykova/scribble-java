@@ -17,6 +17,7 @@ import org.scribble.ext.assrt.core.ast.local.AssrtCoreLChoice;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
+import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.sesstype.kind.Global;
 import org.scribble.sesstype.name.RecVar;
 import org.scribble.sesstype.name.Role;
@@ -31,6 +32,21 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 		super(dest, kind, cases);
 		this.src = src;
 		this.dest = dest;
+	}
+	
+	/*public Map<AssrtCoreAction, AssrtCoreGType> getCases()
+	{
+		return this.cases;
+	}*/
+
+	@Override
+	public List<AssrtAnnotDataType> collectAnnotDataTypes()
+	{
+		List<AssrtAnnotDataType> res = this.cases.keySet().stream().map(a -> a.pay).collect(Collectors.toList());
+		this.cases.keySet().forEach(a ->
+				res.addAll(this.cases.get(a).collectAnnotDataTypes())
+		);
+		return res;
 	}
 	
 	@Override

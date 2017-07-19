@@ -3,6 +3,9 @@ package org.scribble.ext.assrt.core.ast;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.main.AssrtException;
 
+// For parsing errors due to core syntax restrictions (vs. "full" Scribble) -- distinction used for JUnit testing (i.e., to indicate non core syntax that are otherwise valid protocols)
+// i.e., should only be thrown by AssrtCoreGProtocolDeclTranslator
+// N.B. so should not be used for actual "semantic" WF errors
 public class AssrtCoreSyntaxException extends AssrtException
 {
 

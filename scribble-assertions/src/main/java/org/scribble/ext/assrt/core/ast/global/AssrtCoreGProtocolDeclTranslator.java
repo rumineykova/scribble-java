@@ -31,11 +31,9 @@ import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
-import org.scribble.ext.assrt.main.AssrtException;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.main.Job;
-import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.kind.Global;
 import org.scribble.sesstype.kind.RecVarKind;
 import org.scribble.sesstype.name.DataType;
@@ -78,7 +76,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		}*/
 	}
 
-	public AssrtCoreGType translate(GProtocolDecl gpd) throws ScribbleException
+	public AssrtCoreGType translate(GProtocolDecl gpd) throws AssrtCoreSyntaxException
 	{
 		GProtocolDef inlined = ((GProtocolDefDel) gpd.def.del()).getInlinedProtocolDef();
 		return parseSeq(inlined.getBlock().getInteractionSeq().getInteractions(), new HashMap<>(), false, false);
@@ -86,7 +84,7 @@ public class AssrtCoreGProtocolDeclTranslator
 
 	// List<GInteractionNode> because subList is useful for parsing the continuation
 	private AssrtCoreGType parseSeq(List<GInteractionNode> is, Map<RecVar, RecVar> rvs,
-			boolean checkChoiceGuard, boolean checkRecGuard) throws AssrtException
+			boolean checkChoiceGuard, boolean checkRecGuard) throws AssrtCoreSyntaxException
 	{
 		if (is.isEmpty())
 		{
@@ -118,7 +116,7 @@ public class AssrtCoreGProtocolDeclTranslator
 			}*/
 			else
 			{
-				throw new RuntimeException("[f17] Shouldn't get in here: " + first);
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + first);
 			}
 		}
 		else
@@ -152,7 +150,7 @@ public class AssrtCoreGProtocolDeclTranslator
 	}
 
 	private AssrtCoreGType parseGChoice(Map<RecVar, RecVar> rvs,
-			boolean checkRecGuard, GInteractionNode first) throws AssrtException, AssrtCoreSyntaxException
+			boolean checkRecGuard, GInteractionNode first) throws AssrtCoreSyntaxException
 	{
 		GChoice gc = (GChoice) first;
 		
@@ -210,7 +208,7 @@ public class AssrtCoreGProtocolDeclTranslator
 	}
 
 	// Parses message interactions as unary choices
-	private AssrtCoreGChoice parseGMessageTransfer(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, GMessageTransfer gmt) throws AssrtException 
+	private AssrtCoreGChoice parseGMessageTransfer(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, GMessageTransfer gmt) throws AssrtCoreSyntaxException 
 	{
 		Op op = parseOp(gmt);
 		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
@@ -225,7 +223,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		Role dest = parseDestinationRole(gmt);
 		if (src.equals(dest))
 		{
-			throw new RuntimeException("Shouldn't get in here (self-communication): " + gmt);
+			throw new RuntimeException("[assrt-core] Shouldn't get in here (self-communication): " + gmt);
 		}
 		
 		AssrtCoreGActionKind kind = AssrtCoreGActionKind.MESSAGE;
@@ -239,18 +237,18 @@ public class AssrtCoreGProtocolDeclTranslator
 	{
 		if (!gmt.msg.isMessageSigNode())
 		{
-			throw new AssrtCoreSyntaxException(gmt.msg.getSource(), " [assrt-core] Not supported: " + gmt.msg);  // TODO: MessageSigName
+			throw new AssrtCoreSyntaxException(gmt.msg.getSource(), " [assrt-core] Message sig names not supported: " + gmt.msg);  // TODO: MessageSigName
 		}
 		MessageSigNode msn = ((MessageSigNode) gmt.msg);
 		return msn.op.toName();
 	}
 
-	private AssrtAnnotDataType parsePayload(GMessageTransfer gmt) throws AssrtException, AssrtCoreSyntaxException
+	private AssrtAnnotDataType parsePayload(GMessageTransfer gmt) throws AssrtCoreSyntaxException
 	//private AssrtAnnotDataTypeElem<DataTypeKind> parsePayload(GMessageTransfer gmt) throws AssrtException
 	{
 		if (!gmt.msg.isMessageSigNode())
 		{
-			throw new AssrtCoreSyntaxException(gmt.msg.getSource(), " [assrt-core] Not supported: " + gmt.msg);  // TODO: MessageSigName
+			throw new AssrtCoreSyntaxException(gmt.msg.getSource(), " [assrt-core] Message sign names not supported: " + gmt.msg);  // TODO: MessageSigName
 		}
 		MessageSigNode msn = ((MessageSigNode) gmt.msg);
 		if (msn.payloads.getElements().isEmpty())
@@ -269,7 +267,7 @@ public class AssrtCoreGProtocolDeclTranslator
 			PayloadElem<?> pe = msn.payloads.getElements().get(0);
 			if (pe instanceof GDelegationElem)  // Already ruled out by parsing?
 			{
-				throw new AssrtException("[assrt-core] Delegation not supported: " + pe);
+				throw new AssrtCoreSyntaxException("[assrt-core] Delegation not supported: " + pe);
 			}
 			else if (pe instanceof AssrtAnnotDataTypeElem)
 			{
@@ -302,17 +300,17 @@ public class AssrtCoreGProtocolDeclTranslator
 		return gmt.src.toName();
 	}
 	
-	private Role parseDestinationRole(GMessageTransfer gmt) throws AssrtException
+	private Role parseDestinationRole(GMessageTransfer gmt) throws AssrtCoreSyntaxException
 	{
 		if (gmt.getDestinations().size() > 1)
 		{
-			throw new AssrtException(gmt.getSource(), " [TODO] Multicast not supported: " + gmt);
+			throw new AssrtCoreSyntaxException(gmt.getSource(), " [TODO] Multicast not supported: " + gmt);
 		}
 		return gmt.getDestinations().get(0).toName();
 	}
 
 	private AssrtCoreGType parseGRecursion(Map<RecVar, RecVar> rvs,
-			boolean checkChoiceGuard, GInteractionNode first) throws AssrtException
+			boolean checkChoiceGuard, GInteractionNode first) throws AssrtCoreSyntaxException
 	{
 		GRecursion gr = (GRecursion) first;
 		RecVar recvar = gr.recvar.toName();

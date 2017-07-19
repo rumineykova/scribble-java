@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.scribble.ast.Module;
 import org.scribble.ast.global.GProtocolDecl;
@@ -16,7 +18,9 @@ import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGType;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEGraphBuilder;
+import org.scribble.ext.assrt.main.AssrtException;
 import org.scribble.ext.assrt.main.AssrtMainContext;
+import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.main.resource.DirectoryResourceLocator;
@@ -107,7 +111,7 @@ public class AssrtCommandLine extends CommandLine
 			}
 			else*/
 			{
-				parseAndCheckWF(job, simpname);  // Includes base passes
+				assrtParseAndCheckWF(job, simpname);  // Includes base passes
 			}
 			
 			// FIXME? f17 FSM building only used for f17 validation -- output tasks, e.g., -api, will still use default Scribble FSMs
@@ -149,23 +153,31 @@ public class AssrtCommandLine extends CommandLine
 	}
 
 	// Pre: f17PreContextBuilding
-	private static void parseAndCheckWF(Job job, GProtocolName simpname) throws ScribbleException, ScribParserException
+	private static void assrtParseAndCheckWF(Job job, GProtocolName simpname) throws ScribbleException, ScribParserException
 	{
 		assrtPreContextBuilding(job);
 
 		Module main = job.getContext().getMainModule();
 		if (!main.hasProtocolDecl(simpname))
 		{
-			throw new ScribbleException("[assrt-core] Global protocol not found: " + simpname);
+			throw new AssrtException("[assrt-core] Global protocol not found: " + simpname);
 		}
 		GProtocolDecl gpd = (GProtocolDecl) main.getProtocolDecl(simpname);
 
 		AssrtCoreAstFactory af = new AssrtCoreAstFactory();
 		AssrtCoreGType gt = new AssrtCoreGProtocolDeclTranslator(job, af).translate(gpd);
 		
-		job.debugPrintln
-		//System.out.println
-			("\n[assrt-core] Translated:\n  " + gt);
+		job.debugPrintln("\n[assrt-core] Translated:\n  " + gt);
+		
+		List<AssrtDataTypeVar> adts = gt.collectAnnotDataTypes().stream().map(v -> v.var).collect(Collectors.toList());
+		job.debugPrintln("\n[assrt-core] Collected data type annotation var decls: " + adts);
+		Set<AssrtDataTypeVar> dups = adts.stream().filter(i -> Collections.frequency(adts, i) > 1)
+				.collect(Collectors.toSet());	
+		if (dups.size() > 0)
+		{
+			throw new AssrtException("[assrt-core] Repeat data type annotation variable declarations not allowed: " + dups);
+			
+		}
 
 		Map<Role, AssrtCoreLType> P0 = new HashMap<>();
 		for (Role r : gpd.header.roledecls.getRoles())
@@ -173,9 +185,7 @@ public class AssrtCommandLine extends CommandLine
 			AssrtCoreLType lt = gt.project(af, r);
 			P0.put(r, lt);
 
-			job.debugPrintln
-			//System.out.println
-				("\n[assrt-core] Projected onto " + r + ":\n  " + lt);
+			job.debugPrintln("\n[assrt-core] Projected onto " + r + ":\n  " + lt);
 		}
 
 		AssrtCoreEGraphBuilder builder = new AssrtCoreEGraphBuilder(job.ef);
@@ -185,9 +195,7 @@ public class AssrtCommandLine extends CommandLine
 			EGraph g = builder.build(P0.get(r));
 			E0.put(r, g.init);
 
-			job.debugPrintln
-			//System.out.println
-					("\n[assrt-core] Built endpoint graph for " + r + ":\n" + g.toDot());
+			job.debugPrintln("\n[assrt-core] Built endpoint graph for " + r + ":\n" + g.toDot());
 		}
 
 		//validate(job, gpd.isExplicitModifier(), E0);  //TODO
