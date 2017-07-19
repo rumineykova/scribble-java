@@ -16,17 +16,30 @@ public class AssrtCoreSafetyErrors
 	public final Set<AssrtCoreSState> reception;
 	public final Set<AssrtCoreSState> unfinishedRole;
 	public final Set<AssrtCoreSState> orphan;
+	public final Set<AssrtCoreSState> unknownVars;
 
-	public final Set<AssrtCoreSState> portOpens;
-	public final Set<AssrtCoreSState> portOwners;
+	/*public final Set<AssrtCoreSState> portOpens;
+	public final Set<AssrtCoreSState> portOwners;*/
 
-	private enum ERR { Connection, Disconnect, Unconnected, Synchronisation, Reception, UnfinishedRole, Orphan, PortOpens, PortOwners }
+	private enum ERR
+	{
+		Connection,
+		Disconnect,
+		Unconnected,
+		Synchronisation,
+		Reception,
+		UnfinishedRole,
+		Orphan,
+		UnknownDataTypeVar,
+	}
 	
 	private final Map<ERR, Set<AssrtCoreSState>> errors = new LinkedHashMap<>();
 	
 	public AssrtCoreSafetyErrors(Set<AssrtCoreSState> connection, Set<AssrtCoreSState> disconnect, Set<AssrtCoreSState> unconnected,
 			Set<AssrtCoreSState> synchronisation, Set<AssrtCoreSState> reception, Set<AssrtCoreSState> unfinishedRole, Set<AssrtCoreSState> orphan,
-			Set<AssrtCoreSState> portOpens, Set<AssrtCoreSState> portOwners)
+			Set<AssrtCoreSState> unknownVars
+			)
+			//Set<AssrtCoreSState> portOpens, Set<AssrtCoreSState> portOwners)
 	{
 		this.connection = connection;
 		this.disconnect = disconnect;
@@ -35,9 +48,7 @@ public class AssrtCoreSafetyErrors
 		this.reception = reception;
 		this.unfinishedRole = unfinishedRole;
 		this.orphan = orphan;
-
-		this.portOpens = portOpens;
-		this.portOwners = portOwners;
+		this.unknownVars = unknownVars;
 		
 		this.errors.put(ERR.Connection, connection);
 		this.errors.put(ERR.Disconnect, disconnect);
@@ -46,14 +57,12 @@ public class AssrtCoreSafetyErrors
 		this.errors.put(ERR.Reception, reception);
 		this.errors.put(ERR.UnfinishedRole, unfinishedRole);
 		this.errors.put(ERR.Orphan, orphan);
-
-		this.errors.put(ERR.PortOpens, portOpens);
-		this.errors.put(ERR.PortOwners, portOwners);
+		this.errors.put(ERR.UnknownDataTypeVar, orphan);
 	}
 	
 	public boolean isSafe()
 	{
-		return this.errors.values().stream().allMatch((es) -> es.isEmpty());
+		return this.errors.values().stream().allMatch(es -> es.isEmpty());
 	}
 	
 	@Override
@@ -61,8 +70,8 @@ public class AssrtCoreSafetyErrors
 	{
 		String m = this.errors.entrySet().stream().map((e) -> 
 				e.getValue().isEmpty() ? ""
-					:	"\n[f17] " + e.getKey() + " errors:\n  "
-						+ e.getValue().stream().map((s) -> getNodeLabel(s)).collect(Collectors.joining("\n  "))
+					:	"\n[assrt-core] " + e.getKey() + " errors:\n  "
+						+ e.getValue().stream().map(s -> getNodeLabel(s)).collect(Collectors.joining("\n  "))
 				).collect(Collectors.joining(""));
 		if (m.length() != 0)
 		{

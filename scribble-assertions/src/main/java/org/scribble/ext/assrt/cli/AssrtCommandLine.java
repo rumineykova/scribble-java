@@ -229,7 +229,7 @@ public class AssrtCommandLine extends CommandLine
 
 		job.debugPrintln("\n[assrt-core] Built model:\n" + m.toDot());
 		
-		/*if (unfair.length == 0 || !unfair[0])
+		if (unfair.length == 0 || !unfair[0])
 		{
 			AssrtCoreSafetyErrors serrs = m.getSafetyErrors();
 			if (serrs.isSafe())
@@ -240,7 +240,7 @@ public class AssrtCommandLine extends CommandLine
 			{
 				throw new AssrtException("[assrt-core] Protocol not safe:\n" + serrs);
 			}
-		}*/
+		}
 		
 		/*F17ProgressErrors perrs = m.getProgressErrors();
 		if (perrs.satisfiesProgress())

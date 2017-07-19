@@ -16,6 +16,7 @@ import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AssrtFormulaFactoryImpl;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.sesstype.name.AssrtPayloadElemType;
 import org.scribble.model.MPrettyState;
 import org.scribble.model.MState;
 import org.scribble.model.endpoint.EModelFactory;
@@ -451,6 +452,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		Map<Role, EState> P = new HashMap<>(this.P);
 		Map<Role, Map<Role, AssrtESend>> Q = AssrtCoreSState.copyQ(this.Q);
 		Map<Role, Set<AssrtDataTypeVar>> K = copyK(this.K);
+		Map<AssrtDataTypeVar, AssrtBoolFormula> F = new HashMap<>(this.F);
 		EState succ = P.get(self).getSuccessor(a);
 
 		if (a.isSend())
@@ -460,7 +462,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			Q.get(es.peer).put(self, es);
 			
 			for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
-						a.payload.elems.stream().filter(x -> x instanceof AssrtDataTypeVar)::iterator)
+						a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>)::iterator)
 			{
 				if (pt instanceof AssrtAnnotDataType)
 				{
@@ -695,15 +697,15 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		tmp.add(v);
 	}
 	
-	private void putF(Map<AssrtDataTypeVar, AssrtBoolFormula> F, AssrtDataTypeVar v, AssrtBoolFormula f)
+	private static void putF(Map<AssrtDataTypeVar, AssrtBoolFormula> F, AssrtDataTypeVar v, AssrtBoolFormula f)
 	{
-		AssrtBoolFormula tmp = this.F.get(v);
+		AssrtBoolFormula tmp = F.get(v);
 		if (tmp != null)
 		{
 			f = AssrtFormulaFactoryImpl.BinBoolFormula("&&", tmp, f);  // FIXME: factor out constant
 					// To store as Set, need equals/hashCode for SmtFormula
 		}
-		this.F.put(v, f);
+		F.put(v, f);
 	}
 	
 	/*private static Map<Role, Map<Role, PayloadVar>> copyPorts(Map<Role, Map<Role, PayloadVar>> ports)
