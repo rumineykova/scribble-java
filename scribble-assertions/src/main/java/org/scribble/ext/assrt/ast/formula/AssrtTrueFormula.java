@@ -7,7 +7,7 @@ import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
 // FIXME: declare singleton constant
-public class AssrtTrueFormula extends BoolFormula
+public class AssrtTrueFormula extends AssrtBoolFormula
 {
 	
 	@Override
@@ -17,7 +17,7 @@ public class AssrtTrueFormula extends BoolFormula
 	}
 	
 	@Override
-	protected BooleanFormula toFormula() throws AssertionParseException {
+	protected BooleanFormula toJavaSmtFormula() throws AssertionParseException {
 		return JavaSmtWrapper.getInstance().bmanager.makeTrue();
 	}
 	

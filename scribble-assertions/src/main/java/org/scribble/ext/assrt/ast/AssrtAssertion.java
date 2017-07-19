@@ -5,7 +5,7 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.del.ScribDel;
-import org.scribble.ext.assrt.ast.formula.BoolFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.visit.AstVisitor;
 
@@ -14,10 +14,10 @@ public class AssrtAssertion extends ScribNodeBase
 	//private final String assertion;  // FIXME: should be String for a more general annotations feature
 
 	//private SmtFormula formula;  // Not a ScribNode (no clone/copy/accept/etc -- but is immutable)
-	private BoolFormula formula;
+	private AssrtBoolFormula formula;
 
 	//public AssrtAssertion(CommonTree source, SmtFormula formula)
-	public AssrtAssertion(CommonTree source, BoolFormula formula)
+	public AssrtAssertion(CommonTree source, AssrtBoolFormula formula)
 	{
 		super(source);
 		//this.assertion = assertion; 
@@ -44,7 +44,7 @@ public class AssrtAssertion extends ScribNodeBase
 	}*/
 	
 	//protected AssrtAssertion reconstruct(SmtFormula f)
-	protected AssrtAssertion reconstruct(BoolFormula f)
+	protected AssrtAssertion reconstruct(AssrtBoolFormula f)
 	{
 		ScribDel del = del();
 		AssrtAssertion an = new AssrtAssertion(this.source, f);
@@ -59,7 +59,7 @@ public class AssrtAssertion extends ScribNodeBase
 	}
 	
 	//public SmtFormula getFormula()
-	public BoolFormula getFormula()
+	public AssrtBoolFormula getFormula()
 	{
 		/*if (this.formula == null)
 		{

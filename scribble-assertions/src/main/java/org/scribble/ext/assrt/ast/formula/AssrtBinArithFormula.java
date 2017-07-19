@@ -9,7 +9,7 @@ import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 
 // Binary arithmetic
-public class ArithFormula extends SmtFormula
+public class AssrtBinArithFormula extends AssrtArithFormula
 {
 	enum ArithOp
 	{
@@ -30,11 +30,13 @@ public class ArithFormula extends SmtFormula
 		}
 	}
 
-	ArithOp op;
-	SmtFormula left;
-	SmtFormula right;
+	public final ArithOp op;
+	/*public final AssrtSmtFormula left;
+	public final AssrtSmtFormula right;*/
+	public final AssrtArithFormula left;
+	public final AssrtArithFormula right;
 
-	public ArithFormula(String op, SmtFormula left, SmtFormula right)
+	public AssrtBinArithFormula(String op, AssrtArithFormula left, AssrtArithFormula right)
 	{
 		this.left = left;
 		this.right = right;
@@ -48,21 +50,26 @@ public class ArithFormula extends SmtFormula
 		case "*":
 			this.op = ArithOp.Mult;
 			break;
+		default:
+			throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
 		}
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";
 	}
 
 	@Override
-	public IntegerFormula toFormula() throws AssertionParseException {
+	public IntegerFormula toJavaSmtFormula() throws AssertionParseException
+	{
 		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().imanager;
-		IntegerFormula fleft = (IntegerFormula) this.left.toFormula();
-		IntegerFormula fright = (IntegerFormula) this.right.toFormula();
+		IntegerFormula fleft = (IntegerFormula) this.left.toJavaSmtFormula();
+		IntegerFormula fright = (IntegerFormula) this.right.toJavaSmtFormula();
 
-		switch(this.op) {
+		switch(this.op)
+		{
 		case Add:
 			return fmanager.add(fleft, fright);
 		case Substract:
@@ -70,12 +77,14 @@ public class ArithFormula extends SmtFormula
 		case Mult:
 			return fmanager.multiply(fleft, fright);
 		default:
-			throw new AssertionParseException("No matchin ooperation for boolean formula");
+			//throw new AssertionParseException("No matchin ooperation for boolean formula");
+			throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
 		}
 	}
 
 	@Override
-	public Set<String> getVars(){
+	public Set<String> getVars()
+	{
 		Set<String> vars = new HashSet<String>(this.left.getVars());
 		vars.addAll(this.right.getVars());
 		return vars;

@@ -9,7 +9,7 @@ import org.sosy_lab.java_smt.api.BooleanFormulaManager;
 
 // Binary boolean
 // Top-level formula of assertions
-public class BinBoolFormula extends BoolFormula
+public class AssrtBinBoolFormula extends AssrtBoolFormula
 {
 	enum BoolOp
 	{
@@ -28,12 +28,12 @@ public class BinBoolFormula extends BoolFormula
 		}
 	}
 
-	BoolOp op; 
-	SmtFormula left; 
-	SmtFormula right; 
+	public final BoolOp op; 
+	public final AssrtBoolFormula left; 
+	public final AssrtBoolFormula right; 
 	//BooleanFormula formula;   // FIXME
 	
-	public BinBoolFormula(String op, SmtFormula left, SmtFormula right)
+	public AssrtBinBoolFormula(String op, AssrtBoolFormula left, AssrtBoolFormula right)
 	{
 		this.left = left; 
 		this.right = right; 
@@ -44,19 +44,23 @@ public class BinBoolFormula extends BoolFormula
 		case "||":
 			this.op = BoolOp.Or;
 			break;
+		default:
+			throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
 		}
 	}
 	
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";  
 	}
 	
 	@Override
-	protected BooleanFormula toFormula() throws AssertionParseException {
+	protected BooleanFormula toJavaSmtFormula() throws AssertionParseException
+	{
 		BooleanFormulaManager fmanager = JavaSmtWrapper.getInstance().bmanager;
-		BooleanFormula bleft = (BooleanFormula) this.left.toFormula();
-		BooleanFormula bright = (BooleanFormula) this.right.toFormula();
+		BooleanFormula bleft = (BooleanFormula) this.left.toJavaSmtFormula();
+		BooleanFormula bright = (BooleanFormula) this.right.toJavaSmtFormula();
 		
 		switch(this.op) {
 		case And: 
@@ -64,12 +68,14 @@ public class BinBoolFormula extends BoolFormula
 		case Or:
 			return fmanager.or(bleft,bright); 
 		default:
-			throw new AssertionParseException("No matchin ooperation for boolean formula"); 
+			//throw new AssertionParseException("No matchin ooperation for boolean formula"); 
+			throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
 		}		
 	}
 	
 	@Override
-	public Set<String> getVars(){
+	public Set<String> getVars()
+	{
 		Set<String> vars = new HashSet<String>(this.left.getVars()); 
 		vars.addAll(this.right.getVars()); 
 		return vars; 

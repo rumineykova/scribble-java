@@ -9,8 +9,8 @@ import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 // Binary comparison
-public class CompFormula extends SmtFormula {
-	
+public class AssrtBinCompFormula extends AssrtBoolFormula
+{
 	enum CompOp
 	{
 		GreaterThan, 
@@ -31,11 +31,11 @@ public class CompFormula extends SmtFormula {
 	}
 	
 
-	CompOp op; 
-	SmtFormula left; 
-	SmtFormula right; 
+	public final CompOp op; 
+	public final AssrtArithFormula left; 
+	public final AssrtArithFormula right; 
 	
-	public CompFormula(String op, SmtFormula left, SmtFormula right)
+	public AssrtBinCompFormula(String op, AssrtArithFormula left, AssrtArithFormula right)
 	{
 		this.left = left; 
 		this.right = right; 
@@ -49,19 +49,22 @@ public class CompFormula extends SmtFormula {
 		case "=":
 			this.op = CompOp.Eq;
 			break;
+		default: throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
 		}
 	}
 	
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")"; 
 	}
 	
 	@Override
-	public BooleanFormula toFormula() throws AssertionParseException {
+	public BooleanFormula toJavaSmtFormula() throws AssertionParseException
+	{
 		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().imanager;
-		IntegerFormula fleft = (IntegerFormula) this.left.toFormula();
-		IntegerFormula fright = (IntegerFormula) this.right.toFormula();
+		IntegerFormula fleft = (IntegerFormula) this.left.toJavaSmtFormula();
+		IntegerFormula fright = (IntegerFormula) this.right.toJavaSmtFormula();
 		
 		switch(this.op) {
 		case GreaterThan: 
@@ -76,7 +79,8 @@ public class CompFormula extends SmtFormula {
 	}
 	
 	@Override
-	public Set<String> getVars(){
+	public Set<String> getVars()
+	{
 		Set<String> vars = new HashSet<String>(this.left.getVars()); 
 		vars.addAll(this.right.getVars()); 
 		return vars; 

@@ -1,7 +1,7 @@
 package org.scribble.ext.assrt.parser.assertions;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.ast.formula.SmtFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrConstants.AssrtAntlrNodeType;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AntlrArithFormulaNode;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AntlrBoolFormulaNode;
@@ -30,7 +30,7 @@ public class AssrtAssertParser  // Cf. ScribParser
 	}
 
 	// ct should be the first child of the root node of the assertion subtree (i.e., AssrtAntlrGMessageTransfer.getAssertionChild.getChild(0))
-	public SmtFormula parse(CommonTree ct) //throws AssertionsParseException
+	public AssrtSmtFormula<?> parse(CommonTree ct) //throws AssertionsParseException
 	{
 		ScribParser.checkForAntlrErrors(ct);
 		

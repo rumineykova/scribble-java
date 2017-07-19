@@ -8,10 +8,12 @@ import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 // Variable occurrence
-public class AssertionVariableFormula extends SmtFormula {
+public class AssrtIntVarFormula extends AssrtSmtFormula<IntegerFormula>
+{
+	public final String name; 
 
-	private String name; 
-	public AssertionVariableFormula(String name){
+	public AssrtIntVarFormula(String name)
+	{
 		this.name = name; 
 	}
 	
@@ -22,13 +24,15 @@ public class AssertionVariableFormula extends SmtFormula {
 	}
 	
 	@Override
-	public IntegerFormula toFormula() {
+	public IntegerFormula toJavaSmtFormula()
+	{
 		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().imanager;
 		return fmanager.makeVariable(this.name);   
 	}
 	
 	@Override
-	public Set<String> getVars(){
+	public Set<String> getVars()
+	{
 		Set<String> vars = new HashSet<String>();
 		vars.add(this.name); 
 		return vars; 

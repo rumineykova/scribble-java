@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.ast.AssrtAssertion;
-import org.scribble.ext.assrt.ast.formula.BoolFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AssrtFormulaFactoryImpl;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
@@ -45,7 +45,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	// FIXME: for now, assume globally distinct annot vars?  but conflicts with unfolding recursion annot vars
 	private final Map<Role, Set<AssrtDataTypeVar>> K;  // "Knowledge" of annotation vars (payloads and recursions)
 			// Currently assuming unique annot var declarations -- otherwise need to consider, e.g., A->B(x).C->B(x)
-	private final Map<AssrtDataTypeVar, BoolFormula> F;  // For Set, need to do equals/hashCode
+	private final Map<AssrtDataTypeVar, AssrtBoolFormula> F;  // For Set, need to do equals/hashCode
 
 	//private final Map<AnnotRecVar, ...>  // For recursion anntoation var state?
 	
@@ -67,7 +67,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	// Pre: non-aliased "ownership" of all Map contents
 	protected AssrtCoreSState(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<AssrtDataTypeVar, BoolFormula> F)
+			Map<Role, Set<AssrtDataTypeVar>> K, Map<AssrtDataTypeVar, AssrtBoolFormula> F)
 	{
 		super(Collections.emptySet());
 		this.P = Collections.unmodifiableMap(P);
@@ -678,9 +678,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		tmp.add(v);
 	}
 	
-	private void putF(Map<AssrtDataTypeVar, BoolFormula> F, AssrtDataTypeVar v, BoolFormula f)
+	private void putF(Map<AssrtDataTypeVar, AssrtBoolFormula> F, AssrtDataTypeVar v, AssrtBoolFormula f)
 	{
-		BoolFormula tmp = this.F.get(v);
+		AssrtBoolFormula tmp = this.F.get(v);
 		if (tmp != null)
 		{
 			f = AssrtFormulaFactoryImpl.BinBoolFormula("&&", tmp, f);  // FIXME: factor out constant

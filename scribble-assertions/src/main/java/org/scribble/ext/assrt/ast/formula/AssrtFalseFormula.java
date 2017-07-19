@@ -6,7 +6,7 @@ import java.util.Set;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
-public class AssrtFalseFormula extends BoolFormula
+public class AssrtFalseFormula extends AssrtBoolFormula
 {
 	
 	@Override
@@ -16,7 +16,7 @@ public class AssrtFalseFormula extends BoolFormula
 	}
 	
 	@Override
-	protected BooleanFormula toFormula() throws AssertionParseException {
+	protected BooleanFormula toJavaSmtFormula() throws AssertionParseException {
 		return JavaSmtWrapper.getInstance().bmanager.makeFalse();
 	}
 	

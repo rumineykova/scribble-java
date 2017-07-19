@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.formula.AssertionParseException;
-import org.scribble.ext.assrt.ast.formula.AssertionLogFormula;
-import org.scribble.ext.assrt.ast.formula.SmtFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtLogFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
@@ -34,10 +34,10 @@ import org.scribble.sesstype.name.Role;
 // FIXME: equals/hashCode
 public class AssrtSConfig extends SConfig
 {
-	public final AssertionLogFormula formula;
+	public final AssrtLogFormula formula;
 	public final Map<Role, Set<String>> variablesInScope; 
 	
-	protected AssrtSConfig(SModelFactory sf, Map<Role, EFSM> state, SBuffers buffs, AssertionLogFormula formula, Map<Role, Set<String>> variablesInScope)
+	protected AssrtSConfig(SModelFactory sf, Map<Role, EFSM> state, SBuffers buffs, AssrtLogFormula formula, Map<Role, Set<String>> variablesInScope)
 	{
 		super(sf, state, buffs);
 		this.formula = formula; 
@@ -86,14 +86,14 @@ public class AssrtSConfig extends SConfig
 			
 			AssrtAssertion assertion = a.isSend() ? ((AssrtESend) a).assertion: null; 
 			
-			AssertionLogFormula newFormula = null; 
+			AssrtLogFormula newFormula = null; 
 		
 			if (assertion!=null) {
-				SmtFormula currFormula = assertion.getFormula();
+				AssrtBoolFormula currFormula = assertion.getFormula();
 				
 				try {
 					newFormula = this.formula==null?
-							new AssertionLogFormula(currFormula.getFormula(), currFormula.getVars()):
+							new AssrtLogFormula(currFormula.getJavaSmtFormula(), currFormula.getVars()):
 							this.formula.addFormula(currFormula);
 				} catch (AssertionParseException e) {
 					throw new RuntimeException("cannot parse the asserion"); 
@@ -101,7 +101,7 @@ public class AssrtSConfig extends SConfig
 			}
 
 			// maybe we require a copy this.formula here?
-			AssertionLogFormula nextFormula = newFormula == null ? this.formula : newFormula;
+			AssrtLogFormula nextFormula = newFormula == null ? this.formula : newFormula;
 
 			Map<Role, Set<String>> vars = new HashMap<Role, Set<String>>(this.variablesInScope);
 

@@ -1,43 +1,43 @@
 package org.scribble.ext.assrt.parser.assertions.ast.formula;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.ast.formula.ArithFormula;
-import org.scribble.ext.assrt.ast.formula.AssertionVariableFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtBinArithFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtBinBoolFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtBinCompFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.ast.formula.AssrtFalseFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.ast.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.ast.formula.BinBoolFormula;
-import org.scribble.ext.assrt.ast.formula.BoolFormula;
-import org.scribble.ext.assrt.ast.formula.CompFormula;
-import org.scribble.ext.assrt.ast.formula.SmtFormula;
-import org.scribble.ext.assrt.ast.formula.ValueFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtValueFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
 
 
 public class AssrtFormulaFactoryImpl {
 
-	public static BoolFormula parseBoolFormula(
+	public static AssrtBoolFormula parseBoolFormula(
 			AssrtAssertParser assertionsScribParser, CommonTree ct) {
 		return null;
 	}
 
-	public static ValueFormula parseValue(CommonTree ct, String text) {
-		return new ValueFormula(text);
+	public static AssrtValueFormula parseValue(CommonTree ct, String text) {
+		return new AssrtValueFormula(text);
 	}
 
-	public static AssertionVariableFormula parseVariable(CommonTree ct, String text) {
-		return new AssertionVariableFormula(text);
+	public static AssrtIntVarFormula parseVariable(CommonTree ct, String text) {
+		return new AssrtIntVarFormula(text);
 	}
 
-	public static CompFormula CompFormula(String op, SmtFormula left, SmtFormula right) {
-			return new CompFormula(op, left, right); 
+	public static AssrtBinCompFormula CompFormula(String op, AssrtArithFormula left, AssrtArithFormula right) {
+			return new AssrtBinCompFormula(op, left, right); 
 	}
 	
-	public static BinBoolFormula BinBoolFormula(String op, SmtFormula left, SmtFormula right) {
-		return new BinBoolFormula(op, left, right); 
+	public static AssrtBinArithFormula ArithFormula(String op, AssrtArithFormula left, AssrtArithFormula right) {
+		return new AssrtBinArithFormula(op, left, right); 
 	}
 	
-	public static ArithFormula ArithFormula(String op, SmtFormula left, SmtFormula right) {
-		return new ArithFormula(op, left, right); 
+	public static AssrtBinBoolFormula BinBoolFormula(String op, AssrtBoolFormula left, AssrtBoolFormula right) {
+		return new AssrtBinBoolFormula(op, left, right); 
 	}
 	
 	public static AssrtTrueFormula AssrtTrueFormula() 

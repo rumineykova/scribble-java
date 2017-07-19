@@ -12,8 +12,8 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.ast.formula.AssertionParseException;
-import org.scribble.ext.assrt.ast.formula.AssertionLogFormula;
-import org.scribble.ext.assrt.ast.formula.SmtFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtLogFormula;
 import org.sosy_lab.common.ShutdownManager;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
@@ -79,14 +79,15 @@ public class JavaSmtWrapper {
 	      return instance;
 	   }
 	
-	public AssertionLogFormula addFormula(SmtFormula f1, SmtFormula f2) throws AssertionParseException{
-		BooleanFormula formula = this.bmanager.and((BooleanFormula)f1.getFormula(), (BooleanFormula)f2.getFormula());
+	public AssrtLogFormula addFormula(AssrtBoolFormula f1, AssrtBoolFormula f2) throws AssertionParseException
+	{
+		BooleanFormula formula = this.bmanager.and((BooleanFormula)f1.getJavaSmtFormula(), (BooleanFormula)f2.getJavaSmtFormula());
 		Set<String> vars = new HashSet<String>(f1.getVars()); 
 		vars.addAll(f2.getVars()); 
-		return new AssertionLogFormula(formula, vars); 
+		return new AssrtLogFormula(formula, vars); 
 	}
 	
-	public Boolean isSat(SmtFormula assertionFormula, AssertionLogFormula context) {
+	public Boolean isSat(AssrtBoolFormula assertionFormula, AssrtLogFormula context) {
 		boolean isUnsat = false;
 		
 		try {
@@ -124,10 +125,10 @@ public class JavaSmtWrapper {
 		return  !isUnsat;
 	}
 
-	private BooleanFormula buildFormula(SmtFormula assertionFormula,
-			AssertionLogFormula context) throws AssertionParseException {
+	private BooleanFormula buildFormula(AssrtBoolFormula assertionFormula,
+			AssrtLogFormula context) throws AssertionParseException {
 		BooleanFormula currFormula;
-		currFormula = (BooleanFormula) assertionFormula.getFormula();
+		currFormula = (BooleanFormula) assertionFormula.getJavaSmtFormula();
 		List<IntegerFormula> contextVars; 
 		List<IntegerFormula> vars;
 		Set<String> setVars = assertionFormula.getVars(); 
@@ -138,7 +139,7 @@ public class JavaSmtWrapper {
 			setVars.removeAll(context.getVars());
 			vars = this.makeVars(new ArrayList<String>(setVars));
 			
-			BooleanFormula contextF = (BooleanFormula) context.getFormula(); 
+			BooleanFormula contextF = (BooleanFormula) context.getJavaSmtFormula(); 
 			contextVars = this.makeVars(new ArrayList<String>(context.getVars()));
 			formula = vars.isEmpty()?
 					this.qmanager.forall(contextVars, this.bmanager.implication(contextF, currFormula)):

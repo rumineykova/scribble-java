@@ -1,8 +1,8 @@
 package org.scribble.ext.assrt.parser.assertions.ast.formula;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.ast.formula.CompFormula;
-import org.scribble.ext.assrt.ast.formula.SmtFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.ast.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
 
 public class AntlrCompFormulaNode implements AntlrFormulaNode {
@@ -11,12 +11,12 @@ public class AntlrCompFormulaNode implements AntlrFormulaNode {
 	private static Integer CHILD_LEFT_FORMULA_INDEX = 0;
 	private static Integer CHILD_RIGHT_FORMULA_INDEX = 2;
 	
-	public static CompFormula parseCompFormula(
+	public static AssrtBinCompFormula parseCompFormula(
 			AssrtAssertParser parser, CommonTree ct) { //throws AssertionsParseException {
 	 
 		String op = ct.getChild(CHILD_OP_INDEX).getText(); 
-		SmtFormula left = parser.parse((CommonTree)ct.getChild(CHILD_LEFT_FORMULA_INDEX)); 
-		SmtFormula right = parser.parse((CommonTree)ct.getChild(CHILD_RIGHT_FORMULA_INDEX));
+		AssrtArithFormula left = (AssrtArithFormula) parser.parse((CommonTree)ct.getChild(CHILD_LEFT_FORMULA_INDEX)); 
+		AssrtArithFormula right = (AssrtArithFormula) parser.parse((CommonTree)ct.getChild(CHILD_RIGHT_FORMULA_INDEX));
 		
 		return AssrtFormulaFactoryImpl.CompFormula(op, left, right); 
 		
