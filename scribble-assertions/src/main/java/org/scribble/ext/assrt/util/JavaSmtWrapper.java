@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.ast.formula.AssrtLogFormula;
+import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.sosy_lab.common.ShutdownManager;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
@@ -89,7 +90,7 @@ public class JavaSmtWrapper
 	public AssrtLogFormula addFormula(AssrtBoolFormula f1, AssrtBoolFormula f2) //throws AssertionParseException
 	{
 		BooleanFormula formula = this.bfm.and( f1.getJavaSmtFormula(), f2.getJavaSmtFormula());
-		Set<String> vars = new HashSet<String>(f1.getVars()); 
+		Set<AssrtDataTypeVar> vars = new HashSet<>(f1.getVars()); 
 		vars.addAll(f2.getVars()); 
 		return new AssrtLogFormula(formula, vars); 
 	}
@@ -145,7 +146,8 @@ public class JavaSmtWrapper
 		currFormula = (BooleanFormula) assertionFormula.getJavaSmtFormula();
 		List<IntegerFormula> contextVars; 
 		List<IntegerFormula> vars;
-		Set<String> setVars = assertionFormula.getVars(); 
+		Set<String> setVars = assertionFormula.getVars()
+				.stream().map(v -> v.toString()).collect(Collectors.toSet()); 
 				
 		BooleanFormula formula; 
 		if (context!=null)
@@ -154,7 +156,9 @@ public class JavaSmtWrapper
 			vars = this.makeVars(new ArrayList<String>(setVars));
 			
 			BooleanFormula contextF = (BooleanFormula) context.getJavaSmtFormula(); 
-			contextVars = this.makeVars(new ArrayList<String>(context.getVars()));
+			contextVars = this.makeVars(new ArrayList<>(context.getVars()
+																		.stream().map(v -> v.toString()).collect(Collectors.toSet())
+					));
 			formula = vars.isEmpty()?
 					this.qfm.forall(contextVars, this.bfm.implication(contextF, currFormula)):
 					this.qfm.forall(contextVars, 

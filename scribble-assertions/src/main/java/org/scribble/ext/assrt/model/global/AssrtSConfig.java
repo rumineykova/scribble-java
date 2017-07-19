@@ -208,7 +208,7 @@ public class AssrtSConfig extends SConfig
 					
 					if (assertion !=null)
 					{
-						Set<String> varNames = assertion.getFormula().getVars();
+						Set<String> varNames = assertion.getFormula().getVars().stream().map(v -> v.toString()).collect(Collectors.toSet());
 						varNames.removeAll(newVarNames); 
 						if ((!varNames.isEmpty()) && (!this.variablesInScope.containsKey(r) ||
 							 !this.variablesInScope.get(r).containsAll(varNames)))

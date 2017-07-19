@@ -258,11 +258,25 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
 				e.getValue().getAllActions().stream().anyMatch(a -> 
-						   (a instanceof AssrtESend)  // FIXME: receive assertions
-						&& ((AssrtESend) a).assertion.getFormula().getVars().stream().anyMatch(v ->
-									!this.K.get(e.getKey()).contains(v)
-						   )
-				));
+				{
+						if (a instanceof AssrtESend)
+						{
+							Set<AssrtDataTypeVar> tmp = new HashSet<>(this.K.get(e.getKey()));
+							((AssrtESend) a).payload.elems.forEach(pe ->
+							{
+								if (pe instanceof AssrtAnnotDataType)
+								{
+									tmp.add(((AssrtAnnotDataType) pe).var);
+								}
+							});
+							return ((AssrtESend) a).assertion.getFormula().getVars().stream().anyMatch(v -> !tmp.contains(v));
+						}
+						else
+						{
+							// FIXME: receive assertions
+						}
+						return false;
+				}));
 	}
 	
 	public Map<Role, List<EAction>> getFireable()
@@ -273,17 +287,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			Role self = e.getKey();
 			EState s = e.getValue();
 			res.put(self, new LinkedList<>());
-			
-			System.out.println("bbb: "+ s.getActions());
-			
 			for (EAction a : s.getActions())
 			{
 				if (a.isSend())
 				{
 					AssrtESend es = (AssrtESend) a;
 					getSendFireable(res, self, es);
-
-					System.out.println("ccc: "+ s.getActions());
 				}
 				else if (a.isReceive())
 				{
@@ -703,7 +712,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		if (tmp != null)
 		{
 			f = AssrtFormulaFactoryImpl.BinBoolFormula("&&", tmp, f);  // FIXME: factor out constant
-					// To store as Set, need equals/hashCode for SmtFormula
+					// To store as Set, need equals/hashCode for AssrtSmtFormula
 		}
 		F.put(v, f);
 	}

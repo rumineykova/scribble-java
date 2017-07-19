@@ -40,9 +40,6 @@ public class AssrtCoreSModelBuilder
 			seen.put(curr.id, curr);
 
 			Map<Role, List<EAction>> fireable = curr.getFireable();
-			
-			System.out.println("aaa: " + fireable);
-			
 			Set<Entry<Role, List<EAction>>> es = new HashSet<>(fireable.entrySet());
 			while (!es.isEmpty())
 			{

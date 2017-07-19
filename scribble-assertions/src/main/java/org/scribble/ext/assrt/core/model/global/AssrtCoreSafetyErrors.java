@@ -57,7 +57,7 @@ public class AssrtCoreSafetyErrors
 		this.errors.put(ERR.Reception, reception);
 		this.errors.put(ERR.UnfinishedRole, unfinishedRole);
 		this.errors.put(ERR.Orphan, orphan);
-		this.errors.put(ERR.UnknownDataTypeVar, orphan);
+		this.errors.put(ERR.UnknownDataTypeVar, unknownVars);
 	}
 	
 	public boolean isSafe()

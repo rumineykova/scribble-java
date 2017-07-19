@@ -3,6 +3,7 @@ package org.scribble.ext.assrt.ast.formula;
 import java.util.Collections;
 import java.util.Set;
 
+import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
@@ -30,7 +31,7 @@ public class AssrtValueFormula extends AssrtArithFormula
 	}
 	
 	@Override
-	public Set<String> getVars()
+	public Set<AssrtDataTypeVar> getVars()
 	{
 		return Collections.emptySet();	
 	}

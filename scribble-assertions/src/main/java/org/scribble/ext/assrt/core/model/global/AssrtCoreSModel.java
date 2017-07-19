@@ -47,7 +47,7 @@ public class AssrtCoreSModel
 		Set<AssrtCoreSState> portOwners = this.allStates.values().stream().filter(AssrtCoreSState::isPortOwnershipError).collect(Collectors.toSet());*/
 		
 		Set<AssrtCoreSState> unknownVars = this.allStates.values().stream().filter(s -> s.isUnknownDataTypeVarError()).collect(Collectors.toSet());
-		
+
 		return new AssrtCoreSafetyErrors(conns, disconns, unconns, syncs, recepts, unfins, orphans, unknownVars);
 	}
 	

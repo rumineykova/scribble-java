@@ -8,6 +8,7 @@ import org.scribble.sesstype.name.Role;
 
 public interface AssrtEModelFactory extends EModelFactory
 {
+	// FIXME: should take AssrtBoolFormula ("type"), not AssrtAssertion (syntax)
 	AssrtESend newAssrtESend(Role peer, MessageId<?> mid, Payload payload, AssrtAssertion assertion);
 	AssrtEReceive newAssrtEReceive(Role peer, MessageId<?> mid, Payload payload, AssrtAssertion assertion);  // FIXME: duality? (assertions currently ignored by toDual)
 }

@@ -4,14 +4,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
 public class AssrtLogFormula extends AssrtBoolFormula
 {
-	Set<String> vars; 
+	Set<AssrtDataTypeVar> vars; 
 	
-	public AssrtLogFormula(BooleanFormula f1, Set<String> vars)
+	public AssrtLogFormula(BooleanFormula f1, Set<AssrtDataTypeVar> vars)
 	{
 		this.vars = Collections.unmodifiableSet(vars); 	
 		this.formula = f1;  
@@ -24,16 +25,16 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	}
 	
 	@Override
-	public Set<String> getVars()
+	public Set<AssrtDataTypeVar> getVars()
 	{
-		return new HashSet<>(vars); 
+		return new HashSet<>(this.vars); 
 	}
 	
-	//public AssrtLogFormula addFormula(AssrtSmtFormula newFormula) throws AssertionParseException{		
+	//public AssrtLogFormula addFormula(AssrtSmtFormula newFormula) throws AssertionParseException
 	public AssrtLogFormula addFormula(AssrtBoolFormula newFormula) //throws AssertionParseException
 	{		
-		return this.formula==null ? 
-				new AssrtLogFormula(newFormula.formula, newFormula.getVars()):	
-				JavaSmtWrapper.getInstance().addFormula(this, newFormula);
+		return this.formula == null
+				? new AssrtLogFormula(newFormula.formula, newFormula.getVars())
+				:	JavaSmtWrapper.getInstance().addFormula(this, newFormula);
 	}
 }

@@ -2,14 +2,14 @@ package org.scribble.ext.assrt.ast.formula;
 
 import java.util.Set;
 
+import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.sosy_lab.java_smt.api.Formula;
 
 public abstract class AssrtSmtFormula<F extends Formula>
 {
 	protected F formula;
 	
-	// FIXME: List<AssrtVarFormula>
-	public abstract Set<String> getVars();
+	public abstract Set<AssrtDataTypeVar> getVars();
 
 	protected abstract F toJavaSmtFormula(); //throws AssertionParseException;
 

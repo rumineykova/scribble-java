@@ -11,6 +11,7 @@ import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.local.LInteractionSeq;
 import org.scribble.ast.local.LProtocolBlock;
+import org.scribble.ast.local.LReceive;
 import org.scribble.ast.local.LSend;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
@@ -27,6 +28,7 @@ import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
 import org.scribble.ext.assrt.del.global.AssrtGRecursionDel;
 import org.scribble.ext.assrt.del.local.AssrtLProtocolBlockDel;
+import org.scribble.ext.assrt.del.local.AssrtLReceiveDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
 import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
@@ -92,6 +94,14 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		//LSend ls = new LSend(source, src, msg, dests);
 		AssrtLSend ls = new AssrtLSend(source, src, msg, dests);
 		ls = del(ls, new AssrtLSendDel());
+		return ls;
+	}
+	
+	@Override
+	public LReceive LReceive(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	{
+		LReceive ls = new LReceive(source, src, msg, dests);  // FIXME: AssrtLReceive with assertion?
+		ls = del(ls, new AssrtLReceiveDel());
 		return ls;
 	}
 
