@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.ast.AssrtAssertion;
-import org.scribble.ext.assrt.ast.formula.AssertionParseException;
 import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.ast.formula.AssrtLogFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
@@ -91,13 +90,16 @@ public class AssrtSConfig extends SConfig
 			if (assertion!=null) {
 				AssrtBoolFormula currFormula = assertion.getFormula();
 				
-				try {
+				//try
+				{
 					newFormula = this.formula==null?
 							new AssrtLogFormula(currFormula.getJavaSmtFormula(), currFormula.getVars()):
 							this.formula.addFormula(currFormula);
-				} catch (AssertionParseException e) {
-					throw new RuntimeException("cannot parse the asserion"); 
 				}
+				/*catch (AssertionParseException e)
+				{
+					throw new RuntimeException("cannot parse the asserion"); 
+				}*/
 			}
 
 			// maybe we require a copy this.formula here?

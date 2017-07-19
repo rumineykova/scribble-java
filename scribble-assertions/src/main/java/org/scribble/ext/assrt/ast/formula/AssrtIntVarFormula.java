@@ -8,7 +8,7 @@ import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 // Variable occurrence
-public class AssrtIntVarFormula extends AssrtSmtFormula<IntegerFormula>
+public class AssrtIntVarFormula extends AssrtArithFormula
 {
 	public final String name; 
 
@@ -26,7 +26,7 @@ public class AssrtIntVarFormula extends AssrtSmtFormula<IntegerFormula>
 	@Override
 	public IntegerFormula toJavaSmtFormula()
 	{
-		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().imanager;
+		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().ifm;
 		return fmanager.makeVariable(this.name);   
 	}
 	

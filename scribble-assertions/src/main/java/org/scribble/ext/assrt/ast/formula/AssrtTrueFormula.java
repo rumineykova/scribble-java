@@ -17,8 +17,8 @@ public class AssrtTrueFormula extends AssrtBoolFormula
 	}
 	
 	@Override
-	protected BooleanFormula toJavaSmtFormula() throws AssertionParseException {
-		return JavaSmtWrapper.getInstance().bmanager.makeTrue();
+	protected BooleanFormula toJavaSmtFormula() { //throws AssertionParseException {
+		return JavaSmtWrapper.getInstance().bfm.makeTrue();
 	}
 	
 	@Override

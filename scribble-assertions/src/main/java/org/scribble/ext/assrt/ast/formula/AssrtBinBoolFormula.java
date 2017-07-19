@@ -56,9 +56,9 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 	}
 	
 	@Override
-	protected BooleanFormula toJavaSmtFormula() throws AssertionParseException
+	protected BooleanFormula toJavaSmtFormula() //throws AssertionParseException
 	{
-		BooleanFormulaManager fmanager = JavaSmtWrapper.getInstance().bmanager;
+		BooleanFormulaManager fmanager = JavaSmtWrapper.getInstance().bfm;
 		BooleanFormula bleft = (BooleanFormula) this.left.toJavaSmtFormula();
 		BooleanFormula bright = (BooleanFormula) this.right.toJavaSmtFormula();
 		

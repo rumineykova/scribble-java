@@ -60,9 +60,9 @@ public class AssrtBinCompFormula extends AssrtBoolFormula
 	}
 	
 	@Override
-	public BooleanFormula toJavaSmtFormula() throws AssertionParseException
+	public BooleanFormula toJavaSmtFormula() //throws AssertionParseException
 	{
-		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().imanager;
+		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().ifm;
 		IntegerFormula fleft = (IntegerFormula) this.left.toJavaSmtFormula();
 		IntegerFormula fright = (IntegerFormula) this.right.toJavaSmtFormula();
 		
@@ -74,7 +74,7 @@ public class AssrtBinCompFormula extends AssrtBoolFormula
 		case Eq:
 			return fmanager.equal(fleft, fright);  
 		default:
-			throw new AssertionParseException("No matchin ooperation for boolean formula"); 
+			throw new RuntimeException("[assrt] Shouldn't get in here: " + op); 
 		}		
 	}
 	

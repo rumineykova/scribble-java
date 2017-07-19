@@ -17,7 +17,7 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	}
 	
 	@Override
-	protected BooleanFormula toJavaSmtFormula() throws AssertionParseException
+	protected BooleanFormula toJavaSmtFormula() //throws AssertionParseException
 	{
 		return (BooleanFormula) this.formula; 
 	}
@@ -29,7 +29,7 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	}
 	
 	//public AssrtLogFormula addFormula(AssrtSmtFormula newFormula) throws AssertionParseException{		
-	public AssrtLogFormula addFormula(AssrtBoolFormula newFormula) throws AssertionParseException
+	public AssrtLogFormula addFormula(AssrtBoolFormula newFormula) //throws AssertionParseException
 	{		
 		return this.formula==null ? 
 				new AssrtLogFormula(newFormula.formula, newFormula.getVars()):	

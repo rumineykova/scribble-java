@@ -62,9 +62,9 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 	}
 
 	@Override
-	public IntegerFormula toJavaSmtFormula() throws AssertionParseException
+	public IntegerFormula toJavaSmtFormula() //throws AssertionParseException
 	{
-		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().imanager;
+		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().ifm;
 		IntegerFormula fleft = (IntegerFormula) this.left.toJavaSmtFormula();
 		IntegerFormula fright = (IntegerFormula) this.right.toJavaSmtFormula();
 

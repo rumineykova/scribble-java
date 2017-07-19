@@ -1,7 +1,8 @@
 package org.scribble.ext.assrt.ast.formula;
 
-public class AssertionParseException extends Exception {
-
+@Deprecated  // Parsing errors should be caught by ANTLR
+public class AssertionParseException extends Exception
+{
 	private static final long serialVersionUID = 1L;
 
 	public AssertionParseException(String string) {

@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.ast.formula.AssertionParseException;
 import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.ast.formula.AssrtLogFormula;
 import org.sosy_lab.common.ShutdownManager;
@@ -32,21 +31,25 @@ import org.sosy_lab.java_smt.api.SolverContext;
 import org.sosy_lab.java_smt.api.SolverContext.ProverOptions;
 import org.sosy_lab.java_smt.api.SolverException;
 
-public class JavaSmtWrapper {
+public class JavaSmtWrapper
+{
 	private static JavaSmtWrapper instance = null;
 	
 	public final ShutdownManager shutdownManager;
 	
 	// TODO: MOVE to config
 	private int timeOutInMs = 2000;
-	public final FormulaManager fmanager;    
-	public final BooleanFormulaManager bmanager; 
-	public final IntegerFormulaManager imanager; 
-	public final QuantifiedFormulaManager qmanager;
-	public final LogManager logger; 
-	public final SolverContext context;
+	private final FormulaManager fmanager;    
+
+	public final BooleanFormulaManager bfm; 
+	public final IntegerFormulaManager ifm; 
+	public final QuantifiedFormulaManager qfm;
+
+	private final LogManager logger; 
+	private final SolverContext context;
 	
-	protected JavaSmtWrapper() throws InvalidConfigurationException{
+	protected JavaSmtWrapper() throws InvalidConfigurationException
+	{
 		// TODO: maybe use parameter solver.z3.usePhantomReferences to garbage collect Z3 formula references
 		Configuration config = Configuration.fromCmdLineArguments(new String[]{"--usePhantomReferences=true"}); 
 				//defaultConfiguration(); // fromCmdLineArguments([]);
@@ -61,72 +64,83 @@ public class JavaSmtWrapper {
 	    // solver.z3.usePhantomReferences
 	    
 	    fmanager = context.getFormulaManager();
-	    this.qmanager = fmanager.getQuantifiedFormulaManager(); 
-	    this.bmanager = fmanager.getBooleanFormulaManager();
-	    this.imanager = fmanager.getIntegerFormulaManager();
+	    this.qfm = fmanager.getQuantifiedFormulaManager(); 
+	    this.bfm = fmanager.getBooleanFormulaManager();
+	    this.ifm = fmanager.getIntegerFormulaManager();
 	}
 	
-	public static JavaSmtWrapper getInstance()  {
-	      try {
-			if(instance == null) {
-	         instance = new JavaSmtWrapper();
-	      } 
-	      }catch (InvalidConfigurationException e)
-	      {
-				System.err.println("InvalidConfigurationException: " + e.getMessage());
-	      }
-	      
-	      return instance;
-	   }
-	
-	public AssrtLogFormula addFormula(AssrtBoolFormula f1, AssrtBoolFormula f2) throws AssertionParseException
+	public static JavaSmtWrapper getInstance() 
 	{
-		BooleanFormula formula = this.bmanager.and((BooleanFormula)f1.getJavaSmtFormula(), (BooleanFormula)f2.getJavaSmtFormula());
+		try
+		{
+			if (instance == null)
+			{
+				instance = new JavaSmtWrapper();
+			}
+		}
+		catch (InvalidConfigurationException e)
+		{
+			System.err.println("InvalidConfigurationException: " + e.getMessage());
+		}
+
+		return instance;
+	}
+	
+	public AssrtLogFormula addFormula(AssrtBoolFormula f1, AssrtBoolFormula f2) //throws AssertionParseException
+	{
+		BooleanFormula formula = this.bfm.and( f1.getJavaSmtFormula(), f2.getJavaSmtFormula());
 		Set<String> vars = new HashSet<String>(f1.getVars()); 
 		vars.addAll(f2.getVars()); 
 		return new AssrtLogFormula(formula, vars); 
 	}
 	
-	public Boolean isSat(AssrtBoolFormula assertionFormula, AssrtLogFormula context) {
+	public Boolean isSat(AssrtBoolFormula assertionFormula, AssrtLogFormula context)
+	{
 		boolean isUnsat = false;
 		
-		try {
+		//try
+		{
 			BooleanFormula formula = buildFormula(assertionFormula, context);
 			final ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1);
 			executor.setRemoveOnCancelPolicy(true);
 			Runnable solverInterruptThread = () -> shutdownManager.requestShutdown("Timeout");
 			
-			try (ProverEnvironment prover = this.context.newProverEnvironment(ProverOptions.GENERATE_UNSAT_CORE)) {
-		        prover.addConstraint(formula);
-		        
-	            ScheduledFuture<?> timeoutFuture = executor.schedule(solverInterruptThread,
-	            					timeOutInMs, TimeUnit.MILLISECONDS);
-	            isUnsat = prover.isUnsat();
-	            cancelTimeoutFuture(timeoutFuture);
-		      }
-		
-			catch (SolverException e) {
+			try (ProverEnvironment prover = this.context
+					.newProverEnvironment(ProverOptions.GENERATE_UNSAT_CORE))
+			{
+				prover.addConstraint(formula);
+
+				ScheduledFuture<?> timeoutFuture = executor.schedule(solverInterruptThread, timeOutInMs,
+						TimeUnit.MILLISECONDS);
+				isUnsat = prover.isUnsat();
+				cancelTimeoutFuture(timeoutFuture);
+			}
+
+			catch (SolverException e)
+			{
 				this.logger.logUserException(Level.INFO, e, "Error thrown by the SMT solver");
 				System.err.print("Error thrown by the SMT solver" + e.getMessage());
 			}
-			catch (InterruptedException e) {
+			catch (InterruptedException e)
+			{
 				this.logger.logUserException(Level.INFO, e, "The formula was interrupted. Took too long");
-				System.err.print("The formula was interrupted. Took too long." + e.getMessage()); 
+				System.err.print("The formula was interrupted. Took too long." + e.getMessage());
 			}
-			finally {
+			finally
+			{
 				executor.shutdown();
 			}
 		}
-		catch (AssertionParseException e) {
+		/*catch (AssertionParseException e) {
 			this.logger.logUserException(Level.INFO, e, "The assertion is not a valid Z3 expression");
 			System.err.print("The assertion is not a valid Z3 expression" + e.getMessage()); 
-		}
+		}*/
 		
 		return  !isUnsat;
 	}
 
-	private BooleanFormula buildFormula(AssrtBoolFormula assertionFormula,
-			AssrtLogFormula context) throws AssertionParseException {
+	private BooleanFormula buildFormula(AssrtBoolFormula assertionFormula, AssrtLogFormula context) //throws AssertionParseException
+	{
 		BooleanFormula currFormula;
 		currFormula = (BooleanFormula) assertionFormula.getJavaSmtFormula();
 		List<IntegerFormula> contextVars; 
@@ -142,27 +156,30 @@ public class JavaSmtWrapper {
 			BooleanFormula contextF = (BooleanFormula) context.getJavaSmtFormula(); 
 			contextVars = this.makeVars(new ArrayList<String>(context.getVars()));
 			formula = vars.isEmpty()?
-					this.qmanager.forall(contextVars, this.bmanager.implication(contextF, currFormula)):
-					this.qmanager.forall(contextVars, 
-										this.bmanager.implication(contextF, 
-											this.qmanager.exists(vars, currFormula)));  
+					this.qfm.forall(contextVars, this.bfm.implication(contextF, currFormula)):
+					this.qfm.forall(contextVars, 
+										this.bfm.implication(contextF, 
+											this.qfm.exists(vars, currFormula)));  
 				
 		} else {
 			vars = this.makeVars(new ArrayList<String>(setVars));
 			formula = vars.isEmpty()? 
 						currFormula:	
-						this.qmanager.exists(vars, currFormula);
+						this.qfm.exists(vars, currFormula);
 		}
 		return formula;
 	}
 	
-	 private void cancelTimeoutFuture(ScheduledFuture<?> timeoutFuture) {
-	        try {
-	            timeoutFuture.cancel(true);
-	        } catch (Throwable ignore) {
-	        }
-	    }
-	    
+	private void cancelTimeoutFuture(ScheduledFuture<?> timeoutFuture)
+	{
+		try
+		{
+			timeoutFuture.cancel(true);
+		}
+		catch (Throwable ignore)
+		{
+		}
+	}
 	    
 	/*
 	TODO: Should we close the ShutdownManger  
@@ -176,7 +193,8 @@ public class JavaSmtWrapper {
 	    
 	*/
 	 
-	public List<IntegerFormula> makeVars(List<String> vars) {
-		return  vars.stream().map(v -> this.imanager.makeVariable(v)).collect(Collectors.toList()); 
+	public List<IntegerFormula> makeVars(List<String> vars)
+	{
+		return  vars.stream().map(v -> this.ifm.makeVariable(v)).collect(Collectors.toList()); 
 	}
 }

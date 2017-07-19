@@ -10,9 +10,9 @@ public abstract class AssrtSmtFormula<F extends Formula>
 
 	public abstract Set<String> getVars();
 
-	protected abstract F toJavaSmtFormula() throws AssertionParseException;
+	protected abstract F toJavaSmtFormula(); //throws AssertionParseException;
 
-	public F getJavaSmtFormula() throws AssertionParseException
+	public F getJavaSmtFormula() //throws AssertionParseException
 	{
 		if (this.formula == null)
 		{

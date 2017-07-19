@@ -25,7 +25,7 @@ public class AssrtValueFormula extends AssrtArithFormula
 	@Override
 	public IntegerFormula toJavaSmtFormula()
 	{
-		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().imanager;
+		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().ifm;
 		return fmanager.makeNumber(this.value);  
 	}
 	
