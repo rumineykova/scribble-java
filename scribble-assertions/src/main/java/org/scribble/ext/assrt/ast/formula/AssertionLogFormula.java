@@ -3,14 +3,13 @@ package org.scribble.ext.assrt.ast.formula;
 import java.util.Collections;
 import java.util.Set;
 
-import org.scribble.ext.assrt.util.SMTWrapper;
+import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.Formula;
 
 public class AssertionLogFormula extends SmtFormula {
 	
 	Set<String> vars; 
-	
 	
 	public AssertionLogFormula(Formula f1, Set<String> vars)
 	{
@@ -31,6 +30,6 @@ public class AssertionLogFormula extends SmtFormula {
 	public AssertionLogFormula addFormula(SmtFormula newFormula) throws AssertionParseException{		
 		return this.formula==null? 
 				new AssertionLogFormula(newFormula.formula, newFormula.getVars()):	
-				SMTWrapper.getInstance().addFormula(this, newFormula);
+				JavaSmtWrapper.getInstance().addFormula(this, newFormula);
 	}
 }

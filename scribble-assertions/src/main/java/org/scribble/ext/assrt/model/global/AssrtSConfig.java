@@ -17,7 +17,7 @@ import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.sesstype.name.AssrtPayloadElemType;
-import org.scribble.ext.assrt.util.SMTWrapper;
+import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAction;
@@ -169,7 +169,7 @@ public class AssrtSConfig extends SConfig
 					AssrtAssertion assertion = send.assertion; 
 					if (assertion != null)
 					{
-						if (!SMTWrapper.getInstance().isSat(assertion.getFormula(), this.formula)) {
+						if (!JavaSmtWrapper.getInstance().isSat(assertion.getFormula(), this.formula)) {
 							unsafStates.add(send); 
 						}
 					}

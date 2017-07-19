@@ -5,7 +5,7 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.del.ScribDel;
-import org.scribble.ext.assrt.ast.formula.SmtFormula;
+import org.scribble.ext.assrt.ast.formula.BoolFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.visit.AstVisitor;
 
@@ -13,10 +13,11 @@ public class AssrtAssertion extends ScribNodeBase
 {	
 	//private final String assertion;  // FIXME: should be String for a more general annotations feature
 
-	private SmtFormula formula;  // Not a ScribNode (no clone/copy/accept/etc -- but is immutable)
+	//private SmtFormula formula;  // Not a ScribNode (no clone/copy/accept/etc -- but is immutable)
+	private BoolFormula formula;
 
-	//public AssrtAssertionNode(CommonTree source, String assertion)
-	public AssrtAssertion(CommonTree source, SmtFormula formula)
+	//public AssrtAssertion(CommonTree source, SmtFormula formula)
+	public AssrtAssertion(CommonTree source, BoolFormula formula)
 	{
 		super(source);
 		//this.assertion = assertion; 
@@ -42,7 +43,8 @@ public class AssrtAssertion extends ScribNodeBase
 		return this.assertion; 
 	}*/
 	
-	protected AssrtAssertion reconstruct(SmtFormula f)
+	//protected AssrtAssertion reconstruct(SmtFormula f)
+	protected AssrtAssertion reconstruct(BoolFormula f)
 	{
 		ScribDel del = del();
 		AssrtAssertion an = new AssrtAssertion(this.source, f);
@@ -56,7 +58,8 @@ public class AssrtAssertion extends ScribNodeBase
 		return reconstruct(this.formula);  // formula cannot be visited (not a ScribNode)
 	}
 	
-	public SmtFormula getFormula()
+	//public SmtFormula getFormula()
+	public BoolFormula getFormula()
 	{
 		/*if (this.formula == null)
 		{

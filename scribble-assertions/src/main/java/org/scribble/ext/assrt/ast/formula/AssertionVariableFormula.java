@@ -3,7 +3,7 @@ package org.scribble.ext.assrt.ast.formula;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.scribble.ext.assrt.util.SMTWrapper;
+import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
@@ -23,7 +23,7 @@ public class AssertionVariableFormula extends SmtFormula {
 	
 	@Override
 	public IntegerFormula toFormula() {
-		IntegerFormulaManager fmanager = SMTWrapper.getInstance().imanager;
+		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().imanager;
 		return fmanager.makeVariable(this.name);   
 	}
 	

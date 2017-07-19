@@ -3,7 +3,7 @@ package org.scribble.ext.assrt.ast.formula;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.scribble.ext.assrt.util.SMTWrapper;
+import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
@@ -58,7 +58,7 @@ public class ArithFormula extends SmtFormula
 
 	@Override
 	public IntegerFormula toFormula() throws AssertionParseException {
-		IntegerFormulaManager fmanager = SMTWrapper.getInstance().imanager;
+		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().imanager;
 		IntegerFormula fleft = (IntegerFormula) this.left.toFormula();
 		IntegerFormula fright = (IntegerFormula) this.right.toFormula();
 

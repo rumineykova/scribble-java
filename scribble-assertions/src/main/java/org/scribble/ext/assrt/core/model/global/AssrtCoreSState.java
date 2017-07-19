@@ -10,13 +10,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.annot.ast.AnnotString;
-import org.scribble.ext.annot.sesstype.name.AnnotPayloadType;
-import org.scribble.ext.annot.sesstype.name.AnnotType;
-import org.scribble.ext.annot.sesstype.name.PayloadVar;
 import org.scribble.ext.assrt.ast.formula.BoolFormula;
-import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
+import org.scribble.ext.assrt.parser.assertions.ast.formula.AssrtFormulaFactoryImpl;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.model.MPrettyState;
@@ -24,8 +20,6 @@ import org.scribble.model.MState;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.EStateKind;
 import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.model.endpoint.actions.EConnect;
-import org.scribble.model.endpoint.actions.EDisconnect;
 import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.global.actions.SAction;
 import org.scribble.sesstype.kind.Global;
@@ -46,7 +40,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	// Cf. history sensitivity
 	// FIXME: for now, assume globally distinct annot vars?  but conflicts with unfolding recursion annot vars
 	private final Map<Role, Set<AssrtDataTypeVar>> K;  // "Knowledge" of annotation vars (payloads and recursions)
-	private final Set<BoolFormula> constraints;
+			// Currently assuming unique annot var declarations -- otherwise need to consider, e.g., A->B(x).C->B(x)
+	private final Map<AssrtDataTypeVar, BoolFormula> F;  // For Set, need to do equals/hashCode
 
 	//private final Map<AnnotRecVar, ...>  // For recursion anntoation var state?
 	
@@ -58,7 +53,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	public AssrtCoreSState(Map<Role, EState> P, boolean explicit)
 	{
 		this(P, makeQ(P.keySet(), null), //explicit ? BOT : null),
-				makeK(P.keySet()));
+				makeK(P.keySet()), new HashMap<>());
 		
 		if (explicit)
 		{
@@ -66,13 +61,15 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 	}
 
+	// Pre: non-aliased "ownership" of all Map contents
 	protected AssrtCoreSState(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
-			Map<Role, Set<AssrtDataTypeVar>> K)
+			Map<Role, Set<AssrtDataTypeVar>> K, Map<AssrtDataTypeVar, BoolFormula> F)
 	{
 		super(Collections.emptySet());
 		this.P = Collections.unmodifiableMap(P);
-		this.Q = Collections.unmodifiableMap(Q);
+		this.Q = Collections.unmodifiableMap(Q);  // Don't need copyQ, etc. -- should already be fully "owned"
 		this.K = Collections.unmodifiableMap(K);
+		this.F = Collections.unmodifiableMap(F);
 	}
 	
 	public void addSubject(Role subj)
@@ -235,7 +232,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	public boolean isUnfinishedRoleError(Map<Role, EState> E0)
 	{
 		return this.isTerminal() &&
-				this.P.entrySet().stream().anyMatch((e) -> isActive(e.getValue(), E0.get(e.getKey()).id));
+				this.P.entrySet().stream().anyMatch(e -> isActive(e.getValue(), E0.get(e.getKey()).id));
 	}
 
 	public boolean isOrphanError(Map<Role, EState> E0)
@@ -303,6 +300,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			return;
 		}
 
+		// Check assertion?
+		//boolean ok = JavaSmtWrapper.getInstance().isSat(es.assertion.getFormula(), context);
 		boolean ok = true;
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 				es.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>)::iterator)*/
@@ -314,11 +313,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			}
 			else if (pt instanceof AssrtDataTypeVar)
 			{
-				if (!this.K.get(self).contains(pt))
+				/*if (!this.K.get(self).contains(pt))
 				{
 					ok = false;
 					break;
-				}
+				}*/
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + pt);  // "Encode" pay elem vars by fresh annot data elems for now
 			}
 			else
 			{
@@ -444,10 +444,18 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				if (pt instanceof AssrtAnnotDataType)
 				{
 					// Update knowledge
+					AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
+					putK(K, self, v);
+					putK(K, es.peer, v);
 					
+					//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
+					putF(F, v, es.assertion.getFormula());
 					
+					//...can only send if true? (by API gen assertion failure means definitely not sending it) -- unsat as bad terminal state (safety error)?  no: won't catch all assert errors (branches)
 					// check assertion satisfiable?  i.e., satisfiability part of operational semantics for model construction? or just record constraints and check later?
 					// -- current assertions *imply* additional ones?
+						
+					// assertion error as queue token? for error preservation -- Cf. "decoupled" request/accept
 				}
 				/*else if (pt instanceof PayloadVar)  // Should not be used (for now), can encode
 				{
@@ -470,20 +478,20 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			P.put(self, succ);
 			Q.get(self).put(lr.peer, null);
 		}
-		else if (a.isDisconnect())
+		/*else if (a.isDisconnect())
 		{
 			EDisconnect ld = (EDisconnect) a;
 			P.put(self, succ);
 			Q.get(self).put(ld.peer, BOT);
-		}
+		}*/
 		else
 		{
-			throw new RuntimeException("[f17] Shouldn't get in here: " + a);
+			throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
 		}
-		return new AssrtCoreSState(P, Q, ports, owned);
+		return new AssrtCoreSState(P, Q, K, F);
 	}
 
-	// "Synchronous version" of fire
+	/*// "Synchronous version" of fire
 	public AssrtCoreSState sync(Role r1, EAction a1, Role r2, EAction a2)
 	{
 		Map<Role, EState> P = new HashMap<>(this.P);
@@ -548,14 +556,39 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			throw new RuntimeException("[f17] Shouldn't get in here: " + a1 + ", " + a2);
 		}
 		return new AssrtCoreSState(P, Q, ports, owned);
-	}
+	}*/
 	
 	@Override
 	protected String getNodeLabel()
 	{
-		String lab = "(P=" + this.P + ", Q=" + this.Q + ", K=" + this.K + ")";
+		String lab = "(P=" + this.P + ", Q=" + this.Q + ", K=" + this.K + ", F=" + this.F + ")";
 		//return "label=\"" + this.id + ":" + lab.substring(1, lab.length() - 1) + "\"";
 		return "label=\"" + this.id + ":" + lab + "\"";
+	}
+	
+	private boolean hasMessage(Role self, Role peer)
+	{
+		AssrtESend m = this.Q.get(self).get(peer);
+		return m != null;// && !(m instanceof F17EBot);
+	}
+
+	@Override
+	public void addEdge(SAction a, AssrtCoreSState s)  // Visibility hack (for F17SModelBuilder.build)
+	{
+		super.addEdge(a, s);
+	}
+	
+	// isActive(SState, Role) becomes isActive(EState)
+	public static boolean isActive(EState s, int init)
+	{
+		return !isInactive(s, init);
+	}
+	
+	private static boolean isInactive(EState s, int init)
+	{
+		//return s.isTerminal() || (s.id == init && s.getStateKind() == EStateKind.ACCEPT);
+		return s.isTerminal();
+				// s.isTerminal means non-empty actions (i.e., edges) -- i.e., non-end (cf., fireable)
 	}
 	
 	@Override
@@ -565,6 +598,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		hash = 31 * hash + this.P.hashCode();
 		hash = 31 * hash + this.Q.hashCode();
 		hash = 31 * hash + this.K.hashCode();
+		hash = 31 * hash + this.F.hashCode();
 		return hash;
 	}
 
@@ -582,7 +616,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 		AssrtCoreSState them = (AssrtCoreSState) o;
 		return them.canEquals(this) && this.P.equals(them.P) && this.Q.equals(them.Q)
-				&& this.K.equals(them.K);
+				&& this.K.equals(them.K) && this.F.equals(them.F);
 	}
 
 	@Override
@@ -629,6 +663,28 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return K.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
 	}
 	
+	private static void putK(Map<Role, Set<AssrtDataTypeVar>> K, Role r, AssrtDataTypeVar v)
+	{
+		Set<AssrtDataTypeVar> tmp = K.get(r);
+		if (tmp == null)
+		{
+			tmp = new HashSet<>();
+			K.put(r, tmp);
+		}
+		tmp.add(v);
+	}
+	
+	private void putF(Map<AssrtDataTypeVar, BoolFormula> F, AssrtDataTypeVar v, BoolFormula f)
+	{
+		BoolFormula tmp = this.F.get(v);
+		if (tmp != null)
+		{
+			f = AssrtFormulaFactoryImpl.BinBoolFormula("&&", tmp, f);  // FIXME: factor out constant
+					// To store as Set, need equals/hashCode for SmtFormula
+		}
+		this.F.put(v, f);
+	}
+	
 	/*private static Map<Role, Map<Role, PayloadVar>> copyPorts(Map<Role, Map<Role, PayloadVar>> ports)
 	{
 		Map<Role, Map<Role, PayloadVar>> copy = new HashMap<>();
@@ -658,29 +714,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private boolean isPendingConnected(Role r1, Role r2)
 	{
 		return (this.ports.get(r1).get(r2) != null) || (this.ports.get(r2).get(r1) != null);
-	}*/
-	
-	private boolean hasMessage(Role self, Role peer)
-	{
-		AssrtESend m = this.Q.get(self).get(peer);
-		return m != null;// && !(m instanceof F17EBot);
-	}
-
-	@Override
-	public void addEdge(SAction a, AssrtCoreSState s)  // Visibility hack (for F17SModelBuilder.build)
-	{
-		super.addEdge(a, s);
-	}
-	
-	/*// isActive(SState, Role) becomes isActive(EState)
-	public static boolean isActive(EState s, int init)
-	{
-		return !isInactive(s, init);
-	}
-	
-	private static boolean isInactive(EState s, int init)
-	{
-		return s.isTerminal() || (s.id == init && s.getStateKind() == EStateKind.ACCEPT);
 	}*/
 }
 

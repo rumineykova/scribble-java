@@ -9,7 +9,7 @@ public class AntlrVarNode implements AntlrFormulaNode {
 	public static AssertionVariableFormula parseVarFormula(
 			AssrtAssertParser assertionsScribParser, CommonTree ct) {
 		
-		return AntlrFormulaFactoryImpl.parseVariable(ct, ct.getChild(0).getText());
+		return AssrtFormulaFactoryImpl.parseVariable(ct, ct.getChild(0).getText());
 	}
 
 }

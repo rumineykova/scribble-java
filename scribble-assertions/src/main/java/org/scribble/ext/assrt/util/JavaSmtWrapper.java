@@ -32,8 +32,8 @@ import org.sosy_lab.java_smt.api.SolverContext;
 import org.sosy_lab.java_smt.api.SolverContext.ProverOptions;
 import org.sosy_lab.java_smt.api.SolverException;
 
-public class SMTWrapper {
-	private static SMTWrapper instance = null;
+public class JavaSmtWrapper {
+	private static JavaSmtWrapper instance = null;
 	
 	public final ShutdownManager shutdownManager;
 	
@@ -46,7 +46,7 @@ public class SMTWrapper {
 	public final LogManager logger; 
 	public final SolverContext context;
 	
-	protected SMTWrapper() throws InvalidConfigurationException{
+	protected JavaSmtWrapper() throws InvalidConfigurationException{
 		// TODO: maybe use parameter solver.z3.usePhantomReferences to garbage collect Z3 formula references
 		Configuration config = Configuration.fromCmdLineArguments(new String[]{"--usePhantomReferences=true"}); 
 				//defaultConfiguration(); // fromCmdLineArguments([]);
@@ -66,10 +66,10 @@ public class SMTWrapper {
 	    this.imanager = fmanager.getIntegerFormulaManager();
 	}
 	
-	public static SMTWrapper getInstance()  {
+	public static JavaSmtWrapper getInstance()  {
 	      try {
 			if(instance == null) {
-	         instance = new SMTWrapper();
+	         instance = new JavaSmtWrapper();
 	      } 
 	      }catch (InvalidConfigurationException e)
 	      {

@@ -19,7 +19,7 @@ public class AntlrArithFormulaNode implements AntlrFormulaNode {
 		SmtFormula left = parser.parse((CommonTree)ct.getChild(CHILD_LEFT_FORMULA_INDEX)); 
 		SmtFormula right = parser.parse((CommonTree)ct.getChild(CHILD_RIGHT_FORMULA_INDEX));
 		
-		return AntlrFormulaFactoryImpl.ArithFormula(op, left, right); 
+		return AssrtFormulaFactoryImpl.ArithFormula(op, left, right); 
 	
 	
 	}

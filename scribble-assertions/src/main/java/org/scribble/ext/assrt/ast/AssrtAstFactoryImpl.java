@@ -17,7 +17,7 @@ import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
-import org.scribble.ext.assrt.ast.formula.SmtFormula;
+import org.scribble.ext.assrt.ast.formula.BoolFormula;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
@@ -114,7 +114,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 
 	@Override
 	//public AssrtAssertionNode AssertionNode(CommonTree source, String assertion)
-	public AssrtAssertion AssrtAssertion(CommonTree source, SmtFormula f)
+	public AssrtAssertion AssrtAssertion(CommonTree source, BoolFormula f)
 	{
 		//AssrtAssertionNode node = new AssrtAssertionNode(source, assertion); 
 		AssrtAssertion node = new AssrtAssertion(source, f); 

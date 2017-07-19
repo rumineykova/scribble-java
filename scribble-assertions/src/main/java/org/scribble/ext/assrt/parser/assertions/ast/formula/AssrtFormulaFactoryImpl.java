@@ -5,6 +5,7 @@ import org.scribble.ext.assrt.ast.formula.ArithFormula;
 import org.scribble.ext.assrt.ast.formula.AssertionVariableFormula;
 import org.scribble.ext.assrt.ast.formula.AssrtFalseFormula;
 import org.scribble.ext.assrt.ast.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.ast.formula.BinBoolFormula;
 import org.scribble.ext.assrt.ast.formula.BoolFormula;
 import org.scribble.ext.assrt.ast.formula.CompFormula;
 import org.scribble.ext.assrt.ast.formula.SmtFormula;
@@ -12,7 +13,7 @@ import org.scribble.ext.assrt.ast.formula.ValueFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
 
 
-public class AntlrFormulaFactoryImpl {
+public class AssrtFormulaFactoryImpl {
 
 	public static BoolFormula parseBoolFormula(
 			AssrtAssertParser assertionsScribParser, CommonTree ct) {
@@ -31,8 +32,8 @@ public class AntlrFormulaFactoryImpl {
 			return new CompFormula(op, left, right); 
 	}
 	
-	public static BoolFormula BoolFormula(String op, SmtFormula left, SmtFormula right) {
-		return new BoolFormula(op, left, right); 
+	public static BinBoolFormula BinBoolFormula(String op, SmtFormula left, SmtFormula right) {
+		return new BinBoolFormula(op, left, right); 
 	}
 	
 	public static ArithFormula ArithFormula(String op, SmtFormula left, SmtFormula right) {

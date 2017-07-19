@@ -8,6 +8,6 @@ public class AntlrValueNode implements AntlrFormulaNode {
 
 	public static ValueFormula parseValueFormula(
 			AssrtAssertParser assertionsScribParser, CommonTree ct) {
-		return AntlrFormulaFactoryImpl.parseValue(ct, ct.getChild(0).getText());
+		return AssrtFormulaFactoryImpl.parseValue(ct, ct.getChild(0).getText());
 	}
 }

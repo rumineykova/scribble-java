@@ -7,7 +7,7 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.simple.RoleNode;
-import org.scribble.ext.assrt.ast.formula.SmtFormula;
+import org.scribble.ext.assrt.ast.formula.BoolFormula;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
@@ -20,5 +20,6 @@ public interface AssrtAstFactory extends AstFactory
 
 	AssrtAnnotDataTypeElem AssrtAnnotDataTypeElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType);
 
-	AssrtAssertion AssrtAssertion(CommonTree source, SmtFormula f);
+	//AssrtAssertion AssrtAssertion(CommonTree source, SmtFormula f);
+	AssrtAssertion AssrtAssertion(CommonTree source, BoolFormula f);
 }

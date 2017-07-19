@@ -3,11 +3,11 @@ package org.scribble.ext.assrt.ast.formula;
 import java.util.Collections;
 import java.util.Set;
 
-import org.scribble.ext.assrt.util.SMTWrapper;
+import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
 // FIXME: declare singleton constant
-public class AssrtTrueFormula extends SmtFormula
+public class AssrtTrueFormula extends BoolFormula
 {
 	
 	@Override
@@ -18,7 +18,7 @@ public class AssrtTrueFormula extends SmtFormula
 	
 	@Override
 	protected BooleanFormula toFormula() throws AssertionParseException {
-		return SMTWrapper.getInstance().bmanager.makeTrue();
+		return JavaSmtWrapper.getInstance().bmanager.makeTrue();
 	}
 	
 	@Override
