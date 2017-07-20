@@ -1,4 +1,4 @@
-package org.scribble.ext.assrt.parser.assertions.ast.formula;
+package org.scribble.ext.assrt.parser.assertions.formula;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
@@ -10,18 +10,18 @@ import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.sesstype.formula.AssrtFalseFormula;
 import org.scribble.ext.assrt.sesstype.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.sesstype.formula.AssrtValueFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtIntValFormula;
 
 
-public class AssrtFormulaFactoryImpl {
-
+public class AssrtFormulaFactory
+{
 	public static AssrtBoolFormula parseBoolFormula(
 			AssrtAssertParser assertionsScribParser, CommonTree ct) {
 		return null;
 	}
 
-	public static AssrtValueFormula parseValue(CommonTree ct, String text) {
-		return new AssrtValueFormula(text);
+	public static AssrtIntValFormula parseValue(CommonTree ct, String text) {
+		return new AssrtIntValFormula(text);
 	}
 
 	public static AssrtIntVarFormula parseVariable(CommonTree ct, String text) {

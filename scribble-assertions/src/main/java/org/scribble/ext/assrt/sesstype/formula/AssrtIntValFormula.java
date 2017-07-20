@@ -9,11 +9,11 @@ import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 // Integer literal
-public class AssrtValueFormula extends AssrtArithFormula
+public class AssrtIntValFormula extends AssrtArithFormula
 {
 	public final int value; 
 
-	public AssrtValueFormula(String value)
+	public AssrtIntValFormula(String value)
 	{
 		this.value = Integer.parseInt(value); 
 	}
@@ -44,18 +44,18 @@ public class AssrtValueFormula extends AssrtArithFormula
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtValueFormula))
+		if (!(o instanceof AssrtIntValFormula))
 		{
 			return false;
 		}
 		return super.equals(this)  // Does canEqual
-				&& this.value == ((AssrtValueFormula) o).value;
+				&& this.value == ((AssrtIntValFormula) o).value;
 	}
 	
 	@Override
 	protected boolean canEqual(Object o)
 	{
-		return o instanceof AssrtValueFormula;
+		return o instanceof AssrtIntValFormula;
 	}
 
 	@Override

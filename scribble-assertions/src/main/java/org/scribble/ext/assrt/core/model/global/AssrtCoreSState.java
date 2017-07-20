@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
-import org.scribble.ext.assrt.parser.assertions.ast.formula.AssrtFormulaFactoryImpl;
+import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
@@ -711,7 +711,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		AssrtBoolFormula tmp = F.get(v);
 		if (tmp != null)
 		{
-			f = AssrtFormulaFactoryImpl.BinBoolFormula("&&", tmp, f);  // FIXME: factor out constant
+			f = AssrtFormulaFactory.BinBoolFormula("&&", tmp, f);  // FIXME: factor out constant
 					// To store as Set, need equals/hashCode for AssrtSmtFormula
 		}
 		F.put(v, f);

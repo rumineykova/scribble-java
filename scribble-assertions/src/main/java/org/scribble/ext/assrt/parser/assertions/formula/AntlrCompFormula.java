@@ -1,12 +1,12 @@
-package org.scribble.ext.assrt.parser.assertions.ast.formula;
+package org.scribble.ext.assrt.parser.assertions.formula;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
 import org.scribble.ext.assrt.sesstype.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBinCompFormula;
 
-public class AntlrCompFormulaNode implements AntlrFormulaNode {
-
+public class AntlrCompFormula
+{
 	private static Integer CHILD_OP_INDEX = 1; 
 	private static Integer CHILD_LEFT_FORMULA_INDEX = 0;
 	private static Integer CHILD_RIGHT_FORMULA_INDEX = 2;
@@ -18,7 +18,7 @@ public class AntlrCompFormulaNode implements AntlrFormulaNode {
 		AssrtArithFormula left = (AssrtArithFormula) parser.parse((CommonTree)ct.getChild(CHILD_LEFT_FORMULA_INDEX)); 
 		AssrtArithFormula right = (AssrtArithFormula) parser.parse((CommonTree)ct.getChild(CHILD_RIGHT_FORMULA_INDEX));
 		
-		return AssrtFormulaFactoryImpl.CompFormula(op, left, right); 
+		return AssrtFormulaFactory.CompFormula(op, left, right); 
 		
 	}
 

@@ -8,7 +8,7 @@ import org.scribble.ast.local.LReceive;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.local.LReceiveDel;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
-import org.scribble.ext.assrt.parser.assertions.ast.formula.AssrtFormulaFactoryImpl;
+import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.Payload;
@@ -35,7 +35,7 @@ public class AssrtLReceiveDel extends LReceiveDel
 					: Payload.EMPTY_PAYLOAD;
 					
 		//AssrtBoolFormula bf = (ls.ass == null) ? AssrtFormulaFactoryImpl.AssrtTrueFormula() : ls.ass.getFormula();
-		AssrtBoolFormula bf = AssrtFormulaFactoryImpl.AssrtTrueFormula();  // FIXME: AssrtLReceive?
+		AssrtBoolFormula bf = AssrtFormulaFactory.AssrtTrueFormula();  // FIXME: AssrtLReceive?
 					
 		builder.util.addEdge(builder.util.getEntry(),
 				((AssrtEModelFactory) builder.job.ef).newAssrtEReceive(peer, mid, payload, bf),
