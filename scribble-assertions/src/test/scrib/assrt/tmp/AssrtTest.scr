@@ -25,8 +25,16 @@ global protocol Proto1(role A, role B)
 {
 	rec X
 	{
-		1(x:Int) from A to B; @(x < 10);
-		continue X;
+		choice at A
+		{
+			1(x:Int) from A to B; @(x < 10);
+			continue X;
+		}
+		or
+		{
+			2(y:Int) from A to B; @(y > 5);
+			continue X;
+		}
 	}
 }
 //*/

@@ -47,6 +47,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					// N.B. unique vars checked syntactically -- not being checked in model, which would fail on recursion cycles (e.g., mu X.A->B(x:Int).X)
 			// CHECKME: should this info really be part of the model states?  or just collected by analysis on top?
 					// Being in the state causes "implicit unrolling" for recursions, before/after "known" state
+			// "Knowledge" not the best term? -- K+F represents per role "commitments"?
 	
 	//private final Map<AssrtDataTypeVar, AssrtBoolFormula> F;  
 	private final Set<AssrtBoolFormula> F;  
@@ -492,7 +493,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					// Update knowledge
 					AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
 					putK(K, self, v);
-					putK(K, es.peer, v);
 					
 					//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
 					//putF(F, v, es.bf);
@@ -523,6 +523,23 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			EReceive lr = (EReceive) a;
 			P.put(self, succ);
 			Q.get(self).put(lr.peer, null);
+
+			for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
+						(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)
+			{
+				if (pt instanceof AssrtAnnotDataType)
+				{
+					// Update knowledge
+					AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
+					putK(K, self, v);
+
+					//putF(F, es.bf);
+				}
+				else
+				{
+					throw new RuntimeException("[assrt-core] TODO: " + a);
+				}
+			}
 		}
 		/*else if (a.isDisconnect())
 		{
