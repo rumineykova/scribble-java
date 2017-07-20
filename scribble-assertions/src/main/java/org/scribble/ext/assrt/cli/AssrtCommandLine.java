@@ -121,7 +121,7 @@ public class AssrtCommandLine extends CommandLine
 			}
 			
 			// FIXME? assrt-core FSM building only used for assrt-core validation -- output tasks, e.g., -api, will still use default Scribble FSMs
-			// -- but the FSMs should be the same?
+			// -- but the FSMs should be the same? -- no: action assertions treated differently in core than base
 		}
 		else
 		{

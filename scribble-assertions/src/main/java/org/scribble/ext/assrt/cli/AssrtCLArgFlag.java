@@ -16,5 +16,5 @@ package org.scribble.ext.assrt.cli;
 public enum AssrtCLArgFlag
 {
 	// Unique flags
-	ASSRT
+	ASSRT  // For assrt-*core* mode
 }
