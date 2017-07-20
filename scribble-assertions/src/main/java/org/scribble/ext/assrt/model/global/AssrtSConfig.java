@@ -9,15 +9,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.ast.AssrtAssertion;
-import org.scribble.ext.assrt.ast.formula.AssertionException;
-import org.scribble.ext.assrt.ast.formula.AssertionLogFormula;
-import org.scribble.ext.assrt.ast.formula.SmtFormula;
+import org.scribble.ext.assrt.model.endpoint.AssrtEReceive;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtLogFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.sesstype.name.AssrtPayloadType;
-import org.scribble.ext.assrt.util.SMTWrapper;
+import org.scribble.ext.assrt.sesstype.name.AssrtPayloadElemType;
+import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAction;
@@ -28,16 +27,17 @@ import org.scribble.model.global.SBuffers;
 import org.scribble.model.global.SConfig;
 import org.scribble.model.global.SModelFactory;
 import org.scribble.sesstype.kind.PayloadTypeKind;
-import org.scribble.sesstype.name.PayloadType;
+import org.scribble.sesstype.name.PayloadElemType;
 import org.scribble.sesstype.name.Role;
 
 // FIXME: equals/hashCode
+// FIXME: override getFireable to check send ass implies recv ass
 public class AssrtSConfig extends SConfig
 {
-	public final AssertionLogFormula formula;
+	public final AssrtLogFormula formula;
 	public final Map<Role, Set<String>> variablesInScope; 
 	
-	protected AssrtSConfig(SModelFactory sf, Map<Role, EFSM> state, SBuffers buffs, AssertionLogFormula formula, Map<Role, Set<String>> variablesInScope)
+	protected AssrtSConfig(SModelFactory sf, Map<Role, EFSM> state, SBuffers buffs, AssrtLogFormula formula, Map<Role, Set<String>> variablesInScope)
 	{
 		super(sf, state, buffs);
 		this.formula = formula; 
@@ -75,7 +75,10 @@ public class AssrtSConfig extends SConfig
 				tmp3.put(r, null);
 			}*/
 			SBuffers tmp2 = 
-						a.isSend()       ? this.buffs.send(r, (ESend) a)
+						//a.isSend()       ? this.buffs.send(r, (ESend) a)
+					
+						a.isSend()       ? this.buffs.send(r, ((AssrtESend) a).toESendTrue())  // FIXME HACK 
+					
 					: a.isReceive()    ? this.buffs.receive(r, (EReceive) a)
 					: a.isDisconnect() ? this.buffs.disconnect(r, (EDisconnect) a)
 					: null;
@@ -84,34 +87,49 @@ public class AssrtSConfig extends SConfig
 				throw new RuntimeException("Shouldn't get in here: " + a);
 			}
 			
-			AssrtAssertion assertion = a.isSend() ? ((AssrtESend) a).assertion: null; 
+			AssrtBoolFormula assertion;
+			if (a.isSend()) 
+			{
+				assertion = ((AssrtESend) a).ass;
+			}
+			else if (a.isReceive()) 
+			{
+				assertion = ((AssrtEReceive) a).bf;
+			}
+			else
+			{
+				throw new RuntimeException("[assrt] TODO: " + a);
+			}
 			
-			AssertionLogFormula newFormula = null; 
+			AssrtLogFormula newFormula = null; 
 		
 			if (assertion!=null) {
-				SmtFormula currFormula = assertion.getFormula();
+				AssrtBoolFormula currFormula = assertion;
 				
-				try {
+				//try
+				{
 					newFormula = this.formula==null?
-							new AssertionLogFormula(currFormula.getFormula(), currFormula.getVars()):
+							new AssrtLogFormula(currFormula.getJavaSmtFormula(), currFormula.getVars()):
 							this.formula.addFormula(currFormula);
-				} catch (AssertionException e) {
-					throw new RuntimeException("cannot parse the asserion"); 
 				}
+				/*catch (AssertionParseException e)
+				{
+					throw new RuntimeException("cannot parse the asserion"); 
+				}*/
 			}
 
 			// maybe we require a copy this.formula here?
-			AssertionLogFormula nextFormula = newFormula == null ? this.formula : newFormula;
+			AssrtLogFormula nextFormula = newFormula == null ? this.formula : newFormula;
 
 			Map<Role, Set<String>> vars = new HashMap<Role, Set<String>>(this.variablesInScope);
 
 			if (a.isSend())
 			{
-				for (PayloadType<? extends PayloadTypeKind> elem : a.payload.elems)
+				for (PayloadElemType<? extends PayloadTypeKind> elem : a.payload.elems)
 				{
-					if (elem instanceof AssrtPayloadType<?>) // FIXME?
+					if (elem instanceof AssrtPayloadElemType<?>) // FIXME?
 					{
-						AssrtPayloadType<?> apt = (AssrtPayloadType<?>) elem;
+						AssrtPayloadElemType<?> apt = (AssrtPayloadElemType<?>) elem;
 						if (apt.isAnnotVarDecl() || apt.isAnnotVarName())
 						{
 							String varName;
@@ -155,35 +173,6 @@ public class AssrtSConfig extends SConfig
 				.map(c -> sf.newAssrtSConfig(c.efsms, c.buffs, this.formula, this.variablesInScope)).collect(Collectors.toList());
 	}
 	
-	public Map<Role, EState> getUnsatAssertions()
-	{
-		Map<Role, EState> res = new HashMap<>();
-		for (Role r : this.efsms.keySet())
-		{
-			Set<ESend> unsafStates = new HashSet<ESend>(); 
-			EFSM s = this.efsms.get(r);
-			for (EAction action : s.getAllFireable())  
-			{
-				if (action.isSend()) {
-					AssrtESend send = (AssrtESend)action;
-					AssrtAssertion assertion = send.assertion; 
-					if (assertion != null)
-					{
-						if (!SMTWrapper.getInstance().isSat(assertion.getFormula(), this.formula)) {
-							unsafStates.add(send); 
-						}
-					}
-				}
-				if (!unsafStates.isEmpty())
-				{
-					res.put(r, this.efsms.get(r).curr);
-				}
-				unsafStates.clear();
-			}
-		}
-		return res;
-	}
-	
 	// For now we are checking that only the sender knows all variables. 
 	public Map<Role, EState> checkHistorySensitivity()  // Not the full "formal" HS -- here, checking again "knowledge by message flow"? (already done syntactically?)
 	{
@@ -197,16 +186,16 @@ public class AssrtSConfig extends SConfig
 				if (action.isSend())
 				{
 					AssrtESend send = (AssrtESend)action;
-					AssrtAssertion assertion = send.assertion;
+					AssrtBoolFormula assertion = send.ass;
 					
 					Set<String> newVarNames = send.payload.elems.stream()
-							.filter(v -> (v instanceof AssrtPayloadType<?>) && ((AssrtPayloadType<?>) v).isAnnotVarDecl())  // FIXME?
+							.filter(v -> (v instanceof AssrtPayloadElemType<?>) && ((AssrtPayloadElemType<?>) v).isAnnotVarDecl())  // FIXME?
 							.map(v -> ((AssrtAnnotDataType) v).var.toString())
 							.collect(Collectors.toSet()); 
 					
 					if (assertion !=null)
 					{
-						Set<String> varNames = assertion.getFormula().getVars();
+						Set<String> varNames = assertion.getVars().stream().map(v -> v.toString()).collect(Collectors.toSet());
 						varNames.removeAll(newVarNames); 
 						if ((!varNames.isEmpty()) && (!this.variablesInScope.containsKey(r) ||
 							 !this.variablesInScope.get(r).containsAll(varNames)))
@@ -219,6 +208,35 @@ public class AssrtSConfig extends SConfig
 				}
 				
 				unknownVars.clear();
+			}
+		}
+		return res;
+	}
+	
+	public Map<Role, EState> getUnsatAssertions()
+	{
+		Map<Role, EState> res = new HashMap<>();
+		for (Role r : this.efsms.keySet())
+		{
+			Set<ESend> unsafStates = new HashSet<ESend>(); 
+			EFSM s = this.efsms.get(r);
+			for (EAction action : s.getAllFireable())  
+			{
+				if (action.isSend()) {
+					AssrtESend send = (AssrtESend)action;
+					AssrtBoolFormula assertion = send.ass; 
+					if (assertion != null)
+					{
+						if (!JavaSmtWrapper.getInstance().isSat(assertion, this.formula)) {
+							unsafStates.add(send); 
+						}
+					}
+				}
+				if (!unsafStates.isEmpty())
+				{
+					res.put(r, this.efsms.get(r).curr);
+				}
+				unsafStates.clear();
 			}
 		}
 		return res;

@@ -1,0 +1,20 @@
+module good.extensions.annotations.ComplexMessageFlow2;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Int;
+
+
+// assrt-core version of good.extensions.annotations.ComplexMessageFlow
+global protocol Proto1(role S, role B, role C, role D)
+{
+	ADD(x:Int) from C to S;
+	Add(x1:Int) from S to B; @(x1 = x);
+	
+	ADD(x2:Int) from C to B; @(x2 = x);
+	
+	Add(y:Int) from C to D; 
+	
+	Add(x3:Int) from B to D; @(x3 = x1);
+	
+	Add(y1:Int) from D to S; @(y1 = y);
+}

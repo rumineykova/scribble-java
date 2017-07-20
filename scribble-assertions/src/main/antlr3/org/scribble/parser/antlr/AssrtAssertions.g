@@ -1,3 +1,10 @@
+//$ java -cp scribble-parser/lib/antlr-3.5.2-complete.jar org.antlr.Tool -o scribble-assertions/target/generated-sources/antlr3 scribble-assertions/src/main/antlr3/org/scribble/parser/antlr/AssrtAssertions.g
+
+// Windows:
+//$ java -cp scribble-parser/lib/antlr-3.5.2-complete.jar org.antlr.Tool -o scribble-assertions/target/generated-sources/antlr3/org/scribble/parser/antlr scribble-assertions/src/main/antlr3/org/scribble/parser/antlr/AssrtAssertions.g
+//$ mv scribble-assertions/target/generated-sources/antlr3/org/scribble/parser/antlr/AssrtAssertions.tokens scribble-assertions/target/generated-sources/antlr3/
+
+
 grammar AssrtAssertions;
 
 options
@@ -5,18 +12,21 @@ options
 	language = Java;
 	output = AST;
 	ASTLabelType = CommonTree;
-	//backtrack = true;  // backtracking disabled by default? Is it bad to require this option?
-	//memoize = true;
 }
 
 tokens {
-	ROOT = 'root-node'; 
+	TRUE_KW = 'True';
+	FALSE_KW = 'False';
+
+	ROOT  = 'root-node'; 
 	BEXPR = 'binary-expr-node'; 
-	AEXPR = 'arithmetic-expr'; 
-	BOPNODE = 'binary-op-node'; 
 	CEXPR = 'compare-expr-node'; 
-	VAR = 'var-node'; 
+	AEXPR = 'arithmetic-expr'; 
+	VAR   = 'var-node'; 
 	VALUE = 'value-node'; 
+
+	TRUE_FORMULA  = 'formula-true';
+	FALSE_FORMULA = 'formula-false';
 }
 
 @parser::header
@@ -29,25 +39,31 @@ tokens {
 	package org.scribble.parser.antlr;
 }
 
-
-@members {
-  public static CommonTree ast(String source) throws RecognitionException {
-    AssrtAssertionsLexer lexer = new AssrtAssertionsLexer(new ANTLRStringStream(source));
-    AssrtAssertionsParser parser = new AssrtAssertionsParser(new CommonTokenStream(lexer));
-    return (CommonTree)parser.parse().getTree();
-  }
+@parser::members
+{
+	@Override    
+	public void displayRecognitionError(String[] tokenNames, RecognitionException e)
+	{
+		super.displayRecognitionError(tokenNames, e);
+  	System.exit(1);
+	}
+  
+	public static CommonTree antlrParse(String source) throws RecognitionException
+	{
+		source = source.substring(1, source.length());
+		AssrtAssertionsLexer lexer = new AssrtAssertionsLexer(new ANTLRStringStream(source));
+		AssrtAssertionsParser parser = new AssrtAssertionsParser(new CommonTokenStream(lexer));
+		return (CommonTree) parser.parse().getTree();
+	}
 }
 
+// Not referred to explicitly, deals with whitespace implicitly (don't delete this)
 WHITESPACE:
 	('\t' | ' ' | '\r' | '\n'| '\u000C')+
 	{
 		$channel = HIDDEN;
 	}
 ;
-
-fragment OPSYMBOL: 
-	'=' | '>' | '<'  | '||' | '&&'
-;  
 
 fragment LETTER:
 	'a'..'z' | 'A'..'Z'
@@ -58,63 +74,91 @@ fragment DIGIT:
 ;
 
 IDENTIFIER:
-	(LETTER)* 
+	LETTER (LETTER | DIGIT)*
 ;  
+//	LETTER (LETTER | DIGIT)* 
 
 NUMBER: 
-	(DIGIT)*	 
+	(DIGIT)* 
 ; 
+	//(DIGIT)+  // Doesn't work -- why? (and why does above work?)
 
-START_TOKEN: '['; 
-END_TOKEN: ']'; 
 
-/*ASSERTION: 
-	(LETTER | DIGIT | OPSYMBOL | WHITESPACE)*
-; */
-
-COMP:
+BIN_COMP_OP:
     '>' | '<' | '='		 
 ; 
 
-OP:	 
+BIN_ARITH_OP:	 
   '+' | '-' | '*' 	
 ; 
 
-BOP:
+BIN_BOOL_OP:
    '||' | '&&'
 ; 	 	
 
+
 variable: 
-	IDENTIFIER -> ^(VAR IDENTIFIER)
+	IDENTIFIER
+->
+	^(VAR IDENTIFIER)
 ; 	  
 
-
 num: 
-	NUMBER -> ^(VALUE NUMBER)	   
+	NUMBER
+->
+	^(VALUE NUMBER)	   
 ; 
 
 parse:  
-  START_TOKEN assertion END_TOKEN -> ^(ROOT assertion)
+	bool_expr
+->
+	^(ROOT bool_expr)
 ;
 
-assertion: 
-	bexpr -> bexpr
-; 
+bool_expr:
+	bin_bool_expr
+|
+	unary_bool_expr
+;
 	
-bexpr:	 
-   compexpr BOP bexpr 
-   -> 	^(BEXPR compexpr BOP bexpr)
-   | compexpr -> compexpr
+bin_bool_expr:
+	'(' unary_bool_expr BIN_BOOL_OP bool_expr ')'
+->
+	^(BEXPR unary_bool_expr BIN_BOOL_OP bool_expr)
 ;
 
-compexpr: expr COMP expr -> 
-	^(CEXPR expr COMP expr)
-	| expr -> expr
+unary_bool_expr:
+	TRUE_KW
+->
+	^(TRUE_FORMULA)
+|
+	FALSE_KW
+->
+	^(FALSE_FORMULA)
+|
+	bin_comp_expr
 ; 
 
-expr: 
-	variable OP num -> ^(AEXPR OP variable num)
-|	variable -> variable
-|	num -> num
+bin_comp_expr:
+	'(' arith_expr BIN_COMP_OP arith_expr ')'
+-> 
+	^(CEXPR arith_expr BIN_COMP_OP arith_expr)
 ; 
+
+arith_expr: 
+	unary_arith_expr
+|
+	binary_arith_expr
+; 
+
+unary_arith_expr: 
+	variable
+|
+	num
+;
  
+binary_arith_expr:
+	'(' unary_arith_expr BIN_ARITH_OP arith_expr ')'
+->
+	^(AEXPR unary_arith_expr BIN_ARITH_OP arith_expr)
+;

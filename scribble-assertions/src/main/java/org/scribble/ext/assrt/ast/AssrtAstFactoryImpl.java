@@ -11,13 +11,13 @@ import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.local.LInteractionSeq;
 import org.scribble.ast.local.LProtocolBlock;
+import org.scribble.ast.local.LReceive;
 import org.scribble.ast.local.LSend;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
-import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
@@ -27,11 +27,12 @@ import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
 import org.scribble.ext.assrt.del.global.AssrtGRecursionDel;
 import org.scribble.ext.assrt.del.local.AssrtLProtocolBlockDel;
+import org.scribble.ext.assrt.del.local.AssrtLReceiveDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
 import org.scribble.sesstype.kind.Kind;
-import org.scribble.sesstype.kind.PayloadTypeKind;
 
 
 // FIXME: separate modified-del-only from new categories
@@ -95,6 +96,14 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		ls = del(ls, new AssrtLSendDel());
 		return ls;
 	}
+	
+	@Override
+	public LReceive LReceive(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	{
+		LReceive ls = new LReceive(source, src, msg, dests);  // FIXME: AssrtLReceive with assertion?
+		ls = del(ls, new AssrtLReceiveDel());
+		return ls;
+	}
 
 	@Override
 	public AssrtLSend AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
@@ -106,16 +115,16 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	
 	// An "additional" category, does not "replace" an existing one -- cf. AssrtGMessageTransfer
 	@Override
-	public <K extends PayloadTypeKind> AssrtAnnotDataTypeElem<K> AssrtAnnotPayloadElem(CommonTree source, AssrtVarNameNode varName, DataTypeNode dataType)
+	public AssrtAnnotDataTypeElem AssrtAnnotDataTypeElem(CommonTree source, AssrtVarNameNode var, DataTypeNode data)
 	{
-		AssrtAnnotDataTypeElem<K> de= new AssrtAnnotDataTypeElem<>(source, varName, dataType);
+		AssrtAnnotDataTypeElem de = new AssrtAnnotDataTypeElem(source, var, data);
 		de = del(de, new AssrtAnnotDataTypeElemDel());
 		return de;
 	}
 
 	@Override
 	//public AssrtAssertionNode AssertionNode(CommonTree source, String assertion)
-	public AssrtAssertion AssrtAssertion(CommonTree source, SmtFormula f)
+	public AssrtAssertion AssrtAssertion(CommonTree source, AssrtBoolFormula f)
 	{
 		//AssrtAssertionNode node = new AssrtAssertionNode(source, assertion); 
 		AssrtAssertion node = new AssrtAssertion(source, f); 
@@ -143,5 +152,4 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		lpb = del(lpb, new AssrtLProtocolBlockDel());
 		return lpb;
 	}
-
 }

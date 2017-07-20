@@ -1,20 +1,18 @@
 module good.extensions.annotations.ChoiceWithAnnot;
 
 
-type <java> "java.lang.Integer" from "rt.jar" as Integer;
-type <java> "java.lang.Long" from "rt.jar" as Long;
-
+type <java> "java.lang.Integer" from "rt.jar" as Int;
 
 
 global protocol ProtComplex(role A, role B, role C)
 {
 	choice at A {
-		ADD(x:Integer) from A to B;  
-		ADD(z:Integer) from B to C;
+		ADD(x:Int) from A to B;  
+		ADD(z:Int) from B to C;
 		 
 	} or {
-		RES(y:Integer) from A to B;
-		RES(z:Integer) from B to C; 
+		RES(y:Int) from A to B;
+		RES(z:Int) from B to C; 
 	}			}
 	
 	RES(z) from B to C; 

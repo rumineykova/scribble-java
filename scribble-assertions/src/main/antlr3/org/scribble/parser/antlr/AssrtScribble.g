@@ -1,3 +1,9 @@
+//$ java -cp scribble-parser/lib/antlr-3.5.2-complete.jar org.antlr.Tool -o scribble-assertions/target/generated-sources/antlr3 scribble-assertions/src/main/antlr3/org/scribble/parser/antlr/AssrtScribble.g
+
+// Windows:
+//$ java -cp scribble-parser/lib/antlr-3.5.2-complete.jar org.antlr.Tool -o scribble-assertions/target/generated-sources/antlr3/org/scribble/parser/antlr scribble-assertions/src/main/antlr3/org/scribble/parser/antlr/AssrtScribble.g
+//$ mv scribble-assertions/target/generated-sources/antlr3/org/scribble/parser/antlr/AssrtScribble.tokens scribble-assertions/target/generated-sources/antlr3/
+
 grammar AssrtScribble;
 
 
@@ -149,8 +155,8 @@ tokens
 	LOCALRECEIVE = 'local-receive';*/
 
 	//ASSERTION = 'global-assertion'; 
-	ANNOTPAYLOADELEM = 'annot-payload-elem'; 
-	ASSRTGLOBALMESSAGETRANSFER = 'global-message-transfer-with-assertion';   // May be a null (true) assertion
+	ASSRT_ANNOTPAYLOADELEM = 'annot-payload-elem'; 
+	ASSRT_GLOBALMESSAGETRANSFER = 'global-message-transfer-with-assertion';   // May be a null (true) assertion
 }
 
 
@@ -171,11 +177,9 @@ tokens
 
 @parser::members
 {
-	
 	@Override    
 	public void displayRecognitionError(String[] tokenNames, RecognitionException e)
 	{
-		
 		super.displayRecognitionError(tokenNames, e);
   	System.exit(1);
 	}
@@ -200,6 +204,8 @@ tokens
 /*
  * Section 2.1 White space (Section 2.1)
  */
+
+// Not referred to explicitly, deals with whitespace implicitly (don't delete this)
 WHITESPACE:
 	('\t' | ' ' | '\r' | '\n'| '\u000C')+
 	{
@@ -245,8 +251,6 @@ fragment SYMBOL:
 ;
 
 
-
-
 // Comes after SYMBOL due to an ANTLR syntax highlighting issue involving
 // quotes.
 // Parser doesn't work without quotes here (e.g. if inlined into parser rules)
@@ -254,15 +258,6 @@ EXTIDENTIFIER:
   '\"' (LETTER | DIGIT | SYMBOL)* '\"'
 	//(LETTER | DIGIT | SYMBOL)*
 ;
-
-EXPR: 
-	'[' (LETTER | DIGIT | OPSYMBOL | WHITESPACE)* ']'
-; 
-
-
-fragment OPSYMBOL: 
-	'=' | '>' | '<'  | '||' | '&&' | '+' | '-' | '*' 
-;  
 
 fragment LETTER:
 	'a'..'z' | 'A'..'Z'
@@ -275,6 +270,16 @@ fragment DIGIT:
 fragment UNDERSCORE:
 	'_'
 ;
+
+
+ASSRT_EXPR: 
+	'@' (LETTER | DIGIT | ASSRT_SYMBOL | WHITESPACE)* ';'
+; 
+
+fragment ASSRT_SYMBOL: 
+	'=' | '>' | '<'  | '||' | '&&' | '+' | '-' | '*' | '(' | ')'
+;  
+
  
 /****************************************************************************
  * Chapter 3 Syntax (Parser rules)
@@ -441,7 +446,7 @@ payloadelement:
 	qualifiedname  // This case subsumes simple names  // FIXME: ambiguousqualifiedname (or ambiguousname should just be qualified)
 | varname ':' qualifiedname
 -> 
-	^(ANNOTPAYLOADELEM varname qualifiedname)
+	^(ASSRT_ANNOTPAYLOADELEM varname qualifiedname)
 |
 	protocolname '@' rolename
 ->
@@ -587,10 +592,12 @@ globalmessagetransfer:
 	//^(GLOBALMESSAGETRANSFER EMPTY_ASSERTION message rolename rolename+) 
 	^(GLOBALMESSAGETRANSFER message rolename rolename+) 
 | 
-	EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
+	message FROM_KW rolename TO_KW rolename (',' rolename )* ';' ASSRT_EXPR 
 	->
-	^(ASSRTGLOBALMESSAGETRANSFER {AssrtAssertionsParser.ast($EXPR.text)} message rolename rolename+)
+	^(ASSRT_GLOBALMESSAGETRANSFER { AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text) } message rolename rolename+)
+			// Calling a separate parser this way loses line/char number information
 ;
+//	ASSRT_EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 	
 message:
 	messagesignature
@@ -604,13 +611,15 @@ message:
 
 globalconnect:
 	//message CONNECT_KW rolename TO_KW rolename
-	EXPR CONNECT_KW rolename TO_KW rolename ';'
+	//ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
+	CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
 	->
-	^(GLOBALCONNECT {AssrtAssertionsParser.ast($EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+	^(GLOBALCONNECT {AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
-	EXPR message CONNECT_KW rolename TO_KW rolename ';'
+	//ASSRT_EXPR message CONNECT_KW rolename TO_KW rolename ';'
+	message CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
 	->
-	^(GLOBALCONNECT {AssrtAssertionsParser.ast($EXPR.text)} rolename rolename message)
+	^(GLOBALCONNECT {AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename message)
 |	CONNECT_KW rolename TO_KW rolename ';'
 	->
 	//^(GLOBALCONNECT EMPTY_ASSERTION rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature

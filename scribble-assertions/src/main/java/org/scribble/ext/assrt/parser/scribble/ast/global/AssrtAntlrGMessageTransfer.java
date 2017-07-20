@@ -9,9 +9,9 @@ import org.scribble.ast.global.GMessageTransfer;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.formula.SmtFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
 import org.scribble.ext.assrt.parser.scribble.AssrtScribParser;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.parser.scribble.ScribParser;
 import org.scribble.parser.scribble.ScribParserUtil;
 import org.scribble.parser.scribble.ast.global.AntlrGMessageTransfer;
@@ -41,9 +41,12 @@ public class AssrtAntlrGMessageTransfer
 	
 	public static AssrtAssertion parseAssertion(AssrtAssertParser ap, CommonTree ct, AssrtAstFactory af)
 	{
+		ScribParser.checkForAntlrErrors(ct);  // Check ct root
+
 		//return AssrtAstFactoryImpl.FACTORY.AssertionNode(ct, ct.getText());
 		CommonTree tmp = (CommonTree) ct.getChild(0);  // Formula node to parse  // FIXME: factor out?
-		SmtFormula f = ap.parse(tmp);
+		//SmtFormula f = ap.parse(tmp);
+		AssrtBoolFormula f = (AssrtBoolFormula) ap.parse(tmp);  // By AssrtAssertions.g
 		return ((AssrtAstFactory) af).AssrtAssertion(ct, f);
 	}
 

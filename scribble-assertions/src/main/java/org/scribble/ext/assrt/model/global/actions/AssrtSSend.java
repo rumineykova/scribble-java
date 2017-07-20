@@ -1,6 +1,6 @@
 package org.scribble.ext.assrt.model.global.actions;
 
-import org.scribble.ext.assrt.ast.AssrtAssertion;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.model.global.actions.SSend;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
@@ -8,12 +8,13 @@ import org.scribble.sesstype.name.Role;
 
 public class AssrtSSend extends SSend
 {
-	public final AssrtAssertion assertion;  // Cf., e.g., AGMessageTransfer
+	//public final AssrtAssertion assertion;  // Cf., e.g., AGMessageTransfer
+	public final AssrtBoolFormula bf;  // Not null (cf. AssrtESend)
 
-	public AssrtSSend(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtAssertion assertion)
+	public AssrtSSend(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
 	{
 		super(subj, obj, mid, payload);
-		this.assertion = assertion;
+		this.bf = bf;
 	}
 
 	@Override
@@ -21,7 +22,7 @@ public class AssrtSSend extends SSend
 	{
 		int hash = 5483;
 		hash = 31 * hash + super.hashCode();
-		hash = 31 * hash + this.assertion.hashCode();
+		hash = 31 * hash + this.bf.toString().hashCode();  // FIXME: treating as String (cf. AssrtESend)
 		return hash;
 	}
 
@@ -37,9 +38,8 @@ public class AssrtSSend extends SSend
 			return false;
 		}
 		AssrtSSend as = (AssrtSSend) o;
-		return as.canEqual(this) && super.equals(o) 
-				&& ((as.assertion == null && this.assertion == null)
-						|| (as.assertion != null && this.assertion != null && as.assertion.equals(this.assertion)));
+		return super.equals(o)  // Does canEqual
+				&& this.bf.toString().equals(as.bf.toString());  // FIXME: treating as String (cf. AssrtESend)
 	}
 
 	@Override
@@ -51,6 +51,6 @@ public class AssrtSSend extends SSend
 	@Override
 	public String toString()
 	{
-		return "[" + this.assertion + "]" + super.toString();
+		return super.toString() + "@" + this.bf + ";";
 	}
 }

@@ -1,16 +1,16 @@
 module bad.extensions.assertions.DbCHistorySensititivy;
 
 
-type <java> "java.lang.Integer" from "rt.jar" as Integer;
+type <java> "java.lang.Int" from "rt.jar" as Int;
 type <java> "java.lang.Long" from "rt.jar" as Long;
 
 // History Sensitivity
-global protocol Prot(role A, role B, role C)
+global protocol Proto1(role A, role B, role C)
 {
-	MSG(x:Integer) from A to B;
+	MSG(x:Int) from A to B;
 	
-	MSG(y:Integer) from B to C;
+	MSG(y:Int) from B to C;
 	
-	[z>x]
-	MSG(z:Integer) from C to A;
+	//[z>x]
+	MSG(z:Int) from C to A;  @(z > x);
 }

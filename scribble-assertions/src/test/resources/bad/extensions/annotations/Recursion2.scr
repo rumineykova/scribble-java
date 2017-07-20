@@ -1,0 +1,20 @@
+module bad.extensions.annotations.Recursion2;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Int;
+
+// assrt-core version of bad.extensions.annotations.Recursion
+global protocol Proto1(role A, role B, role C)
+{
+rec Loop {
+	choice at A {
+		ADD(x:Int) from A to B;  
+		ADD(z:Int) from B to C;
+		RES(y1:Int) from B to C; @(y1 = y);  // Artificial
+	} or {
+		RES(y:Int) from A to B;
+		RES(z1:Int) from B to C; 
+		continue Loop;
+		}
+	}
+}

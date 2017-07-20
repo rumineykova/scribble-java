@@ -1,8 +1,8 @@
 //Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
-//$ bin/scribblec.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtTest.scr 
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtTest.scr 
 
 
-//http://sandbox.kidstrythisathome.com/erdos/
+// http://sandbox.kidstrythisathome.com/erdos/
 
 
 module assrt.tmp.AssrtTest;
@@ -13,6 +13,99 @@ type <java> "java.lang.String" from "rt.jar" as Str;
 
 
 // FIXME: debug printing for assertion passes
+
+
+// - assertion validation
+// - receive assertions -- why receive assertions?  should WF imply receive assertions always true?
+// - explicit connections
+
+
+global protocol Proto1(role A, role B, role C)
+{
+	1(x: Int) from A to B; @(x > 6);
+	//2(y: Int) from B to A; @((y > x) && (y > 5));  // X
+	//2(y: Int) from B to A; @(y < x);  // X
+	//2(y: Int) from B to A; @(y = x);
+	2(y: Int) from B to A; @(y < 5);
+	//3(z: Int) from A to C; @(z < y);  // X
+	//3(z: Int) from A to C; @(z = y);  // X
+	3(z: Int) from A to C; @(z < 4);
+}
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	rec X
+	{
+		choice at A
+		{
+			1(x:Int) from A to B; @(x < 10);
+			continue X;
+		}
+		or
+		{
+			2(y:Int) from A to B; @(y > 5);
+			continue X;
+		}
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:Int) from A to B;	@(True && ((x+1) > 1));
+	2(y:Int) from A to B; @(z > 1);
+}
+//*/
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A
+	{	
+		1(Int) from A to B;
+		4(Int) from A to C;
+	}
+	or
+	{
+		2(Int) from A to B;
+		3(Int) from A to C;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	choice at A
+	{	
+		1(x:Int) from A to B;
+		choice at A
+		{
+			2(y:Int) from A to B;
+			do Proto1(A, B);
+		}
+		or
+		{
+			3(z:Int) from A to B;
+		}
+	
+	}
+	or
+	{
+		2(Int) from A to B;
+	}
+}
+//*/
+
+
+
+
+
 
 
 /*
@@ -62,7 +155,7 @@ global protocol Proto1(role A, role B)
 //---
 
 
-//*
+/*
 global protocol Proto1(role A, role B)
 {
 	(y:Int) from A to C;
@@ -81,11 +174,11 @@ global protocol Proto1(role A, role B)
 //*/
 
 
-//*
+/*
 global protocol Proto1(role A, role B, role C)
 {
 	/*rec X
-	{*/
+	{* /
 		choice at A
 		{
 			1(y:Int) from A to B;

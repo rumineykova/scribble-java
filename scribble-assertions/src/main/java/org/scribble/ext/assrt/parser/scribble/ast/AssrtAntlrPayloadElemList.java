@@ -36,7 +36,7 @@ public class AssrtAntlrPayloadElemList
 			{
 				AssrtVarNameNode var = AssrtAntlrSimpleName.toVarNameNode(getVarNameChild(ct), af);
 				DataTypeNode dt = AntlrQualifiedName.toDataTypeNameNode(getDataTypeChild(ct), af);
-				return ((AssrtAstFactory) af).AssrtAnnotPayloadElem(ct, var, dt); 
+				return ((AssrtAstFactory) af).AssrtAnnotDataTypeElem(ct, var, dt); 
 			}
 			default: return AntlrPayloadElemList.parsePayloadElem(ct, af);
 		}

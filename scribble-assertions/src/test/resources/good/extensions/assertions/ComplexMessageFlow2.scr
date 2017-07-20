@@ -1,0 +1,17 @@
+module good.extensions.assertions.ComplexMessageFlow2;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Int;
+
+
+// assrt-core version of good.extensions.assertions.ComplexMessageFlow;
+global protocol Proto1(role A, role B, role C, role D)
+{	
+	MSG1(x:Int) from A to B;  @(x > 10);
+	MSG1(y:Int) from A to B; 
+	
+	MSG1(xa: Int) from B to C;  @(xa = x);
+	MSG1(ya:Int) from B to C;  @(ya = y);
+	
+	MSG1(z:Int) from C to D;  @(z < xa);
+}

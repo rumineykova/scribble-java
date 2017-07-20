@@ -97,8 +97,9 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 	@Override
 	public String toString()
 	{
-		return "[" + this.ass + "]\n"
-					+ this.msg + " " + Constants.FROM_KW + " " + this.src + " " + Constants.TO_KW + " "
-					+ getDestinations().stream().map((dest) -> dest.toString()).collect(Collectors.joining(", ")) + ";";
+		return
+				  this.msg + " " + Constants.FROM_KW + " " + this.src + " " + Constants.TO_KW + " "
+				+ getDestinations().stream().map((dest) -> dest.toString()).collect(Collectors.joining(", "))
+				+ "; @" + this.ass + ";";
 	}
 }

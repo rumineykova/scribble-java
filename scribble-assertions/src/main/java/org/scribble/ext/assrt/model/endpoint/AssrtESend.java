@@ -1,7 +1,8 @@
 package org.scribble.ext.assrt.model.endpoint;
 
-import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.model.global.SModelFactory;
@@ -9,20 +10,35 @@ import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 
+// FIXME: treating assertion as String -- assertion currently has no equals/hashCode itself
 public class AssrtESend extends ESend
 {
-	public final AssrtAssertion assertion;  // Cf., e.g., ALSend  // FIXME: should not be the AST node
+	//public final AssrtAssertion assertion;  // Cf., e.g., ALSend
+	public final AssrtBoolFormula ass;  // Not null -- empty set to True by parsing
 
-	public AssrtESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtAssertion assertion)
+	public AssrtESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula assertion)
 	{
 		super(ef, peer, mid, payload);
-		this.assertion = assertion;
+		this.ass = assertion;
+	}
+
+	// Change assertion to True
+	public AssrtESend toESendTrue()  // FIXME HACK: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
+	{
+		return ((AssrtEModelFactory) this.ef).newAssrtESend(this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE);
+	}
+
+	@Override
+	public AssrtEReceive toDual(Role self)
+	{
+		//return super.toDual(self);  // FIXME: assertion? -- currently ignoring assertions for model building -- no: cannot ignore now, need assertions on actions to check history sensitivity
+		return ((AssrtEModelFactory) this.ef).newAssrtEReceive(self, this.mid, this.payload, this.ass);
 	}
 
 	@Override
 	public AssrtSSend toGlobal(SModelFactory sf, Role self)
 	{
-		return new AssrtSSend(self, this.peer, this.mid, this.payload, this.assertion);
+		return new AssrtSSend(self, this.peer, this.mid, this.payload, this.ass);
 	}
 	
 	@Override
@@ -30,6 +46,7 @@ public class AssrtESend extends ESend
 	{
 		int hash = 5501;
 		hash = 31 * hash + super.hashCode();
+		hash = 31 * hash + this.ass.toString().hashCode();  // FIXME: treating as String
 		return hash;
 	}
 
@@ -45,9 +62,8 @@ public class AssrtESend extends ESend
 			return false;
 		}
 		AssrtESend as = (AssrtESend) o;
-		return as.canEqual(this) && super.equals(o)
-				&& ((as.assertion == null && this.assertion == null)
-						|| (as.assertion != null && this.assertion != null && as.assertion.equals(this.assertion)));
+		return super.equals(o)  // Does canEquals
+				&& this.ass.toString().equals(as.ass.toString());  // FIXME: treating as String
 	}
 
 	@Override
@@ -59,6 +75,6 @@ public class AssrtESend extends ESend
 	@Override
 	public String toString()
 	{
-		return "[" + this.assertion + "]" + super.toString();
+		return super.toString() + "@" + this.ass + ";";
 	}
 }

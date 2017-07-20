@@ -1,0 +1,19 @@
+module bad.extensions.annotations.Choice2;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Int;
+
+
+// assrt-core version of bad.extensions.annotations.Choice
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A {
+		ADD(x:Int) from A to B;  
+		ADD(z:Int) from B to C;  
+		RES(y1:Int) from B to C;  @(y1 = y);
+	} or {
+		RES(y:Int) from A to B;
+		RES(z1:Int) from B to C;
+		RES(y2:Int) from B to C;  @(y2 = y);
+	}
+}

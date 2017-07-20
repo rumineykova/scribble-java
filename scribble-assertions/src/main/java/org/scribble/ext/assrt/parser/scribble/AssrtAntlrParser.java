@@ -3,7 +3,8 @@ package org.scribble.ext.assrt.parser.scribble;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.Lexer;
-import org.antlr.runtime.Parser;
+import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.tree.CommonTree;
 import org.scribble.parser.antlr.AssrtScribbleLexer;
 import org.scribble.parser.antlr.AssrtScribbleParser;
 import org.scribble.parser.scribble.AntlrParser;
@@ -12,15 +13,16 @@ public class AssrtAntlrParser extends AntlrParser
 {
 	
 	@Override
-	protected Lexer newScribbleLexer(ANTLRStringStream ass)
+	protected Lexer getScribbleLexer(ANTLRStringStream ass)
 	{
 		return new AssrtScribbleLexer(ass);
 	}
 	
 	@Override
-	protected Parser newScribbleParser(CommonTokenStream cts)
+	//protected Parser newScribbleParser(CommonTokenStream cts)
+	protected CommonTree runScribbleParser(CommonTokenStream cts) throws RecognitionException
 	{
-		return new AssrtScribbleParser(cts);
+		return (CommonTree) new AssrtScribbleParser(cts).module().getTree();
 	}
 	
 	/*@Override

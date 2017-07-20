@@ -9,7 +9,7 @@ type <java> "java.lang.Long" from "rt.jar" as Long;
 global protocol Prot(role C, role S)
 {
 	ADD(x:Integer) from C to S;
-	RES(x:Integer) from C to S; 
+	RES(x:Integer) from C to S;   // (Original) idea is repeat var decl in "same scope" shouldn't be allowed (cf. same var decl in choice cases, e.g., good.extensions.annotations.ChoiceWithAnnot)
 }
 
 /*
