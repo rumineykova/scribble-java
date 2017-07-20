@@ -74,12 +74,14 @@ fragment DIGIT:
 ;
 
 IDENTIFIER:
-	(LETTER)* 
+	LETTER (LETTER | DIGIT)*
 ;  
+//	LETTER (LETTER | DIGIT)* 
 
 NUMBER: 
-	(DIGIT)*	 
+	(DIGIT)* 
 ; 
+	//(DIGIT)+  // Doesn't work -- why? (and why does above work?)
 
 
 BIN_COMP_OP:

@@ -1,0 +1,35 @@
+module good.extensions.annotations.RecWithAnnot2;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Int;
+
+// assrt-core version of good.extensions.annotations.RecWithAnnot2
+global protocol Proto1(role C, role S)
+{
+	rec Loop
+	{
+		ADD(x:Int) from C to S;
+		continue Loop; 
+		//ADD(y:Int) from C to S;
+	} 
+}
+
+// Recursion with Annotations (complicated)
+global protocol Proto2(role A, role B, role C)  // FIXME: check model -- unexpected sat checking output
+{
+	rec Loop
+	{
+		choice at A
+		{
+			ADD(x:Int) from A to B;  
+			ADD(z:Int) from B to C;
+			RES(z1:Int) from B to C; @(z1 = z);
+		}
+		or
+		{
+			RES(y:Int) from A to B;
+			RES(z2:Int) from B to C; 
+			continue Loop;
+		}
+	}
+}

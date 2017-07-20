@@ -1,8 +1,7 @@
-module good.extensions.assertions.ComplexMessageFlowb;
+module good.extensions.assertions.ComplexMessageFlow2;
 
 
-type <java> "java.lang.Int" from "rt.jar" as Int;
-type <java> "java.lang.Long" from "rt.jar" as Long;
+type <java> "java.lang.Integer" from "rt.jar" as Int;
 
 
 // assrt-core version of good.extensions.assertions.ComplexMessageFlow;

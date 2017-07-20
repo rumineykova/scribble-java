@@ -1,14 +1,14 @@
 module good.extensions.annotations.RecWithAnnot;
 
 
-type <java> "java.lang.Integer" from "rt.jar" as Integer;
+type <java> "java.lang.Integer" from "rt.jar" as Int;
 type <java> "java.lang.Long" from "rt.jar" as Long;
 
 // Recursion with Annotations (Simple)
 global protocol ProtSimple(role C, role S)
 {
 rec Loop {
-	ADD(x:Integer) from C to S;
+	ADD(x:Int) from C to S;
 	continue Loop; 
 	//ADD(y:Integer) from C to S;
 	} 
@@ -19,12 +19,12 @@ global protocol ProtComplex(role A, role B, role C)
 {
 rec Loop {
 	choice at A {
-		ADD(x:Integer) from A to B;  
-		ADD(z:Integer) from B to C;
+		ADD(x:Int) from A to B;  
+		ADD(z:Int) from B to C;
 		 
 	} or {
-		RES(y:Integer) from A to B;
-		RES(z:Integer) from B to C; 
+		RES(y:Int) from A to B;
+		RES(z:Int) from B to C; 
 		continue Loop;
 		}
 	}

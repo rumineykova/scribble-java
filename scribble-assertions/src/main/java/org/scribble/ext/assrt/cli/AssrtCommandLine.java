@@ -120,7 +120,8 @@ public class AssrtCommandLine extends CommandLine
 				assrtCoreParseAndCheckWF(job, simpname);  // Includes base passes
 			}
 			
-			// FIXME? f17 FSM building only used for f17 validation -- output tasks, e.g., -api, will still use default Scribble FSMs
+			// FIXME? assrt-core FSM building only used for assrt-core validation -- output tasks, e.g., -api, will still use default Scribble FSMs
+			// -- but the FSMs should be the same?
 		}
 		else
 		{

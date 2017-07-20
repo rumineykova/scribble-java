@@ -1,19 +1,18 @@
 module good.extensions.annotations.ComplexMessageFlow;
 
 
-type <java> "java.lang.Integer" from "rt.jar" as Integer;
-type <java> "java.lang.Long" from "rt.jar" as Long;
+type <java> "java.lang.Integer" from "rt.jar" as Int;
 
 
 // Complicated Message flow
 global protocol Prot(role S, role B, role C, role D)
 {
-	ADD(x:Integer) from C to S;
+	ADD(x:Int) from C to S;
 	Add(x) from S to B; 
 	
 	ADD(x) from C to B;
 	
-	Add(y:Integer) from C to D; 
+	Add(y:Int) from C to D; 
 	
 	Add(x) from B to D; 
 	

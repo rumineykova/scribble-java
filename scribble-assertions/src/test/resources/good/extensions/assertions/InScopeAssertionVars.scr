@@ -1,8 +1,7 @@
 module good.extensions.assertions.InScopeAssertionVars;
 
 
-type <java> "java.lang.Int" from "rt.jar" as Int;
-type <java> "java.lang.Long" from "rt.jar" as Long;
+type <java> "java.lang.Integer" from "rt.jar" as Int;
 
 /*
 //Reverse Temporal Satisfiability that works

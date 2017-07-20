@@ -2,7 +2,6 @@ module bad.extensions.assertions.RecWithAssertions;
 
 
 type <java> "java.lang.Int" from "rt.jar" as Int;
-type <java> "java.lang.Long" from "rt.jar" as Long;
 
 
 global protocol Prot(role A, role B, role C)
