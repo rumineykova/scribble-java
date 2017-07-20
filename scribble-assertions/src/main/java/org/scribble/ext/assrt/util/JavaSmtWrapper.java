@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
@@ -39,7 +38,8 @@ public class JavaSmtWrapper
 	public final ShutdownManager shutdownManager;
 	
 	// TODO: MOVE to config
-	private int timeOutInMs = 2000;
+	private static final int SOLVER_TIMEOUT_MS = 5000;
+
 	private final FormulaManager fmanager;    
 
 	public final BooleanFormulaManager bfm; 
@@ -115,21 +115,20 @@ public class JavaSmtWrapper
 			{
 				prover.addConstraint(formula);
 
-				ScheduledFuture<?> timeoutFuture = executor.schedule(solverInterruptThread, timeOutInMs,
-						TimeUnit.MILLISECONDS);
+				ScheduledFuture<?> timeoutFuture = executor.schedule(solverInterruptThread, JavaSmtWrapper.SOLVER_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 				isUnsat = prover.isUnsat();
 				cancelTimeoutFuture(timeoutFuture);
 			}
 
 			catch (SolverException e)
 			{
-				this.logger.logUserException(Level.INFO, e, "Error thrown by the SMT solver");
-				System.err.print("Error thrown by the SMT solver" + e.getMessage());
+				//this.logger.logUserException(Level.INFO, e, "Error thrown by the SMT solver");
+				throw new RuntimeException("[assrt] SMT solver error: ", e);
 			}
 			catch (InterruptedException e)
 			{
-				this.logger.logUserException(Level.INFO, e, "The formula was interrupted. Took too long");
-				System.err.print("The formula was interrupted. Took too long." + e.getMessage());
+				//this.logger.logUserException(Level.INFO, e, "The formula was interrupted. Took too long");
+				throw new RuntimeException("[assrt] SMT solver timeout: ", e);
 			}
 			finally
 			{

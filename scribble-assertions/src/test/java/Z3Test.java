@@ -59,6 +59,12 @@ public class Z3Test
 
 	private static BooleanFormula makeFormula(BooleanFormulaManager bmgr, IntegerFormulaManager imgr, QuantifiedFormulaManager qmgr)
 	{
+		IntegerFormula x1 = imgr.makeVariable("x");
+		IntegerFormula x2 = imgr.makeVariable("x");
+		BooleanFormula f = imgr.equal(x1, x2);
+		return f;
+		
+		
 		/*IntegerFormula x = imgr.makeVariable("x");
 		IntegerFormula _6 = imgr.makeNumber(6);
 		IntegerFormula y = imgr.makeVariable("y");
@@ -100,7 +106,7 @@ public class Z3Test
 		//return qmgr.exists(bmgr.makeVariable("x"), imgr.equal(x, _6));
 		//return qmgr.forall(bmgr.makeVariable("x"), bmgr.and(imgr.equal(x, _6), bmgr.makeVariable("x")));
 
-		IntegerFormula x = imgr.makeVariable("x");
+		/*IntegerFormula x = imgr.makeVariable("x");
 		IntegerFormula _6 = imgr.makeNumber(6);
 		IntegerFormula y = imgr.makeVariable("y");
 		
@@ -109,7 +115,7 @@ public class Z3Test
 		BooleanFormula b3 = imgr.greaterThan(y, _6);
 		//return bmgr.implication(b1, bmgr.and(b2, b3));
 		//return qmgr.exists(x, bmgr.implication(b1, qmgr.exists(y, bmgr.and(b2, b3))));
-		return qmgr.forall(x, bmgr.implication(b1, qmgr.exists(y, bmgr.and(b2, b3))));
+		return qmgr.forall(x, bmgr.implication(b1, qmgr.exists(y, bmgr.and(b2, b3))));*/
 		
 		//return qmgr.exists(Arrays.asList(x, y), imgr.equal(x, y));
 		//return qmgr.exists(Arrays.asList(bmgr.makeVariable("x"), bmgr.makeVariable("y")), imgr.equal(x, y));

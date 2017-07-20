@@ -303,17 +303,31 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					if (a instanceof AssrtESend)
 					{
 						JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
+						AssrtBoolFormula ass = ((AssrtESend) a).ass;
+						Set<IntegerFormula> Fvars = this.F.stream().flatMap(f -> f.getVars().stream()
+							.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());
+						Set<IntegerFormula> Avars = ass.getVars().stream()
+							.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
+						Avars.removeAll(Fvars);
 
-						Set<IntegerFormula> vs = this.F.stream().flatMap(f -> f.getVars().stream()
-								.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());
 						AssrtBoolFormula tmp = this.F.stream().reduce(
 								AssrtFormulaFactory.AssrtTrueFormula(),
 								(b1, b2) -> AssrtFormulaFactory.BinBoolFormula("&&", b1, b2));  // F empty at start
-						BooleanFormula PP = jsmt.qfm.forall(new LinkedList<>(vs), tmp.getJavaSmtFormula());
-
-						AssrtBoolFormula AA = ((AssrtESend) a).ass;
+						BooleanFormula PP = tmp.getJavaSmtFormula();
+						BooleanFormula AA = ass.getJavaSmtFormula();
+						if (!Avars.isEmpty())
+						{
+							AA = jsmt.qfm.exists(new LinkedList<>(Avars), AA);
+						}
+						BooleanFormula impli = jsmt.bfm.implication(PP, AA);
+						if (!Fvars.isEmpty())
+						{
+							impli = jsmt.qfm.forall(new LinkedList<>(Fvars), impli);
+						}
 						
-						if (!jsmt.isSat(jsmt.bfm.implication(PP, AA.getJavaSmtFormula())))
+						System.out.println("\n[assrt-core] Checking satisfiability for " + e.getKey() + " at " + e.getValue() + ": " + impli);
+							
+						if (!jsmt.isSat(impli))
 						{
 							return true;
 						}
