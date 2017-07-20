@@ -14,6 +14,7 @@ import org.scribble.cli.CLArgFlag;
 import org.scribble.cli.CommandLine;
 import org.scribble.cli.CommandLineException;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
+import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGType;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
@@ -99,7 +100,7 @@ public class AssrtCommandLine extends CommandLine
 	@Override
 	protected void doValidationTasks(Job job) throws ScribbleException, ScribParserException
 	{
-		if (this.assrtArgs.containsKey(AssrtCLArgFlag.ASSRT))
+		if (this.assrtArgs.containsKey(AssrtCLArgFlag.ASSRT))  // assrt-*core* mode
 		{
 			/*if (this.args.containsKey(CLArgFlag.PROJECT))  // HACK
 				// modules/f17/src/test/scrib/demo/fase17/AppD.scr in [default] mode bug --- projection/EFSM not properly formed if this if is commented ????
@@ -107,14 +108,16 @@ public class AssrtCommandLine extends CommandLine
 
 			}*/
 
+			assrtCorePreContextBuilding(job);
+
 			GProtocolName simpname = new GProtocolName(this.assrtArgs.get(AssrtCLArgFlag.ASSRT)[0]);
-			/*if (simpname.toString().equals("[F17AllTest]"))  // HACK: F17AllTest
+			if (simpname.toString().equals("[AssrtCoreAllTest]"))  // HACK: AssrtCoreAllTest
 			{
-				parseAndCheckWF(job);  // Includes base passes
+				assrtCoreParseAndCheckWF(job);  // Includes base passes
 			}
-			else*/
+			else
 			{
-				assrtParseAndCheckWF(job, simpname);  // Includes base passes
+				assrtCoreParseAndCheckWF(job, simpname);  // Includes base passes
 			}
 			
 			// FIXME? f17 FSM building only used for f17 validation -- output tasks, e.g., -api, will still use default Scribble FSMs
@@ -148,7 +151,7 @@ public class AssrtCommandLine extends CommandLine
 		parseAndCheckWF(job, main, simpname);
 	}*/
 	
-	private static void assrtPreContextBuilding(Job job) throws ScribbleException
+	private static void assrtCorePreContextBuilding(Job job) throws ScribbleException
 	{
 		job.runContextBuildingPasses();
 		job.runVisitorPassOnParsedModules(RecRemover.class);  // FIXME: Integrate into main passes?  Do before unfolding?
@@ -156,10 +159,18 @@ public class AssrtCommandLine extends CommandLine
 	}
 
 	// Pre: f17PreContextBuilding
-	private static void assrtParseAndCheckWF(Job job, GProtocolName simpname) throws ScribbleException, ScribParserException
+	private static void assrtCoreParseAndCheckWF(Job job) throws ScribbleException, ScribParserException
 	{
-		assrtPreContextBuilding(job);
+		Module main = job.getContext().getMainModule();
+		for (GProtocolDecl gpd : main.getGlobalProtocolDecls())
+		{
+			assrtCoreParseAndCheckWF(job, gpd.getHeader().getDeclName());  // decl name is simple name
+		}
+	}
 
+	// Pre: f17PreContextBuilding
+	private static void assrtCoreParseAndCheckWF(Job job, GProtocolName simpname) throws ScribbleException, ScribParserException
+	{
 		Module main = job.getContext().getMainModule();
 		if (!main.hasProtocolDecl(simpname))
 		{
@@ -178,7 +189,7 @@ public class AssrtCommandLine extends CommandLine
 				.collect(Collectors.toSet());	
 		if (dups.size() > 0)
 		{
-			throw new AssrtException("[assrt-core] Repeat data type annotation variable declarations not allowed: " + dups);
+			throw new AssrtCoreSyntaxException("[assrt-core] Repeat data type annotation variable declarations not allowed: " + dups);
 		}
 
 		Map<Role, AssrtCoreLType> P0 = new HashMap<>();
@@ -200,7 +211,7 @@ public class AssrtCommandLine extends CommandLine
 			job.debugPrintln("\n[assrt-core] Built endpoint graph for " + r + ":\n" + g.toDot());
 		}
 
-		validate(job, gpd.isExplicitModifier(), E0);  // TODO
+		assrtCoreValidate(job, gpd.isExplicitModifier(), E0);  // TODO
 
 		/*if (!job.fair)
 		{
@@ -223,7 +234,7 @@ public class AssrtCommandLine extends CommandLine
 		//return gt;
 	}
 
-	private static void validate(Job job, boolean isExplicit, Map<Role, EState> E0, boolean... unfair) throws AssrtException
+	private static void assrtCoreValidate(Job job, boolean isExplicit, Map<Role, EState> E0, boolean... unfair) throws AssrtException
 	{
 		AssrtCoreSModel m = new AssrtCoreSModelBuilder(job.sf).build(E0, isExplicit);
 
@@ -231,7 +242,7 @@ public class AssrtCommandLine extends CommandLine
 		
 		if (unfair.length == 0 || !unfair[0])
 		{
-			AssrtCoreSafetyErrors serrs = m.getSafetyErrors();
+			AssrtCoreSafetyErrors serrs = m.getSafetyErrors(job);  // job just for debug printing
 			if (serrs.isSafe())
 			{
 				job.debugPrintln("\n[assrt-core] Protocol safe.");

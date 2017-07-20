@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.scribble.main.Job;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.sesstype.name.Role;
@@ -33,7 +34,7 @@ public class AssrtCoreSModel
 		this.termSets = findTerminalSets();
 	}
 	
-	public AssrtCoreSafetyErrors getSafetyErrors()
+	public AssrtCoreSafetyErrors getSafetyErrors(Job job)
 	{
 		Set<AssrtCoreSState> conns = Collections.emptySet(); //this.allStates.values().stream().filter(AssrtCoreSState::isConnectionError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> disconns = Collections.emptySet(); //this.allStates.values().stream().filter(AssrtCoreSState::isDisconnectedError).collect(Collectors.toSet());
@@ -47,7 +48,7 @@ public class AssrtCoreSModel
 		Set<AssrtCoreSState> portOwners = this.allStates.values().stream().filter(AssrtCoreSState::isPortOwnershipError).collect(Collectors.toSet());*/
 		
 		Set<AssrtCoreSState> unknownVars = this.allStates.values().stream().filter(s -> s.isUnknownDataTypeVarError()).collect(Collectors.toSet());
-		Set<AssrtCoreSState> unsats = this.allStates.values().stream().filter(s -> s.isUnsatisfiableError()).collect(Collectors.toSet());
+		Set<AssrtCoreSState> unsats = this.allStates.values().stream().filter(s -> s.isUnsatisfiableError(job)).collect(Collectors.toSet());
 
 		return new AssrtCoreSafetyErrors(conns, disconns, unconns, syncs, recepts, unfins, orphans, unknownVars, unsats);
 	}

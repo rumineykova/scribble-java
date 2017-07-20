@@ -16,6 +16,7 @@ import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
+import org.scribble.main.Job;
 import org.scribble.model.MPrettyState;
 import org.scribble.model.MState;
 import org.scribble.model.endpoint.EModelFactory;
@@ -295,7 +296,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 	
 	// i.e., has an action with an unsatisfiable assertion given existing assertions
-	public boolean isUnsatisfiableError()
+	public boolean isUnsatisfiableError(Job job)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
 				e.getValue().getAllActions().stream().anyMatch(a -> 
@@ -325,7 +326,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							impli = jsmt.qfm.forall(new LinkedList<>(Fvars), impli);
 						}
 						
-						System.out.println("\n[assrt-core] Checking satisfiability for " + e.getKey() + " at " + e.getValue() + ": " + impli);
+						job.debugPrintln("\n[assrt-core] Checking satisfiability for " + e.getKey() + " at " + e.getValue() + ": " + impli);
 							
 						if (!jsmt.isSat(impli))
 						{
