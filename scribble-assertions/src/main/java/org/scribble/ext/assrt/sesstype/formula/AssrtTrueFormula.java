@@ -10,7 +10,9 @@ import org.sosy_lab.java_smt.api.BooleanFormula;
 // FIXME: declare singleton constant
 public class AssrtTrueFormula extends AssrtBoolFormula
 {
-	public AssrtTrueFormula()
+	public static final AssrtTrueFormula TRUE = new AssrtTrueFormula();
+	
+	private AssrtTrueFormula()
 	{
 		
 	}
@@ -22,7 +24,8 @@ public class AssrtTrueFormula extends AssrtBoolFormula
 	}
 	
 	@Override
-	protected BooleanFormula toJavaSmtFormula() { //throws AssertionParseException {
+	protected BooleanFormula toJavaSmtFormula() //throws AssertionParseException {
+	{
 		return JavaSmtWrapper.getInstance().bfm.makeTrue();
 	}
 	

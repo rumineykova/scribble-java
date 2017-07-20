@@ -8,8 +8,8 @@ import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.local.LSendDel;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
-import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
@@ -36,7 +36,7 @@ public class AssrtLSendDel extends LSendDel
 		//AssrtBoolFormula bf = AssrtFormulaFactoryImpl.AssrtTrueFormula();  
 				// FIXME: because AssrtLReceiveDel makes True (because no AssrtLReceive with assertion) and toDual/getFireable needs direct correspondence
 				// No: because AssrtSConfig needs the original assertion to check, e.g., history sens
-		AssrtBoolFormula bf = (ls.ass == null) ? AssrtFormulaFactory.AssrtTrueFormula() : ls.ass.getFormula();
+		AssrtBoolFormula bf = (ls.ass == null) ? AssrtTrueFormula.TRUE : ls.ass.getFormula();
 				// FIXME: now hacked in AssertSConfig.fire -- message assertion changed to true when queued
 					
 		builder.util.addEdge(builder.util.getEntry(),

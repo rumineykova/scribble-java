@@ -9,7 +9,13 @@ import org.sosy_lab.java_smt.api.BooleanFormula;
 
 public class AssrtFalseFormula extends AssrtBoolFormula
 {
+	public static final AssrtFalseFormula FALSE = new AssrtFalseFormula();
 	
+	private AssrtFalseFormula()
+	{
+		
+	}
+
 	@Override
 	public String toString()
 	{
@@ -17,7 +23,8 @@ public class AssrtFalseFormula extends AssrtBoolFormula
 	}
 	
 	@Override
-	protected BooleanFormula toJavaSmtFormula() { //throws AssertionParseException {
+	protected BooleanFormula toJavaSmtFormula() //throws AssertionParseException {
+	{
 		return JavaSmtWrapper.getInstance().bfm.makeFalse();
 	}
 	

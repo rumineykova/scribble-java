@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
@@ -305,6 +306,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					{
 						JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
 						AssrtBoolFormula ass = ((AssrtESend) a).ass;
+						if (ass.equals(AssrtTrueFormula.TRUE))
+						{
+							return false;
+						}
+
 						Set<IntegerFormula> Fvars = this.F.stream().flatMap(f -> f.getVars().stream()
 							.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());
 						Set<IntegerFormula> Avars = ass.getVars().stream()
@@ -312,7 +318,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						Avars.removeAll(Fvars);
 
 						AssrtBoolFormula tmp = this.F.stream().reduce(
-								AssrtFormulaFactory.AssrtTrueFormula(),
+								AssrtTrueFormula.TRUE,
 								(b1, b2) -> AssrtFormulaFactory.BinBoolFormula("&&", b1, b2));  // F empty at start
 						BooleanFormula PP = tmp.getJavaSmtFormula();
 						BooleanFormula AA = ass.getJavaSmtFormula();

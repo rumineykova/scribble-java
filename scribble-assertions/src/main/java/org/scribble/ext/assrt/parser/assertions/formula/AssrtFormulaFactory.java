@@ -7,10 +7,8 @@ import org.scribble.ext.assrt.sesstype.formula.AssrtBinArithFormula;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.sesstype.formula.AssrtFalseFormula;
-import org.scribble.ext.assrt.sesstype.formula.AssrtIntVarFormula;
-import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.sesstype.formula.AssrtIntValFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtIntVarFormula;
 
 
 public class AssrtFormulaFactory
@@ -40,13 +38,14 @@ public class AssrtFormulaFactory
 		return new AssrtBinBoolFormula(op, left, right); 
 	}
 	
-	public static AssrtTrueFormula AssrtTrueFormula() 
+	/*public static AssrtTrueFormula AssrtTrueFormula() 
 	{
-		return new AssrtTrueFormula();
+		return AssrtTrueFormula.TRUE;
 	}
 	
 	public static AssrtFalseFormula AssrtFalseFormula() 
-	{
-		return new AssrtFalseFormula();
-	}
+	{ 
+	
+		return AssrtFalseFormula.FALSE;
+	}*/
 }

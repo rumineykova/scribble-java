@@ -1,8 +1,8 @@
 package org.scribble.ext.assrt.model.endpoint;
 
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
-import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.model.global.SModelFactory;
@@ -25,7 +25,7 @@ public class AssrtESend extends ESend
 	// Change assertion to True
 	public AssrtESend toESendTrue()  // FIXME HACK: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
 	{
-		return ((AssrtEModelFactory) this.ef).newAssrtESend(this.peer, this.mid, this.payload, AssrtFormulaFactory.AssrtTrueFormula());
+		return ((AssrtEModelFactory) this.ef).newAssrtESend(this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE);
 	}
 
 	@Override

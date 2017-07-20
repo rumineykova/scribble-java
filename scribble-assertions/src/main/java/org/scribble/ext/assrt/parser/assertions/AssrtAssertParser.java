@@ -7,8 +7,9 @@ import org.scribble.ext.assrt.parser.assertions.formula.AntlrBoolFormula;
 import org.scribble.ext.assrt.parser.assertions.formula.AntlrCompFormula;
 import org.scribble.ext.assrt.parser.assertions.formula.AntlrIntValFormula;
 import org.scribble.ext.assrt.parser.assertions.formula.AntlrIntVarFormula;
-import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.sesstype.formula.AssrtFalseFormula;
 import org.scribble.ext.assrt.sesstype.formula.AssrtSmtFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
 import org.scribble.parser.scribble.ScribParser;
 
 public class AssrtAssertParser  // Cf. ScribParser
@@ -43,8 +44,8 @@ public class AssrtAssertParser  // Cf. ScribParser
 			case VAR:   return AntlrIntVarFormula.parseVarFormula(this, ct);
 			case VALUE: return AntlrIntValFormula.parseValueFormula(this, ct);
 			
-			case FALSE: return AssrtFormulaFactory.AssrtFalseFormula();
-			case TRUE:  return AssrtFormulaFactory.AssrtTrueFormula();
+			case FALSE: return AssrtFalseFormula.FALSE; //AssrtFormulaFactory.AssrtFalseFormula();
+			case TRUE:  return AssrtTrueFormula.TRUE; //AssrtFormulaFactory.AssrtTrueFormula();
 			
 			default:    throw new RuntimeException("Unknown ANTLR node type: " + type);
 		}

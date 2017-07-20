@@ -30,7 +30,7 @@ import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
-import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.main.Job;
@@ -292,7 +292,7 @@ public class AssrtCoreGProtocolDeclTranslator
 	private AssrtAssertion parseAssertion(GMessageTransfer gmt)
 	{
 		AssrtAssertion ass = ((AssrtGMessageTransfer) gmt).ass;
-		return (ass == null) ? ((AssrtAstFactory) this.job.af).AssrtAssertion(null, AssrtFormulaFactory.AssrtTrueFormula()) : ass;
+		return (ass == null) ? ((AssrtAstFactory) this.job.af).AssrtAssertion(null, AssrtTrueFormula.TRUE) : ass;
 			// FIXME: singleton constant
 	}
 
