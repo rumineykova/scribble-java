@@ -21,10 +21,10 @@ public class AssrtSState extends SState
 	{
 		SStateErrors errs = super.getErrors();
 
-		Map<Role, EState> unsatAssertion = ((AssrtSConfig) this.config).getUnsatAssertions();   // FIXME: replace cast by something better?
 		Map<Role, EState> varsNotInScope = ((AssrtSConfig) this.config).checkHistorySensitivity();
+		Map<Role, EState> unsatAssertion = ((AssrtSConfig) this.config).getUnsatAssertions();   // FIXME: replace cast by something better?
 
-		return new AssrtSStateErrors(errs.stuck, errs.waitFor, errs.orphans, errs.unfinished, unsatAssertion, varsNotInScope);
+		return new AssrtSStateErrors(errs.stuck, errs.waitFor, errs.orphans, errs.unfinished, varsNotInScope, unsatAssertion);
 	}
 	
 	@Override

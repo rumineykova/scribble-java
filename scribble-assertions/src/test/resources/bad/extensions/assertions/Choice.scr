@@ -1,4 +1,4 @@
-module good.extensions.assertions.Choice;
+module bad.extensions.assertions.Choice;
 
 
 type <java> "java.lang.Int" from "rt.jar" as Int;
@@ -8,12 +8,14 @@ type <java> "java.lang.Int" from "rt.jar" as Int;
 // Does not work for some reason -- now fixed?
 global protocol Prot(role A, role B)
 {
-choice at A {
-	//[x<10]
-	MSG1(x:Int) from A to B;  @(x < 10);
-	
-	} or {
-	//[y>x]
-	MSG2(y:Int) from A to B;  @(y > x); // ..FIXME:
+	choice at A
+	{
+		//[x<10]
+		MSG1(x:Int) from A to B;  @(x < 10);
+	}
+	or
+	{
+		//[y>x]
+		MSG2(y:Int) from A to B;  @(y > x);
 	}
 }

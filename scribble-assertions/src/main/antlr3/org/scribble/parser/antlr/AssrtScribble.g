@@ -595,6 +595,7 @@ globalmessagetransfer:
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';' ASSRT_EXPR 
 	->
 	^(ASSRT_GLOBALMESSAGETRANSFER { AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text) } message rolename rolename+)
+			// Calling a separate parser this way loses line/char number information
 ;
 //	ASSRT_EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 	

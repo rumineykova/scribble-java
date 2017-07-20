@@ -75,7 +75,10 @@ public class AssrtSConfig extends SConfig
 				tmp3.put(r, null);
 			}*/
 			SBuffers tmp2 = 
-						a.isSend()       ? this.buffs.send(r, (ESend) a)
+						//a.isSend()       ? this.buffs.send(r, (ESend) a)
+					
+						a.isSend()       ? this.buffs.send(r, ((AssrtESend) a).toESendTrue())  // FIXME HACK 
+					
 					: a.isReceive()    ? this.buffs.receive(r, (EReceive) a)
 					: a.isDisconnect() ? this.buffs.disconnect(r, (EDisconnect) a)
 					: null;
@@ -170,35 +173,6 @@ public class AssrtSConfig extends SConfig
 				.map(c -> sf.newAssrtSConfig(c.efsms, c.buffs, this.formula, this.variablesInScope)).collect(Collectors.toList());
 	}
 	
-	public Map<Role, EState> getUnsatAssertions()
-	{
-		Map<Role, EState> res = new HashMap<>();
-		for (Role r : this.efsms.keySet())
-		{
-			Set<ESend> unsafStates = new HashSet<ESend>(); 
-			EFSM s = this.efsms.get(r);
-			for (EAction action : s.getAllFireable())  
-			{
-				if (action.isSend()) {
-					AssrtESend send = (AssrtESend)action;
-					AssrtBoolFormula assertion = send.bf; 
-					if (assertion != null)
-					{
-						if (!JavaSmtWrapper.getInstance().isSat(assertion, this.formula)) {
-							unsafStates.add(send); 
-						}
-					}
-				}
-				if (!unsafStates.isEmpty())
-				{
-					res.put(r, this.efsms.get(r).curr);
-				}
-				unsafStates.clear();
-			}
-		}
-		return res;
-	}
-	
 	// For now we are checking that only the sender knows all variables. 
 	public Map<Role, EState> checkHistorySensitivity()  // Not the full "formal" HS -- here, checking again "knowledge by message flow"? (already done syntactically?)
 	{
@@ -234,6 +208,35 @@ public class AssrtSConfig extends SConfig
 				}
 				
 				unknownVars.clear();
+			}
+		}
+		return res;
+	}
+	
+	public Map<Role, EState> getUnsatAssertions()
+	{
+		Map<Role, EState> res = new HashMap<>();
+		for (Role r : this.efsms.keySet())
+		{
+			Set<ESend> unsafStates = new HashSet<ESend>(); 
+			EFSM s = this.efsms.get(r);
+			for (EAction action : s.getAllFireable())  
+			{
+				if (action.isSend()) {
+					AssrtESend send = (AssrtESend)action;
+					AssrtBoolFormula assertion = send.bf; 
+					if (assertion != null)
+					{
+						if (!JavaSmtWrapper.getInstance().isSat(assertion, this.formula)) {
+							unsafStates.add(send); 
+						}
+					}
+				}
+				if (!unsafStates.isEmpty())
+				{
+					res.put(r, this.efsms.get(r).curr);
+				}
+				unsafStates.clear();
 			}
 		}
 		return res;

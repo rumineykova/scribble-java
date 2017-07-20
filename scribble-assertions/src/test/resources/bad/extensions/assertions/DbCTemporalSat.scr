@@ -1,15 +1,15 @@
 module bad.extensions.assertions.DbCTemporalSat;
 
 
-type <java> "java.lang.Integer" from "rt.jar" as Integer;
+type <java> "java.lang.Int" from "rt.jar" as Int;
 type <java> "java.lang.Long" from "rt.jar" as Long;
 
 // Temporal Satisfiability
 global protocol Prot(role A, role B)
 {
-	/*[x<10]
-	MSG(x:Integer) from A to B;*/
-	//[x>y && y>6]
-	MSG(y:Integer) from B to A;  @((x > y) && (y > 6));
+	//[x<10]
+	MSG(x:Int) from A to B;  @(x < 10);
 
+	//[x>y && y>6]
+	MSG(y:Int) from B to A;  @((x > y) && (y > 6));
 }
