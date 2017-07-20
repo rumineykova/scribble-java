@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
-import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
@@ -42,10 +41,15 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private final Map<Role, Set<PayloadVar>> owned;*/
 	
 	// Cf. history sensitivity
-	// FIXME: for now, assume globally distinct annot vars?  but conflicts with unfolding recursion annot vars
 	private final Map<Role, Set<AssrtDataTypeVar>> K;  // "Knowledge" of annotation vars (payloads and recursions)
+			// FIXME: for now, assume globally distinct annot vars?  but conflicts with unfolding recursion annot vars?
 			// Currently assuming unique annot var declarations -- otherwise need to consider, e.g., A->B(x).C->B(x)
-	private final Map<AssrtDataTypeVar, AssrtBoolFormula> F;  
+					// N.B. unique vars checked syntactically -- not being checked in model, which would fail on recursion cycles (e.g., mu X.A->B(x:Int).X)
+			// CHECKME: should this info really be part of the model states?  or just collected by analysis on top?
+					// Being in the state causes "implicit unrolling" for recursions, before/after "known" state
+	
+	//private final Map<AssrtDataTypeVar, AssrtBoolFormula> F;  
+	private final Set<AssrtBoolFormula> F;  
 			// FIXME: do Set, need to do equals/hashCode
 
 	//private final Map<AnnotRecVar, ...>  // For recursion anntoation var state?
@@ -58,7 +62,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	public AssrtCoreSState(Map<Role, EState> P, boolean explicit)
 	{
 		this(P, makeQ(P.keySet(), null), //explicit ? BOT : null),
-				makeK(P.keySet()), new HashMap<>());
+				makeK(P.keySet()),
+				//new HashMap<>());
+				new HashSet<>());
 		
 		if (explicit)
 		{
@@ -68,13 +74,14 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	// Pre: non-aliased "ownership" of all Map contents
 	protected AssrtCoreSState(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<AssrtDataTypeVar, AssrtBoolFormula> F)
+			Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F)//Map<AssrtDataTypeVar, AssrtBoolFormula> F)
 	{
 		super(Collections.emptySet());
 		this.P = Collections.unmodifiableMap(P);
 		this.Q = Collections.unmodifiableMap(Q);  // Don't need copyQ, etc. -- should already be fully "owned"
 		this.K = Collections.unmodifiableMap(K);
-		this.F = Collections.unmodifiableMap(F);
+		//this.F = Collections.unmodifiableMap(F);
+		this.F = Collections.unmodifiableSet(F);
 	}
 	
 	public void addSubject(Role subj)
@@ -279,6 +286,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}));
 	}
 	
+	// i.e., has an action with an unsatisfiable assertion given existing assertions
+	public boolean isUnsatisfiableError()
+	{
+		return false;
+	}
+	
 	public Map<Role, List<EAction>> getFireable()
 	{
 		Map<Role, List<EAction>> res = new HashMap<>();
@@ -461,7 +474,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		Map<Role, EState> P = new HashMap<>(this.P);
 		Map<Role, Map<Role, AssrtESend>> Q = AssrtCoreSState.copyQ(this.Q);
 		Map<Role, Set<AssrtDataTypeVar>> K = copyK(this.K);
-		Map<AssrtDataTypeVar, AssrtBoolFormula> F = new HashMap<>(this.F);
+		//Map<AssrtDataTypeVar, AssrtBoolFormula> F = new HashMap<>(this.F);
+		Set<AssrtBoolFormula> F = new HashSet<>(this.F);
 		EState succ = P.get(self).getSuccessor(a);
 
 		if (a.isSend())
@@ -471,7 +485,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			Q.get(es.peer).put(self, es);
 			
 			for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
-						a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>)::iterator)
+						(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)
 			{
 				if (pt instanceof AssrtAnnotDataType)
 				{
@@ -481,7 +495,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					putK(K, es.peer, v);
 					
 					//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
-					putF(F, v, es.bf);
+					//putF(F, v, es.bf);
+					putF(F, es.bf);
 					
 					//...can only send if true? (by API gen assertion failure means definitely not sending it) -- unsat as bad terminal state (safety error)?  no: won't catch all assert errors (branches)
 					// check assertion satisfiable?  i.e., satisfiability part of operational semantics for model construction? or just record constraints and check later?
@@ -502,7 +517,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					throw new RuntimeException("[assrt-core] TODO: " + a);
 				}
 			}
-
 		}
 		else if (a.isReceive())
 		{
@@ -706,7 +720,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		tmp.add(v);
 	}
 	
-	private static void putF(Map<AssrtDataTypeVar, AssrtBoolFormula> F, AssrtDataTypeVar v, AssrtBoolFormula f)
+	/*private static void putF(Map<AssrtDataTypeVar, AssrtBoolFormula> F, AssrtDataTypeVar v, AssrtBoolFormula f)
 	{
 		AssrtBoolFormula tmp = F.get(v);
 		if (tmp != null)
@@ -715,6 +729,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					// To store as Set, need equals/hashCode for AssrtSmtFormula
 		}
 		F.put(v, f);
+	}*/
+	private static void putF(Set<AssrtBoolFormula> F, AssrtBoolFormula f)
+	{
+		F.add(f);
 	}
 	
 	/*private static Map<Role, Map<Role, PayloadVar>> copyPorts(Map<Role, Map<Role, PayloadVar>> ports)

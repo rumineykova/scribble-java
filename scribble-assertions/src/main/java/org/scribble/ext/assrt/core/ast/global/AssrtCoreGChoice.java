@@ -61,8 +61,9 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 		Map<AssrtCoreAction, AssrtCoreLType> projs = new HashMap<>();
 		for (Entry<AssrtCoreAction, AssrtCoreGType> e : this.cases.entrySet())
 		{
-			//cases.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().project(af, subj)));
 			projs.put(e.getKey(), e.getValue().project(af, subj));
+					// N.B. local actions directly preserved from globals -- so core-receive also has assertion (cf. AssrtGMessageTransfer.project, currently no AssrtLReceive)
+					// FIXME: receive assertion projection -- should not be the same as send?
 		}
 		
 		if (this.src.equals(subj) || this.dest.equals(subj))
