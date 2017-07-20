@@ -1,6 +1,6 @@
 package org.scribble.ext.assrt.model.endpoint;
 
-import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;

@@ -5,11 +5,12 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.del.ScribDel;
-import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.visit.AstVisitor;
 
 // In general, should be an action "annotation" -- but currently only used for boolean assertions
+// This is the "actual syntax" node (has source) -- cf. formula, does (and should) not record source (e.g., affects equals/hash)
 public class AssrtAssertion extends ScribNodeBase 
 {	
 	//private final String assertion;  // FIXME: should be String for a more general annotations feature

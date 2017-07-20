@@ -1,9 +1,9 @@
 package org.scribble.ext.assrt.parser.assertions.ast.formula;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.ast.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.ast.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
+import org.scribble.ext.assrt.sesstype.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBinCompFormula;
 
 public class AntlrCompFormulaNode implements AntlrFormulaNode {
 

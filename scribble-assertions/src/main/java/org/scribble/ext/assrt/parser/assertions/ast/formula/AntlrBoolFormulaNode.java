@@ -1,8 +1,8 @@
 package org.scribble.ext.assrt.parser.assertions.ast.formula;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 
 public class AntlrBoolFormulaNode implements AntlrFormulaNode {
 	

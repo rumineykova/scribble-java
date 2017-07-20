@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.ast.formula.AssrtLogFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtLogFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.sosy_lab.common.ShutdownManager;
 import org.sosy_lab.common.configuration.Configuration;
@@ -91,8 +91,8 @@ public class JavaSmtWrapper
 	{
 		BooleanFormula formula = this.bfm.and( f1.getJavaSmtFormula(), f2.getJavaSmtFormula());
 		Set<AssrtDataTypeVar> vars = new HashSet<>(f1.getVars()); 
-		vars.addAll(f2.getVars()); 
-		return new AssrtLogFormula(formula, vars); 
+		vars.addAll(f2.getVars());
+		return new AssrtLogFormula(formula, vars);
 	}
 	
 	public Boolean isSat(AssrtBoolFormula assertionFormula, AssrtLogFormula context)

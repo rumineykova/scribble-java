@@ -1,8 +1,8 @@
 package org.scribble.ext.assrt.parser.assertions.ast.formula;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.ast.formula.AssrtValueFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
+import org.scribble.ext.assrt.sesstype.formula.AssrtValueFormula;
 
 public class AntlrValueNode implements AntlrFormulaNode {
 

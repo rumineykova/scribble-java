@@ -10,9 +10,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AssrtFormulaFactoryImpl;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.sesstype.name.AssrtPayloadElemType;
@@ -499,7 +499,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}*/
 				else
 				{
-					throw new RuntimeException("[f17] TODO: " + a);
+					throw new RuntimeException("[assrt-core] TODO: " + a);
 				}
 			}
 

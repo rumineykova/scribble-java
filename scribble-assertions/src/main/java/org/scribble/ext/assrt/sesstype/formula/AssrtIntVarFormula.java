@@ -1,4 +1,4 @@
-package org.scribble.ext.assrt.ast.formula;
+package org.scribble.ext.assrt.sesstype.formula;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -37,5 +37,35 @@ public class AssrtIntVarFormula extends AssrtArithFormula
 		Set<AssrtDataTypeVar> vars = new HashSet<>();
 		vars.add(new AssrtDataTypeVar(this.name)); 
 		return vars; 
+	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+		{
+			return true;
+		}
+		if (!(o instanceof AssrtIntVarFormula))
+		{
+			return false;
+		}
+		return super.equals(this)  // Does canEqual
+				&& this.name.equals(((AssrtIntVarFormula) o).name);
+	}
+	
+	@Override
+	protected boolean canEqual(Object o)
+	{
+		return o instanceof AssrtIntVarFormula;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int hash = 5903;
+		hash = 31 * hash + super.hashCode();
+		hash = 31 * hash + this.name.hashCode();
+		return hash;
 	}
 }

@@ -1,4 +1,4 @@
-package org.scribble.ext.assrt.ast.formula;
+package org.scribble.ext.assrt.sesstype.formula;
 
 @Deprecated  // Parsing errors should be caught by ANTLR
 public class AssertionParseException extends Exception

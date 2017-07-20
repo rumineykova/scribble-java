@@ -1,4 +1,4 @@
-package org.scribble.ext.assrt.ast.formula;
+package org.scribble.ext.assrt.sesstype.formula;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -85,5 +85,40 @@ public class AssrtBinCompFormula extends AssrtBoolFormula
 		Set<AssrtDataTypeVar> vars = new HashSet<>(this.left.getVars()); 
 		vars.addAll(this.right.getVars()); 
 		return vars; 
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+		{
+			return true;
+		}
+		if (!(o instanceof AssrtBinCompFormula))
+		{
+			return false;
+		}
+		AssrtBinCompFormula f = (AssrtBinCompFormula) o;
+		return super.equals(this)  // Does canEqual
+				&& this.op.equals(f.op) && this.left.equals(f.left) && this.right.equals(f.right);  
+						// Storing left/right as a Set could give commutativity in equals, but not associativity
+						// Better to keep "syntactic" equality, and do via additional routines for, e.g., normal forms
+	}
+	
+	@Override
+	protected boolean canEqual(Object o)
+	{
+		return o instanceof AssrtBinCompFormula;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int hash = 5897;
+		hash = 31 * hash + super.hashCode();
+		hash = 31 * hash + this.op.hashCode();
+		hash = 31 * hash + this.left.hashCode();
+		hash = 31 * hash + this.right.hashCode();
+		return hash;
 	}
 }

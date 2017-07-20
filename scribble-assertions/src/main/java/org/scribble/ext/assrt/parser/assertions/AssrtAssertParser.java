@@ -1,12 +1,12 @@
 package org.scribble.ext.assrt.parser.assertions;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.ast.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrConstants.AssrtAntlrNodeType;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AntlrArithFormulaNode;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AntlrBoolFormulaNode;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AntlrCompFormulaNode;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AssrtFormulaFactoryImpl;
+import org.scribble.ext.assrt.sesstype.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AntlrValueNode;
 import org.scribble.ext.assrt.parser.assertions.ast.formula.AntlrVarNode;
 import org.scribble.parser.scribble.ScribParser;

@@ -1,16 +1,16 @@
 package org.scribble.ext.assrt.parser.assertions.ast.formula;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.ast.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.ast.formula.AssrtBinArithFormula;
-import org.scribble.ext.assrt.ast.formula.AssrtBinBoolFormula;
-import org.scribble.ext.assrt.ast.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.ast.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.ast.formula.AssrtFalseFormula;
-import org.scribble.ext.assrt.ast.formula.AssrtIntVarFormula;
-import org.scribble.ext.assrt.ast.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.ast.formula.AssrtValueFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
+import org.scribble.ext.assrt.sesstype.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBinArithFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBinBoolFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBinCompFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtFalseFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtIntVarFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtValueFormula;
 
 
 public class AssrtFormulaFactoryImpl {
