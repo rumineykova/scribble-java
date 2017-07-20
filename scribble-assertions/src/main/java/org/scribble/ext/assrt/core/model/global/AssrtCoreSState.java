@@ -45,7 +45,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	// FIXME: for now, assume globally distinct annot vars?  but conflicts with unfolding recursion annot vars
 	private final Map<Role, Set<AssrtDataTypeVar>> K;  // "Knowledge" of annotation vars (payloads and recursions)
 			// Currently assuming unique annot var declarations -- otherwise need to consider, e.g., A->B(x).C->B(x)
-	private final Map<AssrtDataTypeVar, AssrtBoolFormula> F;  // For Set, need to do equals/hashCode
+	private final Map<AssrtDataTypeVar, AssrtBoolFormula> F;  
+			// FIXME: do Set, need to do equals/hashCode
 
 	//private final Map<AnnotRecVar, ...>  // For recursion anntoation var state?
 	

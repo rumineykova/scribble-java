@@ -10,7 +10,7 @@ global protocol Prot1(role A, role B, role C, role D)
 {	
 	MSG1(x:Integer, y:Integer) from A to B;  @(x > 10);
 	
-	MSG1(x, y) from B to C;  ..FIXME: "encode"
+	MSG1(x, y) from B to C;  // TODO: "encode" for assrt-core
 	
 	MSG1(z:Integer) from C to D;  @(z < x);
 }

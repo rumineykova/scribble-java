@@ -88,7 +88,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 					return af.AssrtCoreLRecVar(rvs.iterator().next());
 				}
 			}
-
+			
 			List<AssrtCoreLChoice> filtered = projs.values().stream()
 				.filter(v -> !v.equals(AssrtCoreLEnd.END))
 				//.collect(Collectors.toMap(e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getKey, e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getValue));
@@ -98,6 +98,10 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 			if (filtered.size() == 0)
 			{
 				return AssrtCoreLEnd.END;
+			}
+			else if (filtered.size() == 1)
+			{
+				return (AssrtCoreLChoice) filtered.iterator().next();  // RecVar disallowed above
 			}
 		
 			Set<Role> roles = filtered.stream().map(v -> v.role).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
@@ -130,7 +134,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 				});
 			});
 			
-			return af.AssrtCoreLChoice(dest, getKind().project(this.src, subj), merged);
+			return af.AssrtCoreLChoice(roles.iterator().next(), AssrtCoreLActionKind.RECEIVE, merged);
 		}
 	}
 	
