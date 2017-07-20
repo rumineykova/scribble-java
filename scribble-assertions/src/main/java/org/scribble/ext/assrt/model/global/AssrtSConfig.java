@@ -90,7 +90,7 @@ public class AssrtSConfig extends SConfig
 			AssrtBoolFormula assertion;
 			if (a.isSend()) 
 			{
-				assertion = ((AssrtESend) a).bf;
+				assertion = ((AssrtESend) a).ass;
 			}
 			else if (a.isReceive()) 
 			{
@@ -186,7 +186,7 @@ public class AssrtSConfig extends SConfig
 				if (action.isSend())
 				{
 					AssrtESend send = (AssrtESend)action;
-					AssrtBoolFormula assertion = send.bf;
+					AssrtBoolFormula assertion = send.ass;
 					
 					Set<String> newVarNames = send.payload.elems.stream()
 							.filter(v -> (v instanceof AssrtPayloadElemType<?>) && ((AssrtPayloadElemType<?>) v).isAnnotVarDecl())  // FIXME?
@@ -224,7 +224,7 @@ public class AssrtSConfig extends SConfig
 			{
 				if (action.isSend()) {
 					AssrtESend send = (AssrtESend)action;
-					AssrtBoolFormula assertion = send.bf; 
+					AssrtBoolFormula assertion = send.ass; 
 					if (assertion != null)
 					{
 						if (!JavaSmtWrapper.getInstance().isSat(assertion, this.formula)) {

@@ -14,12 +14,12 @@ import org.scribble.sesstype.name.Role;
 public class AssrtESend extends ESend
 {
 	//public final AssrtAssertion assertion;  // Cf., e.g., ALSend
-	public final AssrtBoolFormula bf;  // Not null -- empty set to True by parsing
+	public final AssrtBoolFormula ass;  // Not null -- empty set to True by parsing
 
 	public AssrtESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula assertion)
 	{
 		super(ef, peer, mid, payload);
-		this.bf = assertion;
+		this.ass = assertion;
 	}
 
 	// Change assertion to True
@@ -32,13 +32,13 @@ public class AssrtESend extends ESend
 	public AssrtEReceive toDual(Role self)
 	{
 		//return super.toDual(self);  // FIXME: assertion? -- currently ignoring assertions for model building -- no: cannot ignore now, need assertions on actions to check history sensitivity
-		return ((AssrtEModelFactory) this.ef).newAssrtEReceive(self, this.mid, this.payload, this.bf);
+		return ((AssrtEModelFactory) this.ef).newAssrtEReceive(self, this.mid, this.payload, this.ass);
 	}
 
 	@Override
 	public AssrtSSend toGlobal(SModelFactory sf, Role self)
 	{
-		return new AssrtSSend(self, this.peer, this.mid, this.payload, this.bf);
+		return new AssrtSSend(self, this.peer, this.mid, this.payload, this.ass);
 	}
 	
 	@Override
@@ -46,7 +46,7 @@ public class AssrtESend extends ESend
 	{
 		int hash = 5501;
 		hash = 31 * hash + super.hashCode();
-		hash = 31 * hash + this.bf.toString().hashCode();  // FIXME: treating as String
+		hash = 31 * hash + this.ass.toString().hashCode();  // FIXME: treating as String
 		return hash;
 	}
 
@@ -63,7 +63,7 @@ public class AssrtESend extends ESend
 		}
 		AssrtESend as = (AssrtESend) o;
 		return super.equals(o)  // Does canEquals
-				&& this.bf.toString().equals(as.bf.toString());  // FIXME: treating as String
+				&& this.ass.toString().equals(as.ass.toString());  // FIXME: treating as String
 	}
 
 	@Override
@@ -75,6 +75,6 @@ public class AssrtESend extends ESend
 	@Override
 	public String toString()
 	{
-		return super.toString() + "@" + this.bf + ";";
+		return super.toString() + "@" + this.ass + ";";
 	}
 }

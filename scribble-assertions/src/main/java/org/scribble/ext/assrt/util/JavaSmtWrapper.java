@@ -97,11 +97,15 @@ public class JavaSmtWrapper
 	
 	public Boolean isSat(AssrtBoolFormula assertionFormula, AssrtLogFormula context)
 	{
+		return isSat(buildFormula(assertionFormula, context));
+	}
+
+	public Boolean isSat(BooleanFormula formula)
+	{
 		boolean isUnsat = false;
 		
 		//try
 		{
-			BooleanFormula formula = buildFormula(assertionFormula, context);
 			final ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1);
 			executor.setRemoveOnCancelPolicy(true);
 			Runnable solverInterruptThread = () -> shutdownManager.requestShutdown("Timeout");

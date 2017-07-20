@@ -11,10 +11,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
+import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.sesstype.name.AssrtPayloadElemType;
+import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.scribble.model.MPrettyState;
 import org.scribble.model.MState;
 import org.scribble.model.endpoint.EModelFactory;
@@ -28,6 +29,8 @@ import org.scribble.sesstype.kind.Global;
 import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.PayloadElemType;
 import org.scribble.sesstype.name.Role;
+import org.sosy_lab.java_smt.api.BooleanFormula;
+import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState, Global>
 {
@@ -267,30 +270,60 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return this.P.entrySet().stream().anyMatch(e ->
 				e.getValue().getAllActions().stream().anyMatch(a -> 
 				{
-						if (a instanceof AssrtESend)
+					if (a instanceof AssrtESend)
+					{
+						Set<AssrtDataTypeVar> tmp = new HashSet<>(this.K.get(e.getKey()));
+						((AssrtESend) a).payload.elems.forEach(pe ->  // Currently exactly one elem
 						{
-							Set<AssrtDataTypeVar> tmp = new HashSet<>(this.K.get(e.getKey()));
-							((AssrtESend) a).payload.elems.forEach(pe ->
+							if (pe instanceof AssrtAnnotDataType)
 							{
-								if (pe instanceof AssrtAnnotDataType)
-								{
-									tmp.add(((AssrtAnnotDataType) pe).var);
-								}
-							});
-							return ((AssrtESend) a).bf.getVars().stream().anyMatch(v -> !tmp.contains(v));
-						}
-						else
-						{
-							// FIXME: receive assertions
-						}
-						return false;
+								tmp.add(((AssrtAnnotDataType) pe).var);
+							}
+							else
+							{
+								System.err.println("[assrt-core] Shouldn't get in here: " + pe);  // FIXME
+							}
+						});
+						return ((AssrtESend) a).ass.getVars().stream().anyMatch(v -> !tmp.contains(v));
+					}
+					else
+					{
+						// FIXME: receive assertions
+					}
+					return false;
 				}));
 	}
 	
 	// i.e., has an action with an unsatisfiable assertion given existing assertions
 	public boolean isUnsatisfiableError()
 	{
-		return false;
+		return this.P.entrySet().stream().anyMatch(e ->
+				e.getValue().getAllActions().stream().anyMatch(a -> 
+				{
+					if (a instanceof AssrtESend)
+					{
+						JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
+
+						Set<IntegerFormula> vs = this.F.stream().flatMap(f -> f.getVars().stream()
+								.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());
+						AssrtBoolFormula tmp = this.F.stream().reduce(
+								AssrtFormulaFactory.AssrtTrueFormula(),
+								(b1, b2) -> AssrtFormulaFactory.BinBoolFormula("&&", b1, b2));  // F empty at start
+						BooleanFormula PP = jsmt.qfm.forall(new LinkedList<>(vs), tmp.getJavaSmtFormula());
+
+						AssrtBoolFormula AA = ((AssrtESend) a).ass;
+						
+						if (!jsmt.isSat(jsmt.bfm.implication(PP, AA.getJavaSmtFormula())))
+						{
+							return true;
+						}
+					}
+					else
+					{
+						// FIXME: receive assertions
+					}
+					return false;
+				}));
 	}
 	
 	public Map<Role, List<EAction>> getFireable()
@@ -347,6 +380,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		// Check assertion?
 		//boolean ok = JavaSmtWrapper.getInstance().isSat(es.assertion.getFormula(), context);
+	
+		//...can only send if true? (by API gen assertion failure means definitely not sending it) -- unsat as bad terminal state (safety error)?  no: won't catch all assert errors (branches)
+		// check assertion satisfiable?  i.e., satisfiability part of operational semantics for model construction? or just record constraints and check later?
+		// -- current assertions *imply* additional ones?
+				
+		// Or: assertion error as special queue token? for error preservation -- Cf. "decoupled" request/accept
+		
 		boolean ok = true;
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 				es.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>)::iterator)*/
@@ -354,9 +394,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			if (pt instanceof AssrtAnnotDataType)
 			{
-				// OK
+				// OK -- not checking K-bound assertion vars (cf. isUnknownVarError)
 			}
-			else if (pt instanceof AssrtDataTypeVar)
+			else //if (pt instanceof AssrtDataTypeVar)
 			{
 				/*if (!this.K.get(self).contains(pt))
 				{
@@ -364,10 +404,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					break;
 				}*/
 				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + pt);  // "Encode" pay elem vars by fresh annot data elems for now
-			}
-			else
-			{
-				throw new RuntimeException("[assrt-core] TODO: " + pt);
 			}
 		}
 		if (ok)
@@ -485,24 +521,19 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			P.put(self, succ);
 			Q.get(es.peer).put(self, es);
 			
-			for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
-						(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)
+			/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
+						(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
+			PayloadElemType<?> pt = a.payload.elems.get(0);
 			{
 				if (pt instanceof AssrtAnnotDataType)
 				{
-					// Update knowledge
+					// Update K
 					AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
 					putK(K, self, v);
 					
 					//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
 					//putF(F, v, es.bf);
-					putF(F, es.bf);
-					
-					//...can only send if true? (by API gen assertion failure means definitely not sending it) -- unsat as bad terminal state (safety error)?  no: won't catch all assert errors (branches)
-					// check assertion satisfiable?  i.e., satisfiability part of operational semantics for model construction? or just record constraints and check later?
-					// -- current assertions *imply* additional ones?
-						
-					// assertion error as queue token? for error preservation -- Cf. "decoupled" request/accept
+					putF(F, es.ass);  // Recorded "globally" -- cf. async K updates
 				}
 				/*else if (pt instanceof PayloadVar)  // Should not be used (for now), can encode
 				{
@@ -524,16 +555,17 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			P.put(self, succ);
 			Q.get(self).put(lr.peer, null);
 
-			for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
-						(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)
+			/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
+						(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
+			PayloadElemType<?> pt = a.payload.elems.get(0);
 			{
 				if (pt instanceof AssrtAnnotDataType)
 				{
-					// Update knowledge
+					// Update K
 					AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
 					putK(K, self, v);
 
-					//putF(F, es.bf);
+					//putF(F, es.bf);  // No F update: F done "globally" on send
 				}
 				else
 				{

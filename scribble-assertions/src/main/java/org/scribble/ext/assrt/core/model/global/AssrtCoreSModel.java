@@ -47,8 +47,9 @@ public class AssrtCoreSModel
 		Set<AssrtCoreSState> portOwners = this.allStates.values().stream().filter(AssrtCoreSState::isPortOwnershipError).collect(Collectors.toSet());*/
 		
 		Set<AssrtCoreSState> unknownVars = this.allStates.values().stream().filter(s -> s.isUnknownDataTypeVarError()).collect(Collectors.toSet());
+		Set<AssrtCoreSState> unsats = this.allStates.values().stream().filter(s -> s.isUnsatisfiableError()).collect(Collectors.toSet());
 
-		return new AssrtCoreSafetyErrors(conns, disconns, unconns, syncs, recepts, unfins, orphans, unknownVars);
+		return new AssrtCoreSafetyErrors(conns, disconns, unconns, syncs, recepts, unfins, orphans, unknownVars, unsats);
 	}
 	
 	public boolean isActive(AssrtCoreSState s, Role r)

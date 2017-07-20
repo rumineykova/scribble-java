@@ -16,7 +16,9 @@ public class AssrtCoreSafetyErrors
 	public final Set<AssrtCoreSState> reception;
 	public final Set<AssrtCoreSState> unfinishedRole;
 	public final Set<AssrtCoreSState> orphan;
+
 	public final Set<AssrtCoreSState> unknownVars;
+	public final Set<AssrtCoreSState> unsats;
 
 	/*public final Set<AssrtCoreSState> portOpens;
 	public final Set<AssrtCoreSState> portOwners;*/
@@ -31,13 +33,14 @@ public class AssrtCoreSafetyErrors
 		UnfinishedRole,
 		Orphan,
 		UnknownDataTypeVar,
+		UnsatisfiableError,
 	}
 	
 	private final Map<ERR, Set<AssrtCoreSState>> errors = new LinkedHashMap<>();
 	
 	public AssrtCoreSafetyErrors(Set<AssrtCoreSState> connection, Set<AssrtCoreSState> disconnect, Set<AssrtCoreSState> unconnected,
 			Set<AssrtCoreSState> synchronisation, Set<AssrtCoreSState> reception, Set<AssrtCoreSState> unfinishedRole, Set<AssrtCoreSState> orphan,
-			Set<AssrtCoreSState> unknownVars
+			Set<AssrtCoreSState> unknownVars, Set<AssrtCoreSState> unsats
 			)
 			//Set<AssrtCoreSState> portOpens, Set<AssrtCoreSState> portOwners)
 	{
@@ -48,7 +51,9 @@ public class AssrtCoreSafetyErrors
 		this.reception = reception;
 		this.unfinishedRole = unfinishedRole;
 		this.orphan = orphan;
+
 		this.unknownVars = unknownVars;
+		this.unsats = unsats;
 		
 		this.errors.put(ERR.Connection, connection);
 		this.errors.put(ERR.Disconnect, disconnect);
@@ -57,7 +62,9 @@ public class AssrtCoreSafetyErrors
 		this.errors.put(ERR.Reception, reception);
 		this.errors.put(ERR.UnfinishedRole, unfinishedRole);
 		this.errors.put(ERR.Orphan, orphan);
+
 		this.errors.put(ERR.UnknownDataTypeVar, unknownVars);
+		this.errors.put(ERR.UnsatisfiableError, unsats);
 	}
 	
 	public boolean isSafe()
