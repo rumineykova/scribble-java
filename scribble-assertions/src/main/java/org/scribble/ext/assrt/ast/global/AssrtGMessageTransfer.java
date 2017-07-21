@@ -1,11 +1,9 @@
 package org.scribble.ext.assrt.ast.global;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
-import org.scribble.ast.Constants;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.MessageTransfer;
 import org.scribble.ast.global.GMessageTransfer;
@@ -32,10 +30,10 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 		this(source, src, msg, dests, null);
 	}
 
-	public AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
+	public AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion ass)
 	{
 		super(source, src, msg, dests);
-		this.ass = assertion;
+		this.ass = ass;
 	}
 	
 	@Override
@@ -57,7 +55,7 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 	@Override
 	protected AssrtGMessageTransfer copy()
 	{
-		return new AssrtGMessageTransfer(this.source, this.src, this.msg, getDestinations(), this.ass);
+		return new AssrtGMessageTransfer(this.source, this.src, this.msg, getDestinations(), this.ass);  // null ass fine
 	}
 	
 	@Override
@@ -66,8 +64,8 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 		RoleNode src = this.src.clone(af);
 		MessageNode msg = this.msg.clone(af);
 		List<RoleNode> dests = ScribUtil.cloneList(af, getDestinations());
-		AssrtAssertion assertion = (this.ass == null) ? null : this.ass.clone(af);
-		return ((AssrtAstFactory) af).AssrtGMessageTransfer(this.source, src, msg, dests, assertion);
+		AssrtAssertion ass = (this.ass == null) ? null : this.ass.clone(af);
+		return ((AssrtAstFactory) af).AssrtGMessageTransfer(this.source, src, msg, dests, ass);
 	}
 
 	@Override
@@ -76,10 +74,10 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 		throw new RuntimeException("[scrib-assert] Shouldn't get in here: " + this);
 	}
 
-	public AssrtGMessageTransfer reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
+	public AssrtGMessageTransfer reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion ass)
 	{
 		ScribDel del = del();
-		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(this.source, src, msg, dests, assertion);
+		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(this.source, src, msg, dests, ass);
 		gmt = (AssrtGMessageTransfer) gmt.del(del);
 		return gmt;
 	}
@@ -98,8 +96,9 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 	public String toString()
 	{
 		return
-				  this.msg + " " + Constants.FROM_KW + " " + this.src + " " + Constants.TO_KW + " "
-				+ getDestinations().stream().map((dest) -> dest.toString()).collect(Collectors.joining(", "))
-				+ "; @" + this.ass + ";";
+				/*  this.msg + " " + Constants.FROM_KW + " " + this.src + " " + Constants.TO_KW + " "
+				+ getDestinations().stream().map(dest -> dest.toString()).collect(Collectors.joining(", "))*/
+				super.toString()
+				+ " @" + this.ass + ";";
 	}
 }

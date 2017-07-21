@@ -41,6 +41,11 @@ public class GConnect extends ConnectionAction<Global> implements GSimpleInterac
 		LNode projection = null;
 		if (srcrole.equals(self) || destrole.equals(self))
 		{
+			if (srcrole.equals(destrole))
+			{
+				throw new RuntimeException("Shouldn't get in here (self-connection): " + this);
+			}
+			
 			RoleNode src = (RoleNode) af.SimpleNameNode(this.src.getSource(), RoleKind.KIND, this.src.toName().toString());  // clone?
 			MessageNode msg = (MessageNode) this.msg;  // FIXME: need namespace prefix update?
 			RoleNode dest = (RoleNode) af.SimpleNameNode(this.dest.getSource(), RoleKind.KIND, this.dest.toName().toString());

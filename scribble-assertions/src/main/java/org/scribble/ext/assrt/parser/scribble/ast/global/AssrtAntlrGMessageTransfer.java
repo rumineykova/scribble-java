@@ -30,13 +30,13 @@ public class AssrtAntlrGMessageTransfer
 	public static GMessageTransfer parseAssrtGMessageTransfer(ScribParser parser, CommonTree ct, AssrtAstFactory af) throws ScribParserException
 	{
 		//AssrtAssertionNode assertion = parseAssertion(((AssrtScribParser) parser).ap, getAssertionChild(ct));   
-		AssrtAssertion assertion = parseAssertion(((AssrtScribParser) parser).ap, getAssertionChild(ct), af);   
+		AssrtAssertion ass = parseAssertion(((AssrtScribParser) parser).ap, getAssertionChild(ct), af);   
 
 		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct), af);
 		MessageNode msg = AntlrGMessageTransfer.parseMessage(parser, getMessageChild(ct), af);
 		List<RoleNode> dests = getDestChildren(ct).stream()
 				.map(d -> AntlrSimpleName.toRoleNode(d, af)).collect(Collectors.toList());
-		return ((AssrtAstFactory) af).AssrtGMessageTransfer(ct, src, msg, dests, assertion);
+		return ((AssrtAstFactory) af).AssrtGMessageTransfer(ct, src, msg, dests, ass);
 	}
 	
 	public static AssrtAssertion parseAssertion(AssrtAssertParser ap, CommonTree ct, AssrtAstFactory af)

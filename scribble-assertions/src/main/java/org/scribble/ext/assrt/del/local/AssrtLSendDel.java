@@ -44,6 +44,6 @@ public class AssrtLSendDel extends LSendDel
 				builder.util.getExit());
 		//return (AssrtLSend) super.leaveEGraphBuilding(parent, child, graph, ls);  // No
 		// CHECKME: OK to ignore super?
-		return visited;  // From super of LSendDel
+		return ls;  // From super of LSendDel
 	}
 }
