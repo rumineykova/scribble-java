@@ -1,11 +1,9 @@
 package org.scribble.ext.assrt.ast.local;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
-import org.scribble.ast.Constants;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.MessageTransfer;
 import org.scribble.ast.ScribNodeBase;
@@ -39,7 +37,7 @@ public class AssrtLSend extends LSend
 	@Override
 	protected ScribNodeBase copy()
 	{
-		return new AssrtLSend(this.source, this.src, this.msg, getDestinations(), this.ass);
+		return new AssrtLSend(this.source, this.src, this.msg, getDestinations(), this.ass);  // null ass fine
 	}
 	
 	@Override
@@ -48,8 +46,8 @@ public class AssrtLSend extends LSend
 		RoleNode src = this.src.clone(af);
 		MessageNode msg = this.msg.clone(af);
 		List<RoleNode> dests = ScribUtil.cloneList(af, getDestinations());
-		AssrtAssertion assertion = (this.ass == null) ? null : this.ass.clone(af);
-		return ((AssrtAstFactory) af).AssrtLSend(this.source, src, msg, dests, assertion);
+		AssrtAssertion ass = (this.ass == null) ? null : this.ass.clone(af);
+		return ((AssrtAstFactory) af).AssrtLSend(this.source, src, msg, dests, ass);
 	}
 
 	@Override
@@ -58,10 +56,10 @@ public class AssrtLSend extends LSend
 		throw new RuntimeException("[scrib-assert] Shouldn't get in here: " + this);
 	}
 	
-	public AssrtLSend reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
+	public AssrtLSend reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion ass)
 	{
 		ScribDel del = del();
-		AssrtLSend ls = new AssrtLSend(this.source, src, msg, dests, assertion);  // FIXME: assertion
+		AssrtLSend ls = new AssrtLSend(this.source, src, msg, dests, ass);  // FIXME: assertion
 		ls = (AssrtLSend) ls.del(del);
 		return ls;
 	}
@@ -80,8 +78,9 @@ public class AssrtLSend extends LSend
 	public String toString()
 	{
 		return 
-				  this.msg + " " + Constants.TO_KW + " "
-				+ getDestinations().stream().map(dest -> dest.toString()).collect(Collectors.joining(", "))
+				/*  this.msg + " " + Constants.TO_KW + " "
+				+ getDestinations().stream().map(dest -> dest.toString()).collect(Collectors.joining(", "))*/
+				super.toString()
 				+ "; @" + this.ass + ";";
 	}
 }

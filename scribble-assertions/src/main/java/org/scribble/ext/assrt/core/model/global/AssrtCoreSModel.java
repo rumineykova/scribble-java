@@ -47,7 +47,7 @@ public class AssrtCoreSModel
 		/*Set<AssrtCoreSState> portOpens = this.allStates.values().stream().filter(AssrtCoreSState::isPortOpenError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> portOwners = this.allStates.values().stream().filter(AssrtCoreSState::isPortOwnershipError).collect(Collectors.toSet());*/
 		
-		Set<AssrtCoreSState> unknownVars = this.allStates.values().stream().filter(s -> s.isUnknownDataTypeVarError()).collect(Collectors.toSet());
+		Set<AssrtCoreSState> unknownVars = this.allStates.values().stream().filter(AssrtCoreSState::isUnknownDataTypeVarError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> unsats = this.allStates.values().stream().filter(s -> s.isUnsatisfiableError(job)).collect(Collectors.toSet());
 
 		return new AssrtCoreSafetyErrors(conns, disconns, unconns, syncs, recepts, unfins, orphans, unknownVars, unsats);
@@ -69,7 +69,7 @@ public class AssrtCoreSModel
 		{
 			for (Set<Integer> ts : this.termSets)	
 			{
-				if (ts.stream().allMatch((i) -> isActive(this.allStates.get(i), r)
+				if (ts.stream().allMatch(i -> isActive(this.allStates.get(i), r)
 						&& !this.allStates.get(i).getSubjects().contains(r)))
 				{
 					Set<Set<AssrtCoreSState>> set = roleProgress.get(r);
@@ -96,7 +96,7 @@ public class AssrtCoreSModel
 						ESend es = s1.getQ().get(r1).get(r2);
 
 						if (es != null && !(es instanceof AssrtCoreEBot)  // FIXME: hasMessage?
-								&& ts.stream().allMatch((i) -> es.equals(this.allStates.get(i).getQ().get(r1).get(r2))))
+								&& ts.stream().allMatch(i -> es.equals(this.allStates.get(i).getQ().get(r1).get(r2))))
 						{
 							Set<Set<AssrtCoreSState>> set = eventualReception.get(es);
 							if (set == null)
@@ -104,7 +104,7 @@ public class AssrtCoreSModel
 								set = new HashSet<Set<AssrtCoreSState>>();
 								eventualReception.put(es,  set);
 							}
-							set.add(ts.stream().map((i) -> this.allStates.get(i)).collect(Collectors.toSet()));
+							set.add(ts.stream().map(i -> this.allStates.get(i)).collect(Collectors.toSet()));
 						}
 					}
 				}
@@ -136,7 +136,7 @@ public class AssrtCoreSModel
 	private static boolean isStable(AssrtCoreSState s)  // FIXME: refactor to F17SState
 	{
 		return s.getQ().values().stream().flatMap(m -> m.values().stream())
-					.filter((v) -> v != null && !(v instanceof AssrtCoreEBot)).count() == 0;
+					.filter(v -> v != null && !(v instanceof AssrtCoreEBot)).count() == 0;  // FIXME: connections
 	}
 	
 	//private boolean canReachStable(Set<F17SState> seen, F17SState s, Role r)

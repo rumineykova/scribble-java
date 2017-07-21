@@ -111,7 +111,7 @@ public class JavaSmtWrapper
 			Runnable solverInterruptThread = () -> shutdownManager.requestShutdown("Timeout");
 			
 			try (ProverEnvironment prover = this.context
-					.newProverEnvironment(ProverOptions.GENERATE_UNSAT_CORE))
+					.newProverEnvironment(ProverOptions.GENERATE_UNSAT_CORE))  // Cf. ProverOptions.GENERATE_MODELS, timeout too short
 			{
 				prover.addConstraint(formula);
 

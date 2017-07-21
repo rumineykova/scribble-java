@@ -156,7 +156,8 @@ tokens
 
 	//ASSERTION = 'global-assertion'; 
 	ASSRT_ANNOTPAYLOADELEM = 'annot-payload-elem'; 
-	ASSRT_GLOBALMESSAGETRANSFER = 'global-message-transfer-with-assertion';   // May be a null (true) assertion
+	ASSRT_GLOBALMESSAGETRANSFER = 'global-message-transfer-with-assertion';   // May be an empty (true) assertion -- null AST
+	ASSRT_GLOBALCONNECT = 'global-connect-with-assertion';   // May be an empty (true) assertion -- null AST
 }
 
 
@@ -610,24 +611,23 @@ message:
 ;	
 
 globalconnect:
-	//message CONNECT_KW rolename TO_KW rolename
-	//ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
-	CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
+	CONNECT_KW rolename TO_KW rolename ';'
 	->
-	^(GLOBALCONNECT {AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
-|
-	//ASSRT_EXPR message CONNECT_KW rolename TO_KW rolename ';'
-	message CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
-	->
-	^(GLOBALCONNECT {AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename message)
-|	CONNECT_KW rolename TO_KW rolename ';'
-	->
-	//^(GLOBALCONNECT EMPTY_ASSERTION rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 	^(GLOBALCONNECT rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
 	message CONNECT_KW rolename TO_KW rolename ';'
 	->
-	^(GLOBALCONNECT EMPTY_ASSERTION rolename rolename message)
+	^(GLOBALCONNECT rolename rolename message)
+|
+	//ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
+	CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
+	->
+	^(ASSRT_GLOBALCONNECT {AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+|
+	//ASSRT_EXPR message CONNECT_KW rolename TO_KW rolename ';'
+	message CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
+	->
+	^(ASSRT_GLOBALCONNECT {AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename message)
 ;
 /*	'(' connectdecl (',' connectdecl)* ')'
 	->

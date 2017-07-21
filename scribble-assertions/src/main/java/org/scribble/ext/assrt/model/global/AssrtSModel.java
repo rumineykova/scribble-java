@@ -18,11 +18,11 @@ public class AssrtSModel extends SModel
 		errorMsg = super.appendSafetyErrorMessages(errorMsg, errs);
 		if (!errs.varsNotInScope.isEmpty())
 		{
-			errorMsg += "\n    Assertion variables are not in scope " + errs.varsNotInScope;
+			errorMsg += "\n    Assertion variables are not in scope: " + errs.varsNotInScope;
 		}
 		if (!errs.unsatAssertions.isEmpty())
 		{
-			errorMsg += "\n    Unsatisfiable constraints " + errs.unsatAssertions;
+			errorMsg += "\n    Unsatisfiable constraints: " + errs.unsatAssertions;
 		}
 		return errorMsg;
 	}
