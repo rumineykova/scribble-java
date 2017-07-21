@@ -20,22 +20,28 @@ type <java> "java.lang.String" from "rt.jar" as Str;
 // - explicit connections
 
 
+/*
 explicit global protocol Proto1(role A, role B)
 {
 	1() connect A to B;
 }
+//*/
 
 
-/*
+//*
 global protocol Proto1(role A, role B, role C)
 {
 	1(x: Int) from A to B; @(x > 6);
+
 	//2(y: Int) from B to A; @((y > x) && (y > 5));  // X
 	//2(y: Int) from B to A; @(y < x);  // X
 	//2(y: Int) from B to A; @(y = x);
+
 	2(y: Int) from B to A; @(y < 5);
+
 	//3(z: Int) from A to C; @(z < y);  // X
 	//3(z: Int) from A to C; @(z = y);  // X
+
 	3(z: Int) from A to C; @(z < 4);
 }
 //*/
