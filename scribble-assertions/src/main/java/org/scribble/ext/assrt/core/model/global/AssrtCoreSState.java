@@ -38,6 +38,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 {
 	//private static final F17EBot BOT = new F17EBot();
 	
+	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self -- for progress checking
+	
 	// Cf. SState.config
 	private final Map<Role, EState> P;
 	private final Map<Role, Map<Role, AssrtESend>> Q;  // null value means connected and empty -- dest -> src -> msg
@@ -54,16 +56,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					// Being in the state causes "implicit unrolling" for recursions, before/after "known" state
 			// "Knowledge" not the best term? -- K+F represents per role "commitments"?
 	
-	//private final Map<AssrtDataTypeVar, AssrtBoolFormula> F;  
-	private final Set<AssrtBoolFormula> F;  
-			// FIXME: do Set, need to do equals/hashCode
-
-	//private final Map<AnnotRecVar, ...>  // For recursion anntoation var state?
-	
 	// Cf. temporal satisfiability?
-	//private final Set<Set<BoolFormula>> F;  // FIXME: shouldn't be part of state?  i.e., at least, shouldn't "syntactically" distinguish states
-	
-	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self
+	private final Set<AssrtBoolFormula> F;  // FIXME: shouldn't be part of state?  i.e., shouldn't be used to ("syntactically") distinguish states?
 
 	public AssrtCoreSState(Map<Role, EState> P, boolean explicit)
 	{
@@ -89,148 +83,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//this.F = Collections.unmodifiableMap(F);
 		this.F = Collections.unmodifiableSet(F);
 	}
-	
-	public void addSubject(Role subj)
-	{
-		this.subjs.add(subj);
-	}
-	
-	public Set<Role> getSubjects()
-	{
-		return Collections.unmodifiableSet(this.subjs);
-	}
-
-	public Map<Role, EState> getP()
-	{
-		return this.P;
-	}
-	
-	public Map<Role, Map<Role, AssrtESend>> getQ()
-	{
-		return this.Q;
-	}
-
-	/*// Error of opening a port when already connected or another port is still open
-	public boolean isPortOpenError()
-	{
-		for (Entry<Role, EState> e : this.P.entrySet())
-		{
-			for (EAction a : e.getValue().getActions())
-			{
-				if (a.isSend())
-				{
-					for (PayloadType<?> pt : (Iterable<PayloadType<?>>) a.payload.elems.stream()
-							.filter(x -> x instanceof AnnotType)::iterator)
-					{
-						if (pt instanceof AnnotPayloadType<?>)
-						{
-							// FIXME: factor out annot parsing
-							AnnotPayloadType<?> apt = (AnnotPayloadType<?>) pt;
-							String annot = ((AnnotString) apt.annot).val;
-							String key = annot.substring(0, annot.indexOf("="));
-							String val = annot.substring(annot.indexOf("=")+1,annot.length());
-							if (key.equals("open"))
-							{
-								Role portRole = new Role(val);
-								// FIXME: generalise
-								if (isConnected(e.getKey(), portRole) || isPendingConnected(e.getKey(), portRole))
-								{
-									return true;
-								}
-							}
-							else
-							{
-								throw new RuntimeException("[f17] TODO: " + a);
-							}
-						}
-						else if (pt instanceof PayloadVar)
-						{
-							
-						}
-						else
-						{
-							throw new RuntimeException("[f17] TODO: " + a);
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	// Error of trying to send a PayloadVar that is not "owned" by the sender
-	public boolean isPortOwnershipError()
-	{
-		for (Entry<Role, EState> e : this.P.entrySet())
-		{
-			for (EAction a : e.getValue().getActions())
-			{
-				if (a.isSend())
-				{
-					for (PayloadType<?> pt : (Iterable<PayloadType<?>>) a.payload.elems.stream()
-							.filter(x -> x instanceof AnnotType)::iterator)
-					{
-						if (pt instanceof AnnotPayloadType<?>)
-						{
-							
-						}
-						else if (pt instanceof PayloadVar)
-						{
-							if (!this.owned.get(e.getKey()).contains((PayloadVar) pt))
-							{
-								return true;
-							}
-						}
-						else
-						{
-							throw new RuntimeException("[f17] TODO: " + a);
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	public boolean isConnectionError()
-	{
-		return this.P.entrySet().stream().anyMatch(e -> 
-			e.getValue().getActions().stream().anyMatch(a ->
-				(a.isConnect() || a.isAccept()) && isConnected(e.getKey(), a.peer) 
-
-						// FIXME: check for pending port, if so then port is used -- need to extend an AnnotEConnect type with ScribAnnot (cf. AnnotPayloadType)
-
-		));
-	}
-
-	public boolean isDisconnectedError()
-	{
-		return this.P.entrySet().stream().anyMatch((e) -> 
-			e.getValue().getActions().stream().anyMatch((a) ->
-				a.isDisconnect() && this.Q.get(e.getKey()).get(a.peer) != null
-		));
-	}
-
-	public boolean isUnconnectedError()
-	{
-		return this.P.entrySet().stream().anyMatch((e) -> 
-			e.getValue().getActions().stream().anyMatch((a) ->
-				(a.isSend() || a.isReceive()) && !isConnected(e.getKey(), a.peer)
-		));
-	}
-
-	public boolean isSynchronisationError()
-	{
-		return this.P.entrySet().stream().anyMatch((e) -> 
-			e.getValue().getActions().stream().anyMatch((a) ->
-				{
-					EState peer;
-					return a.isConnect() && (peer = this.P.get(a.peer)).getStateKind() == EStateKind.ACCEPT
-							&& (peer.getActions().iterator().next().peer.equals(e.getKey()))  // E.g. A->>B.B->>C.A->>C
-							&& !(peer.getActions().contains(a.toDual(e.getKey())));
-				}
-		));
-	}*/
 
 	public boolean isReceptionError()
 	{
@@ -346,6 +198,128 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					return false;
 				}));
 	}
+
+	/*public boolean isConnectionError()
+	{
+		return this.P.entrySet().stream().anyMatch(e -> 
+			e.getValue().getActions().stream().anyMatch(a ->
+				(a.isConnect() || a.isAccept()) && isConnected(e.getKey(), a.peer) 
+
+						// FIXME: check for pending port, if so then port is used -- need to extend an AnnotEConnect type with ScribAnnot (cf. AnnotPayloadType)
+
+		));
+	}
+
+	public boolean isDisconnectedError()
+	{
+		return this.P.entrySet().stream().anyMatch((e) -> 
+			e.getValue().getActions().stream().anyMatch((a) ->
+				a.isDisconnect() && this.Q.get(e.getKey()).get(a.peer) != null
+		));
+	}
+
+	public boolean isUnconnectedError()
+	{
+		return this.P.entrySet().stream().anyMatch((e) -> 
+			e.getValue().getActions().stream().anyMatch((a) ->
+				(a.isSend() || a.isReceive()) && !isConnected(e.getKey(), a.peer)
+		));
+	}
+
+	public boolean isSynchronisationError()
+	{
+		return this.P.entrySet().stream().anyMatch((e) -> 
+			e.getValue().getActions().stream().anyMatch((a) ->
+				{
+					EState peer;
+					return a.isConnect() && (peer = this.P.get(a.peer)).getStateKind() == EStateKind.ACCEPT
+							&& (peer.getActions().iterator().next().peer.equals(e.getKey()))  // E.g. A->>B.B->>C.A->>C
+							&& !(peer.getActions().contains(a.toDual(e.getKey())));
+				}
+		));
+	}
+	
+	// Error of opening a port when already connected or another port is still open
+	public boolean isPortOpenError()
+	{
+		for (Entry<Role, EState> e : this.P.entrySet())
+		{
+			for (EAction a : e.getValue().getActions())
+			{
+				if (a.isSend())
+				{
+					for (PayloadType<?> pt : (Iterable<PayloadType<?>>) a.payload.elems.stream()
+							.filter(x -> x instanceof AnnotType)::iterator)
+					{
+						if (pt instanceof AnnotPayloadType<?>)
+						{
+							// FIXME: factor out annot parsing
+							AnnotPayloadType<?> apt = (AnnotPayloadType<?>) pt;
+							String annot = ((AnnotString) apt.annot).val;
+							String key = annot.substring(0, annot.indexOf("="));
+							String val = annot.substring(annot.indexOf("=")+1,annot.length());
+							if (key.equals("open"))
+							{
+								Role portRole = new Role(val);
+								// FIXME: generalise
+								if (isConnected(e.getKey(), portRole) || isPendingConnected(e.getKey(), portRole))
+								{
+									return true;
+								}
+							}
+							else
+							{
+								throw new RuntimeException("[f17] TODO: " + a);
+							}
+						}
+						else if (pt instanceof PayloadVar)
+						{
+							
+						}
+						else
+						{
+							throw new RuntimeException("[f17] TODO: " + a);
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	// Error of trying to send a PayloadVar that is not "owned" by the sender
+	public boolean isPortOwnershipError()
+	{
+		for (Entry<Role, EState> e : this.P.entrySet())
+		{
+			for (EAction a : e.getValue().getActions())
+			{
+				if (a.isSend())
+				{
+					for (PayloadType<?> pt : (Iterable<PayloadType<?>>) a.payload.elems.stream()
+							.filter(x -> x instanceof AnnotType)::iterator)
+					{
+						if (pt instanceof AnnotPayloadType<?>)
+						{
+							
+						}
+						else if (pt instanceof PayloadVar)
+						{
+							if (!this.owned.get(e.getKey()).contains((PayloadVar) pt))
+							{
+								return true;
+							}
+						}
+						else
+						{
+							throw new RuntimeException("[f17] TODO: " + a);
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}*/
 	
 	public Map<Role, List<EAction>> getFireable()
 	{
@@ -417,13 +391,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			{
 				// OK -- not checking K-bound assertion vars (cf. isUnknownVarError)
 			}
-			else //if (pt instanceof AssrtDataTypeVar)
+			else
 			{
-				/*if (!this.K.get(self).contains(pt))
-				{
-					ok = false;
-					break;
-				}*/
 				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + pt);  // "Encode" pay elem vars by fresh annot data elems for now
 			}
 		}
@@ -527,6 +496,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 	}*/
 	
+	// Pre: getFireable().get(self).contains(a)
 	public AssrtCoreSState fire(Role self, EAction a)  // Deterministic
 	{
 		Map<Role, EState> P = new HashMap<>(this.P);
@@ -676,6 +646,22 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return new AssrtCoreSState(P, Q, ports, owned);
 	}*/
 	
+	private boolean hasMessage(Role self, Role peer)
+	{
+		AssrtESend m = this.Q.get(self).get(peer);
+		return m != null;// && !(m instanceof F17EBot);
+	}
+	
+	public void addSubject(Role subj)
+	{
+		this.subjs.add(subj);
+	}
+	
+	public Set<Role> getSubjects()
+	{
+		return Collections.unmodifiableSet(this.subjs);
+	}
+	
 	@Override
 	protected String getNodeLabel()
 	{
@@ -683,30 +669,21 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//return "label=\"" + this.id + ":" + lab.substring(1, lab.length() - 1) + "\"";
 		return "label=\"" + this.id + ":" + lab + "\"";
 	}
-	
-	private boolean hasMessage(Role self, Role peer)
-	{
-		AssrtESend m = this.Q.get(self).get(peer);
-		return m != null;// && !(m instanceof F17EBot);
-	}
 
 	@Override
 	public void addEdge(SAction a, AssrtCoreSState s)  // Visibility hack (for F17SModelBuilder.build)
 	{
 		super.addEdge(a, s);
 	}
-	
-	// isActive(SState, Role) becomes isActive(EState)
-	public static boolean isActive(EState s, int init)
+
+	public Map<Role, EState> getP()
 	{
-		return !isInactive(s, init);
+		return this.P;
 	}
 	
-	private static boolean isInactive(EState s, int init)
+	public Map<Role, Map<Role, AssrtESend>> getQ()
 	{
-		//return s.isTerminal() || (s.id == init && s.getStateKind() == EStateKind.ACCEPT);
-		return s.isTerminal();
-				// s.isTerminal means non-empty actions (i.e., edges) -- i.e., non-end (cf., fireable)
+		return this.Q;
 	}
 	
 	@Override
@@ -741,6 +718,19 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	protected boolean canEquals(MState<?, ?, ?, ?> s)
 	{
 		return s instanceof AssrtCoreSState;
+	}
+	
+	// isActive(SState, Role) becomes isActive(EState)
+	public static boolean isActive(EState s, int init)
+	{
+		return !isInactive(s, init);
+	}
+	
+	private static boolean isInactive(EState s, int init)
+	{
+		//return s.isTerminal() || (s.id == init && s.getStateKind() == EStateKind.ACCEPT);
+		return s.isTerminal();
+				// s.isTerminal means non-empty actions (i.e., edges) -- i.e., non-end (cf., fireable)
 	}
 	
 	private static Map<Role, Map<Role, AssrtESend>> makeQ(Set<Role> rs, AssrtESend init)
