@@ -12,7 +12,7 @@ public class AssrtLogFormula extends AssrtBoolFormula
 {
 	public final Set<AssrtDataTypeVar> vars; 
 	
-	// Takes vars separately, because vars is done by AssrtBoolFormula.getVars (not BooleanFormula)
+	// Takes vars separately, because vars is done by AssrtBoolFormula::getVars (not BooleanFormula)
 	public AssrtLogFormula(BooleanFormula f1, Set<AssrtDataTypeVar> vars)
 	{
 		this.formula = f1;  
@@ -68,11 +68,11 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	}
 
 	@Override
-	public int hashCode()  // This is the only Formula class to use this.formula
+	public int hashCode()  // This is the only Formula class to use this.formula for this
 	{
 		int hash = 5923;
 		hash = 31 * hash + super.hashCode();
-		hash = 31 * hash + this.formula.toString().hashCode();  // FIXME HACK
+		hash = 31 * hash + this.formula.toString().hashCode();  // FIXME HACK toString
 		hash = 31 * hash + this.vars.hashCode();
 		return hash;
 	}
