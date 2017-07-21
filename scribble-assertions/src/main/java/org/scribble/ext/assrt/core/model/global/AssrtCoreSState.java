@@ -164,9 +164,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						}
 
 						Set<IntegerFormula> varsF = this.F.stream().flatMap(f -> f.getVars().stream()
-							.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());
-						Set<IntegerFormula> varsA = ass.getVars().stream()
-							.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
+								.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());
+						/*Set<IntegerFormula> varsA = ass.getVars().stream()
+								.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
+						varsA.removeAll(varsF);*/  // No: the only difference should be single action pay var, and always want to exists quantify it (not only if not F, e.g., recursion)
+						Set<IntegerFormula> varsA = new HashSet<>();
 						varsA.add(jsmt.ifm.makeVariable(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));  
 								// Adding even if var not used
 								// N.B. includes the case for recursion cycles where var is "already" in F
@@ -176,7 +178,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 								(b1, b2) -> AssrtFormulaFactory.BinBoolFormula("&&", b1, b2));  // F emptyset at start
 						BooleanFormula PP = tmp.getJavaSmtFormula();
 						BooleanFormula AA = ass.getJavaSmtFormula();
-						if (!varsA.isEmpty())
+						if (!varsA.isEmpty())  // FIXME: now never empty
 						{
 							AA = jsmt.qfm.exists(new LinkedList<>(varsA), AA);
 						}
