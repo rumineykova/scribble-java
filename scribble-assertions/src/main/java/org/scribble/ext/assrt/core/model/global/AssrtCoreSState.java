@@ -163,25 +163,29 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							return false;
 						}
 
-						Set<IntegerFormula> Fvars = this.F.stream().flatMap(f -> f.getVars().stream()
-							.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());
-						Set<IntegerFormula> Avars = ass.getVars().stream()
-							.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
-						Avars.removeAll(Fvars);
+						Set<IntegerFormula> varsF = this.F.stream().flatMap(f -> f.getVars().stream()
+								.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());
+						/*Set<IntegerFormula> varsA = ass.getVars().stream()
+								.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
+						varsA.removeAll(varsF);*/  // No: the only difference should be single action pay var, and always want to exists quantify it (not only if not F, e.g., recursion)
+						Set<IntegerFormula> varsA = new HashSet<>();
+						varsA.add(jsmt.ifm.makeVariable(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));  
+								// Adding even if var not used
+								// N.B. includes the case for recursion cycles where var is "already" in F
 
 						AssrtBoolFormula tmp = this.F.stream().reduce(
 								AssrtTrueFormula.TRUE,
-								(b1, b2) -> AssrtFormulaFactory.BinBoolFormula("&&", b1, b2));  // F empty at start
+								(b1, b2) -> AssrtFormulaFactory.BinBoolFormula("&&", b1, b2));  // F emptyset at start
 						BooleanFormula PP = tmp.getJavaSmtFormula();
 						BooleanFormula AA = ass.getJavaSmtFormula();
-						if (!Avars.isEmpty())
+						if (!varsA.isEmpty())  // FIXME: now never empty
 						{
-							AA = jsmt.qfm.exists(new LinkedList<>(Avars), AA);
+							AA = jsmt.qfm.exists(new LinkedList<>(varsA), AA);
 						}
 						BooleanFormula impli = jsmt.bfm.implication(PP, AA);
-						if (!Fvars.isEmpty())
+						if (!varsF.isEmpty())
 						{
-							impli = jsmt.qfm.forall(new LinkedList<>(Fvars), impli);
+							impli = jsmt.qfm.forall(new LinkedList<>(varsF), impli);
 						}
 						
 						job.debugPrintln("\n[assrt-core] Checking satisfiability for " + e.getKey() + " at " + e.getValue() + ": " + impli);

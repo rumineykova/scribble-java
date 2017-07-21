@@ -28,7 +28,7 @@ explicit global protocol Proto1(role A, role B)
 //*/
 
 
-//*
+/*
 global protocol Proto1(role A, role B, role C)
 {
 	1(x: Int) from A to B; @(x > 6);
@@ -68,10 +68,10 @@ global protocol Proto1(role A, role B)
 
 
 /*
-global protocol Proto1(role A, role B, role C)
+global protocol Proto1(role A, role B)
 {
 	1(x:Int) from A to B;	@(True && ((x+1) > 1));
-	2(y:Int) from A to B; @(z > 1);
+	2(y:Int) from A to B; @((y > 1) && (y = x));  // Not sat: x=0
 }
 //*/
 
