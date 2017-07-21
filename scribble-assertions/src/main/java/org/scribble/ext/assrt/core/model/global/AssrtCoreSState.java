@@ -566,7 +566,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}*/
 				else
 				{
-					throw new RuntimeException("[assrt-core] TODO: " + a);
+					throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);  
+							// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtocolDeclTranslator.parsePayload) -- no other pay elems allowed
 				}
 			}
 		}
@@ -586,11 +587,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
 					putK(K, self, v);
 
-					//putF(F, es.bf);  // No F update: F done "globally" on send
+					//putF(F, es.bf);  // No F update: F already done "globally" on send
 				}
 				else
 				{
-					throw new RuntimeException("[assrt-core] TODO: " + a);
+					throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);  
+							// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtocolDeclTranslator.parsePayload) -- no other pay elems allowed
 				}
 			}
 		}

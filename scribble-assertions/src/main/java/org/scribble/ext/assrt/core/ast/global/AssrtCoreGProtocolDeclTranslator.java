@@ -279,6 +279,7 @@ public class AssrtCoreGProtocolDeclTranslator
 				PayloadElemType<?> type = upe.toPayloadType();
 				if (!type.isDataType())
 				{
+					// i.e., AssrtDataTypeVar not allowed (should be "encoded")
 					throw new AssrtCoreSyntaxException(upe.getSource(), "[assrt-core] Non- data type kind payload not supported: " + upe);
 				}
 				/*AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
