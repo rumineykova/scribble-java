@@ -97,23 +97,21 @@ public class AssrtCoreEGraphBuilder
 			// FIXME: local receive assertions -- why needed exactly?  should WF imply receive assertion always true?
 
 		}
-		/*else if (a instanceof AssrtCoreLConnect)
+		else if (k.equals(AssrtCoreLActionKind.REQUEST))
 		{
-			AssrtCoreLConnect lc = (AssrtCoreLConnect) a;
-			return this.util.ef.newEConnect(a.peer, lc.op, lc.pay);
+			return ef.newAssrtEConnect(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass.getFormula());
 		}
-		else if (a instanceof AssrtCoreLAccept)
+		else if (k.equals(AssrtCoreLActionKind.ACCEPT))
 		{
-			AssrtCoreLAccept la = (AssrtCoreLAccept) a;
-			return this.util.ef.newEAccept(a.peer, la.op, la.pay);
+			return ef.newAssrtEAccept(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass.getFormula());
 		}
-		else if (a instanceof AssrtCoreLDisconnect)
+		/*else if (a instanceof AssrtCoreLDisconnect)
 		{
 			return this.util.ef.newEDisconnect(a.peer);
 		}*/
 		else
 		{
-			throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
+			throw new RuntimeException("[assrt-core] Shouldn't get in here: " + k);
 		}
 	}
 }

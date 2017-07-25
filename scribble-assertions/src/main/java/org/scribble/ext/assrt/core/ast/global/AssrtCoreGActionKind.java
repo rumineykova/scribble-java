@@ -25,6 +25,10 @@ public enum AssrtCoreGActionKind implements AssrtCoreActionKind<Global>
 	// src is global src, subj is either src or dest
 	public AssrtCoreLActionKind project(Role src, Role subj)
 	{
-		return src.equals(subj) ? AssrtCoreLActionKind.SEND : AssrtCoreLActionKind.RECEIVE;
+		return 
+				this == AssrtCoreGActionKind.MESSAGE
+						? (src.equals(subj) ? AssrtCoreLActionKind.SEND : AssrtCoreLActionKind.RECEIVE)
+						: (src.equals(subj) ? AssrtCoreLActionKind.REQUEST : AssrtCoreLActionKind.ACCEPT)
+				;
 	}
 }

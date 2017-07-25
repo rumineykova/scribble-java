@@ -5,11 +5,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.scribble.ast.MessageNode;
 import org.scribble.ast.MessageSigNode;
 import org.scribble.ast.PayloadElem;
 import org.scribble.ast.UnaryPayloadElem;
 import org.scribble.ast.global.GChoice;
+import org.scribble.ast.global.GConnect;
 import org.scribble.ast.global.GContinue;
 import org.scribble.ast.global.GDelegationElem;
 import org.scribble.ast.global.GInteractionNode;
@@ -21,10 +25,12 @@ import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.global.GSimpleInteractionNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.simple.RecVarNode;
+import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.global.GProtocolDefDel;
 import org.scribble.ext.assrt.ast.AssrtAnnotDataTypeElem;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
+import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
@@ -42,6 +48,9 @@ import org.scribble.sesstype.name.PayloadElemType;
 import org.scribble.sesstype.name.RecVar;
 import org.scribble.sesstype.name.Role;
 
+	
+//	.. rename connect to request
+//	.. refactor a GConnectinAction (cf. LConnectionAction)
 
 public class AssrtCoreGProtocolDeclTranslator
 {
@@ -98,14 +107,10 @@ public class AssrtCoreGProtocolDeclTranslator
 			{
 				return parseGMessageTransfer(is, rvs, (GMessageTransfer) first);
 			}
-			/*else if (first instanceof GConnect)
+			else if (first instanceof GConnect)
 			{
-				AssrtCoreGConnect gc = parseGConnect((GConnect) first);
-				AssrtCoreGType cont = parseSeq(jc, mc, is.subList(1, is.size()), false, false);
-				Map<AssrtCoreGAction, AssrtCoreGType> cases = new HashMap<>();
-				cases.put(gc, cont);
-				return this.factory.GChoice(cases);
-			}*/
+				return parseGConnect(is, rvs, (GConnect) first);
+			}
 			/*else if (first instanceof GDisconnect)
 			{
 				F17GDisconnect gdc = parseGDisconnect((GDisconnect) first);
@@ -214,43 +219,79 @@ public class AssrtCoreGProtocolDeclTranslator
 		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
 		AssrtAnnotDataType pay = parsePayload(gmt);
 		AssrtAssertion ass = parseAssertion(gmt);
-		
 		AssrtCoreAction a = this.af.action(op, pay, ass);
-		
-		AssrtCoreGType cont = parseSeq(is.subList(1, is.size()), rvs, false, false);  // Subseqeuent choice/rec is guarded by (at least) this action
-
 		Role src = parseSourceRole(gmt);
 		Role dest = parseDestinationRole(gmt);
+		AssrtCoreGActionKind kind = AssrtCoreGActionKind.MESSAGE;
+		return parseGSimpleInteractionNode(is, rvs, src, a, dest, kind);
+	}
+
+	// Duplicated from parseGMessageTransfer (MessageTransfer and ConnectionAction have no common
+	
+	private AssrtCoreGChoice parseGConnect(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, GConnect gc) throws AssrtCoreSyntaxException 
+	{
+		Op op = parseOp(gc);
+		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
+		AssrtAnnotDataType pay = parsePayload(gc);
+		AssrtAssertion ass = parseAssertion(gc);
+		AssrtCoreAction a = this.af.action(op, pay, ass);
+		Role src = parseSourceRole(gc);
+		Role dest = parseDestinationRole(gc);
+		AssrtCoreGActionKind kind = AssrtCoreGActionKind.CONNECT;
+		return parseGSimpleInteractionNode(is, rvs, src, a, dest, kind);
+	}
+
+	private AssrtCoreGChoice parseGSimpleInteractionNode(
+			List<GInteractionNode> is, Map<RecVar, RecVar> rvs, 
+			Role src, AssrtCoreAction a, Role dest, AssrtCoreGActionKind kind) throws AssrtCoreSyntaxException 
+	{
 		if (src.equals(dest))
 		{
-			throw new RuntimeException("[assrt-core] Shouldn't get in here (self-communication): " + gmt);
+			throw new RuntimeException("[assrt-core] Shouldn't get in here (self-communication): " + src + ", " + dest);
 		}
 		
-		AssrtCoreGActionKind kind = AssrtCoreGActionKind.MESSAGE;
-		
-		Map<AssrtCoreAction, AssrtCoreGType> cases = new HashMap<>();
-		cases.put(a, cont);
-		return this.af.AssrtCoreGChoice(src, kind, dest, cases);
+		AssrtCoreGType cont = parseSeq(is.subList(1, is.size()), rvs, false, false);  // Subseqeuent choice/rec is guarded by (at least) this action
+		return this.af.AssrtCoreGChoice(src, kind, dest, Stream.of(a).collect(Collectors.toMap(x -> x, x -> cont)));
 	}
 
 	private Op parseOp(GMessageTransfer gmt) throws AssrtCoreSyntaxException
 	{
-		if (!gmt.msg.isMessageSigNode())
+		return parseOp(gmt.msg);
+	}
+
+	private Op parseOp(GConnect gc) throws AssrtCoreSyntaxException
+	{
+		return parseOp(gc.msg);
+	}
+
+	private Op parseOp(MessageNode mn) throws AssrtCoreSyntaxException
+	{
+		if (!mn.isMessageSigNode())
 		{
-			throw new AssrtCoreSyntaxException(gmt.msg.getSource(), " [assrt-core] Message sig names not supported: " + gmt.msg);  // TODO: MessageSigName
+			throw new AssrtCoreSyntaxException(mn.getSource(), " [assrt-core] Message sig names not supported: " + mn);  // TODO: MessageSigName
 		}
-		MessageSigNode msn = ((MessageSigNode) gmt.msg);
+		MessageSigNode msn = ((MessageSigNode) mn);
 		return msn.op.toName();
 	}
 
 	private AssrtAnnotDataType parsePayload(GMessageTransfer gmt) throws AssrtCoreSyntaxException
 	//private AssrtAnnotDataTypeElem<DataTypeKind> parsePayload(GMessageTransfer gmt) throws AssrtException
 	{
-		if (!gmt.msg.isMessageSigNode())
+		return parsePayload(gmt.msg);
+	}
+
+	private AssrtAnnotDataType parsePayload(GConnect gc) throws AssrtCoreSyntaxException
+	{
+		return parsePayload(gc.msg);
+	}
+
+	private AssrtAnnotDataType parsePayload(MessageNode mn) throws AssrtCoreSyntaxException
+	{
+		if (!mn.isMessageSigNode())
 		{
-			throw new AssrtCoreSyntaxException(gmt.msg.getSource(), " [assrt-core] Message sign names not supported: " + gmt.msg);  // TODO: MessageSigName
+			throw new AssrtCoreSyntaxException(mn.getSource(), " [assrt-core] Message sign names not supported: " + mn);  // TODO: MessageSigName
 		}
-		MessageSigNode msn = ((MessageSigNode) gmt.msg);
+		MessageSigNode msn = ((MessageSigNode) mn);
 		if (msn.payloads.getElements().isEmpty())
 		{
 			/*DataTypeNode dtn = (DataTypeNode) ((AssrtAstFactory) this.job.af).QualifiedNameNode(null, DataTypeKind.KIND, "_Unit");
@@ -260,7 +301,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		}
 		else if (msn.payloads.getElements().size() > 1)
 		{
-			throw new AssrtCoreSyntaxException(msn.getSource(), "[assrt-core] Payload with more than one element not supported: " + gmt.msg);
+			throw new AssrtCoreSyntaxException(msn.getSource(), "[assrt-core] Payload with more than one element not supported: " + mn);
 		}
 		else
 		{
@@ -289,17 +330,36 @@ public class AssrtCoreGProtocolDeclTranslator
 		}
 	}
 
-	// Empty assertions generated as True
 	private AssrtAssertion parseAssertion(GMessageTransfer gmt)
 	{
-		AssrtAssertion ass = ((AssrtGMessageTransfer) gmt).ass;
+		return parseAssertion(((AssrtGMessageTransfer) gmt).ass);
+	}
+
+	private AssrtAssertion parseAssertion(GConnect gc)
+	{
+		return parseAssertion(((AssrtGConnect) gc).ass);
+	}
+
+	// Empty assertions generated as True
+	private AssrtAssertion parseAssertion(AssrtAssertion ass)
+	{
 		return (ass == null) ? ((AssrtAstFactory) this.job.af).AssrtAssertion(null, AssrtTrueFormula.TRUE) : ass;
 			// FIXME: singleton constant
 	}
 
 	private Role parseSourceRole(GMessageTransfer gmt)
 	{
-		return gmt.src.toName();
+		return parseSourceRole(gmt.src);
+	}
+
+	private Role parseSourceRole(GConnect gmt)
+	{
+		return parseSourceRole(gmt.src);
+	}
+
+	private Role parseSourceRole(RoleNode rn)
+	{
+		return rn.toName();
 	}
 	
 	private Role parseDestinationRole(GMessageTransfer gmt) throws AssrtCoreSyntaxException
@@ -308,7 +368,17 @@ public class AssrtCoreGProtocolDeclTranslator
 		{
 			throw new AssrtCoreSyntaxException(gmt.getSource(), " [TODO] Multicast not supported: " + gmt);
 		}
-		return gmt.getDestinations().get(0).toName();
+		return parseDestinationRole(gmt.getDestinations().get(0));
+	}
+
+	private Role parseDestinationRole(GConnect gc) throws AssrtCoreSyntaxException
+	{
+		return parseDestinationRole(gc.dest);
+	}
+
+	private Role parseDestinationRole(RoleNode rn) throws AssrtCoreSyntaxException
+	{
+		return rn.toName();
 	}
 
 	private AssrtCoreGType parseGRecursion(Map<RecVar, RecVar> rvs,
