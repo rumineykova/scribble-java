@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.model.endpoint.AssrtEAccept;
 import org.scribble.ext.assrt.model.endpoint.AssrtEConnect;
-import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.model.endpoint.AssrtEReceive;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
@@ -33,7 +32,6 @@ import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.global.actions.SAction;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.kind.Global;
-import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Op;
 import org.scribble.sesstype.name.PayloadElemType;
 import org.scribble.sesstype.name.Role;
@@ -540,64 +538,20 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		if (a.isSend())
 		{
-			AssrtESend es = (AssrtESend) a;
-			P.put(self, succ);
-			Q.get(es.peer).put(self, es);
-			
-			/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
-						(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
-			PayloadElemType<?> pt = a.payload.elems.get(0);
-			{
-				if (pt instanceof AssrtAnnotDataType)
-				{
-					// Update K
-					AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
-					putK(K, self, v);
-					
-					//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
-					//putF(F, v, es.bf);
-					putF(F, es.ass);  // Recorded "globally" -- cf. async K updates
-				}
-				/*else if (pt instanceof PayloadVar)  // Should not be used (for now), can encode
-				{
-					// Check known, and not "ambiguous" -- no for latter: that is error checking
-
-					PayloadVar pv = (PayloadVar) pt;
-					owned.get(self).remove(pv);
-					owned.get(es.peer).add(pv);
-				}*/
-				else
-				{
-					throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);  
-							// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtocolDeclTranslator.parsePayload) -- no other pay elems allowed
-				}
-			}
+			fireSend(P, Q, K, F, self, (AssrtESend) a, succ);
 		}
 		else if (a.isReceive())
 		{
-			EReceive lr = (EReceive) a;
-			P.put(self, succ);
-			Q.get(self).put(lr.peer, null);
-
-			/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
-						(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
-			PayloadElemType<?> pt = a.payload.elems.get(0);
-			{
-				if (pt instanceof AssrtAnnotDataType)
-				{
-					// Update K
-					AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
-					putK(K, self, v);
-
-					//putF(F, es.bf);  // No F update: F already done "globally" on send
-				}
-				else
-				{
-					throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);  
-							// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtocolDeclTranslator.parsePayload) -- no other pay elems allowed
-				}
-			}
+			fireReceive(P, Q, K, self, (EReceive) a, succ);
 		}
+		else if (a.isConnect())
+		{
+			fireRequest(P, Q, K, F, self, (AssrtEConnect) a, succ);
+		}
+		/*else if (a.isAccept())
+		{
+			
+		}*/
 		/*else if (a.isDisconnect())
 		{
 			EDisconnect ld = (EDisconnect) a;
@@ -611,8 +565,101 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return new AssrtCoreSState(P, Q, K, F);
 	}
 
-	/*// "Synchronous version" of fire
-	public AssrtCoreSState sync(Role r1, EAction a1, Role r2, EAction a2)
+	private static void fireSend(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
+			Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F,
+			Role self, AssrtESend es, EState succ)
+	{
+		P.put(self, succ);
+		Q.get(es.peer).put(self, es);
+		
+		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
+					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
+		PayloadElemType<?> pt = es.payload.elems.get(0);
+		{
+			if (pt instanceof AssrtAnnotDataType)
+			{
+				// Update K
+				AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
+				putK(K, self, v);
+				
+				//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
+				//putF(F, v, es.bf);
+				putF(F, es.ass);  // Recorded "globally" -- cf. async K updates
+			}
+			/*else if (pt instanceof PayloadVar)  // Should not be used (for now), can encode
+			{
+				// Check known, and not "ambiguous" -- no for latter: that is error checking
+
+				PayloadVar pv = (PayloadVar) pt;
+				owned.get(self).remove(pv);
+				owned.get(es.peer).add(pv);
+			}*/
+			else
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + es);  
+						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtocolDeclTranslator.parsePayload) -- no other pay elems allowed
+			}
+		}
+	}
+
+	private static void fireReceive(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
+			Map<Role, Set<AssrtDataTypeVar>> K,   // FIXME: manage F with receive assertions?
+			Role self, EReceive er, EState succ)
+	{
+		P.put(self, succ);
+		Q.get(self).put(er.peer, null);
+
+		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
+					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
+		PayloadElemType<?> pt = er.payload.elems.get(0);
+		{
+			if (pt instanceof AssrtAnnotDataType)
+			{
+				// Update K
+				AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
+				putK(K, self, v);
+
+				//putF(F, es.bf);  // No F update: F already done "globally" on send
+			}
+			else
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + er);  
+						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtocolDeclTranslator.parsePayload) -- no other pay elems allowed
+			}
+		}
+	}
+
+	private static void fireRequest(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
+			Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F,
+			Role self, AssrtEConnect es, EState succ)
+	{
+		P.put(self, succ);
+		Q.get(es.peer).put(self, new AssrtCoreEPendingConnection(es));
+		
+		// Duplocated from fireSend
+		PayloadElemType<?> pt = es.payload.elems.get(0);
+		{
+			if (pt instanceof AssrtAnnotDataType)
+			{
+				// Update K
+				AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
+				putK(K, self, v);
+				
+				//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
+				//putF(F, v, es.bf);
+				putF(F, es.ass);  // Recorded "globally" -- cf. async K updates
+			}
+			else
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + es);  
+						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtocolDeclTranslator.parsePayload) -- no other pay elems allowed
+			}
+		}
+	}
+
+
+	/* // No longer "synchronous" per se, just blocking for requestor
+	public AssrtSConfig sync(Role r1, EAction a1, Role r2, EAction a2)
 	{
 		Map<Role, EState> P = new HashMap<>(this.P);
 		Map<Role, Map<Role, AssrtESend>> Q = copyQ(this.Q);
@@ -937,9 +984,10 @@ class AssrtCoreEPendingConnection extends AssrtESend
 			new Payload(Arrays.asList(new AssrtAnnotDataType(new AssrtDataTypeVar("_BOT"), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE)));
 			// Cf. Payload.EMPTY_PAYLOAD
 
-	public AssrtCoreEPendingConnection(AssrtEModelFactory ef, Role r, MessageId<?> op, Payload pay, AssrtBoolFormula ass)
+	//public AssrtCoreEPendingConnection(AssrtEModelFactory ef, Role r, MessageId<?> op, Payload pay, AssrtBoolFormula ass)
+	public AssrtCoreEPendingConnection(AssrtEConnect ec)
 	{
-		super(ef, r, op, pay, ass);
+		super(null, ec.peer, ec.mid, ec.payload, ec.ass);  // HACK: null ef OK?  cannot access es.ef
 	}
 	
 	@Override
