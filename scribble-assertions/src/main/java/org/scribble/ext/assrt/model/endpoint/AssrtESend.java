@@ -23,7 +23,7 @@ public class AssrtESend extends ESend
 	}
 
 	// HACK: replace assertion by True
-	public AssrtESend toESendTrue()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
+	public AssrtESend toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
 	{
 		return ((AssrtEModelFactory) this.ef).newAssrtESend(this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE);
 	}

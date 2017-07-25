@@ -20,7 +20,6 @@ import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.model.endpoint.actions.EDisconnect;
 import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.model.global.SBuffers;
@@ -76,11 +75,10 @@ public class AssrtSConfig extends SConfig
 			}*/
 			SBuffers tmp2 = 
 						//a.isSend()       ? this.buffs.send(r, (ESend) a)
-					
-						a.isSend()       ? this.buffs.send(r, ((AssrtESend) a).toESendTrue())  // FIXME HACK 
+						a.isSend()       ? this.buffs.send(r, ((AssrtESend) a).toTrueAssertion())  // HACK FIXME: project receive assertion properly and check implication 
 					
 					: a.isReceive()    ? this.buffs.receive(r, (EReceive) a)
-					: a.isDisconnect() ? this.buffs.disconnect(r, (EDisconnect) a)
+					//: a.isDisconnect() ? this.buffs.disconnect(r, (EDisconnect) a)
 					: null;
 			if (tmp2 == null)
 			{

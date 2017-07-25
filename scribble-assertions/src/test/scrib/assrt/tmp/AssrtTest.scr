@@ -24,6 +24,7 @@ type <java> "java.lang.String" from "rt.jar" as Str;
 explicit global protocol Proto1(role A, role B)
 {
 	1() connect A to B;
+	//1(x: Int) from A to B; @(x > 6);
 }
 //*/
 

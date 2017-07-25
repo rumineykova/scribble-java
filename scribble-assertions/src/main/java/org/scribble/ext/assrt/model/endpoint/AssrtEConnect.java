@@ -24,7 +24,7 @@ public class AssrtEConnect extends EConnect
 	}
 
 	// HACK: replace assertion by True
-	public AssrtEConnect toEConnectTrue()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
+	public AssrtEConnect toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
 	{
 		return ((AssrtEModelFactory) this.ef).newAssrtEConnect(this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE);
 	}

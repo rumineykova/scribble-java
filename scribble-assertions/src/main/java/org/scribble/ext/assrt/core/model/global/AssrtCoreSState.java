@@ -1,5 +1,6 @@
 package org.scribble.ext.assrt.core.model.global;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +11,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
+import org.scribble.ext.assrt.model.endpoint.AssrtEAccept;
+import org.scribble.ext.assrt.model.endpoint.AssrtEConnect;
+import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
+import org.scribble.ext.assrt.model.endpoint.AssrtEReceive;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
@@ -20,7 +26,6 @@ import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.scribble.main.Job;
 import org.scribble.model.MPrettyState;
 import org.scribble.model.MState;
-import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.EStateKind;
 import org.scribble.model.endpoint.actions.EAction;
@@ -29,6 +34,7 @@ import org.scribble.model.global.actions.SAction;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.kind.Global;
 import org.scribble.sesstype.name.MessageId;
+import org.scribble.sesstype.name.Op;
 import org.scribble.sesstype.name.PayloadElemType;
 import org.scribble.sesstype.name.Role;
 import org.sosy_lab.java_smt.api.BooleanFormula;
@@ -36,7 +42,7 @@ import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState, Global>
 {
-	//private static final F17EBot BOT = new F17EBot();
+	private static final AssrtCoreEBot BOT = new AssrtCoreEBot();
 	
 	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self -- for progress checking
 	
@@ -61,15 +67,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	public AssrtCoreSState(Map<Role, EState> P, boolean explicit)
 	{
-		this(P, makeQ(P.keySet(), null), //explicit ? BOT : null),
+		this(P, makeQ(P.keySet(), explicit),
 				makeK(P.keySet()),
 				//new HashMap<>());
 				new HashSet<>());
-		
-		if (explicit)
-		{
-			throw new RuntimeException("[assrt-core] TODO: explicit connections");
-		}
 	}
 
 	// Pre: non-aliased "ownership" of all Map contents
@@ -342,20 +343,20 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}
 				else if (a.isReceive())
 				{
-					EReceive er = (EReceive) a;
+					AssrtEReceive er = (AssrtEReceive) a;
 					getReceiveFireable(res, self, er);
 				}
-				/*else if (a.isConnect())
+				else if (a.isConnect())
 				{
-					EConnect lo = (EConnect) a;
-					getConnectFireable(res, self, a, lo);
+					AssrtEConnect ec = (AssrtEConnect) a;
+					getConnectFireable(res, self, ec);
 				}
 				else if (a.isAccept())
 				{
-					EAccept la = (EAccept) a;
-					getAcceptFireable(res, self, la);
+					AssrtEAccept ea = (AssrtEAccept) a;
+					getAcceptFireable(res, self, ea);
 				}
-				else if (a.isDisconnect())
+				/*else if (a.isDisconnect())
 				{
 					EDisconnect ld = (EDisconnect) a;
 					getDisconnectFireable(res, self, ld);
@@ -371,8 +372,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private void getSendFireable(Map<Role, List<EAction>> res, Role self, AssrtESend es)
 	{
-		if //(!isConnected(self, es.peer) || this.Q.get(es.peer).get(self) != null)
-				(hasMessage(es.peer, self))  // FIXME: for connect
+		if (hasPendingConnect(self) || !isConnected(self, es.peer) || hasMessage(es.peer, self))
 		{
 			return;
 		}
@@ -393,7 +393,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			if (pt instanceof AssrtAnnotDataType)
 			{
-				// OK -- not checking K-bound assertion vars (cf. isUnknownVarError)
+				// OK -- currently not checking K-bound assertion vars (cf. isUnknownVarError) -- nor satisfiability (send ass implies receive ss)
+				// FIXME: currently fire requires send and receive assertions (and both hacked to True) to be syntactically equal, which is wrong
 			}
 			else
 			{
@@ -408,22 +409,49 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private void getReceiveFireable(Map<Role, List<EAction>> res, Role self, EReceive er)
 	{
-		if (hasMessage(self, er.peer))
+		if (hasPendingConnect(self) || ! hasMessage(self, er.peer))
 		{
-			AssrtESend m = this.Q.get(self).get(er.peer);
-			if (er.toDual(self).equals(m))  //&& !(m instanceof F17EBot)
-			{
-				res.get(self).add(er);
-			}
+			return;
+		}
+
+		AssrtESend m = this.Q.get(self).get(er.peer);
+		if (er.toDual(self).equals(m))  //&& !(m instanceof F17EBot)
+		{
+			res.get(self).add(er);
 		}
 	}
 
-	/*private void getConnectFireable(Map<Role, List<EAction>> res, Role self, EAction a, EConnect lo)
+	private void getConnectFireable(Map<Role, List<EAction>> res, Role self, AssrtEConnect es)
 	{
-		if (this.Q.get(self).get(lo.peer) instanceof F17EBot      // FIXME: !isConnected
-				&& this.Q.get(lo.peer).get(self) instanceof F17EBot)
+		//if (isConnected(self, es.peer) || isConnected(es.peer, self))
+		if (hasPendingConnect(self)
+				|| isConnectedOrPendingConnected(self, es.peer) || isConnectedOrPendingConnected(es.peer, self))  // Q(r, r') = Q(r', r) = BOT
 		{
-			EState plt = this.P.get(lo.peer);
+			return;
+		}
+		
+		// FIXME: factor out with send?
+		boolean ok = true;
+		PayloadElemType<?> pt = es.payload.elems.get(0);  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
+		{
+			if (pt instanceof AssrtAnnotDataType)
+			{
+				// OK -- currently not checking K-bound assertion vars (cf. isUnknownVarError) -- nor satisfiability (send ass implies receive ss)
+				// FIXME: currently fire requires send and receive assertions (and both hacked to True) to be syntactically equal, which is wrong
+			}
+			else
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + pt);  // "Encode" pay elem vars by fresh annot data elems for now
+			}
+		}
+		if (ok)
+		{	
+			res.get(self).add(es);
+		}
+		
+		// FIXME: open/port annotations
+
+			/*EState plt = this.P.get(lo.peer);
 			if (plt.getActions().contains(lo.toDual(self)))
 			{
 
@@ -474,24 +502,24 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					res.get(self).add(lo);
 				}
 
-			}
-		}
+			}*/
 	}
 
-	private void getAcceptFireable(Map<Role, List<EAction>> res, Role self, EAccept la)
+	private void getAcceptFireable(Map<Role, List<EAction>> res, Role self, AssrtEAccept ea)
 	{
-		if (this.Q.get(self).get(la.peer) instanceof F17EBot      // FIXME: !isConnected
-				&& this.Q.get(la.peer).get(self) instanceof F17EBot)
+		if (hasPendingConnect(self) || !isPendingConnection(ea.peer, self))
 		{
-			EState plt = this.P.get(la.peer);
-			if (plt.getActions().contains(la.toDual(self)))
-			{
-				res.get(self).add(la);
-			}
+			return;
+		}
+
+		EState plt = this.P.get(ea.peer);
+		if (plt.getActions().contains(ea.toDual(self)))
+		{
+			res.get(self).add(ea);
 		}
 	}
 
-	private void getDisconnectFireable(Map<Role, List<EAction>> res, Role self, EDisconnect ld)
+	/*private void getDisconnectFireable(Map<Role, List<EAction>> res, Role self, EDisconnect ld)
 	{
 		if (!(this.Q.get(self).get(ld.peer) instanceof F17EBot)  // FIXME: isConnected
 				&& this.Q.get(self).get(ld.peer) == null)
@@ -653,7 +681,33 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private boolean hasMessage(Role self, Role peer)
 	{
 		AssrtESend m = this.Q.get(self).get(peer);
-		return m != null;// && !(m instanceof F17EBot);
+		return m != null && !(m instanceof AssrtCoreEBot);
+	}
+	
+	// Direction sensitive (not symmetric)
+	private boolean isConnected(Role r1, Role r2)  // N.B. is more like the "input buffer" at r1 for r2 -- not the actual "connection from r1 to r2"
+	{
+		return isConnectedOrPendingConnected(r1, r2) && !isPendingConnection(r1, r2);
+				// "Fully" connected, not "pending" -- relies on all action firing being guarded on !hasPendingConnect
+	}
+
+	// Direction sensitive (not symmetric)
+	private boolean isConnectedOrPendingConnected(Role r1, Role r2)
+	{
+		return !(this.Q.get(r1).get(r2) instanceof AssrtCoreEBot);
+	}
+
+	private boolean isPendingConnection(Role req, Role acc)  // FIXME: for open/port annotations
+	{
+		//return (this.ports.get(r1).get(r2) != null) || (this.ports.get(r2).get(r1) != null);
+		AssrtESend es = this.Q.get(acc).get(req);
+		return es instanceof AssrtCoreEPendingConnection;
+	}
+
+  // FIXME: rename hasPendingRequest
+	private boolean hasPendingConnect(Role r1)
+	{
+		return this.Q.keySet().stream().anyMatch(r2 -> isPendingConnection(r2, r1));
 	}
 	
 	public void addSubject(Role subj)
@@ -737,20 +791,21 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				// s.isTerminal means non-empty actions (i.e., edges) -- i.e., non-end (cf., fireable)
 	}
 	
-	private static Map<Role, Map<Role, AssrtESend>> makeQ(Set<Role> rs, AssrtESend init)
+	private static Map<Role, Map<Role, AssrtESend>> makeQ(Set<Role> rs, boolean explicit)
 	{
+		AssrtESend init = explicit ? BOT : null;
 		Map<Role, Map<Role, AssrtESend>> res = new HashMap<>();
-		for (Role r : rs)
+		for (Role r1 : rs)
 		{
 			HashMap<Role, AssrtESend> tmp = new HashMap<>();
-			for (Role rr : rs)
+			for (Role r2 : rs)
 			{
-				if (!rr.equals(r))
+				if (!r2.equals(r1))
 				{
-					tmp.put(rr, init);
+					tmp.put(r2, init);
 				}
 			}
-			res.put(r, tmp);
+			res.put(r1, tmp);
 		}
 		return res;
 	}
@@ -820,39 +875,19 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		return owned.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> new HashSet<>(e.getValue())));
 	}*/
-	
-	/*// Direction sensitive (not symmetric)
-	private boolean isConnected(Role r1, Role r2)  // N.B. is more like the "input buffer" at r1 for r2 -- not the actual "connection from r1 to r2"
-	{
-		return !(this.Q.get(r1).get(r2) instanceof F17EBot);
-	}
-
-	private boolean isPendingConnected(Role r1, Role r2)
-	{
-		return (this.ports.get(r1).get(r2) != null) || (this.ports.get(r2).get(r1) != null);
-	}*/
 }
 
 
-// FIXME TODO
 class AssrtCoreEBot extends AssrtESend
 {
-	public AssrtCoreEBot(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
-	{
-		super(ef, peer, mid, payload, bf);
-	}
-}
+	public static final Payload ASSRTCORE_EMPTY_PAYLOAD =
+			new Payload(Arrays.asList(new AssrtAnnotDataType(new AssrtDataTypeVar("_BOT"), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE)));
+			// Cf. Payload.EMPTY_PAYLOAD
 
-/*public F17EBot()
+	//public AssrtCoreEBot(EModelFactory ef)
+	public AssrtCoreEBot()
 	{
-		super(null, Role.EMPTY_ROLE, Op.EMPTY_OPERATOR, Payload.EMPTY_PAYLOAD);  // null ef OK?
-	}
-
-	@Override
-	public EReceive toDual(Role self)
-	{
-		throw new RuntimeException("Shouldn't get in here: " + this);
-		//return this;
+		super(null, Role.EMPTY_ROLE, Op.EMPTY_OPERATOR, ASSRTCORE_EMPTY_PAYLOAD, AssrtTrueFormula.TRUE);  // null ef OK?
 	}
 	
 	@Override
@@ -864,7 +899,7 @@ class AssrtCoreEBot extends AssrtESend
 	@Override
 	public String toString()
 	{
-		return "#";
+		return "BOT";
 	} 
 
 	@Override
@@ -882,7 +917,7 @@ class AssrtCoreEBot extends AssrtESend
 		{
 			return true;
 		}
-		if (!(obj instanceof F17EBot))
+		if (!(obj instanceof AssrtCoreEBot))
 		{
 			return false;
 		}
@@ -892,6 +927,58 @@ class AssrtCoreEBot extends AssrtESend
 	@Override
 	public boolean canEqual(Object o)  // FIXME: rename canEquals
 	{
-		return o instanceof F17EBot;
+		return o instanceof AssrtCoreEBot;
 	}
-}*/
+}
+
+class AssrtCoreEPendingConnection extends AssrtESend
+{
+	public static final Payload ASSRTCORE_EMPTY_PAYLOAD =
+			new Payload(Arrays.asList(new AssrtAnnotDataType(new AssrtDataTypeVar("_BOT"), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE)));
+			// Cf. Payload.EMPTY_PAYLOAD
+
+	public AssrtCoreEPendingConnection(AssrtEModelFactory ef, Role r, MessageId<?> op, Payload pay, AssrtBoolFormula ass)
+	{
+		super(ef, r, op, pay, ass);
+	}
+	
+	@Override
+	public boolean isSend()
+	{
+		return false;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "<" + super.toString() + ">";
+	} 
+
+	@Override
+	public int hashCode()
+	{
+		int hash = 6091;
+		hash = 31 * hash + super.hashCode();
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+		if (!(obj instanceof AssrtCoreEPendingConnection))
+		{
+			return false;
+		}
+		return super.equals(obj);
+	}
+	
+	@Override
+	public boolean canEqual(Object o)  // FIXME: rename canEquals
+	{
+		return o instanceof AssrtCoreEPendingConnection;
+	}
+}
