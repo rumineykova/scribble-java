@@ -552,7 +552,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 		else if (a.isAccept())
 		{
-			fireAccept(P, Q, K, self, (AssrtEConnect) a, succ);
+			fireAccept(P, Q, K, self, (AssrtEAccept) a, succ);
 		}
 		/*else if (a.isDisconnect())
 		{
@@ -597,11 +597,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private static void fireAccept(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
 			Map<Role, Set<AssrtDataTypeVar>> K, //Set<AssrtBoolFormula> F,
-			Role self, AssrtEConnect ec, EState succ)
+			Role self, AssrtEAccept ea, EState succ)
 	{
 		P.put(self, succ);
-		Q.get(self).put(ec.peer, null);
-		inputUpdateK(K, self, ec);
+		Q.get(self).put(ea.peer, null);
+		inputUpdateK(K, self, ea);
 	}
 
 	private static void outputUpdateKF(Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F, Role self, EAction o)  // FIXME: EAction closest base type
@@ -683,7 +683,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
   // FIXME: rename hasPendingRequest
 	private boolean hasPendingConnect(Role req)
 	{
-		return this.Q.keySet().stream().anyMatch(acc -> isPendingConnection(acc, req));
+		return this.Q.keySet().stream().anyMatch(acc -> isPendingConnection(req, acc));
 	}
 
 	public Map<Role, EState> getP()

@@ -54,7 +54,7 @@ public class AssrtCoreSModelBuilder
 				{
 					// cf. SState.getNextStates
 					final AssrtCoreSState tmp;
-					if (a.isSend() || a.isReceive())// || a.isDisconnect())
+					if (a.isSend() || a.isReceive() || a.isConnect() || a.isAccept())// || a.isDisconnect())
 					{
 						tmp = curr.fire(self, a);
 					}
