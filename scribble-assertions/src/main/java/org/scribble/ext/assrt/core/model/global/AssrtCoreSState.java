@@ -122,6 +122,52 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}
 			);
 	}
+
+	public boolean isConnectionError()
+	{
+		return this.P.entrySet().stream().anyMatch(e -> 
+			e.getValue().getActions().stream().anyMatch(a ->
+					{
+						Role r = e.getKey();
+						return (a.isRequest() || a.isAccept())
+								&& (isInputQueueEstablished(r, a.peer) || isInputQueueEstablished(a.peer, r));
+					}
+			// FIXME: check for pending port, if so then port is used -- need to extend an AnnotEConnect type with ScribAnnot (cf. AnnotPayloadType)
+		));
+	}
+
+	public boolean isUnconnectedError()
+	{
+		return this.P.entrySet().stream().anyMatch(e -> 
+			e.getValue().getActions().stream().anyMatch(a ->
+			{
+				Role r = e.getKey();
+				return
+				   (a.isSend() && !isInputQueueEstablished(r, a.peer) && !isInputQueueEstablished(a.peer, r))
+				|| (a.isReceive() && !isInputQueueEstablished(r, a.peer));
+			}
+		));
+	}
+
+	// "Connection message" reception error
+	public boolean isSynchronisationError()
+	{
+		return this.P.entrySet().stream().anyMatch(e ->  // e: Entry<Role, EState>
+				{
+					EState s = e.getValue();
+					EStateKind k = s.getStateKind();
+					if (k != EStateKind.ACCEPT)
+					{
+						return false;
+					}
+					Role dest = e.getKey();
+					List<EAction> as = s.getActions();
+					Role src = as.get(0).peer;
+					return isPendingRequest(src, dest)
+							&& !as.contains(((AssrtCoreEPendingRequest) this.Q.get(dest).get(src)).getMessage().toDual(src));
+				}
+		);
+	}
 	
 	public boolean isUnknownDataTypeVarError()
 	{
@@ -205,51 +251,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					}
 					return false;
 				}));
-	}
-
-	public boolean isConnectionError()
-	{
-		return this.P.entrySet().stream().anyMatch(e -> 
-			e.getValue().getActions().stream().anyMatch(a ->
-					{
-						Role r = e.getKey();
-						return (a.isRequest() || a.isAccept())
-								&& (isInputQueueEstablished(r, a.peer) || isInputQueueEstablished(a.peer, r));
-					}
-			// FIXME: check for pending port, if so then port is used -- need to extend an AnnotEConnect type with ScribAnnot (cf. AnnotPayloadType)
-		));
-	}
-
-	public boolean isUnconnectedError()
-	{
-		return this.P.entrySet().stream().anyMatch(e -> 
-			e.getValue().getActions().stream().anyMatch(a ->
-			{
-				Role r = e.getKey();
-				return
-				   (a.isSend() && !isInputQueueEstablished(r, a.peer) && !isInputQueueEstablished(a.peer, r))
-				|| (a.isReceive() && !isInputQueueEstablished(r, a.peer));
-			}
-		));
-	}
-
-	public boolean isSynchronisationError()
-	{
-		return this.P.entrySet().stream().anyMatch(e ->  // e: Entry<Role, EState>
-				{
-					EState s = e.getValue();
-					EStateKind k = s.getStateKind();
-					if (k != EStateKind.ACCEPT)
-					{
-						return false;
-					}
-					Role dest = e.getKey();
-					List<EAction> as = s.getActions();
-					Role src = as.get(0).peer;
-					return isPendingRequest(src, dest)
-							&& !as.contains(((AssrtCoreEPendingRequest) this.Q.get(dest).get(src)).getMessage().toDual(src));
-				}
-		);
 	}
 
 	/*public boolean isDisconnectedError()
