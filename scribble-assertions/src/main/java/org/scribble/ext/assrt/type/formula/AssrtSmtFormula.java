@@ -9,7 +9,8 @@ import org.sosy_lab.java_smt.api.Formula;
 // Formula is a "top-level" base class, cf. (Abstract)Name 
 public abstract class AssrtSmtFormula<F extends Formula>
 {
-	protected F formula;  // Mostly not use for equals/hashCode -- except for AssrtLogFormula (and has to be used via toString)
+	protected F formula;   // "Cached" translation to JavaSMT API -- apart from AssrtLogFormula, which is just a wrapper for JavaSMT 
+			// Mostly not use for equals/hashCode -- except for AssrtLogFormula (and has to be used via toString)
 	
 	public abstract Set<AssrtDataTypeVar> getVars();
 
@@ -27,7 +28,7 @@ public abstract class AssrtSmtFormula<F extends Formula>
 	@Override
 	public String toString()
 	{
-		return this.formula.toString();
+		return this.formula.toString();  // Using JavaSMT to print
 	}
 	
 	// N.B. "syntactic" comparison -- should use additonal routines to do further, e.g., normal forms

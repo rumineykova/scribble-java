@@ -13,9 +13,9 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	public final Set<AssrtDataTypeVar> vars; 
 	
 	// Takes vars separately, because vars is done by AssrtBoolFormula::getVars (not BooleanFormula)
-	public AssrtLogFormula(BooleanFormula f1, Set<AssrtDataTypeVar> vars)
+	public AssrtLogFormula(BooleanFormula f, Set<AssrtDataTypeVar> vars)
 	{
-		this.formula = f1;  
+		this.formula = f;  
 		this.vars = Collections.unmodifiableSet(vars); 	
 	}
 	

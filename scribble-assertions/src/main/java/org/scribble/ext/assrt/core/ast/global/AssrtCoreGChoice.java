@@ -20,6 +20,7 @@ import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
 import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.type.kind.Global;
 import org.scribble.type.name.RecVar;
@@ -54,11 +55,21 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 	public AssrtCoreLType project(AssrtCoreAstFactory af, Role r, AssrtBoolFormula f) throws AssrtCoreSyntaxException
 	{
 		Map<AssrtCoreAction, AssrtCoreLType> projs = new HashMap<>();
-		//if (this.dest.equals(r))
 		for (Entry<AssrtCoreAction, AssrtCoreGType> e : this.cases.entrySet())
 		{
 			AssrtCoreAction a = e.getKey();
 			AssrtBoolFormula fproj = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f, a.ass);
+			if (this.dest.equals(r))
+			{
+				List<AssrtIntVarFormula> vs = fproj.getVars().stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList());  
+						// FIXME: converting Set to List
+						// FIXME TODO: check vars are ints
+				if (!vs.isEmpty())
+				{
+					fproj = AssrtFormulaFactory.AssrtExistsFormula(vs, fproj);
+				}
+				a = af.AssrtCoreAction(a.op, a.pay, fproj);
+			}
 			projs.put(a, e.getValue().project(af, r, fproj));
 					// N.B. local actions directly preserved from globals -- so core-receive also has assertion (cf. AssrtGMessageTransfer.project, currently no AssrtLReceive)
 					// FIXME: receive assertion projection -- should not be the same as send?

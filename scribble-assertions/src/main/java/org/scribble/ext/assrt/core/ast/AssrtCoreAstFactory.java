@@ -31,7 +31,7 @@ public class AssrtCoreAstFactory
 	}
 	
 	// Pre: not null
-	public AssrtCoreAction action(Op op, AssrtAnnotDataType pay, AssrtBoolFormula ass)
+	public AssrtCoreAction AssrtCoreAction(Op op, AssrtAnnotDataType pay, AssrtBoolFormula ass)
 	//public AssrtCoreAction action(OpNode op, AssrtAnnotDataTypeElem<DataTypeKind> pay, AssrtAssertion ass)
 	{
 		return new AssrtCoreAction(op, pay, ass);

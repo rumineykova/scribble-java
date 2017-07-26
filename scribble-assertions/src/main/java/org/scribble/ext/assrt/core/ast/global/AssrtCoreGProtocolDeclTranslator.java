@@ -219,7 +219,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
 		AssrtAnnotDataType pay = parsePayload(gmt);
 		AssrtAssertion ass = parseAssertion(gmt);
-		AssrtCoreAction a = this.af.action(op, pay, ass.getFormula());
+		AssrtCoreAction a = this.af.AssrtCoreAction(op, pay, ass.getFormula());
 		Role src = parseSourceRole(gmt);
 		Role dest = parseDestinationRole(gmt);
 		AssrtCoreGActionKind kind = AssrtCoreGActionKind.MESSAGE;
@@ -234,7 +234,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
 		AssrtAnnotDataType pay = parsePayload(gc);
 		AssrtAssertion ass = parseAssertion(gc);
-		AssrtCoreAction a = this.af.action(op, pay, ass.getFormula());
+		AssrtCoreAction a = this.af.AssrtCoreAction(op, pay, ass.getFormula());
 		Role src = parseSourceRole(gc);
 		Role dest = parseDestinationRole(gc);
 		AssrtCoreGActionKind kind = AssrtCoreGActionKind.CONNECT;

@@ -6,8 +6,8 @@ import org.scribble.ext.assrt.type.formula.AssrtIntValFormula;
 
 public class AntlrIntValFormula
 {
-	public static AssrtIntValFormula parseValueFormula(
-			AssrtAssertParser assertionsScribParser, CommonTree ct) {
-		return AssrtFormulaFactory.AssrtIntVal(ct, ct.getChild(0).getText());
+	public static AssrtIntValFormula parseIntValFormula(AssrtAssertParser assertionsScribParser, CommonTree ct)
+	{
+		return AssrtFormulaFactory.AssrtIntVal(ct.getChild(0).getText());
 	}
 }

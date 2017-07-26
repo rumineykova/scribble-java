@@ -41,8 +41,8 @@ public class AssrtAssertParser  // Cf. ScribParser
 			case BEXPR: return AntlrBinBoolFormula.parseBinBoolFormula(this, ct);
 			case CEXPR: return AntlrBinCompFormula.parseBinCompFormula(this, ct);
 			case AEXPR: return AntlrBinArithFormula.parseBinArithFormula(this, ct);
-			case VAR:   return AntlrIntVarFormula.parseVarFormula(this, ct);
-			case VALUE: return AntlrIntValFormula.parseValueFormula(this, ct);
+			case VAR:   return AntlrIntVarFormula.parseIntVarFormula(this, ct);
+			case VALUE: return AntlrIntValFormula.parseIntValFormula(this, ct);
 			case FALSE: return AssrtFalseFormula.FALSE;
 			case TRUE:  return AssrtTrueFormula.TRUE;
 			default:    throw new RuntimeException("[assrt] Unknown ANTLR node type: " + type);
