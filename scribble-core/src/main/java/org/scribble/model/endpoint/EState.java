@@ -260,23 +260,23 @@ public class EState extends MPrettyState<RecVar, EAction, EState, Local>
 						: (a.isAccept()) ? EStateKind.ACCEPT  // Accept is always unary, guaranteed by treating as a unit message id (wrt. branching)  // No: not any more, connect-with-message
 						: (a.isWrapServer()) ? EStateKind.WRAP_SERVER   // WrapServer is always unary, guaranteed by treating as a unit message id (wrt. branching)
 						: (as.size() > 1) ? EStateKind.POLY_INPUT : EStateKind.UNARY_INPUT;*/
-			if (as.stream().allMatch((a) -> a.isSend() || a.isConnect() || a.isWrapClient()))  // wrapClient should be unary?
+			if (as.stream().allMatch(a -> a.isSend() || a.isConnect() || a.isWrapClient()))  // wrapClient should be unary?
 			{
 				return EStateKind.OUTPUT;
 			}
-			else if (as.stream().allMatch((a) -> a.isReceive()))
+			else if (as.stream().allMatch(EAction::isReceive))
 			{
 				return (as.size() == 1) ? EStateKind.UNARY_INPUT : EStateKind.POLY_INPUT;
 			}
-			else if (as.stream().allMatch((a) -> a.isAccept()))
+			else if (as.stream().allMatch(EAction::isAccept))
 			{
 				return EStateKind.ACCEPT;  // Distinguish unary for API gen?  cf. receive
 			}
-			else if (as.size() == 1 && as.iterator().next().isDisconnect())
+			else if (as.size() == 1 && as.get(0).isDisconnect())
 			{
 				return EStateKind.OUTPUT;
 			}
-			else if (as.size() == 1 && as.iterator().next().isWrapServer())
+			else if (as.size() == 1 && as.get(0).isWrapServer())
 			{
 				return EStateKind.WRAP_SERVER;
 			}

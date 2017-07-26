@@ -86,17 +86,20 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	public boolean isReceptionError()
 	{
-		return this.Q.entrySet().stream().anyMatch((e1) ->
-				e1.getValue().entrySet().stream().anyMatch((e2) ->
+		return this.P.entrySet().stream().anyMatch(e ->  // e: Entry<Role, EState>
+				{
+					EState s = e.getValue();
+					EStateKind k = s.getStateKind();
+					if (k != EStateKind.UNARY_INPUT && k != EStateKind.POLY_INPUT)
 					{
-						EState s;
-						return hasMessage(e1.getKey(), e2.getKey())
-								&& ((s = this.P.get(e1.getKey())).getStateKind() == EStateKind.UNARY_INPUT
-										|| s.getStateKind() == EStateKind.POLY_INPUT)
-								&& (s.getActions().iterator().next().peer.equals(e2.getKey()))  // E.g. A->B.B->C.A->C
-								&& !s.getActions().contains(e2.getValue().toDual(e2.getKey()));
+						return false;
 					}
-				));
+					Role dest = e.getKey();
+					List<EAction> as = s.getActions();
+					Role src = as.get(0).peer;
+					return hasMessage(dest, src) && !as.contains(this.Q.get(dest).get(src).toDual(src));
+				}
+		);
 	}
 
 	public boolean isUnfinishedRoleError(Map<Role, EState> E0)
@@ -203,7 +206,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}));
 	}
 
-	/*public boolean isConnectionError()
+	public boolean isConnectionError()
 	{
 		return this.P.entrySet().stream().anyMatch(e -> 
 			e.getValue().getActions().stream().anyMatch(a ->
@@ -214,32 +217,39 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		));
 	}
 
-	public boolean isDisconnectedError()
-	{
-		return this.P.entrySet().stream().anyMatch((e) -> 
-			e.getValue().getActions().stream().anyMatch((a) ->
-				a.isDisconnect() && this.Q.get(e.getKey()).get(a.peer) != null
-		));
-	}
-
 	public boolean isUnconnectedError()
 	{
-		return this.P.entrySet().stream().anyMatch((e) -> 
-			e.getValue().getActions().stream().anyMatch((a) ->
+		return this.P.entrySet().stream().anyMatch(e -> 
+			e.getValue().getActions().stream().anyMatch(a ->
 				(a.isSend() || a.isReceive()) && !isConnected(e.getKey(), a.peer)
 		));
 	}
 
 	public boolean isSynchronisationError()
 	{
+		return this.P.entrySet().stream().anyMatch(e ->  // e: Entry<Role, EState>
+				{
+					EState s = e.getValue();
+					EStateKind k = s.getStateKind();
+					if (k != EStateKind.ACCEPT)
+					{
+						return false;
+					}
+					Role dest = e.getKey();
+					List<EAction> as = s.getActions();
+					Role src = as.get(0).peer;
+					return //hasMessage(dest, src)  // FIXME: hasMessage for pending connection message
+							isPendingConnection(src, dest)
+							&& !as.contains(((AssrtCoreEPendingConnection) this.Q.get(dest).get(src)).getMessage().toDual(src));
+				}
+		);
+	}
+
+	/*public boolean isDisconnectedError()
+	{
 		return this.P.entrySet().stream().anyMatch((e) -> 
 			e.getValue().getActions().stream().anyMatch((a) ->
-				{
-					EState peer;
-					return a.isConnect() && (peer = this.P.get(a.peer)).getStateKind() == EStateKind.ACCEPT
-							&& (peer.getActions().iterator().next().peer.equals(e.getKey()))  // E.g. A->>B.B->>C.A->>C
-							&& !(peer.getActions().contains(a.toDual(e.getKey())));
-				}
+				a.isDisconnect() && this.Q.get(e.getKey()).get(a.peer) != null
 		));
 	}
 	
@@ -422,9 +432,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private void getConnectFireable(Map<Role, List<EAction>> res, Role self, AssrtEConnect es)
 	{
-		//if (isConnected(self, es.peer) || isConnected(es.peer, self))
-		if (hasPendingConnect(self)
-				|| isConnectedOrPendingConnected(self, es.peer) || isConnectedOrPendingConnected(es.peer, self))  // Q(r, r') = Q(r', r) = \bot
+		if (hasPendingConnect(self) ||
+				   // not ( Q(r, r') = Q(r', r) = \bot ) -- i.e., either of them are not \bot
+				   isConnected(self, es.peer) || isConnected(es.peer, self)
+				|| isPendingConnection(es.peer, self))  // self input queue from es.peer is <a>
+						// isPendingConnection(self, es.peer) subsumed by hasPendingConnect(self)
 		{
 			return;
 		}
@@ -601,6 +613,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		P.put(self, succ);
 		Q.get(self).put(ea.peer, null);
+		Q.get(ea.peer).put(self, null);
 		inputUpdateK(K, self, ea);
 	}
 
@@ -653,26 +666,20 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private boolean hasMessage(Role self, Role peer)
 	{
-		AssrtESend m = this.Q.get(self).get(peer);
-		return m != null && !(m instanceof AssrtCoreEBot);
+		return isConnected(peer, self)              // input queue is established (not \bot and not <a>)
+				&& this.Q.get(self).get(peer) != null;  // input queue is not empty
 	}
 	
-	// "Fully" connected, not "pending" -- semantics relies on all action firing being guarded on !hasPendingConnect
-	// Direction sensitive (not symmetric)
-	private boolean isConnected(Role src, Role dest)  // N.B. is more like the "input buffer" at r1 for r2 -- not the actual "connection from r1 to r2"
+	// Direction sensitive (not symmetric) -- isConnected means dest has established input queue from src
+	// i.e. "fully" established, not "pending" -- semantics relies on all action firing being guarded on !hasPendingConnect
+	private boolean isConnected(Role dest, Role src)  // N.B. is more like the "input buffer" at r1 for r2 -- not the actual "connection from r1 to r2"
 	{
-		AssrtESend es = this.Q.get(src).get(dest);
-		return !(es instanceof AssrtCoreEBot);
+		AssrtESend es = this.Q.get(dest).get(src);
+		return !(es instanceof AssrtCoreEBot) && !(es instanceof AssrtCoreEPendingConnection);
 		//return es != null && es.equals(AssrtCoreEBot.ASSSRTCORE_BOT);  // Would be same as above
 	}
 
-	// Direction sensitive (not symmetric)
-	private boolean isConnectedOrPendingConnected(Role src, Role dest)
-	{
-		return isConnected(src, dest) || isPendingConnection(src, dest) || isPendingConnection(dest, src);  // Reverse isPendingConnection needed for correct definition
-				// A bit of redundancy from isPendingConnection when used by getConnectFireable (also checks both ways)
-	}
-
+	// req waiting for acc -- cf. reverse direction to isConnect
 	private boolean isPendingConnection(Role req, Role acc)  // FIXME: for open/port annotations
 	{
 		//return (this.ports.get(r1).get(r2) != null) || (this.ports.get(r2).get(r1) != null);
