@@ -13,9 +13,11 @@ import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.model.endpoint.AssrtEAccept;
+import org.scribble.ext.assrt.model.endpoint.AssrtEAction;
 import org.scribble.ext.assrt.model.endpoint.AssrtEConnect;
 import org.scribble.ext.assrt.model.endpoint.AssrtEReceive;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
+import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
@@ -29,6 +31,7 @@ import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.EStateKind;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.model.endpoint.actions.EReceive;
+import org.scribble.model.global.SModelFactory;
 import org.scribble.model.global.actions.SAction;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.kind.Global;
@@ -40,8 +43,6 @@ import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState, Global>
 {
-	private static final AssrtCoreEBot BOT = new AssrtCoreEBot();
-	
 	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self -- for progress checking
 	
 	// Cf. SState.config
@@ -407,7 +408,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private void getReceiveFireable(Map<Role, List<EAction>> res, Role self, EReceive er)
 	{
-		if (hasPendingConnect(self) || ! hasMessage(self, er.peer))
+		if (hasPendingConnect(self) || !hasMessage(self, er.peer))
 		{
 			return;
 		}
@@ -423,7 +424,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		//if (isConnected(self, es.peer) || isConnected(es.peer, self))
 		if (hasPendingConnect(self)
-				|| isConnectedOrPendingConnected(self, es.peer) || isConnectedOrPendingConnected(es.peer, self))  // Q(r, r') = Q(r', r) = BOT
+				|| isConnectedOrPendingConnected(self, es.peer) || isConnectedOrPendingConnected(es.peer, self))  // Q(r, r') = Q(r', r) = \bot
 		{
 			return;
 		}
@@ -503,6 +504,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			}*/
 	}
 
+	// Based on getReceiveFireable
 	private void getAcceptFireable(Map<Role, List<EAction>> res, Role self, AssrtEAccept ea)
 	{
 		if (hasPendingConnect(self) || !isPendingConnection(ea.peer, self))
@@ -510,8 +512,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			return;
 		}
 
-		EState plt = this.P.get(ea.peer);
-		if (plt.getActions().contains(ea.toDual(self)))
+		AssrtEConnect ec = ((AssrtCoreEPendingConnection) this.Q.get(self).get(ea.peer)).getMessage();
+		if (ea.toDual(self).equals(ec))
 		{
 			res.get(self).add(ea);
 		}
@@ -548,10 +550,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			fireRequest(P, Q, K, F, self, (AssrtEConnect) a, succ);
 		}
-		/*else if (a.isAccept())
+		else if (a.isAccept())
 		{
-			
-		}*/
+			fireAccept(P, Q, K, self, (AssrtEConnect) a, succ);
+		}
 		/*else if (a.isDisconnect())
 		{
 			EDisconnect ld = (EDisconnect) a;
@@ -565,16 +567,48 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return new AssrtCoreSState(P, Q, K, F);
 	}
 
+	// Update (in place) P, Q, K and F
 	private static void fireSend(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
 			Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F,
 			Role self, AssrtESend es, EState succ)
 	{
 		P.put(self, succ);
 		Q.get(es.peer).put(self, es);
-		
+		outputUpdateKF(K, F, self, es);
+	}
+
+	private static void fireReceive(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
+			Map<Role, Set<AssrtDataTypeVar>> K,   // FIXME: manage F with receive assertions?
+			Role self, EReceive er, EState succ)
+	{
+		P.put(self, succ);
+		Q.get(self).put(er.peer, null);  // null is \epsilon
+		inputUpdateK(K, self, er);
+	}
+
+	private static void fireRequest(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
+			Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F,
+			Role self, AssrtEConnect es, EState succ)
+	{
+		P.put(self, succ);
+		Q.get(es.peer).put(self, new AssrtCoreEPendingConnection(es));
+		outputUpdateKF(K, F, self, es);
+	}
+
+	private static void fireAccept(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
+			Map<Role, Set<AssrtDataTypeVar>> K, //Set<AssrtBoolFormula> F,
+			Role self, AssrtEConnect ec, EState succ)
+	{
+		P.put(self, succ);
+		Q.get(self).put(ec.peer, null);
+		inputUpdateK(K, self, ec);
+	}
+
+	private static void outputUpdateKF(Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F, Role self, EAction o)  // FIXME: EAction closest base type
+	{
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
-		PayloadElemType<?> pt = es.payload.elems.get(0);
+		PayloadElemType<?> pt = o.payload.elems.get(0);
 		{
 			if (pt instanceof AssrtAnnotDataType)
 			{
@@ -584,34 +618,22 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				
 				//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
 				//putF(F, v, es.bf);
-				putF(F, es.ass);  // Recorded "globally" -- cf. async K updates
+				putF(F, ((AssrtEAction) o).getAssertion());  // Recorded "globally" -- cf. async K updates
 			}
-			/*else if (pt instanceof PayloadVar)  // Should not be used (for now), can encode
-			{
-				// Check known, and not "ambiguous" -- no for latter: that is error checking
-
-				PayloadVar pv = (PayloadVar) pt;
-				owned.get(self).remove(pv);
-				owned.get(es.peer).add(pv);
-			}*/
 			else
 			{
-				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + es);  
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + o);  
 						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtocolDeclTranslator.parsePayload) -- no other pay elems allowed
 			}
 		}
 	}
 
-	private static void fireReceive(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
-			Map<Role, Set<AssrtDataTypeVar>> K,   // FIXME: manage F with receive assertions?
-			Role self, EReceive er, EState succ)
+  // No F update: F already done "globally" on send
+	private static void inputUpdateK(Map<Role, Set<AssrtDataTypeVar>> K, Role self, EAction i)  // FIXME: EAction closest base type
 	{
-		P.put(self, succ);
-		Q.get(self).put(er.peer, null);
-
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
-		PayloadElemType<?> pt = er.payload.elems.get(0);
+		PayloadElemType<?> pt = i.payload.elems.get(0);
 		{
 			if (pt instanceof AssrtAnnotDataType)
 			{
@@ -623,40 +645,205 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			}
 			else
 			{
-				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + er);  
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + i);  
 						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtocolDeclTranslator.parsePayload) -- no other pay elems allowed
 			}
 		}
 	}
 
-	private static void fireRequest(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
-			Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F,
-			Role self, AssrtEConnect es, EState succ)
+	private boolean hasMessage(Role self, Role peer)
 	{
-		P.put(self, succ);
-		Q.get(es.peer).put(self, new AssrtCoreEPendingConnection(es));
-		
-		// Duplocated from fireSend
-		PayloadElemType<?> pt = es.payload.elems.get(0);
-		{
-			if (pt instanceof AssrtAnnotDataType)
-			{
-				// Update K
-				AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
-				putK(K, self, v);
-				
-				//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
-				//putF(F, v, es.bf);
-				putF(F, es.ass);  // Recorded "globally" -- cf. async K updates
-			}
-			else
-			{
-				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + es);  
-						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtocolDeclTranslator.parsePayload) -- no other pay elems allowed
-			}
-		}
+		AssrtESend m = this.Q.get(self).get(peer);
+		return m != null && !(m instanceof AssrtCoreEBot);
+	}
+	
+	// "Fully" connected, not "pending" -- semantics relies on all action firing being guarded on !hasPendingConnect
+	// Direction sensitive (not symmetric)
+	private boolean isConnected(Role src, Role dest)  // N.B. is more like the "input buffer" at r1 for r2 -- not the actual "connection from r1 to r2"
+	{
+		AssrtESend es = this.Q.get(src).get(dest);
+		return !(es instanceof AssrtCoreEBot);
+		//return es != null && es.equals(AssrtCoreEBot.ASSSRTCORE_BOT);  // Would be same as above
 	}
 
+	// Direction sensitive (not symmetric)
+	private boolean isConnectedOrPendingConnected(Role src, Role dest)
+	{
+		return isConnected(src, dest) || isPendingConnection(src, dest) || isPendingConnection(dest, src);  // Reverse isPendingConnection needed for correct definition
+				// A bit of redundancy from isPendingConnection when used by getConnectFireable (also checks both ways)
+	}
+
+	private boolean isPendingConnection(Role req, Role acc)  // FIXME: for open/port annotations
+	{
+		//return (this.ports.get(r1).get(r2) != null) || (this.ports.get(r2).get(r1) != null);
+		AssrtESend es = this.Q.get(acc).get(req);  // N.B. reverse direction to isConnected
+		return es instanceof AssrtCoreEPendingConnection;
+	}
+
+  // FIXME: rename hasPendingRequest
+	private boolean hasPendingConnect(Role req)
+	{
+		return this.Q.keySet().stream().anyMatch(acc -> isPendingConnection(acc, req));
+	}
+
+	public Map<Role, EState> getP()
+	{
+		return this.P;
+	}
+	
+	public Map<Role, Map<Role, AssrtESend>> getQ()
+	{
+		return this.Q;
+	}
+	
+	public Set<Role> getSubjects()
+	{
+		return Collections.unmodifiableSet(this.subjs);
+	}
+	
+	public void addSubject(Role subj)
+	{
+		this.subjs.add(subj);
+	}
+	
+	@Override
+	protected String getNodeLabel()
+	{
+		String lab = "(P=" + this.P + ", Q=" + this.Q + ", K=" + this.K + ", F=" + this.F + ")";
+		//return "label=\"" + this.id + ":" + lab.substring(1, lab.length() - 1) + "\"";
+		return "label=\"" + this.id + ":" + lab + "\"";
+	}
+
+	@Override
+	public void addEdge(SAction a, AssrtCoreSState s)  // Visibility hack (for AssrtCoreSModelBuilder::build)
+	{
+		super.addEdge(a, s);
+	}
+	
+	@Override
+	public final int hashCode()
+	{
+		int hash = 79;
+		hash = 31 * hash + this.P.hashCode();
+		hash = 31 * hash + this.Q.hashCode();
+		hash = 31 * hash + this.K.hashCode();
+		hash = 31 * hash + this.F.hashCode();
+		return hash;
+	}
+
+	// Not using id, cf. ModelState -- FIXME? use a factory pattern that associates unique states and ids? -- use id for hash, and make a separate "semantic equals"
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+		{
+			return true;
+		}
+		if (!(o instanceof AssrtCoreSState))
+		{
+			return false;
+		}
+		AssrtCoreSState them = (AssrtCoreSState) o;
+		return them.canEquals(this) && this.P.equals(them.P) && this.Q.equals(them.Q)
+				&& this.K.equals(them.K) && this.F.equals(them.F);
+	}
+
+	@Override
+	protected boolean canEquals(MState<?, ?, ?, ?> s)
+	{
+		return s instanceof AssrtCoreSState;
+	}
+	
+	// isActive(SState, Role) becomes isActive(EState)
+	public static boolean isActive(EState s, int init)
+	{
+		return !isInactive(s, init);
+	}
+	
+	private static boolean isInactive(EState s, int init)
+	{
+		//return s.isTerminal() || (s.id == init && s.getStateKind() == EStateKind.ACCEPT);
+		return s.isTerminal();
+				// s.isTerminal means non-empty actions (i.e., edges) -- i.e., non-end (cf., fireable)
+	}
+	
+	
+	// FIXME: factor out into own classes
+	
+	private static Map<Role, Map<Role, AssrtESend>> makeQ(Set<Role> rs, boolean explicit)
+	{
+		AssrtESend init = explicit ? AssrtCoreEBot.ASSSRTCORE_BOT : null;
+		Map<Role, Map<Role, AssrtESend>> res = new HashMap<>();
+		for (Role r1 : rs)
+		{
+			HashMap<Role, AssrtESend> tmp = new HashMap<>();
+			for (Role r2 : rs)
+			{
+				if (!r2.equals(r1))
+				{
+					tmp.put(r2, init);
+				}
+			}
+			res.put(r1, tmp);
+		}
+		return res;
+	}
+	
+	private static Map<Role, Map<Role, AssrtESend>> copyQ(Map<Role, Map<Role, AssrtESend>> Q)
+	{
+		Map<Role, Map<Role, AssrtESend>> copy = new HashMap<>();
+		for (Role r : Q.keySet())
+		{
+			copy.put(r, new HashMap<>(Q.get(r)));
+		}
+		return copy;
+	}
+
+	private static Map<Role, Set<AssrtDataTypeVar>> makeK(Set<Role> rs)
+	{
+		return rs.stream().collect(Collectors.toMap(r -> r, r -> new HashSet<>()));
+	}
+
+	private static Map<Role, Set<AssrtDataTypeVar>> copyK(Map<Role, Set<AssrtDataTypeVar>> K)
+	{
+		return K.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
+	}
+	
+	private static void putK(Map<Role, Set<AssrtDataTypeVar>> K, Role r, AssrtDataTypeVar v)
+	{
+		Set<AssrtDataTypeVar> tmp = K.get(r);
+		/*if (tmp == null)  // No: makeK already made all Sets -- cf. makeQ, and no putQ
+		{
+			tmp = new HashSet<>();
+			K.put(r, tmp);
+		}*/
+		tmp.add(v);
+	}
+
+	private static void putF(Set<AssrtBoolFormula> F, AssrtBoolFormula f)
+	{
+		F.add(f);
+	}
+	
+	/*private static Map<Role, Map<Role, PayloadVar>> copyPorts(Map<Role, Map<Role, PayloadVar>> ports)
+	{
+		Map<Role, Map<Role, PayloadVar>> copy = new HashMap<>();
+		for (Role r : ports.keySet())
+		{
+			copy.put(r, new HashMap<>(ports.get(r)));
+		}
+		return copy;
+	}
+
+	private static Map<Role, Set<PayloadVar>> makeOwned(Set<Role> rs)
+	{
+		return rs.stream().collect(Collectors.toMap((r) -> r, (r) -> new HashSet<>()));
+	}
+	
+	private static Map<Role, Set<PayloadVar>> copyOwned(Map<Role, Set<PayloadVar>> owned)
+	{
+		return owned.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> new HashSet<>(e.getValue())));
+	}*/
 
 	/* // No longer "synchronous" per se, just blocking for requestor
 	public AssrtSConfig sync(Role r1, EAction a1, Role r2, EAction a2)
@@ -724,215 +911,22 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 		return new AssrtCoreSState(P, Q, ports, owned);
 	}*/
-	
-	private boolean hasMessage(Role self, Role peer)
-	{
-		AssrtESend m = this.Q.get(self).get(peer);
-		return m != null && !(m instanceof AssrtCoreEBot);
-	}
-	
-	// Direction sensitive (not symmetric)
-	private boolean isConnected(Role r1, Role r2)  // N.B. is more like the "input buffer" at r1 for r2 -- not the actual "connection from r1 to r2"
-	{
-		return isConnectedOrPendingConnected(r1, r2) && !isPendingConnection(r1, r2);
-				// "Fully" connected, not "pending" -- relies on all action firing being guarded on !hasPendingConnect
-	}
-
-	// Direction sensitive (not symmetric)
-	private boolean isConnectedOrPendingConnected(Role r1, Role r2)
-	{
-		return !(this.Q.get(r1).get(r2) instanceof AssrtCoreEBot);
-	}
-
-	private boolean isPendingConnection(Role req, Role acc)  // FIXME: for open/port annotations
-	{
-		//return (this.ports.get(r1).get(r2) != null) || (this.ports.get(r2).get(r1) != null);
-		AssrtESend es = this.Q.get(acc).get(req);
-		return es instanceof AssrtCoreEPendingConnection;
-	}
-
-  // FIXME: rename hasPendingRequest
-	private boolean hasPendingConnect(Role r1)
-	{
-		return this.Q.keySet().stream().anyMatch(r2 -> isPendingConnection(r2, r1));
-	}
-	
-	public void addSubject(Role subj)
-	{
-		this.subjs.add(subj);
-	}
-	
-	public Set<Role> getSubjects()
-	{
-		return Collections.unmodifiableSet(this.subjs);
-	}
-	
-	@Override
-	protected String getNodeLabel()
-	{
-		String lab = "(P=" + this.P + ", Q=" + this.Q + ", K=" + this.K + ", F=" + this.F + ")";
-		//return "label=\"" + this.id + ":" + lab.substring(1, lab.length() - 1) + "\"";
-		return "label=\"" + this.id + ":" + lab + "\"";
-	}
-
-	@Override
-	public void addEdge(SAction a, AssrtCoreSState s)  // Visibility hack (for F17SModelBuilder.build)
-	{
-		super.addEdge(a, s);
-	}
-
-	public Map<Role, EState> getP()
-	{
-		return this.P;
-	}
-	
-	public Map<Role, Map<Role, AssrtESend>> getQ()
-	{
-		return this.Q;
-	}
-	
-	@Override
-	public final int hashCode()
-	{
-		int hash = 79;
-		hash = 31 * hash + this.P.hashCode();
-		hash = 31 * hash + this.Q.hashCode();
-		hash = 31 * hash + this.K.hashCode();
-		hash = 31 * hash + this.F.hashCode();
-		return hash;
-	}
-
-	// Not using id, cf. ModelState -- FIXME? use a factory pattern that associates unique states and ids? -- use id for hash, and make a separate "semantic equals"
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (!(o instanceof AssrtCoreSState))
-		{
-			return false;
-		}
-		AssrtCoreSState them = (AssrtCoreSState) o;
-		return them.canEquals(this) && this.P.equals(them.P) && this.Q.equals(them.Q)
-				&& this.K.equals(them.K) && this.F.equals(them.F);
-	}
-
-	@Override
-	protected boolean canEquals(MState<?, ?, ?, ?> s)
-	{
-		return s instanceof AssrtCoreSState;
-	}
-	
-	// isActive(SState, Role) becomes isActive(EState)
-	public static boolean isActive(EState s, int init)
-	{
-		return !isInactive(s, init);
-	}
-	
-	private static boolean isInactive(EState s, int init)
-	{
-		//return s.isTerminal() || (s.id == init && s.getStateKind() == EStateKind.ACCEPT);
-		return s.isTerminal();
-				// s.isTerminal means non-empty actions (i.e., edges) -- i.e., non-end (cf., fireable)
-	}
-	
-	private static Map<Role, Map<Role, AssrtESend>> makeQ(Set<Role> rs, boolean explicit)
-	{
-		AssrtESend init = explicit ? BOT : null;
-		Map<Role, Map<Role, AssrtESend>> res = new HashMap<>();
-		for (Role r1 : rs)
-		{
-			HashMap<Role, AssrtESend> tmp = new HashMap<>();
-			for (Role r2 : rs)
-			{
-				if (!r2.equals(r1))
-				{
-					tmp.put(r2, init);
-				}
-			}
-			res.put(r1, tmp);
-		}
-		return res;
-	}
-	
-	private static Map<Role, Map<Role, AssrtESend>> copyQ(Map<Role, Map<Role, AssrtESend>> Q)
-	{
-		Map<Role, Map<Role, AssrtESend>> copy = new HashMap<>();
-		for (Role r : Q.keySet())
-		{
-			copy.put(r, new HashMap<>(Q.get(r)));
-		}
-		return copy;
-	}
-
-	private static Map<Role, Set<AssrtDataTypeVar>> makeK(Set<Role> rs)
-	{
-		return rs.stream().collect(Collectors.toMap(r -> r, r -> new HashSet<>()));
-	}
-
-	private static Map<Role, Set<AssrtDataTypeVar>> copyK(Map<Role, Set<AssrtDataTypeVar>> K)
-	{
-		return K.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
-	}
-	
-	private static void putK(Map<Role, Set<AssrtDataTypeVar>> K, Role r, AssrtDataTypeVar v)
-	{
-		Set<AssrtDataTypeVar> tmp = K.get(r);
-		if (tmp == null)
-		{
-			tmp = new HashSet<>();
-			K.put(r, tmp);
-		}
-		tmp.add(v);
-	}
-	
-	/*private static void putF(Map<AssrtDataTypeVar, AssrtBoolFormula> F, AssrtDataTypeVar v, AssrtBoolFormula f)
-	{
-		AssrtBoolFormula tmp = F.get(v);
-		if (tmp != null)
-		{
-			f = AssrtFormulaFactory.BinBoolFormula("&&", tmp, f);  // FIXME: factor out constant
-					// To store as Set, need equals/hashCode for AssrtSmtFormula
-		}
-		F.put(v, f);
-	}*/
-	private static void putF(Set<AssrtBoolFormula> F, AssrtBoolFormula f)
-	{
-		F.add(f);
-	}
-	
-	/*private static Map<Role, Map<Role, PayloadVar>> copyPorts(Map<Role, Map<Role, PayloadVar>> ports)
-	{
-		Map<Role, Map<Role, PayloadVar>> copy = new HashMap<>();
-		for (Role r : ports.keySet())
-		{
-			copy.put(r, new HashMap<>(ports.get(r)));
-		}
-		return copy;
-	}
-
-	private static Map<Role, Set<PayloadVar>> makeOwned(Set<Role> rs)
-	{
-		return rs.stream().collect(Collectors.toMap((r) -> r, (r) -> new HashSet<>()));
-	}
-	
-	private static Map<Role, Set<PayloadVar>> copyOwned(Map<Role, Set<PayloadVar>> owned)
-	{
-		return owned.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> new HashSet<>(e.getValue())));
-	}*/
 }
 
 
+// \bot
 class AssrtCoreEBot extends AssrtESend
 {
-	public static final Payload ASSRTCORE_EMPTY_PAYLOAD =
+	// N.B. must be initialised *before* ASSSRTCORE_BOT
+	private static final Payload ASSRTCORE_EMPTY_PAYLOAD =
 			new Payload(Arrays.asList(new AssrtAnnotDataType(new AssrtDataTypeVar("_BOT"), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE)));
 			// Cf. Payload.EMPTY_PAYLOAD
 
+	public static final AssrtCoreEBot ASSSRTCORE_BOT = new AssrtCoreEBot();
+
+
 	//public AssrtCoreEBot(EModelFactory ef)
-	public AssrtCoreEBot()
+	private AssrtCoreEBot()
 	{
 		super(null, Role.EMPTY_ROLE, Op.EMPTY_OPERATOR, ASSRTCORE_EMPTY_PAYLOAD, AssrtTrueFormula.TRUE);  // null ef OK?
 	}
@@ -941,6 +935,18 @@ class AssrtCoreEBot extends AssrtESend
 	public boolean isSend()
 	{
 		return false;
+	}
+	
+	@Override
+	public AssrtEReceive toDual(Role self)
+	{
+		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
+	}
+
+	@Override
+	public AssrtSSend toGlobal(SModelFactory sf, Role self)
+	{
+		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 	
 	@Override
@@ -978,22 +984,43 @@ class AssrtCoreEBot extends AssrtESend
 	}
 }
 
-class AssrtCoreEPendingConnection extends AssrtESend
+// <a>
+class AssrtCoreEPendingConnection extends AssrtESend  // Q stores ESends (not EConnect)
 {
 	public static final Payload ASSRTCORE_EMPTY_PAYLOAD =
 			new Payload(Arrays.asList(new AssrtAnnotDataType(new AssrtDataTypeVar("_BOT"), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE)));
 			// Cf. Payload.EMPTY_PAYLOAD
+	
+	private final AssrtEConnect msg;  // Not included in equals/hashCode
 
 	//public AssrtCoreEPendingConnection(AssrtEModelFactory ef, Role r, MessageId<?> op, Payload pay, AssrtBoolFormula ass)
-	public AssrtCoreEPendingConnection(AssrtEConnect ec)
+	public AssrtCoreEPendingConnection(AssrtEConnect msg)
 	{
-		super(null, ec.peer, ec.mid, ec.payload, ec.ass);  // HACK: null ef OK?  cannot access es.ef
+		super(null, msg.peer, msg.mid, msg.payload, msg.ass);  // HACK: null ef OK?  cannot access es.ef
+		this.msg = msg;
+	}
+	
+	public AssrtEConnect getMessage()
+	{
+		return this.msg;
 	}
 	
 	@Override
 	public boolean isSend()
 	{
 		return false;
+	}
+	
+	@Override
+	public AssrtEReceive toDual(Role self)
+	{
+		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
+	}
+
+	@Override
+	public AssrtSSend toGlobal(SModelFactory sf, Role self)
+	{
+		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 	
 	@Override

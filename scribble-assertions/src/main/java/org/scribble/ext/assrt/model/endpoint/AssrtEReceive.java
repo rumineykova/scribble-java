@@ -10,21 +10,27 @@ import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 
-public class AssrtEReceive extends EReceive
+public class AssrtEReceive extends EReceive implements AssrtEAction
 {
 	//public final AssrtAssertion assertion;  // Cf., e.g., ALSend
-	public final AssrtBoolFormula bf;  // Not null -- empty set to True by parsing
+	public final AssrtBoolFormula ass;  // Not null -- empty set to True by parsing
 
 	public AssrtEReceive(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
 	{
 		super(ef, peer, mid, payload);
-		this.bf = bf;
+		this.ass = bf;
+	}
+	
+	@Override
+	public AssrtBoolFormula getAssertion()
+	{
+		return this.ass;
 	}
 
 	@Override
 	public SReceive toGlobal(SModelFactory sf, Role self)
 	{
-		return new AssrtSReceive(self, this.peer, this.mid, this.payload, this.bf);
+		return new AssrtSReceive(self, this.peer, this.mid, this.payload, this.ass);
 	}
 	
 	// FIXME: syntactic equality as "construtive" duality for assertion actions? -- cf. p50 Def D.3 A implies B
@@ -32,7 +38,7 @@ public class AssrtEReceive extends EReceive
 	public AssrtESend toDual(Role self)
 	{
 		//throw new RuntimeException("[assrt-core] Shouldn't get here: " + this);
-		return ((AssrtEModelFactory) this.ef).newAssrtESend(self, this.mid, this.payload, this.bf);
+		return ((AssrtEModelFactory) this.ef).newAssrtESend(self, this.mid, this.payload, this.ass);
 	}
 	
 	@Override
@@ -40,7 +46,7 @@ public class AssrtEReceive extends EReceive
 	{
 		int hash = 5851;
 		hash = 31 * hash + super.hashCode();
-		hash = 31 * hash + this.bf.toString().hashCode();  // FIXME: treating as String (cf. AssrtESend)
+		hash = 31 * hash + this.ass.toString().hashCode();  // FIXME: treating as String (cf. AssrtESend)
 		return hash;
 	}
 
@@ -57,7 +63,7 @@ public class AssrtEReceive extends EReceive
 		}
 		AssrtEReceive as = (AssrtEReceive) o;
 		return super.equals(o)  // Does canEquals
-				&& this.bf.toString().equals(as.bf.toString());  // FIXME: treating as String (cf. AssrtESend)
+				&& this.ass.toString().equals(as.ass.toString());  // FIXME: treating as String (cf. AssrtESend)
 	}
 
 	@Override
@@ -69,6 +75,6 @@ public class AssrtEReceive extends EReceive
 	@Override
 	public String toString()
 	{
-		return super.toString() + "@" + this.bf + ";";
+		return super.toString() + "@" + this.ass + ";";
 	}
 }

@@ -10,27 +10,33 @@ import org.scribble.sesstype.name.MessageId;
 import org.scribble.sesstype.name.Role;
 
 // Duplicated from AssrtEreceive
-public class AssrtEAccept extends EAccept
+public class AssrtEAccept extends EAccept implements AssrtEAction
 {
-	public final AssrtBoolFormula bf;  // Not null -- empty set to True by parsing
+	public final AssrtBoolFormula ass;  // Not null -- empty set to True by parsing
 
 	public AssrtEAccept(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
 	{
 		super(ef, peer, mid, payload);
-		this.bf = bf;
+		this.ass = bf;
+	}
+	
+	@Override
+	public AssrtBoolFormula getAssertion()
+	{
+		return this.ass;
 	}
 
 	@Override
 	public AssrtSAccept toGlobal(SModelFactory sf, Role self)
 	{
-		return new AssrtSAccept(self, this.peer, this.mid, this.payload, this.bf);
+		return new AssrtSAccept(self, this.peer, this.mid, this.payload, this.ass);
 	}
 	
 	// FIXME: syntactic equality as "construtive" duality for assertion actions? -- cf. p50 Def D.3 A implies B
 	@Override
 	public AssrtEConnect toDual(Role self)
 	{
-		return ((AssrtEModelFactory) this.ef).newAssrtEConnect(self, this.mid, this.payload, this.bf);
+		return ((AssrtEModelFactory) this.ef).newAssrtEConnect(self, this.mid, this.payload, this.ass);
 	}
 	
 	@Override
@@ -38,7 +44,7 @@ public class AssrtEAccept extends EAccept
 	{
 		int hash = 6029;
 		hash = 31 * hash + super.hashCode();
-		hash = 31 * hash + this.bf.toString().hashCode();  // FIXME: treating as String (cf. AssrtESend)
+		hash = 31 * hash + this.ass.toString().hashCode();  // FIXME: treating as String (cf. AssrtESend)
 		return hash;
 	}
 
@@ -55,7 +61,7 @@ public class AssrtEAccept extends EAccept
 		}
 		AssrtEAccept as = (AssrtEAccept) o;
 		return super.equals(o)  // Does canEquals
-				&& this.bf.toString().equals(as.bf.toString());  // FIXME: treating as String (cf. AssrtESend)
+				&& this.ass.toString().equals(as.ass.toString());  // FIXME: treating as String (cf. AssrtESend)
 	}
 
 	@Override
@@ -67,6 +73,6 @@ public class AssrtEAccept extends EAccept
 	@Override
 	public String toString()
 	{
-		return super.toString() + "@" + this.bf + ";";
+		return super.toString() + "@" + this.ass + ";";
 	}
 }

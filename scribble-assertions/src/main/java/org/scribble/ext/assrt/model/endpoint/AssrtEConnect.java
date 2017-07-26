@@ -12,7 +12,7 @@ import org.scribble.sesstype.name.Role;
 
 // Duplicated from AssrtESend
 // FIXME: treating assertion as String -- assertion currently has no equals/hashCode itself
-public class AssrtEConnect extends EConnect
+public class AssrtEConnect extends EConnect implements AssrtEAction
 {
 	//public final AssrtAssertion assertion;  // Cf., e.g., ALSend
 	public final AssrtBoolFormula ass;  // Not null -- empty set to True by parsing
@@ -21,6 +21,12 @@ public class AssrtEConnect extends EConnect
 	{
 		super(ef, peer, mid, payload);
 		this.ass = assertion;
+	}
+	
+	@Override
+	public AssrtBoolFormula getAssertion()
+	{
+		return this.ass;
 	}
 
 	// HACK: replace assertion by True

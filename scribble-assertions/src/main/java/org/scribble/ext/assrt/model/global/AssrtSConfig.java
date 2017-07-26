@@ -92,7 +92,7 @@ public class AssrtSConfig extends SConfig
 			}
 			else if (a.isReceive()) 
 			{
-				assertion = ((AssrtEReceive) a).bf;
+				assertion = ((AssrtEReceive) a).ass;
 			}
 			else
 			{
