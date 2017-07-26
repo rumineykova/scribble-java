@@ -1,7 +1,7 @@
 package org.scribble.ext.assrt.core.ast;
 
 
-// Cf. f17
+// ast here means "core syntax" of session types -- it does not link the actual Scribble source (cf. base ast classes)
 public interface AssrtCoreType
 {
 	boolean canEquals(Object o);

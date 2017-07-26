@@ -58,8 +58,8 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 		for (Entry<AssrtCoreAction, AssrtCoreGType> e : this.cases.entrySet())
 		{
 			AssrtCoreAction a = e.getKey();
-			AssrtBoolFormula fproj = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f, a.ass.getFormula());
-			projs.put(a, e.getValue().project(af, r, f));
+			AssrtBoolFormula fproj = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f, a.ass);
+			projs.put(a, e.getValue().project(af, r, fproj));
 					// N.B. local actions directly preserved from globals -- so core-receive also has assertion (cf. AssrtGMessageTransfer.project, currently no AssrtLReceive)
 					// FIXME: receive assertion projection -- should not be the same as send?
 		}

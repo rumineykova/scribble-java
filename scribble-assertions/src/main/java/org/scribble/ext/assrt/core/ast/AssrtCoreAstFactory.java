@@ -2,7 +2,6 @@ package org.scribble.ext.assrt.core.ast;
 
 import java.util.Map;
 
-import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGActionKind;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGChoice;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGEnd;
@@ -15,6 +14,7 @@ import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRec;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.sesstype.name.Op;
 import org.scribble.sesstype.name.RecVar;
@@ -31,7 +31,7 @@ public class AssrtCoreAstFactory
 	}
 	
 	// Pre: not null
-	public AssrtCoreAction action(Op op, AssrtAnnotDataType pay, AssrtAssertion ass)
+	public AssrtCoreAction action(Op op, AssrtAnnotDataType pay, AssrtBoolFormula ass)
 	//public AssrtCoreAction action(OpNode op, AssrtAnnotDataTypeElem<DataTypeKind> pay, AssrtAssertion ass)
 	{
 		return new AssrtCoreAction(op, pay, ass);
