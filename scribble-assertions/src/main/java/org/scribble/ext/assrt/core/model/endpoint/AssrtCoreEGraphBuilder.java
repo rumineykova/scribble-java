@@ -18,9 +18,9 @@ import org.scribble.model.endpoint.EGraphBuilderUtil;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.sesstype.Payload;
-import org.scribble.sesstype.name.RecVar;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.Payload;
+import org.scribble.type.name.RecVar;
+import org.scribble.type.name.Role;
 
 public class AssrtCoreEGraphBuilder
 {

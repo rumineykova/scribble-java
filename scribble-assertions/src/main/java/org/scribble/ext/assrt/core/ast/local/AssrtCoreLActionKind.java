@@ -1,7 +1,7 @@
 package org.scribble.ext.assrt.core.ast.local;
 
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
-import org.scribble.sesstype.kind.Local;
+import org.scribble.type.kind.Local;
 
 public enum AssrtCoreLActionKind implements AssrtCoreActionKind<Local>
 {

@@ -1,6 +1,6 @@
 package org.scribble.ext.assrt.core.ast;
 
-import org.scribble.sesstype.name.RecVar;
+import org.scribble.type.name.RecVar;
 
 public abstract class AssrtCoreRec<B extends AssrtCoreType> implements AssrtCoreType
 {

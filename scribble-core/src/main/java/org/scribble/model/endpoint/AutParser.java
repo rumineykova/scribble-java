@@ -27,12 +27,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.sesstype.Payload;
-import org.scribble.sesstype.name.DataType;
-import org.scribble.sesstype.name.MessageId;
-import org.scribble.sesstype.name.MessageSigName;
-import org.scribble.sesstype.name.Op;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.Payload;
+import org.scribble.type.name.DataType;
+import org.scribble.type.name.MessageId;
+import org.scribble.type.name.MessageSigName;
+import org.scribble.type.name.Op;
+import org.scribble.type.name.Role;
 
 public class AutParser
 {

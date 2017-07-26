@@ -8,12 +8,12 @@ import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.local.LSendDel;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
-import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.Payload;
-import org.scribble.sesstype.name.MessageId;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.Payload;
+import org.scribble.type.name.MessageId;
+import org.scribble.type.name.Role;
 import org.scribble.visit.context.EGraphBuilder;
 
 public class AssrtLSendDel extends LSendDel

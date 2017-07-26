@@ -6,7 +6,7 @@ import org.scribble.model.MState;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.global.SState;
 import org.scribble.model.global.SStateErrors;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.name.Role;
 
 // FIXME: hashCode/equals
 public class AssrtSState extends SState

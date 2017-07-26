@@ -27,9 +27,9 @@ import org.scribble.ast.local.LNode;
 import org.scribble.ast.local.LReceive;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.ScribDel;
-import org.scribble.sesstype.kind.Global;
-import org.scribble.sesstype.kind.RoleKind;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.kind.Global;
+import org.scribble.type.kind.RoleKind;
+import org.scribble.type.name.Role;
 import org.scribble.util.ScribUtil;
 
 public class GMessageTransfer extends MessageTransfer<Global> implements GSimpleInteractionNode

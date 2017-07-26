@@ -3,10 +3,10 @@ package org.scribble.ext.assrt.del.name;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.del.name.AmbigNameNodeDel;
-import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
+import org.scribble.ext.assrt.type.kind.AssrtVarNameKind;
 import org.scribble.ext.assrt.visit.wf.AssrtNameDisambiguator;
 import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.name.AmbigName;
+import org.scribble.type.name.AmbigName;
 import org.scribble.visit.wf.NameDisambiguator;
 
 public class AssrtAmbigNameNodeDel extends AmbigNameNodeDel

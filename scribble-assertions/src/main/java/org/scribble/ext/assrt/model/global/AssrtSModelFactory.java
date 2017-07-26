@@ -3,12 +3,12 @@ package org.scribble.ext.assrt.model.global;
 import java.util.Map;
 import java.util.Set;
 
-import org.scribble.ext.assrt.sesstype.formula.AssrtLogFormula;
+import org.scribble.ext.assrt.type.formula.AssrtLogFormula;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.global.SBuffers;
 import org.scribble.model.global.SConfig;
 import org.scribble.model.global.SModelFactory;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.name.Role;
 
 public interface AssrtSModelFactory extends SModelFactory
 {

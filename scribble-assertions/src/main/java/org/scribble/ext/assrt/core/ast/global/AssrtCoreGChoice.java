@@ -18,12 +18,12 @@ import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
 import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.sesstype.formula.AssrtBinBoolFormula;
-import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
-import org.scribble.sesstype.kind.Global;
-import org.scribble.sesstype.name.RecVar;
-import org.scribble.sesstype.name.Role;
+import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
+import org.scribble.type.kind.Global;
+import org.scribble.type.name.RecVar;
+import org.scribble.type.name.Role;
 
 public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCoreGType, Global> implements AssrtCoreGType
 {

@@ -30,9 +30,9 @@ import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.EStateKind;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.model.global.actions.SAction;
-import org.scribble.sesstype.kind.Global;
-import org.scribble.sesstype.name.GProtocolName;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.kind.Global;
+import org.scribble.type.name.GProtocolName;
+import org.scribble.type.name.Role;
 
 public class SGraphBuilderUtil extends GraphBuilderUtil<Void, SAction, SState, Global>
 {

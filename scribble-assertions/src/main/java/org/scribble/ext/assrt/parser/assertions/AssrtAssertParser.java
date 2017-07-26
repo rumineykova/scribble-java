@@ -7,9 +7,9 @@ import org.scribble.ext.assrt.parser.assertions.formula.AntlrBinBoolFormula;
 import org.scribble.ext.assrt.parser.assertions.formula.AntlrBinCompFormula;
 import org.scribble.ext.assrt.parser.assertions.formula.AntlrIntValFormula;
 import org.scribble.ext.assrt.parser.assertions.formula.AntlrIntVarFormula;
-import org.scribble.ext.assrt.sesstype.formula.AssrtFalseFormula;
-import org.scribble.ext.assrt.sesstype.formula.AssrtSmtFormula;
-import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.type.formula.AssrtFalseFormula;
+import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.parser.scribble.ScribParser;
 
 public class AssrtAssertParser  // Cf. ScribParser

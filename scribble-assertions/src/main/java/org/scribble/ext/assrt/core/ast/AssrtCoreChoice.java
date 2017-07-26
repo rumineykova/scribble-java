@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.scribble.sesstype.kind.ProtocolKind;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.kind.ProtocolKind;
+import org.scribble.type.name.Role;
 
 public abstract class AssrtCoreChoice<A extends AssrtCoreAction, C extends AssrtCoreType, K extends ProtocolKind> implements AssrtCoreType
 {

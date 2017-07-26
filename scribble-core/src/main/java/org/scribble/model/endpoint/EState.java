@@ -27,8 +27,8 @@ import org.scribble.main.ScribbleException;
 import org.scribble.model.MPrettyState;
 import org.scribble.model.MState;
 import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.sesstype.kind.Local;
-import org.scribble.sesstype.name.RecVar;
+import org.scribble.type.kind.Local;
+import org.scribble.type.name.RecVar;
 
 // Label types used to be both RecVar and SubprotocolSigs; now using inlined protocol for FSM building so just RecVar
 public class EState extends MPrettyState<RecVar, EAction, EState, Local>

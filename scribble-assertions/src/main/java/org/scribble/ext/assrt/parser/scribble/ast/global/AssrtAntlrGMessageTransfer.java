@@ -11,7 +11,7 @@ import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
 import org.scribble.ext.assrt.parser.scribble.AssrtScribParser;
-import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.parser.scribble.ScribParser;
 import org.scribble.parser.scribble.ScribParserUtil;
 import org.scribble.parser.scribble.ast.global.AntlrGMessageTransfer;

@@ -13,7 +13,7 @@ import org.scribble.model.global.SBuffers;
 import org.scribble.model.global.SConfig;
 import org.scribble.model.global.SGraphBuilderUtil;
 import org.scribble.model.global.SModelFactory;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.name.Role;
 
 public class AssrtSGraphBuilderUtil extends SGraphBuilderUtil
 {

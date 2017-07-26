@@ -2,8 +2,8 @@ package org.scribble.ext.assrt.parser.assertions.formula;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
-import org.scribble.ext.assrt.sesstype.formula.AssrtBinBoolFormula;
-import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 
 // N.B. parsed to type objects, not AST (source not recorded -- e.g., for equals/hashCode)
 // To record source, need additional AST classes from which these type objects should be derived

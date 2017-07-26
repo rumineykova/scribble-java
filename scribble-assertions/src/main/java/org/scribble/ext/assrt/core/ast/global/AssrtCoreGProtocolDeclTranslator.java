@@ -36,17 +36,17 @@ import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
-import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.main.Job;
-import org.scribble.sesstype.kind.Global;
-import org.scribble.sesstype.kind.RecVarKind;
-import org.scribble.sesstype.name.DataType;
-import org.scribble.sesstype.name.Op;
-import org.scribble.sesstype.name.PayloadElemType;
-import org.scribble.sesstype.name.RecVar;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.kind.Global;
+import org.scribble.type.kind.RecVarKind;
+import org.scribble.type.name.DataType;
+import org.scribble.type.name.Op;
+import org.scribble.type.name.PayloadElemType;
+import org.scribble.type.name.RecVar;
+import org.scribble.type.name.Role;
 
 	
 //	.. rename connect to request

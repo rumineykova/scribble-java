@@ -1,8 +1,8 @@
 package org.scribble.ext.assrt.core.ast;
 
-import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
-import org.scribble.sesstype.name.Op;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
+import org.scribble.type.name.Op;
 
 
 public //abstract

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.scribble.main.Job;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.ESend;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.name.Role;
 
 // 1-bounded LTS
 // Factor out with SGraph/SModel?

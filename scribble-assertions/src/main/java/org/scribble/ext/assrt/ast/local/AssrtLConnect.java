@@ -11,7 +11,7 @@ import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.kind.Local;
+import org.scribble.type.kind.Local;
 import org.scribble.visit.AstVisitor;
 
 public class AssrtLConnect extends LConnect

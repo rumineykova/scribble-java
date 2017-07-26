@@ -11,11 +11,11 @@ import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.model.endpoint.AssrtEReceive;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
-import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.sesstype.formula.AssrtLogFormula;
-import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.sesstype.name.AssrtPayloadElemType;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtLogFormula;
+import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.type.name.AssrtPayloadElemType;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.EState;
@@ -25,9 +25,9 @@ import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.model.global.SBuffers;
 import org.scribble.model.global.SConfig;
 import org.scribble.model.global.SModelFactory;
-import org.scribble.sesstype.kind.PayloadTypeKind;
-import org.scribble.sesstype.name.PayloadElemType;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.kind.PayloadTypeKind;
+import org.scribble.type.name.PayloadElemType;
+import org.scribble.type.name.Role;
 
 // FIXME: equals/hashCode
 // FIXME: override getFireable to check send ass implies recv ass

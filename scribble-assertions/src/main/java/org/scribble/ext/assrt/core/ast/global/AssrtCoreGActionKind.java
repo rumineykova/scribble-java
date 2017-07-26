@@ -2,8 +2,8 @@ package org.scribble.ext.assrt.core.ast.global;
 
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLActionKind;
-import org.scribble.sesstype.kind.Global;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.kind.Global;
+import org.scribble.type.name.Role;
 
 public enum AssrtCoreGActionKind implements AssrtCoreActionKind<Global>
 {

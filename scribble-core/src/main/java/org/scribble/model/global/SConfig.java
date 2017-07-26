@@ -35,7 +35,7 @@ import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.model.endpoint.actions.EWrapClient;
 import org.scribble.model.endpoint.actions.EWrapServer;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.name.Role;
 
 public class SConfig
 {
