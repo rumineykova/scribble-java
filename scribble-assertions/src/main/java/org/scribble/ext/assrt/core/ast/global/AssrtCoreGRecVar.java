@@ -6,6 +6,7 @@ import java.util.List;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreRecVar;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRecVar;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.sesstype.name.RecVar;
 import org.scribble.sesstype.name.Role;
@@ -26,7 +27,7 @@ public class AssrtCoreGRecVar extends AssrtCoreRecVar implements AssrtCoreGType
 	}
 
 	@Override
-	public AssrtCoreLRecVar project(AssrtCoreAstFactory af, Role subj)
+	public AssrtCoreLRecVar project(AssrtCoreAstFactory af, Role r, AssrtBoolFormula f)
 	{
 		return af.AssrtCoreLRecVar(this.var);
 	}

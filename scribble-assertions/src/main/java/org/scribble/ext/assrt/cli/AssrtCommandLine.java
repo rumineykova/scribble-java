@@ -24,6 +24,7 @@ import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelBuilder;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSafetyErrors;
 import org.scribble.ext.assrt.main.AssrtException;
 import org.scribble.ext.assrt.main.AssrtMainContext;
+import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
@@ -196,7 +197,7 @@ public class AssrtCommandLine extends CommandLine
 		Map<Role, AssrtCoreLType> P0 = new HashMap<>();
 		for (Role r : gpd.header.roledecls.getRoles())
 		{
-			AssrtCoreLType lt = gt.project(af, r);
+			AssrtCoreLType lt = gt.project(af, r, AssrtTrueFormula.TRUE);
 			P0.put(r, lt);
 
 			job.debugPrintln("\n[assrt-core] Projected onto " + r + ":\n  " + lt);

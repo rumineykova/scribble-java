@@ -8,6 +8,6 @@ public class AntlrIntValFormula
 {
 	public static AssrtIntValFormula parseValueFormula(
 			AssrtAssertParser assertionsScribParser, CommonTree ct) {
-		return AssrtFormulaFactory.parseValue(ct, ct.getChild(0).getText());
+		return AssrtFormulaFactory.AssrtIntVal(ct, ct.getChild(0).getText());
 	}
 }

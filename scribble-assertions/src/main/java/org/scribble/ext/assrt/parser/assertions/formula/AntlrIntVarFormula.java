@@ -9,7 +9,7 @@ public class AntlrIntVarFormula
 	public static AssrtIntVarFormula parseVarFormula(
 			AssrtAssertParser assertionsScribParser, CommonTree ct) {
 		
-		return AssrtFormulaFactory.parseVariable(ct, ct.getChild(0).getText());
+		return AssrtFormulaFactory.AssrtIntVar(ct, ct.getChild(0).getText());
 	}
 
 }

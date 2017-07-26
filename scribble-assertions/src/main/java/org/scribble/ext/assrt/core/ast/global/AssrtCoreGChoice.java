@@ -17,6 +17,9 @@ import org.scribble.ext.assrt.core.ast.local.AssrtCoreLChoice;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
+import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBinBoolFormula;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
 import org.scribble.sesstype.kind.Global;
 import org.scribble.sesstype.name.RecVar;
@@ -43,100 +46,101 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 	public List<AssrtAnnotDataType> collectAnnotDataTypes()
 	{
 		List<AssrtAnnotDataType> res = this.cases.keySet().stream().map(a -> a.pay).collect(Collectors.toList());
-		this.cases.keySet().forEach(a ->
-				res.addAll(this.cases.get(a).collectAnnotDataTypes())
-		);
+		this.cases.keySet().forEach(a -> res.addAll(this.cases.get(a).collectAnnotDataTypes()));
 		return res;
+	}
+
+	@Override
+	public AssrtCoreLType project(AssrtCoreAstFactory af, Role r, AssrtBoolFormula f) throws AssrtCoreSyntaxException
+	{
+		Map<AssrtCoreAction, AssrtCoreLType> projs = new HashMap<>();
+		//if (this.dest.equals(r))
+		for (Entry<AssrtCoreAction, AssrtCoreGType> e : this.cases.entrySet())
+		{
+			AssrtCoreAction a = e.getKey();
+			AssrtBoolFormula fproj = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f, a.ass.getFormula());
+			projs.put(a, e.getValue().project(af, r, f));
+					// N.B. local actions directly preserved from globals -- so core-receive also has assertion (cf. AssrtGMessageTransfer.project, currently no AssrtLReceive)
+					// FIXME: receive assertion projection -- should not be the same as send?
+		}
+		
+		// "Simple" cases
+		if (this.src.equals(r) || this.dest.equals(r))
+		{
+			Role role = this.src.equals(r) ? this.dest : this.src;
+			return af.AssrtCoreLChoice(role, getKind().project(this.src, r), projs);
+		}
+
+		// "Merge"
+		if (projs.values().stream().anyMatch(v -> (v instanceof AssrtCoreLRecVar)))
+		{
+			if (projs.values().stream().anyMatch(v -> !(v instanceof AssrtCoreLRecVar)))
+			{
+				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": cannot merge unguarded rec vars.");
+			}
+			else
+			{
+				Set<RecVar> rvs = projs.values().stream().map(v -> ((AssrtCoreLRecVar) v).var).collect(Collectors.toSet());
+				if (rvs.size() > 1)
+				{
+					throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed unguarded rec vars: " + rvs);
+				}
+				return af.AssrtCoreLRecVar(rvs.iterator().next());
+			}
+		}
+		
+		List<AssrtCoreLChoice> filtered = projs.values().stream()
+			.filter(v -> !v.equals(AssrtCoreLEnd.END))
+			//.collect(Collectors.toMap(e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getKey, e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getValue));
+			.map(v -> (AssrtCoreLChoice) v)
+			.collect(Collectors.toList());
+	
+		if (filtered.size() == 0)
+		{
+			return AssrtCoreLEnd.END;
+		}
+		else if (filtered.size() == 1)
+		{
+			return (AssrtCoreLChoice) filtered.iterator().next();  // RecVar disallowed above
+		}
+	
+		Set<Role> roles = filtered.stream().map(v -> v.role).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
+		if (roles.size() > 1)
+		{
+			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed peer roles: " + roles);
+		}
+		Set<AssrtCoreActionKind<?>> kinds = filtered.stream().map(v -> v.kind).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
+		if (kinds.size() > 1)
+		{
+			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed action kinds: " + kinds);
+		}
+		
+		Map<AssrtCoreAction, AssrtCoreLType> merged = new HashMap<>();
+		filtered.forEach(v ->
+		{
+			if (!v.kind.equals(AssrtCoreLActionKind.RECEIVE))
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get here: " + v);  // By role-enabling?
+			}
+			v.cases.entrySet().forEach(e ->
+			{
+				AssrtCoreAction k = e.getKey();
+				AssrtCoreLType b = e.getValue();
+				if (merged.containsKey(k)) //&& !b.equals(merged.get(k))) // TODO
+				{
+					throw new RuntimeException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": cannot merge: " + b + " and " + merged.get(k));
+				}
+				merged.put(k, b);
+			});
+		});
+		
+		return af.AssrtCoreLChoice(roles.iterator().next(), AssrtCoreLActionKind.RECEIVE, merged);
 	}
 	
 	@Override
 	public AssrtCoreGActionKind getKind()
 	{
 		return (AssrtCoreGActionKind) this.kind;
-	}
-
-	@Override
-	public AssrtCoreLType project(AssrtCoreAstFactory af, Role subj) throws AssrtCoreSyntaxException
-	{
-		Map<AssrtCoreAction, AssrtCoreLType> projs = new HashMap<>();
-		for (Entry<AssrtCoreAction, AssrtCoreGType> e : this.cases.entrySet())
-		{
-			projs.put(e.getKey(), e.getValue().project(af, subj));
-					// N.B. local actions directly preserved from globals -- so core-receive also has assertion (cf. AssrtGMessageTransfer.project, currently no AssrtLReceive)
-					// FIXME: receive assertion projection -- should not be the same as send?
-		}
-		
-		if (this.src.equals(subj) || this.dest.equals(subj))
-		{
-			Role role = this.src.equals(subj) ? this.dest : this.src;
-			return af.AssrtCoreLChoice(role, getKind().project(this.src, subj), projs);
-		}
-		else
-		{
-			if (projs.values().stream().anyMatch(v -> (v instanceof AssrtCoreLRecVar)))
-			{
-				if (projs.values().stream().anyMatch(v -> !(v instanceof AssrtCoreLRecVar)))
-				{
-					throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + subj + ": cannot merge unguarded rec vars.");
-				}
-				else
-				{
-					Set<RecVar> rvs = projs.values().stream().map(v -> ((AssrtCoreLRecVar) v).var).collect(Collectors.toSet());
-					if (rvs.size() > 1)
-					{
-						throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + subj + ": mixed unguarded rec vars: " + rvs);
-					}
-					return af.AssrtCoreLRecVar(rvs.iterator().next());
-				}
-			}
-			
-			List<AssrtCoreLChoice> filtered = projs.values().stream()
-				.filter(v -> !v.equals(AssrtCoreLEnd.END))
-				//.collect(Collectors.toMap(e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getKey, e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getValue));
-				.map(v -> (AssrtCoreLChoice) v)
-				.collect(Collectors.toList());
-		
-			if (filtered.size() == 0)
-			{
-				return AssrtCoreLEnd.END;
-			}
-			else if (filtered.size() == 1)
-			{
-				return (AssrtCoreLChoice) filtered.iterator().next();  // RecVar disallowed above
-			}
-		
-			Set<Role> roles = filtered.stream().map(v -> v.role).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
-			if (roles.size() > 1)
-			{
-				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + subj + ": mixed peer roles: " + roles);
-			}
-			Set<AssrtCoreActionKind<?>> kinds = filtered.stream().map(v -> v.kind).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
-			if (kinds.size() > 1)
-			{
-				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + subj + ": mixed action kinds: " + kinds);
-			}
-			
-			Map<AssrtCoreAction, AssrtCoreLType> merged = new HashMap<>();
-			filtered.forEach(v ->
-			{
-				if (!v.kind.equals(AssrtCoreLActionKind.RECEIVE))
-				{
-					throw new RuntimeException("[assrt-core] Shouldn't get here: " + v);  // By role-enabling?
-				}
-				v.cases.entrySet().forEach(e ->
-				{
-					AssrtCoreAction k = e.getKey();
-					AssrtCoreLType b = e.getValue();
-					if (merged.containsKey(k)) //&& !b.equals(merged.get(k))) // TODO
-					{
-						throw new RuntimeException("[assrt-core] Cannot project \n" + this + "\n onto " + subj + ": cannot merge: " + b + " and " + merged.get(k));
-					}
-					merged.put(k, b);
-				});
-			});
-			
-			return af.AssrtCoreLChoice(roles.iterator().next(), AssrtCoreLActionKind.RECEIVE, merged);
-		}
 	}
 	
 	@Override

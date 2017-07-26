@@ -12,10 +12,10 @@ import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 // Binary arithmetic
 public class AssrtBinArithFormula extends AssrtArithFormula
 {
-	enum ArithOp
+	public enum Op
 	{
 		Add,
-		Substract,
+		Subtract,
 		Mult;
 		
 		@Override
@@ -25,35 +25,23 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 			{
 				case Add: return "+";
 				case Mult: return "*";
-				case Substract: return "-";
+				case Subtract: return "-";
 				default: throw new RuntimeException("Won't get in here: " + this);
 			}
 		}
 	}
 
-	public final ArithOp op;
+	public final Op op;
 	/*public final AssrtSmtFormula left;
 	public final AssrtSmtFormula right;*/
 	public final AssrtArithFormula left;
 	public final AssrtArithFormula right;
 
-	public AssrtBinArithFormula(String op, AssrtArithFormula left, AssrtArithFormula right)
+	public AssrtBinArithFormula(Op op, AssrtArithFormula left, AssrtArithFormula right)
 	{
 		this.left = left;
 		this.right = right;
-		switch (op) {
-		case "+":
-			this.op = ArithOp.Add;
-			break;
-		case "-":
-			this.op = ArithOp.Substract;
-			break;
-		case "*":
-			this.op = ArithOp.Mult;
-			break;
-		default:
-			throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
-		}
+		this.op = op;
 	}
 
 	@Override
@@ -73,7 +61,7 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 		{
 		case Add:
 			return fmanager.add(fleft, fright);
-		case Substract:
+		case Subtract:
 			return fmanager.subtract(fleft,fright);
 		case Mult:
 			return fmanager.multiply(fleft, fright);

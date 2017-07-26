@@ -12,7 +12,7 @@ import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 // Binary comparison
 public class AssrtBinCompFormula extends AssrtBoolFormula
 {
-	enum CompOp
+	public enum Op
 	{
 		GreaterThan, 
 		LessThan, 
@@ -30,28 +30,28 @@ public class AssrtBinCompFormula extends AssrtBoolFormula
 			}
 		}
 	}
-	
 
-	public final CompOp op; 
+	public final Op op; 
 	public final AssrtArithFormula left; 
 	public final AssrtArithFormula right; 
 	
-	public AssrtBinCompFormula(String op, AssrtArithFormula left, AssrtArithFormula right)
+	public AssrtBinCompFormula(Op op, AssrtArithFormula left, AssrtArithFormula right)
 	{
 		this.left = left; 
 		this.right = right; 
-		switch (op) {
+		this.op = op;
+		/*switch (op) {
 		case ">": 
-			this.op = CompOp.GreaterThan;
+			this.op = Op.GreaterThan;
 			break; 
 		case "<":
-			this.op = CompOp.LessThan;
+			this.op = Op.LessThan;
 			break;
 		case "=":
-			this.op = CompOp.Eq;
+			this.op = Op.Eq;
 			break;
 		default: throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
-		}
+		}*/
 	}
 	
 	@Override

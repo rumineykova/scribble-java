@@ -12,11 +12,11 @@ import org.sosy_lab.java_smt.api.BooleanFormulaManager;
 // Top-level formula of assertions
 public class AssrtBinBoolFormula extends AssrtBoolFormula
 {
-	enum BoolOp
+	public enum Op
 	{
 		And, 
 		Or;
-		
+
 		@Override
 		public String toString()
 		{
@@ -28,26 +28,27 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 			}
 		}
 	}
-
-	public final BoolOp op; 
+		
+	public final Op op; 
 	public final AssrtBoolFormula left; 
 	public final AssrtBoolFormula right; 
 	//BooleanFormula formula;   // FIXME
 	
-	public AssrtBinBoolFormula(String op, AssrtBoolFormula left, AssrtBoolFormula right)
+	public AssrtBinBoolFormula(Op op, AssrtBoolFormula left, AssrtBoolFormula right)
 	{
 		this.left = left; 
 		this.right = right; 
-		switch (op) {
+		this.op = op;
+		/*switch (op) {
 		case "&&": 
-			this.op = BoolOp.And; 
+			this.op = AssrtBinBoolOp.And; 
 			break; 
 		case "||":
-			this.op = BoolOp.Or;
+			this.op = AssrtBinBoolOp.Or;
 			break;
 		default:
 			throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
-		}
+		}*/
 	}
 	
 	@Override

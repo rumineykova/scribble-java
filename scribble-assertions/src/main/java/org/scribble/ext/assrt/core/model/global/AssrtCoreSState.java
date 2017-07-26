@@ -19,6 +19,7 @@ import org.scribble.ext.assrt.model.endpoint.AssrtEReceive;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.sesstype.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
@@ -230,7 +231,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 						AssrtBoolFormula tmp = this.F.stream().reduce(
 								AssrtTrueFormula.TRUE,
-								(b1, b2) -> AssrtFormulaFactory.BinBoolFormula("&&", b1, b2));  // F emptyset at start
+								(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));  // F emptyset at start
 						BooleanFormula PP = tmp.getJavaSmtFormula();
 						BooleanFormula AA = ass.getJavaSmtFormula();
 						if (!varsA.isEmpty())  // FIXME: now never empty
