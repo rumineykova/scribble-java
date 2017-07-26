@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.model.endpoint.AssrtEAccept;
 import org.scribble.ext.assrt.model.endpoint.AssrtEAction;
-import org.scribble.ext.assrt.model.endpoint.AssrtEConnect;
+import org.scribble.ext.assrt.model.endpoint.AssrtERequest;
 import org.scribble.ext.assrt.model.endpoint.AssrtEReceive;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
@@ -210,7 +210,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		return this.P.entrySet().stream().anyMatch(e -> 
 			e.getValue().getActions().stream().anyMatch(a ->
-				(a.isConnect() || a.isAccept()) && isConnected(e.getKey(), a.peer) 
+				(a.isRequest() || a.isAccept()) && isInputQueueEstablished(e.getKey(), a.peer) 
 
 						// FIXME: check for pending port, if so then port is used -- need to extend an AnnotEConnect type with ScribAnnot (cf. AnnotPayloadType)
 
@@ -221,7 +221,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		return this.P.entrySet().stream().anyMatch(e -> 
 			e.getValue().getActions().stream().anyMatch(a ->
-				(a.isSend() || a.isReceive()) && !isConnected(e.getKey(), a.peer)
+				(a.isSend() || a.isReceive()) && !isInputQueueEstablished(e.getKey(), a.peer)
 		));
 	}
 
@@ -239,8 +239,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					List<EAction> as = s.getActions();
 					Role src = as.get(0).peer;
 					return //hasMessage(dest, src)  // FIXME: hasMessage for pending connection message
-							isPendingConnection(src, dest)
-							&& !as.contains(((AssrtCoreEPendingConnection) this.Q.get(dest).get(src)).getMessage().toDual(src));
+							isPendingRequest(src, dest)
+							&& !as.contains(((AssrtCoreEPendingRequest) this.Q.get(dest).get(src)).getMessage().toDual(src));
 				}
 		);
 	}
@@ -355,10 +355,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					AssrtEReceive er = (AssrtEReceive) a;
 					getReceiveFireable(res, self, er);
 				}
-				else if (a.isConnect())
+				else if (a.isRequest())
 				{
-					AssrtEConnect ec = (AssrtEConnect) a;
-					getConnectFireable(res, self, ec);
+					AssrtERequest ec = (AssrtERequest) a;
+					getRequestFireable(res, self, ec);
 				}
 				else if (a.isAccept())
 				{
@@ -381,7 +381,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private void getSendFireable(Map<Role, List<EAction>> res, Role self, AssrtESend es)
 	{
-		if (hasPendingConnect(self) || !isConnected(self, es.peer) || hasMessage(es.peer, self))
+		if (hasPendingRequest(self) || !isInputQueueEstablished(self, es.peer) || hasMessage(es.peer, self))
 		{
 			return;
 		}
@@ -418,7 +418,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private void getReceiveFireable(Map<Role, List<EAction>> res, Role self, EReceive er)
 	{
-		if (hasPendingConnect(self) || !hasMessage(self, er.peer))
+		if (hasPendingRequest(self) || !hasMessage(self, er.peer))
 		{
 			return;
 		}
@@ -430,12 +430,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 	}
 
-	private void getConnectFireable(Map<Role, List<EAction>> res, Role self, AssrtEConnect es)
+	private void getRequestFireable(Map<Role, List<EAction>> res, Role self, AssrtERequest es)
 	{
-		if (hasPendingConnect(self) ||
+		if (hasPendingRequest(self) ||
 				   // not ( Q(r, r') = Q(r', r) = \bot ) -- i.e., either of them are not \bot
-				   isConnected(self, es.peer) || isConnected(es.peer, self)
-				|| isPendingConnection(es.peer, self))  // self input queue from es.peer is <a>
+				   isInputQueueEstablished(self, es.peer) || isInputQueueEstablished(es.peer, self)
+				|| isPendingRequest(es.peer, self))  // self input queue from es.peer is <a>
 						// isPendingConnection(self, es.peer) subsumed by hasPendingConnect(self)
 		{
 			return;
@@ -519,12 +519,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	// Based on getReceiveFireable
 	private void getAcceptFireable(Map<Role, List<EAction>> res, Role self, AssrtEAccept ea)
 	{
-		if (hasPendingConnect(self) || !isPendingConnection(ea.peer, self))
+		if (hasPendingRequest(self) || !isPendingRequest(ea.peer, self))
 		{
 			return;
 		}
 
-		AssrtEConnect ec = ((AssrtCoreEPendingConnection) this.Q.get(self).get(ea.peer)).getMessage();
+		AssrtERequest ec = ((AssrtCoreEPendingRequest) this.Q.get(self).get(ea.peer)).getMessage();
 		if (ea.toDual(self).equals(ec))
 		{
 			res.get(self).add(ea);
@@ -558,9 +558,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			fireReceive(P, Q, K, self, (EReceive) a, succ);
 		}
-		else if (a.isConnect())
+		else if (a.isRequest())
 		{
-			fireRequest(P, Q, K, F, self, (AssrtEConnect) a, succ);
+			fireRequest(P, Q, K, F, self, (AssrtERequest) a, succ);
 		}
 		else if (a.isAccept())
 		{
@@ -600,10 +600,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private static void fireRequest(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
 			Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F,
-			Role self, AssrtEConnect es, EState succ)
+			Role self, AssrtERequest es, EState succ)
 	{
 		P.put(self, succ);
-		Q.get(es.peer).put(self, new AssrtCoreEPendingConnection(es));
+		Q.get(es.peer).put(self, new AssrtCoreEPendingRequest(es));
 		outputUpdateKF(K, F, self, es);
 	}
 
@@ -666,31 +666,30 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private boolean hasMessage(Role self, Role peer)
 	{
-		return isConnected(peer, self)              // input queue is established (not \bot and not <a>)
+		return isInputQueueEstablished(self, peer)  // input queue is established (not \bot and not <a>)
 				&& this.Q.get(self).get(peer) != null;  // input queue is not empty
 	}
 	
 	// Direction sensitive (not symmetric) -- isConnected means dest has established input queue from src
 	// i.e. "fully" established, not "pending" -- semantics relies on all action firing being guarded on !hasPendingConnect
-	private boolean isConnected(Role dest, Role src)  // N.B. is more like the "input buffer" at r1 for r2 -- not the actual "connection from r1 to r2"
+	private boolean isInputQueueEstablished(Role dest, Role src)  // N.B. is more like the "input buffer" at r1 for r2 -- not the actual "connection from r1 to r2"
 	{
 		AssrtESend es = this.Q.get(dest).get(src);
-		return !(es instanceof AssrtCoreEBot) && !(es instanceof AssrtCoreEPendingConnection);
+		return !(es instanceof AssrtCoreEBot) && !(es instanceof AssrtCoreEPendingRequest);
 		//return es != null && es.equals(AssrtCoreEBot.ASSSRTCORE_BOT);  // Would be same as above
 	}
 
 	// req waiting for acc -- cf. reverse direction to isConnect
-	private boolean isPendingConnection(Role req, Role acc)  // FIXME: for open/port annotations
+	private boolean isPendingRequest(Role req, Role acc)  // FIXME: for open/port annotations
 	{
 		//return (this.ports.get(r1).get(r2) != null) || (this.ports.get(r2).get(r1) != null);
 		AssrtESend es = this.Q.get(acc).get(req);  // N.B. reverse direction to isConnected
-		return es instanceof AssrtCoreEPendingConnection;
+		return es instanceof AssrtCoreEPendingRequest;
 	}
 
-  // FIXME: rename hasPendingRequest
-	private boolean hasPendingConnect(Role req)
+	private boolean hasPendingRequest(Role req)
 	{
-		return this.Q.keySet().stream().anyMatch(acc -> isPendingConnection(req, acc));
+		return this.Q.keySet().stream().anyMatch(acc -> isPendingRequest(req, acc));
 	}
 
 	public Map<Role, EState> getP()
@@ -992,22 +991,22 @@ class AssrtCoreEBot extends AssrtESend
 }
 
 // <a>
-class AssrtCoreEPendingConnection extends AssrtESend  // Q stores ESends (not EConnect)
+class AssrtCoreEPendingRequest extends AssrtESend  // Q stores ESends (not EConnect)
 {
 	public static final Payload ASSRTCORE_EMPTY_PAYLOAD =
 			new Payload(Arrays.asList(new AssrtAnnotDataType(new AssrtDataTypeVar("_BOT"), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE)));
 			// Cf. Payload.EMPTY_PAYLOAD
 	
-	private final AssrtEConnect msg;  // Not included in equals/hashCode
+	private final AssrtERequest msg;  // Not included in equals/hashCode
 
 	//public AssrtCoreEPendingConnection(AssrtEModelFactory ef, Role r, MessageId<?> op, Payload pay, AssrtBoolFormula ass)
-	public AssrtCoreEPendingConnection(AssrtEConnect msg)
+	public AssrtCoreEPendingRequest(AssrtERequest msg)
 	{
 		super(null, msg.peer, msg.mid, msg.payload, msg.ass);  // HACK: null ef OK?  cannot access es.ef
 		this.msg = msg;
 	}
 	
-	public AssrtEConnect getMessage()
+	public AssrtERequest getMessage()
 	{
 		return this.msg;
 	}
@@ -1051,7 +1050,7 @@ class AssrtCoreEPendingConnection extends AssrtESend  // Q stores ESends (not EC
 		{
 			return true;
 		}
-		if (!(obj instanceof AssrtCoreEPendingConnection))
+		if (!(obj instanceof AssrtCoreEPendingRequest))
 		{
 			return false;
 		}
@@ -1061,6 +1060,6 @@ class AssrtCoreEPendingConnection extends AssrtESend  // Q stores ESends (not EC
 	@Override
 	public boolean canEqual(Object o)  // FIXME: rename canEquals
 	{
-		return o instanceof AssrtCoreEPendingConnection;
+		return o instanceof AssrtCoreEPendingRequest;
 	}
 }

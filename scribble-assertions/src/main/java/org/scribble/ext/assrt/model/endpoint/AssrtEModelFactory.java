@@ -12,6 +12,6 @@ public interface AssrtEModelFactory extends EModelFactory
 	//AssrtESend newAssrtESend(Role peer, MessageId<?> mid, Payload payload, AssrtAssertion assertion);
 	AssrtESend newAssrtESend(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf);
 	AssrtEReceive newAssrtEReceive(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf);  // FIXME: duality? (assertions currently ignored by toDual)
-	AssrtEConnect newAssrtEConnect(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf);
+	AssrtERequest newAssrtERequest(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf);
 	AssrtEAccept newAssrtEAccept(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf);
 }

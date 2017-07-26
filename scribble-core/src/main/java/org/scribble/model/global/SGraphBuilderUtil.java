@@ -141,7 +141,7 @@ public class SGraphBuilderUtil extends GraphBuilderUtil<Void, SAction, SState, G
 					{
 						getNextStates(job.sf, todo, seen, curr, a.toGlobal(job.sf, r), curr.fire(r, a));
 					}
-					else if (a.isAccept() || a.isConnect())
+					else if (a.isAccept() || a.isRequest())
 					{	
 						List<EAction> as = fireable.get(a.peer);
 						EAction d = a.toDual(r);
@@ -149,7 +149,7 @@ public class SGraphBuilderUtil extends GraphBuilderUtil<Void, SAction, SState, G
 						{
 							as.remove(d);  // Removes one occurrence
 							//getNextStates(seen, todo, curr.sync(r, a, a.peer, d));
-							SAction g = (a.isConnect()) ? a.toGlobal(job.sf, r) : d.toGlobal(job.sf, a.peer);  // Edge will be drawn as the connect, but should be read as the sync. of both -- something like "r1, r2: sync" may be more consistent (or take a set of actions as the edge label)
+							SAction g = (a.isRequest()) ? a.toGlobal(job.sf, r) : d.toGlobal(job.sf, a.peer);  // Edge will be drawn as the connect, but should be read as the sync. of both -- something like "r1, r2: sync" may be more consistent (or take a set of actions as the edge label)
 							getNextStates(job.sf, todo, seen, curr, g, curr.sync(r, a, a.peer, d));
 						}
 					}
@@ -160,7 +160,7 @@ public class SGraphBuilderUtil extends GraphBuilderUtil<Void, SAction, SState, G
 						if (as != null && as.contains(w))
 						{
 							as.remove(w);  // Removes one occurrence
-							SAction g = (a.isConnect()) ? a.toGlobal(job.sf, r) : w.toGlobal(job.sf, a.peer);
+							SAction g = (a.isRequest()) ? a.toGlobal(job.sf, r) : w.toGlobal(job.sf, a.peer);
 							getNextStates(job.sf, todo, seen, curr, g, curr.sync(r, a, a.peer, w));
 						}
 					}

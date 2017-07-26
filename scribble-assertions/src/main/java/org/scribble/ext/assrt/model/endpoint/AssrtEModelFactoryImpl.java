@@ -3,7 +3,7 @@ package org.scribble.ext.assrt.model.endpoint;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.model.endpoint.EModelFactoryImpl;
 import org.scribble.model.endpoint.actions.EAccept;
-import org.scribble.model.endpoint.actions.EConnect;
+import org.scribble.model.endpoint.actions.ERequest;
 import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.sesstype.Payload;
@@ -26,7 +26,7 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl implements AssrtEM
 	}
 
 	@Override
-	public EConnect newEConnect(Role peer, MessageId<?> mid, Payload payload)
+	public ERequest newERequest(Role peer, MessageId<?> mid, Payload payload)
 	{
 		throw new RuntimeException("[scrib-assert] Shouldn't get in here: ");
 	}
@@ -51,9 +51,9 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl implements AssrtEM
 	}
 
 	@Override
-	public AssrtEConnect newAssrtEConnect(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtERequest newAssrtERequest(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
 	{
-		return new AssrtEConnect(this, peer, mid, payload, bf);
+		return new AssrtERequest(this, peer, mid, payload, bf);
 	}
 
 	@Override

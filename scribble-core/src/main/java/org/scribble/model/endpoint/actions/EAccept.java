@@ -30,10 +30,10 @@ public class EAccept extends EAction
 	}
 	
 	@Override
-	public EConnect toDual(Role self)
+	public ERequest toDual(Role self)
 	{
 		//return new Connect(self);
-		return this.ef.newEConnect(self, this.mid, this.payload);
+		return this.ef.newERequest(self, this.mid, this.payload);
 	}
 
 	@Override

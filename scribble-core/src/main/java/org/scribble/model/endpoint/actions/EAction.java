@@ -55,7 +55,7 @@ public abstract class EAction extends MAction<Local>
 		return false;
 	}
 
-	public boolean isConnect()
+	public boolean isRequest()
 	{
 		return false;
 	}

@@ -36,7 +36,7 @@ public class LConnectDel extends LConnectionActionDel implements LSimpleInteract
 		Payload payload = lc.msg.isMessageSigNode()  // Hacky?
 					? ((MessageSigNode) lc.msg).payloads.toPayload()
 					: Payload.EMPTY_PAYLOAD;
-		builder.util.addEdge(builder.util.getEntry(), builder.job.ef.newEConnect(peer, mid, payload), builder.util.getExit());
+		builder.util.addEdge(builder.util.getEntry(), builder.job.ef.newERequest(peer, mid, payload), builder.util.getExit());
 		//graph.builder.addEdge(graph.builder.getEntry(), new Connect(peer), graph.builder.getExit());
 		////builder.builder.addEdge(builder.builder.getEntry(), Send.get(peer, mid, payload), builder.builder.getExit());
 		return (LConnect) super.leaveEGraphBuilding(parent, child, builder, lc);

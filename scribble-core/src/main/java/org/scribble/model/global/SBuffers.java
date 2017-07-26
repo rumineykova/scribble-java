@@ -26,7 +26,7 @@ import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAccept;
 import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.model.endpoint.actions.EConnect;
+import org.scribble.model.endpoint.actions.ERequest;
 import org.scribble.model.endpoint.actions.EDisconnect;
 import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.endpoint.actions.ESend;
@@ -139,7 +139,7 @@ public class SBuffers
 		//return canConnect(r2, r1);
 	}
 
-	public boolean canConnect(Role self, EConnect c)
+	public boolean canConnect(Role self, ERequest c)
 	//public boolean canConnect(Role r1, Role r2)
 	{
 		return !isConnected(self, c.peer);

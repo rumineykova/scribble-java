@@ -241,7 +241,7 @@ public class EState extends MPrettyState<RecVar, EAction, EState, Local>
 	// FIXME: refactor as "isSyncOnly" -- and make an isSync in IOAction
 	public boolean isConnectOrWrapClientOnly()
 	{
-		return getStateKind() == EStateKind.OUTPUT && getAllActions().stream().allMatch((a) -> a.isConnect() || a.isWrapClient());
+		return getStateKind() == EStateKind.OUTPUT && getAllActions().stream().allMatch((a) -> a.isRequest() || a.isWrapClient());
 	}
 	
 	public EStateKind getStateKind()
@@ -260,7 +260,7 @@ public class EState extends MPrettyState<RecVar, EAction, EState, Local>
 						: (a.isAccept()) ? EStateKind.ACCEPT  // Accept is always unary, guaranteed by treating as a unit message id (wrt. branching)  // No: not any more, connect-with-message
 						: (a.isWrapServer()) ? EStateKind.WRAP_SERVER   // WrapServer is always unary, guaranteed by treating as a unit message id (wrt. branching)
 						: (as.size() > 1) ? EStateKind.POLY_INPUT : EStateKind.UNARY_INPUT;*/
-			if (as.stream().allMatch(a -> a.isSend() || a.isConnect() || a.isWrapClient()))  // wrapClient should be unary?
+			if (as.stream().allMatch(a -> a.isSend() || a.isRequest() || a.isWrapClient()))  // wrapClient should be unary?
 			{
 				return EStateKind.OUTPUT;
 			}

@@ -16,7 +16,7 @@ package org.scribble.model.endpoint;
 import java.util.Set;
 
 import org.scribble.model.endpoint.actions.EAccept;
-import org.scribble.model.endpoint.actions.EConnect;
+import org.scribble.model.endpoint.actions.ERequest;
 import org.scribble.model.endpoint.actions.EDisconnect;
 import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.endpoint.actions.ESend;
@@ -44,9 +44,9 @@ public class EModelFactoryImpl implements EModelFactory
 	}
 
 	@Override
-	public EConnect newEConnect(Role peer, MessageId<?> mid, Payload payload)
+	public ERequest newERequest(Role peer, MessageId<?> mid, Payload payload)
 	{
-		return new EConnect(this, peer, mid, payload);
+		return new ERequest(this, peer, mid, payload);
 	}
 
 	@Override

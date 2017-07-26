@@ -99,7 +99,7 @@ public class AssrtCoreEGraphBuilder
 		}
 		else if (k.equals(AssrtCoreLActionKind.REQUEST))
 		{
-			return ef.newAssrtEConnect(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass.getFormula());
+			return ef.newAssrtERequest(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass.getFormula());
 		}
 		else if (k.equals(AssrtCoreLActionKind.ACCEPT))
 		{

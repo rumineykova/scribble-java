@@ -4,7 +4,7 @@ import org.scribble.ext.assrt.model.global.actions.AssrtSConnect;
 import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
 import org.scribble.model.endpoint.EModelFactory;
-import org.scribble.model.endpoint.actions.EConnect;
+import org.scribble.model.endpoint.actions.ERequest;
 import org.scribble.model.global.SModelFactory;
 import org.scribble.sesstype.Payload;
 import org.scribble.sesstype.name.MessageId;
@@ -12,12 +12,12 @@ import org.scribble.sesstype.name.Role;
 
 // Duplicated from AssrtESend
 // FIXME: treating assertion as String -- assertion currently has no equals/hashCode itself
-public class AssrtEConnect extends EConnect implements AssrtEAction
+public class AssrtERequest extends ERequest implements AssrtEAction
 {
 	//public final AssrtAssertion assertion;  // Cf., e.g., ALSend
 	public final AssrtBoolFormula ass;  // Not null -- empty set to True by parsing
 
-	public AssrtEConnect(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula assertion)
+	public AssrtERequest(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula assertion)
 	{
 		super(ef, peer, mid, payload);
 		this.ass = assertion;
@@ -30,9 +30,9 @@ public class AssrtEConnect extends EConnect implements AssrtEAction
 	}
 
 	// HACK: replace assertion by True
-	public AssrtEConnect toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
+	public AssrtERequest toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
 	{
-		return ((AssrtEModelFactory) this.ef).newAssrtEConnect(this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE);
+		return ((AssrtEModelFactory) this.ef).newAssrtERequest(this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE);
 	}
 
 	@Override
@@ -63,11 +63,11 @@ public class AssrtEConnect extends EConnect implements AssrtEAction
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtEConnect))
+		if (!(o instanceof AssrtERequest))
 		{
 			return false;
 		}
-		AssrtEConnect as = (AssrtEConnect) o;
+		AssrtERequest as = (AssrtERequest) o;
 		return super.equals(o)  // Does canEquals
 				&& this.ass.toString().equals(as.ass.toString());  // FIXME: treating as String
 	}
@@ -75,7 +75,7 @@ public class AssrtEConnect extends EConnect implements AssrtEAction
 	@Override
 	public boolean canEqual(Object o)
 	{
-		return o instanceof AssrtEConnect;
+		return o instanceof AssrtERequest;
 	}
 	
 	@Override

@@ -34,9 +34,9 @@ public class AssrtEAccept extends EAccept implements AssrtEAction
 	
 	// FIXME: syntactic equality as "construtive" duality for assertion actions? -- cf. p50 Def D.3 A implies B
 	@Override
-	public AssrtEConnect toDual(Role self)
+	public AssrtERequest toDual(Role self)
 	{
-		return ((AssrtEModelFactory) this.ef).newAssrtEConnect(self, this.mid, this.payload, this.ass);
+		return ((AssrtEModelFactory) this.ef).newAssrtERequest(self, this.mid, this.payload, this.ass);
 	}
 	
 	@Override

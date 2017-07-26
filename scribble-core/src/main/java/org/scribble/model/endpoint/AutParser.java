@@ -248,7 +248,7 @@ public class AutParser
 			{
 				//return new Connect(new Role(peer));
 				Payload payload = (pay != null) ? new Payload(Arrays.asList(pay).stream().map((pe) -> new DataType(pe)).collect(Collectors.toList())) : Payload.EMPTY_PAYLOAD;
-				return ef.newEConnect(new Role(peer), getMessageIdHack(msg), payload);
+				return ef.newERequest(new Role(peer), getMessageIdHack(msg), payload);
 			}
 			case "??":
 			{

@@ -16,7 +16,7 @@ package org.scribble.model.endpoint;
 import java.util.Set;
 
 import org.scribble.model.endpoint.actions.EAccept;
-import org.scribble.model.endpoint.actions.EConnect;
+import org.scribble.model.endpoint.actions.ERequest;
 import org.scribble.model.endpoint.actions.EDisconnect;
 import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.endpoint.actions.ESend;
@@ -31,7 +31,7 @@ public interface EModelFactory
 {
 	ESend newESend(Role peer, MessageId<?> mid, Payload payload);
 	EReceive newEReceive(Role peer, MessageId<?> mid, Payload payload);
-	EConnect newEConnect(Role peer, MessageId<?> mid, Payload payload);
+	ERequest newERequest(Role peer, MessageId<?> mid, Payload payload);
 	EAccept newEAccept(Role peer, MessageId<?> mid, Payload payload);
 	EDisconnect newEDisconnect(Role peer);
 	EWrapClient newEWrapClient(Role peer);
