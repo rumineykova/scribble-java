@@ -25,9 +25,10 @@ explicit global protocol Proto1(role A, role B)
 {
 	choice at A
 	{
-		//1() connect A to B;
-		1(x: Int) connect A to B; @(x > 6);
-		3() connect B to A;
+		1() connect A to B;
+		2() from A to B;
+		//1(x: Int) connect A to B; @(x > 6);
+		//3() connect A to B;
 	}
 	or
 	{

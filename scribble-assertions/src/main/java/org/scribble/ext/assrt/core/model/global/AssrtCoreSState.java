@@ -84,6 +84,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		this.F = Collections.unmodifiableSet(F);
 	}
 
+	// Need to consider hasPendingRequest? -- no: the semantics blocks both sides until connected, so don't need to validate those "intermediate" states
 	public boolean isReceptionError()
 	{
 		return this.P.entrySet().stream().anyMatch(e ->  // e: Entry<Role, EState>
@@ -102,12 +103,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		);
 	}
 
-	public boolean isUnfinishedRoleError(Map<Role, EState> E0)
-	{
-		return this.isTerminal() &&
-				this.P.entrySet().stream().anyMatch(e -> isActive(e.getValue(), E0.get(e.getKey()).id));
-	}
-
+	// Includes orphan pending requests
 	public boolean isOrphanError(Map<Role, EState> E0)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
@@ -115,7 +111,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					Role r1 = e.getKey();
 					return
 							   isInactive(e.getValue(), E0.get(r1).id)
-							&& (this.P.keySet().stream().anyMatch(r2 -> hasMessage(r1, r2)));
+							&& (this.P.keySet().stream().anyMatch(r2 -> hasMessage(r1, r2) || isPendingRequest(r2, r1)));  // N.B. pending request *to* inactive r1
 								//|| !this.owned.get(e.getKey()).isEmpty()  
 								
 										// FIXME: need AnnotEConnect to consume owned properly
@@ -123,30 +119,39 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			);
 	}
 
+	public boolean isUnfinishedRoleError(Map<Role, EState> E0)
+	{
+		return this.isTerminal() &&
+				this.P.entrySet().stream().anyMatch(e -> isActive(e.getValue(), E0.get(e.getKey()).id));
+	}
+
+	// Request/accept are bad if local queue is established
+	// N.B. request/accept when remote queue is established is not an error -- relying on semantics to block until both remote/local queues not established; i.e., error precluded by design of model, not by validation
+	// N.B. not considering pending requests, for the same reason as above and as why not considered for, e.g., reception errors -- i.e., not validating those "intermediate" states
+	// Deadlock/progress errors that could be related to "decoupled" connection sync still caught by existing checks, e.g., orphan message or unfinished role
 	public boolean isConnectionError()
 	{
 		return this.P.entrySet().stream().anyMatch(e -> 
-			e.getValue().getActions().stream().anyMatch(a ->
-					{
-						Role r = e.getKey();
-						return (a.isRequest() || a.isAccept())
-								&& (isInputQueueEstablished(r, a.peer) || isInputQueueEstablished(a.peer, r));
-					}
-			// FIXME: check for pending port, if so then port is used -- need to extend an AnnotEConnect type with ScribAnnot (cf. AnnotPayloadType)
+				e.getValue().getActions().stream().anyMatch(a ->
+						(a.isRequest() || a.isAccept()) && isInputQueueEstablished(e.getKey(), a.peer)
 		));
+				// FIXME: check for pending port, if so then port is used -- need to extend an AnnotEConnect type with ScribAnnot (cf. AnnotPayloadType)
 	}
 
+	// Send is bad if either local queue or remote queue is not established, and no pending request to the target
+	// Receive is bad if local queue is not established and no pending request to the target
 	public boolean isUnconnectedError()
 	{
 		return this.P.entrySet().stream().anyMatch(e -> 
-			e.getValue().getActions().stream().anyMatch(a ->
-			{
-				Role r = e.getKey();
-				return
-				   (a.isSend() && !isInputQueueEstablished(r, a.peer) && !isInputQueueEstablished(a.peer, r))
-				|| (a.isReceive() && !isInputQueueEstablished(r, a.peer));
-			}
-		));
+				{
+					Role r = e.getKey();
+					return 
+							e.getValue().getActions().stream().anyMatch(a ->
+											(a.isSend() &&
+												(!isInputQueueEstablished(r, a.peer) || !isInputQueueEstablished(a.peer, r)) && !isPendingRequest(r, a.peer))
+									|| (a.isReceive() && !isInputQueueEstablished(r, a.peer) && !isPendingRequest(r, a.peer)));
+					// Don't need to use isPendingRequest(a.peer, r) because only requestor is "at the next state" while request pending 
+				});
 	}
 
 	// "Connection message" reception error
