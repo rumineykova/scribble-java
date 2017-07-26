@@ -110,16 +110,17 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	public boolean isOrphanError(Map<Role, EState> E0)
 	{
-		/*return this.P.entrySet().stream().anyMatch((e) -> isInactive(e.getValue(), E0.get(e.getKey()).id)
-				&& (this.P.keySet().stream().anyMatch((r) -> hasMessage(e.getKey(), r))));*/
 		return this.P.entrySet().stream().anyMatch(e ->
-				   isInactive(e.getValue(), E0.get(e.getKey()).id)
-				&& (this.P.keySet().stream().anyMatch(r -> hasMessage(e.getKey(), r))
-						//|| !this.owned.get(e.getKey()).isEmpty()  
-						
-								// FIXME: need AnnotEConnect to consume owned properly
-
-				));
+				{
+					Role r1 = e.getKey();
+					return
+							   isInactive(e.getValue(), E0.get(r1).id)
+							&& (this.P.keySet().stream().anyMatch(r2 -> hasMessage(r1, r2)));
+								//|| !this.owned.get(e.getKey()).isEmpty()  
+								
+										// FIXME: need AnnotEConnect to consume owned properly
+				}
+			);
 	}
 	
 	public boolean isUnknownDataTypeVarError()
@@ -210,10 +211,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		return this.P.entrySet().stream().anyMatch(e -> 
 			e.getValue().getActions().stream().anyMatch(a ->
-				(a.isRequest() || a.isAccept()) && isInputQueueEstablished(e.getKey(), a.peer) 
-
-						// FIXME: check for pending port, if so then port is used -- need to extend an AnnotEConnect type with ScribAnnot (cf. AnnotPayloadType)
-
+					{
+						Role r = e.getKey();
+						return (a.isRequest() || a.isAccept())
+								&& (isInputQueueEstablished(r, a.peer) || isInputQueueEstablished(a.peer, r));
+					}
+			// FIXME: check for pending port, if so then port is used -- need to extend an AnnotEConnect type with ScribAnnot (cf. AnnotPayloadType)
 		));
 	}
 
@@ -221,7 +224,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		return this.P.entrySet().stream().anyMatch(e -> 
 			e.getValue().getActions().stream().anyMatch(a ->
-				(a.isSend() || a.isReceive()) && !isInputQueueEstablished(e.getKey(), a.peer)
+			{
+				Role r = e.getKey();
+				return
+				   (a.isSend() && !isInputQueueEstablished(r, a.peer) && !isInputQueueEstablished(a.peer, r))
+				|| (a.isReceive() && !isInputQueueEstablished(r, a.peer));
+			}
 		));
 	}
 
@@ -238,8 +246,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					Role dest = e.getKey();
 					List<EAction> as = s.getActions();
 					Role src = as.get(0).peer;
-					return //hasMessage(dest, src)  // FIXME: hasMessage for pending connection message
-							isPendingRequest(src, dest)
+					return isPendingRequest(src, dest)
 							&& !as.contains(((AssrtCoreEPendingRequest) this.Q.get(dest).get(src)).getMessage().toDual(src));
 				}
 		);
