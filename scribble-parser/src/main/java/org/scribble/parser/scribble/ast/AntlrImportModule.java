@@ -18,6 +18,7 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.ImportModule;
 import org.scribble.ast.name.qualified.ModuleNameNode;
 import org.scribble.parser.scribble.AntlrToScribParser;
+import org.scribble.parser.scribble.ScribbleAntlrConstants;
 import org.scribble.parser.scribble.ast.name.AntlrQualifiedName;
 import org.scribble.parser.scribble.ast.name.AntlrSimpleName;
 
@@ -25,8 +26,6 @@ public class AntlrImportModule
 {
 	public static final int MODULENAME_CHILD_INDEX = 0;
 	public static final int ALIAS_CHILD_INDEX = 1; 
-
-	private static final String EMPTY_ALIAS = "EMPTY_ALIAS";
 
 	public static ImportModule parseImportModule(AntlrToScribParser parser, CommonTree ct, AstFactory af)
 	{
@@ -49,6 +48,6 @@ public class AntlrImportModule
 	
 	public static boolean hasAlias(CommonTree ct)
 	{
-		return !ct.getChild(ALIAS_CHILD_INDEX).getText().equals(EMPTY_ALIAS);
+		return !ct.getChild(ALIAS_CHILD_INDEX).getText().equals(ScribbleAntlrConstants.EMPTY_ALIAS);
 	}
 }

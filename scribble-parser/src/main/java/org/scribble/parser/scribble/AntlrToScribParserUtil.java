@@ -32,14 +32,15 @@ public class AntlrToScribParserUtil
 		String type = ct.getToken().getText();
 		switch (type)
 		{
-			//case AntlrConstants.EMPTY_PARAMETERDECLLST_NODE_TYPE: return AntlrNodeType.EMPTY_PARAMETERDECLLST;
+			////case AntlrConstants.EMPTY_PARAMETERDECLLST_NODE_TYPE: return AntlrNodeType.EMPTY_PARAMETERDECLLST;
 			case ScribbleAntlrConstants.AMBIGUOUSNAME_NODE_TYPE:              return AntlrNodeType.AMBIGUOUSNAME;
 			case ScribbleAntlrConstants.QUALIFIEDNAME_NODE_TYPE:              return AntlrNodeType.QUALIFIEDNAME;
 
 			case ScribbleAntlrConstants.MESSAGESIGNATURE_NODE_TYPE:           return AntlrNodeType.MESSAGESIGNATURE;
+			case ScribbleAntlrConstants.DELEGATION_NODE_TYPE:                 return AntlrNodeType.DELEGATION;
+			
 			case ScribbleAntlrConstants.PAYLOAD_NODE_TYPE:                    return AntlrNodeType.PAYLOAD;
 			//case AntlrConstants.PAYLOADELEMENT_NODE_TYPE: return AntlrNodeType.PAYLOADELEMENT;
-			case ScribbleAntlrConstants.DELEGATION_NODE_TYPE:                 return AntlrNodeType.DELEGATION;
 
 			case ScribbleAntlrConstants.MODULE_NODE_TYPE:                     return AntlrNodeType.MODULE;
 			case ScribbleAntlrConstants.MODULEDECL_NODE_TYPE:                 return AntlrNodeType.MODULEDECL;
@@ -54,7 +55,7 @@ public class AntlrToScribParserUtil
 			case ScribbleAntlrConstants.ROLEINSTANTIATIONLIST_NODE_TYPE:      return AntlrNodeType.ROLEINSTANTIATIONLIST;
 			case ScribbleAntlrConstants.ROLEINSTANTIATION_NODE_TYPE:          return AntlrNodeType.ROLEINSTANTIATION;
 			case ScribbleAntlrConstants.ARGUMENTINSTANTIATIONLIST_NODE_TYPE:  return AntlrNodeType.ARGUMENTINSTANTIATIONLIST;
-			case ScribbleAntlrConstants.ARGUMENTINSTANTIATION_NODE_TYPE:      return AntlrNodeType.ARGUMENTINSTANTIATION;
+			//case ScribbleAntlrConstants.ARGUMENTINSTANTIATION_NODE_TYPE:      return AntlrNodeType.ARGUMENTINSTANTIATION;  // Not used directly?
 
 			case ScribbleAntlrConstants.GLOBALPROTOCOLDECL_NODE_TYPE:         return AntlrNodeType.GLOBALPROTOCOLDECL;
 			case ScribbleAntlrConstants.GLOBALPROTOCOLHEADER_NODE_TYPE:       return AntlrNodeType.GLOBALPROTOCOLHEADER;
@@ -68,12 +69,12 @@ public class AntlrToScribParserUtil
 			case ScribbleAntlrConstants.GLOBALCHOICE_NODE_TYPE:               return AntlrNodeType.GLOBALCHOICE;
 			case ScribbleAntlrConstants.GLOBALRECURSION_NODE_TYPE:            return AntlrNodeType.GLOBALRECURSION;
 			case ScribbleAntlrConstants.GLOBALCONTINUE_NODE_TYPE:             return AntlrNodeType.GLOBALCONTINUE;
-			case ScribbleAntlrConstants.GLOBALPARALLEL_NODE_TYPE:             return AntlrNodeType.GLOBALPARALLEL;
+			/*case ScribbleAntlrConstants.GLOBALPARALLEL_NODE_TYPE:             return AntlrNodeType.GLOBALPARALLEL;
 			case ScribbleAntlrConstants.GLOBALINTERRUPTIBLE_NODE_TYPE:        return AntlrNodeType.GLOBALINTERRUPTIBLE;
-			case ScribbleAntlrConstants.GLOBALINTERRUPT_NODE_TYPE:            return AntlrNodeType.GLOBALINTERRUPT;
+			case ScribbleAntlrConstants.GLOBALINTERRUPT_NODE_TYPE:            return AntlrNodeType.GLOBALINTERRUPT;*/
 			case ScribbleAntlrConstants.GLOBALDO_NODE_TYPE:                   return AntlrNodeType.GLOBALDO;
 
-			case ScribbleAntlrConstants.LOCALPROTOCOLDECL_NODE_TYPE:          return AntlrNodeType.LOCALPROTOCOLDECL; 
+			/*case ScribbleAntlrConstants.LOCALPROTOCOLDECL_NODE_TYPE:          return AntlrNodeType.LOCALPROTOCOLDECL; 
 			case ScribbleAntlrConstants.LOCALROLEDECLLIST_NODE_TYPE:          return AntlrNodeType.ROLEDECLLIST;
 			case ScribbleAntlrConstants.LOCALROLEDECL_NODE_TYPE:              return AntlrNodeType.ROLEDECL;
 			case ScribbleAntlrConstants.SELFDECL_NODE_TYPE:                   return AntlrNodeType.SELFDECL;
@@ -89,7 +90,7 @@ public class AntlrToScribParserUtil
 			case ScribbleAntlrConstants.LOCALINTERRUPTIBLE_NODE_TYPE:         return AntlrNodeType.LOCALINTERRUPTIBLE;
 			case ScribbleAntlrConstants.LOCALTHROWS_NODE_TYPE:                return AntlrNodeType.LOCALTHROWS;
 			case ScribbleAntlrConstants.LOCALCATCHES_NODE_TYPE:               return AntlrNodeType.LOCALCATCHES;
-			case ScribbleAntlrConstants.LOCALDO_NODE_TYPE:                    return AntlrNodeType.LOCALDO;
+			case ScribbleAntlrConstants.LOCALDO_NODE_TYPE:                    return AntlrNodeType.LOCALDO;*/
 
 			// Nodes without a "node type", e.g. parameter names, fall in here
 			default: throw new RuntimeException("Unknown ANTLR node type label: " + type);
