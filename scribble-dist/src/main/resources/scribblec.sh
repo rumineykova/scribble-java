@@ -35,7 +35,7 @@ DIR=`dirname "$0"`   # Default (script is in scribble-java rootdir)
 
 #PRG=`basename "$0"`
 
-# Directory containing Scribble jars
+# Directory containing Scribble jars (if desired -- not mandatory)
 LIB=lib
 
 
