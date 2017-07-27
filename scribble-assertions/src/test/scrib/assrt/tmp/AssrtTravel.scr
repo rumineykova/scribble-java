@@ -24,7 +24,7 @@ aux global protocol Nego(role C, role A, role S)
 	/*{
 		query(str) from C to A;
 		quote(int) from A to C;
-		do Nego(C, A, S);
+		do Nego(C, A, S);        // Cannot "merge" the unguarded recursion variable in the projection of S
 	}
 	or*/
 	{
