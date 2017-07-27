@@ -24,7 +24,7 @@ aux global protocol Nego(role C, role A, role S)
 	quote(q:int) from A to C;
 	choice at C
 	{
-		accpt() from C to A;  @((q < 100) || (q = 100));
+		accpt() from C to A;  @((q < 100) || (q = 100));  // Not a "good" example for API gen -- cannot do anything with this assertion except generate a run-time check?
 		//accpt() from C to A;  @False;
 		payment(str) connect C to S;
 		confirm(x1:int) from S to C;
