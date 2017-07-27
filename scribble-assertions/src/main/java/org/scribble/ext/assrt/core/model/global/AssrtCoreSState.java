@@ -62,8 +62,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					// Being in the state causes "implicit unrolling" for recursions, before/after "known" state
 			// "Knowledge" not the best term? -- K+F represents per role "commitments"?
 	
-	// Cf. temporal satisfiability?
+	// Cf. temporal satisfiability
 	private final Set<AssrtBoolFormula> F;  // FIXME: shouldn't be part of state?  i.e., shouldn't be used to ("syntactically") distinguish states?
+			// May be slightly more efficient to just record the big conjunction (rather than building it each time)
 
 	public AssrtCoreSState(Map<Role, EState> P, boolean explicit)
 	{

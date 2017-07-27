@@ -303,16 +303,30 @@ public class AssrtCoreGProtocolDeclTranslator
 		}
 
 		PayloadElem<?> pe = msn.payloads.getElements().get(0);
-		if (!(pe instanceof AssrtAnnotDataTypeElem) && !(pe instanceof AssrtAnnotDataTypeElem))
+		if (!(pe instanceof AssrtAnnotDataTypeElem) && !(pe instanceof UnaryPayloadElem<?>))
 		{
-			// Already ruled out by parsing?  e.g., delegation
+			// Already ruled out by parsing?  e.g., GDelegationElem
 			throw new AssrtCoreSyntaxException("[assrt-core] Payload element not supported: " + pe);
 		}
+		/*else if (pe instanceof LDelegationElem)  // No: only created by projection, won't be parsed
+		{
+			throw new AssrtCoreSyntaxException("[assrt-core] Payload element not supported: " + pe);
+		}*/
 		
-		AssrtAnnotDataType adt;
 		if (pe instanceof AssrtAnnotDataTypeElem)
 		{
-			adt = ((AssrtAnnotDataTypeElem) pe).toPayloadType();
+			AssrtAnnotDataType adt = ((AssrtAnnotDataTypeElem) pe).toPayloadType();
+			String type = adt.data.toString();
+			if (!type.equals("int") && !type.endsWith(".int"))  // HACK FIXME (currently "int" for F#)
+			{
+				throw new AssrtCoreSyntaxException(pe.getSource(), "[assrt-core] Payload annotations not supported for non- \"int\" type kind: " + pe);
+			}
+			
+			// FIXME: non-annotated payload elems get created with fresh vars, i.e., non- int types
+			// Also empty payloads are created as Unit type
+			// But current model building implicitly treats all vars as int -- this works, but is not clean
+			
+			return adt;
 		}
 		else
 		{
@@ -322,14 +336,8 @@ public class AssrtCoreGProtocolDeclTranslator
 			// i.e., AssrtDataTypeVar not allowed (should be "encoded")
 				throw new AssrtCoreSyntaxException(pe.getSource(), "[assrt-core] Non- datatype kind payload not supported: " + pe);
 			}
-			adt = new AssrtAnnotDataType(new AssrtDataTypeVar("_x" + nextVarIndex()), (DataType) pet);
+			return new AssrtAnnotDataType(new AssrtDataTypeVar("_x" + nextVarIndex()), (DataType) pet);
 		}
-		String type = adt.data.toString();
-		if (!type.equals("int") && !type.endsWith(".int"))  // HACK FIXME (currently "int" for F#)
-		{
-			throw new AssrtCoreSyntaxException(pe.getSource(), "[assrt-core] Non- int type kind payload not supported: " + pe);
-		}
-		return adt;
 	}
 
 	private AssrtAssertion parseAssertion(GMessageTransfer gmt)
