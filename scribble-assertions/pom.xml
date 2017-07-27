@@ -65,6 +65,26 @@
 		        		</execution>
 		    		</executions>
 			</plugin>
-    		</plugins>
+						
+			<!-- "Overrides" parent pom settings -->	
+			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>**/*.g</exclude>
+						<exclude>**/*.java</exclude>
+						<exclude>**/*.scr</exclude>
+						<exclude>**/IGNORE</exclude>
+						<exclude>**/*.policy</exclude>
+						<exclude>**/*.xml</exclude>
+						<exclude>**/*.html</exclude>
+						<exclude>**/stylesheet.css</exclude>
+						<exclude>**/script.js</exclude>
+						<exclude>**/package-list</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+    </plugins>
 	</build>
 </project>

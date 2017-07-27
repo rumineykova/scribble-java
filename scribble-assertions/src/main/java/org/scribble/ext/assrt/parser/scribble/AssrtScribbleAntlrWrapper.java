@@ -7,9 +7,9 @@ import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.parser.antlr.AssrtScribbleLexer;
 import org.scribble.parser.antlr.AssrtScribbleParser;
-import org.scribble.parser.scribble.AntlrParser;
+import org.scribble.parser.scribble.ScribbleAntlrWrapper;
 
-public class AssrtAntlrParser extends AntlrParser
+public class AssrtScribbleAntlrWrapper extends ScribbleAntlrWrapper
 {
 	
 	@Override

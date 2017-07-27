@@ -1,17 +1,9 @@
-package org.scribble.ext.assrt.parser.assertions.formula;
+package org.scribble.ext.assrt.type.formula;
 
 import java.util.List;
 
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBinArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtExistsFormula;
-import org.scribble.ext.assrt.type.formula.AssrtIntValFormula;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 
-
+// Would correspond to a "types factory" -- cf. AST factory
 public class AssrtFormulaFactory
 {
 	/*public static AssrtBoolFormula parseBoolFormula(

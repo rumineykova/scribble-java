@@ -1,17 +1,18 @@
 package org.scribble.ext.assrt.parser.assertions.formula;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
+import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
+import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 
-public class AntlrBinCompFormula
+public class AssrtAntlrBinCompFormula
 {
 	private static Integer CHILD_OP_INDEX = 1; 
 	private static Integer CHILD_LEFT_FORMULA_INDEX = 0;
 	private static Integer CHILD_RIGHT_FORMULA_INDEX = 2;
 	
-	public static AssrtBinCompFormula parseBinCompFormula(AssrtAssertParser parser, CommonTree root) //throws AssertionsParseException {
+	public static AssrtBinCompFormula parseBinCompFormula(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
 	{
 		AssrtBinCompFormula.Op op = parseOp(getOpChild(root)); 
 		AssrtArithFormula left = (AssrtArithFormula) parser.parse(getLeftChild(root)); 
