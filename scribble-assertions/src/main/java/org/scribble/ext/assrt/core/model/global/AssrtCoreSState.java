@@ -546,7 +546,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 
 		AssrtERequest ec = ((AssrtCoreEPendingRequest) this.Q.get(self).get(ea.peer)).getMessage();
-		if (ea.toDual(self).equals(ec))
+		//if (ea.toDual(self).equals(ec))
+		if (((AssrtERequest) ea.toDual(self)).toTrueAssertion().equals(ec))  
+				// HACK FIXME: check assertion implication (not just syntactic equals) -- cf. getReceiveFireable
 		{
 			res.get(self).add(ea);
 		}
@@ -606,7 +608,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			Role self, AssrtESend es, EState succ)
 	{
 		P.put(self, succ);
-		Q.get(es.peer).put(self, es);
+		//Q.get(es.peer).put(self, es);
+		Q.get(es.peer).put(self, es.toTrueAssertion());  // HACK FIXME: cf. AssrtSConfig::fire
 		outputUpdateKF(K, F, self, es);
 	}
 
@@ -624,7 +627,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			Role self, AssrtERequest es, EState succ)
 	{
 		P.put(self, succ);
-		Q.get(es.peer).put(self, new AssrtCoreEPendingRequest(es));
+		//Q.get(es.peer).put(self, new AssrtCoreEPendingRequest(es));
+		Q.get(es.peer).put(self, new AssrtCoreEPendingRequest(es.toTrueAssertion()));  // HACK FIXME: cf. AssrtSConfig::fire
 		outputUpdateKF(K, F, self, es);
 	}
 

@@ -20,9 +20,8 @@ import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
 import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.type.kind.Global;
 import org.scribble.type.name.RecVar;
 import org.scribble.type.name.Role;
@@ -60,25 +59,27 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 		{
 			AssrtCoreAction a = e.getKey();
 			AssrtBoolFormula fproj = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f, a.ass);
-			if (this.dest.equals(r))
+
+			if (this.dest.equals(r))  // Projecting receiver side
 			{
-				// FIXME TODO: check vars are ints
-				Set<AssrtDataTypeVar> vs = fproj.getVars();
+				/*Set<AssrtDataTypeVar> vs = fproj.getVars();
 						// FIXME: converting Set to List
 				vs.remove(a.ass.getVars());
-				
-				
-				//..FIXME: Checking TS on model, so we don't need the projection to "syntactically" record the "assertion history" in this way?
-				//..or just follow original sender-only assertion implementation?
-				
-				
 				if (!vs.isEmpty())
 				{
 					List<AssrtIntVarFormula> tmp = vs.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList());  
 					fproj = AssrtFormulaFactory.AssrtExistsFormula(tmp, fproj);
-				}
+				}*/
+				
+				//..FIXME: Checking TS on model, so we don't need the projection to "syntactically" record the "assertion history" in this way?
+				//..or just follow original sender-only assertion implementation?
+				fproj = AssrtTrueFormula.TRUE;  
+						// HACK FIXME: currently also hacking all "message-carried assertions" to True, i.e., AssrtCoreState::fireSend/Request -- cf. AssrtSConfig::fire
+						// AssrtCoreState::getReceive/AcceptFireable currently use syntactic equality of assertions
+
 				a = af.AssrtCoreAction(a.op, a.pay, fproj);
 			}
+
 			projs.put(a, e.getValue().project(af, r, fproj));
 					// N.B. local actions directly preserved from globals -- so core-receive also has assertion (cf. AssrtGMessageTransfer.project, currently no AssrtLReceive)
 					// FIXME: receive assertion projection -- should not be the same as send?

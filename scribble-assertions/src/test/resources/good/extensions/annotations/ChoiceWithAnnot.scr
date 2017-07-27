@@ -4,7 +4,7 @@ module good.extensions.annotations.ChoiceWithAnnot;
 type <java> "java.lang.Integer" from "rt.jar" as Int;
 
 
-global protocol ProtComplex(role A, role B, role C)
+global protocol Proto1(role A, role B, role C)
 {
 	choice at A {
 		ADD(x:Int) from A to B;  
