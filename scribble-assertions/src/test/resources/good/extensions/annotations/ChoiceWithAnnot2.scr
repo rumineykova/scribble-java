@@ -1,0 +1,21 @@
+module good.extensions.annotations.ChoiceWithAnnot2;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as Int;
+
+
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A {
+		ADD(x:Int) from A to B;  
+		ADD(z1:Int) from B to C;
+		ADD(z2:Int) from B to C; @(z2 = z1);
+		 
+	} or {
+		RES(y:Int) from A to B;
+		RES(z3:Int) from B to C; 
+		RES(z4:Int) from B to C; @(z4 = z3);
+	}			
+	}
+	
+}
