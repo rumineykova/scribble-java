@@ -99,7 +99,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					Role dest = e.getKey();
 					List<EAction> as = s.getActions();
 					Role src = as.get(0).peer;
-					return hasMessage(dest, src) && !as.contains(this.Q.get(dest).get(src).toDual(src));
+					return hasMessage(dest, src) && 
+							//!as.contains(this.Q.get(dest).get(src).toDual(src));
+							as.stream()
+								.map(a -> ((AssrtESend) a.toDual(dest)).toTrueAssertion())
+								.noneMatch(a -> a.equals(this.Q.get(dest).get(src)));  
+										// HACK FIXME: check assertion implication (not just syntactic equals) -- cf. AssrtSConfig::fire
 				}
 		);
 	}
@@ -438,7 +443,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 
 		AssrtESend m = this.Q.get(self).get(er.peer);
-		if (er.toDual(self).equals(m))  //&& !(m instanceof F17EBot)
+		//if (er.toDual(self).equals(m))  //&& !(m instanceof F17EBot)
+		if (((AssrtESend) er.toDual(self)).toTrueAssertion().equals(m))  
+				// HACK FIXME: check assertion implication (not just syntactic equals) -- cf. AssrtSConfig::fire
 		{
 			res.get(self).add(er);
 		}

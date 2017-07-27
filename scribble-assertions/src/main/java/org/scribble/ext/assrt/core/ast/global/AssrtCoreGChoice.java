@@ -22,6 +22,7 @@ import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.type.kind.Global;
 import org.scribble.type.name.RecVar;
 import org.scribble.type.name.Role;
@@ -61,12 +62,20 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 			AssrtBoolFormula fproj = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f, a.ass);
 			if (this.dest.equals(r))
 			{
-				List<AssrtIntVarFormula> vs = fproj.getVars().stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList());  
+				// FIXME TODO: check vars are ints
+				Set<AssrtDataTypeVar> vs = fproj.getVars();
 						// FIXME: converting Set to List
-						// FIXME TODO: check vars are ints
+				vs.remove(a.ass.getVars());
+				
+				
+				//..FIXME: Checking TS on model, so we don't need the projection to "syntactically" record the "assertion history" in this way?
+				//..or just follow original sender-only assertion implementation?
+				
+				
 				if (!vs.isEmpty())
 				{
-					fproj = AssrtFormulaFactory.AssrtExistsFormula(vs, fproj);
+					List<AssrtIntVarFormula> tmp = vs.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList());  
+					fproj = AssrtFormulaFactory.AssrtExistsFormula(tmp, fproj);
 				}
 				a = af.AssrtCoreAction(a.op, a.pay, fproj);
 			}
