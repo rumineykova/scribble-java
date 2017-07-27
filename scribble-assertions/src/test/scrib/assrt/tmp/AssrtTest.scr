@@ -8,8 +8,8 @@
 module assrt.tmp.AssrtTest;
 
 
-type <java> "java.lang.Integer" from "rt.jar" as int;
-type <java> "java.lang.String" from "rt.jar" as Str;
+type <dotnet> "System.UInt32" from "..." as int;
+type <dotnet> "System.String" from "..." as str;
 
 
 // FIXME: debug printing for assertion passes
@@ -29,7 +29,7 @@ type <java> "java.lang.String" from "rt.jar" as Str;
 explicit global protocol Proto1(role A, role B)
 {
 	1() connect A to B;
-	2(Str) from A to B;
+	2(str) from A to B;
 	3(x:int) from B to A;
 }
 //*/
@@ -377,4 +377,5 @@ global protocol Proto1(role A, role B)
 	2(x) from A to B;
 
 }
+
 //*/
