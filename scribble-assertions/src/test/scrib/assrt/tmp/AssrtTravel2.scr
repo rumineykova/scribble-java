@@ -1,0 +1,38 @@
+//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtTravel2.scr 
+
+
+// http://sandbox.kidstrythisathome.com/erdos/
+
+
+module assrt.tmp.AssrtTravel2;
+
+
+type <dotnet> "System.UInt32" from "..." as int;
+type <dotnet> "System.String" from "..." as str;
+
+
+explicit global protocol Travel(role C, role A, role S)
+{
+	connect C to A;
+	do Nego(C, A, S);
+}
+
+aux global protocol Nego(role C, role A, role S)
+{
+	query(str) from C to A;
+	quote(q:int) from A to C;
+	choice at C
+	{
+		accpt() from C to A;  @((q < 100) || (q = 100));
+		//accpt() from C to A;  @False;
+		payment(str) connect C to S;
+		confirm(x1:int) from S to C;
+		ack(x2:int) from C to A;  @(x1 = x2);
+	}
+	or
+	{
+		reject() from C to A; @(q > 100);
+	}
+}
+		
