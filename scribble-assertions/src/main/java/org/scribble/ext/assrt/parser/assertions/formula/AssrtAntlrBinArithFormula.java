@@ -1,18 +1,19 @@
 package org.scribble.ext.assrt.parser.assertions.formula;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.parser.assertions.AssrtAssertParser;
+import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinArithFormula;
+import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 
 
-public class AntlrBinArithFormula
+public class AssrtAntlrBinArithFormula
 {
 	private static Integer CHILD_OP_INDEX = 1; 
 	private static Integer CHILD_LEFT_FORMULA_INDEX = 0;
 	private static Integer CHILD_RIGHT_FORMULA_INDEX = 2;
 	
-	public static AssrtBinArithFormula parseBinArithFormula(AssrtAssertParser parser, CommonTree root) //throws AssertionsParseException {
+	public static AssrtBinArithFormula parseBinArithFormula(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
 	{	
 		AssrtBinArithFormula.Op op = parseOp(getOpChild(root)); 
 		AssrtArithFormula left = (AssrtArithFormula) parser.parse(getLeftChild(root)); 
@@ -40,7 +41,7 @@ public class AntlrBinArithFormula
 		switch (op.getText()) 
 		{
 			case "+": return AssrtBinArithFormula.Op.Add;
-			case "-": return AssrtBinArithFormula.Op.Subtract;
+			case "-": return AssrtBinArithFormula.Op.Subt;
 			case "*": return AssrtBinArithFormula.Op.Mult;
 			default:  throw new RuntimeException("[assrt] Shouldn't get in here: " + op.getText());  // Due to AssrtAssertions.g
 		}

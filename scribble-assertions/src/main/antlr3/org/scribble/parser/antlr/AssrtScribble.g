@@ -273,6 +273,8 @@ fragment UNDERSCORE:
 ;
 
 
+// Assertion formula
+
 ASSRT_EXPR: 
 	'@' (LETTER | DIGIT | ASSRT_SYMBOL | WHITESPACE)* ';'
 ; 
@@ -595,7 +597,7 @@ globalmessagetransfer:
 | 
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';' ASSRT_EXPR 
 	->
-	^(ASSRT_GLOBALMESSAGETRANSFER { AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text) } message rolename rolename+)
+	^(ASSRT_GLOBALMESSAGETRANSFER { AssertionsParser.antlrParse($ASSRT_EXPR.text) } message rolename rolename+)
 			// Calling a separate parser this way loses line/char number information
 ;
 //	ASSRT_EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
@@ -622,12 +624,12 @@ globalconnect:
 	//ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
 	CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
 	->
-	^(ASSRT_GLOBALCONNECT {AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+	^(ASSRT_GLOBALCONNECT {AssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
 	//ASSRT_EXPR message CONNECT_KW rolename TO_KW rolename ';'
 	message CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
 	->
-	^(ASSRT_GLOBALCONNECT {AssrtAssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename message)
+	^(ASSRT_GLOBALCONNECT {AssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename message)
 ;
 /*	'(' connectdecl (',' connectdecl)* ')'
 	->

@@ -13,8 +13,9 @@
  */
 package org.scribble.parser.scribble;
 
-// FIXME: refer to values from core ast.Constants
-public class AntlrConstants
+// Constants declared in Scribble.g ANTLR grammer
+// FIXME: refer to values from core ast.Constants?
+public class ScribbleAntlrConstants
 {
 	// Cf. Scribble.g, parser output "node types"
 	public static final String KIND_MESSAGESIGNATURE = "KIND_MESSAGESIGNATURE";

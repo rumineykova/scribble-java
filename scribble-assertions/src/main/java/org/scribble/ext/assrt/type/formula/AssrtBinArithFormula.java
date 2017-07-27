@@ -15,7 +15,7 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 	public enum Op
 	{
 		Add,
-		Subtract,
+		Subt,
 		Mult;
 		
 		@Override
@@ -25,7 +25,7 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 			{
 				case Add: return "+";
 				case Mult: return "*";
-				case Subtract: return "-";
+				case Subt: return "-";
 				default: throw new RuntimeException("Won't get in here: " + this);
 			}
 		}
@@ -61,7 +61,7 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 		{
 		case Add:
 			return fmanager.add(fleft, fright);
-		case Subtract:
+		case Subt:
 			return fmanager.subtract(fleft,fright);
 		case Mult:
 			return fmanager.multiply(fleft, fright);

@@ -20,7 +20,7 @@ import org.antlr.runtime.tree.CommonErrorNode;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.ScribNode;
-import org.scribble.parser.scribble.AntlrConstants.AntlrNodeType;
+import org.scribble.parser.scribble.ScribbleAntlrConstants.AntlrNodeType;
 import org.scribble.parser.scribble.ast.AntlrDataTypeDecl;
 import org.scribble.parser.scribble.ast.AntlrImportModule;
 import org.scribble.parser.scribble.ast.AntlrMessageSig;
@@ -55,18 +55,18 @@ import org.scribble.util.ScribParserException;
 
 // ANTLR CommonTree -> ScribNode
 // Parses ANTLR nodes into ScribNodes using the parser.ast.Antlr[...] helper classes
-public class ScribParser
+public class AntlrToScribParser
 {
-	public ScribParser()
+	public AntlrToScribParser()
 	{
 
 	}
 
 	public ScribNode parse(CommonTree ct, AstFactory af) throws ScribParserException
 	{
-		ScribParser.checkForAntlrErrors(ct);
+		AntlrToScribParser.checkForAntlrErrors(ct);
 		
-		AntlrNodeType type = ScribParserUtil.getAntlrNodeType(ct);
+		AntlrNodeType type = AntlrToScribParserUtil.getAntlrNodeType(ct);
 		switch (type)
 		{
 			case MODULE:                    return AntlrModule.parseModule(this, ct, af);

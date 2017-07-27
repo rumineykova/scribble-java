@@ -17,7 +17,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.DataTypeDecl;
 import org.scribble.ast.name.qualified.DataTypeNode;
-import org.scribble.parser.scribble.ScribParser;
+import org.scribble.parser.scribble.AntlrToScribParser;
 import org.scribble.parser.scribble.ast.name.AntlrSimpleName;
 
 public class AntlrDataTypeDecl
@@ -27,7 +27,7 @@ public class AntlrDataTypeDecl
 	public static final int SOURCE_CHILD_INDEX = 2;
 	public static final int ALIAS_CHILD_INDEX = 3;
 
-	public static DataTypeDecl parseDataTypeDecl(ScribParser parser, CommonTree ct, AstFactory af)
+	public static DataTypeDecl parseDataTypeDecl(AntlrToScribParser parser, CommonTree ct, AstFactory af)
 	{
 		CommonTree tmp1 = getSchemaChild(ct);
 		String schema = AntlrSimpleName.getName(tmp1);
