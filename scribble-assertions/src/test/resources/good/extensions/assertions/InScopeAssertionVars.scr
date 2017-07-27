@@ -1,7 +1,7 @@
 module good.extensions.assertions.InScopeAssertionVars;
 
 
-type <java> "java.lang.Integer" from "rt.jar" as Int;
+type <java> "java.lang.integer" from "rt.jar" as int;
 
 /*
 //Reverse Temporal Satisfiability that works
@@ -9,10 +9,10 @@ type <java> "java.lang.Integer" from "rt.jar" as Int;
 global protocol Prot(role A, role B)
 {
 	[x<10]
-	MSG(x:Int) from A to B;
+	MSG(x:int) from A to B;
 	
 	[x>y && y<6]
-	MSG(y:Int) from B to A;
+	MSG(y:int) from B to A;
 }*/
 
 
@@ -20,6 +20,6 @@ global protocol Prot(role A, role B)
 global protocol Prot(role A, role B)
 {
 	//[x<10]
-	MSG1(x:Int) from A to B;  @(x < 10);
+	MSG1(x:int) from A to B;  @(x < 10);
 
 }

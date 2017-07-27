@@ -8,8 +8,8 @@
 module assrt.tmp.AssrtTest;
 
 
-type <java> "java.lang.Integer" from "rt.jar" as Int;
-type <java> "java.lang.String" from "rt.jar" as Str;
+type <java> "java.lang.Integer" from "rt.jar" as int;
+//type <java> "java.lang.String" from "rt.jar" as Str;
 
 
 // FIXME: debug printing for assertion passes
@@ -21,9 +21,9 @@ type <java> "java.lang.String" from "rt.jar" as Str;
 
 
 //*
-global protocol Proto1(role A, role B)
+explicit global protocol Proto1(role A, role B)
 {
-	1() from A to B;
+	1() connect A to B;
 	2() from A to B;
 }
 //*/

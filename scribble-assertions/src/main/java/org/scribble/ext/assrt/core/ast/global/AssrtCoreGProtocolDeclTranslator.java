@@ -15,7 +15,6 @@ import org.scribble.ast.UnaryPayloadElem;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GConnect;
 import org.scribble.ast.global.GContinue;
-import org.scribble.ast.global.GDelegationElem;
 import org.scribble.ast.global.GInteractionNode;
 import org.scribble.ast.global.GMessageTransfer;
 import org.scribble.ast.global.GProtocolBlock;
@@ -23,7 +22,6 @@ import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.ast.global.GProtocolDef;
 import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.global.GSimpleInteractionNode;
-import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.global.GProtocolDefDel;
@@ -303,31 +301,35 @@ public class AssrtCoreGProtocolDeclTranslator
 		{
 			throw new AssrtCoreSyntaxException(msn.getSource(), "[assrt-core] Payload with more than one element not supported: " + mn);
 		}
+
+		PayloadElem<?> pe = msn.payloads.getElements().get(0);
+		if (!(pe instanceof AssrtAnnotDataTypeElem) && !(pe instanceof AssrtAnnotDataTypeElem))
+		{
+			// Already ruled out by parsing?  e.g., delegation
+			throw new AssrtCoreSyntaxException("[assrt-core] Payload element not supported: " + pe);
+		}
+		
+		AssrtAnnotDataType adt;
+		if (pe instanceof AssrtAnnotDataTypeElem)
+		{
+			adt = ((AssrtAnnotDataTypeElem) pe).toPayloadType();
+		}
 		else
 		{
-			PayloadElem<?> pe = msn.payloads.getElements().get(0);
-			if (pe instanceof GDelegationElem)  // Already ruled out by parsing?
+			PayloadElemType<?> pet = ((UnaryPayloadElem<?>) pe).toPayloadType();
+			if (!pet.isDataType())
 			{
-				throw new AssrtCoreSyntaxException("[assrt-core] Delegation not supported: " + pe);
+			// i.e., AssrtDataTypeVar not allowed (should be "encoded")
+				throw new AssrtCoreSyntaxException(pe.getSource(), "[assrt-core] Non- datatype kind payload not supported: " + pe);
 			}
-			else if (pe instanceof AssrtAnnotDataTypeElem)
-			{
-				return ((AssrtAnnotDataTypeElem) pe).toPayloadType();
-			}
-			else
-			{
-				UnaryPayloadElem<?> upe = (UnaryPayloadElem<?>) pe;
-				PayloadElemType<?> type = upe.toPayloadType();
-				if (!type.isDataType())
-				{
-					// i.e., AssrtDataTypeVar not allowed (should be "encoded")
-					throw new AssrtCoreSyntaxException(upe.getSource(), "[assrt-core] Non- data type kind payload not supported: " + upe);
-				}
-				/*AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
-				return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, (DataTypeNode) upe.name);  // null source OK?*/
-				return new AssrtAnnotDataType(new AssrtDataTypeVar("_x" + nextVarIndex()), ((DataTypeNode) upe.name).toName());
-			}
+			adt = new AssrtAnnotDataType(new AssrtDataTypeVar("_x" + nextVarIndex()), (DataType) pet);
 		}
+		String type = adt.data.toString();
+		if (!type.equals("int") && !type.endsWith(".int"))  // HACK FIXME (currently "int" for F#)
+		{
+			throw new AssrtCoreSyntaxException(pe.getSource(), "[assrt-core] Non- int type kind payload not supported: " + pe);
+		}
+		return adt;
 	}
 
 	private AssrtAssertion parseAssertion(GMessageTransfer gmt)
