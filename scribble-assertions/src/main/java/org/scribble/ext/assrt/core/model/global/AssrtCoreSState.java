@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.model.endpoint.AssrtEAccept;
 import org.scribble.ext.assrt.model.endpoint.AssrtEAction;
-import org.scribble.ext.assrt.model.endpoint.AssrtERequest;
 import org.scribble.ext.assrt.model.endpoint.AssrtEReceive;
+import org.scribble.ext.assrt.model.endpoint.AssrtERequest;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 import org.scribble.ext.assrt.parser.assertions.formula.AssrtFormulaFactory;
@@ -110,18 +110,31 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		);
 	}
 
-	// Includes orphan pending requests
+	// Includes orphan pending requests -- maybe shouldn't?  handled by synchronisation error?
 	public boolean isOrphanError(Map<Role, EState> E0)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
 				{
 					Role r1 = e.getKey();
+					EState s = e.getValue();
 					return
-							   isInactive(e.getValue(), E0.get(r1).id)
-							&& (this.P.keySet().stream().anyMatch(r2 -> hasMessage(r1, r2) || isPendingRequest(r2, r1)));  // N.B. pending request *to* inactive r1
-								//|| !this.owned.get(e.getKey()).isEmpty()  
+							   isInactive(s, E0.get(r1).id)
+							&& (this.P.keySet().stream().anyMatch(r2 -> 
+									   hasMessage(r1, r2)
+									 
+									// FIXME: factor out as "pending request reception error"? -- actually, already checked as synchronisation error?
+									|| (  isPendingRequest(r2, r1)  // N.B. pending request *to* inactive r1 
+											 
+									   // Otherwise all initial request messages considered as bad
+									   && s.getActions().stream()
+											   .map(a -> ((AssrtERequest) a.toDual(r1)).toTrueAssertion())
+											   .noneMatch(a -> a.equals(((AssrtCoreEPendingRequest) this.Q.get(r1).get(r2)).getMessage()))  
+													 
+									   )
+								 ));  
+								////|| !this.owned.get(e.getKey()).isEmpty()  
 								
-										// FIXME: need AnnotEConnect to consume owned properly
+					// FIXME: need AnnotEConnect to consume owned properly
 				}
 			);
 	}
@@ -794,8 +807,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	
 	private static boolean isInactive(EState s, int init)
 	{
-		//return s.isTerminal() || (s.id == init && s.getStateKind() == EStateKind.ACCEPT);
-		return s.isTerminal();
+		return s.isTerminal() || (s.id == init && s.getStateKind() == EStateKind.ACCEPT);
 				// s.isTerminal means non-empty actions (i.e., edges) -- i.e., non-end (cf., fireable)
 	}
 	
