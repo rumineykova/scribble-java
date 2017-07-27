@@ -21,9 +21,9 @@ import org.scribble.ast.MessageNode;
 import org.scribble.ast.local.LNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.ScribDel;
-import org.scribble.sesstype.kind.Global;
-import org.scribble.sesstype.kind.RoleKind;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.kind.Global;
+import org.scribble.type.kind.RoleKind;
+import org.scribble.type.name.Role;
 
 public class GConnect extends ConnectionAction<Global> implements GSimpleInteractionNode
 {

@@ -33,9 +33,9 @@ import org.scribble.ext.assrt.del.local.AssrtLProtocolBlockDel;
 import org.scribble.ext.assrt.del.local.AssrtLReceiveDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
-import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
-import org.scribble.sesstype.kind.Kind;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.kind.AssrtVarNameKind;
+import org.scribble.type.kind.Kind;
 
 
 // FIXME: separate modified-del-only from new categories

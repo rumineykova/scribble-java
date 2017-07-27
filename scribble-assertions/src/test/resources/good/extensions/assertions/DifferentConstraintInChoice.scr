@@ -1,7 +1,7 @@
 module good.extensions.assertions.DifferentConstraintInChoice;
 
 
-type <java> "java.lang.Integer" from "rt.jar" as Int;
+type <java> "java.lang.integer" from "rt.jar" as int;
 
 
 // Using different constraints in choice
@@ -9,10 +9,10 @@ global protocol Prot(role A, role B)
 {
 	choice at A {
 	//[x<10]
-	MSG1(x:Int) from A to B;  @(x < 10);
+	MSG1(x:int) from A to B;  @(x < 10);
 	
 	} or {
 	//[y>10]
-	MSG2(y:Int) from A to B;  @(y > 10);
+	MSG2(y:int) from A to B;  @(y > 10);
 	}
 }

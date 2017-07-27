@@ -1,17 +1,17 @@
 package org.scribble.ext.assrt.model.endpoint;
 
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
-import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.sesstype.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.model.global.SModelFactory;
-import org.scribble.sesstype.Payload;
-import org.scribble.sesstype.name.MessageId;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.Payload;
+import org.scribble.type.name.MessageId;
+import org.scribble.type.name.Role;
 
 // FIXME: treating assertion as String -- assertion currently has no equals/hashCode itself
-public class AssrtESend extends ESend
+public class AssrtESend extends ESend implements AssrtEAction
 {
 	//public final AssrtAssertion assertion;  // Cf., e.g., ALSend
 	public final AssrtBoolFormula ass;  // Not null -- empty set to True by parsing
@@ -21,9 +21,15 @@ public class AssrtESend extends ESend
 		super(ef, peer, mid, payload);
 		this.ass = assertion;
 	}
+	
+	@Override
+	public AssrtBoolFormula getAssertion()
+	{
+		return this.ass;
+	}
 
-	// Change assertion to True
-	public AssrtESend toESendTrue()  // FIXME HACK: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
+	// HACK: replace assertion by True
+	public AssrtESend toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
 	{
 		return ((AssrtEModelFactory) this.ef).newAssrtESend(this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE);
 	}

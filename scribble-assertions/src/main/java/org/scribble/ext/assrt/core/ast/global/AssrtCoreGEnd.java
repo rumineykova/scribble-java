@@ -6,8 +6,9 @@ import java.util.List;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
-import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
-import org.scribble.sesstype.name.Role;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
+import org.scribble.type.name.Role;
 
 
 public class AssrtCoreGEnd extends AssrtCoreEnd implements AssrtCoreGType
@@ -26,7 +27,7 @@ public class AssrtCoreGEnd extends AssrtCoreEnd implements AssrtCoreGType
 	}
 
 	@Override
-	public AssrtCoreLEnd project(AssrtCoreAstFactory af, Role subj)
+	public AssrtCoreLEnd project(AssrtCoreAstFactory af, Role r, AssrtBoolFormula f)
 	{
 		return af.AssrtCoreLEnd();
 	}

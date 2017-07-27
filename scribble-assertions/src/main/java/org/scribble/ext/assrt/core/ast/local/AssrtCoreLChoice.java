@@ -4,8 +4,8 @@ import java.util.Map;
 
 import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreChoice;
-import org.scribble.sesstype.kind.Local;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.kind.Local;
+import org.scribble.type.name.Role;
 
 public class AssrtCoreLChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCoreLType, Local> implements AssrtCoreLType
 {

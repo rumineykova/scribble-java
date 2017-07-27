@@ -1,8 +1,8 @@
 package org.scribble.ext.assrt.core.ast;
 
-import org.scribble.ext.assrt.ast.AssrtAssertion;
-import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
-import org.scribble.sesstype.name.Op;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
+import org.scribble.type.name.Op;
 
 
 public //abstract
@@ -11,9 +11,9 @@ class AssrtCoreAction
 	public final Op op;
 	//public final AssrtAnnotDataTypeElem<DataTypeKind> pay;
 	public final AssrtAnnotDataType pay;
-	public final AssrtAssertion ass;  // cnf?  Set?  // Not null -- empty ass set to True by AssrtCoreGProtocolDeclTranslator
+	public final AssrtBoolFormula ass;  // cnf?  Set?  // Not null -- empty ass set to True by AssrtCoreGProtocolDeclTranslator
 	
-	public AssrtCoreAction(Op op, AssrtAnnotDataType pay, AssrtAssertion ass)
+	public AssrtCoreAction(Op op, AssrtAnnotDataType pay, AssrtBoolFormula ass)
 	//public AssrtCoreAction(OpNode op, AssrtAnnotDataTypeElem<DataTypeKind> pay, AssrtAssertion ass)
 	{
 		this.op = op;

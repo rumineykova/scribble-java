@@ -6,10 +6,10 @@ import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.PayloadElemNameNode;
 import org.scribble.ast.name.simple.SimpleNameNode;
-import org.scribble.ext.assrt.sesstype.kind.AssrtVarNameKind;
-import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
-import org.scribble.sesstype.Arg;
-import org.scribble.sesstype.kind.NonRoleArgKind;
+import org.scribble.ext.assrt.type.kind.AssrtVarNameKind;
+import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
+import org.scribble.type.Arg;
+import org.scribble.type.kind.NonRoleArgKind;
 
 // N.B. used both directly as a PayloadElemNameNode and for the annotation in AssrtAnnotDataTypeElem
 public class AssrtVarNameNode extends SimpleNameNode<AssrtVarNameKind> implements PayloadElemNameNode<AssrtVarNameKind>

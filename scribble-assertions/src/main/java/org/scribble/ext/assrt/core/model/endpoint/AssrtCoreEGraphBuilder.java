@@ -18,9 +18,9 @@ import org.scribble.model.endpoint.EGraphBuilderUtil;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.sesstype.Payload;
-import org.scribble.sesstype.name.RecVar;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.Payload;
+import org.scribble.type.name.RecVar;
+import org.scribble.type.name.Role;
 
 public class AssrtCoreEGraphBuilder
 {
@@ -87,33 +87,31 @@ public class AssrtCoreEGraphBuilder
 		{
 			//AssrtCoreLSend ls = (AssrtCoreLSend) a;
 			//return this.util.ef.newESend(r, a.op, new Payload(Arrays.asList(a.pay)));  // FIXME: assertion model actions
-			return ef.newAssrtESend(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass.getFormula());
+			return ef.newAssrtESend(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
 		}
 		else if (k.equals(AssrtCoreLActionKind.RECEIVE))
 		{
 			//AssrtCoreLReceive lr = (AssrtCoreLReceive) a;
-			return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass.getFormula());
+			return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
 
 			// FIXME: local receive assertions -- why needed exactly?  should WF imply receive assertion always true?
 
 		}
-		/*else if (a instanceof AssrtCoreLConnect)
+		else if (k.equals(AssrtCoreLActionKind.REQUEST))
 		{
-			AssrtCoreLConnect lc = (AssrtCoreLConnect) a;
-			return this.util.ef.newEConnect(a.peer, lc.op, lc.pay);
+			return ef.newAssrtERequest(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
 		}
-		else if (a instanceof AssrtCoreLAccept)
+		else if (k.equals(AssrtCoreLActionKind.ACCEPT))
 		{
-			AssrtCoreLAccept la = (AssrtCoreLAccept) a;
-			return this.util.ef.newEAccept(a.peer, la.op, la.pay);
+			return ef.newAssrtEAccept(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
 		}
-		else if (a instanceof AssrtCoreLDisconnect)
+		/*else if (a instanceof AssrtCoreLDisconnect)
 		{
 			return this.util.ef.newEDisconnect(a.peer);
 		}*/
 		else
 		{
-			throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
+			throw new RuntimeException("[assrt-core] Shouldn't get in here: " + k);
 		}
 	}
 }

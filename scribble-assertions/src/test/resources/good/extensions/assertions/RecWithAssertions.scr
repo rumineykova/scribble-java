@@ -1,7 +1,7 @@
 module good.extensions.assertions.RecWithAssertions;
 
 
-type <java> "java.lang.Integer" from "rt.jar" as Int;
+type <java> "java.lang.integer" from "rt.jar" as int;
 
 
 
@@ -10,11 +10,11 @@ global protocol Proto1(role A, role B)
 rec Loop {
 	choice at A {
 	//[x<10]
-	MSG1(x:Int) from A to B;  @(x < 10);
+	MSG1(x:int) from A to B;  @(x < 10);
 	
 	} or {
 	//[y>10]
-	MSG2(y:Int) from A to B;  @(y > 10);
+	MSG2(y:int) from A to B;  @(y > 10);
 	continue Loop; 
 	}
 }

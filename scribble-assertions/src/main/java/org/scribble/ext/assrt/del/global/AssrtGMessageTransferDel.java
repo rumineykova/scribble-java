@@ -8,14 +8,14 @@ import org.scribble.ast.PayloadElem;
 import org.scribble.ast.ScribNode;
 import org.scribble.del.global.GMessageTransferDel;
 import org.scribble.ext.assrt.del.AssrtScribDel;
-import org.scribble.ext.assrt.sesstype.name.AssrtPayloadElemType;
-import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.type.name.AssrtPayloadElemType;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
 import org.scribble.ext.assrt.visit.wf.env.AssrtAnnotationEnv;
 import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.name.PayloadElemType;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.name.PayloadElemType;
+import org.scribble.type.name.Role;
 
 public class AssrtGMessageTransferDel extends GMessageTransferDel implements AssrtScribDel
 {

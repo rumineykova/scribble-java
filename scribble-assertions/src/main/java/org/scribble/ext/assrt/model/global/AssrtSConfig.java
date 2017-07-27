@@ -11,24 +11,23 @@ import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.model.endpoint.AssrtEReceive;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
-import org.scribble.ext.assrt.sesstype.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.sesstype.formula.AssrtLogFormula;
-import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.sesstype.name.AssrtPayloadElemType;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtLogFormula;
+import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.type.name.AssrtPayloadElemType;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.scribble.model.endpoint.EFSM;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.model.endpoint.actions.EDisconnect;
 import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.model.global.SBuffers;
 import org.scribble.model.global.SConfig;
 import org.scribble.model.global.SModelFactory;
-import org.scribble.sesstype.kind.PayloadTypeKind;
-import org.scribble.sesstype.name.PayloadElemType;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.kind.PayloadTypeKind;
+import org.scribble.type.name.PayloadElemType;
+import org.scribble.type.name.Role;
 
 // FIXME: equals/hashCode
 // FIXME: override getFireable to check send ass implies recv ass
@@ -76,11 +75,10 @@ public class AssrtSConfig extends SConfig
 			}*/
 			SBuffers tmp2 = 
 						//a.isSend()       ? this.buffs.send(r, (ESend) a)
-					
-						a.isSend()       ? this.buffs.send(r, ((AssrtESend) a).toESendTrue())  // FIXME HACK 
+						a.isSend()       ? this.buffs.send(r, ((AssrtESend) a).toTrueAssertion())  // HACK FIXME: project receive assertion properly and check implication 
 					
 					: a.isReceive()    ? this.buffs.receive(r, (EReceive) a)
-					: a.isDisconnect() ? this.buffs.disconnect(r, (EDisconnect) a)
+					//: a.isDisconnect() ? this.buffs.disconnect(r, (EDisconnect) a)
 					: null;
 			if (tmp2 == null)
 			{
@@ -94,7 +92,7 @@ public class AssrtSConfig extends SConfig
 			}
 			else if (a.isReceive()) 
 			{
-				assertion = ((AssrtEReceive) a).bf;
+				assertion = ((AssrtEReceive) a).ass;
 			}
 			else
 			{

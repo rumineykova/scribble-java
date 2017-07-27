@@ -1,15 +1,15 @@
 module good.extensions.assertions.ComplexMessageFlow;
 
 
-type <java> "java.lang.Integer" from "rt.jar" as Int;
+type <java> "java.lang.integer" from "rt.jar" as int;
 
 
 // Check the message flow
 global protocol Prot1(role A, role B, role C, role D)
 {	
-	MSG1(x:Int, y:Int) from A to B;  @(x > 10);
+	MSG1(x:int, y:int) from A to B;  @(x > 10);
 	
 	MSG1(x, y) from B to C;
 	
-	MSG1(z:Int) from C to D;  @(z < x);
+	MSG1(z:int) from C to D;  @(z < x);
 }

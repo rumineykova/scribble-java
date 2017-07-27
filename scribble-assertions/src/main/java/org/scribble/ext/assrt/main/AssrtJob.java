@@ -10,7 +10,7 @@ import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.global.SModelFactory;
-import org.scribble.sesstype.name.ModuleName;
+import org.scribble.type.name.ModuleName;
 import org.scribble.visit.ProtocolDefInliner;
 import org.scribble.visit.context.ModuleContextBuilder;
 import org.scribble.visit.context.ProtocolDeclContextBuilder;

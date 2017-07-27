@@ -11,7 +11,7 @@ import java.util.Set;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.model.global.SModelFactory;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.name.Role;
 
 
 // Duplicated from F17LTSBuilder
@@ -54,7 +54,7 @@ public class AssrtCoreSModelBuilder
 				{
 					// cf. SState.getNextStates
 					final AssrtCoreSState tmp;
-					if (a.isSend() || a.isReceive())// || a.isDisconnect())
+					if (a.isSend() || a.isReceive() || a.isRequest() || a.isAccept())// || a.isDisconnect())
 					{
 						tmp = curr.fire(self, a);
 					}

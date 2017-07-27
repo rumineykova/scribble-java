@@ -1,7 +1,7 @@
 package org.scribble.ext.assrt.core.ast.local;
 
 import org.scribble.ext.assrt.core.ast.AssrtCoreRecVar;
-import org.scribble.sesstype.name.RecVar;
+import org.scribble.type.name.RecVar;
 
 	
 // FIXME: hashCode/equals

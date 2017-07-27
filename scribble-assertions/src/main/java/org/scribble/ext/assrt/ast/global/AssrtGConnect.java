@@ -12,8 +12,8 @@ import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.main.ScribbleException;
-import org.scribble.sesstype.kind.Global;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.kind.Global;
+import org.scribble.type.name.Role;
 import org.scribble.visit.AstVisitor;
 
 public class AssrtGConnect extends GConnect

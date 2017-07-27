@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.scribble.model.endpoint.actions.ESend;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.name.Role;
 
 public class AssrtCoreProgressErrors
 {

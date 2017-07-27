@@ -1,20 +1,20 @@
 module bad.extensions.annotations.ChoiceOutOfScopeVar2;
 
 
-type <java> "java.lang.Integer" from "rt.jar" as Int;
+type <java> "java.lang.integer" from "rt.jar" as int;
 
 // assert-core version of bad.extensions.annotations.ChoiceOutOfScopeVar
 global protocol Proto1(role A, role B, role C)
 {
 rec Loop {
 	choice at A {
-		ADD(x:Int) from A to B;  
-		ADD(z:Int) from B to C;
-		RES(z2:Int) from A to C; @(z2 = z);  // CHECKME: unexpected model/sat check output
+		ADD(x:int) from A to B;  
+		ADD(z:int) from B to C;
+		RES(z2:int) from A to C; @(z2 = z);  // CHECKME: unexpected model/sat check output
 	} or {
-		RES(y:Int) from A to B;
-		RES(z1:Int) from B to C; 
-		//RES(z3:Int) from A to C;  @(z3 = z2);
+		RES(y:int) from A to B;
+		RES(z1:int) from B to C; 
+		//RES(z3:int) from A to C;  @(z3 = z2);
 		continue Loop;
 		}
 	}

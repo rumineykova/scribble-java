@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.sesstype.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
-import org.scribble.sesstype.name.Role;
+import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
+import org.scribble.type.name.Role;
 import org.scribble.visit.env.Env;
 
 // FIXME: check and refactor syntactic checks with AssrtNameDisambiguator

@@ -24,15 +24,16 @@ import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelBuilder;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSafetyErrors;
 import org.scribble.ext.assrt.main.AssrtException;
 import org.scribble.ext.assrt.main.AssrtMainContext;
-import org.scribble.ext.assrt.sesstype.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.main.resource.DirectoryResourceLocator;
 import org.scribble.main.resource.ResourceLocator;
 import org.scribble.model.endpoint.EGraph;
 import org.scribble.model.endpoint.EState;
-import org.scribble.sesstype.name.GProtocolName;
-import org.scribble.sesstype.name.Role;
+import org.scribble.type.name.GProtocolName;
+import org.scribble.type.name.Role;
 import org.scribble.util.ScribParserException;
 import org.scribble.visit.context.RecRemover;
 
@@ -196,7 +197,7 @@ public class AssrtCommandLine extends CommandLine
 		Map<Role, AssrtCoreLType> P0 = new HashMap<>();
 		for (Role r : gpd.header.roledecls.getRoles())
 		{
-			AssrtCoreLType lt = gt.project(af, r);
+			AssrtCoreLType lt = gt.project(af, r, AssrtTrueFormula.TRUE);
 			P0.put(r, lt);
 
 			job.debugPrintln("\n[assrt-core] Projected onto " + r + ":\n  " + lt);
