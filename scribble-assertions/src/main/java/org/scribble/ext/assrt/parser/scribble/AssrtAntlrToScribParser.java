@@ -14,10 +14,12 @@ import org.scribble.util.ScribParserException;
 
 public class AssrtAntlrToScribParser extends AntlrToScribParser
 {
-	// FIXME: refactor pattern (cf. AntlrConstants) -- cannot extend existing node type enum though
+	// FIXME: refactor constants following ScribbleAntlrConstants/AntlrToScribParserUtil? -- cannot extend existing node type enum though
+	public static final String ASSRT_ANNOTPAYLOADELEM_NODE_TYPE = "ASSRT_ANNOTPAYLOADELEM";
+
+	public static final String ASSRT_GLOBALPROTOCOLHEADER_NODE_TYPE = "ASSRT_GLOBALPROTOCOLHEADER";    
 	public static final String ASSRT_GLOBALMESSAGETRANSFER_NODE_TYPE = "ASSRT_GLOBALMESSAGETRANSFER";
 	public static final String ASSRT_GLOBALCONNECT_NODE_TYPE = "ASSRT_GLOBALCONNECT";
-	public static final String ASSRT_ANNOTPAYLOADELEM_NODE_TYPE = "ASSRT_ANNOTPAYLOADELEM";
 	
 	public final AssrtAntlrToFormulaParser ap = AssrtAntlrToFormulaParser.getInstance();
 
@@ -40,6 +42,7 @@ public class AssrtAntlrToScribParser extends AntlrToScribParser
 			case ScribbleAntlrConstants.PAYLOAD_NODE_TYPE:      return AssrtAntlrPayloadElemList.parsePayloadElemList(this, ct, aaf);
 			
 			// N.B. AssrtScribble.g parses this as a separate syntactic category than GLOBALMESSAGETRANSFER (cf. PAYLOAD)
+			case ASSRT_GLOBALPROTOCOLHEADER_NODE_TYPE:  return ..HERE..
 			case ASSRT_GLOBALMESSAGETRANSFER_NODE_TYPE: return AssrtAntlrGMessageTransfer.parseAssrtGMessageTransfer(this, ct, aaf);
 			case ASSRT_GLOBALCONNECT_NODE_TYPE:         return AssrtAntlrGConnect.parseAssrtGConnect(this, ct, aaf);
 

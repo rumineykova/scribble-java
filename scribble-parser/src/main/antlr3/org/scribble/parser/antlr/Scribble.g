@@ -518,27 +518,27 @@ protocoldecl:
  * Section 3.7 Global Protocol Declarations
  */
 globalprotocoldecl:
-	  globalprotocolheader globalprotocoldefinition
+	globalprotocolheader globalprotocoldefinition
 	->
-	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition )
+	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition)
 |
-	 globalprotocoldeclmodifiers globalprotocolheader globalprotocoldefinition  // HACK (implicit MP connection backwards compat)
-	 ->
-	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition globalprotocoldeclmodifiers )
+	globalprotocoldeclmodifiers globalprotocolheader globalprotocoldefinition  // HACK: backwards compat for "implicit" connections 
+	->
+	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition globalprotocoldeclmodifiers)
 ;
 	
 globalprotocoldeclmodifiers:
 	AUX_KW EXPLICIT_KW 
 	->
-	^( GLOBALPROTOCOLDECLMODS AUX_KW EXPLICIT_KW )
+	^(GLOBALPROTOCOLDECLMODS AUX_KW EXPLICIT_KW)
 |
 	EXPLICIT_KW
 	->
-	^( GLOBALPROTOCOLDECLMODS EXPLICIT_KW )
+	^(GLOBALPROTOCOLDECLMODS EXPLICIT_KW)
 |
 	AUX_KW
 	->
-	^( GLOBALPROTOCOLDECLMODS AUX_KW )
+	^(GLOBALPROTOCOLDECLMODS AUX_KW)
 ;
 
 globalprotocolheader:
@@ -585,7 +585,7 @@ parameterdecl:
  */
 globalprotocoldefinition:
 	globalprotocolblock
-->
+	->
 	^(GLOBALPROTOCOLDEF globalprotocolblock)
 ;
 

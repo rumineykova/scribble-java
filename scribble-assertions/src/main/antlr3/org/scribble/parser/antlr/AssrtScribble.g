@@ -165,12 +165,17 @@ tokens
 	LOCALRECEIVE = 'local-receive';*/
 
 
-	//ASSRT_EMPTY_ASSERTION = '__empty_assertion';
+	// "Node type" constants -- but not parsed "directly" by AntlrToScribParser
 
+	ASSRT_ANNOTPAYLOADELEM = 'ASSRT_ANNOTPAYLOADELEM'; 
+
+	// Parsed "directly" by AntlrToScribParser
+
+	//ASSRT_EMPTY_ASSERTION = '__empty_assertion';
 	//ASSERTION = 'global-assertion'; 
-	ASSRT_ANNOTPAYLOADELEM = 'annot-payload-elem'; 
-	ASSRT_GLOBALMESSAGETRANSFER = 'global-message-transfer-with-assertion';   // May be an empty (true) assertion -- null AST
-	ASSRT_GLOBALCONNECT = 'global-connect-with-assertion';   // May be an empty (true) assertion -- null AST
+	ASSRT_GLOBALPROTOCOLHEADER = 'ASSRT_GLOBALPROTOCOLHEADER';     // May be an empty assertion -- null AST
+	ASSRT_GLOBALMESSAGETRANSFER = 'ASSRT_GLOBALMESSAGETRANSFER';   // May be an empty assertion -- null AST
+	ASSRT_GLOBALCONNECT = 'ASSRT_GLOBALCONNECT';                   // May be an empty assertion -- null AST
 }
 
 
@@ -486,27 +491,27 @@ protocoldecl:
  * Section 3.7 Global Protocol Declarations
  */
 globalprotocoldecl:
-	  globalprotocolheader globalprotocoldefinition
+	globalprotocolheader globalprotocoldefinition
 	->
-	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition )
+	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition)
 |
-	 globalprotocoldeclmodifiers globalprotocolheader globalprotocoldefinition  // HACK (implicit MP connection backwards compat)
-	 ->
-	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition globalprotocoldeclmodifiers )
+	globalprotocoldeclmodifiers globalprotocolheader globalprotocoldefinition  // HACK: backwards compat for "implicit" connections 
+	->
+	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition globalprotocoldeclmodifiers)
 ;
 	
 globalprotocoldeclmodifiers:
 	AUX_KW EXPLICIT_KW 
 	->
-	^( GLOBALPROTOCOLDECLMODS AUX_KW EXPLICIT_KW )
+	^(GLOBALPROTOCOLDECLMODS AUX_KW EXPLICIT_KW)
 |
 	EXPLICIT_KW
 	->
-	^( GLOBALPROTOCOLDECLMODS EXPLICIT_KW )
+	^(GLOBALPROTOCOLDECLMODS EXPLICIT_KW)
 |
 	AUX_KW
 	->
-	^( GLOBALPROTOCOLDECLMODS AUX_KW )
+	^(GLOBALPROTOCOLDECLMODS AUX_KW)
 ;
 
 globalprotocolheader:
@@ -521,7 +526,7 @@ globalprotocolheader:
 |
 	GLOBAL_KW PROTOCOL_KW simpleprotocolname roledecllist ASSRT_EXPR
 	->
-	^(GLOBALPROTOCOLHEADER simpleprotocolname ^(PARAMETERDECLLIST) roledecllist ASSRT_EXPR)
+	^(ASSRT_GLOBALPROTOCOLHEADER simpleprotocolname ^(PARAMETERDECLLIST) roledecllist ASSRT_EXPR)
 ;
 
 roledecllist:
@@ -558,7 +563,7 @@ parameterdecl:
  */
 globalprotocoldefinition:
 	globalprotocolblock
-->
+	->
 	^(GLOBALPROTOCOLDEF globalprotocolblock)
 ;
 
