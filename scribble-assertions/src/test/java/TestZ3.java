@@ -16,7 +16,7 @@ import org.sosy_lab.java_smt.api.SolverContext;
 import org.sosy_lab.java_smt.api.SolverContext.ProverOptions;
 import org.sosy_lab.java_smt.api.SolverException;
 
-public class Z3Test
+public class TestZ3
 {
 	public static void main(String[] args)
 			throws InvalidConfigurationException, SolverException, InterruptedException
