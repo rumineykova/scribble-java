@@ -3,6 +3,8 @@
 
 <!-- mvn [clean] install [-Dmaven.test.skip=true] [-Dlicense.skip] -->
 
+<!-- mvn install -DjavaSmtPath="C:\Users\rhu\.m2\repository\org\sosy-lab\java-smt\native\x86_64-windows" -->
+
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
