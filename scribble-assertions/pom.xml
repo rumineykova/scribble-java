@@ -1,23 +1,24 @@
 <?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>scribble-assertions</artifactId>
-  <name>scribble-assertions</name>
-  <url>http://maven.apache.org</url>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>scribble-assertions</artifactId>
+	<name>scribble-assertions</name>
+	<url>http://maven.apache.org</url>
 
-  <parent>
-    <groupId>org.scribble</groupId>
-    <artifactId>parent</artifactId>
-    <version>0.4.4-SNAPSHOT</version>
+	<parent>
+		<groupId>org.scribble</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.4.4-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
-  </parent>
+	</parent>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
-  <dependencies>
+	<dependencies>
 		<dependency>
 			<groupId>org.scribble</groupId>
 			<artifactId>scribble-core</artifactId>
@@ -35,38 +36,47 @@
 			<artifactId>scribble-test</artifactId>
 		</dependency>
 
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-  	<groupId>org.sosy-lab</groupId>
-  	<artifactId>java-smt</artifactId>
-  	<version>1.0.1</version>
-	</dependency>
-    <dependency>
-    	<groupId>org.antlr</groupId>
-    	<artifactId>antlr-runtime</artifactId>
-    </dependency>
-  </dependencies>
-  
+		<dependency>
+			<groupId>org.scribble</groupId>
+			<artifactId>scribble-test</artifactId>
+			<!-- FIXME: version? -->		
+			<version>0.4.4-SNAPSHOT</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sosy-lab</groupId>
+			<artifactId>java-smt</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr-runtime</artifactId>
+		</dependency>
+	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
-    				<groupId>org.antlr</groupId>
-    				<artifactId>antlr3-maven-plugin</artifactId>
-    				<version>${antlr.version}</version>
-		    		<executions>
-		        		<execution>
-		            			<goals>
-		                			<goal>antlr</goal>
-		            			</goals>
-		        		</execution>
-		    		</executions>
+				<groupId>org.antlr</groupId>
+				<artifactId>antlr3-maven-plugin</artifactId>
+				<version>${antlr.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>antlr</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
-						
-			<!-- "Overrides" parent pom settings -->	
+
+			<!-- "Overrides" parent pom settings -->
 			<plugin>
 				<groupId>com.mycila</groupId>
 				<artifactId>license-maven-plugin</artifactId>
@@ -85,6 +95,6 @@
 					</excludes>
 				</configuration>
 			</plugin>
-    </plugins>
+		</plugins>
 	</build>
 </project>
