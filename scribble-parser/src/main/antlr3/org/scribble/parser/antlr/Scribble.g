@@ -2,7 +2,7 @@
  * > scribble-java
  * $ java -cp scribble-parser/lib/antlr-3.5.2-complete.jar org.antlr.Tool -o scribble-parser/target/generated-sources/antlr3 scribble-parser/src/main/antlr3/org/scribble/parser/antlr/Scribble.g
  * 
- * Windows
+ * Cygwin/Windows
  * $ java -cp scribble-parser/lib/antlr-3.5.2-complete.jar org.antlr.Tool -o scribble-parser/target/generated-sources/antlr3/org/scribble/parser/antlr scribble-parser/src/main/antlr3/org/scribble/parser/antlr/Scribble.g
  * $ mv scribble-parser/target/generated-sources/antlr3/org/scribble/parser/antlr/Scribble.tokens scribble-parser/target/generated-sources/antlr3/
  */
@@ -26,6 +26,7 @@ tokens
 	/*
 	 * Parser input constants (lexer output; keywords, Section 2.4)
 	 */
+
 	MODULE_KW = 'module';
 	IMPORT_KW = 'import';
 	TYPE_KW = 'type';
@@ -73,8 +74,8 @@ tokens
 	 * field)
 	 */
 	
-
 	// Purely util constants -- not parsed as node types
+
 	KIND_MESSAGESIGNATURE = 'KIND_MESSAGESIGNATURE';
 	KIND_PAYLOADTYPE = 'KIND_PAYLOADTYPE';
 	

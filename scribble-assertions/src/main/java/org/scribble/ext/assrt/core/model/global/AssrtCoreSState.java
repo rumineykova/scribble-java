@@ -65,6 +65,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	// Cf. temporal satisfiability
 	private final Set<AssrtBoolFormula> F;  // FIXME: shouldn't be part of state?  i.e., shouldn't be used to ("syntactically") distinguish states?
 			// May be slightly more efficient to just record the big conjunction (rather than building it each time)
+	
+	// "Recursion variables" -- i.e., "state annotations" -- note can be used even without any continue
+	//private final Set<AssrtDataTypeVar, AssrtArithFormula> R;
 
 	public AssrtCoreSState(Map<Role, EState> P, boolean explicit)
 	{
