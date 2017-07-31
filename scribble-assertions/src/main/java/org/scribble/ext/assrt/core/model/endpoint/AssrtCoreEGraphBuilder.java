@@ -12,10 +12,10 @@ import org.scribble.ext.assrt.core.ast.local.AssrtCoreLChoice;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRec;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
+import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
+import org.scribble.main.Job;
 import org.scribble.model.endpoint.EGraph;
-import org.scribble.model.endpoint.EGraphBuilderUtil;
-import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.type.Payload;
@@ -24,16 +24,19 @@ import org.scribble.type.name.Role;
 
 public class AssrtCoreEGraphBuilder
 {
-	private final EGraphBuilderUtil util;
+	private final Job job;
+	private final AssrtEGraphBuilderUtil util;
 	
-	public AssrtCoreEGraphBuilder(EModelFactory ef)
+	public AssrtCoreEGraphBuilder(Job job)
 	{
-		this.util = new EGraphBuilderUtil(ef);
+		this.job = job;
+		this.util = (AssrtEGraphBuilderUtil) job.newEGraphBuilderUtil();
 	}
 	
 	public EGraph build(AssrtCoreLType lt)
 	{
-		this.util.reset();
+		//this.util.reset(((AssrtEModelFactory) this.job.ef).newAssrtEState(labs, vars));
+		this.util.init(((AssrtEModelFactory) this.job.ef).newEState(Collections.emptySet()));
 		build(lt, this.util.getEntry(), this.util.getExit(), new HashMap<>());
 		return this.util.finalise();
 	}

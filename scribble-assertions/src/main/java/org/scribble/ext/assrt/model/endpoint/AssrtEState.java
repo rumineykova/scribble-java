@@ -13,12 +13,16 @@
  */
 package org.scribble.ext.assrt.model.endpoint;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.model.MPrettyState;
 import org.scribble.model.MState;
 import org.scribble.model.endpoint.EState;
@@ -27,21 +31,30 @@ import org.scribble.type.name.RecVar;
 
 public class AssrtEState extends EState
 {
-	protected AssrtEState(Set<RecVar> labs)
+	private final Map<AssrtDataTypeVar, AssrtArithFormula> vars;
+
+	// FIXME: make AssrtIntTypeVar?
+	protected AssrtEState(Set<RecVar> labs, Map<AssrtDataTypeVar, AssrtArithFormula> vars)  // FIXME: currently syntactically restricted to one annot var
 	{
 		super(labs);
+		this.vars = Collections.unmodifiableMap(vars);
+	}
+	
+	public Map<AssrtDataTypeVar, AssrtArithFormula> getVars()
+	{
+		return this.vars;
 	}
 	
 	@Override
 	protected AssrtEState clone()
 	{
-		Set<EState> all = new HashSet<>();
+		Set<AssrtEState> all = new HashSet<>();
 		all.add(this);
-		all.addAll(MPrettyState.getReachableStates(this));
+		all.addAll(MPrettyState.getReachableStates(this).stream().map(x -> (AssrtEState) x).collect(Collectors.toSet()));
 		Map<Integer, AssrtEState> map = new HashMap<>();
-		for (EState s : all)
+		for (AssrtEState s : all)
 		{
-			map.put(s.id, new AssrtEState(s.getLabels()));  // FIXME: factor out with super -- use EGraphBuilderUtil?
+			map.put(s.id, new AssrtEState(s.getLabels(), s.getVars()));  // FIXME: factor out with super -- use EGraphBuilderUtil?
 		}
 		for (EState s : all)
 		{

@@ -98,6 +98,7 @@ public class Job
 	}
 	
 	// Scribble extensions should override these "new" methods
+	// FIXME: move to MainContext::newJob?
 	public EGraphBuilderUtil newEGraphBuilderUtil()
 	{
 		return new EGraphBuilderUtil(this.ef);

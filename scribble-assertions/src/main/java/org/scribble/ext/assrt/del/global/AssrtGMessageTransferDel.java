@@ -41,7 +41,7 @@ public class AssrtGMessageTransferDel extends GMessageTransferDel implements Ass
 		}
 		else
 		{
-			throw new RuntimeException("[scrib-assert] TODO: " + mt.msg);
+			throw new RuntimeException("[assrt] TODO: " + mt.msg);
 		}
 		
 		checker.pushEnv(env);

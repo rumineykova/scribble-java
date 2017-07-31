@@ -63,7 +63,7 @@ public class AssrtGConnectDel extends GConnectDel implements AssrtScribDel
 		}
 		else
 		{
-			throw new RuntimeException("[scrib-assert] TODO: " + ca.msg);
+			throw new RuntimeException("[assrt] TODO: " + ca.msg);
 		}
 		
 		checker.pushEnv(env);

@@ -33,7 +33,7 @@ public class AssrtMainContext extends MainContext
 					throws ScribParserException, ScribbleException
 	{
 		super(debug, locator, inline, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation);
-		throw new RuntimeException("[scrib-assert] Shouldn't get in here:\n" + inline);
+		throw new RuntimeException("[assrt] Shouldn't get in here:\n" + inline);
 	}
 
 	@Override

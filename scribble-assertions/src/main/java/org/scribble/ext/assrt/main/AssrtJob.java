@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.Module;
+import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
+import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
 import org.scribble.ext.assrt.visit.wf.AssrtNameDisambiguator;
 import org.scribble.main.Job;
@@ -25,6 +27,13 @@ public class AssrtJob extends Job
 			AstFactory af, EModelFactory ef, SModelFactory sf)
 	{
 		super(debug, parsed, main, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, af, ef, sf);
+	}
+	
+	// FIXME: move to MainContext::newJob?
+	@Override
+	public AssrtEGraphBuilderUtil newEGraphBuilderUtil()
+	{
+		return new AssrtEGraphBuilderUtil((AssrtEModelFactory) this.ef);
 	}
 	
 	@Override

@@ -42,7 +42,7 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 		LNode proj = super.project(af, self);
 		if (proj instanceof LInteractionSeq)  // From super, if self communication
 		{
-			throw new RuntimeException("[scrib-assert] Self-communication not supported: " + proj);
+			throw new RuntimeException("[assrt] Self-communication not supported: " + proj);
 		}
 		else if (proj instanceof LSend)
 		{
@@ -71,7 +71,7 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 	@Override
 	public AssrtGMessageTransfer reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests)
 	{
-		throw new RuntimeException("[scrib-assert] Shouldn't get in here: " + this);
+		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 
 	public AssrtGMessageTransfer reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion ass)

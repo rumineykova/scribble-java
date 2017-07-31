@@ -53,7 +53,7 @@ public class AssrtCommandLine extends CommandLine
 		if (this.args.containsKey(CLArgFlag.INLINE_MAIN_MOD))
 		{
 			// FIXME: should be fine
-			throw new RuntimeException("[scrib-assert] Inline modules not supported:\n" + this.args.get(CLArgFlag.INLINE_MAIN_MOD));
+			throw new RuntimeException("[assrt] Inline modules not supported:\n" + this.args.get(CLArgFlag.INLINE_MAIN_MOD));
 		}
 		// FIXME? Duplicated from core
 		if (!this.args.containsKey(CLArgFlag.MAIN_MOD))
@@ -203,7 +203,7 @@ public class AssrtCommandLine extends CommandLine
 			job.debugPrintln("\n[assrt-core] Projected onto " + r + ":\n  " + lt);
 		}
 
-		AssrtCoreEGraphBuilder builder = new AssrtCoreEGraphBuilder(job.ef);
+		AssrtCoreEGraphBuilder builder = new AssrtCoreEGraphBuilder(job);
 		Map<Role, EState> E0 = new HashMap<>();
 		for (Role r : P0.keySet())
 		{

@@ -6,6 +6,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.NonRoleParamDeclList;
+import org.scribble.ast.ProtocolDecl;
 import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GInteractionSeq;
@@ -14,6 +15,9 @@ import org.scribble.ast.global.GProtocolDef;
 import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.local.LInteractionSeq;
 import org.scribble.ast.local.LProtocolBlock;
+import org.scribble.ast.local.LProtocolDecl;
+import org.scribble.ast.local.LProtocolDef;
+import org.scribble.ast.local.LProtocolHeader;
 import org.scribble.ast.local.LReceive;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
@@ -36,6 +40,7 @@ import org.scribble.ext.assrt.del.global.AssrtGProtocolDefDel;
 import org.scribble.ext.assrt.del.global.AssrtGRecursionDel;
 import org.scribble.ext.assrt.del.local.AssrtLConnectDel;
 import org.scribble.ext.assrt.del.local.AssrtLProtocolBlockDel;
+import org.scribble.ext.assrt.del.local.AssrtLProtocolDeclDel;
 import org.scribble.ext.assrt.del.local.AssrtLReceiveDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
@@ -96,6 +101,14 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		AmbigNameNode ann = new AmbigNameNode(source, identifier); 
 		ann = (AmbigNameNode) ann.del(new AssrtAmbigNameNodeDel());
 		return ann;
+	}
+
+	@Override
+	public LProtocolDecl LProtocolDecl(CommonTree source, List<ProtocolDecl.Modifiers> modifiers, LProtocolHeader header, LProtocolDef def)
+	{
+		LProtocolDecl lpd = new LProtocolDecl(source, modifiers, header, def);
+		lpd = del(lpd, new AssrtLProtocolDeclDel());
+		return lpd;
 	}
 	
 	@Override

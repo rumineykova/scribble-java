@@ -33,7 +33,7 @@ public class AssrtGProtocolHeader extends GProtocolHeader
 {
 	public final AssrtAssertion ass;  // null if not specified -- currently duplicated from AssrtGMessageTransfer
 			// FIXME: ass.getFormula() is restricted by AssrtAntlrGProtocolHeader to a top-level "x = expr" (integer) equality expr, to stand for a var decl initialiser-expr
-			// FIXME: make a distinct category from interaction assertions
+			// FIXME: make a distinct category from interaction assertions -- and fix to int vars?
 
 	public AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
 	{
@@ -71,7 +71,7 @@ public class AssrtGProtocolHeader extends GProtocolHeader
 	@Override
 	public AssrtGProtocolHeader reconstruct(ProtocolNameNode<Global> name, RoleDeclList rdl, NonRoleParamDeclList pdl)
 	{
-		throw new RuntimeException("[scrib-assert] Shouldn't get in here: " + this);
+		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 
 	public AssrtGProtocolHeader reconstruct(ProtocolNameNode<Global> name, RoleDeclList rdl, NonRoleParamDeclList pdl, AssrtAssertion ass)

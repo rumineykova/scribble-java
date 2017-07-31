@@ -24,7 +24,7 @@ public class AssrtSModelFactoryImpl extends SModelFactoryImpl implements AssrtSM
 	@Override
 	public SConfig newSConfig(Map<Role, EFSM> state, SBuffers buffs)
 	{
-		throw new RuntimeException("[scrib-assert] Shouldn't get in here: ");
+		throw new RuntimeException("[assrt] Shouldn't get in here: ");
 	}
 
 	@Override

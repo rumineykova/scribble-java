@@ -16,6 +16,7 @@ package org.scribble.ext.assrt.model.endpoint;
 import java.util.Collections;
 
 import org.scribble.model.endpoint.EGraphBuilderUtil;
+import org.scribble.model.endpoint.EState;
 
 // Helper class for EGraphBuilder -- can access the protected setters of EState (via superclass helper methods)
 // Tailored to support graph building from syntactic local protocol choice and recursion
@@ -27,10 +28,10 @@ public class AssrtEGraphBuilderUtil extends EGraphBuilderUtil
 	}
 
 	@Override
-	public void reset()
+	public void init(EState init)
 	{
-		clear();
-		AssrtEModelFactory ef = (AssrtEModelFactory) this.ef;
-		init(ef.newAssrtEState(Collections.emptySet()), ef.newAssrtEState(Collections.emptySet()));
+		clear();  // Duplicated from super
+		reset(//(AssrtEState)
+				init, ((AssrtEModelFactory) this.ef).newAssrtEState(Collections.emptySet(), Collections.emptyMap()));
 	}
 }

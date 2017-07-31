@@ -55,8 +55,16 @@ public class EGraphBuilderUtil extends GraphBuilderUtil<RecVar, EAction, EState,
 	public EGraphBuilderUtil(EModelFactory ef)
 	{
 		this.ef = ef;
-		//clear();
-		reset();
+		////clear();
+		//reset();
+	}
+	
+	// N.B. must be called before every "new visit", including first
+	@Override
+	public void init(EState init)
+	{
+		clear();
+		reset(this.ef.newEState(Collections.emptySet()), this.ef.newEState(Collections.emptySet()));
 	}
 
 	protected void clear()
@@ -71,14 +79,6 @@ public class EGraphBuilderUtil extends GraphBuilderUtil<RecVar, EAction, EState,
 		this.prev.push(new LinkedList<>());
 		
 		this.enactingMap.clear();
-	}
-	
-	//@Override
-	public void reset()
-	{
-		clear();
-		//super.reset();
-		init(this.ef.newEState(Collections.emptySet()), this.ef.newEState(Collections.emptySet()));
 	}
 	
 	/*@Override
