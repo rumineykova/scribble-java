@@ -161,6 +161,7 @@ public class Job
 	{
 		runVisitorPassOnAllModules(Projector.class);
 		runProjectionContextBuildingPasses();
+		runProjectionUnfoldingPass();
 		if (!noAcceptCorrelationCheck)
 		{
 			runVisitorPassOnParsedModules(ExplicitCorrelationChecker.class);
@@ -182,6 +183,11 @@ public class Job
 		}
 		runVisitorPassOnProjectedModules(ProjectedRoleDeclFixer.class);  // Possibly could do after inlining, and do role collection on the inlined version
 		runVisitorPassOnProjectedModules(ProtocolDefInliner.class);
+	}
+
+	// Cf. runUnfoldingPass
+	protected void runProjectionUnfoldingPass() throws ScribbleException
+	{
 		runVisitorPassOnProjectedModules(InlinedProtocolUnfolder.class);
 	}
 

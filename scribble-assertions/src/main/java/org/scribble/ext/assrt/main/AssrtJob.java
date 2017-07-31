@@ -48,6 +48,18 @@ public class AssrtJob extends Job
 		runVisitorPassOnAllModules(RoleCollector.class);
 		runVisitorPassOnAllModules(ProtocolDefInliner.class);
 	}
+		
+	@Override
+	public void runUnfoldingPass() throws ScribbleException
+	{
+		//runVisitorPassOnAllModules(AssrtInlinedProtocolUnfolder.class);  // FIXME: skipping for now
+	}
+
+	@Override
+	protected void runProjectionUnfoldingPass() throws ScribbleException
+	{
+		//runVisitorPassOnProjectedModules(AssrtInlinedProtocolUnfolder.class);  // FIXME
+	}
 
 	@Override
 	public void runWellFormednessPasses() throws ScribbleException

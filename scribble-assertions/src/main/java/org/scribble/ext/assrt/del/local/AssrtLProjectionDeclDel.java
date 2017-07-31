@@ -1,16 +1,3 @@
-/**
- * Copyright 2008 The Scribble Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
 package org.scribble.ext.assrt.del.local;
 
 import java.util.Collections;
@@ -63,7 +50,7 @@ public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionD
 				occs.contains(rd.getDeclName())).collect(Collectors.toList());
 		RoleDeclList rdl = fixer.job.af.RoleDeclList(lpd.header.roledecls.getSource(), rds);
 		
-		AssrtLProtocolHeader tmp = (AssrtLProtocolHeader) lpd.getHeader();
+		AssrtLProtocolHeader tmp = (AssrtLProtocolHeader) lpd.getHeader();  // FIXME: make a LProtocolHeaderDel and factor out there? (would be less code duplication here)
 		LProtocolHeader hdr = tmp.reconstruct(tmp.getNameNode(), rdl, tmp.paramdecls, tmp.ass);
 		LProtocolDecl fixed = lpd.reconstruct(hdr, lpd.def);
 		
@@ -80,22 +67,16 @@ public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionD
 		LProjectionDecl lpd = (LProjectionDecl) child;
 		AssrtLProtocolHeader hdr = (AssrtLProtocolHeader) lpd.header;
 		
-		Map<AssrtDataTypeVar, AssrtArithFormula> foo = new HashMap<>();
+		Map<AssrtDataTypeVar, AssrtArithFormula> vars = new HashMap<>();
 		if (hdr.ass != null)
 		{
 			AssrtBinCompFormula bcf = hdr.getAnnotDataTypeVarInitDecl();
 			
-			foo.put(((AssrtIntVarFormula) bcf.left).toName(), (AssrtArithFormula) bcf.right);
+			vars.put(((AssrtIntVarFormula) bcf.left).toName(), (AssrtArithFormula) bcf.right);
 		}
 		
-		System.out.println("aaa: "+ ((AssrtEModelFactory) builder.job.ef).newAssrtEState(Collections.emptySet(), foo).toDot());
+		//..FIXME: add rec-annots to AssrtSConfig
 		
-		//..HERE FIXME: graph building uses inlined -- InlinedVisitor
-		
-		builder.util.init(((AssrtEModelFactory) builder.job.ef).newAssrtEState(Collections.emptySet(), 
-				//lpd.getHeader()));
-				//Collections.emptyMap()));
-				foo
-				));
+		builder.util.init(((AssrtEModelFactory) builder.job.ef).newAssrtEState(Collections.emptySet(), vars));
 	}
 }

@@ -28,6 +28,7 @@ import org.scribble.type.name.LProtocolName;
 import org.scribble.type.name.ModuleName;
 import org.scribble.type.name.Role;
 
+// Maybe make abstract with concrete parsed (LParsedDecl) and projected (LProjectionDecl) subclasses
 public class LProtocolDecl extends ProtocolDecl<Local> implements LNode
 {
 	public LProtocolDecl(CommonTree source, List<Modifiers> modifiers, LProtocolHeader header, LProtocolDef def)

@@ -368,8 +368,9 @@ public class EGraphBuilderUtil extends GraphBuilderUtil<RecVar, EAction, EState,
 	{
 		/*EState res = new EState(this.entry.getLabels());
 		EState resTerm = new EState(this.exit.getLabels());*/
-		EState res = this.ef.newEState(this.entry.getLabels());
-		EState resTerm = this.ef.newEState(this.exit.getLabels());
+		EState res = this.entry.cloneNode(this.ef, this.entry.getLabels()); //this.ef.newEState(this.entry.getLabels());
+		EState resTerm = this.exit.cloneNode(this.ef, this.exit.getLabels()); //this.ef.newEState(this.exit.getLabels());
+
 		Map<EState, EState> map = new HashMap<>();
 		map.put(this.entry, res);
 		map.put(this.exit, resTerm);
@@ -388,7 +389,7 @@ public class EGraphBuilderUtil extends GraphBuilderUtil<RecVar, EAction, EState,
 	}
 	
 	// FIXME: incomplete -- won't fully correctly handle situations involving, e.g., transitive continue-edge fixing?
-	private void fixContinueEdges(Set<EState> seen, Map<EState, EState> map, EState curr, EState res)
+	protected void fixContinueEdges(Set<EState> seen, Map<EState, EState> map, EState curr, EState res)
 	{
 		if (seen.contains(curr))
 		{

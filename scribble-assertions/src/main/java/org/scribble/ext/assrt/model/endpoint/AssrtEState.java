@@ -13,7 +13,7 @@
  */
 package org.scribble.ext.assrt.model.endpoint;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,7 +32,8 @@ public class AssrtEState extends EState
 	protected AssrtEState(Set<RecVar> labs, Map<AssrtDataTypeVar, AssrtArithFormula> vars)  // FIXME: currently syntactically restricted to one annot var
 	{
 		super(labs);
-		this.vars = Collections.unmodifiableMap(vars);
+		//this.vars = Collections.unmodifiableMap(vars);
+		this.vars = new HashMap<>(vars);
 	}
 	
 	@Override
@@ -44,6 +45,11 @@ public class AssrtEState extends EState
 	public Map<AssrtDataTypeVar, AssrtArithFormula> getVars()
 	{
 		return this.vars;
+	}
+
+	protected final void addAnnotVarInits(Map<AssrtDataTypeVar, AssrtArithFormula> vars)
+	{
+		this.vars.putAll(vars);
 	}
 
 	@Override

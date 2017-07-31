@@ -68,22 +68,20 @@ public class LDoDel extends DoDel implements LSimpleInteractionNodeDel
 	}
 	
 	@Override
-	public LDo
-			leaveProtocolInlining(ScribNode parent, ScribNode child, ProtocolDefInliner inl, ScribNode visited) throws ScribbleException
+	public LDo leaveProtocolInlining(ScribNode parent, ScribNode child, ProtocolDefInliner dinlr, ScribNode visited) throws ScribbleException
 	{
 		CommonTree blame = visited.getSource();  // Cf., LDoDel
-		SubprotocolSig subsig = inl.peekStack();
-		if (!inl.isCycle())
+		SubprotocolSig subsig = dinlr.peekStack();
+		if (!dinlr.isCycle())
 		{
-			RecVarNode recvar = (RecVarNode) inl.job.af.SimpleNameNode(blame, 
-					RecVarKind.KIND, inl.getSubprotocolRecVar(subsig).toString());
-			LInteractionSeq gis = (LInteractionSeq) (((InlineProtocolEnv) inl.peekEnv()).getTranslation());
-			LProtocolBlock gb = inl.job.af.LProtocolBlock(blame, gis);
-			LRecursion inlined = inl.job.af.LRecursion(blame, recvar, gb);
-			inl.pushEnv(inl.popEnv().setTranslation(inlined));
-			inl.removeSubprotocolRecVar(subsig);
+			RecVarNode recvar = (RecVarNode) dinlr.job.af.SimpleNameNode(blame, RecVarKind.KIND, dinlr.getSubprotocolRecVar(subsig).toString());
+			LInteractionSeq gis = (LInteractionSeq) (((InlineProtocolEnv) dinlr.peekEnv()).getTranslation());
+			LProtocolBlock gb = dinlr.job.af.LProtocolBlock(blame, gis);
+			LRecursion inlined = dinlr.job.af.LRecursion(blame, recvar, gb);
+			dinlr.pushEnv(dinlr.popEnv().setTranslation(inlined));
+			dinlr.removeSubprotocolRecVar(subsig);
 		}	
-		return (LDo) super.leaveProtocolInlining(parent, child, inl, visited);
+		return (LDo) super.leaveProtocolInlining(parent, child, dinlr, visited);
 	}
 
 	// Pre: this pass is only run on projections (LProjectionDeclDel has source global protocol info)

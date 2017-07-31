@@ -38,6 +38,8 @@ public class EState extends MPrettyState<RecVar, EAction, EState, Local>
 		super(labs);
 	}
 	
+	// To be overridden by subclasses, to obtain the subclass nodes
+  // FIXME: remove labs arg, and modify the underlying Set if needed?
 	protected EState cloneNode(EModelFactory ef, Set<RecVar> labs)
 	{
 		//return ef.newEState(this.labs);
@@ -221,7 +223,7 @@ public class EState extends MPrettyState<RecVar, EAction, EState, Local>
 			else
 			{
 				//map.put(s.id, newState(s.labs));
-				map.put(s.id, s.cloneNode(ef, Collections.emptySet()));
+				map.put(s.id, s.cloneNode(ef, Collections.emptySet()));  // FIXME: remove labs arg from cloneNode and just clear the lab set here?
 			}
 		}
 		for (EState s : all)

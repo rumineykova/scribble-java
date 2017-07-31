@@ -39,6 +39,8 @@ public class GChoice extends Choice<Global> implements GCompoundInteractionNode
 		super(source, subj, blocks);
 	}
 	
+	// Similar pattern to reconstruct
+	// Idea is, if extending the AST class (more fields), then reconstruct/project should also be extended (and called from extended del)
 	public LChoice project(AstFactory af, Role self, List<LProtocolBlock> blocks)
 	{
 		LChoice projection = null;  // Individual GlobalInteractionNodes become null if not projected -- projected seqs and blocks are never null though

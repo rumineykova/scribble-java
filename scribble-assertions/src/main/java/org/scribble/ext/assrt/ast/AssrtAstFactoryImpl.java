@@ -32,7 +32,9 @@ import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLConnect;
+import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
+import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
 import org.scribble.ext.assrt.del.AssrtAnnotDataTypeElemDel;
@@ -44,9 +46,12 @@ import org.scribble.ext.assrt.del.global.AssrtGProtocolDeclDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolDefDel;
 import org.scribble.ext.assrt.del.global.AssrtGRecursionDel;
 import org.scribble.ext.assrt.del.local.AssrtLConnectDel;
+import org.scribble.ext.assrt.del.local.AssrtLContinueDel;
 import org.scribble.ext.assrt.del.local.AssrtLProjectionDeclDel;
 import org.scribble.ext.assrt.del.local.AssrtLProtocolBlockDel;
+import org.scribble.ext.assrt.del.local.AssrtLProtocolDefDel;
 import org.scribble.ext.assrt.del.local.AssrtLReceiveDel;
+import org.scribble.ext.assrt.del.local.AssrtLRecursionDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
@@ -117,6 +122,15 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		lpd = del(lpd, new AssrtLProjectionDeclDel(fullname, self));
 		return lpd;
 	}
+
+	@Override
+	public LProtocolDef LProtocolDef(CommonTree source, LProtocolBlock block)
+	{
+		LProtocolDef lpd = new LProtocolDef(source, block);
+		lpd = del(lpd, new AssrtLProtocolDefDel());
+		return lpd;
+	}
+
 	
 	@Override
 	public LReceive LReceive(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
@@ -133,75 +147,6 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		lpb = del(lpb, new AssrtLProtocolBlockDel());
 		return lpb;
 	}
-	
-	
-	// Instantiating new node classes
-
-	@Override
-	public AssrtGProtocolHeader GProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
-	{
-		// Easier to make all global as AssrtGProtocolHeader, to avoid cast checks in, e.g., AssrtGProtocolDeclDel::leaveProjection, and so all projections will be Assrt kinds only
-		AssrtGProtocolHeader gpb = new AssrtGProtocolHeader(source, name, roledecls, paramdecls);
-		gpb = del(gpb, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
-		return gpb;
-	}
-
-	@Override
-	public AssrtGProtocolHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, AssrtAssertion ass)
-	{
-		AssrtGProtocolHeader gpb = new AssrtGProtocolHeader(source, name, roledecls, paramdecls, ass);
-		gpb = del(gpb, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
-		return gpb;
-	}
-
-	// Non-annotated message transfers still created as AssrtGMessageTransfer -- null assertion, but AssrtGMessageTransferDel is still needed (why?)
-	@Override
-	public AssrtGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
-	{
-		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests);
-		gmt = del(gmt, new AssrtGMessageTransferDel());
-		return gmt;
-	}
-
-	@Override
-	public AssrtGMessageTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
-	{
-		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests, assertion);
-		gmt = del(gmt, new AssrtGMessageTransferDel());
-		return gmt;
-	}
-
-	@Override 
-	public AssrtGConnect GConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest)  // Cf. AssrtAstFactoryImpl::GMessageTransfer
-	{
-		AssrtGConnect gc = new AssrtGConnect(source, src, msg, dest);
-		gc = del(gc, new AssrtGConnectDel());
-		return gc;
-	}
-
-	@Override
-	public AssrtGConnect AssrtGConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion assertion)
-	{
-		AssrtGConnect gc = new AssrtGConnect(source, src, msg, dest, assertion);
-		gc = del(gc, new AssrtGConnectDel());
-		return gc;
-	}
-
-	/*@Override
-	public AssrtLProtocolHeader LProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
-	{
-		AssrtLProtocolHeader lph = new AssrtLProtocolHeader(source, name, roledecls, paramdecls);
-		lph = del(lph, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
-		return lph;
-	}*/
-
-	@Override
-	public AssrtLProtocolHeader AssrtLProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, AssrtAssertion ass)
-	{
-		AssrtLProtocolHeader lph = new AssrtLProtocolHeader(source, name, roledecls, paramdecls, ass);
-		lph = del(lph, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
-		return lph;
-	}
 
 	/* // Cf. GMessageTransfer -- empty-annotation sends still created as AssrtLSend, with null assertion -- but AssrtLSendDel still needed
 	 * // No: not needed, because all globals made as Assrts, so projections are always Assrts
@@ -214,6 +159,83 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		return ls;
 	}*/
 
+	/*@Override
+	public AssrtLConnect LConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dests)
+	{
+		AssrtLConnect ls = new AssrtLConnect(source, src, msg, dests);
+		ls = del(ls, new AssrtLConnectDel());
+		return ls;
+	}*/
+	
+	
+	// Instantiating new node classes
+
+	
+	// Still used by parsing for empty annotation/assertion nodes -- but we return an Assrt node
+	// Easier to make all global as Assrt nodes, to avoid cast checks in, e.g., AssrtGProtocolDeclDel::leaveProjection (for GProtocolHeader), and so all projections will be Assrt kinds only
+
+	@Override
+	public AssrtGProtocolHeader GProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
+	{
+		// Alternative is to make parsing return all as AssrtGProtocolHeader directly
+		AssrtGProtocolHeader gpb = new AssrtGProtocolHeader(source, name, roledecls, paramdecls);
+		gpb = del(gpb, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
+		return gpb;
+	}
+
+	// Same pattern as for GProtocolHeader
+	// Non-annotated message transfers still created as AssrtGMessageTransfer -- null assertion, but AssrtGMessageTransferDel is still needed (why?)
+	@Override
+	public AssrtGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	{
+		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests);
+		gmt = del(gmt, new AssrtGMessageTransferDel());
+		return gmt;
+	}
+
+	@Override 
+	public AssrtGConnect GConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest)  // Cf. AssrtAstFactoryImpl::GMessageTransfer
+	{
+		AssrtGConnect gc = new AssrtGConnect(source, src, msg, dest);
+		gc = del(gc, new AssrtGConnectDel());
+		return gc;
+	}
+	
+
+	// Used by parsing for new Assrt nodes
+
+	@Override
+	public AssrtGProtocolHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, AssrtAssertion ass)
+	{
+		AssrtGProtocolHeader gpb = new AssrtGProtocolHeader(source, name, roledecls, paramdecls, ass);
+		gpb = del(gpb, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
+		return gpb;
+	}
+
+	@Override
+	public AssrtGMessageTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
+	{
+		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests, assertion);
+		gmt = del(gmt, new AssrtGMessageTransferDel());
+		return gmt;
+	}
+
+	@Override
+	public AssrtGConnect AssrtGConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion assertion)
+	{
+		AssrtGConnect gc = new AssrtGConnect(source, src, msg, dest, assertion);
+		gc = del(gc, new AssrtGConnectDel());
+		return gc;
+	}
+
+	@Override
+	public AssrtLProtocolHeader AssrtLProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, AssrtAssertion ass)
+	{
+		AssrtLProtocolHeader lph = new AssrtLProtocolHeader(source, name, roledecls, paramdecls, ass);
+		lph = del(lph, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
+		return lph;
+	}
+
 	@Override
 	public AssrtLSend AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
 	{
@@ -222,20 +244,28 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		return ls;
 	}
 
-	/*@Override
-	public AssrtLConnect LConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dests)
-	{
-		AssrtLConnect ls = new AssrtLConnect(source, src, msg, dests);
-		ls = del(ls, new AssrtLConnectDel());
-		return ls;
-	}*/
-
 	@Override
 	public AssrtLConnect AssrtLConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion ass)
 	{
 		AssrtLConnect ls = new AssrtLConnect(source, src, msg, dest, ass);
 		ls = del(ls, new AssrtLConnectDel());
 		return ls;
+	}
+
+	@Override
+	public AssrtLRecursion AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtocolBlock block, AssrtAssertion ass)
+	{
+		AssrtLRecursion lr = new AssrtLRecursion(source, recvar, block, ass);
+		lr = del(lr, new AssrtLRecursionDel());
+		return lr;
+	}
+
+	@Override
+	public AssrtLContinue AssrtLContinue(CommonTree source, RecVarNode recvar, AssrtAssertion ass)
+	{
+		AssrtLContinue lc = new AssrtLContinue(source, recvar, ass);
+		lc = del(lc, new AssrtLContinueDel());
+		return lc;
 	}
 	
 	// An "additional" category, does not "replace" an existing one -- cf. AssrtGMessageTransfer
@@ -257,6 +287,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		return node; 
 	}
 	
+
 	@Override
 	public <K extends Kind> NameNode<K> SimpleNameNode(CommonTree source, K kind, String identifier)
 	{

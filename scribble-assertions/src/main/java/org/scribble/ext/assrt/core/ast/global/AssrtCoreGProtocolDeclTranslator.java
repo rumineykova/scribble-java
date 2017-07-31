@@ -46,10 +46,6 @@ import org.scribble.type.name.PayloadElemType;
 import org.scribble.type.name.RecVar;
 import org.scribble.type.name.Role;
 
-	
-//	.. rename connect to request
-//	.. refactor a GConnectinAction (cf. LConnectionAction)
-
 public class AssrtCoreGProtocolDeclTranslator
 {
 	public static final DataType UNIT_DATATYPE = new DataType("_Unit");  // FIXME: move

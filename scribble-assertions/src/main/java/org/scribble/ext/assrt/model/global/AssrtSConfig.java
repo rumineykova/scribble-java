@@ -29,18 +29,18 @@ import org.scribble.type.kind.PayloadTypeKind;
 import org.scribble.type.name.PayloadElemType;
 import org.scribble.type.name.Role;
 
-// FIXME: equals/hashCode
+// FIXME: equals/hashCode -- done?
 // FIXME: override getFireable to check send ass implies recv ass
 public class AssrtSConfig extends SConfig
 {
 	public final AssrtLogFormula formula;
-	public final Map<Role, Set<String>> variablesInScope; 
+	public final Map<Role, Set<String>> varsInScope; 
 	
-	protected AssrtSConfig(SModelFactory sf, Map<Role, EFSM> state, SBuffers buffs, AssrtLogFormula formula, Map<Role, Set<String>> variablesInScope)
+	protected AssrtSConfig(SModelFactory sf, Map<Role, EFSM> state, SBuffers buffs, AssrtLogFormula formula, Map<Role, Set<String>> varsInScope)
 	{
 		super(sf, state, buffs);
 		this.formula = formula; 
-		this.variablesInScope = Collections.unmodifiableMap(variablesInScope);
+		this.varsInScope = Collections.unmodifiableMap(varsInScope);
 	}
 	
 	// FIXME: factor out better with super?
@@ -119,7 +119,7 @@ public class AssrtSConfig extends SConfig
 			// maybe we require a copy this.formula here?
 			AssrtLogFormula nextFormula = newFormula == null ? this.formula : newFormula;
 
-			Map<Role, Set<String>> vars = new HashMap<Role, Set<String>>(this.variablesInScope);
+			Map<Role, Set<String>> vars = new HashMap<Role, Set<String>>(this.varsInScope);
 
 			if (a.isSend())
 			{
@@ -168,7 +168,7 @@ public class AssrtSConfig extends SConfig
 	{
 		AssrtSModelFactory sf = (AssrtSModelFactory) this.sf;
 		return super.sync(r1, a1, r2, a2).stream()  // Inefficient, but reduces code duplication
-				.map(c -> sf.newAssrtSConfig(c.efsms, c.buffs, this.formula, this.variablesInScope)).collect(Collectors.toList());
+				.map(c -> sf.newAssrtSConfig(c.efsms, c.buffs, this.formula, this.varsInScope)).collect(Collectors.toList());
 	}
 	
 	// For now we are checking that only the sender knows all variables. 
@@ -195,8 +195,8 @@ public class AssrtSConfig extends SConfig
 					{
 						Set<String> varNames = assertion.getVars().stream().map(v -> v.toString()).collect(Collectors.toSet());
 						varNames.removeAll(newVarNames); 
-						if ((!varNames.isEmpty()) && (!this.variablesInScope.containsKey(r) ||
-							 !this.variablesInScope.get(r).containsAll(varNames)))
+						if ((!varNames.isEmpty()) && (!this.varsInScope.containsKey(r) ||
+							 !this.varsInScope.get(r).containsAll(varNames)))
 							unknownVars.add(send); 
 					}
 				}

@@ -65,7 +65,7 @@ public class AssrtGProtocolDeclDel extends GProtocolDeclDel
 		RoleDeclList roledecls = gph.roledecls.project(af, self);
 		NonRoleParamDeclList paramdecls = gph.paramdecls.project(af, self);
 		AssrtAssertion ass = gph.ass;  // null for empty  // FIXME: project?
-		AssrtLProtocolHeader hdr = gph.project(af, self, pn, roledecls, paramdecls, ass);  // FIXME: make a header del and move there?
+		AssrtLProtocolHeader hdr = gph.project(af, self, pn, roledecls, paramdecls, ass);  // FIXME: make a header del and move there? -- and in the base clase, then don't need to override here, only the header
 		
 		LProtocolDef def = (LProtocolDef) ((ProjectionEnv) gpd.def.del().env()).getProjection();
 		LProtocolDecl lpd = gpd.project(af, root, self, hdr, def);  // FIXME: is root (always) the correct module? (wrt. LProjectionDeclDel?)
