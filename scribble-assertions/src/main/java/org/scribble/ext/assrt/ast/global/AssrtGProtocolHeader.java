@@ -20,13 +20,16 @@ import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.global.GProtocolHeader;
 import org.scribble.ast.name.qualified.GProtocolNameNode;
+import org.scribble.ast.name.qualified.LProtocolNameNode;
 import org.scribble.ast.name.qualified.ProtocolNameNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
+import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
 import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.kind.Global;
+import org.scribble.type.name.Role;
 import org.scribble.visit.AstVisitor;
 
 public class AssrtGProtocolHeader extends GProtocolHeader
@@ -49,7 +52,7 @@ public class AssrtGProtocolHeader extends GProtocolHeader
 	// FIXME: define restrictions directly in ANTLR grammar, and make a separate AST class for protocol header var init-decl annotations
 	public AssrtBinCompFormula getAnnotDataTypeVarInitDecl()  // Cf. AssrtAnnotDataTypeElem (no "initializer")
 	{
-		return (AssrtBinCompFormula) this.ass.getFormula();
+		return (this.ass == null) ? null : (AssrtBinCompFormula) this.ass.getFormula();
 	}
 
 	@Override
@@ -90,11 +93,25 @@ public class AssrtGProtocolHeader extends GProtocolHeader
 		AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
 		return reconstruct((GProtocolNameNode) this.name, rdl, pdl, ass);
 	}
+
+	// project method pattern is similar to reconstruct
+	@Override
+	public AssrtLProtocolHeader project(AstFactory af, Role self, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
+	{
+		//return ((AssrtAstFactory) af).AssrtLProtocolHeader(this.source, name, roledecls, paramdecls, null);
+		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
+	}
+
+	// FIXME: make a delegate and move there?
+	public AssrtLProtocolHeader project(AstFactory af, Role self, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, AssrtAssertion ass)
+	{
+		return ((AssrtAstFactory) af).AssrtLProtocolHeader(this.source, name, roledecls, paramdecls, ass);
+	}
 	
 	@Override
 	public String toString()
 	{
-		return super.toString() + " @" + this.ass;
+		return super.toString() + " " + this.ass;
 	}
 	
 	/*// FIXME: shouldn't be needed, but here due to Eclipse bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=436350

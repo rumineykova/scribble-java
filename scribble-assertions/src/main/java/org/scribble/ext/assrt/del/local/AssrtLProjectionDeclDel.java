@@ -11,8 +11,9 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.scribble.del.local;
+package org.scribble.ext.assrt.del.local;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,29 +23,29 @@ import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.local.LProtocolDecl;
 import org.scribble.ast.local.LProtocolHeader;
+import org.scribble.del.local.LProtocolDeclDel;
+import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
+import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.Role;
+import org.scribble.visit.context.EGraphBuilder;
 import org.scribble.visit.context.ProjectedRoleDeclFixer;
 
-public class LProjectionDeclDel extends LProtocolDeclDel
+public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionDeclDel
 {
-	// Maybe better to store in context, but more convenient to pass to here via factory (than infer in context building) -- could alternatively store in projected module
-	protected final GProtocolName fullname;
-	protected final Role self;  // Can be obtained from LProtocolHeader?
-
-	public LProjectionDeclDel(GProtocolName fullname, Role self)
+	public AssrtLProjectionDeclDel(GProtocolName fullname, Role self)
 	{
-		this.fullname = fullname;
-		this.self = self;
+		super(fullname, self);
 	}
 	
 	@Override
 	protected LProtocolDeclDel copy()
 	{
-		return new LProjectionDeclDel(this.fullname, this.self);
+		return new AssrtLProjectionDeclDel(this.fullname, this.self);
 	}
 
+	// Duplicated from super
 	@Override
 	public ScribNode leaveProjectedRoleDeclFixing(ScribNode parent, ScribNode child, ProjectedRoleDeclFixer fixer, ScribNode visited) throws ScribbleException
 	{
@@ -54,23 +55,23 @@ public class LProjectionDeclDel extends LProtocolDeclDel
 		List<RoleDecl> rds = lpd.header.roledecls.getDecls().stream().filter((rd) -> 
 				occs.contains(rd.getDeclName())).collect(Collectors.toList());
 		RoleDeclList rdl = fixer.job.af.RoleDeclList(lpd.header.roledecls.getSource(), rds);
-		LProtocolHeader tmp = lpd.getHeader();
-		LProtocolHeader hdr = tmp.reconstruct(tmp.getNameNode(), rdl, tmp.paramdecls);
+		
+		AssrtLProtocolHeader tmp = (AssrtLProtocolHeader) lpd.getHeader();
+		LProtocolHeader hdr = tmp.reconstruct(tmp.getNameNode(), rdl, tmp.paramdecls, tmp.ass);
 		LProtocolDecl fixed = lpd.reconstruct(hdr, lpd.def);
 		
 		fixer.job.debugPrintln("\n[DEBUG] Projected " + getSourceProtocol() + " for " + getSelfRole() + ":\n" + fixed);
 		
-		return super.leaveProjectedRoleDeclFixing(parent, child, fixer, fixed);
+		//return super.leaveProjectedRoleDeclFixing(parent, child, fixer, fixed);
+		return fixed;
 	}
-	
-	public GProtocolName getSourceProtocol()
+
+	@Override
+	public void enterEGraphBuilding(ScribNode parent, ScribNode child, EGraphBuilder builder)
 	{
-		return this.fullname;
-	}
-	
-	// Redundant with SelfRoleDecl in header
-	public Role getSelfRole()
-	{
-		return this.self;
+		LProtocolDecl lpd = (LProtocolDecl) child;
+		builder.util.init(((AssrtEModelFactory) builder.job.ef).newAssrtEState(Collections.emptySet(), 
+				//lpd.getHeader()));
+				Collections.emptyMap()));
 	}
 }

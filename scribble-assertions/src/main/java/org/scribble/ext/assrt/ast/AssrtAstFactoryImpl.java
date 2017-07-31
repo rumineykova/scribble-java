@@ -11,17 +11,20 @@ import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GInteractionSeq;
 import org.scribble.ast.global.GProtocolBlock;
+import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.ast.global.GProtocolDef;
+import org.scribble.ast.global.GProtocolHeader;
 import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.local.LInteractionSeq;
+import org.scribble.ast.local.LProjectionDecl;
 import org.scribble.ast.local.LProtocolBlock;
-import org.scribble.ast.local.LProtocolDecl;
 import org.scribble.ast.local.LProtocolDef;
 import org.scribble.ast.local.LProtocolHeader;
 import org.scribble.ast.local.LReceive;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ast.name.qualified.GProtocolNameNode;
+import org.scribble.ast.name.qualified.LProtocolNameNode;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
@@ -29,6 +32,7 @@ import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLConnect;
+import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
 import org.scribble.ext.assrt.del.AssrtAnnotDataTypeElemDel;
@@ -36,17 +40,20 @@ import org.scribble.ext.assrt.del.global.AssrtGChoiceDel;
 import org.scribble.ext.assrt.del.global.AssrtGConnectDel;
 import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
+import org.scribble.ext.assrt.del.global.AssrtGProtocolDeclDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolDefDel;
 import org.scribble.ext.assrt.del.global.AssrtGRecursionDel;
 import org.scribble.ext.assrt.del.local.AssrtLConnectDel;
+import org.scribble.ext.assrt.del.local.AssrtLProjectionDeclDel;
 import org.scribble.ext.assrt.del.local.AssrtLProtocolBlockDel;
-import org.scribble.ext.assrt.del.local.AssrtLProtocolDeclDel;
 import org.scribble.ext.assrt.del.local.AssrtLReceiveDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.kind.AssrtVarNameKind;
 import org.scribble.type.kind.Kind;
+import org.scribble.type.name.GProtocolName;
+import org.scribble.type.name.Role;
 
 
 // FIXME: separate modified-del-only from new categories
@@ -55,13 +62,13 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	
 	// Instantiating existing node classes with new dels
 
-	/*@Override
-	public AssrtGProtocolHeader GProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
+	@Override
+	public GProtocolDecl GProtocolDecl(CommonTree source, List<GProtocolDecl.Modifiers> mods, GProtocolHeader header, GProtocolDef def)
 	{
-		GProtocolHeader gpb = new GProtocolHeader(source, name, roledecls, paramdecls);
-		gpb = del(gpb, new AssrtGProtocolHeaderDel());
-		return gpb;
-	}*/
+		GProtocolDecl gpd = new GProtocolDecl(source, mods, header, def);
+		gpd = del(gpd, new AssrtGProtocolDeclDel());
+		return gpd;
+	}
 
 	@Override
 	public GProtocolDef GProtocolDef(CommonTree source, GProtocolBlock block)
@@ -104,10 +111,10 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public LProtocolDecl LProtocolDecl(CommonTree source, List<ProtocolDecl.Modifiers> modifiers, LProtocolHeader header, LProtocolDef def)
+	public LProjectionDecl LProjectionDecl(CommonTree source, List<ProtocolDecl.Modifiers> mods, GProtocolName fullname, Role self, LProtocolHeader header, LProtocolDef def)
 	{
-		LProtocolDecl lpd = new LProtocolDecl(source, modifiers, header, def);
-		lpd = del(lpd, new AssrtLProtocolDeclDel());
+		LProjectionDecl lpd = new LProjectionDecl(source, mods, header, def);
+		lpd = del(lpd, new AssrtLProjectionDeclDel(fullname, self));
 		return lpd;
 	}
 	
@@ -129,6 +136,15 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	
 	
 	// Instantiating new node classes
+
+	@Override
+	public AssrtGProtocolHeader GProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
+	{
+		// Easier to make all global as AssrtGProtocolHeader, to avoid cast checks in, e.g., AssrtGProtocolDeclDel::leaveProjection, and so all projections will be Assrt kinds only
+		AssrtGProtocolHeader gpb = new AssrtGProtocolHeader(source, name, roledecls, paramdecls);
+		gpb = del(gpb, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
+		return gpb;
+	}
 
 	@Override
 	public AssrtGProtocolHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, AssrtAssertion ass)
@@ -171,7 +187,24 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		return gc;
 	}
 
-	// Cf. GMessageTransfer -- empty-annotation sends still created as AssrtLSend, with null assertion -- but AssrtLSendDel still needed
+	/*@Override
+	public AssrtLProtocolHeader LProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
+	{
+		AssrtLProtocolHeader lph = new AssrtLProtocolHeader(source, name, roledecls, paramdecls);
+		lph = del(lph, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
+		return lph;
+	}*/
+
+	@Override
+	public AssrtLProtocolHeader AssrtLProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, AssrtAssertion ass)
+	{
+		AssrtLProtocolHeader lph = new AssrtLProtocolHeader(source, name, roledecls, paramdecls, ass);
+		lph = del(lph, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
+		return lph;
+	}
+
+	/* // Cf. GMessageTransfer -- empty-annotation sends still created as AssrtLSend, with null assertion -- but AssrtLSendDel still needed
+	 * // No: not needed, because all globals made as Assrts, so projections are always Assrts
 	@Override
 	public AssrtLSend LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
 	{
@@ -179,7 +212,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		AssrtLSend ls = new AssrtLSend(source, src, msg, dests);
 		ls = del(ls, new AssrtLSendDel());
 		return ls;
-	}
+	}*/
 
 	@Override
 	public AssrtLSend AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
@@ -189,13 +222,13 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		return ls;
 	}
 
-	@Override
+	/*@Override
 	public AssrtLConnect LConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dests)
 	{
 		AssrtLConnect ls = new AssrtLConnect(source, src, msg, dests);
 		ls = del(ls, new AssrtLConnectDel());
 		return ls;
-	}
+	}*/
 
 	@Override
 	public AssrtLConnect AssrtLConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion ass)

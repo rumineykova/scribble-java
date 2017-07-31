@@ -21,6 +21,7 @@ import org.scribble.del.local.LProtocolDeclDel;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.visit.context.EGraphBuilder;
 
+@Deprecated
 public class AssrtLProtocolDeclDel extends LProtocolDeclDel
 {
 	public AssrtLProtocolDeclDel()

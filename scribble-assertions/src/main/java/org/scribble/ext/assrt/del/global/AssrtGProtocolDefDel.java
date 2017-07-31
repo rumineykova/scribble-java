@@ -4,7 +4,6 @@ import java.util.Set;
 
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GProtocolDecl;
-import org.scribble.ast.global.GProtocolHeader;
 import org.scribble.del.ScribDelBase;
 import org.scribble.del.global.GProtocolDeclDel;
 import org.scribble.del.global.GProtocolDefDel;
@@ -44,9 +43,8 @@ public class AssrtGProtocolDefDel extends GProtocolDefDel implements AssrtScribD
 	{
 		AssrtScribDel.super.enterAnnotCheck(parent, child, checker);  // Unnecessary
 		
-		//AssrtGProtocolHeader hdr = (AssrtGProtocolHeader) visited;
-		GProtocolHeader hdr = ((GProtocolDecl) parent).getHeader();
-		if (!(hdr instanceof AssrtGProtocolHeader))  // FIXME:
+		AssrtGProtocolHeader hdr = (AssrtGProtocolHeader) ((GProtocolDecl) parent).getHeader();
+		if (hdr.ass == null)
 		{
 			//return hdr;
 			return;
@@ -88,8 +86,8 @@ public class AssrtGProtocolDefDel extends GProtocolDefDel implements AssrtScribD
 	@Override
 	public ScribNode leaveAnnotCheck(ScribNode parent, ScribNode child,  AssrtAnnotationChecker checker, ScribNode visited) throws ScribbleException
 	{
-		GProtocolHeader hdr = ((GProtocolDecl) parent).getHeader();
-		return (!(hdr instanceof AssrtGProtocolHeader))  // FIXME -- cf. enterAnnotCheck
+		AssrtGProtocolHeader hdr = (AssrtGProtocolHeader) ((GProtocolDecl) parent).getHeader();
+		return (hdr.ass == null)  // FIXME -- cf. enterAnnotCheck
 				? AssrtScribDel.super.leaveAnnotCheck(parent, child, checker, visited)
 				: ScribDelBase.popAndSetVisitorEnv(this, checker, visited);  // N.B.: doesn't call super -- cf. enter, which always calls super -- FIXME?
 	}
