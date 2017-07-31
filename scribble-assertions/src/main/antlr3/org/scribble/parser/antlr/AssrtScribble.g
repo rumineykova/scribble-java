@@ -526,8 +526,12 @@ globalprotocolheader:
 |
 	GLOBAL_KW PROTOCOL_KW simpleprotocolname roledecllist ASSRT_EXPR
 	->
-	^(ASSRT_GLOBALPROTOCOLHEADER simpleprotocolname ^(PARAMETERDECLLIST) roledecllist ASSRT_EXPR)
+	^(ASSRT_GLOBALPROTOCOLHEADER simpleprotocolname ^(PARAMETERDECLLIST) roledecllist { AssertionsParser.antlrParse($ASSRT_EXPR.text) })
 ;
+// Following same pattern as globalmessagetransfer: explicitly invoke AssertionsParser, and extra assertion element only for new category
+// -- later translation by AssrtAntlrToScribParser converts original nodes to empty-assertion new nodes
+// FIXME: should not be an ASSRT_EXPR -- should be just an (integer) var decl expr (which is not a bool expr)
+// e.g., x := 3
 
 roledecllist:
 	'(' roledecl (',' roledecl)* ')'

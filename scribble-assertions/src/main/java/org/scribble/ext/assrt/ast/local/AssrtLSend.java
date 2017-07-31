@@ -80,7 +80,6 @@ public class AssrtLSend extends LSend
 		return 
 				/*  this.msg + " " + Constants.TO_KW + " "
 				+ getDestinations().stream().map(dest -> dest.toString()).collect(Collectors.joining(", "))*/
-				super.toString()
-				+ "; @" + this.ass + ";";
+				super.toString() + " " + this.ass;
 	}
 }

@@ -1,18 +1,15 @@
 package org.scribble.ext.assrt.del.global;
 
+import java.util.Arrays;
+
 import org.scribble.ast.ConnectionAction;
 import org.scribble.ast.MessageSigNode;
-import org.scribble.ast.PayloadElem;
 import org.scribble.ast.ScribNode;
 import org.scribble.del.global.GConnectDel;
 import org.scribble.ext.assrt.del.AssrtScribDel;
-import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.type.name.AssrtPayloadElemType;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
 import org.scribble.ext.assrt.visit.wf.env.AssrtAnnotationEnv;
 import org.scribble.main.ScribbleException;
-import org.scribble.type.name.PayloadElemType;
 import org.scribble.type.name.Role;
 
 public class AssrtGConnectDel extends GConnectDel implements AssrtScribDel
@@ -34,7 +31,9 @@ public class AssrtGConnectDel extends GConnectDel implements AssrtScribDel
 			Role src = ca.src.toName();
 			Role dest = ca.dest.toName();   
 			
-			for (PayloadElem<?> pe : ((MessageSigNode) ca.msg).payloads.getElements())
+			env = AssrtGMessageTransferDel.leaveAnnotCheckForAssrtAssertion(env, src, (MessageSigNode) ca.msg, Arrays.asList(dest));
+			
+			/*for (PayloadElem<?> pe : ((MessageSigNode) ca.msg).payloads.getElements())
 			{
 				PayloadElemType<?> peType = pe.toPayloadType(); 
 				if (peType instanceof AssrtPayloadElemType<?>)
@@ -60,7 +59,7 @@ public class AssrtGConnectDel extends GConnectDel implements AssrtScribDel
 						env = env.addDataTypeVarName(dest, v);
 					}
 				}
-			}
+			}*/
 		}
 		else
 		{

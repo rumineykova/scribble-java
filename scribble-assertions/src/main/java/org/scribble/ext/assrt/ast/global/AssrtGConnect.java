@@ -87,6 +87,6 @@ public class AssrtGConnect extends GConnect
 	@Override
 	public String toString()
 	{
-		return super.toString() + " @" + this.ass + ";";
+		return super.toString() + " " + this.ass;
 	}
 }

@@ -23,7 +23,7 @@ import org.scribble.visit.AstVisitor;
 public class AssrtGMessageTransfer extends GMessageTransfer
 {
 	public final AssrtAssertion ass;  // null if not specified -- should be the "true" formula in principle, but not syntactically
-			// Duplicated in ALSend -- could factour out to in Del, but need to consider immutable pattern
+			// Duplicated in, e.g., ALSend -- could factour out to in Del, but need to consider immutable pattern
 
 	public AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
 	{
@@ -98,7 +98,6 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 		return
 				/*  this.msg + " " + Constants.FROM_KW + " " + this.src + " " + Constants.TO_KW + " "
 				+ getDestinations().stream().map(dest -> dest.toString()).collect(Collectors.joining(", "))*/
-				super.toString()
-				+ " @" + this.ass + ";";
+				super.toString() + " " + this.ass;
 	}
 }

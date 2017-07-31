@@ -5,20 +5,25 @@ import java.util.List;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.MessageNode;
+import org.scribble.ast.NonRoleParamDeclList;
+import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GInteractionSeq;
 import org.scribble.ast.global.GProtocolBlock;
+import org.scribble.ast.global.GProtocolDef;
 import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.local.LInteractionSeq;
 import org.scribble.ast.local.LProtocolBlock;
 import org.scribble.ast.local.LReceive;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
+import org.scribble.ast.name.qualified.GProtocolNameNode;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
+import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLConnect;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
@@ -27,6 +32,7 @@ import org.scribble.ext.assrt.del.global.AssrtGChoiceDel;
 import org.scribble.ext.assrt.del.global.AssrtGConnectDel;
 import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
+import org.scribble.ext.assrt.del.global.AssrtGProtocolDefDel;
 import org.scribble.ext.assrt.del.global.AssrtGRecursionDel;
 import org.scribble.ext.assrt.del.local.AssrtLConnectDel;
 import org.scribble.ext.assrt.del.local.AssrtLProtocolBlockDel;
@@ -43,6 +49,22 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 {
 	
 	// Instantiating existing node classes with new dels
+
+	/*@Override
+	public AssrtGProtocolHeader GProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
+	{
+		GProtocolHeader gpb = new GProtocolHeader(source, name, roledecls, paramdecls);
+		gpb = del(gpb, new AssrtGProtocolHeaderDel());
+		return gpb;
+	}*/
+
+	@Override
+	public GProtocolDef GProtocolDef(CommonTree source, GProtocolBlock block)
+	{
+		GProtocolDef gpd = new GProtocolDef(source, block);
+		gpd = del(gpd, new AssrtGProtocolDefDel());  // Uses header annot to do AssrtAnnotationChecker Def enter/exit
+		return gpd;
+	}
 	
 	@Override
 	public GProtocolBlock GProtocolBlock(CommonTree source, GInteractionSeq seq)
@@ -93,10 +115,17 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 	
 	
-	
 	// Instantiating new node classes
 
-	// Non-annotated message transfers still created as AssrtGMessageTransfer -- null assertion, but AssrtGMessageTransferDel is still needed
+	@Override
+	public AssrtGProtocolHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, AssrtAssertion ass)
+	{
+		AssrtGProtocolHeader gpb = new AssrtGProtocolHeader(source, name, roledecls, paramdecls, ass);
+		gpb = del(gpb, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
+		return gpb;
+	}
+
+	// Non-annotated message transfers still created as AssrtGMessageTransfer -- null assertion, but AssrtGMessageTransferDel is still needed (why?)
 	@Override
 	public AssrtGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
 	{

@@ -80,7 +80,6 @@ public class AssrtAssertion extends ScribNodeBase
 	@Override
 	public String toString()
 	{
-		//return this.toFormula().toString(); 
-		return this.formula.toString(); 
+		return "@" + this.formula.toString() + ";";  
 	}
 }

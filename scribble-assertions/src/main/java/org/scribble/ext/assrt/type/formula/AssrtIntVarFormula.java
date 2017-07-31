@@ -18,6 +18,12 @@ public class AssrtIntVarFormula extends AssrtArithFormula
 		this.name = name; 
 	}
 	
+	// i.e., to "type"
+	public AssrtDataTypeVar toName()
+	{
+		return new AssrtDataTypeVar(this.name);
+	}
+	
 	@Override
 	public String toString()
 	{
