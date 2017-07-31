@@ -14,19 +14,14 @@
 package org.scribble.ext.assrt.model.endpoint;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
-import org.scribble.model.MPrettyState;
 import org.scribble.model.MState;
+import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.EState;
-import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.type.name.RecVar;
 
 public class AssrtEState extends EState
@@ -40,35 +35,22 @@ public class AssrtEState extends EState
 		this.vars = Collections.unmodifiableMap(vars);
 	}
 	
+	@Override
+	protected AssrtEState cloneNode(EModelFactory ef, Set<RecVar> labs)
+	{
+		return ((AssrtEModelFactory) ef).newAssrtEState(labs, getVars());
+	}
+	
 	public Map<AssrtDataTypeVar, AssrtArithFormula> getVars()
 	{
 		return this.vars;
 	}
-	
+
 	@Override
-	protected AssrtEState clone()
+	protected String getNodeLabel()
 	{
-		Set<AssrtEState> all = new HashSet<>();
-		all.add(this);
-		all.addAll(MPrettyState.getReachableStates(this).stream().map(x -> (AssrtEState) x).collect(Collectors.toSet()));
-		Map<Integer, AssrtEState> map = new HashMap<>();
-		for (AssrtEState s : all)
-		{
-			map.put(s.id, new AssrtEState(s.getLabels(), s.getVars()));  // FIXME: factor out with super -- use EGraphBuilderUtil?
-		}
-		for (EState s : all)
-		{
-			Iterator<EAction> as = s.getAllActions().iterator();
-			Iterator<EState> ss = s.getAllSuccessors().iterator();
-			AssrtEState clone = map.get(s.id);
-			while (as.hasNext())
-			{
-				EAction a = as.next();
-				EState succ = ss.next();
-				clone.addEdge(a, map.get(succ.id));
-			}
-		}
-		return map.get(this.id);
+		String labs = this.labs.toString();
+		return "label=\"" + this.id + ": " + labs.substring(1, labs.length() - 1) + ", " + this.vars + "\"";  // FIXME: would be more convenient for this method to return only the label body
 	}
 	
 	@Override

@@ -36,7 +36,8 @@ public class AssrtCoreEGraphBuilder
 	public EGraph build(AssrtCoreLType lt)
 	{
 		//this.util.reset(((AssrtEModelFactory) this.job.ef).newAssrtEState(labs, vars));
-		this.util.init(((AssrtEModelFactory) this.job.ef).newEState(Collections.emptySet()));
+		this.util.init(((AssrtEModelFactory) this.job.ef).newEState(Collections.emptySet()));  // FIXME: assrt
+
 		build(lt, this.util.getEntry(), this.util.getExit(), new HashMap<>());
 		return this.util.finalise();
 	}
@@ -77,7 +78,8 @@ public class AssrtCoreEGraphBuilder
 		}
 		else
 		{
-			EState s = this.util.ef.newEState(Collections.emptySet());
+			EState s = this.util.ef.newEState(Collections.emptySet());  // FIXME: assrt
+
 			this.util.addEdge(s1, toEAction(r, k, a), s);
 			build(cont, s, s2, f);
 		}

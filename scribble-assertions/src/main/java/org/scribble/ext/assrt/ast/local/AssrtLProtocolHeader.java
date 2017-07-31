@@ -24,6 +24,7 @@ import org.scribble.ast.name.qualified.ProtocolNameNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
+import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.kind.Local;
 import org.scribble.visit.AstVisitor;
@@ -44,6 +45,14 @@ public class AssrtLProtocolHeader extends LProtocolHeader
 	{
 		super(source, name, roledecls, paramdecls);
 		this.ass = ass;
+	}
+	
+	// Duplicated from AssrtGProtocolHeader
+	// Pre: ass != null
+	public AssrtBinCompFormula getAnnotDataTypeVarInitDecl()
+	{
+		//return (this.ass == null) ? null : (AssrtBinCompFormula) this.ass.getFormula();
+		return (AssrtBinCompFormula) this.ass.getFormula();
 	}
 
 	@Override

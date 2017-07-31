@@ -50,9 +50,11 @@ public class AssrtGProtocolHeader extends GProtocolHeader
 	}
 	
 	// FIXME: define restrictions directly in ANTLR grammar, and make a separate AST class for protocol header var init-decl annotations
+	// Pre: ass != null
 	public AssrtBinCompFormula getAnnotDataTypeVarInitDecl()  // Cf. AssrtAnnotDataTypeElem (no "initializer")
 	{
-		return (this.ass == null) ? null : (AssrtBinCompFormula) this.ass.getFormula();
+		//return (this.ass == null) ? null : (AssrtBinCompFormula) this.ass.getFormula();
+		return (AssrtBinCompFormula) this.ass.getFormula();
 	}
 
 	@Override

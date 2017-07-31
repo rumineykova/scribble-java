@@ -220,7 +220,7 @@ public class JobContext
 		EGraph unfair = this.unfairEGraphs.get(fulllpn);
 		if (unfair == null)
 		{
-			unfair = getEGraph(fullname, role).init.unfairTransform().toGraph();
+			unfair = getEGraph(fullname, role).init.unfairTransform(this.job.ef).toGraph();
 			addUnfairEGraph(fulllpn, unfair);
 		}
 		return unfair;

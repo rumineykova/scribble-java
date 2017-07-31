@@ -14,18 +14,25 @@
 package org.scribble.ext.assrt.del.local;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ast.RoleDecl;
 import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.ScribNode;
+import org.scribble.ast.local.LProjectionDecl;
 import org.scribble.ast.local.LProtocolDecl;
 import org.scribble.ast.local.LProtocolHeader;
 import org.scribble.del.local.LProtocolDeclDel;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
+import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
+import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
+import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.Role;
@@ -69,9 +76,26 @@ public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionD
 	@Override
 	public void enterEGraphBuilding(ScribNode parent, ScribNode child, EGraphBuilder builder)
 	{
-		LProtocolDecl lpd = (LProtocolDecl) child;
+		//LProtocolDecl lpd = (LProtocolDecl) child;
+		LProjectionDecl lpd = (LProjectionDecl) child;
+		AssrtLProtocolHeader hdr = (AssrtLProtocolHeader) lpd.header;
+		
+		Map<AssrtDataTypeVar, AssrtArithFormula> foo = new HashMap<>();
+		if (hdr.ass != null)
+		{
+			AssrtBinCompFormula bcf = hdr.getAnnotDataTypeVarInitDecl();
+			
+			foo.put(((AssrtIntVarFormula) bcf.left).toName(), (AssrtArithFormula) bcf.right);
+		}
+		
+		System.out.println("aaa: "+ ((AssrtEModelFactory) builder.job.ef).newAssrtEState(Collections.emptySet(), foo).toDot());
+		
+		//..HERE FIXME: graph building uses inlined -- InlinedVisitor
+		
 		builder.util.init(((AssrtEModelFactory) builder.job.ef).newAssrtEState(Collections.emptySet(), 
 				//lpd.getHeader()));
-				Collections.emptyMap()));
+				//Collections.emptyMap()));
+				foo
+				));
 	}
 }

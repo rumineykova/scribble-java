@@ -52,7 +52,7 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl implements AssrtEM
 	// Override existing types
 	
 	@Override
-	public EState newEState(Set<RecVar> labs)  // Currently used in a couple more places than above "disabled" actions -- e.g., LInteractionSeqDel, to be uniform need to make an AssrtLInteractionSeqDel
+	public EState newEState(Set<RecVar> labs)  // Used in a more places than above "disabled" actions -- e.g., LInteractionSeqDel, to be uniform need to make an AssrtLInteractionSeqDel
 	{
 		return newAssrtEState(labs, Collections.emptyMap());
 	}

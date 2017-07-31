@@ -18,10 +18,10 @@ import org.scribble.visit.env.Env;
 public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 {
 	// "May" analysis -- context merge takes the union
-	public Map<Role, Set<AssrtAnnotDataType>> decls;  // Var declaration binding  // Role is the src role of the transfer -- not important?
+	private Map<Role, Set<AssrtAnnotDataType>> decls;  // Var declaration binding  // Role is the src role of the transfer -- not important?
 
 	// "Must" analysis -- context merge takes the intersection
-	public Map<Role, Set<AssrtDataTypeVar>> vars;  // "Knowledge" of var (according to message passing)
+	private Map<Role, Set<AssrtDataTypeVar>> vars;  // "Knowledge" of var (according to message passing)
 			// Redundant for assrt-core (validated on model, rather than syntactically), but still used by base assrt
 	
 	public AssrtAnnotationEnv()

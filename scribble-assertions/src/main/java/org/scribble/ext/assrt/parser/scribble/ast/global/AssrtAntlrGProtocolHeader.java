@@ -69,6 +69,7 @@ public class AssrtAntlrGProtocolHeader
 		{
 			throw new ScribParserException("[assrt] Protocol header annotation LHS must be an int variable, not: " + bcf.left);
 		}
+		// Above implies that bcf.right was parsed as arith expr
 		
 		return ass;
 	}
