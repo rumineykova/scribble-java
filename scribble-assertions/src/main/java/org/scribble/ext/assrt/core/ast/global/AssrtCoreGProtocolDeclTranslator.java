@@ -249,14 +249,14 @@ public class AssrtCoreGProtocolDeclTranslator
 			recvar = rvs.get(recvar);
 		}
 		AssrtArithFormula expr;
-		if (gc.ass == null)
+		if (gc.annot == null)
 		{
 			expr = AssrtFormulaFactory.AssrtIntVal(0);
 		}
 		else
 		{
 			//expr = (AssrtArithFormula) gc.ass.getFormula();
-			throw new RuntimeException("[assrt-core] TODO: " + gc.ass);
+			throw new RuntimeException("[assrt-core] TODO: " + gc.annot);
 		}
 		return this.af.AssrtCoreGRecVar(recvar, expr);
 	}

@@ -25,7 +25,7 @@ public class AssrtGContinueDel extends GContinueDel
 		RecVarNode recvar = (RecVarNode) ((InlineProtocolEnv) gc.recvar.del().env()).getTranslation();	
 
 		//GContinue inlined = inl.job.af.GContinue(gc.getSource(), recvar);
-		GContinue inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGContinue(gc.getSource(), recvar, gc.ass);
+		GContinue inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGContinue(gc.getSource(), recvar, gc.annot);
 
 		dinlr.pushEnv(dinlr.popEnv().setTranslation(inlined));
 		return (GContinue) super.leaveProtocolInlining(parent, child, dinlr, gc);
@@ -38,7 +38,7 @@ public class AssrtGContinueDel extends GContinueDel
 		AssrtGContinue gc = (AssrtGContinue) visited;
 
 		//LContinue lc = gc.project(proj.job.af, proj.peekSelf());
-		AssrtLContinue lc = gc.project(proj.job.af, proj.peekSelf(), gc.ass);
+		AssrtLContinue lc = gc.project(proj.job.af, proj.peekSelf(), gc.annot);
 
 		proj.pushEnv(proj.popEnv().setProjection(lc));
 

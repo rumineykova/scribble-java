@@ -5,8 +5,10 @@ import java.util.List;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.MessageNode;
+import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.NonRoleParamDeclList;
 import org.scribble.ast.ProtocolDecl;
+import org.scribble.ast.RoleArgList;
 import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GInteractionSeq;
@@ -30,11 +32,14 @@ import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
+import org.scribble.ext.assrt.ast.global.AssrtGDo;
+import org.scribble.ext.assrt.ast.global.AssrtGDoDel;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLConnect;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
+import org.scribble.ext.assrt.ast.local.AssrtLDo;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
@@ -50,6 +55,7 @@ import org.scribble.ext.assrt.del.global.AssrtGProtocolDefDel;
 import org.scribble.ext.assrt.del.global.AssrtGRecursionDel;
 import org.scribble.ext.assrt.del.local.AssrtLConnectDel;
 import org.scribble.ext.assrt.del.local.AssrtLContinueDel;
+import org.scribble.ext.assrt.del.local.AssrtLDoDel;
 import org.scribble.ext.assrt.del.local.AssrtLProjectionDeclDel;
 import org.scribble.ext.assrt.del.local.AssrtLProtocolBlockDel;
 import org.scribble.ext.assrt.del.local.AssrtLProtocolDefDel;
@@ -57,6 +63,7 @@ import org.scribble.ext.assrt.del.local.AssrtLReceiveDel;
 import org.scribble.ext.assrt.del.local.AssrtLRecursionDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
+import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.kind.AssrtVarNameKind;
 import org.scribble.type.kind.Kind;
@@ -218,6 +225,14 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		gc = del(gc, new AssrtGContinueDel());
 		return gc;
 	}
+
+	@Override
+	public AssrtGDo GDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto)
+	{
+		AssrtGDo gd = new AssrtGDo(source, roleinstans, arginstans, proto);
+		gd = del(gd, new AssrtGDoDel());
+		return gd;
+	}
 	
 
 	// Explicitly creating new Assrt nodes
@@ -255,11 +270,19 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtGContinue AssrtGContinue(CommonTree source, RecVarNode recvar, AssrtAssertion ass)
+	public AssrtGContinue AssrtGContinue(CommonTree source, RecVarNode recvar, AssrtArithAnnotation annot)
 	{
-		AssrtGContinue gc = new AssrtGContinue(source, recvar, ass);
+		AssrtGContinue gc = new AssrtGContinue(source, recvar, annot);
 		gc = del(gc, new AssrtGContinueDel());
 		return gc;
+	}
+
+	@Override
+	public AssrtGDo AssrtGDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto, AssrtArithAnnotation annot)
+	{
+		AssrtGDo gd = new AssrtGDo(source, roleinstans, arginstans, proto);
+		gd = del(gd, new AssrtGDoDel());
+		return gd;
 	}
 
 	@Override
@@ -295,11 +318,19 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtLContinue AssrtLContinue(CommonTree source, RecVarNode recvar, AssrtAssertion ass)
+	public AssrtLContinue AssrtLContinue(CommonTree source, RecVarNode recvar, AssrtArithAnnotation annot)
 	{
-		AssrtLContinue lc = new AssrtLContinue(source, recvar, ass);
+		AssrtLContinue lc = new AssrtLContinue(source, recvar, annot);
 		lc = del(lc, new AssrtLContinueDel());
 		return lc;
+	}
+
+	@Override
+	public AssrtLDo AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto, AssrtArithAnnotation annot)
+	{
+		AssrtLDo gd = new AssrtLDo(source, roleinstans, arginstans, proto, annot);
+		gd = del(gd, new AssrtLDoDel());
+		return gd;
 	}
 	
 	// An "additional" category, does not "replace" an existing one -- cf. AssrtGMessageTransfer
@@ -312,17 +343,6 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	//public AssrtAssertionNode AssertionNode(CommonTree source, String assertion)
-	public AssrtAssertion AssrtAssertion(CommonTree source, AssrtBoolFormula f)
-	{
-		//AssrtAssertionNode node = new AssrtAssertionNode(source, assertion); 
-		AssrtAssertion node = new AssrtAssertion(source, f); 
-		node = del(node, createDefaultDelegate());
-		return node; 
-	}
-	
-
-	@Override
 	public <K extends Kind> NameNode<K> SimpleNameNode(CommonTree source, K kind, String identifier)
 	{
 		if (kind.equals(AssrtVarNameKind.KIND))
@@ -333,5 +353,24 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		}
 
 		return super.SimpleNameNode(source, kind, identifier);
+	}
+
+
+	@Override
+	//public AssrtAssertionNode AssertionNode(CommonTree source, String assertion)
+	public AssrtAssertion AssrtAssertion(CommonTree source, AssrtBoolFormula f)
+	{
+		//AssrtAssertionNode node = new AssrtAssertionNode(source, assertion); 
+		AssrtAssertion node = new AssrtAssertion(source, f); 
+		node = del(node, createDefaultDelegate());
+		return node; 
+	}
+
+	@Override
+	public AssrtArithAnnotation AssrtArithAnnotation(CommonTree source, AssrtArithFormula expr)
+	{
+		AssrtArithAnnotation node = new AssrtArithAnnotation(source, expr); 
+		node = del(node, createDefaultDelegate());
+		return node; 
 	}
 }

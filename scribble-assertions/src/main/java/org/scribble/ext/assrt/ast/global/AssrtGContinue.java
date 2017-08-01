@@ -7,7 +7,7 @@ import org.scribble.ast.global.GContinue;
 import org.scribble.ast.local.LContinue;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDel;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
+import org.scribble.ext.assrt.ast.AssrtArithAnnotation;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.main.ScribbleException;
@@ -17,17 +17,17 @@ import org.scribble.visit.AstVisitor;
 
 public class AssrtGContinue extends GContinue
 {
-	public final AssrtAssertion ass;  // cf. AssrtGDo  // FIXME: make specific syntactic expr
+	public final AssrtArithAnnotation annot;  // cf. AssrtGDo  // FIXME: make specific syntactic expr
 
 	public AssrtGContinue(CommonTree source, RecVarNode recvar)
 	{
 		this(source, recvar, null);
 	}
 
-	public AssrtGContinue(CommonTree source, RecVarNode recvar, AssrtAssertion ass)
+	public AssrtGContinue(CommonTree source, RecVarNode recvar, AssrtArithAnnotation annot)
 	{
 		super(source, recvar);
-		this.ass = ass;
+		this.annot = annot;
 	}
 
 	// Similar to reconstruct pattern
@@ -36,25 +36,25 @@ public class AssrtGContinue extends GContinue
 		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 
-	public AssrtLContinue project(AstFactory af, Role self, AssrtAssertion ass)
+	public AssrtLContinue project(AstFactory af, Role self, AssrtArithAnnotation annot)
 	{
 		RecVarNode recvar = (RecVarNode) af.SimpleNameNode(this.recvar.getSource(), RecVarKind.KIND, this.recvar.toName().toString());
-		AssrtLContinue projection = ((AssrtAstFactory) af).AssrtLContinue(this.source, recvar, ass);
+		AssrtLContinue projection = ((AssrtAstFactory) af).AssrtLContinue(this.source, recvar, annot);
 		return projection;
 	}
 
 	@Override
 	protected AssrtGContinue copy()
 	{
-		return new AssrtGContinue(this.source, this.recvar, this.ass);
+		return new AssrtGContinue(this.source, this.recvar, this.annot);
 	}
 	
 	@Override
 	public AssrtGContinue clone(AstFactory af)
 	{
 		RecVarNode rv = this.recvar.clone(af);
-		AssrtAssertion ass = (this.ass == null) ? null : this.ass.clone(af);
-		return ((AssrtAstFactory) af).AssrtGContinue(this.source, rv, ass);
+		AssrtArithAnnotation annot = (this.annot == null) ? null : this.annot.clone(af);
+		return ((AssrtAstFactory) af).AssrtGContinue(this.source, rv, annot);
 	}
 
 	@Override
@@ -63,10 +63,10 @@ public class AssrtGContinue extends GContinue
 		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 
-	public AssrtGContinue reconstruct(RecVarNode recvar, AssrtAssertion ass)
+	public AssrtGContinue reconstruct(RecVarNode recvar, AssrtArithAnnotation annot)
 	{
 		ScribDel del = del();
-		AssrtGContinue gc = new AssrtGContinue(this.source, recvar, ass);
+		AssrtGContinue gc = new AssrtGContinue(this.source, recvar, annot);
 		gc = (AssrtGContinue) gc.del(del);
 		return gc;
 	}
@@ -75,13 +75,13 @@ public class AssrtGContinue extends GContinue
 	public GContinue visitChildren(AstVisitor nv) throws ScribbleException
 	{
 		RecVarNode recvar = (RecVarNode) visitChild(this.recvar, nv);
-		AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
-		return reconstruct(recvar, ass);
+		AssrtArithAnnotation annot = (this.annot == null) ? null : (AssrtArithAnnotation) visitChild(this.annot, nv);  // FIXME: visit child with cast
+		return reconstruct(recvar, annot);
 	}
 
 	@Override
 	public String toString()
 	{
-		return Constants.CONTINUE_KW + " " + this.recvar + "; " + this.ass;
+		return Constants.CONTINUE_KW + " " + this.recvar + "; " + this.annot;
 	}
 }

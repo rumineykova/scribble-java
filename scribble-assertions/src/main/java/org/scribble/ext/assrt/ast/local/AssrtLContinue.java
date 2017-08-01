@@ -7,38 +7,38 @@ import org.scribble.ast.local.LContinue;
 import org.scribble.ast.local.LInteractionNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDel;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
+import org.scribble.ext.assrt.ast.AssrtArithAnnotation;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.main.ScribbleException;
 import org.scribble.visit.AstVisitor;
 
 public class AssrtLContinue extends LContinue
 {
-	public final AssrtAssertion ass;  // cf. AssrtGDo  // FIXME: make specific syntactic expr
+	public final AssrtArithAnnotation annot;  // cf. AssrtGDo  // FIXME: make specific syntactic expr
 	
 	public AssrtLContinue(CommonTree source, RecVarNode recvar)
 	{
 		this(source, recvar, null);
 	}
 
-	public AssrtLContinue(CommonTree source, RecVarNode recvar, AssrtAssertion ass)
+	public AssrtLContinue(CommonTree source, RecVarNode recvar, AssrtArithAnnotation annot)
 	{
 		super(source, recvar);
-		this.ass = ass;
+		this.annot = annot;
 	}
 
 	@Override
 	protected AssrtLContinue copy()
 	{
-		return new AssrtLContinue(this.source, this.recvar, this.ass);
+		return new AssrtLContinue(this.source, this.recvar, this.annot);
 	}
 	
 	@Override
 	public AssrtLContinue clone(AstFactory af)
 	{
 		RecVarNode rv = this.recvar.clone(af);
-		AssrtAssertion ass = (this.ass == null) ? null : this.ass.clone(af);
-		return ((AssrtAstFactory) af).AssrtLContinue(this.source, rv, ass);
+		AssrtArithAnnotation annot = (this.annot == null) ? null : this.annot.clone(af);
+		return ((AssrtAstFactory) af).AssrtLContinue(this.source, rv, annot);
 	}
 
 	@Override
@@ -47,10 +47,10 @@ public class AssrtLContinue extends LContinue
 		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 
-	public AssrtLContinue reconstruct(RecVarNode recvar, AssrtAssertion ass)
+	public AssrtLContinue reconstruct(RecVarNode recvar, AssrtArithAnnotation annot)
 	{
 		ScribDel del = del();
-		AssrtLContinue lc = new AssrtLContinue(this.source, recvar, ass);
+		AssrtLContinue lc = new AssrtLContinue(this.source, recvar, annot);
 		lc = (AssrtLContinue) lc.del(del);
 		return lc;
 	}
@@ -59,8 +59,8 @@ public class AssrtLContinue extends LContinue
 	public LContinue visitChildren(AstVisitor nv) throws ScribbleException
 	{
 		RecVarNode recvar = (RecVarNode) visitChild(this.recvar, nv);
-		AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
-		return reconstruct(recvar, ass);
+		AssrtArithAnnotation annot = (this.annot == null) ? null : (AssrtArithAnnotation) visitChild(this.annot, nv);
+		return reconstruct(recvar, annot);
 	}
 
 	// Duplicated from super
@@ -91,6 +91,6 @@ public class AssrtLContinue extends LContinue
 	@Override
 	public String toString()
 	{
-		return Constants.CONTINUE_KW + " " + this.recvar + "; " + this.ass;
+		return Constants.CONTINUE_KW + " " + this.recvar + "; " + this.annot;
 	}
 }
