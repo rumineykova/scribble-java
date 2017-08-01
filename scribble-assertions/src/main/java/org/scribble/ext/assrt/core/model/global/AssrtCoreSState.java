@@ -70,10 +70,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	
 	// "Recursion variables" -- i.e., "state annotations" -- note can be used even without any continue
 	//private final Map<AssrtDataTypeVar, AssrtArithFormula> R;  
-			// No: get from P? -- endpoint rec annots are "globally" consistent due to projection?
-			// No: need to collect up over execution
+			// Just get from P? -- no: need to collect up over execution
+			// Endpoint rec annots are "globally" consistent due to projection? -- but a subproto involving a subset of roles could update the rec annots only for those roles?
 	private final Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R;  
-
 
 	public AssrtCoreSState(Map<Role, AssrtEState> P, boolean explicit)
 	{
