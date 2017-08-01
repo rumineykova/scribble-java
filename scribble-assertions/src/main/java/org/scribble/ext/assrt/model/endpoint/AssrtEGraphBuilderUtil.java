@@ -29,7 +29,7 @@ public class AssrtEGraphBuilderUtil extends EGraphBuilderUtil
 	{
 		super(ef);
 	}
-
+	
 	@Override
 	public void init(EState init)
 	{
@@ -41,5 +41,17 @@ public class AssrtEGraphBuilderUtil extends EGraphBuilderUtil
 	public void addAnnotVarInits(Map<AssrtDataTypeVar, AssrtArithFormula> vars)
 	{
 		((AssrtEState) this.entry).addAnnotVarInits(vars);
+	}
+	
+	@Override
+	public AssrtEState getEntry()
+	{
+		return (AssrtEState) super.getEntry();
+	}
+	
+	@Override
+	public AssrtEState getExit()
+	{
+		return (AssrtEState) super.getExit();
 	}
 }

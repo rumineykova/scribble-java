@@ -40,7 +40,7 @@ global protocol Proto1(role A, role B) @(y=3);
 	2(str) from A to B;
 	3(x:int) from B to A; @(x=y);
 	
-	//do Proto1(A, B) @(y=4);
+	//do Proto1(A, B) @(4);
 }
 //*/
 

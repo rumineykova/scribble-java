@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreRecVar;
@@ -12,11 +14,11 @@ import org.scribble.ext.assrt.core.ast.local.AssrtCoreLChoice;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRec;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
+import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
-import org.scribble.main.Job;
+import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.model.endpoint.EGraph;
-import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.type.Payload;
 import org.scribble.type.name.RecVar;
@@ -24,10 +26,10 @@ import org.scribble.type.name.Role;
 
 public class AssrtCoreEGraphBuilder
 {
-	private final Job job;
+	private final AssrtJob job;
 	private final AssrtEGraphBuilderUtil util;
 	
-	public AssrtCoreEGraphBuilder(Job job)
+	public AssrtCoreEGraphBuilder(AssrtJob job)
 	{
 		this.job = job;
 		this.util = (AssrtEGraphBuilderUtil) job.newEGraphBuilderUtil();
@@ -35,14 +37,12 @@ public class AssrtCoreEGraphBuilder
 	
 	public EGraph build(AssrtCoreLType lt)
 	{
-		//this.util.reset(((AssrtEModelFactory) this.job.ef).newAssrtEState(labs, vars));
-		this.util.init(((AssrtEModelFactory) this.job.ef).newEState(Collections.emptySet()));  // FIXME: assrt
-
+		this.util.init(((AssrtEModelFactory) this.job.ef).newAssrtEState(Collections.emptySet(), new HashMap<>()));
 		build(lt, this.util.getEntry(), this.util.getExit(), new HashMap<>());
 		return this.util.finalise();
 	}
 	
-	private void build(AssrtCoreLType lt, EState s1, EState s2, Map<RecVar, EState> f)
+	private void build(AssrtCoreLType lt, AssrtEState s1, AssrtEState s2, Map<RecVar, AssrtEState> f)
 	{
 		if (lt instanceof AssrtCoreLChoice)
 		{
@@ -55,9 +55,8 @@ public class AssrtCoreEGraphBuilder
 		else if (lt instanceof AssrtCoreLRec)
 		{
 			AssrtCoreLRec lr = (AssrtCoreLRec) lt;
-			Map<RecVar, EState> tmp = new HashMap<>(f);
-			tmp.put(lr.recvar, s1);
-			build(lr.body, s1, s2, tmp);
+			this.util.addAnnotVarInits(Stream.of(lr.annot).collect(Collectors.toMap(a -> a, a -> lr.init)));
+			build(lr.body, s1, s2, Stream.of(lr.recvar).collect(Collectors.toMap(v -> v, v -> s1)));
 		}
 		else
 		{
@@ -65,7 +64,7 @@ public class AssrtCoreEGraphBuilder
 		}
 	}
 
-	private void buildEdgeAndContinuation(EState s1, EState s2, Map<RecVar, EState> f, 
+	private void buildEdgeAndContinuation(AssrtEState s1, AssrtEState s2, Map<RecVar, AssrtEState> f, 
 			Role r, AssrtCoreLActionKind k, AssrtCoreAction a, AssrtCoreLType cont)
 	{
 		if (cont instanceof AssrtCoreLEnd)
@@ -78,7 +77,7 @@ public class AssrtCoreEGraphBuilder
 		}
 		else
 		{
-			EState s = this.util.ef.newEState(Collections.emptySet());  // FIXME: assrt
+			AssrtEState s = (AssrtEState) this.util.ef.newEState(Collections.emptySet());  // FIXME: call Assrt directly?
 
 			this.util.addEdge(s1, toEAction(r, k, a), s);
 			build(cont, s, s2, f);

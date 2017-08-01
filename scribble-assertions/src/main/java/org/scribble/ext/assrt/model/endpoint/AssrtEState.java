@@ -47,6 +47,7 @@ public class AssrtEState extends EState
 		return this.vars;
 	}
 
+	// For public access, do via AssrtEGraphBuilderUtil
 	protected final void addAnnotVarInits(Map<AssrtDataTypeVar, AssrtArithFormula> vars)
 	{
 		this.vars.putAll(vars);
