@@ -8,16 +8,18 @@ import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
+import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.type.name.RecVar;
 import org.scribble.type.name.Role;
 
 public class AssrtCoreGRec extends AssrtCoreRec<AssrtCoreGType> implements AssrtCoreGType
 {
-	public AssrtCoreGRec(RecVar recvar, AssrtCoreGType body)
+	public AssrtCoreGRec(RecVar recvar, AssrtDataTypeVar annot, AssrtArithFormula init, AssrtCoreGType body)
 	{
-		super(recvar, body);
+		super(recvar, annot, init, body);
 	}
 
 	@Override
@@ -30,7 +32,7 @@ public class AssrtCoreGRec extends AssrtCoreRec<AssrtCoreGType> implements Assrt
 	public AssrtCoreLType project(AssrtCoreAstFactory af, Role r, AssrtBoolFormula f) throws AssrtCoreSyntaxException
 	{
 		AssrtCoreLType proj = this.body.project(af, r, f);
-		return (proj instanceof AssrtCoreLRecVar) ? AssrtCoreLEnd.END : af.AssrtCoreLRec(this.recvar, proj);
+		return (proj instanceof AssrtCoreLRecVar) ? AssrtCoreLEnd.END : af.AssrtCoreLRec(this.recvar, this.annot, this.init, proj);
 	}
 
 	@Override

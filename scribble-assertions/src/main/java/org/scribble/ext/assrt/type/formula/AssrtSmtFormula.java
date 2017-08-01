@@ -5,12 +5,12 @@ import java.util.Set;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.sosy_lab.java_smt.api.Formula;
 
-// FIXME: equals/hashCode? -- e.g., for AssrtESend/Receive?
+// FIXME: equals/hashCode? -- e.g., for AssrtESend/Receive? -- already done?
 // Formula is a "top-level" base class, cf. (Abstract)Name 
 public abstract class AssrtSmtFormula<F extends Formula>
 {
 	protected F formula;   // "Cached" translation to JavaSMT API -- apart from AssrtLogFormula, which is just a wrapper for JavaSMT 
-			// Mostly not use for equals/hashCode -- except for AssrtLogFormula (and has to be used via toString)
+			// Mostly not used for equals/hashCode -- except for AssrtLogFormula (and has to be used via toString)
 	
 	public abstract Set<AssrtDataTypeVar> getVars();
 

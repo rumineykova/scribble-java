@@ -6,6 +6,7 @@ import java.util.List;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreRecVar;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRecVar;
+import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.type.name.RecVar;
@@ -15,9 +16,9 @@ import org.scribble.type.name.Role;
 // FIXME: hashCode/equals
 public class AssrtCoreGRecVar extends AssrtCoreRecVar implements AssrtCoreGType
 {
-	public AssrtCoreGRecVar(RecVar var)
+	public AssrtCoreGRecVar(RecVar var, AssrtArithFormula expr)
 	{
-		super(var);
+		super(var, expr);
 	}
 
 	@Override
@@ -29,7 +30,7 @@ public class AssrtCoreGRecVar extends AssrtCoreRecVar implements AssrtCoreGType
 	@Override
 	public AssrtCoreLRecVar project(AssrtCoreAstFactory af, Role r, AssrtBoolFormula f)
 	{
-		return af.AssrtCoreLRecVar(this.var);
+		return af.AssrtCoreLRecVar(this.var, this.expr);
 	}
 
 	@Override
@@ -39,7 +40,7 @@ public class AssrtCoreGRecVar extends AssrtCoreRecVar implements AssrtCoreGType
 		{
 			return false;
 		}
-		return ((AssrtCoreGRecVar) obj).canEquals(this);
+		return super.equals(obj);  // Does canEquals
 	}
 
 	@Override

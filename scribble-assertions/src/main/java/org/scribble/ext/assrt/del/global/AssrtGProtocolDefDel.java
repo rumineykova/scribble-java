@@ -104,6 +104,7 @@ public class AssrtGProtocolDefDel extends GProtocolDefDel implements AssrtScribD
 			}
 		}
 		
+		// N.B. this is a "syntactic" check -- may not directly correspond to model validation, which can "unfold" to give "repeat decls"
 		AssrtDataTypeVar var = ((AssrtIntVarFormula) vid.left).toName();
 		if (env.isDataTypeVarBound(var))  // Root env is made on ProtocolDecl enter -- so header env is defined
 		{

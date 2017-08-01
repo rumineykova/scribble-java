@@ -11,9 +11,9 @@ public class AssrtFormulaFactory
 		return null;
 	}*/
 
-	public static AssrtIntValFormula AssrtIntVal(String text)
+	public static AssrtIntValFormula AssrtIntVal(int i)
 	{
-		return new AssrtIntValFormula(text);
+		return new AssrtIntValFormula(i);
 	}
 
 	public static AssrtIntVarFormula AssrtIntVar(String text)

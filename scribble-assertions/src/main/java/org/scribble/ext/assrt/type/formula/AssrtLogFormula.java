@@ -72,7 +72,7 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	{
 		int hash = 5923;
 		hash = 31 * hash + super.hashCode();
-		hash = 31 * hash + this.formula.toString().hashCode();  // FIXME HACK toString
+		hash = 31 * hash + this.formula.toString().hashCode();  // HACK FIXME: toString
 		hash = 31 * hash + this.vars.hashCode();
 		return hash;
 	}

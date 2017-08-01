@@ -20,7 +20,6 @@ import org.scribble.ast.global.GMessageTransfer;
 import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.ast.global.GProtocolDef;
-import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.global.GSimpleInteractionNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
@@ -30,10 +29,12 @@ import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
+import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
+import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
@@ -56,14 +57,14 @@ public class AssrtCoreGProtocolDeclTranslator
 	private static int varCounter = 1;
 	private static int recCounter = 1;
 	
-	private static int nextVarIndex()
+	private static AssrtDataTypeVar makeFreshDataTypeVar()
 	{
-		return varCounter++;
+		return new AssrtDataTypeVar("_x" + varCounter++);
 	}
 
-	private static int nextRecIndex()
+	private static String makeFreshRecVarName()
 	{
-		return recCounter++;
+		return "X" + recCounter++;
 	}
 	
 	//private static DataType UNIT_TYPE;
@@ -131,15 +132,15 @@ public class AssrtCoreGProtocolDeclTranslator
 
 			if (first instanceof GChoice)
 			{
-				return parseGChoice(rvs, checkRecGuard, first);
+				return parseGChoice(rvs, checkRecGuard, (GChoice) first);
 			}
-			else if (first instanceof GRecursion)
+			else if (first instanceof AssrtGRecursion)
 			{
-				return parseGRecursion(rvs, checkChoiceGuard, first);
+				return parseAssrtGRecursion(rvs, checkChoiceGuard, (AssrtGRecursion) first);
 			}
 			else if (first instanceof GContinue)
 			{
-				return parseGContinue(rvs, checkRecGuard, first);
+				return parseGContinue(rvs, checkRecGuard, (GContinue) first);
 			}
 			else
 			{
@@ -149,10 +150,8 @@ public class AssrtCoreGProtocolDeclTranslator
 	}
 
 	private AssrtCoreGType parseGChoice(Map<RecVar, RecVar> rvs,
-			boolean checkRecGuard, GInteractionNode first) throws AssrtCoreSyntaxException
+			boolean checkRecGuard, GChoice gc) throws AssrtCoreSyntaxException
 	{
-		GChoice gc = (GChoice) first;
-		
 		List<AssrtCoreGType> children = new LinkedList<>();
 		for (GProtocolBlock b : gc.getBlocks())
 		{
@@ -204,6 +203,41 @@ public class AssrtCoreGProtocolDeclTranslator
 		}
 		
 		return this.af.AssrtCoreGChoice(src, (AssrtCoreGActionKind) kind, dest, cases);
+	}
+
+	private AssrtCoreGType parseAssrtGRecursion(Map<RecVar, RecVar> rvs,
+			boolean checkChoiceGuard, AssrtGRecursion gr) throws AssrtCoreSyntaxException
+	{
+		RecVar recvar = gr.recvar.toName();
+		if (recvar.toString().contains("__"))  // HACK: "inlined proto rec var"
+		{
+			RecVarNode rvn = (RecVarNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, RecVarKind.KIND, makeFreshRecVarName());
+			rvs.put(recvar, rvn.toName());
+			recvar = rvn.toName();
+		}
+		AssrtCoreGType body = parseSeq(gr.getBlock().getInteractionSeq().getInteractions(), rvs, checkChoiceGuard, true);  // Check rec body is guarded
+		
+		//FIXME: annot and init
+		
+		return this.af.AssrtCoreGRec(recvar, makeFreshDataTypeVar(), AssrtFormulaFactory.AssrtIntVal(0), body);
+	}
+
+	private AssrtCoreGType parseGContinue(Map<RecVar, RecVar> rvs, boolean checkRecGuard, GContinue gc)
+			throws AssrtCoreSyntaxException
+	{
+		if (checkRecGuard)
+		{
+			throw new AssrtCoreSyntaxException(gc.getSource(), "[assrt-core] Unguarded in recursion: " + gc);  // FIXME: too conservative, e.g., rec X . A -> B . rec Y . X
+		}
+		RecVar recvar = gc.recvar.toName();
+		if (rvs.containsKey(recvar))
+		{
+			recvar = rvs.get(recvar);
+		}
+		
+		// FIXME: expr
+		
+		return this.af.AssrtCoreGRecVar(recvar, AssrtFormulaFactory.AssrtIntVal(0));
 	}
 
 	// Parses message interactions as unary choices
@@ -291,7 +325,7 @@ public class AssrtCoreGProtocolDeclTranslator
 			/*DataTypeNode dtn = (DataTypeNode) ((AssrtAstFactory) this.job.af).QualifiedNameNode(null, DataTypeKind.KIND, "_Unit");
 			AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
 			return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, dtn);  // null source OK?*/
-			return new AssrtAnnotDataType(new AssrtDataTypeVar("_x" + nextVarIndex()), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE);
+			return new AssrtAnnotDataType(makeFreshDataTypeVar(), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE);
 		}
 		else if (msn.payloads.getElements().size() > 1)
 		{
@@ -332,7 +366,7 @@ public class AssrtCoreGProtocolDeclTranslator
 			// i.e., AssrtDataTypeVar not allowed (should be "encoded")
 				throw new AssrtCoreSyntaxException(pe.getSource(), "[assrt-core] Non- datatype kind payload not supported: " + pe);
 			}
-			return new AssrtAnnotDataType(new AssrtDataTypeVar("_x" + nextVarIndex()), (DataType) pet);
+			return new AssrtAnnotDataType(makeFreshDataTypeVar(), (DataType) pet);
 		}
 	}
 
@@ -385,37 +419,6 @@ public class AssrtCoreGProtocolDeclTranslator
 	private Role parseDestinationRole(RoleNode rn) throws AssrtCoreSyntaxException
 	{
 		return rn.toName();
-	}
-
-	private AssrtCoreGType parseGRecursion(Map<RecVar, RecVar> rvs,
-			boolean checkChoiceGuard, GInteractionNode first) throws AssrtCoreSyntaxException
-	{
-		GRecursion gr = (GRecursion) first;
-		RecVar recvar = gr.recvar.toName();
-		if (recvar.toString().contains("__"))
-		{
-			RecVarNode rvn = (RecVarNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, RecVarKind.KIND, "X" + nextRecIndex());
-			rvs.put(recvar, rvn.toName());
-			recvar = rvn.toName();
-		}
-		AssrtCoreGType body = parseSeq(gr.getBlock().getInteractionSeq().getInteractions(), rvs, checkChoiceGuard, true);  // Check rec body is guarded
-		return new AssrtCoreGRec(recvar, body);
-	}
-
-	private AssrtCoreGType parseGContinue(Map<RecVar, RecVar> rvs, boolean checkRecGuard, GInteractionNode first)
-			throws AssrtCoreSyntaxException
-	{
-		if (checkRecGuard)
-		{
-			throw new AssrtCoreSyntaxException(first.getSource(), "[assrt-core] Unguarded in recursion: " + first);  // FIXME: too conservative, e.g., rec X . A -> B . rec Y . X
-		}
-		GContinue gc = (GContinue) first;
-		RecVar recvar = gc.recvar.toName();
-		if (rvs.containsKey(recvar))
-		{
-			recvar = rvs.get(recvar);
-		}
-		return this.af.AssrtCoreGRecVar(recvar);
 	}
 
 	

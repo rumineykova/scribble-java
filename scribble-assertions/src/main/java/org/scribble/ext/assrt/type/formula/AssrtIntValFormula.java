@@ -11,24 +11,24 @@ import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 // Integer literal
 public class AssrtIntValFormula extends AssrtArithFormula
 {
-	public final int value; 
+	public final int val; 
 
-	public AssrtIntValFormula(String value)
+	public AssrtIntValFormula(int i)
 	{
-		this.value = Integer.parseInt(value); 
+		this.val = i; 
 	}
 	
 	@Override
 	public String toString()
 	{
-		return Integer.toString(this.value); 
+		return Integer.toString(this.val); 
 	}
 	
 	@Override
 	public IntegerFormula toJavaSmtFormula()
 	{
 		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().ifm;
-		return fmanager.makeNumber(this.value);  
+		return fmanager.makeNumber(this.val);  
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ public class AssrtIntValFormula extends AssrtArithFormula
 			return false;
 		}
 		return super.equals(this)  // Does canEqual
-				&& this.value == ((AssrtIntValFormula) o).value;
+				&& this.val == ((AssrtIntValFormula) o).val;
 	}
 	
 	@Override
@@ -63,7 +63,7 @@ public class AssrtIntValFormula extends AssrtArithFormula
 	{
 		int hash = 5897;
 		hash = 31 * hash + super.hashCode();
-		hash = 31 * hash + this.value;
+		hash = 31 * hash + this.val;
 		return hash;
 	}
 }

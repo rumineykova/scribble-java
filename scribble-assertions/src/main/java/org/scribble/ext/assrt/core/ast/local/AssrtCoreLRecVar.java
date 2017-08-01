@@ -1,15 +1,16 @@
 package org.scribble.ext.assrt.core.ast.local;
 
 import org.scribble.ext.assrt.core.ast.AssrtCoreRecVar;
+import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.type.name.RecVar;
 
 	
-// FIXME: hashCode/equals
+// FIXME: hashCode/equals -- already done?
 public class AssrtCoreLRecVar extends AssrtCoreRecVar implements AssrtCoreLType
 {
-	public AssrtCoreLRecVar(RecVar var)
+	public AssrtCoreLRecVar(RecVar var, AssrtArithFormula expr)
 	{
-		super(var);
+		super(var, expr);
 	}
 
 	@Override
@@ -19,7 +20,7 @@ public class AssrtCoreLRecVar extends AssrtCoreRecVar implements AssrtCoreLType
 		{
 			return false;
 		}
-		return ((AssrtCoreLRecVar) obj).canEquals(this);
+		return super.equals(obj);  // Does canEquals
 	}
 
 	@Override
