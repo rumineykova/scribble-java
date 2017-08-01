@@ -4,17 +4,17 @@ import java.nio.file.Path;
 
 import org.scribble.ast.AstFactory;
 import org.scribble.ext.assrt.ast.AssrtAstFactoryImpl;
-import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactoryImpl;
-import org.scribble.ext.assrt.model.global.AssrtSModelFactoryImpl;
-import org.scribble.ext.assrt.parser.scribble.AssrtScribbleAntlrWrapper;
+import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactoryImpl;
+import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactoryImpl;
 import org.scribble.ext.assrt.parser.scribble.AssrtAntlrToScribParser;
+import org.scribble.ext.assrt.parser.scribble.AssrtScribbleAntlrWrapper;
 import org.scribble.main.MainContext;
 import org.scribble.main.ScribbleException;
 import org.scribble.main.resource.ResourceLocator;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.global.SModelFactory;
-import org.scribble.parser.scribble.ScribbleAntlrWrapper;
 import org.scribble.parser.scribble.AntlrToScribParser;
+import org.scribble.parser.scribble.ScribbleAntlrWrapper;
 import org.scribble.util.ScribParserException;
 
 public class AssrtMainContext extends MainContext
@@ -64,12 +64,14 @@ public class AssrtMainContext extends MainContext
 	@Override
 	protected EModelFactory newEModelFactory()
 	{
-		return new AssrtEModelFactoryImpl();
+		//return new AssrtEModelFactoryImpl();
+		return new AssrtCoreEModelFactoryImpl();  // HACK FIXME
 	}
 	
 	@Override
 	protected SModelFactory newSModelFactory()
 	{
-		return new AssrtSModelFactoryImpl();
+		//return new AssrtSModelFactoryImpl();
+		return new AssrtCoreSModelFactoryImpl();  // HACK FIXME
 	}
 }
