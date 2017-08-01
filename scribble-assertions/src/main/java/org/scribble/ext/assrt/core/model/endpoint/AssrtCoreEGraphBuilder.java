@@ -14,10 +14,12 @@ import org.scribble.ext.assrt.core.ast.local.AssrtCoreLChoice;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRec;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
+import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
-import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
+import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.model.endpoint.EGraph;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.type.Payload;
@@ -37,7 +39,7 @@ public class AssrtCoreEGraphBuilder
 	
 	public EGraph build(AssrtCoreLType lt)
 	{
-		this.util.init(((AssrtEModelFactory) this.job.ef).newAssrtEState(Collections.emptySet(), new HashMap<>()));
+		this.util.init(((AssrtCoreEModelFactory) this.job.ef).newAssrtEState(Collections.emptySet(), new HashMap<>()));
 		build(lt, this.util.getEntry(), this.util.getExit(), new HashMap<>());
 		return this.util.finalise();
 	}
@@ -73,41 +75,61 @@ public class AssrtCoreEGraphBuilder
 		}
 		else if (cont instanceof AssrtCoreRecVar)
 		{
-			this.util.addEdge(s1, toEAction(r, k, a), f.get(((AssrtCoreRecVar) cont).var));
+			AssrtCoreRecVar crv = (AssrtCoreRecVar) cont;
+			AssrtArithFormula expr = crv.expr;
+			
+			
+			AssrtDataTypeVar annot = new AssrtDataTypeVar("x");  // HERE HACK FIXME
+
+			
+			this.util.addEdge(s1, toEAction(r, k, a, annot, expr), f.get(((AssrtCoreRecVar) cont).var));
 		}
 		else
 		{
-			AssrtEState s = (AssrtEState) this.util.ef.newEState(Collections.emptySet());  // FIXME: call Assrt directly?
+			AssrtEState s = (AssrtEState) ((AssrtCoreEModelFactory) this.util.ef).newEState(Collections.emptySet());  
+					// FIXME: call Assrt directly? -- no "vars" here though (intermediate sequence states), only on rec states
 
 			this.util.addEdge(s1, toEAction(r, k, a), s);
 			build(cont, s, s2, f);
 		}
 	}
 	
-	// FIXME: make AssrtCoreEModelBuilder?
 	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreAction a)
 	{
-		AssrtEModelFactory ef = (AssrtEModelFactory) this.util.ef;  // FIXME: factor out
+		return toEAction(r, k, a, AssrtCoreESend.DUMMY_VAR, AssrtCoreESend.ZERO);
+	}
+
+	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreAction a, AssrtDataTypeVar annot, AssrtArithFormula expr)
+	{
+		AssrtCoreEModelFactory ef = (AssrtCoreEModelFactory) this.util.ef;  // FIXME: factor out
 		if (k.equals(AssrtCoreLActionKind.SEND))
 		{
-			//AssrtCoreLSend ls = (AssrtCoreLSend) a;
-			//return this.util.ef.newESend(r, a.op, new Payload(Arrays.asList(a.pay)));  // FIXME: assertion model actions
-			return ef.newAssrtESend(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
+			return ef.newAssrtCoreESend(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, annot, expr);
 		}
 		else if (k.equals(AssrtCoreLActionKind.RECEIVE))
 		{
-			//AssrtCoreLReceive lr = (AssrtCoreLReceive) a;
-			return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
+			//return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
+			return ef.newAssrtCoreEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, annot, expr);
 
 			// FIXME: local receive assertions -- why needed exactly?  should WF imply receive assertion always true?
 
 		}
 		else if (k.equals(AssrtCoreLActionKind.REQUEST))
 		{
+			if (!annot.equals(AssrtCoreESend.DUMMY_VAR) && !expr.equals(AssrtCoreESend.ZERO))  // FIXME: annot + expr
+			{
+				throw new RuntimeException("[assrt-core] TODO: " + a);
+			}
+
 			return ef.newAssrtERequest(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
 		}
 		else if (k.equals(AssrtCoreLActionKind.ACCEPT))
 		{
+			if (!annot.equals(AssrtCoreESend.DUMMY_VAR) && !expr.equals(AssrtCoreESend.ZERO))  // FIXME: annot + expr
+			{
+				throw new RuntimeException("[assrt-core] TODO: " + a);
+			}
+
 			return ef.newAssrtEAccept(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
 		}
 		/*else if (a instanceof AssrtCoreLDisconnect)

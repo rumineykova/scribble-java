@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
+import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReceive;
+import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAccept;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAction;
@@ -50,8 +52,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self -- for progress checking
 	
 	// Cf. SState.config
-	private final Map<Role, AssrtEState> P;
-	private final Map<Role, Map<Role, AssrtESend>> Q;  // null value means connected and empty -- dest -> src -> msg
+	private final Map<Role, AssrtEState> P;  // FIXME: core
+	private final Map<Role, Map<Role, AssrtESend>> Q;  // FIXME: core  // null value means connected and empty -- dest -> src -> msg
 	
 	/*private final Map<Role, Map<Role, PayloadVar>> ports;  // Server -> Client -> port
 	private final Map<Role, Set<PayloadVar>> owned;*/
@@ -243,10 +245,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	public boolean isUnsatisfiableError(Job job)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
-				e.getValue().getAllActions().stream().anyMatch(a -> 
+				e.getValue().getAllActions().stream().anyMatch(a ->  // N.B. getAllActions includes non-fireable
 				{
 					if (a instanceof AssrtESend)
 					{
+						Role src = e.getKey();
+
 						JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
 						AssrtBoolFormula ass = ((AssrtESend) a).ass;
 						if (ass.equals(AssrtTrueFormula.TRUE))
@@ -271,10 +275,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						}
 						
 						Set<Entry<AssrtDataTypeVar, AssrtArithFormula>> bar = new HashSet<>();
-						for (Role r : this.R.keySet())
+
+						/*for (Role r : this.R.keySet())
 						{
 							bar.addAll(this.R.get(r).entrySet());  // Big conjunction -- including different exprs for the same var between roles?
-						}
+						}*/
+						bar.addAll(this.R.get(src).entrySet());
+
 						Set<AssrtBoolFormula> foo = bar.stream().map(b -> AssrtFormulaFactory.AssrtBinComp(
 									AssrtBinCompFormula.Op.Eq, 
 									AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
@@ -285,7 +292,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
 								).getJavaSmtFormula();
 
-						BooleanFormula impli = jsmt.bfm.implication(jsmt.bfm.and(PP, RR), AA);
+						//BooleanFormula impli = jsmt.bfm.implication(jsmt.bfm.and(PP, RR), AA);
+						BooleanFormula impli = jsmt.bfm.and(jsmt.bfm.and(PP, RR), AA);  // HACK FIXME
 
 						Set<IntegerFormula> varsF = this.F.stream().flatMap(f -> f.getVars().stream()
 								.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());
@@ -303,7 +311,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							impli = jsmt.qfm.forall(new LinkedList<>(free), impli);  // AA already exists-quantified
 						}
 						
-						job.debugPrintln("\n[assrt-core] Checking satisfiability for " + e.getKey() + " at " + e.getValue() + ": " + impli);
+						job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "): " + impli);
 							
 						if (!jsmt.isSat(impli))
 						{
@@ -408,6 +416,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return false;
 	}*/
 	
+	// FIXME: List<AssrtCoreEAction> -- after also doing assert-core request/accept
 	public Map<Role, List<EAction>> getFireable()
 	{
 		Map<Role, List<EAction>> res = new HashMap<>();
@@ -420,22 +429,22 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			{
 				if (a.isSend())
 				{
-					AssrtESend es = (AssrtESend) a;
+					AssrtCoreESend es = (AssrtCoreESend) a;
 					getSendFireable(res, self, es);
 				}
 				else if (a.isReceive())
 				{
-					AssrtEReceive er = (AssrtEReceive) a;
+					AssrtCoreEReceive er = (AssrtCoreEReceive) a;
 					getReceiveFireable(res, self, er);
 				}
 				else if (a.isRequest())
 				{
-					AssrtERequest ec = (AssrtERequest) a;
+					AssrtERequest ec = (AssrtERequest) a;  // FIXME: core
 					getRequestFireable(res, self, ec);
 				}
 				else if (a.isAccept())
 				{
-					AssrtEAccept ea = (AssrtEAccept) a;
+					AssrtEAccept ea = (AssrtEAccept) a;  // FIXME: core
 					getAcceptFireable(res, self, ea);
 				}
 				/*else if (a.isDisconnect())
@@ -632,19 +641,19 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		if (a.isSend())
 		{
-			fireSend(P, Q, K, F, self, (AssrtESend) a, succ);
+			fireSend(P, Q, K, F, R, self, (AssrtCoreESend) a, succ);
 		}
 		else if (a.isReceive())
 		{
-			fireReceive(P, Q, K, self, (EReceive) a, succ);
+			fireReceive(P, Q, K, R, self, (AssrtCoreEReceive) a, succ);
 		}
 		else if (a.isRequest())
 		{
-			fireRequest(P, Q, K, F, self, (AssrtERequest) a, succ);
+			fireRequest(P, Q, K, F, self, (AssrtERequest) a, succ);  // FIXME: core
 		}
 		else if (a.isAccept())
 		{
-			fireAccept(P, Q, K, self, (AssrtEAccept) a, succ);
+			fireAccept(P, Q, K, self, (AssrtEAccept) a, succ);  // FIXME: core
 		}
 		/*else if (a.isDisconnect())
 		{
@@ -661,22 +670,34 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	// Update (in place) P, Q, K and F
 	private static void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
-			Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F,
-			Role self, AssrtESend es, AssrtEState succ)
+			Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F, Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
+			Role self, AssrtCoreESend es, AssrtEState succ)
 	{
 		P.put(self, succ);
 		//Q.get(es.peer).put(self, es);
 		Q.get(es.peer).put(self, es.toTrueAssertion());  // HACK FIXME: cf. AssrtSConfig::fire
 		outputUpdateKF(K, F, self, es);
+		
+		if (!es.annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
+		{
+			Map<AssrtDataTypeVar, AssrtArithFormula> tmp = R.get(self);
+			tmp.put(es.annot, es.expr);
+		}
 	}
 
 	private static void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
-			Map<Role, Set<AssrtDataTypeVar>> K,   // FIXME: manage F with receive assertions?
-			Role self, EReceive er, AssrtEState succ)
+			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,   // FIXME: manage F with receive assertions?
+			Role self, AssrtCoreEReceive er, AssrtEState succ)
 	{
 		P.put(self, succ);
 		Q.get(self).put(er.peer, null);  // null is \epsilon
 		inputUpdateK(K, self, er);
+		
+		if (!er.annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
+		{
+			Map<AssrtDataTypeVar, AssrtArithFormula> tmp = R.get(self);
+			tmp.put(er.annot, er.expr);
+		}
 	}
 
 	private static void fireRequest(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,

@@ -18,4 +18,6 @@ public interface AssrtCoreSModelFactory extends SModelFactory
 	AssrtSAccept newAssrtSAccept(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf);*/
 
 	//SConfig newAssrtSConfig(Map<Role, EFSM> state, SBuffers buffs, AssrtLogFormula formula, Map<Role, Set<String>> variablesInScope);
+
+	//AssrtCoreSState newAssrtCoreSState(Map<Role, EFSM> state, SBuffers buffs, AssrtLogFormula formula, Map<Role, Set<String>> variablesInScope);
 }

@@ -29,7 +29,7 @@ public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 		this.expr = expr;
 	}
 
-	// HACK FIXME
+	// HACK FIXME -- move tp AssrtCoreEAction
 	public static final AssrtDataTypeVar DUMMY_VAR = new AssrtDataTypeVar("_dum");
 	public static final AssrtArithFormula ZERO = AssrtFormulaFactory.AssrtIntVal(0);
 	
