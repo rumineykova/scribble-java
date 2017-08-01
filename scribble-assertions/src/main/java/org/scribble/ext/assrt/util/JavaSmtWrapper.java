@@ -38,7 +38,7 @@ public class JavaSmtWrapper
 	public final ShutdownManager shutdownManager;
 	
 	// TODO: MOVE to config
-	private static final int SOLVER_TIMEOUT_MS = 5000;
+	private static final int SOLVER_TIMEOUT_MS = 10000;
 
 	private final FormulaManager fmanager;    
 

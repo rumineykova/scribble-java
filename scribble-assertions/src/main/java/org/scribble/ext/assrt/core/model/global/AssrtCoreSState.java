@@ -21,6 +21,7 @@ import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
@@ -253,30 +254,53 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							return false;
 						}
 
+						AssrtBoolFormula tmp = this.F.stream().reduce(
+									AssrtTrueFormula.TRUE,  // F emptyset at start
+									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
+								);
+						BooleanFormula PP = tmp.getJavaSmtFormula();
+
+						BooleanFormula AA = ass.getJavaSmtFormula();
+						Set<IntegerFormula> varsA = new HashSet<>();
+						varsA.add(jsmt.ifm.makeVariable(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));  
+								// Adding even if var not used
+								// N.B. includes the case for recursion cycles where var is "already" in F
+						if (!varsA.isEmpty())  // FIXME: now never empty
+						{
+							AA = jsmt.qfm.exists(new LinkedList<>(varsA), AA);
+						}
+						
+						Set<Entry<AssrtDataTypeVar, AssrtArithFormula>> bar = new HashSet<>();
+						for (Role r : this.R.keySet())
+						{
+							bar.addAll(this.R.get(r).entrySet());  // Big conjunction -- including different exprs for the same var between roles?
+						}
+						Set<AssrtBoolFormula> foo = bar.stream().map(b -> AssrtFormulaFactory.AssrtBinComp(
+									AssrtBinCompFormula.Op.Eq, 
+									AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
+									b.getValue()
+								)).collect(Collectors.toSet());
+						BooleanFormula RR = foo.stream().reduce(
+									AssrtTrueFormula.TRUE,  // F emptyset at start
+									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
+								).getJavaSmtFormula();
+
+						BooleanFormula impli = jsmt.bfm.implication(jsmt.bfm.and(PP, RR), AA);
+
 						Set<IntegerFormula> varsF = this.F.stream().flatMap(f -> f.getVars().stream()
 								.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());
 						/*Set<IntegerFormula> varsA = ass.getVars().stream()
 								.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
 						varsA.removeAll(varsF);*/  // No: the only difference should be single action pay var, and always want to exists quantify it (not only if not F, e.g., recursion)
-						Set<IntegerFormula> varsA = new HashSet<>();
-						varsA.add(jsmt.ifm.makeVariable(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));  
-								// Adding even if var not used
-								// N.B. includes the case for recursion cycles where var is "already" in F
-
-						AssrtBoolFormula tmp = this.F.stream().reduce(
-								AssrtTrueFormula.TRUE,
-								(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));  // F emptyset at start
-						BooleanFormula PP = tmp.getJavaSmtFormula();
-						BooleanFormula AA = ass.getJavaSmtFormula();
-						if (!varsA.isEmpty())  // FIXME: now never empty
+						Set<IntegerFormula> varsR = this.R.values().stream().flatMap(m -> m.keySet().stream()).map(v -> 
+						jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
+						
+						Set<IntegerFormula> free = new HashSet<>();
+						free.addAll(varsF);
+						free.addAll(varsR);
+						if (!free.isEmpty())
 						{
-							AA = jsmt.qfm.exists(new LinkedList<>(varsA), AA);
-						}
-
-						BooleanFormula impli = jsmt.bfm.implication(PP, AA);
-						if (!varsF.isEmpty())
-						{
-							impli = jsmt.qfm.forall(new LinkedList<>(varsF), impli);
+							impli = jsmt.qfm.forall(new LinkedList<>(free), impli);  // AA already exists-quantified
 						}
 						
 						job.debugPrintln("\n[assrt-core] Checking satisfiability for " + e.getKey() + " at " + e.getValue() + ": " + impli);
