@@ -48,7 +48,7 @@ public class AssrtAntlrGMessageTransfer
 		CommonTree tmp = (CommonTree) assTree.getChild(0);  // Formula node to parse  // FIXME: factor out?
 		//SmtFormula f = ap.parse(tmp);
 		AssrtBoolFormula f = (AssrtBoolFormula) ap.parse(tmp);  // By AssrtAssertions.g
-		return ((AssrtAstFactory) af).AssrtAssertion(assTree, f);
+		return af.AssrtAssertion(assTree, f);
 	}
 
 	// The following are re-defined to use new indices -- FIXME: better pattern

@@ -8,6 +8,7 @@ import org.scribble.ast.global.GInteractionSeq;
 import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.ast.local.LDo;
+import org.scribble.ast.name.qualified.GProtocolNameNode;
 import org.scribble.ast.name.qualified.LProtocolNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDelBase;
@@ -21,13 +22,31 @@ import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.SubprotocolSig;
 import org.scribble.type.kind.RecVarKind;
+import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.Role;
 import org.scribble.visit.ProtocolDefInliner;
 import org.scribble.visit.context.Projector;
 import org.scribble.visit.env.InlineProtocolEnv;
+import org.scribble.visit.wf.NameDisambiguator;
 
 public class AssrtGDoDel extends GDoDel
 {
+	// Convert all visible names to full names for protocol inlining: otherwise could get clashes if directly inlining external visible names under the root modulecontext
+	// Not done in G/LProtocolNameNodeDel because it's only for do-targets that this is needed (cf. ProtocolHeader)
+	@Override
+	public ScribNode leaveDisambiguation(ScribNode parent, ScribNode child, NameDisambiguator disamb, ScribNode visited) throws ScribbleException
+	{
+		AssrtGDo doo = (AssrtGDo) visited;
+		ModuleContext mc = disamb.getModuleContext();
+		GProtocolName fullname = (GProtocolName) mc.getVisibleProtocolDeclFullName(doo.getProtocolNameNode().toName());
+		GProtocolNameNode pnn = (GProtocolNameNode)
+				disamb.job.af.QualifiedNameNode(doo.proto.getSource(), fullname.getKind(), fullname.getElements()); 
+						// Didn't keep original namenode del
+
+		//return doo.reconstruct(doo.roles, doo.args, pnn);
+		return doo.reconstruct(doo.roles, doo.args, pnn, doo.annot);
+	}
+
 	// Only called if cycle
 	public GDo visitForSubprotocolInlining(ProtocolDefInliner builder, GDo child)
 	{
@@ -92,19 +111,23 @@ public class AssrtGDoDel extends GDoDel
 	@Override
 	public GDo leaveProjection(ScribNode parent, ScribNode child, Projector proj, ScribNode visited) throws ScribbleException //throws ScribbleException
 	{
-		GDo gd = (GDo) visited;
+		//GDo gd = (GDo) visited;
+		AssrtGDo gd = (AssrtGDo) visited;
+
 		Role popped = proj.popSelf();
 		Role self = proj.peekSelf();
-		LDo projection = null;
+		LDo ld = null;
 		if (gd.roles.getRoles().contains(self))
 		{
 			ModuleContext mc = proj.getModuleContext();
 			LProtocolNameNode target = Projector.makeProjectedFullNameNode(proj.job.af, gd.proto.getSource(), gd.getTargetProtocolDeclFullName(mc), popped);
-			projection = gd.project(proj.job.af, self, target);
+
+			//projection = gd.project(proj.job.af, self, target);
+			ld = gd.project(proj.job.af, self, target, gd.annot);
 			
 			// FIXME: do guarded recursive subprotocol checking (i.e. role is used during chain) in reachability checking? -- required role-usage makes local choice subject inference easier, but is restrictive (e.g. proto(A, B, C) { choice at A {A->B.do Proto(A,B,C)} or {A->B.B->C} }))
 		}
-		proj.pushEnv(proj.popEnv().setProjection(projection));
+		proj.pushEnv(proj.popEnv().setProjection(ld));
 
 		//return (GDo) GSimpleInteractionNodeDel.super.leaveProjection(parent, child, proj, gd);
 		return (GDo) ScribDelBase.popAndSetVisitorEnv(this, proj, visited);

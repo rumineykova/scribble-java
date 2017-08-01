@@ -173,9 +173,12 @@ tokens
 
 	//ASSRT_EMPTY_ASSERTION = '__empty_assertion';
 	//ASSERTION = 'global-assertion'; 
-	ASSRT_GLOBALPROTOCOLHEADER = 'ASSRT_GLOBALPROTOCOLHEADER';     // May be an empty assertion -- null AST
-	ASSRT_GLOBALMESSAGETRANSFER = 'ASSRT_GLOBALMESSAGETRANSFER';   // May be an empty assertion -- null AST
-	ASSRT_GLOBALCONNECT = 'ASSRT_GLOBALCONNECT';                   // May be an empty assertion -- null AST
+
+  // May have empty assertion -- null AST
+	ASSRT_GLOBALPROTOCOLHEADER = 'ASSRT_GLOBALPROTOCOLHEADER';
+	ASSRT_GLOBALMESSAGETRANSFER = 'ASSRT_GLOBALMESSAGETRANSFER';
+	ASSRT_GLOBALCONNECT = 'ASSRT_GLOBALCONNECT';
+	ASSRT_GLOBALDO = 'ASSRT_GLOBALDO';
 }
 
 
@@ -526,7 +529,7 @@ globalprotocolheader:
 |
 	GLOBAL_KW PROTOCOL_KW simpleprotocolname roledecllist ASSRT_EXPR
 	->
-	^(ASSRT_GLOBALPROTOCOLHEADER simpleprotocolname ^(PARAMETERDECLLIST) roledecllist { AssertionsParser.antlrParse($ASSRT_EXPR.text) })
+	^(ASSRT_GLOBALPROTOCOLHEADER simpleprotocolname ^(PARAMETERDECLLIST) roledecllist { AssertionsParser.parseAssertion($ASSRT_EXPR.text) })
 ;
 // Following same pattern as globalmessagetransfer: explicitly invoke AssertionsParser, and extra assertion element only for new category
 // -- later translation by AssrtAntlrToScribParser converts original nodes to empty-assertion new nodes
@@ -626,7 +629,7 @@ globalmessagetransfer:
 | 
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';' ASSRT_EXPR 
 	->
-	^(ASSRT_GLOBALMESSAGETRANSFER { AssertionsParser.antlrParse($ASSRT_EXPR.text) } message rolename rolename+)
+	^(ASSRT_GLOBALMESSAGETRANSFER { AssertionsParser.parseAssertion($ASSRT_EXPR.text) } message rolename rolename+)
 			// Calling a separate parser this way loses line/char number information
 ;
 //	ASSRT_EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
@@ -653,12 +656,12 @@ globalconnect:
 	//ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
 	CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
 	->
-	^(ASSRT_GLOBALCONNECT {AssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+	^(ASSRT_GLOBALCONNECT {AssertionsParser.parseAssertion($ASSRT_EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
 	//ASSRT_EXPR message CONNECT_KW rolename TO_KW rolename ';'
 	message CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
 	->
-	^(ASSRT_GLOBALCONNECT {AssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename message)
+	^(ASSRT_GLOBALCONNECT {AssertionsParser.parseAssertion($ASSRT_EXPR.text)} rolename rolename message)
 ;
 /*	'(' connectdecl (',' connectdecl)* ')'
 	->
@@ -754,7 +757,13 @@ globaldo:
 	DO_KW protocolname argumentinstantiationlist roleinstantiationlist ';'
 	->
 	^(GLOBALDO protocolname argumentinstantiationlist roleinstantiationlist)
+
+|
+	DO_KW protocolname roleinstantiationlist ';' ASSRT_EXPR
+	->
+	^(ASSRT_GLOBALDO protocolname ^(ARGUMENTINSTANTIATIONLIST) roleinstantiationlist { AssertionsParser.parseArithAnnotation($ASSRT_EXPR.text) })
 ;
+// TODO: arguments + annot
 
 roleinstantiationlist:
 	'(' roleinstantiation (',' roleinstantiation)* ')'

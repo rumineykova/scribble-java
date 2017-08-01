@@ -10,11 +10,13 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.RoleArg;
 import org.scribble.ast.RoleArgList;
 import org.scribble.ast.ScribNode;
+import org.scribble.ast.context.ModuleContext;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.ast.local.LDo;
 import org.scribble.ast.local.LInteractionSeq;
 import org.scribble.ast.local.LProtocolBlock;
 import org.scribble.ast.local.LProtocolDecl;
+import org.scribble.ast.name.qualified.LProtocolNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.local.LDoDel;
 import org.scribble.del.local.LProjectionDeclDel;
@@ -34,13 +36,29 @@ import org.scribble.main.ScribbleException;
 import org.scribble.type.SubprotocolSig;
 import org.scribble.type.kind.RecVarKind;
 import org.scribble.type.name.GProtocolName;
+import org.scribble.type.name.LProtocolName;
 import org.scribble.type.name.Role;
 import org.scribble.visit.ProtocolDefInliner;
 import org.scribble.visit.context.ProjectedRoleDeclFixer;
 import org.scribble.visit.env.InlineProtocolEnv;
+import org.scribble.visit.wf.NameDisambiguator;
 
 public class AssrtLDoDel extends LDoDel
 {
+	@Override
+	public ScribNode leaveDisambiguation(ScribNode parent, ScribNode child, NameDisambiguator disamb, ScribNode visited) throws ScribbleException
+	{
+		AssrtLDo doo = (AssrtLDo) visited;
+		ModuleContext mc = disamb.getModuleContext();
+		LProtocolName fullname = (LProtocolName) mc.getVisibleProtocolDeclFullName(doo.getProtocolNameNode().toName());
+		LProtocolNameNode pnn = (LProtocolNameNode)
+				disamb.job.af.QualifiedNameNode(doo.proto.getSource(), fullname.getKind(), fullname.getElements()); 
+						// Didn't keep original namenode del
+
+		//return doo.reconstruct(doo.roles, doo.args, pnn);
+		return doo.reconstruct(doo.roles, doo.args, pnn, doo.annot);
+	}
+
 	// Only called if cycle
 	public LDo visitForSubprotocolInlining(ProtocolDefInliner builder, LDo child)
 	{

@@ -280,7 +280,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	@Override
 	public AssrtGDo AssrtGDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto, AssrtArithAnnotation annot)
 	{
-		AssrtGDo gd = new AssrtGDo(source, roleinstans, arginstans, proto);
+		AssrtGDo gd = new AssrtGDo(source, roleinstans, arginstans, proto, annot);
 		gd = del(gd, new AssrtGDoDel());
 		return gd;
 	}

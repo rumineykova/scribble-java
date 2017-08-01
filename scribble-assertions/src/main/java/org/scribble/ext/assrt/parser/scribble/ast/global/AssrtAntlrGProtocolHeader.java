@@ -42,7 +42,6 @@ public class AssrtAntlrGProtocolHeader
 		RoleDeclList rdl = (RoleDeclList) parser.parse(AntlrGProtocolHeader.getRoleDeclListChild(root), af);
 		NonRoleParamDeclList pdl = (NonRoleParamDeclList) parser.parse(AntlrGProtocolHeader.getParamDeclListChild(root), af);
 		
-		// FIXME: factor out of AssrtAntlrGMessageTransfer
 		CommonTree assTree = AssrtAntlrGProtocolHeader.getAssertionChild(root);
 		AssrtAssertion ass = AssrtAntlrGProtocolHeader.parseIntVarInitDeclAnnot(((AssrtAntlrToScribParser) parser).ap, assTree, af);
 
@@ -53,6 +52,7 @@ public class AssrtAntlrGProtocolHeader
 	// FIXME: make a different AST class for GProtocolHeader, distinct from AssrtAssertion -- not really an assertion, it's just a initialised-declaration expr
 	private static AssrtAssertion parseIntVarInitDeclAnnot(AssrtAntlrToFormulaParser fp, CommonTree assTree, AssrtAstFactory af) throws ScribParserException
 	{
+		// FIXME: factor out of AssrtAntlrGMessageTransfer
 		AssrtAssertion ass = AssrtAntlrGMessageTransfer.parseAssertion(fp, assTree, af);
 
 		AssrtBoolFormula f = ass.getFormula();
