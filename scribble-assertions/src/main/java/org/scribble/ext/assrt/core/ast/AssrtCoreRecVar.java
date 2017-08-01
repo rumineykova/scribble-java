@@ -18,7 +18,7 @@ public abstract class AssrtCoreRecVar implements AssrtCoreType
 	@Override 
 	public String toString()
 	{
-		return this.var.toString() + " <" + expr + ">";
+		return this.var.toString() + "<" + expr + ">";
 	}
 	
 	@Override

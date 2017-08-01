@@ -6,6 +6,7 @@ import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.sosy_lab.java_smt.api.Formula;
 
 // FIXME: equals/hashCode? -- e.g., for AssrtESend/Receive? -- already done?
+		// FIXME: still treated as String in some places, e.g., AssrtESend
 // Formula is a "top-level" base class, cf. (Abstract)Name 
 public abstract class AssrtSmtFormula<F extends Formula>
 {

@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.model.endpoint.AssrtEReceive;
-import org.scribble.ext.assrt.model.endpoint.AssrtESend;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtEReceive;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtLogFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;

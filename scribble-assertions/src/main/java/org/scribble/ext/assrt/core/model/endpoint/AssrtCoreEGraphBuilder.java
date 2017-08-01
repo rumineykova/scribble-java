@@ -84,6 +84,7 @@ public class AssrtCoreEGraphBuilder
 		}
 	}
 	
+	// FIXME: make AssrtCoreEModelBuilder?
 	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreAction a)
 	{
 		AssrtEModelFactory ef = (AssrtEModelFactory) this.util.ef;  // FIXME: factor out

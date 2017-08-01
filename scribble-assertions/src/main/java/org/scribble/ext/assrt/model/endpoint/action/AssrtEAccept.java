@@ -1,5 +1,7 @@
-package org.scribble.ext.assrt.model.endpoint;
+package org.scribble.ext.assrt.model.endpoint.action;
 
+import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
+import org.scribble.ext.assrt.model.global.AssrtSModelFactory;
 import org.scribble.ext.assrt.model.global.actions.AssrtSAccept;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.model.endpoint.EModelFactory;
@@ -25,18 +27,18 @@ public class AssrtEAccept extends EAccept implements AssrtEAction
 	{
 		return this.ass;
 	}
-
-	@Override
-	public AssrtSAccept toGlobal(SModelFactory sf, Role self)
-	{
-		return new AssrtSAccept(self, this.peer, this.mid, this.payload, this.ass);
-	}
 	
 	// FIXME: syntactic equality as "construtive" duality for assertion actions? -- cf. p50 Def D.3 A implies B
 	@Override
 	public AssrtERequest toDual(Role self)
 	{
 		return ((AssrtEModelFactory) this.ef).newAssrtERequest(self, this.mid, this.payload, this.ass);
+	}
+
+	@Override
+	public AssrtSAccept toGlobal(SModelFactory sf, Role self)
+	{
+		return ((AssrtSModelFactory) sf).newAssrtSAccept(self, this.peer, this.mid, this.payload, this.ass);
 	}
 	
 	@Override

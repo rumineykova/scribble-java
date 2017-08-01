@@ -1,5 +1,7 @@
-package org.scribble.ext.assrt.model.endpoint;
+package org.scribble.ext.assrt.model.endpoint.action;
 
+import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
+import org.scribble.ext.assrt.model.global.AssrtSModelFactory;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
@@ -10,16 +12,16 @@ import org.scribble.type.Payload;
 import org.scribble.type.name.MessageId;
 import org.scribble.type.name.Role;
 
-// FIXME: treating assertion as String -- assertion currently has no equals/hashCode itself
+// FIXME: treating assertion as String -- assertion now has equals/hashCode
 public class AssrtESend extends ESend implements AssrtEAction
 {
 	//public final AssrtAssertion assertion;  // Cf., e.g., ALSend
 	public final AssrtBoolFormula ass;  // Not null -- empty set to True by parsing
 
-	public AssrtESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula assertion)
+	public AssrtESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula ass)
 	{
 		super(ef, peer, mid, payload);
-		this.ass = assertion;
+		this.ass = ass;
 	}
 	
 	@Override
@@ -44,7 +46,7 @@ public class AssrtESend extends ESend implements AssrtEAction
 	@Override
 	public AssrtSSend toGlobal(SModelFactory sf, Role self)
 	{
-		return new AssrtSSend(self, this.peer, this.mid, this.payload, this.ass);
+		return ((AssrtSModelFactory) sf).newAssrtSSend(self, this.peer, this.mid, this.payload, this.ass);
 	}
 	
 	@Override

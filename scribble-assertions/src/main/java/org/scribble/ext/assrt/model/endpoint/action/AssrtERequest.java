@@ -1,6 +1,8 @@
-package org.scribble.ext.assrt.model.endpoint;
+package org.scribble.ext.assrt.model.endpoint.action;
 
-import org.scribble.ext.assrt.model.global.actions.AssrtSConnect;
+import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
+import org.scribble.ext.assrt.model.global.AssrtSModelFactory;
+import org.scribble.ext.assrt.model.global.actions.AssrtSRequest;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.model.endpoint.EModelFactory;
@@ -17,10 +19,10 @@ public class AssrtERequest extends ERequest implements AssrtEAction
 	//public final AssrtAssertion assertion;  // Cf., e.g., ALSend
 	public final AssrtBoolFormula ass;  // Not null -- empty set to True by parsing
 
-	public AssrtERequest(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula assertion)
+	public AssrtERequest(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula ass)
 	{
 		super(ef, peer, mid, payload);
-		this.ass = assertion;
+		this.ass = ass;
 	}
 	
 	@Override
@@ -42,9 +44,9 @@ public class AssrtERequest extends ERequest implements AssrtEAction
 	}
 
 	@Override
-	public AssrtSConnect toGlobal(SModelFactory sf, Role self)
+	public AssrtSRequest toGlobal(SModelFactory sf, Role self)
 	{
-		return new AssrtSConnect(self, this.peer, this.mid, this.payload, this.ass);
+		return ((AssrtSModelFactory) sf).newAssrtSRequest(self, this.peer, this.mid, this.payload, this.ass);
 	}
 	
 	@Override

@@ -17,9 +17,9 @@ import org.scribble.type.Payload;
 import org.scribble.type.name.MessageId;
 import org.scribble.type.name.Role;
 
-public class SConnect extends SAction
+public class SRequest extends SAction
 {
-	public SConnect(Role subj, Role obj, MessageId<?> mid, Payload payload)
+	public SRequest(Role subj, Role obj, MessageId<?> mid, Payload payload)
 	//public GConnect(Role subj, Role obj)
 	{
 		super(subj, obj, mid, payload);
@@ -47,17 +47,17 @@ public class SConnect extends SAction
 		{
 			return true;
 		}
-		if (!(o instanceof SConnect))
+		if (!(o instanceof SRequest))
 		{
 			return false;
 		}
-		return ((SConnect) o).canEqual(this) && super.equals(o);
+		return ((SRequest) o).canEqual(this) && super.equals(o);
 	}
 
 	@Override
 	public boolean canEqual(Object o)
 	{
-		return o instanceof SConnect;
+		return o instanceof SRequest;
 	}
 
 	@Override

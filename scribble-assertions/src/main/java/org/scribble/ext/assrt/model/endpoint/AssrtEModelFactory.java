@@ -3,6 +3,10 @@ package org.scribble.ext.assrt.model.endpoint;
 import java.util.Map;
 import java.util.Set;
 
+import org.scribble.ext.assrt.model.endpoint.action.AssrtEAccept;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtEReceive;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtERequest;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;

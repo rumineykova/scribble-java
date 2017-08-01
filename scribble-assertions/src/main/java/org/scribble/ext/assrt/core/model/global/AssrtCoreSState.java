@@ -12,12 +12,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
-import org.scribble.ext.assrt.model.endpoint.AssrtEAccept;
-import org.scribble.ext.assrt.model.endpoint.AssrtEAction;
-import org.scribble.ext.assrt.model.endpoint.AssrtEReceive;
-import org.scribble.ext.assrt.model.endpoint.AssrtERequest;
-import org.scribble.ext.assrt.model.endpoint.AssrtESend;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtEAccept;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtEAction;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtEReceive;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtERequest;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;

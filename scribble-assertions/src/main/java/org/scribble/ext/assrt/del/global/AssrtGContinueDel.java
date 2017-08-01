@@ -23,8 +23,6 @@ public class AssrtGContinueDel extends GContinueDel
 		AssrtGContinue gc = (AssrtGContinue) visited;
 
 		RecVarNode recvar = (RecVarNode) ((InlineProtocolEnv) gc.recvar.del().env()).getTranslation();	
-
-		System.out.println("bbb: " + gc.annot);
 		
 		//GContinue inlined = inl.job.af.GContinue(gc.getSource(), recvar);
 		GContinue inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGContinue(gc.getSource(), recvar, gc.annot);

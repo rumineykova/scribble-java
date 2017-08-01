@@ -255,8 +255,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		}
 		else
 		{
-			//expr = (AssrtArithFormula) gc.ass.getFormula();
-			throw new RuntimeException("[assrt-core] TODO: " + gc.annot);
+			expr = gc.annot.getFormula();
 		}
 		return this.af.AssrtCoreGRecVar(recvar, expr);
 	}
