@@ -134,7 +134,7 @@ public class Job
 		//runUnfoldingPass();
 	}
 		
-	// "Second part" of context building (separated for extensions to work on non-unfolded protos)
+	// "Second part" of context building (separated for extensions to work on non-unfolded protos -- e.g., Assrt/F17CommandLine)
 	public void runUnfoldingPass() throws ScribbleException
 	{
 		runVisitorPassOnAllModules(InlinedProtocolUnfolder.class);

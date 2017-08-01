@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.scribble.ast.ScribNode;
-import org.scribble.ast.local.LRecursion;
 import org.scribble.del.local.LRecursionDel;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
@@ -26,7 +25,6 @@ import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
-import org.scribble.main.ScribbleException;
 import org.scribble.type.name.RecVar;
 import org.scribble.visit.context.EGraphBuilder;
 
@@ -88,12 +86,12 @@ public class AssrtLRecursionDel extends LRecursionDel
 		graph.util.pushRecursionEntry(rv, graph.util.getEntry());
 	}
 
-	@Override
+	/*@Override
 	public LRecursion leaveEGraphBuilding(ScribNode parent, ScribNode child, EGraphBuilder graph, ScribNode visited) throws ScribbleException
 	{
 		LRecursion lr = (LRecursion) visited;
 		RecVar rv = lr.recvar.toName();
 		graph.util.popRecursionEntry(rv);
 		return (LRecursion) super.leaveEGraphBuilding(parent, child, graph, lr);
-	}
+	}*/
 }

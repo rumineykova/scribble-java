@@ -29,6 +29,7 @@ type <dotnet> "System.String" from "..." as str;
 // - port forwarding annotations/assertions
 // - arrays? -- cf. dependent types for array/list lengths -- https://www.reddit.com/r/fsharp/comments/28bbsr/faking_dependent_types_in_f/
 
+// redo inlining/unfolding via model building? role/param/assert all in model states?
 
 
 //*

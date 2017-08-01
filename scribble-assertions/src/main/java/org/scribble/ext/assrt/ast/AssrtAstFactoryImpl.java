@@ -29,8 +29,10 @@ import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
+import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
+import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLConnect;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
@@ -40,6 +42,7 @@ import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
 import org.scribble.ext.assrt.del.AssrtAnnotDataTypeElemDel;
 import org.scribble.ext.assrt.del.global.AssrtGChoiceDel;
 import org.scribble.ext.assrt.del.global.AssrtGConnectDel;
+import org.scribble.ext.assrt.del.global.AssrtGContinueDel;
 import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolDeclDel;
@@ -99,13 +102,13 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		return gc;
 	}
 
-	@Override
+	/*@Override
 	public GRecursion GRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block)
 	{
 		GRecursion gr = new GRecursion(source, recvar, block);
 		gr = del(gr, new AssrtGRecursionDel());
 		return gr;
-	}
+	}*/
 
 	@Override
 	public AmbigNameNode AmbiguousNameNode(CommonTree source, String identifier)
@@ -168,7 +171,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}*/
 	
 	
-	// Instantiating new node classes
+	// Returning new node classes in place of existing
 
 	
 	// Still used by parsing for empty annotation/assertion nodes -- but we return an Assrt node
@@ -201,8 +204,24 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 		return gc;
 	}
 	
+	@Override
+	public GRecursion GRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block)
+	{
+		AssrtGRecursion gr = new AssrtGRecursion(source, recvar, block);
+		gr = del(gr, new AssrtGRecursionDel());
+		return gr;
+	}
 
-	// Used by parsing for new Assrt nodes
+	@Override
+	public AssrtGContinue GContinue(CommonTree source, RecVarNode recvar)
+	{
+		AssrtGContinue gc = new AssrtGContinue(source, recvar);
+		gc = del(gc, new AssrtGContinueDel());
+		return gc;
+	}
+	
+
+	// Explicitly creating new Assrt nodes
 
 	@Override
 	public AssrtGProtocolHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, AssrtAssertion ass)
@@ -225,6 +244,22 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	{
 		AssrtGConnect gc = new AssrtGConnect(source, src, msg, dest, assertion);
 		gc = del(gc, new AssrtGConnectDel());
+		return gc;
+	}
+
+	@Override
+	public AssrtGRecursion AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, AssrtAssertion ass)
+	{
+		AssrtGRecursion gr = new AssrtGRecursion(source, recvar, block);
+		gr = del(gr, new AssrtGRecursionDel());
+		return gr;
+	}
+
+	@Override
+	public AssrtGContinue AssrtGContinue(CommonTree source, RecVarNode recvar, AssrtAssertion ass)
+	{
+		AssrtGContinue gc = new AssrtGContinue(source, recvar);
+		gc = del(gc, new AssrtGContinueDel());
 		return gc;
 	}
 

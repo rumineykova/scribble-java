@@ -23,6 +23,7 @@ import org.scribble.ext.assrt.core.model.global.AssrtCoreSModel;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelBuilder;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSafetyErrors;
 import org.scribble.ext.assrt.main.AssrtException;
+import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.main.AssrtMainContext;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
@@ -101,6 +102,7 @@ public class AssrtCommandLine extends CommandLine
 	@Override
 	protected void doValidationTasks(Job job) throws ScribbleException, ScribParserException
 	{
+		AssrtJob j = (AssrtJob) job;
 		if (this.assrtArgs.containsKey(AssrtCLArgFlag.ASSRT))  // assrt-*core* mode
 		{
 			/*if (this.args.containsKey(CLArgFlag.PROJECT))  // HACK
@@ -109,16 +111,16 @@ public class AssrtCommandLine extends CommandLine
 
 			}*/
 
-			assrtCorePreContextBuilding(job);
+			assrtCorePreContextBuilding(j);
 
 			GProtocolName simpname = new GProtocolName(this.assrtArgs.get(AssrtCLArgFlag.ASSRT)[0]);
 			if (simpname.toString().equals("[AssrtCoreAllTest]"))  // HACK: AssrtCoreAllTest
 			{
-				assrtCoreParseAndCheckWF(job);  // Includes base passes
+				assrtCoreParseAndCheckWF(j);  // Includes base passes
 			}
 			else
 			{
-				assrtCoreParseAndCheckWF(job, simpname);  // Includes base passes
+				assrtCoreParseAndCheckWF(j, simpname);  // Includes base passes
 			}
 			
 			// FIXME? assrt-core FSM building only used for assrt-core validation -- output tasks, e.g., -api, will still use default Scribble FSMs
@@ -131,7 +133,7 @@ public class AssrtCommandLine extends CommandLine
 	}
 
 	
-	// Refactor into AssrtJob?
+	// Refactor into Assrt(Core)Job?
 
 	/*private static void parseAndCheckWF(Job job, GProtocolName simpname) throws ScribbleException, ScribParserException
 	{
@@ -153,15 +155,17 @@ public class AssrtCommandLine extends CommandLine
 		parseAndCheckWF(job, main, simpname);
 	}*/
 	
-	private static void assrtCorePreContextBuilding(Job job) throws ScribbleException
+	// Following are for assrt-*core*
+	
+	private static void assrtCorePreContextBuilding(AssrtJob job) throws ScribbleException
 	{
 		job.runContextBuildingPasses();
 		job.runVisitorPassOnParsedModules(RecRemover.class);  // FIXME: Integrate into main passes?  Do before unfolding?
 		//job.runVisitorPassOnParsedModules(AnnotSetter.class);  // Hacky -- run after inlining, because original dels discarded
 	}
 
-	// Pre: f17PreContextBuilding
-	private static void assrtCoreParseAndCheckWF(Job job) throws ScribbleException, ScribParserException
+	// Pre: assrtPreContextBuilding(job)
+	private static void assrtCoreParseAndCheckWF(AssrtJob job) throws ScribbleException, ScribParserException
 	{
 		Module main = job.getContext().getMainModule();
 		for (GProtocolDecl gpd : main.getGlobalProtocolDecls())
@@ -170,8 +174,8 @@ public class AssrtCommandLine extends CommandLine
 		}
 	}
 
-	// Pre: f17PreContextBuilding
-	private static void assrtCoreParseAndCheckWF(Job job, GProtocolName simpname) throws ScribbleException, ScribParserException
+	// Pre: assrtPreContextBuilding(job)
+	private static void assrtCoreParseAndCheckWF(AssrtJob job, GProtocolName simpname) throws ScribbleException, ScribParserException
 	{
 		Module main = job.getContext().getMainModule();
 		if (!main.hasProtocolDecl(simpname))
@@ -182,6 +186,16 @@ public class AssrtCommandLine extends CommandLine
 
 		AssrtCoreAstFactory af = new AssrtCoreAstFactory();
 		AssrtCoreGType gt = new AssrtCoreGProtocolDeclTranslator(job, af).translate(gpd);
+		
+
+		/*..HERE FIXME: need to add global assrt rec/continue and fix global inlining -- below steps use only the inlined *global*
+		CHECKME: base assrt "works" because projected local proto decl does keep the assertion, and inlining of local, which does handle the assertions (AssrtLProjectionDeclDel), is done from the "base" protocol decl(s) -- i.e., not from the inlined global (CHECKME?)
+		(in base, inlining of global is only for global level (syntactic) checks -- model checking is done from the separately inlined locals -- inlined global is also for "extensions" like this one and f17)
+		-- does inlining->projection give the same as "base projection"->inlining?*/
+		
+		
+		
+		
 		
 		job.debugPrintln("\n[assrt-core] Translated:\n  " + gt);
 		
