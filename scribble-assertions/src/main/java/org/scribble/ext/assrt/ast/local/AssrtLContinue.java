@@ -2,6 +2,7 @@ package org.scribble.ext.assrt.ast.local;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
+import org.scribble.ast.Constants;
 import org.scribble.ast.local.LContinue;
 import org.scribble.ast.local.LInteractionNode;
 import org.scribble.ast.name.simple.RecVarNode;
@@ -85,5 +86,11 @@ public class AssrtLContinue extends LContinue
 	public boolean canMerge(LInteractionNode ln)
 	{
 		return ln instanceof AssrtLContinue;
+	}
+
+	@Override
+	public String toString()
+	{
+		return Constants.CONTINUE_KW + " " + this.recvar + "; " + this.ass;
 	}
 }

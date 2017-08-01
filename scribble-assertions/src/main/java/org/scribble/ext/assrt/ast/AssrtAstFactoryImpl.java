@@ -173,7 +173,6 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	
 	// Returning new node classes in place of existing
 
-	
 	// Still used by parsing for empty annotation/assertion nodes -- but we return an Assrt node
 	// Easier to make all global as Assrt nodes, to avoid cast checks in, e.g., AssrtGProtocolDeclDel::leaveProjection (for GProtocolHeader), and so all projections will be Assrt kinds only
 
@@ -250,7 +249,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	@Override
 	public AssrtGRecursion AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, AssrtAssertion ass)
 	{
-		AssrtGRecursion gr = new AssrtGRecursion(source, recvar, block);
+		AssrtGRecursion gr = new AssrtGRecursion(source, recvar, block, ass);
 		gr = del(gr, new AssrtGRecursionDel());
 		return gr;
 	}
@@ -258,7 +257,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	@Override
 	public AssrtGContinue AssrtGContinue(CommonTree source, RecVarNode recvar, AssrtAssertion ass)
 	{
-		AssrtGContinue gc = new AssrtGContinue(source, recvar);
+		AssrtGContinue gc = new AssrtGContinue(source, recvar, ass);
 		gc = del(gc, new AssrtGContinueDel());
 		return gc;
 	}

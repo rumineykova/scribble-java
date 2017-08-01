@@ -37,6 +37,7 @@ public class AssrtLProtocolDefDel extends LProtocolDefDel
 		return copy;
 	}
 
+	// Cf. GProtocolDefDel::leaveProtocolInlining
 	@Override
 	public ScribNode leaveProtocolInlining(ScribNode parent, ScribNode child, ProtocolDefInliner dinlr, ScribNode visited) throws ScribbleException
 	{
@@ -48,11 +49,7 @@ public class AssrtLProtocolDefDel extends LProtocolDefDel
 				RecVarKind.KIND, dinlr.getSubprotocolRecVar(subsig).toString());
 
 		//LRecursion rec = inl.job.af.LRecursion(blame, recvar, block);
-		if (!(parent instanceof LProjectionDecl)) // FIXME: factor out interface for annoy LProtocolDecl and LProjectionDecl
-		{
-			throw new RuntimeException("[assrt] Shouldn't get in here: " + parent.getClass());
-		}
-		LProjectionDecl lpd = (LProjectionDecl) parent;
+		LProjectionDecl lpd = (LProjectionDecl) parent;  // FIXME: factor out interface for annot LProtocolDecl and LProjectionDecl?
 		AssrtAssertion ass = ((AssrtLProtocolHeader) lpd.getHeader()).ass;
 		AssrtLRecursion rec = ((AssrtAstFactory) dinlr.job.af).AssrtLRecursion(blame, recvar, block, ass);  // FIXME: factor out better?
 

@@ -9,6 +9,7 @@ import java.util.Set;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.ConnectionAction;
+import org.scribble.ast.Constants;
 import org.scribble.ast.Do;
 import org.scribble.ast.MessageTransfer;
 import org.scribble.ast.ProtocolBlock;
@@ -30,6 +31,7 @@ import org.scribble.type.name.Role;
 import org.scribble.visit.AstVisitor;
 
 
+// N.B. non-empty ass currently only supported via proto def inlining -- no direct syntax for rec-with-annot yet
 public class AssrtGRecursion extends GRecursion
 {
 	public final AssrtAssertion ass;  // cf. AssrtGProtocolHeader  // FIXME: make specific syntactic expr
@@ -38,6 +40,7 @@ public class AssrtGRecursion extends GRecursion
 	{
 		this(source, recvar, block, null);
 	}
+	
 	public AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, AssrtAssertion ass)
 	{
 		super(source, recvar, block);
@@ -126,7 +129,7 @@ public class AssrtGRecursion extends GRecursion
 	@Override
 	protected AssrtGRecursion copy()
 	{
-		return new AssrtGRecursion(this.source, this.recvar, getBlock());
+		return new AssrtGRecursion(this.source, this.recvar, getBlock(), this.ass);
 	}
 	
 	@Override
@@ -159,5 +162,11 @@ public class AssrtGRecursion extends GRecursion
 		GProtocolBlock block = visitChildWithClassEqualityCheck(this, getBlock(), nv);
 		AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
 		return reconstruct(recvar, block, ass);
+	}
+
+	@Override
+	public String toString()
+	{
+		return Constants.REC_KW + " " + this.recvar + " " + this.ass + " " + this.block;
 	}
 }

@@ -97,6 +97,6 @@ public class AssrtLRecursion extends LRecursion
 	@Override
 	public String toString()
 	{
-		return Constants.REC_KW + " " + this.recvar + " " + this.ass + " " + block;
+		return Constants.REC_KW + " " + this.recvar + " " + this.ass + " " + this.block;
 	}
 }

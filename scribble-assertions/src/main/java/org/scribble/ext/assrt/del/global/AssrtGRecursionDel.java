@@ -20,6 +20,7 @@ import org.scribble.visit.context.env.ProjectionEnv;
 import org.scribble.visit.env.InlineProtocolEnv;
 
 public class AssrtGRecursionDel extends GRecursionDel implements AssrtICompoundInteractionNodeDel
+		//, AssrtScribDel  // FIXME: enter/leaveAnnotCheck, when assrt rec/continue supported by surface grammar
 {
 
 	@Override

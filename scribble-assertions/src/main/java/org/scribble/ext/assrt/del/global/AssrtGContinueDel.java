@@ -14,6 +14,7 @@ import org.scribble.visit.context.Projector;
 import org.scribble.visit.env.InlineProtocolEnv;
 
 public class AssrtGContinueDel extends GContinueDel
+		//implements AssrtScribDel  // FIXME: enter/leaveAnnotCheck, when assrt rec/continue supported by surface grammar
 {
 	@Override
 	public GContinue leaveProtocolInlining(ScribNode parent, ScribNode child, ProtocolDefInliner dinlr, ScribNode visited) throws ScribbleException

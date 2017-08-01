@@ -2,6 +2,7 @@ package org.scribble.ext.assrt.ast.global;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
+import org.scribble.ast.Constants;
 import org.scribble.ast.global.GContinue;
 import org.scribble.ast.local.LContinue;
 import org.scribble.ast.name.simple.RecVarNode;
@@ -76,5 +77,11 @@ public class AssrtGContinue extends GContinue
 		RecVarNode recvar = (RecVarNode) visitChild(this.recvar, nv);
 		AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
 		return reconstruct(recvar, ass);
+	}
+
+	@Override
+	public String toString()
+	{
+		return Constants.CONTINUE_KW + " " + this.recvar + "; " + this.ass;
 	}
 }
