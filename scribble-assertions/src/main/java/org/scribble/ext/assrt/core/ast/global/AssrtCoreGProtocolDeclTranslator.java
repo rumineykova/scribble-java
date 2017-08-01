@@ -28,13 +28,17 @@ import org.scribble.ext.assrt.ast.AssrtAnnotDataTypeElem;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
+import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
+import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
@@ -140,7 +144,7 @@ public class AssrtCoreGProtocolDeclTranslator
 			}
 			else if (first instanceof GContinue)
 			{
-				return parseGContinue(rvs, checkRecGuard, (GContinue) first);
+				return parseGContinue(rvs, checkRecGuard, (AssrtGContinue) first);
 			}
 			else
 			{
@@ -215,14 +219,24 @@ public class AssrtCoreGProtocolDeclTranslator
 			rvs.put(recvar, rvn.toName());
 			recvar = rvn.toName();
 		}
+		AssrtDataTypeVar annot;
+		AssrtArithFormula init;
+		if (gr.ass == null)
+		{
+			annot = makeFreshDataTypeVar();
+			init = AssrtFormulaFactory.AssrtIntVal(0);
+		}
+		else
+		{
+			AssrtBinCompFormula bcf = (AssrtBinCompFormula) gr.ass.getFormula();
+			annot = ((AssrtIntVarFormula) bcf.left).toName();
+			init = (AssrtArithFormula) bcf.right;
+		}
 		AssrtCoreGType body = parseSeq(gr.getBlock().getInteractionSeq().getInteractions(), rvs, checkChoiceGuard, true);  // Check rec body is guarded
-		
-		//FIXME: annot and init
-		
-		return this.af.AssrtCoreGRec(recvar, makeFreshDataTypeVar(), AssrtFormulaFactory.AssrtIntVal(0), body);
+		return this.af.AssrtCoreGRec(recvar, annot, init, body);
 	}
 
-	private AssrtCoreGType parseGContinue(Map<RecVar, RecVar> rvs, boolean checkRecGuard, GContinue gc)
+	private AssrtCoreGType parseGContinue(Map<RecVar, RecVar> rvs, boolean checkRecGuard, AssrtGContinue gc)
 			throws AssrtCoreSyntaxException
 	{
 		if (checkRecGuard)
@@ -234,10 +248,17 @@ public class AssrtCoreGProtocolDeclTranslator
 		{
 			recvar = rvs.get(recvar);
 		}
-		
-		// FIXME: expr
-		
-		return this.af.AssrtCoreGRecVar(recvar, AssrtFormulaFactory.AssrtIntVal(0));
+		AssrtArithFormula expr;
+		if (gc.ass == null)
+		{
+			expr = AssrtFormulaFactory.AssrtIntVal(0);
+		}
+		else
+		{
+			//expr = (AssrtArithFormula) gc.ass.getFormula();
+			throw new RuntimeException("[assrt-core] TODO: " + gc.ass);
+		}
+		return this.af.AssrtCoreGRecVar(recvar, expr);
 	}
 
 	// Parses message interactions as unary choices

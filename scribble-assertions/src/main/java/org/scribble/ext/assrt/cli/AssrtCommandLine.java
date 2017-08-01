@@ -36,7 +36,6 @@ import org.scribble.model.endpoint.EState;
 import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.Role;
 import org.scribble.util.ScribParserException;
-import org.scribble.visit.context.RecRemover;
 
 public class AssrtCommandLine extends CommandLine
 {
@@ -160,7 +159,10 @@ public class AssrtCommandLine extends CommandLine
 	private static void assrtCorePreContextBuilding(AssrtJob job) throws ScribbleException
 	{
 		job.runContextBuildingPasses();
-		job.runVisitorPassOnParsedModules(RecRemover.class);  // FIXME: Integrate into main passes?  Do before unfolding?
+
+		//job.runVisitorPassOnParsedModules(RecRemover.class);  // FIXME: Integrate into main passes?  Do before unfolding? 
+				// FIXME: no -- revise to support annots
+
 		//job.runVisitorPassOnParsedModules(AnnotSetter.class);  // Hacky -- run after inlining, because original dels discarded
 	}
 
@@ -187,15 +189,10 @@ public class AssrtCommandLine extends CommandLine
 		AssrtCoreAstFactory af = new AssrtCoreAstFactory();
 		AssrtCoreGType gt = new AssrtCoreGProtocolDeclTranslator(job, af).translate(gpd);
 		
-
 		/*..HERE FIXME: need to add global assrt rec/continue and fix global inlining -- below steps use only the inlined *global*
 		CHECKME: base assrt "works" because projected local proto decl does keep the assertion, and inlining of local, which does handle the assertions (AssrtLProjectionDeclDel), is done from the "base" protocol decl(s) -- i.e., not from the inlined global (CHECKME?)
 		(in base, inlining of global is only for global level (syntactic) checks -- model checking is done from the separately inlined locals -- inlined global is also for "extensions" like this one and f17)
 		-- does inlining->projection give the same as "base projection"->inlining?*/
-		
-		
-		
-		
 		
 		job.debugPrintln("\n[assrt-core] Translated:\n  " + gt);
 		

@@ -12,6 +12,7 @@ import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
+import org.scribble.type.name.DataType;
 import org.scribble.type.name.RecVar;
 import org.scribble.type.name.Role;
 
@@ -25,7 +26,9 @@ public class AssrtCoreGRec extends AssrtCoreRec<AssrtCoreGType> implements Assrt
 	@Override
 	public List<AssrtAnnotDataType> collectAnnotDataTypes()
 	{
-		return this.body.collectAnnotDataTypes();
+		List<AssrtAnnotDataType> res = this.body.collectAnnotDataTypes();
+		res.add(new AssrtAnnotDataType(this.annot, new DataType("int")));  // FIXME: factor out int constant
+		return res;
 	}
 
 	@Override
