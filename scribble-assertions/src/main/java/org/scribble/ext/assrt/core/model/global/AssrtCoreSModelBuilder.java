@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.model.global.SModelFactory;
@@ -26,7 +28,8 @@ public class AssrtCoreSModelBuilder
 	
 	public AssrtCoreSModel build(Map<Role, EState> E0, boolean isExplicit)
 	{
-		AssrtCoreSState init = new AssrtCoreSState(E0, isExplicit); 
+		Map<Role, AssrtEState> assrtE0 = E0.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> (AssrtEState) e.getValue()));
+		AssrtCoreSState init = new AssrtCoreSState(assrtE0, isExplicit);  // FIXME: make AssrtCoreSModelFactory -- cf. (Assrt)SModelFactory
 		
 		Set<AssrtCoreSState> todo = new HashSet<>();
 		Map<Integer, AssrtCoreSState> seen = new HashMap<>();

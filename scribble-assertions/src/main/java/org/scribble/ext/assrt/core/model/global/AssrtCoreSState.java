@@ -17,7 +17,9 @@ import org.scribble.ext.assrt.model.endpoint.AssrtEAction;
 import org.scribble.ext.assrt.model.endpoint.AssrtEReceive;
 import org.scribble.ext.assrt.model.endpoint.AssrtERequest;
 import org.scribble.ext.assrt.model.endpoint.AssrtESend;
+import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
+import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
@@ -47,7 +49,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self -- for progress checking
 	
 	// Cf. SState.config
-	private final Map<Role, EState> P;
+	private final Map<Role, AssrtEState> P;
 	private final Map<Role, Map<Role, AssrtESend>> Q;  // null value means connected and empty -- dest -> src -> msg
 	
 	/*private final Map<Role, Map<Role, PayloadVar>> ports;  // Server -> Client -> port
@@ -67,19 +69,24 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			// May be slightly more efficient to just record the big conjunction (rather than building it each time)
 	
 	// "Recursion variables" -- i.e., "state annotations" -- note can be used even without any continue
-	//private final Set<AssrtDataTypeVar, AssrtArithFormula> R;
+	//private final Map<AssrtDataTypeVar, AssrtArithFormula> R;  
+			// No: get from P? -- endpoint rec annots are "globally" consistent due to projection?
+			// No: need to collect up over execution
+	private final Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R;  
 
-	public AssrtCoreSState(Map<Role, EState> P, boolean explicit)
+
+	public AssrtCoreSState(Map<Role, AssrtEState> P, boolean explicit)
 	{
 		this(P, makeQ(P.keySet(), explicit),
 				makeK(P.keySet()),
 				//new HashMap<>());
-				new HashSet<>());
+				new HashSet<>(),
+				makeR(P));
 	}
 
 	// Pre: non-aliased "ownership" of all Map contents
-	protected AssrtCoreSState(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
-			Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F)//Map<AssrtDataTypeVar, AssrtBoolFormula> F)
+	protected AssrtCoreSState(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
+			Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F, Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R)
 	{
 		super(Collections.emptySet());
 		this.P = Collections.unmodifiableMap(P);
@@ -87,6 +94,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		this.K = Collections.unmodifiableMap(K);
 		//this.F = Collections.unmodifiableMap(F);
 		this.F = Collections.unmodifiableSet(F);
+		this.R = Collections.unmodifiableMap(R);
 	}
 
 	// Need to consider hasPendingRequest? -- no: the semantics blocks both sides until connected, so don't need to validate those "intermediate" states
@@ -204,19 +212,24 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				{
 					if (a instanceof AssrtESend)
 					{
-						Set<AssrtDataTypeVar> tmp = new HashSet<>(this.K.get(e.getKey()));
+						Role src = e.getKey();
+
+						Set<AssrtDataTypeVar> known = new HashSet<>(this.K.get(src));
 						((AssrtESend) a).payload.elems.forEach(pe ->  // Currently exactly one elem
 						{
 							if (pe instanceof AssrtAnnotDataType)
 							{
-								tmp.add(((AssrtAnnotDataType) pe).var);
+								known.add(((AssrtAnnotDataType) pe).var);
 							}
 							else
 							{
 								System.err.println("[assrt-core] Shouldn't get in here: " + pe);  // FIXME
 							}
 						});
-						return ((AssrtESend) a).ass.getVars().stream().anyMatch(v -> !tmp.contains(v));
+
+						known.addAll(this.R.get(src).keySet());
+
+						return ((AssrtESend) a).ass.getVars().stream().anyMatch(v -> !known.contains(v));
 					}
 					else
 					{
@@ -260,6 +273,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						{
 							AA = jsmt.qfm.exists(new LinkedList<>(varsA), AA);
 						}
+
 						BooleanFormula impli = jsmt.bfm.implication(PP, AA);
 						if (!varsF.isEmpty())
 						{
@@ -374,7 +388,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	public Map<Role, List<EAction>> getFireable()
 	{
 		Map<Role, List<EAction>> res = new HashMap<>();
-		for (Entry<Role, EState> e : this.P.entrySet())
+		for (Entry<Role, AssrtEState> e : this.P.entrySet())
 		{
 			Role self = e.getKey();
 			EState s = e.getValue();
@@ -583,12 +597,15 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	// Pre: getFireable().get(self).contains(a)
 	public AssrtCoreSState fire(Role self, EAction a)  // Deterministic
 	{
-		Map<Role, EState> P = new HashMap<>(this.P);
+		Map<Role, AssrtEState> P = new HashMap<>(this.P);
 		Map<Role, Map<Role, AssrtESend>> Q = AssrtCoreSState.copyQ(this.Q);
 		Map<Role, Set<AssrtDataTypeVar>> K = copyK(this.K);
 		//Map<AssrtDataTypeVar, AssrtBoolFormula> F = new HashMap<>(this.F);
 		Set<AssrtBoolFormula> F = new HashSet<>(this.F);
-		EState succ = P.get(self).getSuccessor(a);
+		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = AssrtCoreSState.copyR(this.R);
+
+		AssrtEState succ = P.get(self).getSuccessor(a);
+		R.get(self).putAll(succ.getAnnotVars());  // Should "overwrite" previous var values
 
 		if (a.isSend())
 		{
@@ -616,13 +633,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
 		}
-		return new AssrtCoreSState(P, Q, K, F);
+		return new AssrtCoreSState(P, Q, K, F, R);
 	}
 
 	// Update (in place) P, Q, K and F
-	private static void fireSend(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
+	private static void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
 			Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F,
-			Role self, AssrtESend es, EState succ)
+			Role self, AssrtESend es, AssrtEState succ)
 	{
 		P.put(self, succ);
 		//Q.get(es.peer).put(self, es);
@@ -630,18 +647,18 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		outputUpdateKF(K, F, self, es);
 	}
 
-	private static void fireReceive(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
+	private static void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
 			Map<Role, Set<AssrtDataTypeVar>> K,   // FIXME: manage F with receive assertions?
-			Role self, EReceive er, EState succ)
+			Role self, EReceive er, AssrtEState succ)
 	{
 		P.put(self, succ);
 		Q.get(self).put(er.peer, null);  // null is \epsilon
 		inputUpdateK(K, self, er);
 	}
 
-	private static void fireRequest(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
+	private static void fireRequest(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
 			Map<Role, Set<AssrtDataTypeVar>> K, Set<AssrtBoolFormula> F,
-			Role self, AssrtERequest es, EState succ)
+			Role self, AssrtERequest es, AssrtEState succ)
 	{
 		P.put(self, succ);
 		//Q.get(es.peer).put(self, new AssrtCoreEPendingRequest(es));
@@ -649,9 +666,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		outputUpdateKF(K, F, self, es);
 	}
 
-	private static void fireAccept(Map<Role, EState> P, Map<Role, Map<Role, AssrtESend>> Q,
+	private static void fireAccept(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
 			Map<Role, Set<AssrtDataTypeVar>> K, //Set<AssrtBoolFormula> F,
-			Role self, AssrtEAccept ea, EState succ)
+			Role self, AssrtEAccept ea, AssrtEState succ)
 	{
 		P.put(self, succ);
 		Q.get(self).put(ea.peer, null);
@@ -734,7 +751,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return this.Q.keySet().stream().anyMatch(acc -> isPendingRequest(req, acc));
 	}
 
-	public Map<Role, EState> getP()
+	public Map<Role, AssrtEState> getP()
 	{
 		return this.P;
 	}
@@ -757,7 +774,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	@Override
 	protected String getNodeLabel()
 	{
-		String lab = "(P=" + this.P + ", Q=" + this.Q + ", K=" + this.K + ", F=" + this.F + ")";
+		String lab = "(P=" + this.P + ", Q=" + this.Q + ", K=" + this.K + ", F=" + this.F + ", R=" + this.R + ")";
 		//return "label=\"" + this.id + ":" + lab.substring(1, lab.length() - 1) + "\"";
 		return "label=\"" + this.id + ":" + lab + "\"";
 	}
@@ -870,6 +887,22 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private static void putF(Set<AssrtBoolFormula> F, AssrtBoolFormula f)
 	{
 		F.add(f);
+	}
+
+	private static Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> makeR(Map<Role, AssrtEState> P)
+	{
+		/*Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.keySet().stream().collect(Collectors.toMap(r -> r, r -> new HashMap<>()));
+		P.entrySet().stream().forEach(e -> R.get(e.getKey()).putAll(e.getValue().getAnnotVars()));*/
+		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.entrySet().stream().collect(Collectors.toMap(
+				e -> e.getKey(),
+				e -> new HashMap<>(e.getValue().getAnnotVars())
+		));
+		return R;
+	}
+	
+	private static Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> copyR(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R)
+	{
+		return R.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> new HashMap<>(e.getValue())));
 	}
 	
 	/*private static Map<Role, Map<Role, PayloadVar>> copyPorts(Map<Role, Map<Role, PayloadVar>> ports)

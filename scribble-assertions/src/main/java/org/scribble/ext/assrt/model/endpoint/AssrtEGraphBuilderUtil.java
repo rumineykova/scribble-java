@@ -40,7 +40,7 @@ public class AssrtEGraphBuilderUtil extends EGraphBuilderUtil
 	
 	public void addAnnotVarInits(Map<AssrtDataTypeVar, AssrtArithFormula> vars)
 	{
-		((AssrtEState) this.entry).addAnnotVarInits(vars);
+		((AssrtEState) this.entry).addAnnotVars(vars);
 	}
 	
 	@Override

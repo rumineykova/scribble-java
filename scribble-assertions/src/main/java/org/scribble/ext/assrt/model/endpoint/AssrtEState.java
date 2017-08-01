@@ -22,6 +22,7 @@ import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.model.MState;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.EState;
+import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.type.name.RecVar;
 
 public class AssrtEState extends EState
@@ -39,16 +40,16 @@ public class AssrtEState extends EState
 	@Override
 	protected AssrtEState cloneNode(EModelFactory ef, Set<RecVar> labs)
 	{
-		return ((AssrtEModelFactory) ef).newAssrtEState(labs, getVars());
+		return ((AssrtEModelFactory) ef).newAssrtEState(labs, getAnnotVars());
 	}
 	
-	public Map<AssrtDataTypeVar, AssrtArithFormula> getVars()
+	public Map<AssrtDataTypeVar, AssrtArithFormula> getAnnotVars()
 	{
 		return this.vars;
 	}
 
 	// For public access, do via AssrtEGraphBuilderUtil
-	protected final void addAnnotVarInits(Map<AssrtDataTypeVar, AssrtArithFormula> vars)
+	protected final void addAnnotVars(Map<AssrtDataTypeVar, AssrtArithFormula> vars)
 	{
 		this.vars.putAll(vars);
 	}
@@ -58,6 +59,12 @@ public class AssrtEState extends EState
 	{
 		String labs = this.labs.toString();
 		return "label=\"" + this.id + ": " + labs.substring(1, labs.length() - 1) + ", " + this.vars + "\"";  // FIXME: would be more convenient for this method to return only the label body
+	}
+	
+	@Override
+	public AssrtEState getSuccessor(EAction a)
+	{
+		return (AssrtEState) super.getSuccessor(a);
 	}
 	
 	@Override
