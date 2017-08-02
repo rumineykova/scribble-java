@@ -17,6 +17,12 @@ public class AssrtIntVarFormula extends AssrtArithFormula
 	{
 		this.name = name; 
 	}
+
+	@Override
+	public AssrtArithFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		return this.equals(old) ? neu : this;
+	}
 	
 	// i.e., to "type"
 	public AssrtDataTypeVar toName()

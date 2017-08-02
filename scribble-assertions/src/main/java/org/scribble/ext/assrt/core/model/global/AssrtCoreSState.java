@@ -26,6 +26,7 @@ import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
@@ -231,7 +232,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							}
 							else
 							{
-								System.err.println("[assrt-core] Shouldn't get in here: " + pe);  // FIXME
+								System.err.println("[assrt-core] Shouldn't get in here: " + pe);  // FIXME: runtime exception
 							}
 						});
 
@@ -270,7 +271,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 								);*/
 						AssrtBoolFormula tmp = this.F.get(src);
 						BooleanFormula PP = tmp.getJavaSmtFormula();
-
+						
 						BooleanFormula AA = ass.getJavaSmtFormula();
 						Set<IntegerFormula> varsA = new HashSet<>();
 						varsA.add(jsmt.ifm.makeVariable(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));  
@@ -298,6 +299,15 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 									AssrtTrueFormula.TRUE,  // F emptyset at start
 									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
 								).getJavaSmtFormula();
+						
+						Set<AssrtDataTypeVar> r1 = new HashSet<>(this.R.get(src).keySet());
+						Set<AssrtDataTypeVar> f1 = new HashSet<>(this.F.get(src).getVars());
+						f1.retainAll(r1);
+						if (!f1.isEmpty())
+						{
+							// Simply exists quantifying all vars in F that are also in R -- is this OK?  just means we always use the "latest" R? (could be the same as before)
+							PP = jsmt.qfm.exists(f1.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList()), PP);
+						}
 
 						BooleanFormula impli = jsmt.bfm.implication(jsmt.bfm.and(PP, RR), AA);
 						//BooleanFormula impli = jsmt.bfm.and(jsmt.bfm.and(PP, RR), AA);  // HACK FIXME
@@ -311,6 +321,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						varsA.removeAll(varsF);*/  // No: the only difference should be single action pay var, and always want to exists quantify it (not only if not F, e.g., recursion)
 						Set<IntegerFormula> varsR = this.R.values().stream().flatMap(m -> m.keySet().stream()).map(v -> 
 									jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet()
+								);
+						varsR.addAll(
+								this.R.values().stream().flatMap(m -> m.values().stream()).flatMap(v -> 
+									v.getVars().stream()).map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet())
 								);
 						
 						Set<IntegerFormula> varsK = this.K.values().stream().flatMap(s -> s.stream())
@@ -704,7 +718,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			Set<AssrtDataTypeVar> varsF = tmp.getVars();
 			if (varsF.contains(es.annot))
 			{
-				F.put(self, AssrtFormulaFactory.AssrtForallFormula(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(es.annot.toString())), tmp));
+				//F.put(self, AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(es.annot.toString())), tmp));
 			}
 		}
 	}
@@ -727,7 +741,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			Set<AssrtDataTypeVar> varsF = tmp.getVars();
 			if (varsF.contains(er.annot))
 			{
-				F.put(self, AssrtFormulaFactory.AssrtForallFormula(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(er.annot.toString())), tmp));
+				//F.put(self, AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(er.annot.toString())), tmp));
 			}
 		}
 	}
@@ -986,9 +1000,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		List<IntegerFormula> vs = vars.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList());
 		if (!vs.isEmpty())
 		{
-			impli = jsmt.qfm.exists(vs, impli);  // FIXME: just exist quanitfy every "step"? -- cf. DbC?
+			impli = jsmt.qfm.forall(vs, impli);  // FIXME: just exist quantify every "step"? -- cf. DbC?
 		}
-		if (jsmt.isSat(impli))
+		
+		System.out.println("\n[assrt-core] F update checking: " + impli);
+		
+		if (jsmt.isSat(impli))// && !tmp.equals(AssrtTrueFormula.TRUE))
 		{
 			return;
 		}
@@ -1014,7 +1031,20 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	
 	private static void putR(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R, Role r, AssrtDataTypeVar annot, AssrtArithFormula expr)
 	{
+		Set<AssrtDataTypeVar> vs = expr.getVars();
+		if (vs.contains(annot))
+		{
+			//expr = AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(annot.toString())), expr);
+			
+			// Substitute var in expr by fresh -- will get forall quantified in sat check -- which is conservative (previous var refinement lost)
+			expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), makeFreshIntVar(annot));
+		}
 		R.get(r).put(annot, expr);
+	}
+	
+	private static AssrtIntVarFormula makeFreshIntVar(AssrtDataTypeVar var)
+	{
+		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString());  // HACK
 	}
 	
 	/*private static Map<Role, Map<Role, PayloadVar>> copyPorts(Map<Role, Map<Role, PayloadVar>> ports)

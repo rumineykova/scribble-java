@@ -46,6 +46,35 @@ global protocol Proto1(//role A,
 
 
 //*
+global protocol Proto1(role A, role B) @(x=1);
+{
+	1(y:int) from A to B; @(y<x);
+	do Proto1(A, B); @(x+1);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B; @(x=3);
+	2(y:int) from A to B; @(y>x);
+	
+	do Proto1(A, B);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @(x=3);
+{
+	1(y:int) from A to B; @(y = x);
+	2(z:int) from A to B; @(z = x);
+}
+//*/
+
+
+/*
 global protocol Proto1(role A, role B) @(x=3);
 {
 	//1(y:int) from A to B; @((y=3) && (x=y));

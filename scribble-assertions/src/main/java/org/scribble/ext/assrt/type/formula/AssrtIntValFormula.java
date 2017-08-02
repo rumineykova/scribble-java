@@ -17,6 +17,12 @@ public class AssrtIntValFormula extends AssrtArithFormula
 	{
 		this.val = i; 
 	}
+
+	@Override
+	public AssrtArithFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		return this;
+	}
 	
 	@Override
 	public String toString()

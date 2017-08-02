@@ -45,6 +45,12 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 	}
 
 	@Override
+	public AssrtArithFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		return AssrtFormulaFactory.AssrtBinArith(this.op, this.left.subs(old, neu), this.right.subs(old, neu));
+	}
+
+	@Override
 	public String toString()
 	{
 		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";
