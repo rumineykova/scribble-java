@@ -700,7 +700,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	// Update (in place) P, Q, K and F
-	private static void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
+	private //static
+	void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F, Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
 			Role self, AssrtCoreESend es, AssrtEState succ)
 	{
@@ -714,16 +715,30 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			putR(R, self, es.annot, es.expr);
 			
-			AssrtBoolFormula tmp = F.get(self);
+			/*AssrtBoolFormula tmp = F.get(self);
 			Set<AssrtDataTypeVar> varsF = tmp.getVars();
-			if (varsF.contains(es.annot))
+			if (varsF.contains(es.annot))*/
 			{
 				//F.put(self, AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(es.annot.toString())), tmp));
+				//putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, AssrtFormulaFactory.AssrtIntVar(es.annot.toString()), es.expr));
 			}
 		}
+
+		//System.out.println("aaa1: " + F.get(self));
+
+		Map<AssrtDataTypeVar, AssrtArithFormula> m = this.R.get(self);
+		AssrtDataTypeVar next = m.keySet().iterator().next();
+		if (!next.equals(AssrtCoreESend.DUMMY_VAR))
+		{
+			putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
+					AssrtFormulaFactory.AssrtIntVar(next.toString()), m.values().iterator().next()));
+		}
+
+		//System.out.println("aaa2: " + F.get(self));
 	}
 
-	private static void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
+	private //static
+	void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F, Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,   // FIXME: manage F with receive assertions?
 			Role self, AssrtCoreEReceive er, AssrtEState succ)
 	{
@@ -737,13 +752,27 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			putR(R, self, er.annot, er.expr);
 
-			AssrtBoolFormula tmp = F.get(self);
+			/*AssrtBoolFormula tmp = F.get(self);
 			Set<AssrtDataTypeVar> varsF = tmp.getVars();
-			if (varsF.contains(er.annot))
+			if (varsF.contains(er.annot))*/
 			{
 				//F.put(self, AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(er.annot.toString())), tmp));
+				//putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, AssrtFormulaFactory.AssrtIntVar(er.annot.toString()), er.expr));
 			}
 		}
+
+		//System.out.println("aaa1: " + F.get(self));
+		
+
+		Map<AssrtDataTypeVar, AssrtArithFormula> foo = this.R.get(self);
+		AssrtDataTypeVar next = foo.keySet().iterator().next();
+		if (!next.equals(AssrtCoreESend.DUMMY_VAR))
+		{
+			putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
+					AssrtFormulaFactory.AssrtIntVar(next.toString()), foo.values().iterator().next()));
+		}
+
+		//System.out.println("aaa2: " + F.get(self));
 	}
 
 	private static void fireRequest(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
