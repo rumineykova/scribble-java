@@ -13,7 +13,7 @@ public class AssrtIntValFormula extends AssrtArithFormula
 {
 	public final int val; 
 
-	public AssrtIntValFormula(int i)
+	protected AssrtIntValFormula(int i)
 	{
 		this.val = i; 
 	}

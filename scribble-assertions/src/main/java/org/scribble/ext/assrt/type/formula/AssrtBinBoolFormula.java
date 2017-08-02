@@ -34,7 +34,7 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 	public final AssrtBoolFormula right; 
 	//BooleanFormula formula;   // FIXME
 	
-	public AssrtBinBoolFormula(Op op, AssrtBoolFormula left, AssrtBoolFormula right)
+	protected AssrtBinBoolFormula(Op op, AssrtBoolFormula left, AssrtBoolFormula right)
 	{
 		this.left = left; 
 		this.right = right; 

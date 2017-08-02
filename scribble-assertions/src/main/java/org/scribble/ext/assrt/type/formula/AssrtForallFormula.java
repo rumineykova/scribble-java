@@ -11,14 +11,14 @@ import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 import org.sosy_lab.java_smt.api.QuantifiedFormulaManager;
 
-// FIXME: not exactly boolean kind?
-public class AssrtExistsFormula extends AssrtBoolFormula
+// FIXME: factor out quanitified formula with exists?
+public class AssrtForallFormula extends AssrtBoolFormula
 {
 	public final List<AssrtIntVarFormula> vars;
 	public final AssrtBoolFormula expr;
 
 	// Pre: vars non empty
-	protected AssrtExistsFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
+	protected AssrtForallFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
 	{
 		this.vars = Collections.unmodifiableList(vars);
 		this.expr = expr;
@@ -38,13 +38,13 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 		QuantifiedFormulaManager qfm = JavaSmtWrapper.getInstance().qfm;
 		BooleanFormula expr = (BooleanFormula) this.expr.toJavaSmtFormula();
 		List<IntegerFormula> vs = this.vars.stream().map(v -> v.getJavaSmtFormula()).collect(Collectors.toList());
-		return qfm.exists(vs, expr);
+		return qfm.forall(vs, expr);
 	}
 	
 	@Override
 	public String toString()
 	{
-		return "(exists ((" + this.vars + ")) (" + this.expr + ")";
+		return "(forall ((" + this.vars + ")) (" + this.expr + ")";
 	}
 
 	@Override
@@ -54,11 +54,11 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtExistsFormula))
+		if (!(o instanceof AssrtForallFormula))
 		{
 			return false;
 		}
-		AssrtExistsFormula f = (AssrtExistsFormula) o;
+		AssrtForallFormula f = (AssrtForallFormula) o;
 		return super.equals(this)  // Does canEqual
 				&& this.vars.equals(f.vars) && this.expr.equals(f.expr);  
 	}
@@ -66,13 +66,13 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 	@Override
 	protected boolean canEqual(Object o)
 	{
-		return o instanceof AssrtExistsFormula;
+		return o instanceof AssrtForallFormula;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		int hash = 6367;
+		int hash = 6803;
 		hash = 31 * hash + super.hashCode();
 		hash = 31 * hash + this.vars.hashCode();
 		hash = 31 * hash + this.expr.hashCode();

@@ -13,7 +13,7 @@ public class AssrtIntVarFormula extends AssrtArithFormula
 {
 	public final String name; 
 
-	public AssrtIntVarFormula(String name)
+	protected AssrtIntVarFormula(String name)
 	{
 		this.name = name; 
 	}

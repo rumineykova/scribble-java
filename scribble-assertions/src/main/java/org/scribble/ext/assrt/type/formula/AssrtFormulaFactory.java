@@ -40,6 +40,11 @@ public class AssrtFormulaFactory
 	{
 		return new AssrtExistsFormula(vars, expr); 
 	}
+
+	public static AssrtForallFormula AssrtForallFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
+	{
+		return new AssrtForallFormula(vars, expr); 
+	}
 	
 	/*public static AssrtTrueFormula AssrtTrueFormula() 
 	{

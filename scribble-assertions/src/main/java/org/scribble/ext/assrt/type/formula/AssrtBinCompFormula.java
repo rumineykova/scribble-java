@@ -35,7 +35,7 @@ public class AssrtBinCompFormula extends AssrtBoolFormula
 	public final AssrtArithFormula left; 
 	public final AssrtArithFormula right; 
 	
-	public AssrtBinCompFormula(Op op, AssrtArithFormula left, AssrtArithFormula right)
+	protected AssrtBinCompFormula(Op op, AssrtArithFormula left, AssrtArithFormula right)
 	{
 		this.left = left; 
 		this.right = right; 

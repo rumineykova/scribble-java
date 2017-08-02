@@ -37,7 +37,7 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 	public final AssrtArithFormula left;
 	public final AssrtArithFormula right;
 
-	public AssrtBinArithFormula(Op op, AssrtArithFormula left, AssrtArithFormula right)
+	protected AssrtBinArithFormula(Op op, AssrtArithFormula left, AssrtArithFormula right)
 	{
 		this.left = left;
 		this.right = right;
