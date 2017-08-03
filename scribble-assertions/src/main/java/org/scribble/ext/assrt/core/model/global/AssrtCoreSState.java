@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
+import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAction;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReceive;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
@@ -147,7 +148,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private final Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R;  
 
 	// *Not* in hash/equals -- HACK too hacky?
-	private final Map<Role, Set<AssrtDataTypeVar>> K;
+	private final Map<Role, Set<AssrtDataTypeVar>> K;  // Conflict between having this in the state, and formula building?
 	private final Map<Role, AssrtExistsFormulaHolder> F; 
 	//private final Map<Role, AssrtExistsFormulaHolder> Ftop; 
 
@@ -633,14 +634,20 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		outputUpdateKF(R, K, F, self, es);
 
-		// Update R
 		// Must come after F update
-		if (!es.annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
+		updateR(R, self, es);
+	}
+
+	private static void updateR(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R, Role self, AssrtCoreEAction a) 
+	{
+		AssrtDataTypeVar annot = a.getAnnotVar();
+		AssrtArithFormula expr = a.getArithExpr();
+		if (!annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
 		{
-			R.get(self).put(es.annot, es.expr);
+			R.get(self).put(annot, expr);
 			
-			//.. HERE add old R w.r.t. es.annot to F and exists quantify es.annot it
-			//.. FIXME: no, should just add R to F directly on each update, and don't add R again on formula build? -- need to change init F to include init R
+			.. HERE add old R w.r.t. es.annot to F and exists quantify es.annot it
+			.. FIXME: no, should just add R to F directly on each update, and don't add R again on formula build? -- need to change init F to include init R
 			
 			/*AssrtBoolFormula tmp = F.get(self);
 			Set<AssrtDataTypeVar> varsF = tmp.getVars();
@@ -673,27 +680,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		inputUpdateKF(R, K, F, self, er, m);
 				
 		// Must come after F update
-		if (!er.annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
-		{
-			//putR(R, self, er.annot, er.expr);
-			R.get(self).put(er.annot, er.expr);
-
-			/*AssrtBoolFormula tmp = F.get(self);
-			Set<AssrtDataTypeVar> varsF = tmp.getVars();
-			if (varsF.contains(er.annot))* /
-			{
-				//F.put(self, AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(er.annot.toString())), tmp));
-				//putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, AssrtFormulaFactory.AssrtIntVar(er.annot.toString()), er.expr));
-			}*/
-		}
-
-		/*Map<AssrtDataTypeVar, AssrtArithFormula> foo = this.R.get(self);
-		AssrtDataTypeVar next = foo.keySet().iterator().next();
-		if (!next.equals(AssrtCoreESend.DUMMY_VAR))
-		{
-			putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
-					AssrtFormulaFactory.AssrtIntVar(next.toString()), foo.values().iterator().next()));
-		}*/
+		updateR(R, self, er);
 	}
 
 	// FIXME: R
@@ -750,6 +737,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	// a is the EFSM input action, which has True ass; m is the dequeued msg, which carries the output ass
+	// FIXME: factor better with outputUpdateKF
 	private static void inputUpdateKF(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtExistsFormulaHolder> F, Role self, AssrtEAction a, AssrtEAction m)  // FIXME: EAction closest base type
 	{
@@ -982,36 +970,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			Map<Role, AssrtExistsFormulaHolder> F, Role r, AssrtBoolFormula f)
 	{
 		AssrtExistsFormulaHolder curr = F.get(r);
-		
-		/*Set<AssrtDataTypeVar> foo = f.getVars();
-		Map<AssrtDataTypeVar, AssrtArithFormula> bar = R.get(r);
-		if (bar.keySet().stream().anyMatch(v -> foo.contains(v)))
-		{
-			// FIXME: conservative
-			curr = AssrtFormulaFactory.AssrtExistsFormula(
-					bar.keySet().stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList()),
-					curr);
-			
-			// FIXME: conservative
-			f = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f, 
-						bar.entrySet().stream()
-							.map(e ->
-									AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
-										AssrtFormulaFactory.AssrtIntVar(e.getKey().toString()),
-										e.getValue()))
-							.reduce((AssrtBoolFormula) AssrtTrueFormula.TRUE,  // Cast needed?
-									(b, c) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b, c),
-									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2))
-					);
-		}*/
-		
-		/*AssrtExistsFormulaHolder next = //AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, curr, f);
-				new AssrtExistsFormulaHolder(curr.vars, curr.body);
-		next.body.add(f);*/
 		AssrtExistsFormulaHolder next = curr.copy();
 		next.addClause(f);
 
-		/*// HACK FIXME
+		// HACK?
 		JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
 		AssrtExistsFormula f1 = curr.toFormula();
 		AssrtExistsFormula f2 = next.toFormula();
@@ -1019,20 +981,20 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		Set<AssrtDataTypeVar> vars = new HashSet<>();
 		vars.addAll(f1.getVars());
 		vars.addAll(f2.getVars());
-		List<IntegerFormula> vs = vars.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList());
-		if (!vs.isEmpty())
+		if (!vars.isEmpty())
 		{
-			impli = jsmt.qfm.forall(vs, impli);  // FIXME: just exist quantify every "step"? -- cf. DbC? -- no: only on receives and state updates
+			impli = jsmt.qfm.forall(vars.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList()), impli);
 		}
 		
 		System.out.println("\n[assrt-core] F update subsumption check: " + impli);
 		
-		if (jsmt.isSat(impli))
+		if (!jsmt.isSat(impli))  // FIXME: need to check both directions of impli?  is that even enough? equi-satisfiability vs. equivalence?  (substitutability)
 		{
-			//F.put(r,  curr);
-		}
-		else*/
-		{
+			// FIXME 
+			.. if action var is already free in curr, then need to exists quanitfy?
+			.. can exists be used to "close off" dead vars in this way? -- i.e., can't access that x any more, no need to consider forall on it any more?
+			.. or need to do actual var renaming and keep top level forall?
+			
 			F.put(r, next);  // FIXME: will keep extending the formula on recursions, but same P/Q/R should be enough for the new state to be "discarded"?
 		}
 	}
