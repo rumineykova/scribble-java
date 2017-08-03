@@ -52,34 +52,14 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 {
 	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self -- for progress checking
 	
-	// Cf. SState.config
+	// In hash/equals -- cf. SState.config
 	private final Map<Role, AssrtEState> P;  // FIXME: core
 	private final Map<Role, Map<Role, AssrtESend>> Q;  // FIXME: core  // null value means connected and empty -- dest -> src -> msg
-	
-	/*private final Map<Role, Map<Role, PayloadVar>> ports;  // Server -> Client -> port
-	private final Map<Role, Set<PayloadVar>> owned;*/
-	
-	// Cf. history sensitivity
-	private final Map<Role, Set<AssrtDataTypeVar>> K;  // "Knowledge" of annotation vars (payloads and recursions)
-			// FIXME: for now, assume globally distinct annot vars?  but conflicts with unfolding recursion annot vars?
-			// Currently assuming unique annot var declarations -- otherwise need to consider, e.g., A->B(x).C->B(x)
-					// N.B. unique vars checked syntactically -- not being checked in model, which would fail on recursion cycles (e.g., mu X.A->B(x:Int).X)
-			// CHECKME: should this info really be part of the model states?  or just collected by analysis on top?
-					// Being in the state causes "implicit unrolling" for recursions, before/after "known" state
-			// "Knowledge" not the best term? -- K+F represents per role "commitments"?
-	
-	// Cf. temporal satisfiability
-	//private final Set<AssrtBoolFormula> F;  // FIXME: shouldn't be part of state?  i.e., shouldn't be used to ("syntactically") distinguish states?
-			// May be slightly more efficient to just record the big conjunction (rather than building it each time)
-	//private final Map<Role, Set<AssrtBoolFormula>> F;  // FIXME: shouldn't be part of state?  i.e., shouldn't be used to ("syntactically") distinguish states?
-	private final Map<Role, AssrtBoolFormula> F;
-	
-	// "Recursion variables" -- i.e., "state annotations" -- note can be used even without any continue
-	//private final Map<AssrtDataTypeVar, AssrtArithFormula> R;  
-			// Just get from P? -- no: need to collect up over execution
-			// Endpoint rec annots are "globally" consistent due to projection? -- but a subproto involving a subset of roles could update the rec annots only for those roles?
-			// Also from async, e.g., mu X(x:=1) . A -> B . X<2> -- x can be different at A and B
 	private final Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R;  
+
+	// *Not* in hash/equals -- HACK FIXME
+	private final Map<Role, Set<AssrtDataTypeVar>> K;
+	private final Map<Role, AssrtBoolFormula> F; 
 
 	public AssrtCoreSState(Map<Role, AssrtEState> P, boolean explicit)
 	{
@@ -97,10 +77,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		super(Collections.emptySet());
 		this.P = Collections.unmodifiableMap(P);
 		this.Q = Collections.unmodifiableMap(Q);  // Don't need copyQ, etc. -- should already be fully "owned"
-		this.K = Collections.unmodifiableMap(K);
-		this.F = Collections.unmodifiableMap(F);
-		//this.F = Collections.unmodifiableSet(F);
 		this.R = Collections.unmodifiableMap(R);
+
+		this.K = Collections.unmodifiableMap(K);
+		//this.F = Collections.unmodifiableSet(F);
+		this.F = Collections.unmodifiableMap(F);
 	}
 
 	// Need to consider hasPendingRequest? -- no: the semantics blocks both sides until connected, so don't need to validate those "intermediate" states
@@ -357,96 +338,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}));
 	}
 
-	/*public boolean isDisconnectedError()
-	{
-		return this.P.entrySet().stream().anyMatch((e) -> 
-			e.getValue().getActions().stream().anyMatch((a) ->
-				a.isDisconnect() && this.Q.get(e.getKey()).get(a.peer) != null
-		));
-	}
-	
-	// Error of opening a port when already connected or another port is still open
-	public boolean isPortOpenError()
-	{
-		for (Entry<Role, EState> e : this.P.entrySet())
-		{
-			for (EAction a : e.getValue().getActions())
-			{
-				if (a.isSend())
-				{
-					for (PayloadType<?> pt : (Iterable<PayloadType<?>>) a.payload.elems.stream()
-							.filter(x -> x instanceof AnnotType)::iterator)
-					{
-						if (pt instanceof AnnotPayloadType<?>)
-						{
-							// FIXME: factor out annot parsing
-							AnnotPayloadType<?> apt = (AnnotPayloadType<?>) pt;
-							String annot = ((AnnotString) apt.annot).val;
-							String key = annot.substring(0, annot.indexOf("="));
-							String val = annot.substring(annot.indexOf("=")+1,annot.length());
-							if (key.equals("open"))
-							{
-								Role portRole = new Role(val);
-								// FIXME: generalise
-								if (isConnected(e.getKey(), portRole) || isPendingConnected(e.getKey(), portRole))
-								{
-									return true;
-								}
-							}
-							else
-							{
-								throw new RuntimeException("[f17] TODO: " + a);
-							}
-						}
-						else if (pt instanceof PayloadVar)
-						{
-							
-						}
-						else
-						{
-							throw new RuntimeException("[f17] TODO: " + a);
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	// Error of trying to send a PayloadVar that is not "owned" by the sender
-	public boolean isPortOwnershipError()
-	{
-		for (Entry<Role, EState> e : this.P.entrySet())
-		{
-			for (EAction a : e.getValue().getActions())
-			{
-				if (a.isSend())
-				{
-					for (PayloadType<?> pt : (Iterable<PayloadType<?>>) a.payload.elems.stream()
-							.filter(x -> x instanceof AnnotType)::iterator)
-					{
-						if (pt instanceof AnnotPayloadType<?>)
-						{
-							
-						}
-						else if (pt instanceof PayloadVar)
-						{
-							if (!this.owned.get(e.getKey()).contains((PayloadVar) pt))
-							{
-								return true;
-							}
-						}
-						else
-						{
-							throw new RuntimeException("[f17] TODO: " + a);
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}*/
-	
 	// FIXME: List<AssrtCoreEAction> -- after also doing assert-core request/accept
 	public Map<Role, List<EAction>> getFireable()
 	{
@@ -574,61 +465,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{	
 			res.get(self).add(es);
 		}
-		
-		// FIXME: open/port annotations
-
-			/*EState plt = this.P.get(lo.peer);
-			if (plt.getActions().contains(lo.toDual(self)))
-			{
-
-				boolean ok = true;
-				for (PayloadType<?> pt : (Iterable<PayloadType<?>>) a.payload.elems.stream()
-						.filter((x) -> x instanceof AnnotType)::iterator)
-				{
-					if (pt instanceof AnnotPayloadType<?>)
-					{
-						AnnotPayloadType<?> apt = (AnnotPayloadType<?>) pt;
-						String annot = ((AnnotString) apt.annot).val;
-						String key = annot.substring(0, annot.indexOf("="));
-						String val = annot.substring(annot.indexOf("=")+1,annot.length());
-						if (key.equals("port"))
-						{
-							Role portRole = new Role(val);
-							if (isConnected(self, portRole) || isPendingConnected(self, portRole))
-							{
-								ok = false;
-								break;
-							}
-							if (!val.equals(lo.peer.toString()))
-							{
-								ok = false;
-								break;
-							}
-						}
-						else  // TODO: connect-with-message could also be open-annot
-						{
-							throw new RuntimeException("[f17] TODO: " + a);
-						}
-					}
-					else if (pt instanceof PayloadVar)  // Check linear ownership of port
-					{
-						if (!this.owned.get(self).contains(pt) || !pt.equals(this.ports.get(lo.peer).get(self)))
-						{
-							ok = false;
-							break;
-						}
-					}
-					else
-					{
-						throw new RuntimeException("[f17] TODO: " + a);
-					}
-				}
-				if (ok)
-				{	
-					res.get(self).add(lo);
-				}
-
-			}*/
 	}
 
 	// Based on getReceiveFireable
@@ -724,8 +560,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			}
 		}
 
-		//System.out.println("aaa1: " + F.get(self));
-
 		Map<AssrtDataTypeVar, AssrtArithFormula> m = this.R.get(self);
 		AssrtDataTypeVar next = m.keySet().iterator().next();
 		if (!next.equals(AssrtCoreESend.DUMMY_VAR))
@@ -733,8 +567,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
 					AssrtFormulaFactory.AssrtIntVar(next.toString()), m.values().iterator().next()));
 		}
-
-		//System.out.println("aaa2: " + F.get(self));
 	}
 
 	private //static
@@ -761,9 +593,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			}
 		}
 
-		//System.out.println("aaa1: " + F.get(self));
-		
-
 		Map<AssrtDataTypeVar, AssrtArithFormula> foo = this.R.get(self);
 		AssrtDataTypeVar next = foo.keySet().iterator().next();
 		if (!next.equals(AssrtCoreESend.DUMMY_VAR))
@@ -771,8 +600,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
 					AssrtFormulaFactory.AssrtIntVar(next.toString()), foo.values().iterator().next()));
 		}
-
-		//System.out.println("aaa2: " + F.get(self));
 	}
 
 	private static void fireRequest(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
@@ -911,8 +738,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		int hash = 79;
 		hash = 31 * hash + this.P.hashCode();
 		hash = 31 * hash + this.Q.hashCode();
-		hash = 31 * hash + this.K.hashCode();
-		hash = 31 * hash + this.F.hashCode();
+		hash = 31 * hash + this.R.hashCode();
+		/*hash = 31 * hash + this.K.hashCode();
+		hash = 31 * hash + this.F.hashCode();*/
 		return hash;
 	}
 
@@ -929,8 +757,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			return false;
 		}
 		AssrtCoreSState them = (AssrtCoreSState) o;
-		return them.canEquals(this) && this.P.equals(them.P) && this.Q.equals(them.Q)
-				&& this.K.equals(them.K) && this.F.equals(them.F);
+		return them.canEquals(this) && this.P.equals(them.P) && this.Q.equals(them.Q) && this.R.equals(them.R);
+				//&& this.K.equals(them.K) && this.F.equals(them.F);
 	}
 
 	@Override
@@ -952,7 +780,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 	
 	
-	// FIXME: factor out into own classes
+	// FIXME: factor out into separate classes
 	
 	private static Map<Role, Map<Role, AssrtESend>> makeQ(Set<Role> rs, boolean explicit)
 	{
@@ -1075,93 +903,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString());  // HACK
 	}
-	
-	/*private static Map<Role, Map<Role, PayloadVar>> copyPorts(Map<Role, Map<Role, PayloadVar>> ports)
-	{
-		Map<Role, Map<Role, PayloadVar>> copy = new HashMap<>();
-		for (Role r : ports.keySet())
-		{
-			copy.put(r, new HashMap<>(ports.get(r)));
-		}
-		return copy;
-	}
-
-	private static Map<Role, Set<PayloadVar>> makeOwned(Set<Role> rs)
-	{
-		return rs.stream().collect(Collectors.toMap((r) -> r, (r) -> new HashSet<>()));
-	}
-	
-	private static Map<Role, Set<PayloadVar>> copyOwned(Map<Role, Set<PayloadVar>> owned)
-	{
-		return owned.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> new HashSet<>(e.getValue())));
-	}*/
-
-	/* // No longer "synchronous" per se, just blocking for requestor
-	public AssrtSConfig sync(Role r1, EAction a1, Role r2, EAction a2)
-	{
-		Map<Role, EState> P = new HashMap<>(this.P);
-		Map<Role, Map<Role, AssrtESend>> Q = copyQ(this.Q);
-		Map<Role, Map<Role, PayloadVar>> ports = copyPorts(this.ports);
-		Map<Role, Set<PayloadVar>> owned = copyOwned(this.owned);
-		EState succ1 = P.get(r1).getSuccessor(a1);
-		EState succ2 = P.get(r2).getSuccessor(a2);
-
-		if ((a1.isConnect() && a2.isAccept())
-				|| (a1.isAccept() && a2.isConnect()))
-		{
-			P.put(r1, succ1);
-			P.put(r2, succ2);
-			Q.get(r1).put(r2, null);
-			Q.get(r2).put(r1, null);
-
-			Role cself = a1.isConnect() ? r1 : r2;
-			Role cpeer = a1.isConnect() ? r2 : r1;
-			EConnect ec = (EConnect) (a1.isConnect() ? a1 : a2);
-			
-			//if (...)  // FIXME: check if port pending, if so then correct port used -- need AnnotEConnect type -- cf., isConnectionError
-			{
-				ports.get(cpeer).put(cself, null); // HACK FIXME: incorrect without proper checks
-				//owned.get(cself).clear();  // Hack doesn't work: will clear others' pending ports
-			}
-			
-			for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) ec.payload.elems.stream()
-					.filter((x) -> x instanceof AnnotType)::iterator)
-			{
-				if (pt instanceof AnnotPayloadType<?>)
-				{
-					AnnotPayloadType<?> apt = (AnnotPayloadType<?>) pt;
-					String annot = ((AnnotString) apt.annot).val;
-					String key = annot.substring(0, annot.indexOf("="));
-					String val = annot.substring(annot.indexOf("=")+1,annot.length());
-					if (key.equals("open"))  // Duplicated from fire/isSend -- opening+passing a port as part of connect
-					{
-						Role portRole = new Role(val);
-						ports.get(cself).put(portRole, apt.var);
-						owned.get(cpeer).add(apt.var);
-					}
-					else
-					{
-						throw new RuntimeException("[f17] TODO: " + ec);
-					}
-				}
-				else if (pt instanceof PayloadVar)
-				{
-					PayloadVar pv = (PayloadVar) pt;
-					owned.get(cself).remove(pv);
-					owned.get(cpeer).add(pv);
-				}
-				else
-				{
-					throw new RuntimeException("[f17] TODO: " + ec);
-				}
-			}
-		}
-		else
-		{
-			throw new RuntimeException("[f17] Shouldn't get in here: " + a1 + ", " + a2);
-		}
-		return new AssrtCoreSState(P, Q, ports, owned);
-	}*/
 }
 
 
