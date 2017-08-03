@@ -14,13 +14,12 @@ import java.util.stream.Collectors;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReceive;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
+import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAccept;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAction;
-import org.scribble.ext.assrt.model.endpoint.action.AssrtEReceive;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtERequest;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
-import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
@@ -53,26 +52,27 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self -- for progress checking
 	
 	// In hash/equals -- cf. SState.config
-	private final Map<Role, AssrtEState> P;  // FIXME: core
-	private final Map<Role, Map<Role, AssrtESend>> Q;  // FIXME: core  // null value means connected and empty -- dest -> src -> msg
+	private final Map<Role, AssrtEState> P;          
+	private final Map<Role, Map<Role, AssrtCoreESend>> Q;  // null value means connected and empty -- dest -> src -> msg
 	private final Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R;  
 
-	// *Not* in hash/equals -- HACK FIXME
+	// *Not* in hash/equals -- HACK too hacky?
 	private final Map<Role, Set<AssrtDataTypeVar>> K;
 	private final Map<Role, AssrtBoolFormula> F; 
 
 	public AssrtCoreSState(Map<Role, AssrtEState> P, boolean explicit)
 	{
 		this(P, makeQ(P.keySet(), explicit),
-				makeK(P.keySet()),
-				makeF(P.keySet()),
 				//new HashSet<>(),
-				makeR(P));
+				makeR(P),
+				makeK(P.keySet()),
+				makeF(P.keySet()));
 	}
 
 	// Pre: non-aliased "ownership" of all Map contents
-	protected AssrtCoreSState(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F, Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R)
+	protected AssrtCoreSState(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
+			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
+			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F)
 	{
 		super(Collections.emptySet());
 		this.P = Collections.unmodifiableMap(P);
@@ -497,7 +497,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	public AssrtCoreSState fire(Role self, EAction a)  // Deterministic
 	{
 		Map<Role, AssrtEState> P = new HashMap<>(this.P);
-		Map<Role, Map<Role, AssrtESend>> Q = AssrtCoreSState.copyQ(this.Q);
+		Map<Role, Map<Role, AssrtCoreESend>> Q = AssrtCoreSState.copyQ(this.Q);
 		Map<Role, Set<AssrtDataTypeVar>> K = AssrtCoreSState.copyK(this.K);
 		Map<Role, AssrtBoolFormula> F = AssrtCoreSState.copyF(this.F);
 		//Set<AssrtBoolFormula> F = new HashSet<>(this.F);
@@ -508,11 +508,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		if (a.isSend())
 		{
-			fireSend(P, Q, K, F, R, self, (AssrtCoreESend) a, succ);
+			fireSend(P, Q, R, K, F, self, (AssrtCoreESend) a, succ);
 		}
 		else if (a.isReceive())
 		{
-			fireReceive(P, Q, K, F, R, self, (AssrtCoreEReceive) a, succ);
+			fireReceive(P, Q, R, K, F, self, (AssrtCoreEReceive) a, succ);
 		}
 		else if (a.isRequest())
 		{
@@ -532,13 +532,14 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
 		}
-		return new AssrtCoreSState(P, Q, K, F, R);
+		return new AssrtCoreSState(P, Q, R, K, F);
 	}
 
 	// Update (in place) P, Q, K and F
 	private //static
-	void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F, Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
+	void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
+			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
+			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F,
 			Role self, AssrtCoreESend es, AssrtEState succ)
 	{
 		P.put(self, succ);
@@ -570,8 +571,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	private //static
-	void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F, Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,   // FIXME: manage F with receive assertions?
+	void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
+			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R, 
+			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F,   // FIXME: manage F with receive assertions?
 			Role self, AssrtCoreEReceive er, AssrtEState succ)
 	{
 		P.put(self, succ);
@@ -602,7 +604,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 	}
 
-	private static void fireRequest(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
+	// FIXME: R
+	private static void fireRequest(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
+			//Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F,
 			Role self, AssrtERequest es, AssrtEState succ)
 	{
@@ -612,8 +616,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		outputUpdateKF(K, F, self, es);
 	}
 
-	private static void fireAccept(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtESend>> Q,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F, //Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
+	// FIXME: R
+	private static void fireAccept(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
+			//Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
+			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F, 
 			Role self, AssrtEAccept ea, AssrtEState succ)
 	{
 		P.put(self, succ);
@@ -703,7 +709,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return this.P;
 	}
 	
-	public Map<Role, Map<Role, AssrtESend>> getQ()
+	public Map<Role, Map<Role, AssrtCoreESend>> getQ()
 	{
 		return this.Q;
 	}
@@ -721,7 +727,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	@Override
 	protected String getNodeLabel()
 	{
-		String lab = "(P=" + this.P + ", Q=" + this.Q + ", K=" + this.K + ", F=" + this.F + ", R=" + this.R + ")";
+		String lab = "(P=" + this.P + ",\nQ=" + this.Q + ",\nR=" + this.R + ",\nK=" + this.K + ",\nF=" + this.F + ")";
 		//return "label=\"" + this.id + ":" + lab.substring(1, lab.length() - 1) + "\"";
 		return "label=\"" + this.id + ":" + lab + "\"";
 	}
@@ -739,7 +745,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		hash = 31 * hash + this.P.hashCode();
 		hash = 31 * hash + this.Q.hashCode();
 		hash = 31 * hash + this.R.hashCode();
-		/*hash = 31 * hash + this.K.hashCode();
+		/*hash = 31 * hash + this.K.hashCode();  // HACK
 		hash = 31 * hash + this.F.hashCode();*/
 		return hash;
 	}
@@ -782,13 +788,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	
 	// FIXME: factor out into separate classes
 	
-	private static Map<Role, Map<Role, AssrtESend>> makeQ(Set<Role> rs, boolean explicit)
+	private static Map<Role, Map<Role, AssrtCoreESend>> makeQ(Set<Role> rs, boolean explicit)
 	{
-		AssrtESend init = explicit ? AssrtCoreEBot.ASSSRTCORE_BOT : null;
-		Map<Role, Map<Role, AssrtESend>> res = new HashMap<>();
+		AssrtCoreESend init = explicit ? AssrtCoreEBot.ASSSRTCORE_BOT : null;
+		Map<Role, Map<Role, AssrtCoreESend>> res = new HashMap<>();
 		for (Role r1 : rs)
 		{
-			HashMap<Role, AssrtESend> tmp = new HashMap<>();
+			HashMap<Role, AssrtCoreESend> tmp = new HashMap<>();
 			for (Role r2 : rs)
 			{
 				if (!r2.equals(r1))
@@ -801,9 +807,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return res;
 	}
 	
-	private static Map<Role, Map<Role, AssrtESend>> copyQ(Map<Role, Map<Role, AssrtESend>> Q)
+	private static Map<Role, Map<Role, AssrtCoreESend>> copyQ(Map<Role, Map<Role, AssrtCoreESend>> Q)
 	{
-		Map<Role, Map<Role, AssrtESend>> copy = new HashMap<>();
+		Map<Role, Map<Role, AssrtCoreESend>> copy = new HashMap<>();
 		for (Role r : Q.keySet())
 		{
 			copy.put(r, new HashMap<>(Q.get(r)));
@@ -907,7 +913,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 
 // \bot
-class AssrtCoreEBot extends AssrtESend
+class AssrtCoreEBot extends AssrtCoreESend
 {
 	// N.B. must be initialised *before* ASSSRTCORE_BOT
 	private static final Payload ASSRTCORE_EMPTY_PAYLOAD =
@@ -920,7 +926,8 @@ class AssrtCoreEBot extends AssrtESend
 	//public AssrtCoreEBot(EModelFactory ef)
 	private AssrtCoreEBot()
 	{
-		super(null, Role.EMPTY_ROLE, Op.EMPTY_OPERATOR, ASSRTCORE_EMPTY_PAYLOAD, AssrtTrueFormula.TRUE);  // null ef OK?
+		super(null, Role.EMPTY_ROLE, Op.EMPTY_OPERATOR, ASSRTCORE_EMPTY_PAYLOAD, AssrtTrueFormula.TRUE,  // null ef OK?
+				AssrtCoreESend.DUMMY_VAR, AssrtCoreESend.ZERO);
 	}
 	
 	@Override
@@ -930,13 +937,13 @@ class AssrtCoreEBot extends AssrtESend
 	}
 	
 	@Override
-	public AssrtEReceive toDual(Role self)
+	public AssrtCoreEReceive toDual(Role self)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 
 	@Override
-	public AssrtSSend toGlobal(SModelFactory sf, Role self)
+	public AssrtCoreSSend toGlobal(SModelFactory sf, Role self)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
@@ -977,7 +984,7 @@ class AssrtCoreEBot extends AssrtESend
 }
 
 // <a>
-class AssrtCoreEPendingRequest extends AssrtESend  // Q stores ESends (not EConnect)
+class AssrtCoreEPendingRequest extends AssrtCoreESend  // Q stores ESends (not EConnect)
 {
 	public static final Payload ASSRTCORE_EMPTY_PAYLOAD =
 			new Payload(Arrays.asList(new AssrtAnnotDataType(new AssrtDataTypeVar("_BOT"), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE)));
@@ -988,7 +995,8 @@ class AssrtCoreEPendingRequest extends AssrtESend  // Q stores ESends (not EConn
 	//public AssrtCoreEPendingConnection(AssrtEModelFactory ef, Role r, MessageId<?> op, Payload pay, AssrtBoolFormula ass)
 	public AssrtCoreEPendingRequest(AssrtERequest msg)
 	{
-		super(null, msg.peer, msg.mid, msg.payload, msg.ass);  // HACK: null ef OK?  cannot access es.ef
+		super(null, msg.peer, msg.mid, msg.payload, msg.ass,  // HACK: null ef OK?  cannot access es.ef
+				AssrtCoreESend.DUMMY_VAR, AssrtCoreESend.ZERO);
 		this.msg = msg;
 	}
 	
@@ -1004,13 +1012,13 @@ class AssrtCoreEPendingRequest extends AssrtESend  // Q stores ESends (not EConn
 	}
 	
 	@Override
-	public AssrtEReceive toDual(Role self)
+	public AssrtCoreEReceive toDual(Role self)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 
 	@Override
-	public AssrtSSend toGlobal(SModelFactory sf, Role self)
+	public AssrtCoreSSend toGlobal(SModelFactory sf, Role self)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}

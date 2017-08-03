@@ -72,6 +72,7 @@ public class AssrtEState extends EState
 	{
 		int hash = 6619;
 		hash = 31 * hash + super.hashCode();  // N.B. uses state ID only -- following super pattern
+		hash = 31 * hash + this.vars.hashCode();  // N.B. uses state ID only -- following super pattern
 		return hash;
 	}
 
@@ -86,7 +87,7 @@ public class AssrtEState extends EState
 		{
 			return false;
 		}
-		return super.equals(o);  // Checks canEquals
+		return super.equals(o) && this.vars.equals(((AssrtEState) o).vars);  // Checks canEquals
 	}
 
 	@Override

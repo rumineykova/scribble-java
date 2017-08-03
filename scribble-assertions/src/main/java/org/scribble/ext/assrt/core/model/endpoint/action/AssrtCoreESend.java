@@ -17,6 +17,10 @@ import org.scribble.type.name.Role;
 
 public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 {
+	// HACK FIXME -- move tp AssrtCoreEAction
+	public static final AssrtDataTypeVar DUMMY_VAR = new AssrtDataTypeVar("_dum");
+	public static final AssrtArithFormula ZERO = AssrtFormulaFactory.AssrtIntVal(0);
+
 	// Annot needed -- e.g. mu X(x:=..) . mu Y(y:=..) ... X<123> -- rec var X will be discarded, so edge action needs to record which var is being updated
 	public final AssrtDataTypeVar annot;  // Not null (by AssrtCoreGProtocolTranslator)
 	public final AssrtArithFormula expr;
@@ -28,10 +32,6 @@ public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 		this.annot = annot;
 		this.expr = expr;
 	}
-
-	// HACK FIXME -- move tp AssrtCoreEAction
-	public static final AssrtDataTypeVar DUMMY_VAR = new AssrtDataTypeVar("_dum");
-	public static final AssrtArithFormula ZERO = AssrtFormulaFactory.AssrtIntVal(0);
 	
 	// HACK: replace assertion by True
 	@Override
