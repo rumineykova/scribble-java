@@ -63,15 +63,15 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 		BooleanFormulaManager fmanager = JavaSmtWrapper.getInstance().bfm;
 		BooleanFormula bleft = (BooleanFormula) this.left.toJavaSmtFormula();
 		BooleanFormula bright = (BooleanFormula) this.right.toJavaSmtFormula();
-		
-		switch(this.op) {
-		case And: 
-			return fmanager.and(bleft,bright); 
-		case Or:
-			return fmanager.or(bleft,bright); 
-		default:
-			//throw new AssertionParseException("No matchin ooperation for boolean formula"); 
-			throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
+		switch(this.op)
+		{
+			case And: 
+				return fmanager.and(bleft, bright); 
+			case Or:
+				return fmanager.or(bleft, bright); 
+			default:
+				//throw new AssertionParseException("No matchin ooperation for boolean formula"); 
+				throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
 		}		
 	}
 	

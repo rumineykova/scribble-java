@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReceive;
@@ -51,9 +50,11 @@ import org.sosy_lab.java_smt.api.BooleanFormula;
 class AssrtExistsFormulaHolder extends AssrtBoolFormula  // HACK
 {
 	private final List<AssrtIntVarFormula> vars;
-	private final List<AssrtBoolFormula> body;  // CNF  // Any nested AssrtExistsFormulaHolder will always be the last item
+	private final List<AssrtBoolFormula> body;  // CNF  
+			// May be empty
+			// Any nested AssrtExistsFormulaHolder will always be the last item
 	
-	// Pre: vars and body are non empty
+	// Pre: vars is non empty
 	public AssrtExistsFormulaHolder(List<AssrtIntVarFormula> vars, List<AssrtBoolFormula> body)
 	{
 		this.vars = Collections.unmodifiableList(vars);
@@ -67,21 +68,31 @@ class AssrtExistsFormulaHolder extends AssrtBoolFormula  // HACK
 	
 	public void addClause(AssrtBoolFormula f)
 	{
-		AssrtBoolFormula last = this.body.get(this.body.size() - 1);
-		if (last instanceof AssrtExistsFormulaHolder)
+		if (this.body.isEmpty())  // Never actually empty because of dummy's
 		{
-			((AssrtExistsFormulaHolder) last).addClause(f);
+			this.body.add(f);
 		}
 		else
 		{
-			this.body.add(f);
+			AssrtBoolFormula last = this.body.get(this.body.size() - 1);
+			if (last instanceof AssrtExistsFormulaHolder)
+			{
+				((AssrtExistsFormulaHolder) last).addClause(f);
+			}
+			else
+			{
+				this.body.add(f);
+			}
 		}
 	}
 	
 	public AssrtExistsFormulaHolder copy()
 	{
-		return new AssrtExistsFormulaHolder(this.vars, this.body.stream().map(f ->
-				(f instanceof AssrtExistsFormulaHolder) ? ((AssrtExistsFormulaHolder) f).copy() : f).collect(Collectors.toList()));
+		List<AssrtBoolFormula> fs = (this.body.isEmpty()
+				? Arrays.asList(AssrtTrueFormula.TRUE)
+				: this.body.stream().map(f -> 
+						(f instanceof AssrtExistsFormulaHolder) ? ((AssrtExistsFormulaHolder) f).copy() : f).collect(Collectors.toList()));
+		return new AssrtExistsFormulaHolder(this.vars, fs);
 	}
 	
 	public AssrtExistsFormula toFormula()
@@ -142,12 +153,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	public AssrtCoreSState(Map<Role, AssrtEState> P, boolean explicit)
 	{
-		this(P, makeQ(P.keySet(), explicit),
-				//new HashSet<>(),
-				makeR(P),
-				makeK(P.keySet()),
-				makeF(P)
-		);
+		this(P, makeQ(P.keySet(), explicit), makeR(P), makeK(P.keySet()), makeF(P));
 	}
 
 	// Pre: non-aliased "ownership" of all Map contents
@@ -333,6 +339,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						//AssrtBoolFormula tmp = this.F.get(src);
 						AssrtBoolFormula tmp = this.F.get(src).toFormula();
 						BooleanFormula PP = tmp.getJavaSmtFormula();*/
+						
 						AssrtBoolFormula FF = this.F.get(src).toFormula();
 						
 						AssrtBoolFormula AA = ass;
@@ -345,7 +352,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
 						}
 						
-						Set<Entry<AssrtDataTypeVar, AssrtArithFormula>> bar = new HashSet<>(this.R.get(src).entrySet());
+						/*Set<Entry<AssrtDataTypeVar, AssrtArithFormula>> bar = new HashSet<>(this.R.get(src).entrySet());
 						AssrtBoolFormula RR = bar.stream()
 								.map(b -> AssrtFormulaFactory.AssrtBinComp(
 									AssrtBinCompFormula.Op.Eq, 
@@ -354,7 +361,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 								.reduce(
 									(AssrtBoolFormula) AssrtTrueFormula.TRUE,  // F emptyset at start
 									(b1, c) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, c),
-									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
+									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));*/
 						
 						/*Set<AssrtDataTypeVar> r1 = new HashSet<>(this.R.get(src).keySet());
 						Set<AssrtDataTypeVar> f1 = new HashSet<>(tmp.getVars());
@@ -383,13 +390,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						Set<IntegerFormula> varsK = this.K.values().stream().flatMap(s -> s.stream())
 								.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());*/
 						
-						BooleanFormula impli = jsmt.bfm.implication(jsmt.bfm.and(FF.getJavaSmtFormula(), RR.getJavaSmtFormula()), AA.getJavaSmtFormula());
-						
-						System.out.println("aaa: " + AA + ", " + AA.getVars());
+						//BooleanFormula impli = jsmt.bfm.implication(jsmt.bfm.and(FF.getJavaSmtFormula(), RR.getJavaSmtFormula()), AA.getJavaSmtFormula());
+						BooleanFormula impli = jsmt.bfm.implication(FF.getJavaSmtFormula(), AA.getJavaSmtFormula());
+								// N.B., JavaSMT formula constructor, via getJavaSmtFormula, seems to implicitly discardly, e.g., True && ...
 
 						Set<AssrtDataTypeVar> free = new HashSet<>();
 						free.addAll(FF.getVars());
-						free.addAll(RR.getVars());
+						//free.addAll(RR.getVars());
 						free.addAll(AA.getVars());
 						if (!free.isEmpty())
 						{
@@ -632,9 +639,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			R.get(self).put(es.annot, es.expr);
 			
-			.. HERE add old R w.r.t. es.annot to F and exists quantify es.annot it
-			
-			.. FIXME: no, should just add R to F directly on each update, and don't add R again on formula build? -- need to change init F to include init R
+			//.. HERE add old R w.r.t. es.annot to F and exists quantify es.annot it
+			//.. FIXME: no, should just add R to F directly on each update, and don't add R again on formula build? -- need to change init F to include init R
 			
 			/*AssrtBoolFormula tmp = F.get(self);
 			Set<AssrtDataTypeVar> varsF = tmp.getVars();
@@ -944,14 +950,24 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					Entry::getKey,
 					e -> 
 					{
-						Map<AssrtDataTypeVar, AssrtArithFormula> vars = e.getValue().getAnnotVars();
-						AssrtIntVarFormula v = AssrtFormulaFactory.AssrtIntVar(vars.keySet().iterator().next().toString());  // FIXME
-						AssrtArithFormula f = vars.values().iterator().next();
-						/*return AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(v),
-									AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, v, f)
-								);*/
-						return new AssrtExistsFormulaHolder(Arrays.asList(v),
-								Arrays.asList(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, v, f)));
+						AssrtEState s = e.getValue();
+						Map<AssrtDataTypeVar, AssrtArithFormula> vars = s.getAnnotVars();
+						AssrtIntVarFormula v = AssrtFormulaFactory.AssrtIntVar(AssrtCoreESend.DUMMY_VAR.toString());  // FIXME
+						AssrtExistsFormulaHolder h = new AssrtExistsFormulaHolder(Arrays.asList(v), 
+								//Arrays.asList(AssrtTrueFormula.TRUE)
+								Collections.emptyList()
+								);
+						h.addClause(vars.entrySet().stream()  // Making from P because cannot access R from the constructor
+								.map(b -> (AssrtBoolFormula) AssrtFormulaFactory.AssrtBinComp(  // Cast needed for reduce
+									AssrtBinCompFormula.Op.Eq, 
+									AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
+									b.getValue()))
+								.reduce(
+									/*(AssrtBoolFormula) AssrtTrueFormula.TRUE,
+									(b, c) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b, c),
+									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)));*/
+									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)).get());  // Never empty because of dummy
+								return h;
 					}
 				));
 	}
@@ -1023,15 +1039,15 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private static Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> makeR(Map<Role, AssrtEState> P)
 	{
-		/*Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.entrySet().stream().collect(Collectors.toMap(
+		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.entrySet().stream().collect(Collectors.toMap(
 				e -> e.getKey(),
 				e -> new HashMap<>(e.getValue().getAnnotVars())
-		));*/
-		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.keySet().stream().collect(Collectors.toMap(r -> r, r ->
+		));
+		/*Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.keySet().stream().collect(Collectors.toMap(r -> r, r ->
 				Stream.of(false).collect(Collectors.toMap(
 						x -> AssrtCoreESend.DUMMY_VAR,
 						x -> AssrtCoreESend.ZERO))
-			));
+			));*/
 		return R;
 	}
 	

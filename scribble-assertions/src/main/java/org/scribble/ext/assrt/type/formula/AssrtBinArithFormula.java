@@ -62,18 +62,17 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().ifm;
 		IntegerFormula fleft = (IntegerFormula) this.left.toJavaSmtFormula();
 		IntegerFormula fright = (IntegerFormula) this.right.toJavaSmtFormula();
-
 		switch(this.op)
 		{
-		case Add:
-			return fmanager.add(fleft, fright);
-		case Subt:
-			return fmanager.subtract(fleft,fright);
-		case Mult:
-			return fmanager.multiply(fleft, fright);
-		default:
-			//throw new AssertionParseException("No matchin ooperation for boolean formula");
-			throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
+			case Add:
+				return fmanager.add(fleft, fright);
+			case Subt:
+				return fmanager.subtract(fleft, fright);
+			case Mult:
+				return fmanager.multiply(fleft, fright);
+			default:
+				//throw new AssertionParseException("No matchin ooperation for boolean formula");
+				throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
 		}
 	}
 

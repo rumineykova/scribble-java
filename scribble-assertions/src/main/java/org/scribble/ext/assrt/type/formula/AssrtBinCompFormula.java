@@ -66,16 +66,16 @@ public class AssrtBinCompFormula extends AssrtBoolFormula
 		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().ifm;
 		IntegerFormula fleft = (IntegerFormula) this.left.toJavaSmtFormula();
 		IntegerFormula fright = (IntegerFormula) this.right.toJavaSmtFormula();
-		
-		switch(this.op) {
-		case GreaterThan: 
-			return fmanager.greaterThan(fleft,fright); 
-		case LessThan:
-			return fmanager.lessThan(fleft,fright);
-		case Eq:
-			return fmanager.equal(fleft, fright);  
-		default:
-			throw new RuntimeException("[assrt] Shouldn't get in here: " + op); 
+		switch(this.op)
+		{
+			case GreaterThan: 
+				return fmanager.greaterThan(fleft, fright); 
+			case LessThan:
+				return fmanager.lessThan(fleft, fright);
+			case Eq:
+				return fmanager.equal(fleft, fright);  
+			default:
+				throw new RuntimeException("[assrt] Shouldn't get in here: " + op); 
 		}		
 	}
 	
