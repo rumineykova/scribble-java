@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReceive;
@@ -46,7 +47,6 @@ import org.scribble.type.name.Op;
 import org.scribble.type.name.PayloadElemType;
 import org.scribble.type.name.Role;
 import org.sosy_lab.java_smt.api.BooleanFormula;
-import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 class AssrtExistsFormulaHolder extends AssrtBoolFormula  // HACK
 {
@@ -318,9 +318,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				{
 					if (a instanceof AssrtESend)
 					{
-						Role src = e.getKey();
-
 						JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
+						Role src = e.getKey();
 						AssrtBoolFormula ass = ((AssrtESend) a).ass;
 						if (ass.equals(AssrtTrueFormula.TRUE))
 						{
@@ -330,58 +329,49 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						/*AssrtBoolFormula tmp = this.F.get(src).stream().reduce(
 									AssrtTrueFormula.TRUE,  // F emptyset at start
 									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
-								);*/
+								);* /
 						//AssrtBoolFormula tmp = this.F.get(src);
 						AssrtBoolFormula tmp = this.F.get(src).toFormula();
-						BooleanFormula PP = tmp.getJavaSmtFormula();
+						BooleanFormula PP = tmp.getJavaSmtFormula();*/
+						AssrtBoolFormula FF = this.F.get(src).toFormula();
 						
-						BooleanFormula AA = ass.getJavaSmtFormula();
-						Set<IntegerFormula> varsA = new HashSet<>();
-						varsA.add(jsmt.ifm.makeVariable(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));  
+						AssrtBoolFormula AA = ass;
+						Set<AssrtIntVarFormula> varsA = new HashSet<>();
+						varsA.add(AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString())); 
 								// Adding even if var not used
 								// N.B. includes the case for recursion cycles where var is "already" in F
-						if (!varsA.isEmpty())  // FIXME: now never empty
+						if (!varsA.isEmpty())  // FIXME: currently never empty
 						{
-							AA = jsmt.qfm.exists(new LinkedList<>(varsA), AA);
+							AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
 						}
 						
-						Set<Entry<AssrtDataTypeVar, AssrtArithFormula>> bar = new HashSet<>();
-
-						/*for (Role r : this.R.keySet())
-						{
-							bar.addAll(this.R.get(r).entrySet());  // Big conjunction -- including different exprs for the same var between roles?
-						}*/
-						bar.addAll(this.R.get(src).entrySet());
-
-						Set<AssrtBoolFormula> foo = bar.stream().map(b -> AssrtFormulaFactory.AssrtBinComp(
+						Set<Entry<AssrtDataTypeVar, AssrtArithFormula>> bar = new HashSet<>(this.R.get(src).entrySet());
+						AssrtBoolFormula RR = bar.stream()
+								.map(b -> AssrtFormulaFactory.AssrtBinComp(
 									AssrtBinCompFormula.Op.Eq, 
 									AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
-									b.getValue()
-								)).collect(Collectors.toSet());
-						BooleanFormula RR = foo.stream().reduce(
-									AssrtTrueFormula.TRUE,  // F emptyset at start
-									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
-								).getJavaSmtFormula();
+									b.getValue()))
+								.reduce(
+									(AssrtBoolFormula) AssrtTrueFormula.TRUE,  // F emptyset at start
+									(b1, c) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, c),
+									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
 						
-						Set<AssrtDataTypeVar> r1 = new HashSet<>(this.R.get(src).keySet());
+						/*Set<AssrtDataTypeVar> r1 = new HashSet<>(this.R.get(src).keySet());
 						Set<AssrtDataTypeVar> f1 = new HashSet<>(tmp.getVars());
 						f1.retainAll(r1);
 						if (!f1.isEmpty())
 						{
 							// Simply exists quantifying all vars in F that are also in R -- is this OK?  just means we always use the "latest" R? (could be the same as before)
 							PP = jsmt.qfm.exists(f1.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList()), PP);
-						}
-
-						BooleanFormula impli = jsmt.bfm.implication(jsmt.bfm.and(PP, RR), AA);
-						//BooleanFormula impli = jsmt.bfm.and(jsmt.bfm.and(PP, RR), AA);  // HACK FIXME
+						}*/
 
 						/*Set<IntegerFormula> varsF = this.F.get(src).stream().flatMap(f -> f.getVars().stream()
-								.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());*/
+								.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());* /
 						Set<IntegerFormula> varsF = tmp.getVars().stream()
 								.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
 						/*Set<IntegerFormula> varsA = ass.getVars().stream()
 								.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
-						varsA.removeAll(varsF);*/  // No: the only difference should be single action pay var, and always want to exists quantify it (not only if not F, e.g., recursion)
+						varsA.removeAll(varsF);* /  // No: the only difference should be single action pay var, and always want to exists quantify it (not only if not F, e.g., recursion)
 						Set<IntegerFormula> varsR = this.R.values().stream().flatMap(m -> m.keySet().stream()).map(v -> 
 									jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet()
 								);
@@ -391,18 +381,21 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 								);
 						
 						Set<IntegerFormula> varsK = this.K.values().stream().flatMap(s -> s.stream())
-								.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
+								.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());*/
 						
-						Set<IntegerFormula> free = new HashSet<>();
-						free.addAll(varsF);
-						free.addAll(varsR);
-						free.addAll(varsK);
+						BooleanFormula impli = jsmt.bfm.implication(jsmt.bfm.and(FF.getJavaSmtFormula(), RR.getJavaSmtFormula()), AA.getJavaSmtFormula());
 						
-						//System.out.println("aaa: " + PP + ", " + RR);
-						//System.out.println("bbb: " + varsF + ", " + varsR + ", " + ", " + varsK + free);
+						System.out.println("aaa: " + AA + ", " + AA.getVars());
+
+						Set<AssrtDataTypeVar> free = new HashSet<>();
+						free.addAll(FF.getVars());
+						free.addAll(RR.getVars());
+						free.addAll(AA.getVars());
 						if (!free.isEmpty())
 						{
-							impli = jsmt.qfm.forall(new LinkedList<>(free), impli);  // AA already exists-quantified
+							impli = jsmt.qfm.forall(
+									free.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList()),
+									impli);  // AA already exists-quantified
 						}
 						
 						job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "): " + impli);
@@ -580,13 +573,15 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		Map<Role, AssrtEState> P = new HashMap<>(this.P);
 		Map<Role, Map<Role, AssrtCoreESend>> Q = AssrtCoreSState.copyQ(this.Q);
+		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = AssrtCoreSState.copyR(this.R);
+
+		//R.get(self).putAll(succ.getAnnotVars());  // Should "overwrite" previous var values -- no, do later (and from action info, not state)
+
 		Map<Role, Set<AssrtDataTypeVar>> K = AssrtCoreSState.copyK(this.K);
 		Map<Role, AssrtExistsFormulaHolder> F = AssrtCoreSState.copyF(this.F);
 		//Set<AssrtBoolFormula> F = new HashSet<>(this.F);
-		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = AssrtCoreSState.copyR(this.R);
 
 		AssrtEState succ = P.get(self).getSuccessor(a);
-		R.get(self).putAll(succ.getAnnotVars());  // Should "overwrite" previous var values
 
 		if (a.isSend())
 		{
@@ -631,10 +626,15 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		outputUpdateKF(R, K, F, self, es);
 
+		// Update R
 		// Must come after F update
 		if (!es.annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
 		{
 			R.get(self).put(es.annot, es.expr);
+			
+			.. HERE add old R w.r.t. es.annot to F and exists quantify es.annot it
+			
+			.. FIXME: no, should just add R to F directly on each update, and don't add R again on formula build? -- need to change init F to include init R
 			
 			/*AssrtBoolFormula tmp = F.get(self);
 			Set<AssrtDataTypeVar> varsF = tmp.getVars();
@@ -663,14 +663,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		P.put(self, succ);
 		AssrtESend m = Q.get(self).put(er.peer, null);  // null is \epsilon
 		
-		System.out.println("aaa: " + F.get(self) + ", " + this.F.get(self));
 		//inputUpdateK(K,  self, er);
 		inputUpdateKF(R, K, F, self, er, m);
-
 				
-		System.out.println("bbb: " + F.get(self) + ", " + this.F.get(self));
-				
-
 		// Must come after F update
 		if (!er.annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
 		{
@@ -1028,12 +1023,15 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private static Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> makeR(Map<Role, AssrtEState> P)
 	{
-		/*Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.keySet().stream().collect(Collectors.toMap(r -> r, r -> new HashMap<>()));
-		P.entrySet().stream().forEach(e -> R.get(e.getKey()).putAll(e.getValue().getAnnotVars()));*/
-		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.entrySet().stream().collect(Collectors.toMap(
+		/*Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.entrySet().stream().collect(Collectors.toMap(
 				e -> e.getKey(),
 				e -> new HashMap<>(e.getValue().getAnnotVars())
-		));
+		));*/
+		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.keySet().stream().collect(Collectors.toMap(r -> r, r ->
+				Stream.of(false).collect(Collectors.toMap(
+						x -> AssrtCoreESend.DUMMY_VAR,
+						x -> AssrtCoreESend.ZERO))
+			));
 		return R;
 	}
 	

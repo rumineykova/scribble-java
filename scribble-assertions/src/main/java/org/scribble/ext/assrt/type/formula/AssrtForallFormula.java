@@ -28,7 +28,7 @@ public class AssrtForallFormula extends AssrtBoolFormula
 	public Set<AssrtDataTypeVar> getVars()
 	{
 		Set<AssrtDataTypeVar> vs = this.expr.getVars();
-		vs.removeAll(vs);
+		vs.removeAll(this.vars.stream().map(v -> v.toName()).collect(Collectors.toList()));
 		return vs;
 	}
 

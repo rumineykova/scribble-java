@@ -9,7 +9,6 @@ import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
-import org.sosy_lab.java_smt.api.QuantifiedFormulaManager;
 
 // FIXME: not exactly boolean kind?
 public class AssrtExistsFormula extends AssrtBoolFormula
@@ -28,17 +27,16 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 	public Set<AssrtDataTypeVar> getVars()
 	{
 		Set<AssrtDataTypeVar> vs = this.expr.getVars();
-		vs.removeAll(this.vars);
+		vs.removeAll(this.vars.stream().map(v -> v.toName()).collect(Collectors.toList()));
 		return vs;
 	}
 
 	@Override
 	protected BooleanFormula toJavaSmtFormula()
 	{
-		QuantifiedFormulaManager qfm = JavaSmtWrapper.getInstance().qfm;
 		BooleanFormula expr = (BooleanFormula) this.expr.toJavaSmtFormula();
 		List<IntegerFormula> vs = this.vars.stream().map(v -> v.getJavaSmtFormula()).collect(Collectors.toList());
-		return qfm.exists(vs, expr);
+		return JavaSmtWrapper.getInstance().qfm.exists(vs, expr);
 	}
 	
 	@Override

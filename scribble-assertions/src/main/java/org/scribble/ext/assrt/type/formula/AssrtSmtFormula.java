@@ -13,7 +13,7 @@ public abstract class AssrtSmtFormula<F extends Formula>
 	protected F formula;   // "Cached" translation to JavaSMT API -- apart from AssrtLogFormula, which is just a wrapper for JavaSMT 
 			// Mostly not used for equals/hashCode -- except for AssrtLogFormula (and has to be used via toString)
 	
-	public abstract Set<AssrtDataTypeVar> getVars();
+	public abstract Set<AssrtDataTypeVar> getVars();  // FIXME: change return to AssrtIntVarFormula, less confusing
 
 	protected abstract F toJavaSmtFormula(); //throws AssertionParseException;
 
