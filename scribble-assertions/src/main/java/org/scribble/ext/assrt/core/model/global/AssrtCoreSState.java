@@ -25,7 +25,6 @@ import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
@@ -535,9 +534,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return new AssrtCoreSState(P, Q, R, K, F);
 	}
 
-	// Update (in place) P, Q, K and F
-	private //static
-	void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
+	// Update (in place) P, Q, R, K and F
+	private void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F,
 			Role self, AssrtCoreESend es, AssrtEState succ)
@@ -545,63 +543,66 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		P.put(self, succ);
 		//Q.get(es.peer).put(self, es.toTrueAssertion());  // HACK FIXME: cf. AssrtSConfig::fire
 		Q.get(es.peer).put(self, es);  // Now doing toTrueAssertion on message at receive side
-		outputUpdateKF(K, F, self, es);
-		
+		//putR(R, self, es.annot, es.expr);
+
+		outputUpdateKF(R, K, F, self, es);
+
 		// Must come after F update
 		if (!es.annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
 		{
-			putR(R, self, es.annot, es.expr);
+			R.get(self).put(es.annot, es.expr);
 			
 			/*AssrtBoolFormula tmp = F.get(self);
 			Set<AssrtDataTypeVar> varsF = tmp.getVars();
-			if (varsF.contains(es.annot))*/
+			if (varsF.contains(es.annot))
 			{
 				//F.put(self, AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(es.annot.toString())), tmp));
 				//putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, AssrtFormulaFactory.AssrtIntVar(es.annot.toString()), es.expr));
-			}
+			}*/
 		}
 
-		Map<AssrtDataTypeVar, AssrtArithFormula> m = this.R.get(self);
+		/*Map<AssrtDataTypeVar, AssrtArithFormula> m = this.R.get(self);
 		AssrtDataTypeVar next = m.keySet().iterator().next();
 		if (!next.equals(AssrtCoreESend.DUMMY_VAR))
 		{
 			putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
 					AssrtFormulaFactory.AssrtIntVar(next.toString()), m.values().iterator().next()));
-		}
+		}*/
 	}
 
-	private //static
-	void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
+	private static void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R, 
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F,   // FIXME: manage F with receive assertions?
 			Role self, AssrtCoreEReceive er, AssrtEState succ)
 	{
 		P.put(self, succ);
 		AssrtESend m = Q.get(self).put(er.peer, null);  // null is \epsilon
-		//inputUpdateK(K,  self, er);
-		inputUpdateKF(K, F, self, er, m);
 		
+		//inputUpdateK(K,  self, er);
+		inputUpdateKF(R, K, F, self, er, m);
+
 		// Must come after F update
 		if (!er.annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
 		{
-			putR(R, self, er.annot, er.expr);
+			//putR(R, self, er.annot, er.expr);
+			R.get(self).put(er.annot, er.expr);
 
 			/*AssrtBoolFormula tmp = F.get(self);
 			Set<AssrtDataTypeVar> varsF = tmp.getVars();
-			if (varsF.contains(er.annot))*/
+			if (varsF.contains(er.annot))* /
 			{
 				//F.put(self, AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(er.annot.toString())), tmp));
 				//putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, AssrtFormulaFactory.AssrtIntVar(er.annot.toString()), er.expr));
-			}
+			}*/
 		}
 
-		Map<AssrtDataTypeVar, AssrtArithFormula> foo = this.R.get(self);
+		/*Map<AssrtDataTypeVar, AssrtArithFormula> foo = this.R.get(self);
 		AssrtDataTypeVar next = foo.keySet().iterator().next();
 		if (!next.equals(AssrtCoreESend.DUMMY_VAR))
 		{
 			putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
 					AssrtFormulaFactory.AssrtIntVar(next.toString()), foo.values().iterator().next()));
-		}
+		}*/
 	}
 
 	// FIXME: R
@@ -613,7 +614,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		P.put(self, succ);
 		//Q.get(es.peer).put(self, new AssrtCoreEPendingRequest(es.toTrueAssertion()));  // HACK FIXME: cf. AssrtSConfig::fire
 		Q.get(es.peer).put(self, new AssrtCoreEPendingRequest(es));  // Now doing toTrueAssertion on accept side
-		outputUpdateKF(K, F, self, es);
+
+		outputUpdateKF(null, K, F, self, es);
 	}
 
 	// FIXME: R
@@ -624,12 +626,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		P.put(self, succ);
 		Q.get(self).put(ea.peer, null);
+
 		AssrtERequest m = ((AssrtCoreEPendingRequest) Q.get(ea.peer).put(self, null)).getMessage();
-		inputUpdateKF(K, F, self, ea, m);
+		inputUpdateKF(null, K, F, self, ea, m);
 		//outputUpdateKF(K, F, self, ea);
 	}
 
-	private static void outputUpdateKF(Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F, Role self, AssrtEAction a)  // FIXME: EAction closest base type
+	private static void outputUpdateKF(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R, Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F, Role self, AssrtEAction a)  // FIXME: EAction closest base type
 	{
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
@@ -643,7 +646,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				
 				//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
 				//putF(F, v, es.bf);
-				putF(F, self, a.getAssertion());  // Recorded "globally", cf. async K updates -- not any more
+				putF(R, F, self, a.getAssertion());  // Recorded "globally", cf. async K updates -- not any more
 			}
 			else
 			{
@@ -654,7 +657,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	// a is the EFSM input action, which has True ass; m is the dequeued msg, which carries the output ass
-	private static void inputUpdateKF(Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F, Role self, AssrtEAction a, AssrtEAction m)  // FIXME: EAction closest base type
+	private static void inputUpdateKF(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R, Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtBoolFormula> F, Role self, AssrtEAction a, AssrtEAction m)  // FIXME: EAction closest base type
 	{
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
@@ -666,7 +669,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
 				putK(K, self, v);
 
-				putF(F, self, m.getAssertion());
+				putF(R, F, self, m.getAssertion());
 			}
 			else
 			{
@@ -848,32 +851,56 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return F.entrySet().stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 
-	private static void putF(Map<Role, AssrtBoolFormula> F, Role r, AssrtBoolFormula f)
+	private static void putF(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R, Map<Role, AssrtBoolFormula> F, Role r, AssrtBoolFormula f)
 	{
-		AssrtBoolFormula tmp = F.get(r);
-		AssrtBinBoolFormula tmp2 = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, tmp, f);
+		AssrtBoolFormula curr = F.get(r);
+		
+		Set<AssrtDataTypeVar> foo = f.getVars();
+		Map<AssrtDataTypeVar, AssrtArithFormula> bar = R.get(r);
+		if (bar.keySet().stream().anyMatch(v -> foo.contains(v)))
+		{
+			// FIXME: conservative
+			curr = AssrtFormulaFactory.AssrtExistsFormula(
+					bar.keySet().stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList()),
+					curr);
+			
+			// FIXME: conservative
+			f = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f, 
+						bar.entrySet().stream()
+							.map(e ->
+									AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
+										AssrtFormulaFactory.AssrtIntVar(e.getKey().toString()),
+										e.getValue()))
+							.reduce((AssrtBoolFormula) AssrtTrueFormula.TRUE,  // Cast needed?
+									(b, c) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b, c),
+									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2))
+					);
+		}
+		
+		AssrtBinBoolFormula next = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, curr, f);
 
 		// HACK FIXME
 		JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
-		//if (jsmt.isSat(jsmt.bfm.implication(tmp.getJavaSmtFormula(), tmp2.getJavaSmtFormula())))  // HACK FIXME
-		BooleanFormula impli = jsmt.bfm.implication(tmp.getJavaSmtFormula(), tmp2.getJavaSmtFormula());
+		BooleanFormula impli = jsmt.bfm.implication(curr.getJavaSmtFormula(), next.getJavaSmtFormula());
 		Set<AssrtDataTypeVar> vars = new HashSet<>();
-		vars.addAll(tmp.getVars());
-		vars.addAll(tmp2.getVars());
+		vars.addAll(curr.getVars());
+		vars.addAll(next.getVars());
 		List<IntegerFormula> vs = vars.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList());
 		if (!vs.isEmpty())
 		{
-			impli = jsmt.qfm.forall(vs, impli);  // FIXME: just exist quantify every "step"? -- cf. DbC?
+			impli = jsmt.qfm.forall(vs, impli);  // FIXME: just exist quantify every "step"? -- cf. DbC? -- no: only on receives and state updates
 		}
 		
 		System.out.println("\n[assrt-core] F update checking: " + impli);
 		
 		if (jsmt.isSat(impli))// && !tmp.equals(AssrtTrueFormula.TRUE))
 		{
-			return;
+			F.put(r,  curr);
 		}
-
-		F.put(r, tmp2);
+		else
+		{
+			F.put(r, next);
+		}
 	}
 
 	private static Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> makeR(Map<Role, AssrtEState> P)
@@ -892,23 +919,24 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return R.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> new HashMap<>(e.getValue())));
 	}
 	
-	private static void putR(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R, Role r, AssrtDataTypeVar annot, AssrtArithFormula expr)
+	/*private static void putR(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R, Role r, AssrtDataTypeVar annot, AssrtArithFormula expr)
 	{
-		Set<AssrtDataTypeVar> vs = expr.getVars();
+		/*Set<AssrtDataTypeVar> vs = expr.getVars();
 		if (vs.contains(annot))
 		{
 			//expr = AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(annot.toString())), expr);
 			
 			// Substitute var in expr by fresh -- will get forall quantified in sat check -- which is conservative (previous var refinement lost)
 			expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), makeFreshIntVar(annot));
-		}
+		}* /
+
 		R.get(r).put(annot, expr);
 	}
 	
-	private static AssrtIntVarFormula makeFreshIntVar(AssrtDataTypeVar var)
+	/*private static AssrtIntVarFormula makeFreshIntVar(AssrtDataTypeVar var)
 	{
 		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString());  // HACK
-	}
+	}*/
 }
 
 
