@@ -28,7 +28,7 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 	public Set<AssrtDataTypeVar> getVars()
 	{
 		Set<AssrtDataTypeVar> vs = this.expr.getVars();
-		vs.removeAll(vs);
+		vs.removeAll(this.vars);
 		return vs;
 	}
 
