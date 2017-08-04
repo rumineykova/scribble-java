@@ -4,7 +4,7 @@ module bad.extensions.assertions.RecWithAssertions;
 type <java> "java.lang.int" from "rt.jar" as int;
 
 
-global protocol Prot(role A, role B, role C)
+global protocol Proto1(role A, role B, role C)
 {
 rec Loop {
 	choice at A {

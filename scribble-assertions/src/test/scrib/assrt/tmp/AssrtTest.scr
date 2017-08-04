@@ -38,7 +38,7 @@ global protocol Proto1(role A, role B) @(z=0);
 	//2(y:int) from B to A; @(y>x);
 
 	//do Proto1(A, B);  @0;
-	//do Proto1(A, B);  @1;
+	do Proto1(A, B);  @1;
 }
 //*/
 
