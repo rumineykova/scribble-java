@@ -729,10 +729,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		succ.getAnnotVars().entrySet().forEach(e ->
 		{
 			AssrtDataTypeVar k = e.getKey();
-			if (!tmp.containsKey(k))
+			AssrtArithFormula af = e.getValue();
+			if (!tmp.containsKey(k) || !tmp.get(k).equals(af))
 			{
 				//tmp.put(k, e.getValue());
-				updateFfromR(F, self, tmp, k, e.getValue());
+				updateFfromR(F, self, tmp, k, af);
 				putK(K, self, k);
 			}
 		});

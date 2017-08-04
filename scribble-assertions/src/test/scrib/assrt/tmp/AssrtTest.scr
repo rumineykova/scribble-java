@@ -33,6 +33,15 @@ type <dotnet> "System.String" from "..." as str;
 
 
 /*
+global protocol Proto1(role A, role B) @(x=1);
+{
+	1(y:int) from A to B; @(y>3);
+	do Proto1(A, B); @y;
+}
+//*/
+
+
+/*
 global protocol Proto1(role B, role W, role S)
 {
 	1(Query:int) from B to W; @(Query>0);
@@ -83,7 +92,7 @@ global protocol Proto1(role A, role B)
 	do Proto2(A, B); @4;
 }
 
-global protocol Proto2(role A, role B) @(x=3);
+global protocol Proto2(role A, role B) @(x=3);  // Unsat if validated as root 
 {
 	2(y:int) from B to A;  @(x>3);
 	//do Proto2(A, B); @5;
@@ -177,11 +186,18 @@ global protocol Proto1(role A, role B)
 //*/
 
 
-/*
+//*
 global protocol Proto1(role A, role B) @(x=3);
 {
 	1() from A to B; @(x>2);	
-	do Proto1(A, B); @(x+1);
+
+	do Proto1(A, B); @3;
+	//do Proto1(A, B); @(3+1);
+
+	//do Proto1(A, B); @x;  // Unsat -- cf. DbC? -- DbC it wouldn't be "x", it would "already" be 3 from substitution
+			// Note, Proto1 could be called from "any context", so x can really be anything
+	//do Proto1(A, B); @(x+1);  // Unsat
+	//do Proto1(A, B); @(x-1);  // Unsat -- should be unsat
 }
 //*/
 
