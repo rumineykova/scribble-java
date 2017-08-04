@@ -724,6 +724,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				List<AssrtBoolFormula> foo = new LinkedList<>();
 				AssrtBoolFormula bar = AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(iv), hh.toFormula());
 				foo.add(bar);
+				
+				if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
+				{
+					expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), makeFreshIntVar(annot));
+				}
+				
 				foo.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
 				hh = new AssrtForallFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(AssrtCoreESend.DUMMY_VAR.toString())), foo); 
 				F.put(self, hh);
@@ -1022,12 +1028,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}* /
 
 		R.get(r).put(annot, expr);
-	}
+	}*/
 	
-	/*private static AssrtIntVarFormula makeFreshIntVar(AssrtDataTypeVar var)
+	private static AssrtIntVarFormula makeFreshIntVar(AssrtDataTypeVar var)
 	{
 		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString());  // HACK
-	}*/
+	}
 }
 
 
