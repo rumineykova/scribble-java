@@ -722,7 +722,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				//hh = AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr)
 						
 				List<AssrtBoolFormula> foo = new LinkedList<>();
-				AssrtForallFormula bar = AssrtFormulaFactory.AssrtForallFormula(Arrays.asList(iv), hh.toFormula());
+				AssrtBoolFormula bar = AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(iv), hh.toFormula());
 				foo.add(bar);
 				foo.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
 				hh = new AssrtForallFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(AssrtCoreESend.DUMMY_VAR.toString())), foo); 
@@ -930,7 +930,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						AssrtEState s = e.getValue();
 						Map<AssrtDataTypeVar, AssrtArithFormula> vars = s.getAnnotVars();
 						AssrtIntVarFormula v = AssrtFormulaFactory.AssrtIntVar(AssrtCoreESend.DUMMY_VAR.toString());  // FIXME
-						AssrtFormulaHolder h = new AssrtForallFormulaHolder(Arrays.asList(v), 
+						AssrtFormulaHolder h = new AssrtExistsFormulaHolder(Arrays.asList(v), 
 								//Arrays.asList(AssrtTrueFormula.TRUE)
 								Collections.emptyList()
 								);
