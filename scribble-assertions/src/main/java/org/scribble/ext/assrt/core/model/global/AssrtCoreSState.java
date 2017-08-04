@@ -244,119 +244,142 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	public boolean isUnsatisfiableError(Job job)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
-				e.getValue().getAllActions().stream().anyMatch(a ->  // N.B. getAllActions includes non-fireable
 				{
-					if (a instanceof AssrtESend)
-					{
-						Role src = e.getKey();
-						AssrtBoolFormula ass = ((AssrtESend) a).ass;
-						if (ass.equals(AssrtTrueFormula.TRUE))
-						{
-							return false;
-						}
-
-						/*AssrtBoolFormula tmp = this.F.get(src).stream().reduce(
-									AssrtTrueFormula.TRUE,  // F emptyset at start
-									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
-								);* /
-						//AssrtBoolFormula tmp = this.F.get(src);
-						AssrtBoolFormula tmp = this.F.get(src).toFormula();
-						BooleanFormula PP = tmp.getJavaSmtFormula();*/
-						
-						//AssrtBoolFormula FF = this.F.get(src).toFormula();
-						
-						AssrtBoolFormula AA = ass;
-						Set<AssrtIntVarFormula> varsA = new HashSet<>();
-						varsA.add(AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString())); 
-								// Adding even if var not used
-								// N.B. includes the case for recursion cycles where var is "already" in F
-						if (!varsA.isEmpty())  // FIXME: currently never empty
-						{
-							AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
-						}
-						
-						/*Set<Entry<AssrtDataTypeVar, AssrtArithFormula>> bar = new HashSet<>(this.R.get(src).entrySet());
-						AssrtBoolFormula RR = bar.stream()
-								.map(b -> AssrtFormulaFactory.AssrtBinComp(
-									AssrtBinCompFormula.Op.Eq, 
-									AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
-									b.getValue()))
-								.reduce(
-									(AssrtBoolFormula) AssrtTrueFormula.TRUE,  // F emptyset at start
-									(b1, c) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, c),
-									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));*/
-						
-						/*Set<AssrtDataTypeVar> r1 = new HashSet<>(this.R.get(src).keySet());
-						Set<AssrtDataTypeVar> f1 = new HashSet<>(tmp.getVars());
-						f1.retainAll(r1);
-						if (!f1.isEmpty())
-						{
-							// Simply exists quantifying all vars in F that are also in R -- is this OK?  just means we always use the "latest" R? (could be the same as before)
-							PP = jsmt.qfm.exists(f1.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList()), PP);
-						}*/
-
-						/*Set<IntegerFormula> varsF = this.F.get(src).stream().flatMap(f -> f.getVars().stream()
-								.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());* /
-						Set<IntegerFormula> varsF = tmp.getVars().stream()
-								.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
-						/*Set<IntegerFormula> varsA = ass.getVars().stream()
-								.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
-						varsA.removeAll(varsF);* /  // No: the only difference should be single action pay var, and always want to exists quantify it (not only if not F, e.g., recursion)
-						Set<IntegerFormula> varsR = this.R.values().stream().flatMap(m -> m.keySet().stream()).map(v -> 
-									jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet()
-								);
-						varsR.addAll(
-								this.R.values().stream().flatMap(m -> m.values().stream()).flatMap(v -> 
-									v.getVars().stream()).map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet())
-								);
-						
-						Set<IntegerFormula> varsK = this.K.values().stream().flatMap(s -> s.stream())
-								.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());*/
-						
-						//BooleanFormula impli = jsmt.bfm.implication(jsmt.bfm.and(FF.getJavaSmtFormula(), RR.getJavaSmtFormula()), AA.getJavaSmtFormula());
-						//BooleanFormula impli = jsmt.bfm.implication(FF.getJavaSmtFormula(), AA.getJavaSmtFormula());
-								// N.B., JavaSMT formula constructor, via getJavaSmtFormula, seems to implicitly discardly, e.g., True && ...
-						AssrtBoolFormula impli = this.F.get(src).makeSatCheck(AA);
-
-						Set<AssrtDataTypeVar> free = new HashSet<>();
-						//free.addAll(FF.getVars());
-						////free.addAll(RR.getVars());
-						//free.addAll(AA.getVars());
-						free.addAll(impli.getVars());
-						if (!free.isEmpty())
-						{
-							/*impli = jsmt.qfm.forall(
-									free.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList()),
-									impli.getJavaSmtFormula());  // AA already exists-quantified*/
-							impli = AssrtFormulaFactory.AssrtForallFormula(
-									free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList()), impli);
-						}
-						
-						job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "): " + impli.getJavaSmtFormula());
-
-						switch (SMT_CONFIG)
-						{
-							case JAVA_SMT_Z3:
+					List<EAction> as = e.getValue().getAllActions(); // N.B. getAllActions includes non-fireable
+					return as.stream().anyMatch(a -> a.isSend() || a.isRequest()) && as.stream().noneMatch(a ->
 							{
-								JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
-								return !jsmt.isSat(impli.getJavaSmtFormula());
-							}
-							case NATIVE_Z3: return !Z3Wrapper.isSat(impli.toSmt2(), job.getContext().main.toString());
-							case NONE:
-							{
-								job.debugPrintln("\n[assrt-core] WARNING: satisfiability check skipped.");
+								if (a instanceof AssrtCoreESend)
+								{
+									Role src = e.getKey();
+									AssrtBoolFormula ass = ((AssrtESend) a).ass;
+									if (ass.equals(AssrtTrueFormula.TRUE))
+									{
+										return true;
+									}
 
-								return false;
-							}
-							default:        throw new RuntimeException("[assrt-core] Shouldn't get in here: " + SMT_CONFIG);
-						}
-					}
-					else
-					{
-						// FIXME: check receive assertions? -- currently receive assertions all set to True
-						return false;
-					}
-				}));
+									/*AssrtBoolFormula tmp = this.F.get(src).stream().reduce(
+												AssrtTrueFormula.TRUE,  // F emptyset at start
+												(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
+											);* /
+									//AssrtBoolFormula tmp = this.F.get(src);
+									AssrtBoolFormula tmp = this.F.get(src).toFormula();
+									BooleanFormula PP = tmp.getJavaSmtFormula();*/
+
+									// AssrtBoolFormula FF = this.F.get(src).toFormula();
+
+									AssrtBoolFormula AA = ass;
+									Set<AssrtIntVarFormula> varsA = new HashSet<>();
+									varsA.add(AssrtFormulaFactory
+											.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));
+									// Adding even if var not used
+									// N.B. includes the case for recursion cycles where var is "already"
+									// in F
+									if (!varsA.isEmpty()) // FIXME: currently never empty
+									{
+										AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
+									}
+
+									/*Set<Entry<AssrtDataTypeVar, AssrtArithFormula>> bar = new HashSet<>(this.R.get(src).entrySet());
+									AssrtBoolFormula RR = bar.stream()
+											.map(b -> AssrtFormulaFactory.AssrtBinComp(
+												AssrtBinCompFormula.Op.Eq, 
+												AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
+												b.getValue()))
+											.reduce(
+												(AssrtBoolFormula) AssrtTrueFormula.TRUE,  // F emptyset at start
+												(b1, c) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, c),
+												(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));*/
+
+									/*Set<AssrtDataTypeVar> r1 = new HashSet<>(this.R.get(src).keySet());
+									Set<AssrtDataTypeVar> f1 = new HashSet<>(tmp.getVars());
+									f1.retainAll(r1);
+									if (!f1.isEmpty())
+									{
+										// Simply exists quantifying all vars in F that are also in R -- is this OK?  just means we always use the "latest" R? (could be the same as before)
+										PP = jsmt.qfm.exists(f1.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList()), PP);
+									}*/
+
+									/*Set<IntegerFormula> varsF = this.F.get(src).stream().flatMap(f -> f.getVars().stream()
+											.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());* /
+									Set<IntegerFormula> varsF = tmp.getVars().stream()
+											.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
+									/*Set<IntegerFormula> varsA = ass.getVars().stream()
+											.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
+									varsA.removeAll(varsF);* /  // No: the only difference should be single action pay var, and always want to exists quantify it (not only if not F, e.g., recursion)
+									Set<IntegerFormula> varsR = this.R.values().stream().flatMap(m -> m.keySet().stream()).map(v -> 
+												jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet()
+											);
+									varsR.addAll(
+											this.R.values().stream().flatMap(m -> m.values().stream()).flatMap(v -> 
+												v.getVars().stream()).map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet())
+											);
+									
+									Set<IntegerFormula> varsK = this.K.values().stream().flatMap(s -> s.stream())
+											.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());*/
+
+									// BooleanFormula impli =
+									// jsmt.bfm.implication(jsmt.bfm.and(FF.getJavaSmtFormula(),
+									// RR.getJavaSmtFormula()), AA.getJavaSmtFormula());
+									// BooleanFormula impli = jsmt.bfm.implication(FF.getJavaSmtFormula(),
+									// AA.getJavaSmtFormula());
+									// N.B., JavaSMT formula constructor, via getJavaSmtFormula, seems to
+									// implicitly discardly, e.g., True && ...
+									AssrtBoolFormula impli = this.F.get(src).makeSatCheck(AA);
+
+									Set<AssrtDataTypeVar> free = new HashSet<>();
+									// free.addAll(FF.getVars());
+									//// free.addAll(RR.getVars());
+									// free.addAll(AA.getVars());
+									free.addAll(impli.getVars());
+									if (!free.isEmpty())
+									{
+										/*impli = jsmt.qfm.forall(
+												free.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList()),
+												impli.getJavaSmtFormula());  // AA already exists-quantified*/
+										impli = AssrtFormulaFactory.AssrtForallFormula(
+												free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
+														.collect(Collectors.toList()),
+												impli);
+									}
+
+									job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at "
+											+ e.getValue() + "(" + this.id + "): " + impli.getJavaSmtFormula());
+
+									switch (SMT_CONFIG)
+									{
+										case JAVA_SMT_Z3:
+										{
+											JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
+											return jsmt.isSat(impli.getJavaSmtFormula());
+										}
+										case NATIVE_Z3:
+											return Z3Wrapper.isSat(impli.toSmt2(), job.getContext().main.toString());
+										case NONE:
+										{
+											job.debugPrintln("\n[assrt-core] WARNING: satisfiability check skipped.");
+
+											return true;
+										}
+										default:
+											throw new RuntimeException("[assrt-core] Shouldn't get in here: " + SMT_CONFIG);
+									}
+								}
+								else if (a instanceof AssrtERequest)
+								{
+									return true; // TODO: request
+								}
+								/*else if (a instanceof AssrtCoreEReceive || a instanceof AssrtEAccept)
+								{
+									return true;  // FIXME: check receive assertions? -- currently receive assertions all set to True
+								}*/
+								else
+								{
+									System.err.println("[assrt-core] Shouldn't get in here: " + a);
+									System.exit(1); // FIXME
+									return false;
+								}
+							});
+				});
 	}
 
 	// FIXME: List<AssrtCoreEAction> -- after also doing assert-core request/accept

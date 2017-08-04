@@ -32,7 +32,63 @@ type <dotnet> "System.String" from "..." as str;
 // redo inlining/unfolding via model building? role/param/assert all in model states?
 
 
-//*
+/*
+global protocol Proto1(role B, role W, role S)
+{
+	1(Query:int) from B to W; @(Query>0);
+	2(Instock:int) from W to S; @(Instock<Query);
+	3a(Available:int) from S to B; @(Available=Instock);
+	3b(Quote:int) from S to B;
+	
+	choice at B
+	{
+		ok() from B to S; @(Available>0); 
+		ok() from B to W;
+		do Proto2(B, W, S); @Quote;
+	}
+	or
+	{
+		quit() from B to S;
+		quit() from B to W;
+	}
+}
+
+global protocol Proto2(role B, role W, role S) @(x=0);
+{
+	5(Offer:int) from B to S;	
+	choice at S
+	{
+		hag() from S to B; @(Offer>x);
+		hag() from S to W;
+		do Proto2(B, W, S); @Offer;
+	}
+	or
+	{
+		exit() from S to B;
+		cancel() from S to W;
+	}
+	or
+	{
+		sell() from S to B;
+		commit() from S to W;
+	}
+}
+//*/
+
+
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;
+	do Proto2(A, B);
+}
+
+global protocol Proto2(role A, role B)
+{
+	2() from B to A;
+}
+
+
+/*
 global protocol Proto1(role A, role B)
 {
 	1(x:int) from A to B; 
@@ -41,34 +97,11 @@ global protocol Proto1(role A, role B)
 	
 	choice at B
 	{
-		2() from B to A; @(x>0);  
-				// Unsat -- but should be sat because of other choice branches?
-				// Cf. DbC
+		2() from B to A; @(x>0);  // Sat because of other choice branch
 	}		
-	or
+	or  // Unsat if case commented
 	{
 		3() from B to A;
-	}
-}
-//*/
-
-/*
-global protocol Proto1(role B, role W, role S)
-{
-	1(Query:int) from B to W; @(Query>0);
-	2(Instock:int) from W to S; @(Instock<Query);
-	3(Available:int) from S to B; @(Available=Instock);
-	33(Quote:int) from S to B;
-	
-	choice at B
-	{
-		ok() from B to S; @(Available>0); 
-		ok() from B to W;
-	}
-	or
-	{
-		quit() from B to S;
-		quit() from B to W;
 	}
 }
 //*/
