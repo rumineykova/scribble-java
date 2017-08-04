@@ -35,7 +35,7 @@ type <dotnet> "System.String" from "..." as str;
 global protocol Proto1(role A, role B)
 {
 	1(x:int) from A to B; @(x=1);
-	2(y:int) from A to B; @(y>x);
+	2(y:int) from B to A; @(y>x);
 	do Proto1(A, B);
 }
 

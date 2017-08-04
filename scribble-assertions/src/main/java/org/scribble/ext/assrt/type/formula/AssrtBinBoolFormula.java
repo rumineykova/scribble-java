@@ -15,7 +15,8 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 	public enum Op
 	{
 		And, 
-		Or;
+		Or,
+		Imply;  // Not currently parsed, only created
 
 		@Override
 		public String toString()
@@ -24,6 +25,7 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 			{
 				case And: return "&&";
 				case Or: return "||";
+				case Imply: return "=>";
 				default: throw new RuntimeException("Won't get in here: " + this);
 			}
 		}
@@ -65,10 +67,9 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 		BooleanFormula bright = (BooleanFormula) this.right.toJavaSmtFormula();
 		switch(this.op)
 		{
-			case And: 
-				return fmanager.and(bleft, bright); 
-			case Or:
-				return fmanager.or(bleft, bright); 
+			case And:   return fmanager.and(bleft, bright); 
+			case Or:    return fmanager.or(bleft, bright); 
+			case Imply: return fmanager.implication(bleft, bright); 
 			default:
 				//throw new AssertionParseException("No matchin ooperation for boolean formula"); 
 				throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
