@@ -63,8 +63,7 @@ public class GDoDel extends DoDel implements GSimpleInteractionNodeDel
 		SubprotocolSig subsig = inl.peekStack();
 		if (!inl.isCycle())
 		{
-			RecVarNode recvar = (RecVarNode) inl.job.af.SimpleNameNode(blame,
-					RecVarKind.KIND, inl.getSubprotocolRecVar(subsig).toString());
+			RecVarNode recvar = (RecVarNode) inl.job.af.SimpleNameNode(blame, RecVarKind.KIND, inl.getSubprotocolRecVar(subsig).toString());
 			GInteractionSeq gis = (GInteractionSeq) (((InlineProtocolEnv) inl.peekEnv()).getTranslation());
 			GProtocolBlock gb = inl.job.af.GProtocolBlock(blame, gis);
 			GRecursion inlined = inl.job.af.GRecursion(blame, recvar, gb);

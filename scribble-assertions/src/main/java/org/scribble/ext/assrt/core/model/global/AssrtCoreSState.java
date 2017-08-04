@@ -731,9 +731,14 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			Map<AssrtDataTypeVar, AssrtArithFormula> tmp = R.get(self);
 			AssrtArithFormula curr = tmp.get(annot);
-			if (!curr.equals(expr))  // CHECKME: "syntactic" check is what we want here?
+			if (curr == null || !curr.equals(expr))  // CHECKME: "syntactic" check is what we want here?
 			{
-				tmp.put(annot, expr);   // "Overwrite"
+				if (curr == null)
+				{
+					putK(K, self, annot);
+				}
+
+				tmp.put(annot, expr);   // "Overwrite" (if already known)
 
 				AssrtIntVarFormula iv = AssrtFormulaFactory.AssrtIntVar(annot.toString());
 				/*AssrtBoolFormula bf = AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr);  // No: this just encapsulates the new annot inside a nested forall -- need to expose the annot to a top-level forall

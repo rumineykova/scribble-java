@@ -77,15 +77,27 @@ public class AssrtGDoDel extends GDoDel
 			//GRecursion inlined = inl.job.af.GRecursion(blame, recvar, gb);
 			AssrtGDo gdo = (AssrtGDo) child;
 			GProtocolDecl gpd = gdo.getTargetProtocolDecl(dinlr.job.getContext(), dinlr.getModuleContext());
-			AssrtBinCompFormula bcf = (AssrtBinCompFormula) ((AssrtGProtocolHeader) gpd.getHeader()).ass.getFormula();  // FIXME: bcf
-			AssrtAssertion ass = ((AssrtAstFactory) dinlr.job.af).AssrtAssertion(null,
-					AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, (AssrtIntVarFormula) bcf.left, gdo.annot.getFormula()));  // FIXME: null source, and bcf
-			AssrtGRecursion inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, gb, ass);
+			
+			AssrtGProtocolHeader hdr = (AssrtGProtocolHeader) gpd.getHeader();
+			AssrtGRecursion inlined;
+			if (hdr.ass == null)
+			{
+				inlined = (AssrtGRecursion) dinlr.job.af.GRecursion(blame, recvar, gb);
+			}
+			else
+			{
+				AssrtBinCompFormula bcf = (AssrtBinCompFormula) ((AssrtGProtocolHeader) gpd.getHeader()).ass.getFormula();  // FIXME: bcf
+				AssrtAssertion ass = ((AssrtAstFactory) dinlr.job.af).AssrtAssertion(null,
+						AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, (AssrtIntVarFormula) bcf.left, gdo.annot.getFormula()));  // FIXME: null source, and bcf
+				inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, gb, ass);
+			}
 
 			dinlr.pushEnv(dinlr.popEnv().setTranslation(inlined));
 			dinlr.removeSubprotocolRecVar(subsig);
 		}	
-		return (GDo) super.leaveProtocolInlining(parent, child, dinlr, visited);
+
+		//return (GDo) super.leaveProtocolInlining(parent, child, dinlr, visited);
+		return (GDo) ScribDelBase.popAndSetVisitorEnv(this, dinlr, visited);
 	}
 
 	/*@Override

@@ -25,9 +25,10 @@ public class AssrtEGraphBuilderUtil extends EGraphBuilderUtil
 				init, ((AssrtEModelFactory) this.ef).newAssrtEState(Collections.emptySet(), Collections.emptyMap()));
 	}
 	
-	public void addAnnotVarInits(Map<AssrtDataTypeVar, AssrtArithFormula> vars)
+	public void addAnnotVarInits(AssrtEState s, Map<AssrtDataTypeVar, AssrtArithFormula> vars)
 	{
-		((AssrtEState) this.entry).addAnnotVars(vars);
+		//((AssrtEState) this.entry).addAnnotVars(vars);
+		s.addAnnotVars(vars);
 	}
 	
 	@Override

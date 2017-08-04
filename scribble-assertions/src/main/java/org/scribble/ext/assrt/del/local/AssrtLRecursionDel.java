@@ -21,6 +21,7 @@ import org.scribble.del.local.LRecursionDel;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
+import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
@@ -81,7 +82,7 @@ public class AssrtLRecursionDel extends LRecursionDel
 			AssrtBinCompFormula bcf = (AssrtBinCompFormula) ass.getFormula();
 			vars.put(((AssrtIntVarFormula) bcf.left).toName(), bcf.right);
 		}
-		((AssrtEGraphBuilderUtil) graph.util).addAnnotVarInits(vars);
+		((AssrtEGraphBuilderUtil) graph.util).addAnnotVarInits((AssrtEState) graph.util.getEntry(), vars);
 
 		graph.util.pushRecursionEntry(rv, graph.util.getEntry());
 	}

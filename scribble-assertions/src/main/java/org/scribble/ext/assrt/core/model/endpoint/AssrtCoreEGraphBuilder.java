@@ -57,8 +57,10 @@ public class AssrtCoreEGraphBuilder
 		else if (lt instanceof AssrtCoreLRec)
 		{
 			AssrtCoreLRec lr = (AssrtCoreLRec) lt;
-			this.util.addAnnotVarInits(Stream.of(lr.annot).collect(Collectors.toMap(a -> a, a -> lr.init)));
-			build(lr.body, s1, s2, Stream.of(lr.recvar).collect(Collectors.toMap(v -> v, v -> s1)));
+			this.util.addAnnotVarInits(s1, Stream.of(lr.annot).collect(Collectors.toMap(a -> a, a -> lr.init)));
+			Map<RecVar, AssrtEState> tmp = new HashMap<>(recs);
+			tmp.put(lr.recvar, s1);
+			build(lr.body, s1, s2, tmp);
 		}
 		else
 		{
@@ -78,9 +80,7 @@ public class AssrtCoreEGraphBuilder
 			AssrtCoreRecVar crv = (AssrtCoreRecVar) cont;
 			AssrtArithFormula expr = crv.expr;
 			AssrtEState s = recs.get(((AssrtCoreRecVar) cont).var);
-
 			AssrtDataTypeVar annot = s.getAnnotVars().keySet().iterator().next();  // FIXME
-
 			this.util.addEdge(s1, toEAction(r, k, a, annot, expr), s);
 		}
 		else

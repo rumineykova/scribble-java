@@ -110,10 +110,10 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 			return af.AssrtCoreLRecVar(rvs.iterator().next(), fs.iterator().next());
 		}
 		
-		List<AssrtCoreLChoice> filtered = projs.values().stream()
+		List<AssrtCoreLType> filtered = projs.values().stream()
 			.filter(v -> !v.equals(AssrtCoreLEnd.END))
-			//.collect(Collectors.toMap(e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getKey, e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getValue));
-			.map(v -> (AssrtCoreLChoice) v)
+			////.collect(Collectors.toMap(e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getKey, e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getValue));
+			//.map(v -> (AssrtCoreLChoice) v)
 			.collect(Collectors.toList());
 	
 		if (filtered.size() == 0)
@@ -122,22 +122,25 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 		}
 		else if (filtered.size() == 1)
 		{
-			return (AssrtCoreLChoice) filtered.iterator().next();  // RecVar disallowed above
+			return //(AssrtCoreLChoice)
+					filtered.iterator().next();  // RecVar disallowed above
 		}
+		
+		List<AssrtCoreLChoice> choices = filtered.stream().map(v -> (AssrtCoreLChoice) v).collect(Collectors.toList());
 	
-		Set<Role> roles = filtered.stream().map(v -> v.role).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
+		Set<Role> roles = choices.stream().map(v -> v.role).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
 		if (roles.size() > 1)
 		{
 			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed peer roles: " + roles);
 		}
-		Set<AssrtCoreActionKind<?>> kinds = filtered.stream().map(v -> v.kind).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
+		Set<AssrtCoreActionKind<?>> kinds = choices.stream().map(v -> v.kind).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
 		if (kinds.size() > 1)
 		{
 			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed action kinds: " + kinds);
 		}
 		
 		Map<AssrtCoreAction, AssrtCoreLType> merged = new HashMap<>();
-		filtered.forEach(v ->
+		choices.forEach(v ->
 		{
 			if (!v.kind.equals(AssrtCoreLActionKind.RECEIVE))
 			{
