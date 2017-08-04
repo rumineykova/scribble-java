@@ -1041,38 +1041,14 @@ class AssrtForallFormulaHolder extends AssrtFormulaHolder
 	@Override
 	public AssrtForallFormula toFormula()
 	{
-	AssrtBoolFormula fs;
-		if (this.body.size() == 1)
-		{
-			AssrtBoolFormula body = this.body.get(0);
-			fs = (body instanceof AssrtFormulaHolder) ? ((AssrtFormulaHolder) body).toFormula() : body;
-		}
-		else
-		{
-	fs = this.body.stream().reduce((f1, f2) ->
-					{
-						if (f1 instanceof AssrtFormulaHolder)  // HACK
-						{
-							f1 = ((AssrtFormulaHolder) f1).toFormula();
-						}
-						if (f2 instanceof AssrtFormulaHolder)
-						{
-							f2 = ((AssrtFormulaHolder) f2).toFormula();
-						}
-						return AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f1, f2);
-					}).get();
-		}
+	AssrtBoolFormula fs = flatten();
 		return AssrtFormulaFactory.AssrtForallFormula(this.vars, fs);
 	}
-	
+
 	@Override
-	public AssrtForallFormulaHolder copy()
+	protected AssrtFormulaHolder reconstruct(List<AssrtIntVarFormula> vars, List<AssrtBoolFormula> body)
 	{
-		List<AssrtBoolFormula> fs = (this.body.isEmpty()
-				? Arrays.asList(AssrtTrueFormula.TRUE)
-				: this.body.stream().map(f -> 
-						(f instanceof AssrtFormulaHolder) ? ((AssrtFormulaHolder) f).copy() : f).collect(Collectors.toList()));
-		return new AssrtForallFormulaHolder(this.vars, fs);
+		return new AssrtForallFormulaHolder(this.vars, body);
 	}
 }
 
@@ -1086,38 +1062,14 @@ class AssrtExistsFormulaHolder extends AssrtFormulaHolder
 	@Override
 	public AssrtExistsFormula toFormula()
 	{
-	AssrtBoolFormula fs;
-		if (this.body.size() == 1)
-		{
-			AssrtBoolFormula body = this.body.get(0);
-			fs = (body instanceof AssrtFormulaHolder) ? ((AssrtFormulaHolder) body).toFormula() : body;
-		}
-		else
-		{
-	fs = this.body.stream().reduce((f1, f2) ->
-					{
-						if (f1 instanceof AssrtFormulaHolder)  // HACK
-						{
-							f1 = ((AssrtFormulaHolder) f1).toFormula();
-						}
-						if (f2 instanceof AssrtFormulaHolder)
-						{
-							f2 = ((AssrtFormulaHolder) f2).toFormula();
-						}
-						return AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f1, f2);
-					}).get();
-		}
+	AssrtBoolFormula fs = flatten();
 		return AssrtFormulaFactory.AssrtExistsFormula(this.vars, fs);
 	}
-	
+
 	@Override
-	public AssrtExistsFormulaHolder copy()
+	protected AssrtFormulaHolder reconstruct(List<AssrtIntVarFormula> vars, List<AssrtBoolFormula> body)
 	{
-		List<AssrtBoolFormula> fs = (this.body.isEmpty()
-				? Arrays.asList(AssrtTrueFormula.TRUE)
-				: this.body.stream().map(f -> 
-						(f instanceof AssrtFormulaHolder) ? ((AssrtFormulaHolder) f).copy() : f).collect(Collectors.toList()));
-		return new AssrtExistsFormulaHolder(this.vars, fs);
+		return new AssrtExistsFormulaHolder(this.vars, body);
 	}
 }
 
@@ -1134,6 +1086,33 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 	{
 		this.vars = Collections.unmodifiableList(vars);
 		this.body = new LinkedList<>(body);
+	}
+	
+	
+	protected AssrtBoolFormula flatten()
+	{
+		AssrtBoolFormula fs;
+		if (this.body.size() == 1)
+		{
+			AssrtBoolFormula body = this.body.get(0);
+			fs = (body instanceof AssrtFormulaHolder) ? ((AssrtFormulaHolder) body).toFormula() : body;
+		}
+		else
+		{
+	fs = this.body.stream().reduce((f1, f2) ->
+					{
+						if (f1 instanceof AssrtFormulaHolder)  // HACK
+						{
+							f1 = ((AssrtFormulaHolder) f1).toFormula();
+						}
+						if (f2 instanceof AssrtFormulaHolder)
+						{
+							f2 = ((AssrtFormulaHolder) f2).toFormula();
+						}
+						return AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f1, f2);
+					}).get();
+		}
+		return fs;
 	}
 	
 	public List<AssrtIntVarFormula> getBoundVars()
@@ -1208,7 +1187,16 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 		}
 	}
 	
-	public abstract AssrtFormulaHolder copy();
+	public AssrtFormulaHolder copy()
+	{
+		List<AssrtBoolFormula> fs = (this.body.isEmpty()
+				? Arrays.asList(AssrtTrueFormula.TRUE)
+				: this.body.stream().map(f -> 
+						(f instanceof AssrtFormulaHolder) ? ((AssrtFormulaHolder) f).copy() : f).collect(Collectors.toList()));
+		return reconstruct(this.vars, fs);
+	}
+	
+	protected abstract AssrtFormulaHolder reconstruct(List<AssrtIntVarFormula> vars, List<AssrtBoolFormula> body);
 	
 	public abstract AssrtBoolFormula toFormula();
 	
@@ -1219,19 +1207,31 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 	}
 
 	@Override
-	public Set<AssrtDataTypeVar> getVars()
+	public final Set<AssrtDataTypeVar> getVars()
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 
 	@Override
-	protected BooleanFormula toJavaSmtFormula()
+	protected final BooleanFormula toJavaSmtFormula()
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 
 	@Override
-	protected boolean canEqual(Object o)
+	protected final boolean canEqual(Object o)
+	{
+		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
+	}
+
+	@Override
+	public final int hashCode()
+	{
+		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
+	}
+
+	@Override
+	public final boolean equals(Object o)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
