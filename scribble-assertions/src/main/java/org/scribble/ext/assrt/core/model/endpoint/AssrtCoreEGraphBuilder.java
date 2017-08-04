@@ -78,7 +78,9 @@ public class AssrtCoreEGraphBuilder
 			AssrtCoreRecVar crv = (AssrtCoreRecVar) cont;
 			AssrtArithFormula expr = crv.expr;
 			AssrtEState s = recs.get(((AssrtCoreRecVar) cont).var);
+
 			AssrtDataTypeVar annot = s.getAnnotVars().keySet().iterator().next();  // FIXME
+
 			this.util.addEdge(s1, toEAction(r, k, a, annot, expr), s);
 		}
 		else
