@@ -32,7 +32,7 @@ type <dotnet> "System.String" from "..." as str;
 // redo inlining/unfolding via model building? role/param/assert all in model states?
 
 
-//*
+/*
 global protocol Proto1(role B, role W, role S)
 {
 	1(Query:int) from B to W; @(Query>0);
@@ -72,6 +72,21 @@ global protocol Proto2(role B, role W, role S) @(x=0);
 		sell() from S to B;
 		commit() from S to W;
 	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;	
+	do Proto2(A, B); @4;
+}
+
+global protocol Proto2(role A, role B) @(x=3);
+{
+	2(y:int) from B to A;  @(x>3);
+	//do Proto2(A, B); @5;
 }
 //*/
 

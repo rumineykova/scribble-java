@@ -593,7 +593,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		Q.get(es.peer).put(self, es);  // Now doing toTrueAssertion on message at receive side
 		//putR(R, self, es.annot, es.expr);
 
-		outputUpdateKF(R, K, F, self, es);
+		outputUpdateKF(R, K, F, self, es, succ);
 
 		// Must come after F update
 		//updateR(R, self, es);
@@ -608,7 +608,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		AssrtESend m = Q.get(self).put(er.peer, null);  // null is \epsilon
 		
 		//inputUpdateK(K,  self, er);
-		inputUpdateKF(R, K, F, self, er, m);
+		inputUpdateKF(R, K, F, self, er, m, succ);
 				
 		// Must come after F update
 		//updateR(R, self, er);
@@ -624,7 +624,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//Q.get(es.peer).put(self, new AssrtCoreEPendingRequest(es.toTrueAssertion()));  // HACK FIXME: cf. AssrtSConfig::fire
 		Q.get(es.peer).put(self, new AssrtCoreEPendingRequest(es));  // Now doing toTrueAssertion on accept side
 
-		outputUpdateKF(null, K, F, self, (AssrtCoreEAction) es);  // FIXME: core
+		outputUpdateKF(null, K, F, self, (AssrtCoreEAction) es, succ);  // FIXME: core
 	}
 
 	// FIXME: R
@@ -637,13 +637,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		Q.get(self).put(ea.peer, null);
 
 		AssrtERequest m = ((AssrtCoreEPendingRequest) Q.get(ea.peer).put(self, null)).getMessage();
-		inputUpdateKF(null, K, F, self, (AssrtCoreEAction) ea, m);  // FIXME: core
+		inputUpdateKF(null, K, F, self, (AssrtCoreEAction) ea, m, succ);  // FIXME: core
 		//outputUpdateKF(K, F, self, ea);
 	}
 
 	private static void outputUpdateKF(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtFormulaHolder> F,
-			Role self, AssrtCoreEAction a)  // FIXME: EAction closest base type
+			Role self, AssrtCoreEAction a, AssrtEState succ)  // FIXME: EAction closest base type
 	{
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
@@ -653,7 +653,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			{
 				AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
 
-				updateRKF(R, K, F, self, a, v, a.getAssertion());
+				updateRKF(R, K, F, self, a, v, a.getAssertion(), succ);
 				
 				//putF(F, v, es.bf);
 				//putF(R, F, self, a.getAssertion());  // Recorded "globally", cf. async K updates -- not any more
@@ -670,7 +670,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	// FIXME: factor better with outputUpdateKF
 	private static void inputUpdateKF(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtFormulaHolder> F,
-			Role self, AssrtCoreEAction a, AssrtEAction m)  // FIXME: EAction closest base type
+			Role self, AssrtCoreEAction a, AssrtEAction m, AssrtEState succ)  // FIXME: EAction closest base type
 	{
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
@@ -685,7 +685,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				/*AssrtExistsFormulaHolder h =
 						new AssrtExistsFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(v.toString())), Arrays.asList(f));*/
 				
-				updateRKF(R, K, F, self, a, v, f);
+				updateRKF(R, K, F, self, a, v, f, succ);
 				
 				AssrtFormulaHolder h = F.get(self);
 				h = new AssrtForallFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(v.toString())), Arrays.asList(h));
@@ -709,58 +709,42 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private static void updateRKF(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtFormulaHolder> F,
-			Role self, AssrtCoreEAction a, AssrtDataTypeVar v, AssrtBoolFormula h)  // FIXME: EAction closest base type
+			Role self, AssrtCoreEAction a, AssrtDataTypeVar v, AssrtBoolFormula h, AssrtEState succ)  // FIXME: EAction closest base type
 	{
-				// Update K
-				putK(K, self, v);
+		// Update K
+		putK(K, self, v);
 
-				//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
-				appendF(R, F, self, h);
+		//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
+		appendF(R, F, self, h);
+		
+		/*AssrtExistsFormulaHolder h = F.get(self);
+		AssrtExistsFormulaHolder hh = new AssrtExistsFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(v.toString())), Arrays.asList(AssrtTrueFormula.TRUE));
+		h.body.add(hh);*/
+		//F.put(self, h);
+		
+
+		// Following must come after F update
+		Map<AssrtDataTypeVar, AssrtArithFormula> tmp = R.get(self);
 				
-				/*AssrtExistsFormulaHolder h = F.get(self);
-				AssrtExistsFormulaHolder hh = new AssrtExistsFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(v.toString())), Arrays.asList(AssrtTrueFormula.TRUE));
-				h.body.add(hh);*/
-				//F.put(self, h);
-				
-				// Must come after F update
-				//updateR(R, self, a);
+		succ.getAnnotVars().entrySet().forEach(e ->
+		{
+			AssrtDataTypeVar k = e.getKey();
+			if (!tmp.containsKey(k))
+			{
+				//tmp.put(k, e.getValue());
+				updateFfromR(F, self, tmp, k, e.getValue());
+				putK(K, self, k);
+			}
+		});
 
 		AssrtDataTypeVar annot = a.getAnnotVar();
 		AssrtArithFormula expr = a.getArithExpr();
 		if (!annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
 		{
-			Map<AssrtDataTypeVar, AssrtArithFormula> tmp = R.get(self);
 			AssrtArithFormula curr = tmp.get(annot);
-			if (curr == null || !curr.equals(expr))  // CHECKME: "syntactic" check is what we want here?
+			if (!curr.equals(expr))  // CHECKME: "syntactic" check is what we want here?
 			{
-				if (curr == null)
-				{
-					putK(K, self, annot);
-				}
-
-				tmp.put(annot, expr);   // "Overwrite" (if already known)
-
-				AssrtIntVarFormula iv = AssrtFormulaFactory.AssrtIntVar(annot.toString());
-				/*AssrtBoolFormula bf = AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr);  // No: this just encapsulates the new annot inside a nested forall -- need to expose the annot to a top-level forall
-				bf = AssrtFormulaFactory.AssrtForallFormula(Arrays.asList(iv), bf);
-				putF(R, F, self, bf);  // cf. makeF*/
-				
-				AssrtFormulaHolder hh = F.get(self);
-				//hh = new AssrtExistsFormulaHolder(Arrays.asList(iv), hh.getBody());  // N.B. not ExistsHolder -- this won't be the "last" item with the open "hole"
-				//hh = AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr)
-						
-				List<AssrtBoolFormula> foo = new LinkedList<>();
-				AssrtBoolFormula bar = AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(iv), hh.toFormula());
-				foo.add(bar);
-				
-				if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
-				{
-					expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), makeFreshIntVar(annot));
-				}
-				
-				foo.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
-				hh = new AssrtForallFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(AssrtCoreESend.DUMMY_VAR.toString())), foo); 
-				F.put(self, hh);
+				updateFfromR(F, self, tmp, annot, expr);
 			}
 			
 			//.. HERE add old R w.r.t. es.annot to F and exists quantify es.annot it
@@ -782,6 +766,34 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
 					AssrtFormulaFactory.AssrtIntVar(next.toString()), m.values().iterator().next()));
 		}*/
+	}
+
+	private static void updateFfromR(Map<Role, AssrtFormulaHolder> F, Role self,
+			Map<AssrtDataTypeVar, AssrtArithFormula> tmp, AssrtDataTypeVar annot, AssrtArithFormula expr)
+	{
+		tmp.put(annot, expr);   // "Overwrite" (if already known)
+
+		AssrtIntVarFormula iv = AssrtFormulaFactory.AssrtIntVar(annot.toString());
+		/*AssrtBoolFormula bf = AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr);  // No: this just encapsulates the new annot inside a nested forall -- need to expose the annot to a top-level forall
+		bf = AssrtFormulaFactory.AssrtForallFormula(Arrays.asList(iv), bf);
+		putF(R, F, self, bf);  // cf. makeF*/
+		
+		AssrtFormulaHolder hh = F.get(self);
+		//hh = new AssrtExistsFormulaHolder(Arrays.asList(iv), hh.getBody());  // N.B. not ExistsHolder -- this won't be the "last" item with the open "hole"
+		//hh = AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr)
+				
+		List<AssrtBoolFormula> foo = new LinkedList<>();
+		AssrtBoolFormula bar = AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(iv), hh.toFormula());
+		foo.add(bar);
+		
+		if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
+		{
+			expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), makeFreshIntVar(annot));
+		}
+		
+		foo.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
+		hh = new AssrtForallFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(AssrtCoreESend.DUMMY_VAR.toString())), foo); 
+		F.put(self, hh);
 	}
 
 	private boolean hasMessage(Role self, Role peer)

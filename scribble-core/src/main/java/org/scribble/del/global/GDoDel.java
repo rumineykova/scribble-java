@@ -59,10 +59,10 @@ public class GDoDel extends DoDel implements GSimpleInteractionNodeDel
 	@Override
 	public GDo leaveProtocolInlining(ScribNode parent, ScribNode child, ProtocolDefInliner inl, ScribNode visited) throws ScribbleException
 	{
-		CommonTree blame = visited.getSource();
-		SubprotocolSig subsig = inl.peekStack();
 		if (!inl.isCycle())
 		{
+			CommonTree blame = visited.getSource();
+			SubprotocolSig subsig = inl.peekStack();
 			RecVarNode recvar = (RecVarNode) inl.job.af.SimpleNameNode(blame, RecVarKind.KIND, inl.getSubprotocolRecVar(subsig).toString());
 			GInteractionSeq gis = (GInteractionSeq) (((InlineProtocolEnv) inl.peekEnv()).getTranslation());
 			GProtocolBlock gb = inl.job.af.GProtocolBlock(blame, gis);
