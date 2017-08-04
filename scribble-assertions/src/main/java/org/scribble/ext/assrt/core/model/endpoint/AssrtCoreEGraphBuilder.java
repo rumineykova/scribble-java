@@ -44,14 +44,14 @@ public class AssrtCoreEGraphBuilder
 		return this.util.finalise();
 	}
 	
-	private void build(AssrtCoreLType lt, AssrtEState s1, AssrtEState s2, Map<RecVar, AssrtEState> f)
+	private void build(AssrtCoreLType lt, AssrtEState s1, AssrtEState s2, Map<RecVar, AssrtEState> recs)
 	{
 		if (lt instanceof AssrtCoreLChoice)
 		{
 			AssrtCoreLChoice lc = (AssrtCoreLChoice) lt;
 			AssrtCoreLActionKind k = lc.getKind();
 			lc.cases.entrySet().stream().forEach(e ->
-				buildEdgeAndContinuation(s1, s2, f, lc.role, k, e.getKey(), e.getValue())
+				buildEdgeAndContinuation(s1, s2, recs, lc.role, k, e.getKey(), e.getValue())
 			);
 		}
 		else if (lt instanceof AssrtCoreLRec)
@@ -66,7 +66,7 @@ public class AssrtCoreEGraphBuilder
 		}
 	}
 
-	private void buildEdgeAndContinuation(AssrtEState s1, AssrtEState s2, Map<RecVar, AssrtEState> f, 
+	private void buildEdgeAndContinuation(AssrtEState s1, AssrtEState s2, Map<RecVar, AssrtEState> recs, 
 			Role r, AssrtCoreLActionKind k, AssrtCoreAction a, AssrtCoreLType cont)
 	{
 		if (cont instanceof AssrtCoreLEnd)
@@ -77,12 +77,9 @@ public class AssrtCoreEGraphBuilder
 		{
 			AssrtCoreRecVar crv = (AssrtCoreRecVar) cont;
 			AssrtArithFormula expr = crv.expr;
-			
-			
-			AssrtDataTypeVar annot = new AssrtDataTypeVar("x");  // HERE HACK FIXME
-
-			
-			this.util.addEdge(s1, toEAction(r, k, a, annot, expr), f.get(((AssrtCoreRecVar) cont).var));
+			AssrtEState s = recs.get(((AssrtCoreRecVar) cont).var);
+			AssrtDataTypeVar annot = s.getAnnotVars().keySet().iterator().next();  // FIXME
+			this.util.addEdge(s1, toEAction(r, k, a, annot, expr), s);
 		}
 		else
 		{
@@ -90,7 +87,7 @@ public class AssrtCoreEGraphBuilder
 					// FIXME: call Assrt directly? -- no "vars" here though (intermediate sequence states), only on rec states
 
 			this.util.addEdge(s1, toEAction(r, k, a), s);
-			build(cont, s, s2, f);
+			build(cont, s, s2, recs);
 		}
 	}
 	
