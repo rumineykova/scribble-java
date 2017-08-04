@@ -44,7 +44,7 @@ public class AssrtForallFormula extends AssrtBoolFormula
 	@Override
 	public String toString()
 	{
-		return "(forall ((" + this.vars.stream().map(Object::toString).collect(Collectors.joining(", ")) + ")) (" + this.expr + ")";
+		return "(forall ((" + this.vars.stream().map(Object::toString).collect(Collectors.joining(", ")) + ")) (" + this.expr + "))";
 	}
 
 	@Override

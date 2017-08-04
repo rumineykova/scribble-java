@@ -42,7 +42,7 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 	@Override
 	public String toString()
 	{
-		return "(exists ((" + this.vars.stream().map(Object::toString).collect(Collectors.joining(", ")) + ")) (" + this.expr + ")";
+		return "(exists ((" + this.vars.stream().map(Object::toString).collect(Collectors.joining(", ")) + ")) (" + this.expr + "))";
 	}
 
 	@Override

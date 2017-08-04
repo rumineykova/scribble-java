@@ -331,6 +331,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 									free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList()), impli);
 						}
 						
+						System.out.println("aaa: " + impli.toString());
+						
 						job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "): " + impli.getJavaSmtFormula());
 
 						switch (SMT_CONFIG)
