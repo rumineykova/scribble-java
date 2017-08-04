@@ -31,6 +31,8 @@ import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.util.JavaSmtWrapper;
+import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.scribble.main.Job;
 import org.scribble.model.MPrettyState;
 import org.scribble.model.MState;
@@ -55,6 +57,11 @@ import org.sosy_lab.java_smt.api.BooleanFormula;
 
 public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState, Global>
 {
+	// FIXME
+	enum SmtConfig { NATIVE_Z3, JAVA_SMT_Z3, NONE }
+	
+	private static final SmtConfig SMT_CONFIG = SmtConfig.NATIVE_Z3;
+	
 	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self -- for progress checking
 	
 	// In hash/equals -- cf. SState.config
@@ -240,7 +247,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				{
 					if (a instanceof AssrtESend)
 					{
-						//JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
 						Role src = e.getKey();
 						AssrtBoolFormula ass = ((AssrtESend) a).ass;
 						if (ass.equals(AssrtTrueFormula.TRUE))
@@ -325,22 +331,30 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 									free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList()), impli);
 						}
 						
-						BooleanFormula z3 = impli.getJavaSmtFormula();
-							
-						/*if (!jsmt.isSat(z3))
-						{
-							job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "): " + z3);
+						job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "): " + impli.getJavaSmtFormula());
 
-							return true;
-						}*/
-						
-						job.debugPrintln("\n[assrt-core] WARNING: skipping satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "): " + z3);
+						switch (SMT_CONFIG)
+						{
+							case JAVA_SMT_Z3:
+							{
+								JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
+								return !jsmt.isSat(impli.getJavaSmtFormula());
+							}
+							case NATIVE_Z3: return !Z3Wrapper.isSat(impli.toSmt2(), job.getContext().main.toString());
+							case NONE:
+							{
+								job.debugPrintln("\n[assrt-core] WARNING: satisfiability check skipped.");
+
+								return false;
+							}
+							default:        throw new RuntimeException("[assrt-core] Shouldn't get in here: " + SMT_CONFIG);
+						}
 					}
 					else
 					{
-						// FIXME: receive assertions
+						// FIXME: check receive assertions? -- currently receive assertions all set to True
+						return false;
 					}
-					return false;
 				}));
 	}
 

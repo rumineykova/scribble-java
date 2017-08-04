@@ -17,6 +17,15 @@ public abstract class AssrtSmtFormula<F extends Formula>
 
 	protected abstract F toJavaSmtFormula(); //throws AssertionParseException;
 
+	public String toSmt2()
+	{
+		return "(assert "
+				+ getJavaSmtFormula().toString()  // FIXME
+				+ ")\n"
+				+ "(check-sat)\n"
+				+ "(exit)";
+	}
+	
 	public F getJavaSmtFormula() //throws AssertionParseException
 	{
 		if (this.formula == null)
