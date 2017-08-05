@@ -10,7 +10,7 @@ import org.sosy_lab.java_smt.api.BooleanFormulaManager;
 
 // Binary boolean
 // Top-level formula of assertions
-public class AssrtBinBoolFormula extends AssrtBoolFormula
+public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinaryFormula<BooleanFormula>
 {
 	public enum Op
 	{
@@ -157,6 +157,18 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 		Set<AssrtDataTypeVar> vars = new HashSet<>(this.left.getVars()); 
 		vars.addAll(this.right.getVars()); 
 		return vars; 
+	}
+
+	@Override
+	public AssrtBoolFormula getLeft()
+	{
+		return this.left;
+	}
+
+	@Override
+	public AssrtBoolFormula getRight()
+	{
+		return this.right;
 	}
 
 	@Override

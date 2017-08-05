@@ -236,9 +236,95 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					return false;
 				}));
 	}
+
+	// i.e., state has an action that is not satisfiable (deadcode)
+	public boolean isUnsatisfiableError(Job job)  // FIXME: not actuall a "progress" error
+	{
+		return this.P.entrySet().stream().anyMatch(e ->
+		{
+			List<EAction> as = e.getValue().getAllActions(); // N.B. getAllActions includes non-fireable
+			return as.stream().anyMatch(a -> a.isSend() || a.isRequest()) && as.stream().anyMatch(a ->
+			{
+				if (a instanceof AssrtCoreESend)  // FIXME: factor out with isAssertionProgressError
+				{
+					Role src = e.getKey();
+					AssrtBoolFormula ass = ((AssrtESend) a).ass;
+					if (ass.equals(AssrtTrueFormula.TRUE))  // OK to skip? i.e., no need to check existing F (impli LHS) is true?
+					{
+						return false; 
+					}
+
+					AssrtBoolFormula AA = ass;
+					Set<AssrtIntVarFormula> varsA = new HashSet<>();
+					varsA.add(AssrtFormulaFactory
+							.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));
+					// Adding even if var not used
+					// N.B. includes the case for recursion cycles where var is "already"
+					// in F
+					if (!varsA.isEmpty()) // FIXME: currently never empty
+					{
+						AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
+					}
+
+					AssrtBoolFormula impli = this.F.get(src).makeSatCheck(AA);
+					Set<AssrtDataTypeVar> free = new HashSet<>();
+					free.addAll(impli.getVars());
+					if (!free.isEmpty())
+					{
+						impli = AssrtFormulaFactory.AssrtExistsFormula(
+								free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
+										.collect(Collectors.toList()),
+								impli);
+					}
+					
+					job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "):");
+					String str = impli.toSmt2Formula();
+					job.debugPrintln("  formula  = " + str);
+
+					AssrtBoolFormula squashed = impli.squash();
+					String squashedstr = squashed.toSmt2Formula();
+
+					job.debugPrintln("  squashed = " + squashedstr);
+
+					switch (SMT_CONFIG)
+					{
+						case JAVA_SMT_Z3:
+						{
+							JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
+							return !jsmt.isSat(squashed.getJavaSmtFormula());
+						}
+						case NATIVE_Z3:
+							return !Z3Wrapper.isSat(Z3Wrapper.toSmt2(squashed.toSmt2Formula()), job.getContext().main.toString());
+						case NONE:
+						{
+							job.debugPrintln("\n[assrt-core] WARNING: satisfiability check skipped.");
+
+							return false;
+						}
+						default:
+							throw new RuntimeException("[assrt-core] Shouldn't get in here: " + SMT_CONFIG);
+					}
+				}
+				else if (a instanceof AssrtERequest)
+				{
+					return true; // TODO: request
+				}
+				/*else if (a instanceof AssrtCoreEReceive || a instanceof AssrtEAccept)
+				{
+					return true;  // FIXME: check receive assertions? -- currently receive assertions all set to True
+				}*/
+				else
+				{
+					System.err.println("[assrt-core] Shouldn't get in here: " + a);
+					System.exit(1); // FIXME
+					return false;
+				}
+			});
+		});
+	}
 	
-	// i.e., has an action with an unsatisfiable assertion given existing assertions
-	public boolean isUnsatisfiableError(Job job)
+	// i.e., output state has a "well-asserted" action
+	public boolean isAssertionProgressError(Job job)  // FIXME: not actuall a "progress" error
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
 		{
@@ -321,7 +407,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					// AA.getJavaSmtFormula());
 					// N.B., JavaSMT formula constructor, via getJavaSmtFormula, seems to
 					// implicitly discardly, e.g., True && ...
-					AssrtBoolFormula impli = this.F.get(src).makeSatCheck(AA);
+					AssrtBoolFormula impli = this.F.get(src).makeAssertionProgressCheck(AA);
 
 					Set<AssrtDataTypeVar> free = new HashSet<>();
 					// free.addAll(FF.getVars());
@@ -339,7 +425,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 								impli);
 					}
 					
-					job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "):");
+					job.debugPrintln("\n[assrt-core] Checking assertion progress for " + src + " at " + e.getValue() + "(" + this.id + "):");
 					String str = impli.toSmt2Formula();
 					job.debugPrintln("  formula  = " + str);
 
@@ -359,7 +445,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							return Z3Wrapper.isSat(Z3Wrapper.toSmt2(squashed.toSmt2Formula()), job.getContext().main.toString());
 						case NONE:
 						{
-							job.debugPrintln("\n[assrt-core] WARNING: satisfiability check skipped.");
+							job.debugPrintln("\n[assrt-core] WARNING: assertion progress check skipped.");
 
 							return true;
 						}
@@ -687,12 +773,17 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				AssrtBoolFormula f = m.getAssertion();
 				/*AssrtExistsFormulaHolder h =
 						new AssrtExistsFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(v.toString())), Arrays.asList(f));*/
+
+				AssrtFormulaHolder h = F.get(self);
+				AssrtIntVarFormula fresh = makeFreshIntVar(v);
+				h = h.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()), fresh);
 				
 				updateRKF(R, K, F, self, a, v, f, succ);
 				
-				AssrtFormulaHolder h = F.get(self);
-				h = new AssrtForallFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(v.toString())), Arrays.asList(h));
-				F.put(self, h);
+				//AssrtFormulaHolder 
+				//h = F.get(self);  // FIXME: needed because updateRKF modifies F again
+				////h = new AssrtForallFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(v.toString())), Arrays.asList(h));
+				//F.put(self, h);
 
 				/*putK(K, self, v);
 				putF(R, F, self, h);
@@ -801,7 +892,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				// No: not exists -- breaks scope for subsequent receive-forall (e.g., in nested subprotocol) -- and shouldn't be exists
 		
 		hh = hh.subs(iv, fresh);
-		hh = new AssrtForallFormulaHolder(Arrays.asList(fresh), Arrays.asList(hh));
+		//hh = new AssrtForallFormulaHolder(Arrays.asList(fresh), Arrays.asList(hh));
 		hh = hh.addClause(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
 		
 		//foo.add(hh.subs(iv, fresh));  // Needs to keep nested holder as "last" element
@@ -1102,7 +1193,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 }
 
 
-// Used to bind receive-assertion vars and statevar updates (and also top-level statevar)
+// Used to bind receive-assertion vars and statevar updates (and also top-level statevar) -- now only used for top-level statevar (FIXME)
 // FIXME: specified forall-holder not really needed?  since F only contains forall ("repeat" vars handled by renaming), so all can be bound by top-level forall
 class AssrtForallFormulaHolder extends AssrtFormulaHolder
 {
@@ -1226,6 +1317,41 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 		return this.body;
 	}
 
+	public AssrtBoolFormula makeAssertionProgressCheck(AssrtBoolFormula rhs)
+	{
+		AssrtFormulaHolder copy = copy();
+		copy.makeAssertionProgressCheckAux(rhs);
+		return copy.inlineHolders();
+	}
+
+	private void makeAssertionProgressCheckAux(AssrtBoolFormula rhs)
+	{
+		if (this.body.isEmpty()) // Never actually empty because of dummy's
+		{
+			this.body.add(AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply,
+					AssrtTrueFormula.TRUE, rhs));
+		}
+		else
+		{
+			AssrtBoolFormula last = this.body.get(this.body.size() - 1);
+			if (last instanceof AssrtFormulaHolder)
+			{
+				((AssrtFormulaHolder) last).makeAssertionProgressCheckAux(rhs);
+			}
+			else
+			{
+				List<AssrtBoolFormula> tmp = new LinkedList<>();
+				tmp.add(AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply,
+						this.body.stream().reduce(AssrtTrueFormula.TRUE,
+								(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
+						),
+						rhs));
+				this.body = tmp;
+			}
+		}
+	}
+
+	// FIXME: factor out with makeAssertionProgressCheckAux
 	public AssrtBoolFormula makeSatCheck(AssrtBoolFormula rhs)
 	{
 		AssrtFormulaHolder copy = copy();
@@ -1237,7 +1363,7 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 	{
 		if (this.body.isEmpty()) // Never actually empty because of dummy's
 		{
-			this.body.add(AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply,
+			this.body.add(AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And,
 					AssrtTrueFormula.TRUE, rhs));
 		}
 		else
@@ -1250,7 +1376,7 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 			else
 			{
 				List<AssrtBoolFormula> tmp = new LinkedList<>();
-				tmp.add(AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply,
+				tmp.add(AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And,
 						this.body.stream().reduce(AssrtTrueFormula.TRUE,
 								(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
 						),
