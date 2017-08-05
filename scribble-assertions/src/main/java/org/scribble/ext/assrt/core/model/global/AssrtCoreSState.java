@@ -786,7 +786,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//hh = new AssrtExistsFormulaHolder(Arrays.asList(iv), hh.getBody());  // N.B. not ExistsHolder -- this won't be the "last" item with the open "hole"
 		//hh = AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr)
 				
-		List<AssrtBoolFormula> foo = new LinkedList<>();
+		//List<AssrtBoolFormula> foo = new LinkedList<>();
 		AssrtIntVarFormula fresh = makeFreshIntVar(annot);
 
 		if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
@@ -795,16 +795,27 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					//fresh);
 					makeFreshIntVar(annot));
 		}
-		foo.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
+		//foo.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
 
 		//AssrtBoolFormula bar = AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(iv), hh.inlineHolders());  // Need to inline holders, nested holder must currently be "last" in holder body
 				// No: not exists -- breaks scope for subsequent receive-forall (e.g., in nested subprotocol) -- and shouldn't be exists
-		AssrtBoolFormula bar = new AssrtForallFormulaHolder(Arrays.asList(fresh), Arrays.asList(hh.subs(iv, fresh)));
-				// FIXME: forall (holder) not really needed since anyway renaming? -- will be bound by top-level forall
-		foo.add(bar);
 		
-		hh = new AssrtForallFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(AssrtCoreESend.DUMMY_VAR.toString())), foo); 
+		hh = hh.subs(iv, fresh);
+		hh = new AssrtForallFormulaHolder(Arrays.asList(fresh), Arrays.asList(hh));
+		hh = hh.addClause(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
+		
+		//foo.add(hh.subs(iv, fresh));  // Needs to keep nested holder as "last" element
+		/*AssrtBoolFormula bar = new AssrtForallFormulaHolder(Arrays.asList(fresh), 
+				//Arrays.asList(hh.subs(iv, fresh)));
+				foo);*/
+				// FIXME: forall (holder) not really needed since anyway renaming? -- will be bound by top-level forall
+		//foo.add(bar);
+		
+		/*hh = new AssrtForallFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(AssrtCoreESend.DUMMY_VAR.toString())), 
+				//foo); 
+				Arrays.asList(bar));*/
 				// FIXME: forall (holder) not really needed since will be bound by top-level forall?
+
 		F.put(self, hh);
 	}
 
@@ -1192,7 +1203,7 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 	}
 			
 	@Override
-	public AssrtBoolFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	public AssrtFormulaHolder subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
 		//throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 		if (this.vars.contains(old))
