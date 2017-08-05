@@ -1175,6 +1175,16 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
+			
+	@Override
+	public AssrtBoolFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		//throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
+		return reconstruct(
+				this.vars.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList()),
+				this.body.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList())
+		);
+	}
 
 	public List<AssrtIntVarFormula> getBoundVars()
 	{

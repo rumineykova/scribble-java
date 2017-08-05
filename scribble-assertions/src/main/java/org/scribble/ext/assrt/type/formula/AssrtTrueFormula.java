@@ -22,6 +22,12 @@ public class AssrtTrueFormula extends AssrtBoolFormula
 	{
 		return this;
 	}
+
+	@Override
+	public AssrtTrueFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		return this;
+	}
 	
 	@Override
 	public String toSmt2Formula()

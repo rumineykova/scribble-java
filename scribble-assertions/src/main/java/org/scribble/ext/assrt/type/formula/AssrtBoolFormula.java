@@ -13,4 +13,7 @@ public abstract class AssrtBoolFormula extends AssrtSmtFormula<BooleanFormula>
 	
 	@Override
 	public abstract AssrtBoolFormula squash();
+
+	@Override
+	public abstract AssrtBoolFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu);
 }

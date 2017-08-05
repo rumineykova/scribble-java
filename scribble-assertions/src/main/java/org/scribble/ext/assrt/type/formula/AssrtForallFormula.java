@@ -32,6 +32,13 @@ public class AssrtForallFormula extends AssrtBoolFormula
 		AssrtBoolFormula expr = this.expr.squash();
 		return (vars.isEmpty()) ? expr : AssrtFormulaFactory.AssrtForallFormula(vars, expr);
 	}
+
+	@Override
+	public AssrtForallFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		return AssrtFormulaFactory.AssrtForallFormula(
+				this.vars.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList()), this.expr.subs(old, neu));
+	}
 	
 	@Override
 	public String toSmt2Formula()

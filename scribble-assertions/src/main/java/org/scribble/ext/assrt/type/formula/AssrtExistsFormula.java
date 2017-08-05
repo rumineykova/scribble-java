@@ -31,6 +31,13 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 		AssrtBoolFormula expr = this.expr.squash();
 		return (vars.isEmpty()) ? expr : AssrtFormulaFactory.AssrtExistsFormula(vars, expr);
 	}
+
+	@Override
+	public AssrtExistsFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		return AssrtFormulaFactory.AssrtExistsFormula(
+				this.vars.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList()), this.expr.subs(old, neu));
+	}
 	
 	@Override
 	public String toSmt2Formula()

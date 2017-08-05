@@ -66,6 +66,12 @@ public class AssrtBinCompFormula extends AssrtBoolFormula
 		//return this;  // No: underlying this.formula will not be the same after squashing
 		return AssrtFormulaFactory.AssrtBinComp(this.op, this.left.squash(), this.right.squash());
 	}
+
+	@Override
+	public AssrtBinCompFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		return AssrtFormulaFactory.AssrtBinComp(this.op, this.left.subs(old, neu), this.right.subs(old, neu));
+	}
 	
 	@Override
 	public String toSmt2Formula()

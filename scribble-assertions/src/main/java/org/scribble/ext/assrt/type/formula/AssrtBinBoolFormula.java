@@ -111,6 +111,12 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 			default: throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
 		}
 	}
+
+	@Override
+	public AssrtBinBoolFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		return AssrtFormulaFactory.AssrtBinBool(this.op, this.left.subs(old, neu), this.right.subs(old, neu));
+	}
 	
 	@Override
 	public String toSmt2Formula()

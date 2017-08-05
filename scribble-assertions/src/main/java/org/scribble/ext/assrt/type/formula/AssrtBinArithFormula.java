@@ -51,7 +51,7 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 	}
 
 	@Override
-	public AssrtArithFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	public AssrtBinArithFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
 		return AssrtFormulaFactory.AssrtBinArith(this.op, this.left.subs(old, neu), this.right.subs(old, neu));
 	}

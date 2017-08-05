@@ -25,7 +25,7 @@ public class AssrtIntVarFormula extends AssrtArithFormula
 	}
 
 	@Override
-	public AssrtArithFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	public AssrtIntVarFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
 		return this.equals(old) ? neu : this;
 	}

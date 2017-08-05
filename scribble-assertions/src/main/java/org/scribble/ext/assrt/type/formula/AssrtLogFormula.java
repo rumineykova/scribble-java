@@ -24,6 +24,12 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
+
+	@Override
+	public AssrtTrueFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
+	}
 		
 	@Override
 	public String toSmt2Formula()
