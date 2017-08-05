@@ -36,8 +36,14 @@ public class AssrtForallFormula extends AssrtBoolFormula
 	@Override
 	public AssrtForallFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
+		if (this.vars.contains(old))
+		{
+			return this;
+		}
 		return AssrtFormulaFactory.AssrtForallFormula(
-				this.vars.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList()), this.expr.subs(old, neu));
+				//this.vars.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList()), 
+				this.vars,
+				this.expr.subs(old, neu));
 	}
 	
 	@Override

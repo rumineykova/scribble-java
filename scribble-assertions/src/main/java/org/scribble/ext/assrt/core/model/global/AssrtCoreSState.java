@@ -787,15 +787,24 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//hh = AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr)
 				
 		List<AssrtBoolFormula> foo = new LinkedList<>();
-		AssrtBoolFormula bar = AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(iv), hh.inlineHolders()); foo.add(bar);
-		
+		AssrtIntVarFormula fresh = makeFreshIntVar(annot);
+
 		if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
 		{
-			expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), makeFreshIntVar(annot));
+			expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), 
+					//fresh);
+					makeFreshIntVar(annot));
 		}
-		
 		foo.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
+
+		//AssrtBoolFormula bar = AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(iv), hh.inlineHolders());  // Need to inline holders, nested holder must currently be "last" in holder body
+				// No: not exists -- breaks scope for subsequent receive-forall (e.g., in nested subprotocol) -- and shouldn't be exists
+		AssrtBoolFormula bar = new AssrtForallFormulaHolder(Arrays.asList(fresh), Arrays.asList(hh.subs(iv, fresh)));
+				// FIXME: forall (holder) not really needed since anyway renaming? -- will be bound by top-level forall
+		foo.add(bar);
+		
 		hh = new AssrtForallFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(AssrtCoreESend.DUMMY_VAR.toString())), foo); 
+				// FIXME: forall (holder) not really needed since will be bound by top-level forall?
 		F.put(self, hh);
 	}
 
@@ -979,7 +988,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						AssrtEState s = e.getValue();
 						Map<AssrtDataTypeVar, AssrtArithFormula> vars = s.getAnnotVars();
 						AssrtIntVarFormula v = AssrtFormulaFactory.AssrtIntVar(AssrtCoreESend.DUMMY_VAR.toString());  // FIXME
-						AssrtFormulaHolder h = new AssrtExistsFormulaHolder(Arrays.asList(v), 
+						AssrtFormulaHolder h = new AssrtForallFormulaHolder(Arrays.asList(v), 
 								//Arrays.asList(AssrtTrueFormula.TRUE)
 								Collections.emptyList()
 								);
@@ -1073,13 +1082,17 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		R.get(r).put(annot, expr);
 	}*/
 	
+	private static int counter = 1;
+	
 	private static AssrtIntVarFormula makeFreshIntVar(AssrtDataTypeVar var)
 	{
-		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString());  // HACK
+		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString() + counter++);  // HACK
 	}
 }
 
 
+// Used to bind receive-assertion vars and statevar updates (and also top-level statevar)
+// FIXME: specified forall-holder not really needed?  since F only contains forall ("repeat" vars handled by renaming), so all can be bound by top-level forall
 class AssrtForallFormulaHolder extends AssrtFormulaHolder
 {
 	public AssrtForallFormulaHolder(List<AssrtIntVarFormula> vars, List<AssrtBoolFormula> body)
@@ -1117,6 +1130,8 @@ class AssrtForallFormulaHolder extends AssrtFormulaHolder
 	}*/
 }
 
+// exists only be for unsat check impli RHS (and don't need holder for that)
+@Deprecated
 class AssrtExistsFormulaHolder extends AssrtFormulaHolder
 {
 	public AssrtExistsFormulaHolder(List<AssrtIntVarFormula> vars, List<AssrtBoolFormula> body)
@@ -1154,8 +1169,8 @@ class AssrtExistsFormulaHolder extends AssrtFormulaHolder
 	}*/
 }
 
-// HACK: for "forwards" formula building alongside model building -- cf.,
-// recursive formula building on top of already built model
+// HACK: for "forwards" formula building alongside model building -- cf., recursive formula building on top of already built model
+// FIXME: specific forall/exists holders not really needed anymore -- only need a "general holder" for "forwards" formula building
 abstract class AssrtFormulaHolder extends AssrtBoolFormula
 {
 	protected final List<AssrtIntVarFormula> vars;
@@ -1180,8 +1195,12 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 	public AssrtBoolFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
 		//throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
+		if (this.vars.contains(old))
+		{
+			return this;
+		}
 		return reconstruct(
-				this.vars.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList()),
+				this.vars, //.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList()),
 				this.body.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList())
 		);
 	}

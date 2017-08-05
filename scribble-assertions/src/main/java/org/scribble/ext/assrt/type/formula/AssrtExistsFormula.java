@@ -35,8 +35,14 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 	@Override
 	public AssrtExistsFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
+		if (this.vars.contains(old))
+		{
+			return this;
+		}
 		return AssrtFormulaFactory.AssrtExistsFormula(
-				this.vars.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList()), this.expr.subs(old, neu));
+				//this.vars.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList()), 
+				this.vars,
+				this.expr.subs(old, neu));
 	}
 	
 	@Override

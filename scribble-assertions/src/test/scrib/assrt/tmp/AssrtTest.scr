@@ -59,13 +59,13 @@ global protocol Proto2(role B, role W, role S) @(x=0);
 	choice at S
 	{
 		hag() from S to B; @(Offer>x);
-		hag() from S to W; @False;  // FIXME -- why Proto1 sat? -- because of broken "old" statevar exists, need to do as renaming with global forall
+		hag() from S to W; @False;  // Uncomment is unsat
 		do Proto2(B, W, S); @Offer;
 	}
 	or
 	{
-		exit() from S to B;
-		cancel() from S to W;
+		exit() from S to B; @False;
+		cancel() from S to W; //@False;  // Uncomment is still unsat
 	}
 	or
 	{
