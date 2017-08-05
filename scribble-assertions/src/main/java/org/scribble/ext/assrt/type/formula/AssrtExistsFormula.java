@@ -30,6 +30,15 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 		vs.removeAll(this.vars.stream().map(v -> v.toName()).collect(Collectors.toList()));
 		return vs;
 	}
+	
+	@Override
+	public AssrtBoolFormula squash()
+	{
+		List<AssrtIntVarFormula> vars
+				= this.vars.stream().filter(v -> !v.toString().startsWith("_dum")).collect(Collectors.toList());  // FIXME
+		AssrtBoolFormula expr = this.expr.squash();
+		return (vars.isEmpty()) ? expr : AssrtFormulaFactory.AssrtExistsFormula(vars, expr);
+	}
 
 	@Override
 	protected BooleanFormula toJavaSmtFormula()

@@ -16,6 +16,12 @@ public class AssrtTrueFormula extends AssrtBoolFormula
 	{
 		
 	}
+
+	@Override
+	public AssrtBoolFormula squash()
+	{
+		return this;
+	}
 	
 	@Override
 	public String toString()

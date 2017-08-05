@@ -41,7 +41,7 @@ global protocol Proto1(role A, role B) @(x=1);
 //*/
 
 
-/*
+//*
 global protocol Proto1(role B, role W, role S)
 {
 	1(Query:int) from B to W; @(Query>0);
@@ -186,7 +186,7 @@ global protocol Proto1(role A, role B)
 //*/
 
 
-//*
+/*
 global protocol Proto1(role A, role B) @(x=3);
 {
 	1() from A to B; @(x>2);	

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
@@ -25,8 +26,6 @@ import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtExistsFormula;
-import org.scribble.ext.assrt.type.formula.AssrtForallFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
@@ -99,23 +98,23 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	public boolean isReceptionError()
 	{
 		return this.P.entrySet().stream().anyMatch(e ->  // e: Entry<Role, EState>
-				{
-					EState s = e.getValue();
-					EStateKind k = s.getStateKind();
-					if (k != EStateKind.UNARY_INPUT && k != EStateKind.POLY_INPUT)
-					{
-						return false;
-					}
-					Role dest = e.getKey();
-					List<EAction> as = s.getActions();
-					Role src = as.get(0).peer;
-					return hasMessage(dest, src) && 
-							//!as.contains(this.Q.get(dest).get(src).toDual(src));
-							as.stream()
-								.map(a -> ((AssrtESend) a.toDual(dest)).toTrueAssertion())
-								.noneMatch(a -> a.equals(this.Q.get(dest).get(src).toTrueAssertion()));   // cf. toTrueAssertion done now only on receiver side
-										// HACK FIXME: check assertion implication (not just syntactic equals) -- cf. AssrtSConfig::fire
-				}
+		{
+			EState s = e.getValue();
+			EStateKind k = s.getStateKind();
+			if (k != EStateKind.UNARY_INPUT && k != EStateKind.POLY_INPUT)
+			{
+				return false;
+			}
+			Role dest = e.getKey();
+			List<EAction> as = s.getActions();
+			Role src = as.get(0).peer;
+			return hasMessage(dest, src) && 
+					//!as.contains(this.Q.get(dest).get(src).toDual(src));
+					as.stream()
+						.map(a -> ((AssrtESend) a.toDual(dest)).toTrueAssertion())
+						.noneMatch(a -> a.equals(this.Q.get(dest).get(src).toTrueAssertion()));   // cf. toTrueAssertion done now only on receiver side
+								// HACK FIXME: check assertion implication (not just syntactic equals) -- cf. AssrtSConfig::fire
+		}
 		);
 	}
 
@@ -123,29 +122,28 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	public boolean isOrphanError(Map<Role, EState> E0)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
-				{
-					Role r1 = e.getKey();
-					EState s = e.getValue();
-					return
-							   isInactive(s, E0.get(r1).id)
-							&& (this.P.keySet().stream().anyMatch(r2 -> 
-									   hasMessage(r1, r2)
+		{
+			Role r1 = e.getKey();
+			EState s = e.getValue();
+			return
+						 isInactive(s, E0.get(r1).id)
+					&& (this.P.keySet().stream().anyMatch(r2 -> 
+								 hasMessage(r1, r2)
+							 
+							// FIXME: factor out as "pending request reception error"? -- actually, already checked as synchronisation error?
+							|| (  isPendingRequest(r2, r1)  // N.B. pending request *to* inactive r1 
 									 
-									// FIXME: factor out as "pending request reception error"? -- actually, already checked as synchronisation error?
-									|| (  isPendingRequest(r2, r1)  // N.B. pending request *to* inactive r1 
+								 // Otherwise all initial request messages considered as bad
+								 && s.getActions().stream()
+										 .map(a -> ((AssrtERequest) a.toDual(r1)).toTrueAssertion())
+										 .noneMatch(a -> a.equals(((AssrtCoreEPendingRequest) this.Q.get(r1).get(r2)).getMessage()))  
 											 
-									   // Otherwise all initial request messages considered as bad
-									   && s.getActions().stream()
-											   .map(a -> ((AssrtERequest) a.toDual(r1)).toTrueAssertion())
-											   .noneMatch(a -> a.equals(((AssrtCoreEPendingRequest) this.Q.get(r1).get(r2)).getMessage()))  
-													 
-									   )
-								 ));  
-								////|| !this.owned.get(e.getKey()).isEmpty()  
-								
-					// FIXME: need AnnotEConnect to consume owned properly
-				}
-			);
+								 )
+						 ));  
+						////|| !this.owned.get(e.getKey()).isEmpty()  
+						
+			// FIXME: need AnnotEConnect to consume owned properly
+		});
 	}
 
 	public boolean isUnfinishedRoleError(Map<Role, EState> E0)
@@ -172,38 +170,37 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	public boolean isUnconnectedError()
 	{
 		return this.P.entrySet().stream().anyMatch(e -> 
-				{
-					Role r = e.getKey();
-					return 
-							e.getValue().getActions().stream().anyMatch(a ->
-											(a.isSend() &&
-												(!isInputQueueEstablished(r, a.peer) || !isInputQueueEstablished(a.peer, r)) && !isPendingRequest(r, a.peer))
-									|| (a.isReceive() && !isInputQueueEstablished(r, a.peer) && !isPendingRequest(r, a.peer)));
-					// Don't need to use isPendingRequest(a.peer, r) because only requestor is "at the next state" while request pending 
-				});
+		{
+			Role r = e.getKey();
+			return 
+					e.getValue().getActions().stream().anyMatch(a ->
+									(a.isSend() &&
+										(!isInputQueueEstablished(r, a.peer) || !isInputQueueEstablished(a.peer, r)) && !isPendingRequest(r, a.peer))
+							|| (a.isReceive() && !isInputQueueEstablished(r, a.peer) && !isPendingRequest(r, a.peer)));
+			// Don't need to use isPendingRequest(a.peer, r) because only requestor is "at the next state" while request pending 
+		});
 	}
 
 	// "Connection message" reception error
 	public boolean isSynchronisationError()
 	{
 		return this.P.entrySet().stream().anyMatch(e ->  // e: Entry<Role, EState>
-				{
-					EState s = e.getValue();
-					EStateKind k = s.getStateKind();
-					if (k != EStateKind.ACCEPT)
-					{
-						return false;
-					}
-					Role dest = e.getKey();
-					List<EAction> as = s.getActions();
-					Role src = as.get(0).peer;
-					return isPendingRequest(src, dest)
-							&& !as.contains(
-										 ((AssrtCoreEPendingRequest) this.Q.get(dest).get(src)).getMessage()
-										.toTrueAssertion().toDual(src)
-									);
-				}
-		);
+		{
+			EState s = e.getValue();
+			EStateKind k = s.getStateKind();
+			if (k != EStateKind.ACCEPT)
+			{
+				return false;
+			}
+			Role dest = e.getKey();
+			List<EAction> as = s.getActions();
+			Role src = as.get(0).peer;
+			return isPendingRequest(src, dest)
+					&& !as.contains(
+								 ((AssrtCoreEPendingRequest) this.Q.get(dest).get(src)).getMessage()
+								.toTrueAssertion().toDual(src)
+							);
+		});
 	}
 	
 	public boolean isUnknownDataTypeVarError()
@@ -244,142 +241,147 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	public boolean isUnsatisfiableError(Job job)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
+		{
+			List<EAction> as = e.getValue().getAllActions(); // N.B. getAllActions includes non-fireable
+			return as.stream().anyMatch(a -> a.isSend() || a.isRequest()) && as.stream().noneMatch(a ->
+			{
+				if (a instanceof AssrtCoreESend)
 				{
-					List<EAction> as = e.getValue().getAllActions(); // N.B. getAllActions includes non-fireable
-					return as.stream().anyMatch(a -> a.isSend() || a.isRequest()) && as.stream().noneMatch(a ->
-							{
-								if (a instanceof AssrtCoreESend)
-								{
-									Role src = e.getKey();
-									AssrtBoolFormula ass = ((AssrtESend) a).ass;
-									if (ass.equals(AssrtTrueFormula.TRUE))
-									{
-										return true;
-									}
+					Role src = e.getKey();
+					AssrtBoolFormula ass = ((AssrtESend) a).ass;
+					if (ass.equals(AssrtTrueFormula.TRUE))
+					{
+						return true;
+					}
 
-									/*AssrtBoolFormula tmp = this.F.get(src).stream().reduce(
-												AssrtTrueFormula.TRUE,  // F emptyset at start
-												(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
-											);* /
-									//AssrtBoolFormula tmp = this.F.get(src);
-									AssrtBoolFormula tmp = this.F.get(src).toFormula();
-									BooleanFormula PP = tmp.getJavaSmtFormula();*/
+					/*AssrtBoolFormula tmp = this.F.get(src).stream().reduce(
+								AssrtTrueFormula.TRUE,  // F emptyset at start
+								(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
+							);* /
+					//AssrtBoolFormula tmp = this.F.get(src);
+					AssrtBoolFormula tmp = this.F.get(src).toFormula();
+					BooleanFormula PP = tmp.getJavaSmtFormula();*/
 
-									// AssrtBoolFormula FF = this.F.get(src).toFormula();
+					// AssrtBoolFormula FF = this.F.get(src).toFormula();
 
-									AssrtBoolFormula AA = ass;
-									Set<AssrtIntVarFormula> varsA = new HashSet<>();
-									varsA.add(AssrtFormulaFactory
-											.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));
-									// Adding even if var not used
-									// N.B. includes the case for recursion cycles where var is "already"
-									// in F
-									if (!varsA.isEmpty()) // FIXME: currently never empty
-									{
-										AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
-									}
+					AssrtBoolFormula AA = ass;
+					Set<AssrtIntVarFormula> varsA = new HashSet<>();
+					varsA.add(AssrtFormulaFactory
+							.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));
+					// Adding even if var not used
+					// N.B. includes the case for recursion cycles where var is "already"
+					// in F
+					if (!varsA.isEmpty()) // FIXME: currently never empty
+					{
+						AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
+					}
 
-									/*Set<Entry<AssrtDataTypeVar, AssrtArithFormula>> bar = new HashSet<>(this.R.get(src).entrySet());
-									AssrtBoolFormula RR = bar.stream()
-											.map(b -> AssrtFormulaFactory.AssrtBinComp(
-												AssrtBinCompFormula.Op.Eq, 
-												AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
-												b.getValue()))
-											.reduce(
-												(AssrtBoolFormula) AssrtTrueFormula.TRUE,  // F emptyset at start
-												(b1, c) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, c),
-												(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));*/
+					/*Set<Entry<AssrtDataTypeVar, AssrtArithFormula>> bar = new HashSet<>(this.R.get(src).entrySet());
+					AssrtBoolFormula RR = bar.stream()
+							.map(b -> AssrtFormulaFactory.AssrtBinComp(
+								AssrtBinCompFormula.Op.Eq, 
+								AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
+								b.getValue()))
+							.reduce(
+								(AssrtBoolFormula) AssrtTrueFormula.TRUE,  // F emptyset at start
+								(b1, c) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, c),
+								(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));*/
 
-									/*Set<AssrtDataTypeVar> r1 = new HashSet<>(this.R.get(src).keySet());
-									Set<AssrtDataTypeVar> f1 = new HashSet<>(tmp.getVars());
-									f1.retainAll(r1);
-									if (!f1.isEmpty())
-									{
-										// Simply exists quantifying all vars in F that are also in R -- is this OK?  just means we always use the "latest" R? (could be the same as before)
-										PP = jsmt.qfm.exists(f1.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList()), PP);
-									}*/
+					/*Set<AssrtDataTypeVar> r1 = new HashSet<>(this.R.get(src).keySet());
+					Set<AssrtDataTypeVar> f1 = new HashSet<>(tmp.getVars());
+					f1.retainAll(r1);
+					if (!f1.isEmpty())
+					{
+						// Simply exists quantifying all vars in F that are also in R -- is this OK?  just means we always use the "latest" R? (could be the same as before)
+						PP = jsmt.qfm.exists(f1.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList()), PP);
+					}*/
 
-									/*Set<IntegerFormula> varsF = this.F.get(src).stream().flatMap(f -> f.getVars().stream()
-											.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());* /
-									Set<IntegerFormula> varsF = tmp.getVars().stream()
-											.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
-									/*Set<IntegerFormula> varsA = ass.getVars().stream()
-											.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
-									varsA.removeAll(varsF);* /  // No: the only difference should be single action pay var, and always want to exists quantify it (not only if not F, e.g., recursion)
-									Set<IntegerFormula> varsR = this.R.values().stream().flatMap(m -> m.keySet().stream()).map(v -> 
-												jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet()
-											);
-									varsR.addAll(
-											this.R.values().stream().flatMap(m -> m.values().stream()).flatMap(v -> 
-												v.getVars().stream()).map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet())
-											);
-									
-									Set<IntegerFormula> varsK = this.K.values().stream().flatMap(s -> s.stream())
-											.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());*/
+					/*Set<IntegerFormula> varsF = this.F.get(src).stream().flatMap(f -> f.getVars().stream()
+							.map(v -> jsmt.ifm.makeVariable(v.toString()))).collect(Collectors.toSet());* /
+					Set<IntegerFormula> varsF = tmp.getVars().stream()
+							.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
+					/*Set<IntegerFormula> varsA = ass.getVars().stream()
+							.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());
+					varsA.removeAll(varsF);* /  // No: the only difference should be single action pay var, and always want to exists quantify it (not only if not F, e.g., recursion)
+					Set<IntegerFormula> varsR = this.R.values().stream().flatMap(m -> m.keySet().stream()).map(v -> 
+								jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet()
+							);
+					varsR.addAll(
+							this.R.values().stream().flatMap(m -> m.values().stream()).flatMap(v -> 
+								v.getVars().stream()).map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet())
+							);
+					
+					Set<IntegerFormula> varsK = this.K.values().stream().flatMap(s -> s.stream())
+							.map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toSet());*/
 
-									// BooleanFormula impli =
-									// jsmt.bfm.implication(jsmt.bfm.and(FF.getJavaSmtFormula(),
-									// RR.getJavaSmtFormula()), AA.getJavaSmtFormula());
-									// BooleanFormula impli = jsmt.bfm.implication(FF.getJavaSmtFormula(),
-									// AA.getJavaSmtFormula());
-									// N.B., JavaSMT formula constructor, via getJavaSmtFormula, seems to
-									// implicitly discardly, e.g., True && ...
-									AssrtBoolFormula impli = this.F.get(src).makeSatCheck(AA);
+					// BooleanFormula impli =
+					// jsmt.bfm.implication(jsmt.bfm.and(FF.getJavaSmtFormula(),
+					// RR.getJavaSmtFormula()), AA.getJavaSmtFormula());
+					// BooleanFormula impli = jsmt.bfm.implication(FF.getJavaSmtFormula(),
+					// AA.getJavaSmtFormula());
+					// N.B., JavaSMT formula constructor, via getJavaSmtFormula, seems to
+					// implicitly discardly, e.g., True && ...
+					AssrtBoolFormula impli = this.F.get(src).makeSatCheck(AA);
 
-									Set<AssrtDataTypeVar> free = new HashSet<>();
-									// free.addAll(FF.getVars());
-									//// free.addAll(RR.getVars());
-									// free.addAll(AA.getVars());
-									free.addAll(impli.getVars());
-									if (!free.isEmpty())
-									{
-										/*impli = jsmt.qfm.forall(
-												free.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList()),
-												impli.getJavaSmtFormula());  // AA already exists-quantified*/
-										impli = AssrtFormulaFactory.AssrtForallFormula(
-												free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
-														.collect(Collectors.toList()),
-												impli);
-									}
+					Set<AssrtDataTypeVar> free = new HashSet<>();
+					// free.addAll(FF.getVars());
+					//// free.addAll(RR.getVars());
+					// free.addAll(AA.getVars());
+					free.addAll(impli.getVars());
+					if (!free.isEmpty())
+					{
+						/*impli = jsmt.qfm.forall(
+								free.stream().map(v -> jsmt.ifm.makeVariable(v.toString())).collect(Collectors.toList()),
+								impli.getJavaSmtFormula());  // AA already exists-quantified*/
+						impli = AssrtFormulaFactory.AssrtForallFormula(
+								free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
+										.collect(Collectors.toList()),
+								impli);
+					}
+					
+					AssrtBoolFormula squashed = impli.squash();
+					BooleanFormula str = impli.getJavaSmtFormula();
+					BooleanFormula squashedstr = squashed.getJavaSmtFormula();
 
-									job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at "
-											+ e.getValue() + "(" + this.id + "): " + impli.getJavaSmtFormula());
+					job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "):");
+					job.debugPrintln("  formula  = " + str);
+					job.debugPrintln("  squashed = " + squashedstr);
 
-									switch (SMT_CONFIG)
-									{
-										case JAVA_SMT_Z3:
-										{
-											JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
-											return jsmt.isSat(impli.getJavaSmtFormula());
-										}
-										case NATIVE_Z3:
-											return Z3Wrapper.isSat(impli.toSmt2(), job.getContext().main.toString());
-										case NONE:
-										{
-											job.debugPrintln("\n[assrt-core] WARNING: satisfiability check skipped.");
+					switch (SMT_CONFIG)
+					{
+						case JAVA_SMT_Z3:
+						{
+							JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
+							return jsmt.isSat(squashedstr);
+						}
+						case NATIVE_Z3:
+							return Z3Wrapper.isSat(squashed.toSmt2(), job.getContext().main.toString());
+						case NONE:
+						{
+							job.debugPrintln("\n[assrt-core] WARNING: satisfiability check skipped.");
 
-											return true;
-										}
-										default:
-											throw new RuntimeException("[assrt-core] Shouldn't get in here: " + SMT_CONFIG);
-									}
-								}
-								else if (a instanceof AssrtERequest)
-								{
-									return true; // TODO: request
-								}
-								/*else if (a instanceof AssrtCoreEReceive || a instanceof AssrtEAccept)
-								{
-									return true;  // FIXME: check receive assertions? -- currently receive assertions all set to True
-								}*/
-								else
-								{
-									System.err.println("[assrt-core] Shouldn't get in here: " + a);
-									System.exit(1); // FIXME
-									return false;
-								}
-							});
-				});
+							return true;
+						}
+						default:
+							throw new RuntimeException("[assrt-core] Shouldn't get in here: " + SMT_CONFIG);
+					}
+				}
+				else if (a instanceof AssrtERequest)
+				{
+					return true; // TODO: request
+				}
+				/*else if (a instanceof AssrtCoreEReceive || a instanceof AssrtEAccept)
+				{
+					return true;  // FIXME: check receive assertions? -- currently receive assertions all set to True
+				}*/
+				else
+				{
+					System.err.println("[assrt-core] Shouldn't get in here: " + a);
+					System.exit(1); // FIXME
+					return false;
+				}
+			});
+		});
 	}
 
 	// FIXME: List<AssrtCoreEAction> -- after also doing assert-core request/accept
@@ -784,8 +786,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//hh = AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr)
 				
 		List<AssrtBoolFormula> foo = new LinkedList<>();
-		AssrtBoolFormula bar = AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(iv), hh.toFormula());
-		foo.add(bar);
+		AssrtBoolFormula bar = AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(iv), hh.toFormula()); foo.add(bar);
 		
 		if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
 		{
@@ -1084,12 +1085,17 @@ class AssrtForallFormulaHolder extends AssrtFormulaHolder
 	{
 		super(vars, body);
 	}
-	
+
 	@Override
-	public AssrtForallFormula toFormula()
+	public AssrtBoolFormula toFormula()
 	{
-	AssrtBoolFormula fs = flatten();
-		return AssrtFormulaFactory.AssrtForallFormula(this.vars, fs);
+		AssrtBoolFormula body = getFlattenedBody();
+		return AssrtFormulaFactory.AssrtForallFormula(this.vars, body);
+		/*List<AssrtIntVarFormula> vars =
+				this.vars.stream().filter(v -> !v.toString().startsWith("_dum")).collect(Collectors.toList());  // FIXME
+		return (vars.isEmpty())
+				? body
+				:	AssrtFormulaFactory.AssrtForallFormula(vars, body);*/
 	}
 
 	@Override
@@ -1097,6 +1103,17 @@ class AssrtForallFormulaHolder extends AssrtFormulaHolder
 	{
 		return new AssrtForallFormulaHolder(this.vars, body);
 	}
+
+	/*@Override
+	public boolean equals(Object o)  // HACK: for getSquashedBody equals check
+	{
+		if (!(o instanceof AssrtForallFormulaHolder))
+		{
+			return false;
+		}
+		AssrtForallFormulaHolder them = (AssrtForallFormulaHolder) o;
+		return this.vars.equals(them.vars) && this.body.equals(them.body);
+	}*/
 }
 
 class AssrtExistsFormulaHolder extends AssrtFormulaHolder
@@ -1105,12 +1122,17 @@ class AssrtExistsFormulaHolder extends AssrtFormulaHolder
 	{
 		super(vars, body);
 	}
-	
+
 	@Override
-	public AssrtExistsFormula toFormula()
+	public AssrtBoolFormula toFormula()
 	{
-	AssrtBoolFormula fs = flatten();
-		return AssrtFormulaFactory.AssrtExistsFormula(this.vars, fs);
+		AssrtBoolFormula body = getFlattenedBody();
+		return AssrtFormulaFactory.AssrtExistsFormula(this.vars, body);
+		/*List<AssrtIntVarFormula> vars
+				= this.vars.stream().filter(v -> !v.toString().startsWith("_dum")).collect(Collectors.toList());  // FIXME
+		return (vars.isEmpty())
+				? body
+				:	AssrtFormulaFactory.AssrtExistsFormula(vars, body);*/
 	}
 
 	@Override
@@ -1118,60 +1140,63 @@ class AssrtExistsFormulaHolder extends AssrtFormulaHolder
 	{
 		return new AssrtExistsFormulaHolder(this.vars, body);
 	}
+
+	/*@Override
+	public boolean equals(Object o)  // HACK: for getSquashedBody equals check
+	{
+		if (!(o instanceof AssrtExistsFormulaHolder))
+		{
+			return false;
+		}
+		AssrtExistsFormulaHolder them = (AssrtExistsFormulaHolder) o;
+		return this.vars.equals(them.vars) && this.body.equals(them.body);
+	}*/
 }
 
-// HACK: for "forwards" formula building alongside model building -- cf., recursive formula building on top of already built model
+// HACK: for "forwards" formula building alongside model building -- cf.,
+// recursive formula building on top of already built model
 abstract class AssrtFormulaHolder extends AssrtBoolFormula
 {
 	protected final List<AssrtIntVarFormula> vars;
-	protected List<AssrtBoolFormula> body;  // CNF  
-			// May be empty
-			// Any nested AssrtExistsFormulaHolder will always be the last item
-	
+	protected List<AssrtBoolFormula> body; // CNF
+	// May be empty
+	// Any nested AssrtExistsFormulaHolder will always be the last item
+
 	// Pre: vars is non empty
 	public AssrtFormulaHolder(List<AssrtIntVarFormula> vars, List<AssrtBoolFormula> body)
 	{
 		this.vars = Collections.unmodifiableList(vars);
 		this.body = new LinkedList<>(body);
 	}
-	
-	
-	protected AssrtBoolFormula flatten()
+			
+	@Override
+	public AssrtBoolFormula squash()
 	{
-		AssrtBoolFormula fs;
-		if (this.body.size() == 1)
-		{
-			AssrtBoolFormula body = this.body.get(0);
-			fs = (body instanceof AssrtFormulaHolder) ? ((AssrtFormulaHolder) body).toFormula() : body;
-		}
-		else
-		{
-	fs = this.body.stream().reduce((f1, f2) ->
-					{
-						if (f1 instanceof AssrtFormulaHolder)  // HACK
-						{
-							f1 = ((AssrtFormulaHolder) f1).toFormula();
-						}
-						if (f2 instanceof AssrtFormulaHolder)
-						{
-							f2 = ((AssrtFormulaHolder) f2).toFormula();
-						}
-						return AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f1, f2);
-					}).get();
-		}
-		return fs;
+		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
+
+	private static final Function<AssrtBoolFormula, AssrtBoolFormula> flatten = b ->
+			(b instanceof AssrtFormulaHolder) ? ((AssrtFormulaHolder) b).toFormula() : b;
 	
+	protected AssrtBoolFormula getFlattenedBody()
+	{
+		return (this.body.size() == 1)
+				? flatten.apply(this.body.get(0))
+				: this.body.stream().reduce((f1, f2) ->
+						AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, flatten.apply(f1), flatten.apply(f2))
+				  ).get();
+	}
+
 	public List<AssrtIntVarFormula> getBoundVars()
 	{
 		return this.vars;
 	}
-	
+
 	public List<AssrtBoolFormula> getBody()
 	{
 		return this.body;
 	}
-	
+
 	public AssrtBoolFormula makeSatCheck(AssrtBoolFormula rhs)
 	{
 		AssrtFormulaHolder copy = copy();
@@ -1181,9 +1206,10 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 
 	private void makeSatCheckAux(AssrtBoolFormula rhs)
 	{
-		if (this.body.isEmpty())  // Never actually empty because of dummy's
+		if (this.body.isEmpty()) // Never actually empty because of dummy's
 		{
-			this.body.add(AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, AssrtTrueFormula.TRUE, rhs));
+			this.body.add(AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply,
+					AssrtTrueFormula.TRUE, rhs));
 		}
 		else
 		{
@@ -1195,18 +1221,16 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 			else
 			{
 				List<AssrtBoolFormula> tmp = new LinkedList<>();
-				tmp.add(AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, 
-							this.body.stream().reduce(
-										AssrtTrueFormula.TRUE,
-										(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
-									),
-							rhs
-						));
+				tmp.add(AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply,
+						this.body.stream().reduce(AssrtTrueFormula.TRUE,
+								(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)
+						),
+						rhs));
 				this.body = tmp;
 			}
 		}
 	}
-	
+
 	public AssrtFormulaHolder addClause(AssrtBoolFormula f)
 	{
 		AssrtFormulaHolder copy = copy();
@@ -1216,7 +1240,7 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 
 	private void addClauseAux(AssrtBoolFormula f)
 	{
-		if (this.body.isEmpty())  // Never actually empty because of dummy's
+		if (this.body.isEmpty()) // Never actually empty because of dummy's
 		{
 			this.body.add(f);
 		}
@@ -1233,20 +1257,21 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 			}
 		}
 	}
-	
+
 	public AssrtFormulaHolder copy()
 	{
-		List<AssrtBoolFormula> fs = (this.body.isEmpty()
+		List<AssrtBoolFormula> fs = this.body.isEmpty()
 				? Arrays.asList(AssrtTrueFormula.TRUE)
-				: this.body.stream().map(f -> 
-						(f instanceof AssrtFormulaHolder) ? ((AssrtFormulaHolder) f).copy() : f).collect(Collectors.toList()));
+				: this.body.stream()
+						.map(f -> (f instanceof AssrtFormulaHolder) ? ((AssrtFormulaHolder) f).copy() : f)
+						.collect(Collectors.toList());
 		return reconstruct(this.vars, fs);
 	}
-	
+
 	protected abstract AssrtFormulaHolder reconstruct(List<AssrtIntVarFormula> vars, List<AssrtBoolFormula> body);
-	
+
 	public abstract AssrtBoolFormula toFormula();
-	
+
 	@Override
 	public String toString()
 	{
@@ -1283,7 +1308,6 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 }
-
 
 // \bot
 class AssrtCoreEBot extends AssrtCoreESend

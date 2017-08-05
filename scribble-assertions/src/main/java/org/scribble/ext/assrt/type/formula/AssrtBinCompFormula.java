@@ -86,6 +86,17 @@ public class AssrtBinCompFormula extends AssrtBoolFormula
 		vars.addAll(this.right.getVars()); 
 		return vars; 
 	}
+	
+	@Override
+	public AssrtBoolFormula squash()
+	{
+		if (this.op.equals(AssrtBinCompFormula.Op.Eq)
+				&& (this.left instanceof AssrtIntVarFormula) && left.toString().startsWith("_dum"))  // FIXME
+		{
+			return AssrtTrueFormula.TRUE;
+		}
+		return this;
+	}
 
 	@Override
 	public boolean equals(Object o)

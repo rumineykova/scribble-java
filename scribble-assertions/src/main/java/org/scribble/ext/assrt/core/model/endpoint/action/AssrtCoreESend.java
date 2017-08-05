@@ -18,7 +18,7 @@ import org.scribble.type.name.Role;
 public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 {
 	// HACK FIXME -- move tp AssrtCoreEAction
-	public static final AssrtDataTypeVar DUMMY_VAR = new AssrtDataTypeVar("_dum");
+	public static final AssrtDataTypeVar DUMMY_VAR = new AssrtDataTypeVar("_dum0");  // cf. AssrtCoreGProtocolTranslator::makeFreshDataTypeVar starts from 1
 	public static final AssrtArithFormula ZERO = AssrtFormulaFactory.AssrtIntVal(0);
 
 	// Annot needed -- e.g. mu X(x:=..) . mu Y(y:=..) ... X<123> -- rec var X will be discarded, so edge action needs to record which var is being updated

@@ -63,12 +63,12 @@ public class AssrtCoreGProtocolDeclTranslator
 	
 	private static AssrtDataTypeVar makeFreshDataTypeVar()
 	{
-		return new AssrtDataTypeVar("_x" + varCounter++);
+		return new AssrtDataTypeVar("_dum" + varCounter++);
 	}
 
 	private static String makeFreshRecVarName()
 	{
-		return "X" + recCounter++;
+		return "_X" + recCounter++;
 	}
 	
 	//private static DataType UNIT_TYPE;

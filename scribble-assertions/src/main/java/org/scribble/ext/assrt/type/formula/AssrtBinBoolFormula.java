@@ -54,6 +54,65 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 	}
 	
 	@Override
+	public AssrtBoolFormula squash()
+	{
+		AssrtBoolFormula left = this.left.squash();
+		AssrtBoolFormula right = this.right.squash();
+		switch (this.op)
+		{
+			case And:
+			{
+				if (left.equals(AssrtFalseFormula.FALSE) || right.equals(AssrtFalseFormula.FALSE))
+				{
+					return AssrtFalseFormula.FALSE;
+				}
+				if (left.equals(AssrtTrueFormula.TRUE))
+				{
+					return right;
+				}
+				if (right.equals(AssrtTrueFormula.TRUE))
+				{
+					return left;
+				}
+				return AssrtFormulaFactory.AssrtBinBool(this.op, left, right);
+			}
+			case Imply:
+			{
+				if (left.equals(AssrtFalseFormula.FALSE))
+				{	
+					return AssrtTrueFormula.TRUE;
+				}
+				/*if (right.equals(AssrtFalseFormula.FALSE))
+				{
+					return ..neg.. left;
+				}*/
+				if (right.equals(AssrtTrueFormula.TRUE))
+				{
+					return right;
+				}
+				return AssrtFormulaFactory.AssrtBinBool(this.op, left, right);
+			}
+			case Or:
+			{
+				if (left.equals(AssrtTrueFormula.TRUE) || right.equals(AssrtTrueFormula.TRUE))
+				{
+					return AssrtTrueFormula.TRUE;
+				}
+				if (left.equals(AssrtFalseFormula.FALSE))
+				{
+					return right;
+				}
+				if (right.equals(AssrtFalseFormula.FALSE))
+				{
+					return left;
+				}
+				return AssrtFormulaFactory.AssrtBinBool(this.op, left, right);
+			}
+			default: throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
+		}
+	}
+
+	@Override
 	public String toString()
 	{
 		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";  

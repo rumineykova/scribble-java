@@ -10,4 +10,6 @@ public abstract class AssrtBoolFormula extends AssrtSmtFormula<BooleanFormula>
 	{
 
 	}
+	
+	public abstract AssrtBoolFormula squash();
 }
