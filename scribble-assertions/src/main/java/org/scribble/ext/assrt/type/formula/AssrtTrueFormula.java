@@ -24,9 +24,9 @@ public class AssrtTrueFormula extends AssrtBoolFormula
 	}
 	
 	@Override
-	public String toString()
+	public String toSmt2Formula()
 	{
-		return "True"; 
+		return "true";
 	}
 	
 	@Override
@@ -39,6 +39,12 @@ public class AssrtTrueFormula extends AssrtBoolFormula
 	public Set<AssrtDataTypeVar> getVars()
 	{
 		return Collections.emptySet(); 
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "True"; 
 	}
 	
 	@Override

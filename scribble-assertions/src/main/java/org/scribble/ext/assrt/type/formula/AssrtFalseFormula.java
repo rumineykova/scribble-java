@@ -21,11 +21,11 @@ public class AssrtFalseFormula extends AssrtBoolFormula
 	{
 		return this;
 	}
-
+	
 	@Override
-	public String toString()
+	public String toSmt2Formula()
 	{
-		return "False"; 
+		return "false";
 	}
 	
 	@Override
@@ -38,6 +38,12 @@ public class AssrtFalseFormula extends AssrtBoolFormula
 	public Set<AssrtDataTypeVar> getVars()
 	{
 		return Collections.emptySet(); 
+	}
+
+	@Override
+	public String toString()
+	{
+		return "False"; 
 	}
 	
 	@Override

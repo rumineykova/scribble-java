@@ -29,17 +29,16 @@ public class AssrtIntVarFormula extends AssrtArithFormula
 	{
 		return this.equals(old) ? neu : this;
 	}
-	
-	// i.e., to "type"
-	public AssrtDataTypeVar toName()
-	{
-		return new AssrtDataTypeVar(this.name);
-	}
-	
+		
 	@Override
-	public String toString()
+	public String toSmt2Formula()
 	{
-		return this.name; 
+		/*if (this.name.startsWith("_dum"))  // FIXME
+		{
+			throw new RuntimeException("[assrt] Use squash first: " + this);
+		}*/
+		//return "(" + this.name + ")";
+		return this.name;
 	}
 	
 	@Override
@@ -55,6 +54,18 @@ public class AssrtIntVarFormula extends AssrtArithFormula
 		Set<AssrtDataTypeVar> vars = new HashSet<>();
 		vars.add(new AssrtDataTypeVar(this.name)); 
 		return vars; 
+	}
+	
+	// i.e., to "type"
+	public AssrtDataTypeVar toName()
+	{
+		return new AssrtDataTypeVar(this.name);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return this.name; 
 	}
 	
 	@Override

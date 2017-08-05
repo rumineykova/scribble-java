@@ -53,11 +53,34 @@ public class AssrtBinCompFormula extends AssrtBoolFormula
 		default: throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
 		}*/
 	}
+
+	@Override
+	//public AssrtBinCompFormula squash()
+	public AssrtBoolFormula squash()  // For True
+	{
+		if (this.op.equals(AssrtBinCompFormula.Op.Eq)
+				&& (this.left instanceof AssrtIntVarFormula) && this.left.toString().startsWith("_dum"))  // FIXME
+		{
+			return AssrtTrueFormula.TRUE;
+		}
+		//return this;  // No: underlying this.formula will not be the same after squashing
+		return AssrtFormulaFactory.AssrtBinComp(this.op, this.left.squash(), this.right.squash());
+	}
 	
 	@Override
-	public String toString()
+	public String toSmt2Formula()
 	{
-		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")"; 
+		String left = this.left.toSmt2Formula();
+		String right = this.right.toSmt2Formula();
+		String op;
+		switch(this.op)
+		{
+			case Eq:          op = "="; break;
+			case GreaterThan: op = ">"; break;
+			case LessThan:    op = "<"; break;
+			default: throw new RuntimeException("[assrt] Shouldn't get in here: " + this.op);
+		}
+		return "(" + op + " " + left + " " + right + ")";
 	}
 	
 	@Override
@@ -88,16 +111,9 @@ public class AssrtBinCompFormula extends AssrtBoolFormula
 	}
 	
 	@Override
-	//public AssrtBinCompFormula squash()
-	public AssrtBoolFormula squash()  // For True
+	public String toString()
 	{
-		if (this.op.equals(AssrtBinCompFormula.Op.Eq)
-				&& (this.left instanceof AssrtIntVarFormula) && this.left.toString().startsWith("_dum"))  // FIXME
-		{
-			return AssrtTrueFormula.TRUE;
-		}
-		//return this;  // No: underlying this.formula will not be the same after squashing
-		return AssrtFormulaFactory.AssrtBinComp(this.op, this.left.squash(), this.right.squash());
+		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")"; 
 	}
 
 	@Override

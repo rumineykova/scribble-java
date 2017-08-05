@@ -111,11 +111,21 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 			default: throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
 		}
 	}
-
+	
 	@Override
-	public String toString()
+	public String toSmt2Formula()
 	{
-		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";  
+		String left = this.left.toSmt2Formula();
+		String right = this.right.toSmt2Formula();
+		String op;
+		switch(this.op)
+		{
+			case And:   op = "and"; break;
+			case Or:    op = "or"; break;
+			case Imply: op = "=>"; break;
+			default:   throw new RuntimeException("[assrt] Shouldn't get in here: " + this.op);
+		}
+		return "(" + op + " " + left + " " + right + ")";
 	}
 	
 	@Override
@@ -141,6 +151,12 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 		Set<AssrtDataTypeVar> vars = new HashSet<>(this.left.getVars()); 
 		vars.addAll(this.right.getVars()); 
 		return vars; 
+	}
+
+	@Override
+	public String toString()
+	{
+		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";  
 	}
 
 	@Override

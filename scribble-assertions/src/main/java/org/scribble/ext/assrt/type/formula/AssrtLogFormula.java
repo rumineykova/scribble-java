@@ -24,6 +24,12 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
+		
+	@Override
+	public String toSmt2Formula()
+	{
+		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
+	}
 	
 	@Override
 	protected BooleanFormula toJavaSmtFormula() //throws AssertionParseException

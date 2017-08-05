@@ -19,21 +19,22 @@ public class AssrtIntValFormula extends AssrtArithFormula
 	}
 
 	@Override
-	public AssrtArithFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
-	{
-		return this;
-	}
-
-	@Override
 	public AssrtIntValFormula squash()
 	{
 		return AssrtFormulaFactory.AssrtIntVal(this.val);
 	}
-	
+
 	@Override
-	public String toString()
+	public AssrtArithFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
-		return Integer.toString(this.val); 
+		return this;
+	}
+		
+	@Override
+	public String toSmt2Formula()
+	{
+		//return "(" + Integer.toString(this.val) + ")";
+		return Integer.toString(this.val);
 	}
 	
 	@Override
@@ -47,6 +48,12 @@ public class AssrtIntValFormula extends AssrtArithFormula
 	public Set<AssrtDataTypeVar> getVars()
 	{
 		return Collections.emptySet();	
+	}
+	
+	@Override
+	public String toString()
+	{
+		return Integer.toString(this.val); 
 	}
 	
 	@Override

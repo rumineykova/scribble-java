@@ -13,6 +13,13 @@ public class Z3Wrapper
 	{
 		// TODO Auto-generated constructor stub
 	}*/
+	
+	public static String toSmt2(String f)
+	{
+		return "(assert " + f + ")\n"
+				+ "(check-sat)\n"
+				+ "(exit)";
+	}
 
 	// Duplicated from JobContext::runAut
 	// protoname only used for naming tmp file

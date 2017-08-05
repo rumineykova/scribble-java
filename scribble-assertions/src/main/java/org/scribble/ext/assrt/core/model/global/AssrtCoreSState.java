@@ -340,11 +340,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					}
 					
 					job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "):");
-					/*BooleanFormula str = impli.getJavaSmtFormula();  // FIXME: causes JavaSmt problem with later squash
-					job.debugPrintln("  formula  = " + str);*/
+					String str = impli.toSmt2Formula();
+					job.debugPrintln("  formula  = " + str);
 
 					AssrtBoolFormula squashed = impli.squash();
-					BooleanFormula squashedstr = squashed.getJavaSmtFormula();
+					String squashedstr = squashed.toSmt2Formula();
 
 					job.debugPrintln("  squashed = " + squashedstr);
 
@@ -353,10 +353,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						case JAVA_SMT_Z3:
 						{
 							JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
-							return jsmt.isSat(squashedstr);
+							return jsmt.isSat(squashed.getJavaSmtFormula());
 						}
 						case NATIVE_Z3:
-							return Z3Wrapper.isSat(squashed.toSmt2(), job.getContext().main.toString());
+							return Z3Wrapper.isSat(Z3Wrapper.toSmt2(squashed.toSmt2Formula()), job.getContext().main.toString());
 						case NONE:
 						{
 							job.debugPrintln("\n[assrt-core] WARNING: satisfiability check skipped.");
@@ -787,7 +787,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//hh = AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr)
 				
 		List<AssrtBoolFormula> foo = new LinkedList<>();
-		AssrtBoolFormula bar = AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(iv), hh.toFormula()); foo.add(bar);
+		AssrtBoolFormula bar = AssrtFormulaFactory.AssrtExistsFormula(Arrays.asList(iv), hh.inlineHolders()); foo.add(bar);
 		
 		if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
 		{
@@ -1088,7 +1088,7 @@ class AssrtForallFormulaHolder extends AssrtFormulaHolder
 	}
 
 	@Override
-	public AssrtBoolFormula toFormula()
+	protected AssrtBoolFormula inlineHolders()
 	{
 		AssrtBoolFormula body = getFlattenedBody();
 		return AssrtFormulaFactory.AssrtForallFormula(this.vars, body);
@@ -1125,7 +1125,7 @@ class AssrtExistsFormulaHolder extends AssrtFormulaHolder
 	}
 
 	@Override
-	public AssrtBoolFormula toFormula()
+	protected AssrtBoolFormula inlineHolders()
 	{
 		AssrtBoolFormula body = getFlattenedBody();
 		return AssrtFormulaFactory.AssrtExistsFormula(this.vars, body);
@@ -1176,18 +1176,6 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 
-	private static final Function<AssrtBoolFormula, AssrtBoolFormula> flatten = b ->
-			(b instanceof AssrtFormulaHolder) ? ((AssrtFormulaHolder) b).toFormula() : b;
-	
-	protected AssrtBoolFormula getFlattenedBody()
-	{
-		return (this.body.size() == 1)
-				? flatten.apply(this.body.get(0))
-				: this.body.stream().reduce((f1, f2) ->
-						AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, flatten.apply(f1), flatten.apply(f2))
-				  ).get();
-	}
-
 	public List<AssrtIntVarFormula> getBoundVars()
 	{
 		return this.vars;
@@ -1202,7 +1190,7 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 	{
 		AssrtFormulaHolder copy = copy();
 		copy.makeSatCheckAux(rhs);
-		return copy.toFormula();
+		return copy.inlineHolders();
 	}
 
 	private void makeSatCheckAux(AssrtBoolFormula rhs)
@@ -1259,6 +1247,20 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 		}
 	}
 
+	protected abstract AssrtBoolFormula inlineHolders();  // Specifically for holders -- cf. squash
+	
+	protected final AssrtBoolFormula getFlattenedBody()
+	{
+		return (this.body.size() == 1)
+				? flatten.apply(this.body.get(0))
+				: this.body.stream().reduce((f1, f2) ->
+						AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, flatten.apply(f1), flatten.apply(f2))
+				  ).get();
+	}
+
+	private static final Function<AssrtBoolFormula, AssrtBoolFormula> flatten = b ->
+			(b instanceof AssrtFormulaHolder) ? ((AssrtFormulaHolder) b).inlineHolders() : b;
+
 	public AssrtFormulaHolder copy()
 	{
 		List<AssrtBoolFormula> fs = this.body.isEmpty()
@@ -1271,12 +1273,16 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 
 	protected abstract AssrtFormulaHolder reconstruct(List<AssrtIntVarFormula> vars, List<AssrtBoolFormula> body);
 
-	public abstract AssrtBoolFormula toFormula();
+	@Override
+	public final String toSmt2Formula()
+	{
+		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
+	}
 
 	@Override
-	public String toString()
+	protected final BooleanFormula toJavaSmtFormula()
 	{
-		return toFormula().toString();
+		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 
 	@Override
@@ -1286,7 +1292,13 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 	}
 
 	@Override
-	protected final BooleanFormula toJavaSmtFormula()
+	public String toString()
+	{
+		return inlineHolders().toString();
+	}
+
+	@Override
+	public final boolean equals(Object o)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
@@ -1299,12 +1311,6 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 
 	@Override
 	public final int hashCode()
-	{
-		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
-	}
-
-	@Override
-	public final boolean equals(Object o)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}

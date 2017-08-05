@@ -23,14 +23,6 @@ public class AssrtForallFormula extends AssrtBoolFormula
 		this.vars = Collections.unmodifiableList(vars);
 		this.expr = expr;
 	}
-
-	@Override
-	public Set<AssrtDataTypeVar> getVars()
-	{
-		Set<AssrtDataTypeVar> vs = this.expr.getVars();
-		vs.removeAll(this.vars.stream().map(v -> v.toName()).collect(Collectors.toList()));
-		return vs;
-	}
 	
 	@Override
 	public AssrtBoolFormula squash()
@@ -39,6 +31,14 @@ public class AssrtForallFormula extends AssrtBoolFormula
 				= this.vars.stream().filter(v -> !v.toString().startsWith("_dum")).collect(Collectors.toList());  // FIXME
 		AssrtBoolFormula expr = this.expr.squash();
 		return (vars.isEmpty()) ? expr : AssrtFormulaFactory.AssrtForallFormula(vars, expr);
+	}
+	
+	@Override
+	public String toSmt2Formula()
+	{
+		String vs = this.vars.stream().map(v -> "(" + v.toSmt2Formula() + " Int)").collect(Collectors.joining(" "));
+		String expr = this.expr.toSmt2Formula();
+		return "(forall (" + vs + ") " + expr + ")";
 	}
 
 	@Override
@@ -54,11 +54,19 @@ public class AssrtForallFormula extends AssrtBoolFormula
 		List<IntegerFormula> vs = this.vars.stream().map(v -> v.getJavaSmtFormula()).collect(Collectors.toList());
 		return qfm.forall(vs, expr);
 	}
+
+	@Override
+	public Set<AssrtDataTypeVar> getVars()
+	{
+		Set<AssrtDataTypeVar> vs = this.expr.getVars();
+		vs.removeAll(this.vars.stream().map(v -> v.toName()).collect(Collectors.toList()));
+		return vs;
+	}
 	
 	@Override
 	public String toString()
 	{
-		return "(forall ((" + this.vars.stream().map(Object::toString).collect(Collectors.joining(", ")) + ")) (" + this.expr + "))";
+		return "(forall [" + this.vars.stream().map(Object::toString).collect(Collectors.joining(", ")) + "] (" + this.expr + "))";
 	}
 
 	@Override

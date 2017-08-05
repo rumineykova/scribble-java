@@ -22,14 +22,6 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 		this.vars = Collections.unmodifiableList(vars);
 		this.expr = expr;
 	}
-
-	@Override
-	public Set<AssrtDataTypeVar> getVars()
-	{
-		Set<AssrtDataTypeVar> vs = this.expr.getVars();
-		vs.removeAll(this.vars.stream().map(v -> v.toName()).collect(Collectors.toList()));
-		return vs;
-	}
 	
 	@Override
 	public AssrtBoolFormula squash()
@@ -38,6 +30,14 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 				= this.vars.stream().filter(v -> !v.toString().startsWith("_dum")).collect(Collectors.toList());  // FIXME
 		AssrtBoolFormula expr = this.expr.squash();
 		return (vars.isEmpty()) ? expr : AssrtFormulaFactory.AssrtExistsFormula(vars, expr);
+	}
+	
+	@Override
+	public String toSmt2Formula()
+	{
+		String vs = this.vars.stream().map(v -> "(" + v.toSmt2Formula() + " Int)").collect(Collectors.joining(" "));
+		String expr = this.expr.toSmt2Formula();
+		return "(exists (" + vs + ") " + expr + ")";
 	}
 
 	@Override
@@ -61,11 +61,19 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 		
 		return JavaSmtWrapper.getInstance().qfm.exists(vs, expr);
 	}
+
+	@Override
+	public Set<AssrtDataTypeVar> getVars()
+	{
+		Set<AssrtDataTypeVar> vs = this.expr.getVars();
+		vs.removeAll(this.vars.stream().map(v -> v.toName()).collect(Collectors.toList()));
+		return vs;
+	}
 	
 	@Override
 	public String toString()
 	{
-		return "(exists ((" + this.vars.stream().map(Object::toString).collect(Collectors.joining(", ")) + ")) (" + this.expr + "))";
+		return "(exists [" + this.vars.stream().map(Object::toString).collect(Collectors.joining(", ")) + "] (" + this.expr + "))";
 	}
 
 	@Override

@@ -17,17 +17,8 @@ public abstract class AssrtSmtFormula<F extends Formula>
 
 	public abstract AssrtSmtFormula<F> squash();  // Needs to be here (not AssrtBoolFormula) because whole tree needs to be copied -- otherwise this.formula is inconsistent
 
-	protected abstract F toJavaSmtFormula(); //throws AssertionParseException;
+	public abstract String toSmt2Formula();  // Cf. toString -- but can be useful to separate, for debugging (and printing)
 
-	public String toSmt2()
-	{
-		return "(assert "
-				+ getJavaSmtFormula().toString()  // FIXME
-				+ ")\n"
-				+ "(check-sat)\n"
-				+ "(exit)";
-	}
-	
 	public F getJavaSmtFormula() //throws AssertionParseException
 	{
 		if (this.formula == null)
@@ -36,6 +27,9 @@ public abstract class AssrtSmtFormula<F extends Formula>
 		}
 		return this.formula;
 	}
+
+	 // FIXME: JSMT has a problem dealing with subsequent squashed formula, JSMT formula factory seems to cache var/expr translations
+	protected abstract F toJavaSmtFormula(); //throws AssertionParseException;
 	
 	@Override
 	public String toString()

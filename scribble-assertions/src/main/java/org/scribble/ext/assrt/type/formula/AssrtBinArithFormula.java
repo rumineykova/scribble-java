@@ -55,11 +55,21 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 	{
 		return AssrtFormulaFactory.AssrtBinArith(this.op, this.left.subs(old, neu), this.right.subs(old, neu));
 	}
-
+	
 	@Override
-	public String toString()
+	public String toSmt2Formula()
 	{
-		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";
+		String left = this.left.toSmt2Formula();
+		String right = this.right.toSmt2Formula();
+		String op;
+		switch(this.op)
+		{
+			case Add:  op = "+"; break;
+			case Subt: op = "-"; break;
+			case Mult: op = "*"; break;
+			default:   throw new RuntimeException("[assrt] Shouldn't get in here: " + this.op);
+		}
+		return "(" + op + " " + left + " " + right + ")";
 	}
 
 	@Override
@@ -88,6 +98,12 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 		Set<AssrtDataTypeVar> vars = new HashSet<>(this.left.getVars());
 		vars.addAll(this.right.getVars());
 		return vars;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";
 	}
 
 	@Override
