@@ -10,7 +10,7 @@ import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 
 // Binary arithmetic
-public class AssrtBinArithFormula extends AssrtArithFormula
+public class AssrtBinArithFormula extends AssrtArithFormula implements AssrtBinaryFormula<IntegerFormula>
 {
 	public enum Op
 	{
@@ -98,6 +98,18 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 		Set<AssrtDataTypeVar> vars = new HashSet<>(this.left.getVars());
 		vars.addAll(this.right.getVars());
 		return vars;
+	}
+
+	@Override
+	public AssrtArithFormula getLeft()
+	{
+		return this.left;
+	}
+
+	@Override
+	public AssrtArithFormula getRight()
+	{
+		return this.right;
 	}
 
 	@Override

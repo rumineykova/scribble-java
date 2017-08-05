@@ -14,6 +14,8 @@ type <dotnet> "System.String" from "..." as str;
 
 // FIXME: debug printing for assertion passes
 
+// FIXME: distinguish branches where "not guaranteed safe" vs "impossible"
+
 
 // - assertion validation
 // - receive assertions -- why receive assertions?  should WF imply receive assertions always true?
@@ -32,7 +34,26 @@ type <dotnet> "System.String" from "..." as str;
 // redo inlining/unfolding via model building? role/param/assert all in model states?
 
 
-//*
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B; @(x>3);
+	choice at B
+	{
+		//2() from B to A; @(x>4);
+
+		2() from B to A; @(x<3);
+		//2() from B to A; @False;
+		
+		2() from A to B; @False;
+	}	
+	or
+	{
+		3() from B to A;
+	}
+}
+
+
+/*
 global protocol Proto1(role B, role W, role S)
 {
 	1(Query:int) from B to W; @(Query>0);
@@ -59,13 +80,13 @@ global protocol Proto2(role B, role W, role S) @(x=0);
 	choice at S
 	{
 		hag() from S to B; @(Offer>x);
-		hag() from S to W; @False;  // Uncomment is unsat
+		hag() from S to W; //@False;  // Uncomment is assert-prog error
 		do Proto2(B, W, S); @Offer;
 	}
 	or
 	{
-		exit() from S to B; @False;
-		cancel() from S to W; //@False;  // Uncomment is still unsat
+		exit() from S to B; //@False;  // Uncomment is still assert-prog, but unsat
+		cancel() from S to W; //@False;  // Uncomment is assert-prog error if above is commented (otherwise this is assert-prog by false LHS, but anyway above is unsat)
 	}
 	or
 	{
@@ -75,6 +96,39 @@ global protocol Proto2(role B, role W, role S) @(x=0);
 }
 //*/
 
+
+/*
+global protocol Proto2(role B, role S) @(x=0);
+{
+	5(Offer:int) from B to S;	 // Checking F updated properly (old Offer in F renamed)
+	choice at S
+	{
+		hag() from S to B; @(Offer>x);
+		do Proto2(B, S); @Offer;
+	}
+	or
+	{
+		sell() from S to B;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B;
+	choice at A
+	{
+		2() from A to B;
+	}
+	//or { 3() from A to B; @False; }  // Uncomment is unsat
+	or
+	{
+		4() from A to B; @(x>3);  // Assertion-progress because of first case
+	}
+}
+//*/
 
 /*
 global protocol Proto1(role B, role S)
@@ -94,7 +148,7 @@ global protocol Proto2(role B, role S) @(x=0);
 global protocol JavaSmtBug(role B, role S) @(x=0);
 {
 	5() from B to S;	@False;//@(y>0);
-	do JavaSmtBug(B, S); @x;
+	do JavaSmtBug(B, S); @x;  // Cf. AssrtExistsFormula::toJavaSmtFormula comments
 }
 //*/
 
@@ -129,6 +183,38 @@ global protocol Proto1(role A, role B, role C)
 		2() from A to B;
 		2() from B to C;
 	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A
+	{
+		1() from A to B;  @False;
+		1() from B to C;  @False;  // Sat because previous False makes implies to this one True
+	}	
+	or
+	{
+		2() from A to B;
+		2() from B to C;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from B to A; @(x>4);
+	choice at A
+	{
+		2() from A to B; @(x>6);  // overall assert-prog because of other case
+		2() from B to C; @(x>5);  // sat even though above was not assert-prog, because assuming above then this is sat
+		//2() from B to C; @(x>7);  // Uncomment is unsat
+	}	
+	or { 3() from A to B; 3() from B to C; }
 }
 //*/
 
@@ -174,8 +260,7 @@ global protocol Proto1(role A, role B) @(x=1);
 
 
 /*
-global 
-protocol Proto1(role A, role B)
+global protocol Proto1(role A, role B)
 {
 	1() from A to B;	
 	do Proto2(A, B); @4;
@@ -184,7 +269,9 @@ protocol Proto1(role A, role B)
 global protocol Proto2(role A, role B) @(x=3);  // Unsat if validated as root 
 {
 	2(y:int) from B to A;  @(x>3);
-	//do Proto2(A, B); @5;
+
+	//do Proto2(A, B); @5;  // Sat
+	//do Proto2(A, B); @3;  // Uncomment makes Proto1 unsat
 }
 //*/
 
@@ -228,8 +315,8 @@ global protocol Proto1(role A, role B) @(z=0);
 	1(x:int) from A to B; @((x=z) && (x=0));
 	//2(y:int) from B to A; @(y>x);
 
-	//do Proto1(A, B);  @0;
-	do Proto1(A, B);  @1;
+	do Proto1(A, B);  @0;  // Sat
+	//do Proto1(A, B);  @1;  // Unsat
 }
 //*/
 

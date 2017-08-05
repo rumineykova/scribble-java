@@ -36,6 +36,8 @@ public class AssrtCoreSModel
 	
 	public AssrtCoreSafetyErrors getSafetyErrors(Job job)
 	{
+		// FIXME: check for all errors in a single pass -- any errors can be categorised later
+		
 		Set<AssrtCoreSState> recepts = this.allStates.values().stream().filter(AssrtCoreSState::isReceptionError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> orphans = this.allStates.values().stream().filter(s -> s.isOrphanError(this.E0)).collect(Collectors.toSet());
 		Set<AssrtCoreSState> unfins = this.allStates.values().stream().filter(s -> s.isUnfinishedRoleError(this.E0)).collect(Collectors.toSet());
@@ -44,12 +46,13 @@ public class AssrtCoreSModel
 		Set<AssrtCoreSState> syncs = this.allStates.values().stream().filter(AssrtCoreSState::isSynchronisationError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> disconns = Collections.emptySet(); //this.allStates.values().stream().filter(AssrtCoreSState::isDisconnectedError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> unknownVars = this.allStates.values().stream().filter(AssrtCoreSState::isUnknownDataTypeVarError).collect(Collectors.toSet());
+		Set<AssrtCoreSState> asserts = this.allStates.values().stream().filter(s -> s.isAssertionProgressError(job)).collect(Collectors.toSet());
 		Set<AssrtCoreSState> unsats = this.allStates.values().stream().filter(s -> s.isUnsatisfiableError(job)).collect(Collectors.toSet());
 		
 		/*Set<AssrtCoreSState> portOpens = this.allStates.values().stream().filter(AssrtCoreSState::isPortOpenError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> portOwners = this.allStates.values().stream().filter(AssrtCoreSState::isPortOwnershipError).collect(Collectors.toSet());*/
 
-		return new AssrtCoreSafetyErrors(recepts, orphans, unfins, conns, unconns, syncs, disconns, unknownVars, unsats);
+		return new AssrtCoreSafetyErrors(recepts, orphans, unfins, conns, unconns, syncs, disconns, unknownVars, asserts, unsats);
 	}
 	
 	public boolean isActive(AssrtCoreSState s, Role r)

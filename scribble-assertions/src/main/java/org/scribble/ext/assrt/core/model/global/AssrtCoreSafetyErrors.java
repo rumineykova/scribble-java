@@ -32,6 +32,7 @@ public class AssrtCoreSafetyErrors
 		Synchronisation,
 		Disconnect,
 		UnknownDataTypeVar,
+		AssertionProgress,
 		UnsatisfiableError,
 	}
 	
@@ -39,7 +40,7 @@ public class AssrtCoreSafetyErrors
 	
 	public AssrtCoreSafetyErrors(Set<AssrtCoreSState> reception, Set<AssrtCoreSState> orphan, Set<AssrtCoreSState> unfinishedRole,
 			Set<AssrtCoreSState> connection, Set<AssrtCoreSState> unconnected, Set<AssrtCoreSState> synchronisation, Set<AssrtCoreSState> disconnect,
-			Set<AssrtCoreSState> unknownVars, Set<AssrtCoreSState> unsats
+			Set<AssrtCoreSState> unknownVars, Set<AssrtCoreSState> asserts, Set<AssrtCoreSState> unsats
 			)
 			//Set<AssrtCoreSState> portOpens, Set<AssrtCoreSState> portOwners)
 	{
@@ -61,6 +62,7 @@ public class AssrtCoreSafetyErrors
 		this.errors.put(ERR.Synchronisation, synchronisation);
 		this.errors.put(ERR.Disconnect, disconnect);
 		this.errors.put(ERR.UnknownDataTypeVar, unknownVars);
+		this.errors.put(ERR.AssertionProgress, asserts);
 		this.errors.put(ERR.UnsatisfiableError, unsats);
 	}
 	
@@ -74,7 +76,7 @@ public class AssrtCoreSafetyErrors
 	{
 		String m = this.errors.entrySet().stream().map(e -> 
 				e.getValue().isEmpty() ? ""
-					:	"\n[assrt-core] " + e.getKey() + " errors:\n  "
+					:	"\n[assrt-core] " + e.getKey() + " error(s):\n  "
 						+ e.getValue().stream().map(s -> getNodeLabel(s)).collect(Collectors.joining("\n  "))
 				).collect(Collectors.joining(""));
 		if (m.length() != 0)
