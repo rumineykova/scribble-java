@@ -15,11 +15,23 @@ public class AssrtFalseFormula extends AssrtBoolFormula
 	{
 		
 	}
+	
+	@Override
+	public AssrtBoolFormula squash()
+	{
+		return this;
+	}
 
 	@Override
-	public String toString()
+	public AssrtFalseFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
-		return "False"; 
+		return this;
+	}
+	
+	@Override
+	public String toSmt2Formula()
+	{
+		return "false";
 	}
 	
 	@Override
@@ -32,6 +44,12 @@ public class AssrtFalseFormula extends AssrtBoolFormula
 	public Set<AssrtDataTypeVar> getVars()
 	{
 		return Collections.emptySet(); 
+	}
+
+	@Override
+	public String toString()
+	{
+		return "False"; 
 	}
 	
 	@Override

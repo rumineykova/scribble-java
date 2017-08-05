@@ -1,4 +1,4 @@
-package org.scribble.ext.assrt.model.endpoint;
+package org.scribble.ext.assrt.model.endpoint.action;
 
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 

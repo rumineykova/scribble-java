@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.Module;
+import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
+import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
 import org.scribble.ext.assrt.visit.wf.AssrtNameDisambiguator;
 import org.scribble.main.Job;
@@ -27,6 +29,13 @@ public class AssrtJob extends Job
 		super(debug, parsed, main, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, af, ef, sf);
 	}
 	
+	// FIXME: move to MainContext::newJob?
+	@Override
+	public AssrtEGraphBuilderUtil newEGraphBuilderUtil()
+	{
+		return new AssrtEGraphBuilderUtil((AssrtEModelFactory) this.ef);
+	}
+	
 	@Override
 	public void runContextBuildingPasses() throws ScribbleException
 	{
@@ -38,6 +47,18 @@ public class AssrtJob extends Job
 		runVisitorPassOnAllModules(DelegationProtocolRefChecker.class);
 		runVisitorPassOnAllModules(RoleCollector.class);
 		runVisitorPassOnAllModules(ProtocolDefInliner.class);
+	}
+		
+	@Override
+	public void runUnfoldingPass() throws ScribbleException
+	{
+		//runVisitorPassOnAllModules(AssrtInlinedProtocolUnfolder.class);  // FIXME: skipping for now
+	}
+
+	@Override
+	protected void runProjectionUnfoldingPass() throws ScribbleException
+	{
+		//runVisitorPassOnProjectedModules(AssrtInlinedProtocolUnfolder.class);  // FIXME
 	}
 
 	@Override

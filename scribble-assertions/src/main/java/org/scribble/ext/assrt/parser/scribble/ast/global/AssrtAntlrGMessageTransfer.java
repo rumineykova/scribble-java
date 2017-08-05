@@ -20,54 +20,56 @@ import org.scribble.util.ScribParserException;
 
 public class AssrtAntlrGMessageTransfer
 {
-	public static final int ASSERTION_CHILD_INDEX = 0;
-
 	// "Original" indices "shifted down" -- FIXME: better pattern
 	public static final int MESSAGE_CHILD_INDEX = 1;
 	public static final int SOURCE_CHILD_INDEX = 2;
 	public static final int DESTINATION_CHILDREN_START_INDEX = 3;
 
-	public static GMessageTransfer parseAssrtGMessageTransfer(AntlrToScribParser parser, CommonTree ct, AssrtAstFactory af) throws ScribParserException
-	{
-		//AssrtAssertionNode assertion = parseAssertion(((AssrtScribParser) parser).ap, getAssertionChild(ct));   
-		AssrtAssertion ass = parseAssertion(((AssrtAntlrToScribParser) parser).ap, getAssertionChild(ct), af);   
+	public static final int ASSERTION_CHILD_INDEX = 0;
 
-		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(ct), af);
-		MessageNode msg = AntlrGMessageTransfer.parseMessage(parser, getMessageChild(ct), af);
-		List<RoleNode> dests = getDestChildren(ct).stream()
+	public static GMessageTransfer parseAssrtGMessageTransfer(AntlrToScribParser parser, CommonTree root, AssrtAstFactory af) throws ScribParserException
+	{
+		RoleNode src = AntlrSimpleName.toRoleNode(getSourceChild(root), af);
+		MessageNode msg = AntlrGMessageTransfer.parseMessage(parser, getMessageChild(root), af);
+		List<RoleNode> dests = getDestChildren(root).stream()
 				.map(d -> AntlrSimpleName.toRoleNode(d, af)).collect(Collectors.toList());
-		return ((AssrtAstFactory) af).AssrtGMessageTransfer(ct, src, msg, dests, ass);
+
+		//AssrtAssertionNode assertion = parseAssertion(((AssrtScribParser) parser).ap, getAssertionChild(ct));   
+		AssrtAssertion ass = parseAssertion(((AssrtAntlrToScribParser) parser).ap, getAssertionChild(root), af);   
+
+		return ((AssrtAstFactory) af).AssrtGMessageTransfer(root, src, msg, dests, ass);
 	}
 	
-	public static AssrtAssertion parseAssertion(AssrtAntlrToFormulaParser ap, CommonTree ct, AssrtAstFactory af)
+	public static AssrtAssertion parseAssertion(AssrtAntlrToFormulaParser ap, CommonTree assTree, AssrtAstFactory af)
 	{
-		AntlrToScribParser.checkForAntlrErrors(ct);  // Check ct root
+		AntlrToScribParser.checkForAntlrErrors(assTree);  // Check ct root
 
 		//return AssrtAstFactoryImpl.FACTORY.AssertionNode(ct, ct.getText());
-		CommonTree tmp = (CommonTree) ct.getChild(0);  // Formula node to parse  // FIXME: factor out?
+		CommonTree tmp = (CommonTree) assTree.getChild(0);  // Formula node to parse  // FIXME: factor out?
 		//SmtFormula f = ap.parse(tmp);
 		AssrtBoolFormula f = (AssrtBoolFormula) ap.parse(tmp);  // By AssrtAssertions.g
-		return ((AssrtAstFactory) af).AssrtAssertion(ct, f);
-	}
-
-	public static CommonTree getAssertionChild(CommonTree ct)
-	{
-		return (CommonTree) ct.getChild(ASSERTION_CHILD_INDEX);
+		return af.AssrtAssertion(assTree, f);
 	}
 
 	// The following are re-defined to use new indices -- FIXME: better pattern
-	public static CommonTree getMessageChild(CommonTree ct)
+	public static CommonTree getMessageChild(CommonTree root)
 	{
-		return (CommonTree) ct.getChild(MESSAGE_CHILD_INDEX);
+		return (CommonTree) root.getChild(AssrtAntlrGMessageTransfer.MESSAGE_CHILD_INDEX);
 	}
 
-	public static CommonTree getSourceChild(CommonTree ct)
+	public static CommonTree getSourceChild(CommonTree root)
 	{
-		return (CommonTree) ct.getChild(SOURCE_CHILD_INDEX);
+		return (CommonTree) root.getChild(AssrtAntlrGMessageTransfer.SOURCE_CHILD_INDEX);
 	}
 
-	public static List<CommonTree> getDestChildren(CommonTree ct)
+	public static List<CommonTree> getDestChildren(CommonTree root)
 	{
-		return AntlrToScribParserUtil.toCommonTreeList(ct.getChildren().subList(DESTINATION_CHILDREN_START_INDEX, ct.getChildCount()));
+		return AntlrToScribParserUtil
+				.toCommonTreeList(root.getChildren().subList(AssrtAntlrGMessageTransfer.DESTINATION_CHILDREN_START_INDEX, root.getChildCount()));
+	}
+
+	public static CommonTree getAssertionChild(CommonTree root)
+	{
+		return (CommonTree) root.getChild(AssrtAntlrGMessageTransfer.ASSERTION_CHILD_INDEX);
 	}
 }

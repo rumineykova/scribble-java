@@ -49,7 +49,7 @@ public class AssrtLConnect extends LConnect
 	@Override
 	public AssrtLConnect reconstruct(RoleNode src, MessageNode msg, RoleNode dest)
 	{
-		throw new RuntimeException("[scrib-assert] Shouldn't get in here: " + this);
+		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 	
 	public AssrtLConnect reconstruct(RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion ass)

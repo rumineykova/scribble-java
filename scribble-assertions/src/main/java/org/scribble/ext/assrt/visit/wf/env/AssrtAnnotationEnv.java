@@ -17,11 +17,12 @@ import org.scribble.visit.env.Env;
 // FIXME: check and refactor syntactic checks with AssrtNameDisambiguator
 public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 {
-	// "May" analysis
+	// "May" analysis -- context merge takes the union
 	private Map<Role, Set<AssrtAnnotDataType>> decls;  // Var declaration binding  // Role is the src role of the transfer -- not important?
 
-	// "Must" analysis
-	private Map<Role, Set<AssrtDataTypeVar>> vars;  // "Knowledge" of var (according to message passing)  // FIXME: do by model checking rather than syntactically?
+	// "Must" analysis -- context merge takes the intersection
+	private Map<Role, Set<AssrtDataTypeVar>> vars;  // "Knowledge" of var (according to message passing)
+			// Redundant for assrt-core (validated on model, rather than syntactically), but still used by base assrt
 	
 	public AssrtAnnotationEnv()
 	{
@@ -34,6 +35,19 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 		this.vars = new HashMap<>(vars);
 	}
 
+	// "Global" syntactic scoping -- binding insensitive to roles (and DataType)
+	public boolean isDataTypeVarBound(AssrtDataTypeVar v)
+	{
+		return this.decls.values().stream().flatMap(s -> s.stream()).anyMatch(adt -> adt.var.equals(v));
+	}
+	
+	// Redundant for assrt-core (handled by model validation), but still used by base assrt
+	public boolean isDataTypeVarKnown(Role r, AssrtDataTypeVar avn)
+	{
+		Set<AssrtDataTypeVar> tmp = this.vars.get(r);
+		return tmp != null && tmp.stream().anyMatch(v -> v.equals(avn));
+	}
+
 	@Override
 	public AssrtAnnotationEnv copy()
 	{
@@ -44,18 +58,6 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 	public AssrtAnnotationEnv enterContext()
 	{
 		return copy();
-	}
-
-	// "Global" syntactic scoping -- binding insensitive to roles (and DataType)
-	public boolean isDataTypeVarBound(AssrtDataTypeVar v)
-	{
-		return this.decls.values().stream().flatMap(s -> s.stream()).anyMatch(adt -> adt.var.equals(v));
-	}
-	
-	public boolean isDataTypeVarKnown(Role r, AssrtDataTypeVar avn)
-	{
-		Set<AssrtDataTypeVar> tmp = this.vars.get(r);
-		return tmp != null && tmp.stream().anyMatch(v -> v.equals(avn));
 	}
 
 	@Override
@@ -105,13 +107,6 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 		copy.addDataTypeVarNameAux(src, adt.var);
 		return copy;
 	}
-
-	public AssrtAnnotationEnv addDataTypeVarName(Role role, AssrtDataTypeVar v)
-	{
-		AssrtAnnotationEnv copy = copy();
-		copy.addDataTypeVarNameAux(role, v);
-		return copy;
-	}
 	
 	private void addAnnotDataTypeAux(Role role, AssrtAnnotDataType adt)
 	{
@@ -122,6 +117,13 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 			this.decls.put(role, tmp);
 		}
 		tmp.add(adt);
+	}
+
+	public AssrtAnnotationEnv addDataTypeVarName(Role role, AssrtDataTypeVar v)
+	{
+		AssrtAnnotationEnv copy = copy();
+		copy.addDataTypeVarNameAux(role, v);
+		return copy;
 	}
 	
 	private void addDataTypeVarNameAux(Role role, AssrtDataTypeVar v)

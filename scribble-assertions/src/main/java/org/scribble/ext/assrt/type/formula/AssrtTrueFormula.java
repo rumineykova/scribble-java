@@ -16,11 +16,23 @@ public class AssrtTrueFormula extends AssrtBoolFormula
 	{
 		
 	}
+
+	@Override
+	public AssrtBoolFormula squash()
+	{
+		return this;
+	}
+
+	@Override
+	public AssrtTrueFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		return this;
+	}
 	
 	@Override
-	public String toString()
+	public String toSmt2Formula()
 	{
-		return "True"; 
+		return "true";
 	}
 	
 	@Override
@@ -33,6 +45,12 @@ public class AssrtTrueFormula extends AssrtBoolFormula
 	public Set<AssrtDataTypeVar> getVars()
 	{
 		return Collections.emptySet(); 
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "True"; 
 	}
 	
 	@Override

@@ -18,6 +18,24 @@ public class AssrtLogFormula extends AssrtBoolFormula
 		this.formula = f;  
 		this.vars = Collections.unmodifiableSet(vars); 	
 	}
+
+	@Override
+	public AssrtBoolFormula squash()
+	{
+		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
+	}
+
+	@Override
+	public AssrtTrueFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
+	}
+		
+	@Override
+	public String toSmt2Formula()
+	{
+		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
+	}
 	
 	@Override
 	protected BooleanFormula toJavaSmtFormula() //throws AssertionParseException
@@ -72,7 +90,7 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	{
 		int hash = 5923;
 		hash = 31 * hash + super.hashCode();
-		hash = 31 * hash + this.formula.toString().hashCode();  // FIXME HACK toString
+		hash = 31 * hash + this.formula.toString().hashCode();  // HACK FIXME: toString
 		hash = 31 * hash + this.vars.hashCode();
 		return hash;
 	}

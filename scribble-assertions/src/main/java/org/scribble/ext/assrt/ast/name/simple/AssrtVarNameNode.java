@@ -67,7 +67,7 @@ public class AssrtVarNameNode extends SimpleNameNode<AssrtVarNameKind> implement
 	@Override
 	public Arg<? extends NonRoleArgKind> toArg()
 	{
-		throw new RuntimeException("[scrib-assert] TODO: var name node as do-arg: " + this);  // TODO?
+		throw new RuntimeException("[assrt] TODO: var name node as do-arg: " + this);  // TODO?
 	}
 
 	@Override

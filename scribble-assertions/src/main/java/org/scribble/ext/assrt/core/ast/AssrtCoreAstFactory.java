@@ -14,8 +14,10 @@ import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRec;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
+import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.type.name.Op;
 import org.scribble.type.name.RecVar;
 import org.scribble.type.name.Role;
@@ -47,14 +49,14 @@ public class AssrtCoreAstFactory
 		return new F17GDisconnect(src, dest);
 	}*/
 	
-	public AssrtCoreGRec AssrtCoreGRec(RecVar recvar, AssrtCoreGType body)
+	public AssrtCoreGRec AssrtCoreGRec(RecVar recvar, AssrtDataTypeVar annot, AssrtArithFormula init, AssrtCoreGType body)
 	{
-		return new AssrtCoreGRec(recvar, body);
+		return new AssrtCoreGRec(recvar, annot, init, body);
 	}
 	
-	public AssrtCoreGRecVar AssrtCoreGRecVar(RecVar var)
+	public AssrtCoreGRecVar AssrtCoreGRecVar(RecVar var, AssrtArithFormula expr)
 	{
-		return new AssrtCoreGRecVar(var);
+		return new AssrtCoreGRecVar(var, expr);
 	}
 
 	public AssrtCoreGEnd AssrtCoreGEnd()
@@ -92,14 +94,14 @@ public class AssrtCoreAstFactory
 		return new AssrtCoreLDisconnect(self, peer);
 	}*/
 	
-	public AssrtCoreLRec AssrtCoreLRec(RecVar recvar, AssrtCoreLType body)
+	public AssrtCoreLRec AssrtCoreLRec(RecVar recvar, AssrtDataTypeVar annot, AssrtArithFormula init, AssrtCoreLType body)
 	{
-		return new AssrtCoreLRec(recvar, body);
+		return new AssrtCoreLRec(recvar, annot, init, body);
 	}
 	
-	public AssrtCoreLRecVar AssrtCoreLRecVar(RecVar var)
+	public AssrtCoreLRecVar AssrtCoreLRecVar(RecVar var, AssrtArithFormula expr)
 	{
-		return new AssrtCoreLRecVar(var);
+		return new AssrtCoreLRecVar(var, expr);
 	}
 
 	public AssrtCoreLEnd AssrtCoreLEnd()

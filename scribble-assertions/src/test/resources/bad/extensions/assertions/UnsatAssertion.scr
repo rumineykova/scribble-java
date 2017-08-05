@@ -4,7 +4,7 @@ module bad.extensions.assertions.UnsatAssertion;
 type <java> "java.lang.int" from "rt.jar" as int;
 type <java> "java.lang.Long" from "rt.jar" as Long;
 
-global protocol Prot(role C, role S)
+global protocol Proto1(role C, role S)
 {
 	//[x<10]
 	ADD(x:int) from C to S;  @(x < 10);

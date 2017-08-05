@@ -9,7 +9,6 @@ import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
-import org.sosy_lab.java_smt.api.QuantifiedFormulaManager;
 
 // FIXME: not exactly boolean kind?
 public class AssrtExistsFormula extends AssrtBoolFormula
@@ -18,33 +17,76 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 	public final AssrtBoolFormula expr;
 
 	// Pre: vars non empty
-	public AssrtExistsFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
+	protected AssrtExistsFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
 	{
 		this.vars = Collections.unmodifiableList(vars);
 		this.expr = expr;
+	}
+	
+	@Override
+	public AssrtBoolFormula squash()
+	{
+		List<AssrtIntVarFormula> vars
+				= this.vars.stream().filter(v -> !v.toString().startsWith("_dum")).collect(Collectors.toList());  // FIXME
+		AssrtBoolFormula expr = this.expr.squash();
+		return (vars.isEmpty()) ? expr : AssrtFormulaFactory.AssrtExistsFormula(vars, expr);
+	}
+
+	@Override
+	public AssrtExistsFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		if (this.vars.contains(old))
+		{
+			return this;
+		}
+		return AssrtFormulaFactory.AssrtExistsFormula(
+				//this.vars.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList()), 
+				this.vars,
+				this.expr.subs(old, neu));
+	}
+	
+	@Override
+	public String toSmt2Formula()
+	{
+		String vs = this.vars.stream().map(v -> "(" + v.toSmt2Formula() + " Int)").collect(Collectors.joining(" "));
+		String expr = this.expr.toSmt2Formula();
+		return "(exists (" + vs + ") " + expr + ")";
+	}
+
+	@Override
+	protected BooleanFormula toJavaSmtFormula()
+	{
+		BooleanFormula expr = (BooleanFormula) this.expr.toJavaSmtFormula();
+		List<IntegerFormula> vs = this.vars.stream().map(v -> v.getJavaSmtFormula()).collect(Collectors.toList());
+
+		/*JavaSmtWrapper j = JavaSmtWrapper.getInstance();  // Cf. AssrtTest.JavaSmtBug
+		Object o = j.qfm.exists(vs.get(0), expr);
+		if (o.toString().equals("(exists ((_dum1 Int)) false)") && this.toString().equals("(exists ((x)) (False))"))
+		{
+			System.out.println("ddd: " + j.qfm.exists(vs.get(0), expr) + ", " +j.ifm.makeVariable("x") + ", "
+					
+		+ j.qfm.exists(j.ifm.makeVariable("x"), j.bfm.makeFalse()) + ", " + j.qfm.exists(Arrays.asList(j.ifm.makeVariable("x")), j.bfm.makeFalse()) + ", "
+
+		+ j.qfm.exists(j.ifm.makeVariable("x"), j.bfm.makeTrue()));
+
+			throw new RuntimeException("ccc: " + vs + ", " + o);
+		}*/
+		
+		return JavaSmtWrapper.getInstance().qfm.exists(vs, expr);
 	}
 
 	@Override
 	public Set<AssrtDataTypeVar> getVars()
 	{
 		Set<AssrtDataTypeVar> vs = this.expr.getVars();
-		vs.removeAll(vs);
+		vs.removeAll(this.vars.stream().map(v -> v.toName()).collect(Collectors.toList()));
 		return vs;
-	}
-
-	@Override
-	protected BooleanFormula toJavaSmtFormula()
-	{
-		QuantifiedFormulaManager qfm = JavaSmtWrapper.getInstance().qfm;
-		BooleanFormula expr = (BooleanFormula) this.expr.toJavaSmtFormula();
-		List<IntegerFormula> vs = this.vars.stream().map(v -> v.getJavaSmtFormula()).collect(Collectors.toList());
-		return qfm.exists(vs, expr);
 	}
 	
 	@Override
 	public String toString()
 	{
-		return "(exists ((" + this.vars + ")) (" + this.expr + ")";
+		return "(exists [" + this.vars.stream().map(Object::toString).collect(Collectors.joining(", ")) + "] (" + this.expr + "))";
 	}
 
 	@Override

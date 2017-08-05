@@ -15,7 +15,8 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 	public enum Op
 	{
 		And, 
-		Or;
+		Or,
+		Imply;  // Not currently parsed, only created
 
 		@Override
 		public String toString()
@@ -24,6 +25,7 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 			{
 				case And: return "&&";
 				case Or: return "||";
+				case Imply: return "=>";
 				default: throw new RuntimeException("Won't get in here: " + this);
 			}
 		}
@@ -34,7 +36,7 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 	public final AssrtBoolFormula right; 
 	//BooleanFormula formula;   // FIXME
 	
-	public AssrtBinBoolFormula(Op op, AssrtBoolFormula left, AssrtBoolFormula right)
+	protected AssrtBinBoolFormula(Op op, AssrtBoolFormula left, AssrtBoolFormula right)
 	{
 		this.left = left; 
 		this.right = right; 
@@ -52,9 +54,84 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 	}
 	
 	@Override
-	public String toString()
+	public AssrtBoolFormula squash()
 	{
-		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";  
+		AssrtBoolFormula left = this.left.squash();
+		AssrtBoolFormula right = this.right.squash();
+		switch (this.op)
+		{
+			case And:
+			{
+				if (left.equals(AssrtFalseFormula.FALSE) || right.equals(AssrtFalseFormula.FALSE))
+				{
+					return AssrtFalseFormula.FALSE;
+				}
+				if (left.equals(AssrtTrueFormula.TRUE))
+				{
+					return right;
+				}
+				if (right.equals(AssrtTrueFormula.TRUE))
+				{
+					return left;
+				}
+				return AssrtFormulaFactory.AssrtBinBool(this.op, left, right);
+			}
+			case Imply:
+			{
+				if (left.equals(AssrtFalseFormula.FALSE))
+				{	
+					return AssrtTrueFormula.TRUE;
+				}
+				/*if (right.equals(AssrtFalseFormula.FALSE))
+				{
+					return ..neg.. left;
+				}*/
+				if (right.equals(AssrtTrueFormula.TRUE))
+				{
+					return right;
+				}
+				return AssrtFormulaFactory.AssrtBinBool(this.op, left, right);
+			}
+			case Or:
+			{
+				if (left.equals(AssrtTrueFormula.TRUE) || right.equals(AssrtTrueFormula.TRUE))
+				{
+					return AssrtTrueFormula.TRUE;
+				}
+				if (left.equals(AssrtFalseFormula.FALSE))
+				{
+					return right;
+				}
+				if (right.equals(AssrtFalseFormula.FALSE))
+				{
+					return left;
+				}
+				return AssrtFormulaFactory.AssrtBinBool(this.op, left, right);
+			}
+			default: throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
+		}
+	}
+
+	@Override
+	public AssrtBinBoolFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	{
+		return AssrtFormulaFactory.AssrtBinBool(this.op, this.left.subs(old, neu), this.right.subs(old, neu));
+	}
+	
+	@Override
+	public String toSmt2Formula()
+	{
+		String left = this.left.toSmt2Formula();
+		String right = this.right.toSmt2Formula();
+		String op;
+		switch(this.op)
+		{
+			case And:   op = "and"; break;
+			case Or:    op = "or"; break;
+			case Imply: op = "=>"; break;
+			default:   throw new RuntimeException("[assrt] Shouldn't get in here: " + this.op);
+		}
+		return "(" + op + " " + left + " " + right + ")";
 	}
 	
 	@Override
@@ -63,15 +140,14 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 		BooleanFormulaManager fmanager = JavaSmtWrapper.getInstance().bfm;
 		BooleanFormula bleft = (BooleanFormula) this.left.toJavaSmtFormula();
 		BooleanFormula bright = (BooleanFormula) this.right.toJavaSmtFormula();
-		
-		switch(this.op) {
-		case And: 
-			return fmanager.and(bleft,bright); 
-		case Or:
-			return fmanager.or(bleft,bright); 
-		default:
-			//throw new AssertionParseException("No matchin ooperation for boolean formula"); 
-			throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
+		switch(this.op)
+		{
+			case And:   return fmanager.and(bleft, bright); 
+			case Or:    return fmanager.or(bleft, bright); 
+			case Imply: return fmanager.implication(bleft, bright); 
+			default:
+				//throw new AssertionParseException("No matchin ooperation for boolean formula"); 
+				throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
 		}		
 	}
 	
@@ -81,6 +157,12 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula
 		Set<AssrtDataTypeVar> vars = new HashSet<>(this.left.getVars()); 
 		vars.addAll(this.right.getVars()); 
 		return vars; 
+	}
+
+	@Override
+	public String toString()
+	{
+		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";  
 	}
 
 	@Override

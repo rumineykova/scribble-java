@@ -15,7 +15,7 @@ package org.scribble.model.endpoint.actions;
 
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.global.SModelFactory;
-import org.scribble.model.global.actions.SConnect;
+import org.scribble.model.global.actions.SRequest;
 import org.scribble.type.Payload;
 import org.scribble.type.name.MessageId;
 import org.scribble.type.name.Role;
@@ -37,7 +37,7 @@ public class ERequest extends EAction
 	}
 
 	@Override
-	public SConnect toGlobal(SModelFactory sf, Role self)
+	public SRequest toGlobal(SModelFactory sf, Role self)
 	{
 		//return new GConnect(self, this.peer);
 		return sf.newSConnect(self, this.peer, this.mid, this.payload);

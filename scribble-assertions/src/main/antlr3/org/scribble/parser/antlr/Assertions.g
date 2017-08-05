@@ -63,12 +63,20 @@ tokens
 	}
   
 	// Takes the whole AssrtScribble.g ASSRT_EXPPR
-	public static CommonTree antlrParse(String source) throws RecognitionException
+	public static CommonTree parseAssertion(String source) throws RecognitionException
 	{
 		source = source.substring(1, source.length());  // Remove enclosing '@' .. ';' -- cf. AssrtScribble.g ASSRT_EXPR
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
 		return (CommonTree) parser.parse().getTree();
+	}
+
+	public static CommonTree parseArithAnnotation(String source) throws RecognitionException
+	{
+		source = source.substring(1, source.length());  // Remove enclosing '@' .. ';' -- cf. AssrtScribble.g ASSRT_EXPR
+		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
+		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
+		return (CommonTree) parser.arith_expr().getTree();
 	}
 }
 

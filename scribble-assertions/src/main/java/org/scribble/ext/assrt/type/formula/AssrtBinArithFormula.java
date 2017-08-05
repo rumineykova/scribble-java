@@ -37,17 +37,39 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 	public final AssrtArithFormula left;
 	public final AssrtArithFormula right;
 
-	public AssrtBinArithFormula(Op op, AssrtArithFormula left, AssrtArithFormula right)
+	protected AssrtBinArithFormula(Op op, AssrtArithFormula left, AssrtArithFormula right)
 	{
 		this.left = left;
 		this.right = right;
 		this.op = op;
 	}
+	
+	@Override
+	public AssrtBinArithFormula squash()
+	{
+		return AssrtFormulaFactory.AssrtBinArith(this.op, this.left.squash(), this.right.squash());
+	}
 
 	@Override
-	public String toString()
+	public AssrtBinArithFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
-		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";
+		return AssrtFormulaFactory.AssrtBinArith(this.op, this.left.subs(old, neu), this.right.subs(old, neu));
+	}
+	
+	@Override
+	public String toSmt2Formula()
+	{
+		String left = this.left.toSmt2Formula();
+		String right = this.right.toSmt2Formula();
+		String op;
+		switch(this.op)
+		{
+			case Add:  op = "+"; break;
+			case Subt: op = "-"; break;
+			case Mult: op = "*"; break;
+			default:   throw new RuntimeException("[assrt] Shouldn't get in here: " + this.op);
+		}
+		return "(" + op + " " + left + " " + right + ")";
 	}
 
 	@Override
@@ -56,18 +78,17 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 		IntegerFormulaManager fmanager = JavaSmtWrapper.getInstance().ifm;
 		IntegerFormula fleft = (IntegerFormula) this.left.toJavaSmtFormula();
 		IntegerFormula fright = (IntegerFormula) this.right.toJavaSmtFormula();
-
 		switch(this.op)
 		{
-		case Add:
-			return fmanager.add(fleft, fright);
-		case Subt:
-			return fmanager.subtract(fleft,fright);
-		case Mult:
-			return fmanager.multiply(fleft, fright);
-		default:
-			//throw new AssertionParseException("No matchin ooperation for boolean formula");
-			throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
+			case Add:
+				return fmanager.add(fleft, fright);
+			case Subt:
+				return fmanager.subtract(fleft, fright);
+			case Mult:
+				return fmanager.multiply(fleft, fright);
+			default:
+				//throw new AssertionParseException("No matchin ooperation for boolean formula");
+				throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
 		}
 	}
 
@@ -77,6 +98,12 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 		Set<AssrtDataTypeVar> vars = new HashSet<>(this.left.getVars());
 		vars.addAll(this.right.getVars());
 		return vars;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";
 	}
 
 	@Override

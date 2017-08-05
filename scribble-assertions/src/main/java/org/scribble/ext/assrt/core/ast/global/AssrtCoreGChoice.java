@@ -17,6 +17,7 @@ import org.scribble.ext.assrt.core.ast.local.AssrtCoreLChoice;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
+import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
@@ -99,21 +100,20 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 			{
 				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": cannot merge unguarded rec vars.");
 			}
-			else
+
+			Set<RecVar> rvs = projs.values().stream().map(v -> ((AssrtCoreLRecVar) v).var).collect(Collectors.toSet());
+			Set<AssrtArithFormula> fs = projs.values().stream().map(v -> ((AssrtCoreLRecVar) v).expr).collect(Collectors.toSet());  // FIXME? syntactic equality of exprs
+			if (rvs.size() > 1 || fs.size() > 1)
 			{
-				Set<RecVar> rvs = projs.values().stream().map(v -> ((AssrtCoreLRecVar) v).var).collect(Collectors.toSet());
-				if (rvs.size() > 1)
-				{
-					throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed unguarded rec vars: " + rvs);
-				}
-				return af.AssrtCoreLRecVar(rvs.iterator().next());
+				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed unguarded rec vars: " + rvs);
 			}
+			return af.AssrtCoreLRecVar(rvs.iterator().next(), fs.iterator().next());
 		}
 		
-		List<AssrtCoreLChoice> filtered = projs.values().stream()
+		List<AssrtCoreLType> filtered = projs.values().stream()
 			.filter(v -> !v.equals(AssrtCoreLEnd.END))
-			//.collect(Collectors.toMap(e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getKey, e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getValue));
-			.map(v -> (AssrtCoreLChoice) v)
+			////.collect(Collectors.toMap(e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getKey, e -> Map.Entry<AssrtCoreAction, AssrtCoreLType>::getValue));
+			//.map(v -> (AssrtCoreLChoice) v)
 			.collect(Collectors.toList());
 	
 		if (filtered.size() == 0)
@@ -122,22 +122,25 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 		}
 		else if (filtered.size() == 1)
 		{
-			return (AssrtCoreLChoice) filtered.iterator().next();  // RecVar disallowed above
+			return //(AssrtCoreLChoice)
+					filtered.iterator().next();  // RecVar disallowed above
 		}
+		
+		List<AssrtCoreLChoice> choices = filtered.stream().map(v -> (AssrtCoreLChoice) v).collect(Collectors.toList());
 	
-		Set<Role> roles = filtered.stream().map(v -> v.role).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
+		Set<Role> roles = choices.stream().map(v -> v.role).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
 		if (roles.size() > 1)
 		{
 			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed peer roles: " + roles);
 		}
-		Set<AssrtCoreActionKind<?>> kinds = filtered.stream().map(v -> v.kind).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
+		Set<AssrtCoreActionKind<?>> kinds = choices.stream().map(v -> v.kind).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
 		if (kinds.size() > 1)
 		{
 			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed action kinds: " + kinds);
 		}
 		
 		Map<AssrtCoreAction, AssrtCoreLType> merged = new HashMap<>();
-		filtered.forEach(v ->
+		choices.forEach(v ->
 		{
 			if (!v.kind.equals(AssrtCoreLActionKind.RECEIVE))
 			{

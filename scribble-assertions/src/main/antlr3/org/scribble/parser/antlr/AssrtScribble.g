@@ -1,6 +1,6 @@
 //$ java -cp scribble-parser/lib/antlr-3.5.2-complete.jar org.antlr.Tool -o scribble-assertions/target/generated-sources/antlr3 scribble-assertions/src/main/antlr3/org/scribble/parser/antlr/AssrtScribble.g
 
-// Windows:
+// Cygwin/Windows:
 //$ java -cp scribble-parser/lib/antlr-3.5.2-complete.jar org.antlr.Tool -o scribble-assertions/target/generated-sources/antlr3/org/scribble/parser/antlr scribble-assertions/src/main/antlr3/org/scribble/parser/antlr/AssrtScribble.g
 //$ mv scribble-assertions/target/generated-sources/antlr3/org/scribble/parser/antlr/AssrtScribble.tokens scribble-assertions/target/generated-sources/antlr3/
 
@@ -34,7 +34,7 @@ tokens
 	ACCEPT_KW = 'accept';
 	SELF_KW = 'self';
 	SIG_KW = 'sig';
-	INSTANTIATES_KW = 'instantiates';
+	//INSTANTIATES_KW = 'instantiates';
 	AS_KW = 'as';
 
 	CONNECT_KW = 'connect';
@@ -47,16 +47,16 @@ tokens
 	OR_KW = 'or';
 	REC_KW = 'rec';
 	CONTINUE_KW = 'continue';
-	PAR_KW = 'par';
-	AND_KW = 'and';
-	INTERRUPTIBLE_KW = 'interruptible';
+	//PAR_KW = 'par';
+	AND_KW = 'and';  // Needed for disconnect
+	/*INTERRUPTIBLE_KW = 'interruptible';
 	WITH_KW = 'with';
 	BY_KW = 'by';  /* from for interrupts is more expected, but from is
 	                 not good for multiple roles (generally, the comma
 	                 in interrupt message list and role list looks like
-	                 "and" rather than "or") */
+	                 "and" rather than "or") * /
 	THROWS_KW = 'throws';
-	CATCHES_KW = 'catches';
+	CATCHES_KW = 'catches';*/
 	DO_KW = 'do';
 	//SPAWN_KW = 'spawn';
 	
@@ -68,70 +68,80 @@ tokens
 	 * (i.e. variable) names themselves are used (for AST node root text
 	 * field)
 	 */
-	EMPTY_ALIAS = '__empty_alias';
-	EMPTY_SCOPENAME = '__empty_scopename';
-	NO_SCOPE = '__no_scope';
-	//EMPTY_PACKAGENAME = '__empty_packagebame';
-	EMPTY_OPERATOR = '__empty_operator';
-	EMPTY_ASSERTION = '__empty_assertion';
 
-	//EMPTY_PARAMETERDECLLIST = '__empty_parameterdecllist';
-	//EMPTY_ARGUMENTINSTANTIATIONLIST = '__empty_argumentinstantiationlist';
-	EMPTY_LOCALTHROW = '__empty_localthrow';
-	//EMPTY_LOCAL_CATCHES = '__empty_local_catch';
+	// Purely util constants -- not parsed as node types
 
 	KIND_MESSAGESIGNATURE = 'KIND_MESSAGESIGNATURE';
 	KIND_PAYLOADTYPE = 'KIND_PAYLOADTYPE';
+	
+	
+	// "Node type" constants -- but not parsed "directly" by AntlrToScribParser
 
+	EMPTY_ALIAS = 'EMTPY_ALIAS';
+	/*EMPTY_SCOPENAME = '__empty_scopename';
+	NO_SCOPE = '__no_scope';*/
+	//EMPTY_PACKAGENAME = '__empty_packagebame';
+	EMPTY_OPERATOR = 'EMPTY_OPERATOR';
+
+	//EMPTY_PARAMETERDECLLIST = '__empty_parameterdecllist';
+	//EMPTY_ARGUMENTINSTANTIATIONLIST = '__empty_argumentinstantiationlist';
+	/*EMPTY_LOCALTHROW = '__empty_localthrow';
+	EMPTY_LOCAL_CATCHES = '__empty_local_catch';*/
+	
 	//NAME = 'name';
-	AMBIGUOUSNAME = 'ambiguous-name';
-	QUALIFIEDNAME = 'qualified-name';
+	AMBIGUOUSNAME = 'AMBIGUOUSNAME';
+	QUALIFIEDNAME = 'QUALIFIEDNAME';
 	//PACKAGENAME = 'package-name';
 	//FULLMODULENAME = 'full-module-name';
 	//SIMPLEMEMBERNAME = 'simple-member-name';
 	//QUALIFIEDMEMBERNAME = 'qualified-member-name';
+
+	MESSAGESIGNATURE = 'MESSAGESIGNATURE';
+	DELEGATION = 'DELEGATION';
 	
-	//MODULE = 'module';
-	MODULE = 'modul';
+
+	// Parsed "directly" by AntlrToScribParser
+
+	PAYLOAD = 'PAYLOAD';
+	//PAYLOADELEMENT = 'payloadelement';
+
+	//MODULE = 'module';  // Probably a keyword clash
+	MODULE = 'MODULE';
 	//PACKAGEDECL = 'package-decl';
-	MODULEDECL = 'module-decl';
+	MODULEDECL = 'MODULEDECL';
 	//IMPORTDECL = 'import-decl';
 	//FROMIMPORTDECL = 'from-import-decl';
-	IMPORTMODULE = 'import-module';
-	IMPORTMEMBER = 'import-member';
-	PAYLOADTYPEDECL = 'payload-type-decl';
-	MESSAGESIGNATUREDECL = 'message-signature-decl';
-	PARAMETERDECLLIST = 'parameter-decl-list';
-	PARAMETERDECL = 'parameter-decl';
-	MESSAGESIGNATURE = 'message-signature';
-	ROLEDECLLIST = 'role-decl-list';
-	ROLEDECL = 'role-decl';
-	//CONNECTDECL = 'connect-decl';
-	ARGUMENTINSTANTIATIONLIST = 'argument-instantiation-list';
+	IMPORTMODULE = 'IMPORTMODULE';
+	IMPORTMEMBER = 'IMPORTMEMBER';
+	PAYLOADTYPEDECL = 'PAYLOADTYPEDECL';
+	MESSAGESIGNATUREDECL = 'MESSAGESIGNATUREDECL';
+	ROLEDECLLIST = 'ROLEDECLLIST';
+	ROLEDECL = 'ROLEDECL';
+	PARAMETERDECLLIST = 'PARAMETERDECLLIST';
+	PARAMETERDECL = 'PARAMETERDECL';
+	ROLEINSTANTIATIONLIST = 'ROLEINSTANTIATIONLIST';
+	ROLEINSTANTIATION = 'ROLEINSTANTIATION';  // FIXME: not consistent with arginstas/payloadeles
+	ARGUMENTINSTANTIATIONLIST = 'ARGUMENTINSTANTIATIONLIST';
 	//ARGUMENTINSTANTIATION = 'argument-instantiation';
-	PAYLOAD = 'payload';
-	//PAYLOADELEMENT = 'payloadelement';
-	DELEGATION = 'delegation';
-	ROLEINSTANTIATIONLIST = 'role-instantiation-list';
-	ROLEINSTANTIATION = 'role-instantiation';  // FIXME: not consistent with arginstas/payloadeles
+	//CONNECTDECL = 'connect-decl';
 
-	GLOBALPROTOCOLDECL = 'global-protocol-decl';
-	GLOBALPROTOCOLDECLMODS = 'global-protocol-decl-mods';
-	GLOBALPROTOCOLHEADER = 'global-protocol-header';
-	GLOBALPROTOCOLDEF = 'global-protocol-def';
-	GLOBALPROTOCOLBLOCK = 'global-protocol-block';
-	GLOBALINTERACTIONSEQUENCE = 'global-interaction-sequence';
-	GLOBALMESSAGETRANSFER = 'global-message-transfer'; 
-	GLOBALCONNECT = 'global-connect';
-	GLOBALDISCONNECT = 'global-disconnect';
-	GLOBALWRAP = 'global-wrap';
-	GLOBALCHOICE = 'global-choice';
-	GLOBALRECURSION = 'global-recursion';
-	GLOBALCONTINUE = 'global-continue';
-	GLOBALPARALLEL = 'global-parallel';
-	GLOBALINTERRUPTIBLE = 'global-interruptible';
-	GLOBALINTERRUPT = 'global-interrupt';
-	GLOBALDO = 'global-do';
+	GLOBALPROTOCOLDECL = 'GLOBALPROTOCOLDECL';
+	GLOBALPROTOCOLDECLMODS = 'GLOBALPROTOCOLDECLMODS';
+	GLOBALPROTOCOLHEADER = 'GLOBALPROTOCOLHEADER';
+	GLOBALPROTOCOLDEF = 'GLOBALPROTOCOLDEF';
+	GLOBALPROTOCOLBLOCK = 'GLOBALPROTOCOLBLOCK';
+	GLOBALINTERACTIONSEQUENCE = 'GLOBALINTERACTIONSEQUENCE';
+	GLOBALMESSAGETRANSFER = 'GLOBALMESSAGETRANSFER';
+	GLOBALCONNECT = 'GLOBALCONNECT';
+	GLOBALDISCONNECT = 'GLOBALDISCONNECT';
+	GLOBALWRAP = 'GLOBALWRAP';
+	GLOBALCHOICE = 'GLOBALCHOICE';
+	GLOBALRECURSION = 'GLOBALRECURSION';
+	GLOBALCONTINUE = 'GLOBALCONTINUE';
+	/*GLOBALPARALLEL = 'GLOBALPARALLEL';
+	GLOBALINTERRUPTIBLE = 'GLOBALINTERRUPTIBLE';
+	GLOBALINTERRUPT = 'GLOBALINTERRUPT';*/
+	GLOBALDO = 'GLOBALDO';
 
 	/*LOCALPROTOCOLDECL = 'local-protocol-decl';
 	LOCALROLEDECLLIST = 'local-role-decl-list';
@@ -154,13 +164,25 @@ tokens
 	LOCALSEND = 'local-send';
 	LOCALRECEIVE = 'local-receive';*/
 
+
+	// "Node type" constants -- but not parsed "directly" by AntlrToScribParser
+
+	ASSRT_ANNOTPAYLOADELEM = 'ASSRT_ANNOTPAYLOADELEM'; 
+
+	// Parsed "directly" by AntlrToScribParser
+
+	//ASSRT_EMPTY_ASSERTION = '__empty_assertion';
 	//ASSERTION = 'global-assertion'; 
-	ASSRT_ANNOTPAYLOADELEM = 'annot-payload-elem'; 
-	ASSRT_GLOBALMESSAGETRANSFER = 'global-message-transfer-with-assertion';   // May be an empty (true) assertion -- null AST
-	ASSRT_GLOBALCONNECT = 'global-connect-with-assertion';   // May be an empty (true) assertion -- null AST
+
+  // May have empty assertion -- null AST
+	ASSRT_GLOBALPROTOCOLHEADER = 'ASSRT_GLOBALPROTOCOLHEADER';
+	ASSRT_GLOBALMESSAGETRANSFER = 'ASSRT_GLOBALMESSAGETRANSFER';
+	ASSRT_GLOBALCONNECT = 'ASSRT_GLOBALCONNECT';
+	ASSRT_GLOBALDO = 'ASSRT_GLOBALDO';
 }
 
 
+// Has to come after tokens?
 @parser::header
 {
 	package org.scribble.parser.antlr;
@@ -472,27 +494,27 @@ protocoldecl:
  * Section 3.7 Global Protocol Declarations
  */
 globalprotocoldecl:
-	  globalprotocolheader globalprotocoldefinition
+	globalprotocolheader globalprotocoldefinition
 	->
-	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition )
+	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition)
 |
-	 globalprotocoldeclmodifiers globalprotocolheader globalprotocoldefinition  // HACK (implicit MP connection backwards compat)
-	 ->
-	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition globalprotocoldeclmodifiers )
+	globalprotocoldeclmodifiers globalprotocolheader globalprotocoldefinition  // HACK: backwards compat for "implicit" connections 
+	->
+	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition globalprotocoldeclmodifiers)
 ;
 	
 globalprotocoldeclmodifiers:
 	AUX_KW EXPLICIT_KW 
 	->
-	^( GLOBALPROTOCOLDECLMODS AUX_KW EXPLICIT_KW )
+	^(GLOBALPROTOCOLDECLMODS AUX_KW EXPLICIT_KW)
 |
 	EXPLICIT_KW
 	->
-	^( GLOBALPROTOCOLDECLMODS EXPLICIT_KW )
+	^(GLOBALPROTOCOLDECLMODS EXPLICIT_KW)
 |
 	AUX_KW
 	->
-	^( GLOBALPROTOCOLDECLMODS AUX_KW )
+	^(GLOBALPROTOCOLDECLMODS AUX_KW)
 ;
 
 globalprotocolheader:
@@ -503,7 +525,16 @@ globalprotocolheader:
 	GLOBAL_KW PROTOCOL_KW simpleprotocolname parameterdecllist roledecllist
 	->
 	^(GLOBALPROTOCOLHEADER simpleprotocolname parameterdecllist roledecllist)
+
+|
+	GLOBAL_KW PROTOCOL_KW simpleprotocolname roledecllist ASSRT_EXPR
+	->
+	^(ASSRT_GLOBALPROTOCOLHEADER simpleprotocolname ^(PARAMETERDECLLIST) roledecllist { AssertionsParser.parseAssertion($ASSRT_EXPR.text) })
 ;
+// Following same pattern as globalmessagetransfer: explicitly invoke AssertionsParser, and extra assertion element only for new category
+// -- later translation by AssrtAntlrToScribParser converts original nodes to empty-assertion new nodes
+// FIXME: should not be an ASSRT_EXPR -- should be just an (integer) var decl expr (which is not a bool expr)
+// e.g., x := 3
 
 roledecllist:
 	'(' roledecl (',' roledecl)* ')'
@@ -539,7 +570,7 @@ parameterdecl:
  */
 globalprotocoldefinition:
 	globalprotocolblock
-->
+	->
 	^(GLOBALPROTOCOLDEF globalprotocolblock)
 ;
 
@@ -572,10 +603,6 @@ globalinteraction:
 |
 	globalcontinue
 |
-	globalparallel
-|
-	globalinterruptible
-|
 	globaldo
 |
 	globalconnect
@@ -584,6 +611,10 @@ globalinteraction:
 |
 	globalwrap
 ;
+/*|
+	globalparallel
+|
+	globalinterruptible*/
 
 
 /**
@@ -592,12 +623,13 @@ globalinteraction:
 globalmessagetransfer:
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 	->
-	//^(GLOBALMESSAGETRANSFER EMPTY_ASSERTION message rolename rolename+) 
-	^(GLOBALMESSAGETRANSFER message rolename rolename+) 
+	//^(GLOBALMESSAGETRANSFER ASSRT_EMPTY_ASSERTION message rolename rolename+) 
+	^(GLOBALMESSAGETRANSFER message rolename rolename+)  
+			// Returning base GLOBALMESSAGETRANSFER (i.e., no ASSRT_EMPTY_ASSERTION) -- relying on AssrtAntlrToScribParser to use AssrtAstFactory to create AssrtGMessageTransfer with empty assertion
 | 
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';' ASSRT_EXPR 
 	->
-	^(ASSRT_GLOBALMESSAGETRANSFER { AssertionsParser.antlrParse($ASSRT_EXPR.text) } message rolename rolename+)
+	^(ASSRT_GLOBALMESSAGETRANSFER { AssertionsParser.parseAssertion($ASSRT_EXPR.text) } message rolename rolename+)
 			// Calling a separate parser this way loses line/char number information
 ;
 //	ASSRT_EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
@@ -624,12 +656,12 @@ globalconnect:
 	//ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
 	CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
 	->
-	^(ASSRT_GLOBALCONNECT {AssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+	^(ASSRT_GLOBALCONNECT {AssertionsParser.parseAssertion($ASSRT_EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
 	//ASSRT_EXPR message CONNECT_KW rolename TO_KW rolename ';'
 	message CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
 	->
-	^(ASSRT_GLOBALCONNECT {AssertionsParser.antlrParse($ASSRT_EXPR.text)} rolename rolename message)
+	^(ASSRT_GLOBALCONNECT {AssertionsParser.parseAssertion($ASSRT_EXPR.text)} rolename rolename message)
 ;
 /*	'(' connectdecl (',' connectdecl)* ')'
 	->
@@ -684,19 +716,19 @@ globalcontinue:
 ;
 
 
-/**
+/*
  * Section 3.7.7 Global Parallel
- */
+ * /
 globalparallel:
 	PAR_KW globalprotocolblock (AND_KW globalprotocolblock)*
 	->
 	^(GLOBALPARALLEL globalprotocolblock+)
-;
+;*/
 
 
-/**
+/*
  * Section 3.7.8 Global Interruptible
- */
+ * /
 globalinterruptible:
 	INTERRUPTIBLE_KW globalprotocolblock WITH_KW '{' globalinterrupt* '}'
 	->
@@ -711,7 +743,7 @@ globalinterrupt:
 	message (',' message)* BY_KW rolename ';'
 	->
 	^(GLOBALINTERRUPT rolename message+)
-;
+;*/
 
 
 /**
@@ -725,7 +757,13 @@ globaldo:
 	DO_KW protocolname argumentinstantiationlist roleinstantiationlist ';'
 	->
 	^(GLOBALDO protocolname argumentinstantiationlist roleinstantiationlist)
+
+|
+	DO_KW protocolname roleinstantiationlist ';' ASSRT_EXPR
+	->
+	^(ASSRT_GLOBALDO protocolname ^(ARGUMENTINSTANTIATIONLIST) roleinstantiationlist { AssertionsParser.parseArithAnnotation($ASSRT_EXPR.text) })
 ;
+// TODO: arguments + annot
 
 roleinstantiationlist:
 	'(' roleinstantiation (',' roleinstantiation)* ')'

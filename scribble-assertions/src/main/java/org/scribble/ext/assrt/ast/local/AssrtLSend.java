@@ -53,7 +53,7 @@ public class AssrtLSend extends LSend
 	@Override
 	public AssrtLSend reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests)
 	{
-		throw new RuntimeException("[scrib-assert] Shouldn't get in here: " + this);
+		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 	
 	public AssrtLSend reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion ass)
@@ -80,7 +80,6 @@ public class AssrtLSend extends LSend
 		return 
 				/*  this.msg + " " + Constants.TO_KW + " "
 				+ getDestinations().stream().map(dest -> dest.toString()).collect(Collectors.joining(", "))*/
-				super.toString()
-				+ "; @" + this.ass + ";";
+				super.toString() + " " + this.ass;
 	}
 }

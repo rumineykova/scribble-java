@@ -63,7 +63,7 @@ public class AssrtGConnect extends GConnect
 	@Override
 	public AssrtGConnect reconstruct(RoleNode src, MessageNode msg, RoleNode dest)
 	{
-		throw new RuntimeException("[scrib-assert] Shouldn't get in here: " + this);
+		throw new RuntimeException("[assert] Shouldn't get in here: " + this);
 	}
 
 	public AssrtGConnect reconstruct(RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion ass)
@@ -87,6 +87,6 @@ public class AssrtGConnect extends GConnect
 	@Override
 	public String toString()
 	{
-		return super.toString() + " @" + this.ass + ";";
+		return super.toString() + " " + this.ass;
 	}
 }
