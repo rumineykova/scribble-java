@@ -256,8 +256,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 					AssrtBoolFormula AA = ass;
 					Set<AssrtIntVarFormula> varsA = new HashSet<>();
-					varsA.add(AssrtFormulaFactory
-							.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));
+					AssrtIntVarFormula vvv = AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString());
+					varsA.add(vvv);
 					// Adding even if var not used
 					// N.B. includes the case for recursion cycles where var is "already"
 					// in F
@@ -266,7 +266,14 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
 					}
 
-					AssrtBoolFormula impli = this.F.get(src).makeSatCheck(AA);
+					AssrtFormulaHolder h = this.F.get(src);
+					/*AssrtBoolFormula impli = h.inlineHolders();
+					if (impli.getVars().contains(vvv))
+					{
+						impli = impli.subs(vvv, makeFreshIntVar(AssrtFormulaFactory.AssrtIntVar(vvv.toString())));
+					}
+					impli = impli.makeSatCheck(AA);*/
+					AssrtBoolFormula impli = h.makeSatCheck(AA);
 					Set<AssrtDataTypeVar> free = new HashSet<>();
 					free.addAll(impli.getVars());
 					if (!free.isEmpty())
@@ -672,7 +679,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 
 	// Update (in place) P, Q, R, K and F
-	private void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
+	private static void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtFormulaHolder> F,
 			Role self, AssrtCoreESend es, AssrtEState succ)
@@ -688,7 +695,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//updateR(R, self, es);
 	}
 
-	private void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
+	private static void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R, 
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtFormulaHolder> F,   // FIXME: manage F with receive assertions?
 			Role self, AssrtCoreEReceive er, AssrtEState succ)
@@ -704,7 +711,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	// FIXME: R
-	private static void fireRequest(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
+	private //static
+	void fireRequest(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreESend>> Q,
 			//Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, AssrtFormulaHolder> F,
 			Role self, AssrtERequest es, AssrtEState succ)
@@ -742,6 +750,14 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			{
 				AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
 
+				AssrtFormulaHolder h = F.get(self);
+				AssrtIntVarFormula fresh = makeFreshIntVar(v);
+				h = h.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()), fresh);
+				F.put(self, h);
+
+				// N.B. no "updateRfromF" -- actually, "update R from payload annot" -- leaving R statevars as they are is OK, validation only done from F's and R already incorporated into F (and updates handled by updateFfromR)
+				// But would it be more consistent to update R?
+
 				updateRKF(R, K, F, self, a, v, a.getAssertion(), succ);
 				
 				//putF(F, v, es.bf);
@@ -773,12 +789,17 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				AssrtBoolFormula f = m.getAssertion();
 				/*AssrtExistsFormulaHolder h =
 						new AssrtExistsFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(v.toString())), Arrays.asList(f));*/
-
+				
+				// Factor out with outputUpdateKF (maybe into updateRKF)
 				AssrtFormulaHolder h = F.get(self);
 				AssrtIntVarFormula fresh = makeFreshIntVar(v);
 				h = h.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()), fresh);
+				F.put(self, h);
 				
-				updateRKF(R, K, F, self, a, v, f, succ);
+				// N.B. no "updateRfromF" -- actually, "update R from payload annot" -- leaving R statevars as they are is OK, validation only done from F's and R already incorporated into F (and updates handled by updateFfromR)
+				// But would it be more consistent to update R?
+
+				updateRKF(R, K, F, self, a, v, f, succ);  // Actual assertion (f) for annotvar (v) added in here
 				
 				//AssrtFormulaHolder 
 				//h = F.get(self);  // FIXME: needed because updateRKF modifies F again
@@ -963,7 +984,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		String lab = "(P=" + this.P + ",\nQ=" + this.Q + ",\nR=" + this.R + ",\nK=" + this.K + ",\nF={" 
 				//+ this.F 
-				+ this.F.entrySet().stream().map(Object::toString).collect(Collectors.joining(",\n"))
+				+ this.F.entrySet().stream().map(e -> e.getKey() + "=(" + e.getValue().inlineHolders().squash().toSmt2Formula() + ")").collect(Collectors.joining(",\n"))
 				+ "})";
 		//return "label=\"" + this.id + ":" + lab.substring(1, lab.length() - 1) + "\"";
 		return "label=\"" + this.id + ":" + lab + "\"";
@@ -1205,7 +1226,8 @@ class AssrtForallFormulaHolder extends AssrtFormulaHolder
 	@Override
 	protected AssrtBoolFormula inlineHolders()
 	{
-		AssrtBoolFormula body = getFlattenedBody();
+		AssrtFormulaHolder copy = copy();
+		AssrtBoolFormula body = copy.getFlattenedBody();
 		return AssrtFormulaFactory.AssrtForallFormula(this.vars, body);
 		/*List<AssrtIntVarFormula> vars =
 				this.vars.stream().filter(v -> !v.toString().startsWith("_dum")).collect(Collectors.toList());  // FIXME
@@ -1244,7 +1266,8 @@ class AssrtExistsFormulaHolder extends AssrtFormulaHolder
 	@Override
 	protected AssrtBoolFormula inlineHolders()
 	{
-		AssrtBoolFormula body = getFlattenedBody();
+		AssrtFormulaHolder copy = copy();
+		AssrtBoolFormula body = copy.getFlattenedBody();
 		return AssrtFormulaFactory.AssrtExistsFormula(this.vars, body);
 		/*List<AssrtIntVarFormula> vars
 				= this.vars.stream().filter(v -> !v.toString().startsWith("_dum")).collect(Collectors.toList());  // FIXME

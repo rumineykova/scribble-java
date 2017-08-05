@@ -36,6 +36,8 @@ public class AssrtCoreSModel
 	
 	public AssrtCoreSafetyErrors getSafetyErrors(Job job)
 	{
+		// FIXME: check for all errors in a single pass -- any errors can be categorised later
+		
 		Set<AssrtCoreSState> recepts = this.allStates.values().stream().filter(AssrtCoreSState::isReceptionError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> orphans = this.allStates.values().stream().filter(s -> s.isOrphanError(this.E0)).collect(Collectors.toSet());
 		Set<AssrtCoreSState> unfins = this.allStates.values().stream().filter(s -> s.isUnfinishedRoleError(this.E0)).collect(Collectors.toSet());
