@@ -33,25 +33,16 @@ type <dotnet> "System.String" from "..." as str;
 
 
 /*
-global protocol Proto1(role A, role B) @(x=1);
-{
-	1(y:int) from A to B; @(y>3);
-	do Proto1(A, B); @y;
-}
-//*/
-
-
-//*
 global protocol Proto1(role B, role W, role S)
 {
-	1(Query:int) from B to W; @(Query>0);
-	2(Instock:int) from W to S; @(Instock<Query);
+	//1(Query:int) from B to W; @(Query>0);
+	2(Instock:int) from W to S; //@(Instock<Query);
 	3a(Available:int) from S to B; @(Available=Instock);
 	3b(Quote:int) from S to B;
 	
 	choice at B
 	{
-		ok() from B to S; @(Available>0); 
+		ok() from B to S; //@(Available>0); 
 		ok() from B to W;
 		do Proto2(B, W, S); @Quote;
 	}
@@ -68,7 +59,7 @@ global protocol Proto2(role B, role W, role S) @(x=0);
 	choice at S
 	{
 		hag() from S to B; @(Offer>x);
-		hag() from S to W;
+		hag() from S to W; @False;  // FIXME -- why Proto1 sat? -- because of broken "old" statevar exists, need to do as renaming with global forall
 		do Proto2(B, W, S); @Offer;
 	}
 	or
@@ -86,7 +77,105 @@ global protocol Proto2(role B, role W, role S) @(x=0);
 
 
 /*
-global protocol Proto1(role A, role B)
+global protocol Proto1(role B, role S)
+{
+	ok() from B to S;
+	do Proto2(B, S); @Quote;  // FIXME: unknown vars check
+}
+
+global protocol Proto2(role B, role S) @(x=0);
+{
+	5() from B to S;	@False;//@(y>0);
+}
+//*/
+
+
+/*
+global protocol JavaSmtBug(role B, role S) @(x=0);
+{
+	5() from B to S;	@False;//@(y>0);
+	do JavaSmtBug(B, S); @x;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A
+	{
+		1() from A to B;
+		1() from A to C; @False;  // Unsat -- A already committed to branch
+	}	
+	or
+	{
+		2() from A to B;
+		2() from A to C;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A
+	{
+		1() from A to B;
+		1() from B to C; @False;  // Unsat -- B has to follow A
+	}	
+	or
+	{
+		2() from A to B;
+		2() from B to C;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A
+	{
+		1() from A to B;
+	}
+	or
+	{
+		2() from A to B;
+		do Proto2(A, B);
+	}
+}
+
+global protocol Proto2(role A, role B)
+{
+	6() from B to A;
+	choice at B
+	{
+		3() from B to A; //@False;  // TODO: try with "maybe" sat assrt here (with False after)
+		4() from A to B; @False;
+	}
+	or
+	{
+		5() from B to A;
+		do Proto2(A, B);
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @(x=1);
+{
+	1(y:int) from A to B; @(y>3);
+	do Proto1(A, B); @y;
+}
+//*/
+
+
+/*
+global 
+protocol Proto1(role A, role B)
 {
 	1() from A to B;	
 	do Proto2(A, B); @4;

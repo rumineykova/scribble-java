@@ -19,6 +19,12 @@ public class AssrtIntVarFormula extends AssrtArithFormula
 	}
 
 	@Override
+	public AssrtIntVarFormula squash()
+	{
+		return AssrtFormulaFactory.AssrtIntVar(this.name);
+	}
+
+	@Override
 	public AssrtArithFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
 		return this.equals(old) ? neu : this;

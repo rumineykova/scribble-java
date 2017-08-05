@@ -15,6 +15,8 @@ public abstract class AssrtSmtFormula<F extends Formula>
 	
 	public abstract Set<AssrtDataTypeVar> getVars();  // FIXME: change return to AssrtIntVarFormula, less confusing
 
+	public abstract AssrtSmtFormula<F> squash();  // Needs to be here (not AssrtBoolFormula) because whole tree needs to be copied -- otherwise this.formula is inconsistent
+
 	protected abstract F toJavaSmtFormula(); //throws AssertionParseException;
 
 	public String toSmt2()

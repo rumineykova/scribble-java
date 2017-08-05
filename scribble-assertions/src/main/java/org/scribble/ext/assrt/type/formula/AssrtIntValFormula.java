@@ -23,6 +23,12 @@ public class AssrtIntValFormula extends AssrtArithFormula
 	{
 		return this;
 	}
+
+	@Override
+	public AssrtIntValFormula squash()
+	{
+		return AssrtFormulaFactory.AssrtIntVal(this.val);
+	}
 	
 	@Override
 	public String toString()

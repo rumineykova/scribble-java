@@ -44,6 +44,11 @@ public class AssrtForallFormula extends AssrtBoolFormula
 	@Override
 	protected BooleanFormula toJavaSmtFormula()
 	{
+		if (this.vars.stream().anyMatch(v -> v.toString().startsWith("_dum")))
+		{
+			//throw new RuntimeException("aaa: " + this.vars);
+		}
+		
 		QuantifiedFormulaManager qfm = JavaSmtWrapper.getInstance().qfm;
 		BooleanFormula expr = (BooleanFormula) this.expr.toJavaSmtFormula();
 		List<IntegerFormula> vs = this.vars.stream().map(v -> v.getJavaSmtFormula()).collect(Collectors.toList());

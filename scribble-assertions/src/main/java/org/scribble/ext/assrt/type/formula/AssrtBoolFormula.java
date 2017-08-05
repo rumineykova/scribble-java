@@ -11,5 +11,6 @@ public abstract class AssrtBoolFormula extends AssrtSmtFormula<BooleanFormula>
 
 	}
 	
+	@Override
 	public abstract AssrtBoolFormula squash();
 }

@@ -45,6 +45,20 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 	{
 		BooleanFormula expr = (BooleanFormula) this.expr.toJavaSmtFormula();
 		List<IntegerFormula> vs = this.vars.stream().map(v -> v.getJavaSmtFormula()).collect(Collectors.toList());
+
+		/*JavaSmtWrapper j = JavaSmtWrapper.getInstance();  // Cf. AssrtTest.JavaSmtBug
+		Object o = j.qfm.exists(vs.get(0), expr);
+		if (o.toString().equals("(exists ((_dum1 Int)) false)") && this.toString().equals("(exists ((x)) (False))"))
+		{
+			System.out.println("ddd: " + j.qfm.exists(vs.get(0), expr) + ", " +j.ifm.makeVariable("x") + ", "
+					
+		+ j.qfm.exists(j.ifm.makeVariable("x"), j.bfm.makeFalse()) + ", " + j.qfm.exists(Arrays.asList(j.ifm.makeVariable("x")), j.bfm.makeFalse()) + ", "
+
+		+ j.qfm.exists(j.ifm.makeVariable("x"), j.bfm.makeTrue()));
+
+			throw new RuntimeException("ccc: " + vs + ", " + o);
+		}*/
+		
 		return JavaSmtWrapper.getInstance().qfm.exists(vs, expr);
 	}
 	

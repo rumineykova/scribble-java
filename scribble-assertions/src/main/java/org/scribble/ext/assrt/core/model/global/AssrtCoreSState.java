@@ -339,12 +339,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 								impli);
 					}
 					
+					job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "):");
+					/*BooleanFormula str = impli.getJavaSmtFormula();  // FIXME: causes JavaSmt problem with later squash
+					job.debugPrintln("  formula  = " + str);*/
+
 					AssrtBoolFormula squashed = impli.squash();
-					BooleanFormula str = impli.getJavaSmtFormula();
 					BooleanFormula squashedstr = squashed.getJavaSmtFormula();
 
-					job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "):");
-					job.debugPrintln("  formula  = " + str);
 					job.debugPrintln("  squashed = " + squashedstr);
 
 					switch (SMT_CONFIG)

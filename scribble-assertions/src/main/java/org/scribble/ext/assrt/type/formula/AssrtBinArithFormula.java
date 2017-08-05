@@ -43,6 +43,12 @@ public class AssrtBinArithFormula extends AssrtArithFormula
 		this.right = right;
 		this.op = op;
 	}
+	
+	@Override
+	public AssrtBinArithFormula squash()
+	{
+		return AssrtFormulaFactory.AssrtBinArith(this.op, this.left.squash(), this.right.squash());
+	}
 
 	@Override
 	public AssrtArithFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
