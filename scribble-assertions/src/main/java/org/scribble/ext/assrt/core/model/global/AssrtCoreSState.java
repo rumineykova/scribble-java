@@ -1319,14 +1319,15 @@ abstract class AssrtFormulaHolder extends AssrtBoolFormula
 	@Override
 	public AssrtFormulaHolder subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
+		AssrtFormulaHolder copy = copy();
 		//throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
-		if (this.vars.contains(old))
+		if (copy.vars.contains(old))
 		{
 			return this;
 		}
 		return reconstruct(
-				this.vars, //.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList()),
-				this.body.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList())
+				copy.vars, //.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList()),
+				copy.body.stream().map(v -> v.subs(old, neu)).collect(Collectors.toList())
 		);
 	}
 
