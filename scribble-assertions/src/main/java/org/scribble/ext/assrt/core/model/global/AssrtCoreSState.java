@@ -750,11 +750,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			{
 				AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
 
-				AssrtFormulaHolder h = F.get(self);
-				AssrtIntVarFormula fresh = makeFreshIntVar(v);
-				h = h.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()), fresh);
-				F.put(self, h);
-
 				// N.B. no "updateRfromF" -- actually, "update R from payload annot" -- leaving R statevars as they are is OK, validation only done from F's and R already incorporated into F (and updates handled by updateFfromR)
 				// But would it be more consistent to update R?
 
@@ -790,12 +785,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				/*AssrtExistsFormulaHolder h =
 						new AssrtExistsFormulaHolder(Arrays.asList(AssrtFormulaFactory.AssrtIntVar(v.toString())), Arrays.asList(f));*/
 				
-				// Factor out with outputUpdateKF (maybe into updateRKF)
-				AssrtFormulaHolder h = F.get(self);
-				AssrtIntVarFormula fresh = makeFreshIntVar(v);
-				h = h.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()), fresh);
-				F.put(self, h);
-				
 				// N.B. no "updateRfromF" -- actually, "update R from payload annot" -- leaving R statevars as they are is OK, validation only done from F's and R already incorporated into F (and updates handled by updateFfromR)
 				// But would it be more consistent to update R?
 
@@ -828,6 +817,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		// Update K
 		putK(K, self, v);
+
+		// Rename existing vars with same name
+		AssrtFormulaHolder hh = F.get(self);
+		AssrtIntVarFormula fresh = makeFreshIntVar(v);
+		hh = hh.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()), fresh);
+		F.put(self, hh);
 
 		//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
 		appendF(R, F, self, h);
