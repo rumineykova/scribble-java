@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -777,13 +778,69 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			}
 		}
 
-		/*Map<AssrtDataTypeVar, AssrtArithFormula> m = this.R.get(self);
-		AssrtDataTypeVar next = m.keySet().iterator().next();
-		if (!next.equals(AssrtCoreESend.DUMMY_VAR))
+		//Map<Role, Set<AssrtBoolFormula>> test = copyF(F);
+		compactF(F);
+	}
+	
+	private static void compactF(Map<Role, Set<AssrtBoolFormula>> F)
+	{
+		Map<Role, Set<AssrtBoolFormula>> copy = copyF(F);
+		
+		for (Role r : copy.keySet())
 		{
-			putF(F, self, AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
-					AssrtFormulaFactory.AssrtIntVar(next.toString()), m.values().iterator().next()));
-		}*/
+			//System.out.println("111: " + r + ", " + F.get(r));
+
+			Set<AssrtBoolFormula> dead = new HashSet<>();
+			
+			Set<AssrtBoolFormula> fs = copy.get(r);
+			Set<AssrtDataTypeVar> vs = fs.stream().flatMap(f -> f.getVars().stream()).collect(Collectors.toSet());
+			
+			Map<AssrtDataTypeVar, Set<AssrtBoolFormula>> map = vs.stream().collect(Collectors.toMap(v -> v, v -> new HashSet<>()));
+			for (AssrtBoolFormula f : fs)
+			{
+				for (AssrtDataTypeVar v : f.getVars())
+				{
+					map.get(v).add(f);
+				}
+			}
+			
+			Set<AssrtBoolFormula> rem = new HashSet<>(fs);
+			while (!rem.isEmpty())
+			{
+				Iterator<AssrtBoolFormula> foo = rem.iterator();
+				AssrtBoolFormula bar = foo.next();
+				foo.remove();
+				
+				Set<AssrtDataTypeVar> todo = bar.getVars();
+				Set<AssrtDataTypeVar> seen = new HashSet<>();
+				while (todo.stream().anyMatch(vv -> !seen.contains(vv)))
+				{
+					Set<AssrtDataTypeVar> tmp = todo.stream().filter(vv -> !seen.contains(vv)).collect(Collectors.toSet());
+					todo.addAll(tmp.stream().flatMap(vvv -> map.get(vvv).stream().flatMap(fff -> fff.getVars().stream())).collect(Collectors.toSet()));
+					seen.addAll(tmp);
+				}
+			
+				//System.out.println("aaa: " + r + ", " + F.get(r) + ", " + todo);
+				
+				if (todo.size() == 1 && todo.iterator().next().toString().startsWith("_"))
+				{
+					F.get(r).remove(bar);
+					
+					//System.out.println("bbb1: " + bar);
+				}
+				else if (!todo.isEmpty() && todo.stream().allMatch(v -> v.toString().startsWith("_")))
+				{
+					todo.stream().forEach(vvv -> dead.addAll(map.get(vvv)));
+					rem.removeAll(dead);
+					F.get(r).removeAll(dead);
+					
+					//System.out.println("bbb2: " + dead);
+				}
+			}
+
+			//System.out.println("222: " + copy.get(r) + "\n");
+
+		}
 	}
 
 	private static void updateRandFfromR(Map<Role, Set<AssrtBoolFormula>> F, Role self,
@@ -880,8 +937,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		hash = 31 * hash + this.Q.hashCode();
 		hash = 31 * hash + this.R.hashCode();
 
-		//hash = 31 * hash + this.K.hashCode();
-		//hash = 31 * hash + this.F.hashCode();
+		hash = 31 * hash + this.K.hashCode();
+		hash = 31 * hash + this.F.hashCode();
 
 		return hash;
 	}
@@ -899,8 +956,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			return false;
 		}
 		AssrtCoreSState them = (AssrtCoreSState) o;
-		return them.canEquals(this) && this.P.equals(them.P) && this.Q.equals(them.Q) && this.R.equals(them.R);
-				//&& this.K.equals(them.K) && this.F.equals(them.F);
+		return them.canEquals(this) && this.P.equals(them.P) && this.Q.equals(them.Q) && this.R.equals(them.R)
+				&& this.K.equals(them.K) && this.F.equals(them.F);
 	}
 
 	@Override
