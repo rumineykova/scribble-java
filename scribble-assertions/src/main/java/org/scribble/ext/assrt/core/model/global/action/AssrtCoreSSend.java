@@ -57,6 +57,7 @@ public class AssrtCoreSSend extends AssrtSSend
 	@Override
 	public String toString()
 	{
-		return super.toString() + "<" + this.annot + " := " + this.expr + ">";  // FIXME
+		return super.toString()
+				+ ((this.annot.toString().startsWith("_dum")) ? "" : "<" + this.annot + " := " + this.expr + ">");  // FIXME
 	}
 }

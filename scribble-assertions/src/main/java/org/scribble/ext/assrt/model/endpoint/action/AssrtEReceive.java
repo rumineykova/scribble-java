@@ -4,6 +4,7 @@ import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.model.global.AssrtSModelFactory;
 import org.scribble.ext.assrt.model.global.actions.AssrtSReceive;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.endpoint.actions.EReceive;
 import org.scribble.model.global.SModelFactory;
@@ -76,6 +77,7 @@ public class AssrtEReceive extends EReceive implements AssrtEAction
 	@Override
 	public String toString()
 	{
-		return super.toString() + "@" + this.ass + ";";
+		return super.toString()
+				+ (this.ass.equals(AssrtTrueFormula.TRUE) ? "" : "@" + this.ass + ";");  // FIXME
 	}
 }

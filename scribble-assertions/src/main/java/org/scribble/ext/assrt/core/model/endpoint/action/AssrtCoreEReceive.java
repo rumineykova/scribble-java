@@ -86,6 +86,7 @@ public class AssrtCoreEReceive extends AssrtEReceive implements AssrtCoreEAction
 	public String toString()
 	{
 		//return super.toString() + "@" + this.ass + ";";
-		return super.toString() + "<" + this.annot + " := " + this.expr + ">";  // FIXME
+		return super.toString()
+				+ ((this.annot.toString().startsWith("_dum")) ? "" : "<" + this.annot + " := " + this.expr + ">");  // FIXME
 	}
 }

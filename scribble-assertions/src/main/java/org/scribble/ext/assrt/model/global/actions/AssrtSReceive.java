@@ -1,6 +1,7 @@
 package org.scribble.ext.assrt.model.global.actions;
 
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.model.global.actions.SReceive;
 import org.scribble.type.Payload;
 import org.scribble.type.name.MessageId;
@@ -9,12 +10,12 @@ import org.scribble.type.name.Role;
 public class AssrtSReceive extends SReceive
 {
 	//public final AssrtAssertion assertion;  // Cf., e.g., AGMessageTransfer
-	public final AssrtBoolFormula bf;  // Cf., e.g., AGMessageTransfer  // Not null (cf. AssrtEReceive)
+	public final AssrtBoolFormula ass;  // Cf., e.g., AGMessageTransfer  // Not null (cf. AssrtEReceive)
 
 	public AssrtSReceive(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
 	{
 		super(subj, obj, mid, payload);
-		this.bf = bf;
+		this.ass = bf;
 	}
 
 	@Override
@@ -22,7 +23,7 @@ public class AssrtSReceive extends SReceive
 	{
 		int hash = 5869;
 		hash = 31 * hash + super.hashCode();
-		hash = 31 * hash + this.bf.toString().hashCode();  // FIXME: treating as String (cf. AssrtEReceive)
+		hash = 31 * hash + this.ass.toString().hashCode();  // FIXME: treating as String (cf. AssrtEReceive)
 		return hash;
 	}
 
@@ -39,7 +40,7 @@ public class AssrtSReceive extends SReceive
 		}
 		AssrtSReceive as = (AssrtSReceive) o;
 		return super.equals(o)  // Does canEqual
-				&& this.bf.toString().equals(as.bf.toString());  // FIXME: treating as String (cf. AssrtEReceive)
+				&& this.ass.toString().equals(as.ass.toString());  // FIXME: treating as String (cf. AssrtEReceive)
 	}
 
 	@Override
@@ -51,6 +52,7 @@ public class AssrtSReceive extends SReceive
 	@Override
 	public String toString()
 	{
-		return super.toString() + "@" + this.bf + ";";
+		return super.toString()
+				+ (this.ass.equals(AssrtTrueFormula.TRUE) ? "" : "@" + this.ass + ";");  // FIXME
 	}
 }
