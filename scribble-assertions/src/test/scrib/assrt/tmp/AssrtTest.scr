@@ -35,6 +35,114 @@ type <dotnet> "System.String" from "..." as str;
 
 
 /*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B; @(x>3);
+
+	2(y:int) from C to B; @(y>x);  // Not HS
+	
+	//---
+
+	//2(y:int) from B to C; @(y>x);
+	//3(z:int) from C to D; @(z>x);  // Not HS
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B; @(x>3);
+	2(y:int) from B to C; @(y>x);  // OK: B knows x
+
+	//---
+
+	1(x:int) from A to B; @(x>3);
+	2() from B to C;
+	3(y:int) from C to B; @(y>x);  // Bad: C doesn't know x -- though it knows x > 3 -- FIXME: how to disallow this? but still allow the below
+			// CHECKME: DbC -- cf. HS
+	
+	1(x:int) from A to B; @(x=3);
+	2() from B to C;
+	3(y:int) from C to B; @(y>x);
+}
+//*
+
+
+/*
+global protocol Proto1(role A, role B) @(x=1);
+{
+	1() from A to B; @(x<3);
+	do Proto1(x+1);  // Test: DbC two-unfolding -- is this OK in DbC?
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B; @(x>3);
+	2(y:int) from B to C; @(y>x);  // compacting doesn't terminate -- FIXME: F renaming needs to be done based on K? i.e., also rename x in F(C)?
+	//3(z:int) from C to D; @(z>x);  // ... FIXME: but what if C uses x again in upcoming assertions after the renaming? 
+			// -- keep a ("one-level"?) rename map? -- cf. rec unfolding with rec-annotation substitution
+			// -- no: C can't use x as a sender, not known; but how about as receiver?
+			// -- should renamed vars be recorded in K?
+	//3(z:int) from B to C; @(z>x);
+	do Proto1(A, B, C);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @(z=0);
+1(x:int) from A to B; @(x>3);
+2(y:int) from B to C; @(y>x);  // C does *not* "know" x -- but knows constraints must be satisfied up to here
+3(z:int) from C to D; @(z>y);
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B; @(x>1);
+	2(y:int) from B to C; @(y>x);
+
+	//3(z:int) from C to A; @(z=y);  // OK
+	3(z:int) from C to A; @((z=y)&&(y>x));  //  Morally same as above
+			// FIXME? C doesn't know x -- but could pass prev assertions along with current? cf. DbC projection (at receiver)
+			// DbC projection vs. HS/TS? -- DbC receive-exists projection vs HS/TS "forall"?
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B; @(x>3);
+	2(y:int) from B to C; @(y>x);  // compacting doesn't terminate -- C doesn't rename x -- FIXME: pass rename map with message?
+	do Proto1(A, B, C);
+}
+//*/
+
+/*
+global protocol Proto1(role A, role B) @(z=0);
+{
+	1(x:int) from A to B;	@(x>z);  // compacting doesn't terminate -- FIXME: can compact _dum *and statevar* closure?
+	do Proto1(A, B); @0;
+}
+//*
+
+/*
+global protocol Proto1(role A, role B) @(z=0);
+{
+	1(x:int) from A to B;
+	do Proto1(A, B); @(z);  // compacting doesn't terminate
+	//do Proto1(A, B); @(z+1);  // compacting doesn't terminate
+}
+//*/
+
+
+/*
 global protocol Proto1(role A, role B) @(z=0);
 {
 	1(x:int) from A to B;	@(x>3);
@@ -65,7 +173,7 @@ global protocol Proto1(role A, role B)
 //*/
 
 
-//*
+/*
 global protocol Proto1(role B, role W, role S)
 {
 	1(Query:int) from B to W; @(Query>0);

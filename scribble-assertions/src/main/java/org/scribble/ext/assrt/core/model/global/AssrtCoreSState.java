@@ -73,7 +73,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	public AssrtCoreSState(Map<Role, AssrtEState> P, boolean explicit)
 	{
-		this(P, makeQ(P.keySet(), explicit), makeR(P), makeK(P.keySet()), makeF(P.keySet()));
+		this(P, makeQ(P.keySet(), explicit), makeR(P), makeK(P.keySet()), makeF(P));
 	}
 
 	// Pre: non-aliased "ownership" of all Map contents
@@ -788,7 +788,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		
 		for (Role r : copy.keySet())
 		{
-			//System.out.println("111: " + r + ", " + F.get(r));
+			System.out.println("111: " + r + ", " + F.get(r));
 
 			Set<AssrtBoolFormula> dead = new HashSet<>();
 			
@@ -820,13 +820,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					seen.addAll(tmp);
 				}
 			
-				//System.out.println("aaa: " + r + ", " + F.get(r) + ", " + todo);
+				System.out.println("aaa: " + r + ", " + F.get(r) + ", " + todo);
 				
 				if (todo.size() == 1 && todo.iterator().next().toString().startsWith("_"))
 				{
 					F.get(r).remove(bar);
 					
-					//System.out.println("bbb1: " + bar);
+					System.out.println("bbb1: " + bar);
 				}
 				else if (!todo.isEmpty() && todo.stream().allMatch(v -> v.toString().startsWith("_")))
 				{
@@ -834,11 +834,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					rem.removeAll(dead);
 					F.get(r).removeAll(dead);
 					
-					//System.out.println("bbb2: " + dead);
+					System.out.println("bbb2: " + dead);
 				}
 			}
 
-			//System.out.println("222: " + copy.get(r) + "\n");
+			System.out.println("222: " + copy.get(r) + "\n");
 
 		}
 	}
@@ -1031,9 +1031,19 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		tmp.add(v);
 	}
 
-	private static Map<Role, Set<AssrtBoolFormula>> makeF(Set<Role> rs)
+	//private static Map<Role, Set<AssrtBoolFormula>> makeF(Set<Role> rs)
+	private static Map<Role, Set<AssrtBoolFormula>> makeF(Map<Role, AssrtEState> P)
 	{
-		return rs.stream().collect(Collectors.toMap(r -> r, r -> new HashSet<>()));
+		//return rs.stream().collect(Collectors.toMap(r -> r, r -> new HashSet<>()));
+		return P.entrySet().stream().collect(Collectors.toMap(
+				Entry::getKey,
+				e -> e.getValue().getAnnotVars().entrySet().stream()
+						.map(b -> AssrtFormulaFactory.AssrtBinComp(
+								AssrtBinCompFormula.Op.Eq, 
+								AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
+								b.getValue()))
+						.collect(Collectors.toSet())
+		));
 	}
 
 	private static Map<Role, Set<AssrtBoolFormula>> copyF(Map<Role, Set<AssrtBoolFormula>> F)
