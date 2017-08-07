@@ -616,7 +616,16 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
 		}
-		return new AssrtCoreSState(P, Q, R, K, F, rename);
+		
+		AssrtCoreSState tmp = new AssrtCoreSState(P, Q, R, K, F, rename);
+		
+		System.out.println("\n444: " + tmp.toNodeDot() + "\n");
+		if (F.get(self).size() > 5)
+		{
+			throw new RuntimeException("stop");
+		}
+		
+		return tmp;
 	}
 
 
@@ -745,10 +754,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				// N.B. no "updateRfromF" -- actually, "update R from payload annot" -- leaving R statevars as they are is OK, validation only done from F's and R already incorporated into F (and updates handled by updateFfromR)
 				// But would it be more consistent to update R?
 				
+
 				Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow = ((AssrtCoreEMessage) m).shadow;
-				
-				System.out.println("ggg: " + self + ", " + a + ", " + shadow + ", " + F.get(self));
-				
 				Set<Entry<AssrtIntVarFormula, AssrtIntVarFormula>> ren = rename.get(self).entrySet();
 				Set<AssrtBoolFormula> hh = F.get(self);
 				for (Entry<AssrtIntVarFormula, AssrtIntVarFormula> e : shadow.entrySet().stream().filter(e -> !ren.contains(e)).collect(Collectors.toList()))
@@ -757,8 +764,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}
 				F.put(self, hh);
 				rename.get(self).putAll(shadow);
-				
-				System.out.println("hhh: " + F.get(self));
 
 
 				updateKFR(R, K, F, rename, self, a, v, f, succ);  // Actual assertion (f) for annotvar (v) added in here
@@ -808,23 +813,51 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
 		appendF(F, self, f);
+		
+		
 
-		// Following must come after F update
+		// Rename old R vars -- must come before adding new F and R clauses
 		Map<AssrtDataTypeVar, AssrtArithFormula> tmp = R.get(self);
-				
-		succ.getAnnotVars().entrySet().forEach(e ->
-		{
-			AssrtDataTypeVar k = e.getKey();
-			AssrtArithFormula af = e.getValue();
-			if (!tmp.containsKey(k) || !tmp.get(k).equals(af))
-			{
-				updateRandFfromR(F, self, tmp, k, af);
-				//putK(K, self, k);
-			}
-		});
-
 		AssrtDataTypeVar annot = a.getAnnotVar();
 		AssrtArithFormula expr = a.getArithExpr();
+
+		if (!annot.equals(AssrtCoreESend.DUMMY_VAR))
+		{
+			AssrtIntVarFormula iv = AssrtFormulaFactory.AssrtIntVar(annot.toString());
+			AssrtIntVarFormula fresh = makeFreshIntVar(annot);
+			if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
+			{
+				expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), 
+						//fresh);  // No: don't need to "link" R vars and F vars -- only F matters for direct formula checking
+						makeFreshIntVar(annot));
+			}
+			
+			Set<AssrtBoolFormula> hh = F.get(self);
+			hh = hh.stream().map(b -> b.subs(iv, fresh)).collect(Collectors.toSet());
+			hh.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
+			F.put(self, hh);
+		}
+		
+		
+
+		// Following must come after F update
+
+		// Update R from state -- entering a rec "forwards", i.e., not via a continue
+		if (annot.equals(AssrtCoreESend.DUMMY_VAR))  // HACK CHECKME
+		{
+			succ.getAnnotVars().entrySet().forEach(e ->
+			{
+				AssrtDataTypeVar k = e.getKey();
+				AssrtArithFormula af = e.getValue();
+				if (!tmp.containsKey(k) || !tmp.get(k).equals(af))
+				{
+					updateRandFfromR(F, self, tmp, k, af);
+					//putK(K, self, k);
+				}
+			});
+		}
+
+		// Update R from action -- recursion back to a rec, via a continue
 		if (!annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
 		{
 			AssrtArithFormula curr = tmp.get(annot);
@@ -835,18 +868,17 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 
 		//Map<Role, Set<AssrtBoolFormula>> test = copyF(F);
-		compactF(F);
-		
+		compactF(F, R);
 		//return rename;
 	}
 	
-	private static void compactF(Map<Role, Set<AssrtBoolFormula>> F)
+	private static void compactF(Map<Role, Set<AssrtBoolFormula>> F, Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R)
 	{
 		Map<Role, Set<AssrtBoolFormula>> copy = copyF(F);
 		
 		for (Role r : copy.keySet())
 		{
-			System.out.println("111: " + r + ", " + F.get(r));
+			//System.out.println("111: " + r + ", " + F.get(r));
 
 			Set<AssrtBoolFormula> dead = new HashSet<>();
 			
@@ -878,28 +910,28 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					seen.addAll(tmp);
 				}
 			
-				System.out.println("aaa: " + r + ", " + F.get(r) + ", " + todo);
+				//System.out.println("aaa: " + r + ", " + F.get(r) + ", " + todo);
 				
 				if (todo.size() == 1 && todo.iterator().next().toString().startsWith("_"))
 				{
 					F.get(r).remove(bar);
 					
-					System.out.println("bbb1: " + bar);
+					//System.out.println("bbb1: " + bar);
 				}
-				else if (!todo.isEmpty() && todo.stream().allMatch(v -> v.toString().startsWith("_")))
+				else if (!todo.isEmpty() && todo.stream().filter(v -> !R.keySet().contains(v)).allMatch(v -> v.toString().startsWith("_")))
 				{
-					todo.stream().forEach(vvv -> dead.addAll(map.get(vvv)));
+					todo.stream().filter(v -> v.toString().startsWith("_")).forEach(vvv -> dead.addAll(map.get(vvv)));
 					rem.removeAll(dead);
 					F.get(r).removeAll(dead);
 					
-					System.out.println("bbb2: " + dead);
+					//System.out.println("bbb2: " + dead);
 				}
 			}
 			
 			Set<AssrtTrueFormula> tru = Stream.of(AssrtTrueFormula.TRUE).collect(Collectors.toSet());
 			F.values().forEach(sss -> sss.removeAll(tru));
 
-			System.out.println("222: " + F.get(r) + "\n");
+			//System.out.println("222: " + F.get(r) + "\n");
 
 		}
 	}
@@ -909,24 +941,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		// Must come after initial F update
 		Rself.put(annot, expr);   // "Overwrite" (if already known)
-
-		AssrtIntVarFormula iv = AssrtFormulaFactory.AssrtIntVar(annot.toString());
-		
-		Set<AssrtBoolFormula> hh = F.get(self);
-				
-		AssrtIntVarFormula fresh = makeFreshIntVar(annot);
-
-		if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
-		{
-			expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), 
-					//fresh);  // No: don't need to "link" R vars and F vars -- only F matters for direct formula checking
-					makeFreshIntVar(annot));
-		}
-		
-		hh = hh.stream().map(b -> b.subs(iv, fresh)).collect(Collectors.toSet());
-		hh.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
-		
-		F.put(self, hh);
 	}
 
 	private boolean hasMessage(Role self, Role peer)
@@ -1160,6 +1174,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private static AssrtIntVarFormula makeFreshIntVar(AssrtDataTypeVar var)
 	{
 		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString() + counter++);  // HACK
+		//return AssrtFormulaFactory.AssrtIntVar("_" + var.toString());  // HACK
 	}
 }
 
