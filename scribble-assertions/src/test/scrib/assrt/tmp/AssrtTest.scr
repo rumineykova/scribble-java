@@ -83,7 +83,7 @@ global protocol Proto1(role A, role B, role C)
 {
 	1(x:int) from A to B; @(x>3);
 	2(y:int) from B to C; @(y>x);  // compacting doesn't terminate -- FIXME: F renaming needs to be done based on K? i.e., also rename x in F(C)?
-	//3(z:int) from C to D; @(z>x);  // ... FIXME: but what if C uses x again in upcoming assertions after the renaming? 
+	//3(z:int) from C to D; @(z>x);  // ... FIXME: but what if C uses x again in upcoming assertions after the renaming? -- hence pass the renaming as a message
 			// -- keep a ("one-level"?) rename map? -- cf. rec unfolding with rec-annotation substitution
 			// -- no: C can't use x as a sender, not known; but how about as receiver?
 			// -- should renamed vars be recorded in K?
