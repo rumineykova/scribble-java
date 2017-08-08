@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAction;
@@ -618,13 +617,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 		
 		AssrtCoreSState tmp = new AssrtCoreSState(P, Q, R, K, F, rename);
-		
-		System.out.println("\n444: " + tmp.toNodeDot() + "\n");
-		if (F.get(self).size() > 5)
-		{
-			throw new RuntimeException("stop");
-		}
-		
+
+		//System.out.println("\n444: " + tmp.toNodeDot() + "\n"); if (F.get(self).size() > 5) throw new RuntimeException("stop");
+
 		return tmp;
 	}
 
@@ -823,21 +818,16 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		if (!annot.equals(AssrtCoreESend.DUMMY_VAR))
 		{
-			AssrtIntVarFormula iv = AssrtFormulaFactory.AssrtIntVar(annot.toString());
-			AssrtIntVarFormula fresh = makeFreshIntVar(annot);
 			if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
 			{
 				expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), 
-						//fresh);  // No: don't need to "link" R vars and F vars -- only F matters for direct formula checking
-						makeFreshIntVar(annot));
+						//fresh  // No: don't need to "link" R vars and F vars -- only F matters for direct formula checking
+
+						//makeFreshIntVar(annot)  // Makes model construction non-terminating, e.g., mu X(x:=..) ... X<x> -- makes unbounded fresh in x = fresh(x)
+						AssrtFormulaFactory.AssrtIntVar("_" + annot.toString())  // FIXME: is this OK?
+				);	
 			}
-			
-			Set<AssrtBoolFormula> hh = F.get(self);
-			hh = hh.stream().map(b -> b.subs(iv, fresh)).collect(Collectors.toSet());
-			hh.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
-			F.put(self, hh);
 		}
-		
 		
 
 		// Following must come after F update
@@ -868,13 +858,27 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 
 		//Map<Role, Set<AssrtBoolFormula>> test = copyF(F);
-		compactF(F, R);
+		compactF(F, self);
 		//return rename;
 	}
 	
-	private static void compactF(Map<Role, Set<AssrtBoolFormula>> F, Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R)
+	private static void compactF(Map<Role, Set<AssrtBoolFormula>> F, Role self)//, Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R)
 	{
-		Map<Role, Set<AssrtBoolFormula>> copy = copyF(F);
+		//for (Set<AssrtBoolFormula> s : F.values())
+		{
+			Set<AssrtBoolFormula> s = F.get(self);
+			Iterator<AssrtBoolFormula> i = s.iterator();
+			while (i.hasNext())
+			{
+				AssrtBoolFormula f = i.next();
+				if (f.equals(AssrtTrueFormula.TRUE) || f.getVars().stream().anyMatch(v -> v.toString().startsWith("_")))  // FIXME
+				{
+					i.remove();
+				}
+			}
+		}
+
+		/*Map<Role, Set<AssrtBoolFormula>> copy = copyF(F);
 		
 		for (Role r : copy.keySet())
 		{
@@ -933,7 +937,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 			//System.out.println("222: " + F.get(r) + "\n");
 
-		}
+		}*/
 	}
 
 	private static void updateRandFfromR(Map<Role, Set<AssrtBoolFormula>> F, Role self,
@@ -941,6 +945,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		// Must come after initial F update
 		Rself.put(annot, expr);   // "Overwrite" (if already known)
+
+		AssrtIntVarFormula iv = AssrtFormulaFactory.AssrtIntVar(annot.toString());
+		AssrtIntVarFormula fresh = makeFreshIntVar(annot);
+		Set<AssrtBoolFormula> hh = F.get(self);
+		hh = hh.stream().map(b -> b.subs(iv, fresh)).collect(Collectors.toSet());
+		hh.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
+		F.put(self, hh);
 	}
 
 	private boolean hasMessage(Role self, Role peer)

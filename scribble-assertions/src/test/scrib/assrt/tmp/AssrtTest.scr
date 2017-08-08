@@ -34,7 +34,7 @@ type <dotnet> "System.String" from "..." as str;
 // redo inlining/unfolding via model building? role/param/assert all in model states?
 
 
-//*
+/*
 global protocol Proto1(role A, role B) @(z=0);
 {
 	1(x:int) from A to B; @(x>z);
@@ -45,7 +45,7 @@ global protocol Proto1(role A, role B) @(z=0);
 
 
 // unsat is a preserving safety error, op sem should freeze on an unsat choice -- but otherwise should allow branch selection, even if not "strictly" assert-prog
-// assert-prog is a progress guarantee, but not a preserving safety error
+// assert-prog is a progress guarantee, but not a preserving safety error -- because assert-prog says there isn't a guaranteed option to proceed, but by op sem we can take any non-unsat case anyway
 
 // try: simply compact all clauses with old vars -- since old var value is "lost", can never eval the clause anyway? -- model corresponds to the way syntactic var substitution works?
 //		more explicitly, it corresponds to a scoping mechanism derived from syntactic source protocol that determines what vars can be "used" as constraints at protocol points?
@@ -80,7 +80,7 @@ global protocol Proto1(role A, role B, role C)
 {
 	1(x:int) from A to B; @(x>3);
 	2(y:int) from B to C; @(y>x);
-	3() from C to A;
+	//3() from C to A;  // Uncomment is "easier" case -- separate actions for assertion and state update
 	do Proto1(A, B, C);
 }
 //*/
@@ -402,7 +402,7 @@ global protocol Proto1(role A, role B, role C)
 		2() from B to C; @(x>5);  // sat even though above was not assert-prog, because assuming above then this is sat
 		//2() from B to C; @(x>7);  // Uncomment is unsat
 	}	
-	or { 3() from A to B; 3() from B to C; }
+	or { 3() from A to B; 3() from B to C; }  // Comment is assert-prog error
 }
 //*/
 
@@ -451,14 +451,14 @@ global protocol Proto1(role A, role B) @(x=1);
 global protocol Proto1(role A, role B)
 {
 	1() from A to B;	
-	do Proto2(A, B); @4;
+	do Proto2(A, B); @4;  // Tests R update from endpoint state (as opposed to action)
 }
 
 global protocol Proto2(role A, role B) @(x=3);  // Unsat if validated as root 
 {
 	2(y:int) from B to A;  @(x>3);
 
-	//do Proto2(A, B); @5;  // Sat
+	do Proto2(A, B); @5;  // Sat
 	//do Proto2(A, B); @3;  // Uncomment makes Proto1 unsat
 }
 //*/
