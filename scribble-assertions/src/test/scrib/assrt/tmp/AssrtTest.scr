@@ -34,6 +34,176 @@ type <dotnet> "System.String" from "..." as str;
 // redo inlining/unfolding via model building? role/param/assert all in model states?
 
 
+/*
+global protocol Proto1(role A, role B) @(z=0);
+{
+	1(x:int) from A to B; @(x>z);
+	//2() from B to A;  // Statevar renaming broken if commented
+	do Proto1(A, B); @1;
+}
+//*/
+
+
+// unsat is a preserving safety error, op sem should freeze on an unsat choice -- but otherwise should allow branch selection, even if not "strictly" assert-prog
+// assert-prog is a progress guarantee, but not a preserving safety error -- because assert-prog says there isn't a guaranteed option to proceed, but by op sem we can take any non-unsat case anyway
+
+// try: simply compact all clauses with old vars -- since old var value is "lost", can never eval the clause anyway? -- model corresponds to the way syntactic var substitution works?
+//		more explicitly, it corresponds to a scoping mechanism derived from syntactic source protocol that determines what vars can be "used" as constraints at protocol points?
+// or continue-specific ("statevar update" of action) GC of clauses with old vars?
+
+// F is a set of constraints that are true so far, but need to record to check more upcoming constraints
+// once any clause has an "old var", can delete the clause because model is that we don't have old var value anymore so can't evaluate the constraint
+// arguing about the "value" doesn't really make sense here, because doing forall anyway
+// it's more like, "old var" ever won't be "used" in an upcoming constraint -- at least not "directly", but also not "indirectly"? -- also not "indrectly" because of "temporal ordering" given by syntax: e.g., x->y->z->loop, if x becomes old, then any upcoming use of y must also occur after y becomes old
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B;
+	do Proto2(A, B);
+}
+
+global protocol Proto2(role A, role B)
+{
+	2(y:int) from A to B; @(y>x);  // Renaming approach for "old" vars is broken, can never "compact" the old y's because of "outer" x
+	
+	// How about fixed "one-level" renaming of old vars? and no compacting? -- no, get contradicting clauses for a given old var, from different renamings
+	
+	do Proto2(A, B);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B; @(x>3);
+	2(y:int) from B to C; @(y>x);
+	//3() from C to A;  // Uncomment is "easier" case -- separate actions for assertion and state update
+	do Proto1(A, B, C);
+}
+//*/
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B; @(x>3);
+
+	2(y:int) from C to B; @(y>x);  // Not HS
+	
+	//---
+
+	//2(y:int) from B to C; @(y>x);
+	//3(z:int) from C to D; @(z>x);  // Not HS
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B; @(x>3);
+	2(y:int) from B to C; @(y>x);  // OK: B knows x
+
+	//---
+
+	1(x:int) from A to B; @(x>3);
+	2() from B to C;
+	3(y:int) from C to B; @(y>x);  // Bad: C doesn't know x -- though it knows x > 3 -- FIXME: how to disallow this? but still allow the below
+			// CHECKME: DbC -- cf. HS
+	
+	1(x:int) from A to B; @(x=3);
+	2() from B to C;
+	3(y:int) from C to B; @(y>x);
+}
+//*
+
+
+/*
+global protocol Proto1(role A, role B) @(x=1);
+{
+	1() from A to B; @(x<3);
+	do Proto1(x+1);  // Test: DbC two-unfolding -- is this OK in DbC?
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B; @(x>3);
+	2(y:int) from B to C; @(y>x);  // compacting doesn't terminate -- FIXME: F renaming needs to be done based on K? i.e., also rename x in F(C)?
+	//3(z:int) from C to D; @(z>x);  // ... FIXME: but what if C uses x again in upcoming assertions after the renaming? -- hence pass the renaming as a message
+			// -- keep a ("one-level"?) rename map? -- cf. rec unfolding with rec-annotation substitution
+			// -- no: C can't use x as a sender, not known; but how about as receiver?
+			// -- should renamed vars be recorded in K?
+	//3(z:int) from B to C; @(z>x);
+	do Proto1(A, B, C);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @(z=0);
+1(x:int) from A to B; @(x>3);
+2(y:int) from B to C; @(y>x);  // C does *not* "know" x -- but knows constraints must be satisfied up to here
+3(z:int) from C to D; @(z>y);
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B; @(x>1);
+	2(y:int) from B to C; @(y>x);
+
+	//3(z:int) from C to A; @(z=y);  // OK
+	3(z:int) from C to A; @((z=y)&&(y>x));  //  Morally same as above
+			// FIXME? C doesn't know x -- but could pass prev assertions along with current? cf. DbC projection (at receiver)
+			// DbC projection vs. HS/TS? -- DbC receive-exists projection vs HS/TS "forall"?
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B; @(x>3);
+	2(y:int) from B to C; @(y>x);  // compacting doesn't terminate -- C doesn't rename x -- FIXME: pass rename map with message?
+	do Proto1(A, B, C);
+}
+//*/
+
+/*
+global protocol Proto1(role A, role B) @(z=0);
+{
+	1(x:int) from A to B;	@(x>z);  // compacting doesn't terminate -- FIXME: can compact _dum *and statevar* closure?
+	do Proto1(A, B); @0;
+}
+//*/
+
+/*
+global protocol Proto1(role A, role B) @(z=0);
+{
+	1(x:int) from A to B;
+	do Proto1(A, B); @z;  // compacting doesn't terminate
+	//do Proto1(A, B); @(z+1);  // compacting doesn't terminate
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @(z=0);
+{
+	1(x:int) from A to B;	@(x>3);
+	1(y:int) from B to A;	@(y>x);
+	do Proto1(A, B); @1;
+}
+//*/
+
+
+/*
 global protocol Proto1(role A, role B)
 {
 	1(x:int) from A to B; @(x>3);
@@ -51,6 +221,24 @@ global protocol Proto1(role A, role B)
 		3() from B to A;
 	}
 }
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @(z=1);
+{
+	1(x:int) from A to B;
+	choice at B
+	{
+		2() from B to A; @(x>z);
+		do Proto1(A, B); @x;
+	}
+	or
+	{
+		3() from B to A;
+	}
+}
+//*/
 
 
 /*
@@ -64,7 +252,7 @@ global protocol Proto1(role B, role W, role S)
 	choice at B
 	{
 		ok() from B to S; @(Available>0); 
-		ok() from B to W;
+		ok() from B to W; 
 		do Proto2(B, W, S); @Quote;
 	}
 	or
@@ -214,7 +402,7 @@ global protocol Proto1(role A, role B, role C)
 		2() from B to C; @(x>5);  // sat even though above was not assert-prog, because assuming above then this is sat
 		//2() from B to C; @(x>7);  // Uncomment is unsat
 	}	
-	or { 3() from A to B; 3() from B to C; }
+	or { 3() from A to B; 3() from B to C; }  // Comment is assert-prog error
 }
 //*/
 
@@ -263,14 +451,14 @@ global protocol Proto1(role A, role B) @(x=1);
 global protocol Proto1(role A, role B)
 {
 	1() from A to B;	
-	do Proto2(A, B); @4;
+	do Proto2(A, B); @4;  // Tests R update from endpoint state (as opposed to action)
 }
 
 global protocol Proto2(role A, role B) @(x=3);  // Unsat if validated as root 
 {
 	2(y:int) from B to A;  @(x>3);
 
-	//do Proto2(A, B); @5;  // Sat
+	do Proto2(A, B); @5;  // Sat
 	//do Proto2(A, B); @3;  // Uncomment makes Proto1 unsat
 }
 //*/

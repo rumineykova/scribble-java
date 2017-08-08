@@ -83,6 +83,7 @@ public class AssrtESend extends ESend implements AssrtEAction
 	@Override
 	public String toString()
 	{
-		return super.toString() + "@" + this.ass + ";";
+		return super.toString()
+				+ (this.ass.equals(AssrtTrueFormula.TRUE) ? "" : "@" + this.ass + ";");  // FIXME
 	}
 }

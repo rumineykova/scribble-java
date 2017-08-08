@@ -12,6 +12,7 @@ global protocol Proto1(role A, role B, role C)
 		{
 			MSG1(x:int) from A to B;  @(x < 10);
 			MSG3(z:int) from B to C;  @(z < y);
+			MSG3() from B to C;
 		}
 		or
 		{

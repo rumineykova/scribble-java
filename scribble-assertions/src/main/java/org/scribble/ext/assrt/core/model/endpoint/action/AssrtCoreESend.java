@@ -17,7 +17,7 @@ import org.scribble.type.name.Role;
 
 public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 {
-	// HACK FIXME -- move tp AssrtCoreEAction
+	// FIXME -- move to AssrtCoreEAction
 	public static final AssrtDataTypeVar DUMMY_VAR = new AssrtDataTypeVar("_dum0");  // cf. AssrtCoreGProtocolTranslator::makeFreshDataTypeVar starts from 1
 	public static final AssrtArithFormula ZERO = AssrtFormulaFactory.AssrtIntVal(0);
 
@@ -101,6 +101,7 @@ public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 	public String toString()
 	{
 		//return super.toString() + "@" + this.ass + ";";
-		return super.toString() + "<" + this.annot + " := " + this.expr + ">";  // FIXME
+		return super.toString()
+				+ ((this.annot.toString().startsWith("_dum")) ? "" : "<" + this.annot + " := " + this.expr + ">");  // FIXME
 	}
 }
