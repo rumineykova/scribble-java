@@ -40,14 +40,14 @@ import org.scribble.util.ScribParserException;
 public class AssrtCommandLine extends CommandLine
 {
 
-	private final Map<AssrtCLArgFlag, String[]> assrtArgs;  // Maps each flag to list of associated argument values
+	private final Map<AssrtCoreCLArgFlag, String[]> assrtArgs;  // Maps each flag to list of associated argument values
 	
 	public AssrtCommandLine(String... args) throws CommandLineException
 	{
-		this(new AssrtCLArgParser(args));
+		this(new AssrtCoreCLArgParser(args));
 	}
 
-	private AssrtCommandLine(AssrtCLArgParser p) throws CommandLineException
+	private AssrtCommandLine(AssrtCoreCLArgParser p) throws CommandLineException
 	{
 		super(p);  // calls p.parse()
 		if (this.args.containsKey(CLArgFlag.INLINE_MAIN_MOD))
@@ -99,31 +99,11 @@ public class AssrtCommandLine extends CommandLine
 	}
 
 	@Override
-	protected void doValidationTasks(Job job) throws ScribbleException, ScribParserException
+	protected void doValidationTasks(Job job) throws ScribbleException, ScribParserException, CommandLineException
 	{
-		AssrtJob j = (AssrtJob) job;
-		if (this.assrtArgs.containsKey(AssrtCLArgFlag.ASSRT))  // assrt-*core* mode
+		if (this.assrtArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE))  // assrt-*core* mode
 		{
-			/*if (this.args.containsKey(CLArgFlag.PROJECT))  // HACK
-				// modules/f17/src/test/scrib/demo/fase17/AppD.scr in [default] mode bug --- projection/EFSM not properly formed if this if is commented ????
-			{
-
-			}*/
-
-			assrtCorePreContextBuilding(j);
-
-			GProtocolName simpname = new GProtocolName(this.assrtArgs.get(AssrtCLArgFlag.ASSRT)[0]);
-			if (simpname.toString().equals("[AssrtCoreAllTest]"))  // HACK: AssrtCoreAllTest
-			{
-				assrtCoreParseAndCheckWF(j);  // Includes base passes
-			}
-			else
-			{
-				assrtCoreParseAndCheckWF(j, simpname);  // Includes base passes
-			}
-			
-			// FIXME? assrt-core FSM building only used for assrt-core validation -- output tasks, e.g., -api, will still use default Scribble FSMs
-			// -- but the FSMs should be the same? -- no: action assertions treated differently in core than base
+			doAssrtCoreValidationTasks((AssrtJob) job);
 		}
 		else
 		{
@@ -131,43 +111,44 @@ public class AssrtCommandLine extends CommandLine
 		}
 	}
 
+	private void doAssrtCoreValidationTasks(AssrtJob j) throws ScribbleException, ScribParserException, CommandLineException
+	{
+		/*if (this.args.containsKey(CLArgFlag.PROJECT))  // HACK
+			// modules/f17/src/test/scrib/demo/fase17/AppD.scr in [default] mode bug --- projection/EFSM not properly formed if this if is commented ????
+		{
+
+		}*/
+
+		assrtCorePreContextBuilding(j);
+
+		GProtocolName simpname = new GProtocolName(this.assrtArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE)[0]);
+		if (simpname.toString().equals("[AssrtCoreAllTest]"))  // HACK: AssrtCoreAllTest
+		{
+			assrtCoreParseAndCheckWF(j);  // Includes base passes
+		}
+		else
+		{
+			assrtCoreParseAndCheckWF(j, simpname);  // Includes base passes
+		}
+		
+		// FIXME? assrt-core FSM building only used for assrt-core validation -- output tasks, e.g., -api, will still use default Scribble FSMs
+		// -- but the FSMs should be the same? -- no: action assertions treated differently in core than base
+	}
+
 	
 	// Refactor into Assrt(Core)Job?
-
-	/*private static void parseAndCheckWF(Job job, GProtocolName simpname) throws ScribbleException, ScribParserException
-	{
-		assrtPreContextBuilding(job);
-		
-		Module main = job.getContext().getMainModule();
-		
-		/*if (simpname.toString().equals("[F17AllTest]")) // HACK: F17AllTest
-		{
-			simpname = main.getGlobalProtocolDecls().iterator().next().getHeader().getNameNode().toName();
-		}* /
-
-		/*if (!main.hasProtocolDecl(simpname))
-		{
-			throw new ScribbleException("Global protocol not found: " + simpname);
-		}
-		GProtocolDecl gpd = (GProtocolDecl) main.getProtocolDecl(simpname);* /
-		
-		parseAndCheckWF(job, main, simpname);
-	}*/
+	// Following methods are for assrt-*core*
 	
-	// Following are for assrt-*core*
-	
-	private static void assrtCorePreContextBuilding(AssrtJob job) throws ScribbleException
+	private void assrtCorePreContextBuilding(AssrtJob job) throws ScribbleException
 	{
 		job.runContextBuildingPasses();
 
 		//job.runVisitorPassOnParsedModules(RecRemover.class);  // FIXME: Integrate into main passes?  Do before unfolding? 
 				// FIXME: no -- revise to support annots
-
-		//job.runVisitorPassOnParsedModules(AnnotSetter.class);  // Hacky -- run after inlining, because original dels discarded
 	}
 
 	// Pre: assrtPreContextBuilding(job)
-	private static void assrtCoreParseAndCheckWF(AssrtJob job) throws ScribbleException, ScribParserException
+	private void assrtCoreParseAndCheckWF(AssrtJob job) throws ScribbleException, ScribParserException, CommandLineException
 	{
 		Module main = job.getContext().getMainModule();
 		for (GProtocolDecl gpd : main.getGlobalProtocolDecls())
@@ -177,7 +158,7 @@ public class AssrtCommandLine extends CommandLine
 	}
 
 	// Pre: assrtPreContextBuilding(job)
-	private static void assrtCoreParseAndCheckWF(AssrtJob job, GProtocolName simpname) throws ScribbleException, ScribParserException
+	private void assrtCoreParseAndCheckWF(AssrtJob job, GProtocolName simpname) throws ScribbleException, ScribParserException, CommandLineException
 	{
 		Module main = job.getContext().getMainModule();
 		if (!main.hasProtocolDecl(simpname))
@@ -223,6 +204,28 @@ public class AssrtCommandLine extends CommandLine
 
 			job.debugPrintln("\n[assrt-core] Built endpoint graph for " + r + ":\n" + g.toDot());
 		}
+				
+		if (this.assrtArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM))
+		{
+			String[] args = this.assrtArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM);
+			for (int i = 0; i < args.length; i += 1)
+			{
+				Role role = CommandLine.checkRoleArg(job.getContext(), gpd.getHeader().getDeclName(), args[i]);
+				String out = E0.get(role).toDot();
+				System.out.println("\n" + out);  // Endpoint graphs are "inlined" (a single graph is built)
+			}
+		}
+		if (this.assrtArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG))
+		{
+			String[] args = this.assrtArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG);
+			for (int i = 0; i < args.length; i += 2)
+			{
+				Role role = CommandLine.checkRoleArg(job.getContext(), gpd.getHeader().getDeclName(), args[i]);
+				String png = args[i+1];
+				String out = E0.get(role).toDot();
+				runDot(out, png);
+			}
+		}
 
 		assrtCoreValidate(job, gpd.isExplicitModifier(), E0);  // TODO
 
@@ -247,11 +250,22 @@ public class AssrtCommandLine extends CommandLine
 		//return gt;
 	}
 
-	private static void assrtCoreValidate(Job job, boolean isExplicit, Map<Role, EState> E0, boolean... unfair) throws AssrtException
+	private void assrtCoreValidate(Job job, boolean isExplicit, Map<Role, EState> E0, boolean... unfair) throws ScribbleException, CommandLineException
 	{
 		AssrtCoreSModel m = new AssrtCoreSModelBuilder(job.sf).build(E0, isExplicit);
 
 		job.debugPrintln("\n[assrt-core] Built model:\n" + m.toDot());
+
+		if (this.assrtArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL))
+		{
+			System.out.println("\n" + m.toDot());
+		}
+		if (this.assrtArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL_PNG))
+		{
+			String[] arg = this.assrtArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL_PNG);
+			String png = arg[0];
+			runDot(m.toDot(), png);
+		}
 		
 		if (unfair.length == 0 || !unfair[0])
 		{

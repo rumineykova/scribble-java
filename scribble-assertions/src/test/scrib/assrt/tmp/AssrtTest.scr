@@ -57,6 +57,13 @@ global protocol Proto1(role A, role B) @(z=0);
 // it's more like, "old var" ever won't be "used" in an upcoming constraint -- at least not "directly", but also not "indirectly"? -- also not "indrectly" because of "temporal ordering" given by syntax: e.g., x->y->z->loop, if x becomes old, then any upcoming use of y must also occur after y becomes old
 
 
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B; @(x>0);
+	2(y:int) from B to A; @((y>1) && (y>x));
+}
+
+
 /*
 global protocol Proto1(role A, role B)
 {
@@ -75,7 +82,7 @@ global protocol Proto2(role A, role B)
 //*/
 
 
-//*
+/*
 global protocol Proto1(role A, role B, role C)
 {
 	1(x:int) from A to B; @(x>3);
@@ -118,14 +125,14 @@ global protocol Proto1(role A, role B, role C)
 	2() from B to C;
 	3(y:int) from C to B; @(y>x);
 }
-//*
+//*/
 
 
 /*
 global protocol Proto1(role A, role B) @(x=1);
 {
 	1() from A to B; @(x<3);
-	do Proto1(x+1);  // Test: DbC two-unfolding -- is this OK in DbC?
+	do Proto1(A, B); @(x+1);  // Test: DbC two-unfolding -- is this OK in DbC?
 }
 //*/
 
@@ -556,11 +563,13 @@ global protocol Proto1(role A, role B) @(x=3);
 {
 	1() from A to B; @(x>2);	
 
-	do Proto1(A, B); @3;
+	//do Proto1(A, B); @3;
 	//do Proto1(A, B); @(3+1);
 
-	//do Proto1(A, B); @x;  // Unsat -- cf. DbC? -- DbC it wouldn't be "x", it would "already" be 3 from substitution
+	//do Proto1(A, B); @x;  // Currently unsat -- cf. DbC? -- DbC it wouldn't be "x", it would "already" be 3 from substitution
 			// Note, Proto1 could be called from "any context", so x can really be anything
+			// FIXME: make sat? treat single var formula as special case? cf. equality in "non-local" assertions vs. gt/lt
+
 	//do Proto1(A, B); @(x+1);  // Unsat
 	//do Proto1(A, B); @(x-1);  // Unsat -- should be unsat
 }

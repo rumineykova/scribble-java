@@ -288,7 +288,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					
 					job.debugPrintln("\n[assrt-core] Checking assertion progress for " + src + " at " + e.getValue() + "(" + this.id + "):");
 					String str = impli.toSmt2Formula();
-					job.debugPrintln("  formula  = " + str);
+					job.debugPrintln("  raw      = " + str);
 
 					AssrtBoolFormula squashed = impli.squash();
 					String squashedstr = squashed.toSmt2Formula();
@@ -373,8 +373,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					}
 					
 					job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "):");
-					String str = tocheck.toSmt2Formula();
-					job.debugPrintln("  formula  = " + str);
+					job.debugPrintln("  formula  = " + tocheck.toSmt2Formula());
 
 					AssrtBoolFormula squashed = tocheck.squash();
 					String squashedstr = squashed.toSmt2Formula();

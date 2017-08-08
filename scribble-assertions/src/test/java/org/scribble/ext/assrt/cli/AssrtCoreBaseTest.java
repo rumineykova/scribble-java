@@ -40,7 +40,7 @@ public abstract class AssrtCoreBaseTest extends ScribTest
 	protected void runTest(String dir) throws CommandLineException, ScribbleException
 	{
 		new AssrtCommandLine(this.example, CLArgParser.JUNIT_FLAG, CLArgParser.IMPORT_PATH_FLAG, dir,
-						AssrtCLArgParser.ASSRT_FLAG, "[AssrtCoreAllTest]")  // HACK: for AssrtCommandLine 
+						AssrtCoreCLArgParser.ASS_FLAG, "[AssrtCoreAllTest]")  // HACK: for AssrtCommandLine 
 				.run();
 	}
 
