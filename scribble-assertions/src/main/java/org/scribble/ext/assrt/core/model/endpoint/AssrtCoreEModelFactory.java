@@ -1,6 +1,8 @@
 package org.scribble.ext.assrt.core.model.endpoint;
 
+import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAccept;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReceive;
+import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreERequest;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
@@ -14,8 +16,8 @@ public interface AssrtCoreEModelFactory extends AssrtEModelFactory
 {
 	AssrtCoreESend newAssrtCoreESend(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf, AssrtDataTypeVar annot, AssrtArithFormula expr);
 	AssrtCoreEReceive newAssrtCoreEReceive(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf, AssrtDataTypeVar annot, AssrtArithFormula expr);
-	/*AssrtERequest newAssrtCoreERequest(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf);
-	AssrtEAccept newAssrtCoreEAccept(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf);*/
+	AssrtCoreERequest newAssrtCoreERequest(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf, AssrtDataTypeVar annot, AssrtArithFormula expr);
+	AssrtCoreEAccept newAssrtCoreEAccept(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf, AssrtDataTypeVar annot, AssrtArithFormula expr);
 	
 	//AssrtEState newAssrtCoreEState(Set<RecVar> labs, Map<AssrtDataTypeVar, AssrtArithFormula> vars);
 }

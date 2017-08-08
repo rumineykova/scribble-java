@@ -37,6 +37,7 @@ import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.Role;
 import org.scribble.util.ScribParserException;
 
+// Includes assrt-core functionality (all extra args are currently for assrt-core)
 public class AssrtCommandLine extends CommandLine
 {
 
