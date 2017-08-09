@@ -1,0 +1,348 @@
+//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest.scr -V -ass Proto1
+
+
+// http://sandbox.kidstrythisathome.com/erdos/
+
+
+module assrt.tmp.AssrtCoreTest;
+
+
+type <dotnet> "System.UInt32" from "..." as int;
+type <dotnet> "System.String" from "..." as str;
+
+
+// FIXME: debug printing for assertion passes
+
+// FIXME: distinguish branches where "not guaranteed safe" vs "impossible"
+
+
+// - assertion validation
+// - receive assertions -- why receive assertions?  should WF imply receive assertions always true?
+// - explicit connections
+
+//	.. rename connect to request
+//	.. refactor a GConnectionAction (cf. LConnectionAction)
+
+// .. need to update SubprotocolSig and "cycle" detection for protocoldecl/do annots? -- protocol inlining/unfolding with annots/assertions
+// .. how about "syntactic" reachability check with protocoldecl/do annots?
+
+// - recursion annotations
+// - port forwarding annotations/assertions
+// - arrays? -- cf. dependent types for array/list lengths -- https://www.reddit.com/r/fsharp/comments/28bbsr/faking_dependent_types_in_f/
+
+// redo inlining/unfolding via model building? role/param/assert all in model states?
+
+
+
+// unsat is a preserving safety error, op sem should freeze on an unsat choice -- but otherwise should allow branch selection, even if not "strictly" assert-prog
+// assert-prog is a progress guarantee, but not a preserving safety error -- because assert-prog says there isn't a guaranteed option to proceed, but by op sem we can take any non-unsat case anyway
+
+// try: simply compact all clauses with old vars -- since old var value is "lost", can never eval the clause anyway? -- model corresponds to the way syntactic var substitution works?
+//		more explicitly, it corresponds to a scoping mechanism derived from syntactic source protocol that determines what vars can be "used" as constraints at protocol points?
+// or continue-specific ("statevar update" of action) GC of clauses with old vars?
+
+// F is a set of constraints that are true so far, but need to record to check more upcoming constraints
+// once any clause has an "old var", can delete the clause because model is that we don't have old var value anymore so can't evaluate the constraint
+// arguing about the "value" doesn't really make sense here, because doing forall anyway
+// it's more like, "old var" ever won't be "used" in an upcoming constraint -- at least not "directly", but also not "indirectly"? -- also not "indrectly" because of "temporal ordering" given by syntax: e.g., x->y->z->loop, if x becomes old, then any upcoming use of y must also occur after y becomes old
+
+
+
+
+
+
+
+
+/*
+global protocol Proto2(role A, role B)
+{
+	do Proto1(A, B); @1;  
+			// FIXME: in this case, consider subsituting the x in Proto1<x+1> like DbC? but would be inconsistent generally?
+			// FIXME: at least consider case for substituting x if syntactically just "x" and still just x -- cf. bad.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08b
+}
+
+global protocol Proto1(role A, role B) @(x=1);
+{
+	1(y:int) from A to B; @((y=x) && (x=1));
+
+	//do Proto1(A, B); @1;
+	do Proto1(A, B); @(x+1);  
+			// Unsat -- cf. DbC? -- OK there? but relies on two-unfolding cut off? 
+			// No: DbC subs the x in X<x+1> fixing it to two at two unfoldings and forever after? that's why safe there
+			
+	// FIXME: check tests for "loop counting", e.g., X<x+1> -- and also with lower bounded ints (do bounds manually)
+}
+//*/
+
+/*
+global protocol Proto1(role A, role B) @(x=3);
+{
+	1() from A to B; @(x>2);	
+
+	//do Proto1(A, B); @x;  // Currently unsat -- cf. DbC? -- DbC it wouldn't be "x", it would "already" be 3 from substitution
+			// Note, Proto1 could be called from "any context", so x can really be anything
+			// FIXME: make sat? treat single var formula as special case? cf. equality in "non-local" assertions vs. gt/lt
+
+	//do Proto1(A, B); @(x+1);  // Unsat
+	do Proto1(A, B); @(x-1);  // Unsat -- should be unsat
+}
+//*/
+
+
+/*
+global protocol Proto1(role B, role S)
+{
+	ok() from B to S;
+	do Proto2(B, S); @Quote;  // FIXME: unknown vars check
+}
+
+global protocol Proto2(role B, role S) @(x=0);
+{
+	5() from B to S;	@False;//@(y>0);  // FIXME: unknown vars check here too?
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ---
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B; @(x>3);
+	2(y:int) from B to C; @(y>x);  // OK: B knows x
+
+	//---
+
+	1(x:int) from A to B; @(x>3);
+	2() from B to C;
+	3(y:int) from C to B; @(y>x);  // Bad: C doesn't know x -- though it knows x > 3 -- FIXME: how to disallow this? but still allow the below
+			// CHECKME: DbC -- cf. HS
+	
+	//---	
+	
+	1(x:int) from A to B; @(x=3);  // FIXME: but equality should be strong enough?
+	2() from B to C;
+	3(y:int) from C to B; @(y>x);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @(z=0);
+{
+	1(x:int) from A to B; @(x>3);
+	2(y:int) from B to C; @(y>x);  // C does *not* "know" x -- but knows constraints must be satisfied up to here
+	3(z:int) from C to D; @(z>y);
+	
+//--- vs.
+
+	1(x:int) from A to B; @(x=3);  // equality is "precise" enough for "strong path inference"
+	2(y:int) from B to C; @(y>x);
+	3(z:int) from C to D; @(z>y);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B; @(x>1);
+	2(y:int) from B to C; @(y>x);
+
+	//3(z:int) from C to A; @(z=y);  // OK
+	3(z:int) from C to A; @((z=y)&&(y>x));  //  Morally same as above -- given C should know this from the "path" here
+			// FIXME? C doesn't know x -- but could pass prev assertions along with current? cf. DbC projection (at receiver)
+			// DbC projection vs. HS/TS? -- DbC receive-exists projection vs HS/TS "forall"?
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	// testing "passing" rename (shadow) map with messages -- also need to test re-receiving rename map with already applied renaming
+
+	1(x:int) from A to B; @(x>3);
+	2(y:int) from B to C; @(y>x);  // compacting doesn't terminate -- FIXME: F renaming needs to be done based on K? i.e., also rename x in F(C)?
+	//3(z:int) from C to D; @(z>x);  // ... FIXME: but what if C uses x again in upcoming assertions after the renaming? -- hence pass the renaming as a message
+			// -- keep a ("one-level"?) rename map? -- cf. rec unfolding with rec-annotation substitution
+			// -- no: C can't use x as a sender, not known; but how about as receiver?
+			// -- should renamed vars be recorded in K?
+	//3(z:int) from B to C; @(z>x);
+	do Proto1(A, B, C);
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// --- ???
+
+
+/*
+global protocol JavaSmtBug(role B, role S) @(x=0);
+{
+	5() from B to S;	@False;//@(y>0);
+	do JavaSmtBug(B, S); @x;  // Cf. AssrtExistsFormula::toJavaSmtFormula comments
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @(x=3);
+{
+	choice at A
+	{
+		1(int) from A to B;
+		do Proto1(A, B); @4;
+	}
+	or
+	{
+		2(int) from A to B;
+		do Proto1(A, B); @3;
+	}	
+
+		//1(y:int) from A to B; @(x=4);
+
+		//1(y:int) from A to B; @((y=4) && (x=y));
+		
+		//1(y:int) from A to B; @(x=y);
+
+
+		//do Proto1(A, B); @3;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A
+	{	
+		1(int) from A to B;
+		4(int) from A to C;
+	}
+	or
+	{
+		2(int) from A to B;
+		3(int) from A to C;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	choice at A
+	{	
+		1(x:int) from A to B;
+		choice at A
+		{
+			2(y:int) from A to B;
+			do Proto1(A, B);
+		}
+		or
+		{
+			3(z:int) from A to B;
+		}
+	
+	}
+	or
+	{
+		2(int) from A to B;
+	}
+}
+//*/
+
