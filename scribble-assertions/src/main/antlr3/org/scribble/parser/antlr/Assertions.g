@@ -155,7 +155,15 @@ unary_bool_expr:
 ->
 	^(TRUE)
 |
+	'(' TRUE_KW ')'
+->
+	^(TRUE)
+|
 	FALSE_KW
+->
+	^(FALSE)
+|
+	'(' FALSE_KW ')'
 ->
 	^(FALSE)
 |
@@ -177,7 +185,15 @@ arith_expr:
 unary_arith_expr: 
 	variable
 |
+	'(' variable ')'
+->
+		variable
+|
 	num
+|
+	'(' num ')'
+->
+		num
 ;
  
 binary_arith_expr:

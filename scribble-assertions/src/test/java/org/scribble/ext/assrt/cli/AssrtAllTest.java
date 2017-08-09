@@ -8,10 +8,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.scribble.cli.Harness;
-import org.scribble.cli.ScribTest;
+import org.scribble.cli.ScribTestBase;
 
 @RunWith(Parameterized.class)
-public class AssrtAllTest extends AssrtBaseTest
+public class AssrtAllTest extends AssrtTestBase
 {
 	public AssrtAllTest(String example, boolean isBadTest)
 	{
@@ -24,8 +24,8 @@ public class AssrtAllTest extends AssrtBaseTest
 		String dir_good = ClassLoader.getSystemResource(AssrtGoodTest.GOOD_DIR).getFile();
 		String dir_bad = ClassLoader.getSystemResource(AssrtBadTest.BAD_DIR).getFile();
 		List<Object[]> result = new LinkedList<>();
-		result.addAll(Harness.makeTests(ScribTest.GOOD_TEST, dir_good));
-		result.addAll(Harness.makeTests(ScribTest.BAD_TEST, dir_bad));
+		result.addAll(Harness.makeTests(ScribTestBase.GOOD_TEST, dir_good));
+		result.addAll(Harness.makeTests(ScribTestBase.BAD_TEST, dir_bad));
 		return result;
 	}
 }

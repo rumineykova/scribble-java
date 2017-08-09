@@ -1,6 +1,8 @@
 package org.scribble.ext.assrt.core.model.endpoint;
 
+import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAccept;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReceive;
+import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreERequest;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactoryImpl;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
@@ -27,4 +29,17 @@ public class AssrtCoreEModelFactoryImpl extends AssrtEModelFactoryImpl implement
 		return new AssrtCoreEReceive(this, peer, mid, payload, bf, annot, expr);
 	}
 
+	@Override
+	public AssrtCoreERequest newAssrtCoreERequest(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf,
+			AssrtDataTypeVar annot, AssrtArithFormula expr)
+	{
+		return new AssrtCoreERequest(this, peer, mid, payload, bf, annot, expr);
+	}
+
+	@Override
+	public AssrtCoreEAccept newAssrtCoreEAccept(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf,
+			AssrtDataTypeVar annot, AssrtArithFormula expr)
+	{
+		return new AssrtCoreEAccept(this, peer, mid, payload, bf, annot, expr);
+	}
 }

@@ -80,7 +80,9 @@ public class AssrtCoreEGraphBuilder
 			AssrtCoreRecVar crv = (AssrtCoreRecVar) cont;
 			AssrtArithFormula expr = crv.expr;
 			AssrtEState s = recs.get(((AssrtCoreRecVar) cont).var);
-			AssrtDataTypeVar annot = s.getAnnotVars().keySet().iterator().next();  // FIXME
+
+			AssrtDataTypeVar annot = s.getAnnotVars().keySet().iterator().next();  // FIXME: even with single var per rec, nested recs can give more than one var per state
+
 			this.util.addEdge(s1, toEAction(r, k, a, annot, expr), s);
 		}
 		else
@@ -115,21 +117,11 @@ public class AssrtCoreEGraphBuilder
 		}
 		else if (k.equals(AssrtCoreLActionKind.REQUEST))
 		{
-			if (!annot.equals(AssrtCoreESend.DUMMY_VAR) && !expr.equals(AssrtCoreESend.ZERO))  // FIXME: annot + expr
-			{
-				throw new RuntimeException("[assrt-core] TODO: " + a);
-			}
-
-			return ef.newAssrtERequest(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
+			return ef.newAssrtCoreERequest(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, annot, expr);
 		}
 		else if (k.equals(AssrtCoreLActionKind.ACCEPT))
 		{
-			if (!annot.equals(AssrtCoreESend.DUMMY_VAR) && !expr.equals(AssrtCoreESend.ZERO))  // FIXME: annot + expr
-			{
-				throw new RuntimeException("[assrt-core] TODO: " + a);
-			}
-
-			return ef.newAssrtEAccept(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
+			return ef.newAssrtCoreEAccept(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, annot, expr);
 		}
 		/*else if (a instanceof AssrtCoreLDisconnect)
 		{

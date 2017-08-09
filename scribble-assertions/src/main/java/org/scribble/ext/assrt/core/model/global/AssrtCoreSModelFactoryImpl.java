@@ -1,6 +1,8 @@
 package org.scribble.ext.assrt.core.model.global;
 
+import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSAccept;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSReceive;
+import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSRequest;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
 import org.scribble.ext.assrt.model.global.AssrtSModelFactoryImpl;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
@@ -25,5 +27,19 @@ public class AssrtCoreSModelFactoryImpl extends AssrtSModelFactoryImpl implement
 			AssrtDataTypeVar annot, AssrtArithFormula expr)
 	{
 		return new AssrtCoreSReceive(subj, obj, mid, payload, bf, annot, expr);
+	}
+
+	@Override
+	public AssrtCoreSRequest newAssrtCoreSRequest(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf,
+			AssrtDataTypeVar annot, AssrtArithFormula expr)
+	{
+		return new AssrtCoreSRequest(subj, obj, mid, payload, bf, annot, expr);
+	}
+
+	@Override
+	public AssrtCoreSAccept newAssrtCoreSAccept(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf,
+			AssrtDataTypeVar annot, AssrtArithFormula expr)
+	{
+		return new AssrtCoreSAccept(subj, obj, mid, payload, bf, annot, expr);
 	}
 }

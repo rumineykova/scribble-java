@@ -1,0 +1,13 @@
+module good.extensions.assrtcore.safety.assrtprog.AssrtCoreTest16b;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
+
+
+//*
+global protocol Proto1(role A, role B) @(x=1);
+{
+	1(y:int) from A to B; @(y>x);  // Making use of y statevar arg
+	do Proto1(A, B); @y;
+}
+//*/

@@ -1,0 +1,13 @@
+module bad.extensions.assrtcore.safety.assrtprog.AssrtCoreTest03a;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
+
+
+//*
+global protocol Proto1(role A, role B) @(x=3);
+{
+	2(y:int) from A to B; @(y=4);
+	3(z:int) from B to A; @((z=y) && (z=x));  // Also unsat
+}
+//*/

@@ -1062,11 +1062,13 @@ class TestZ3
 
         {
             HashMap<String, String> cfg = new HashMap<String, String>();
-            Context ctx = new Context(cfg);
-            ctx.parseSMTLIBFile(filename, null, null, null, null);
+            try (Context ctx = new Context(cfg))
+            {
+							ctx.parseSMTLIBFile(filename, null, null, null, null);
 
-            BoolExpr a = ctx.mkAnd(ctx.getSMTLIBFormulas());
-            System.out.println("read formula: " + a);
+							BoolExpr a = ctx.mkAnd(ctx.getSMTLIBFormulas());
+							System.out.println("read formula: " + a);
+            }
         }
     }
 
@@ -1082,29 +1084,31 @@ class TestZ3
         {
             HashMap<String, String> cfg = new HashMap<String, String>();
             cfg.put("model", "true");
-            Context ctx = new Context(cfg);
-            Expr a = ctx.parseSMTLIB2File(filename, null, null, null, null);
-
-            long t_diff = ((new Date()).getTime() - before.getTime()) / 1000;
-
-            System.out.println("SMT2 file read time: " + t_diff + " sec");
-
-            // Iterate over the formula.
-
-            LinkedList<Expr> q = new LinkedList<Expr>();
-            q.add(a);
-            int cnt = 0;
-            while (q.size() > 0)
+            try (Context ctx = new Context(cfg))
             {
-                AST cur = (AST) q.removeFirst();
-                cnt++;
+							Expr a = ctx.parseSMTLIB2File(filename, null, null, null, null);
 
-                if (cur.getClass() == Expr.class)
-                    if (!(cur.isVar()))
-                        for (Expr c : ((Expr) cur).getArgs())
-                            q.add(c);
+							long t_diff = ((new Date()).getTime() - before.getTime()) / 1000;
+
+							System.out.println("SMT2 file read time: " + t_diff + " sec");
+
+							// Iterate over the formula.
+
+							LinkedList<Expr> q = new LinkedList<Expr>();
+							q.add(a);
+							int cnt = 0;
+							while (q.size() > 0)
+							{
+									AST cur = (AST) q.removeFirst();
+									cnt++;
+
+									if (cur.getClass() == Expr.class)
+											if (!(cur.isVar()))
+													for (Expr c : ((Expr) cur).getArgs())
+															q.add(c);
+							}
+							System.out.println(cnt + " ASTs");
             }
-            System.out.println(cnt + " ASTs");
         }
 
         long t_diff = ((new Date()).getTime() - before.getTime()) / 1000;

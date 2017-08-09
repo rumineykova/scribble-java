@@ -1,0 +1,13 @@
+module good.extensions.assrtcore.syntax.distinctannotvars.AssrtCoreTest01a;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
+
+
+//*  // FIXME: can be a base assrt test
+global protocol Proto1(role A, role B, role C, role D)
+{
+	1(x:int) from A to B;
+	2(x:int) from C to D;
+}
+//*/
