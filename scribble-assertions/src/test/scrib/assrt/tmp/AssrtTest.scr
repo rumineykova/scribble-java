@@ -44,7 +44,7 @@ global protocol Proto1(role A, role B)
 	}
 	or
 	{
-		3() from B to A; @((x=5) || (x>5));
+		3() from B to A; @((x=5) || (x>5));  // Testing assert-prog check rhs disjunction
 	}
 }
 //*/

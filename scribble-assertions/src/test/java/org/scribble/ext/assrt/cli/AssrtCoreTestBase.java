@@ -8,18 +8,16 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.scribble.cli.CLArgParser;
 import org.scribble.cli.CommandLineException;
-import org.scribble.cli.ScribTest;
+import org.scribble.cli.ScribTestBase;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
 import org.scribble.main.ScribbleException;
 
-public abstract class AssrtCoreBaseTest extends ScribTest
+public abstract class AssrtCoreTestBase extends ScribTestBase
 {
-	private static int NUM_SKIPPED = 0;  // HACK
-
 	// relative to cli/src/test/resources (or target/test-classes/)
 	protected static final String ASSRT_TEST_ROOT_DIR = ".";
 
-	public AssrtCoreBaseTest(String example, boolean isBadTest)
+	public AssrtCoreTestBase(String example, boolean isBadTest)
 	{
 		super(example, isBadTest);
 	}
@@ -30,7 +28,18 @@ public abstract class AssrtCoreBaseTest extends ScribTest
 		/*return "../../../scribble-test/target/test-classes/";  
 				// FIXME: not needed?  only doing assrt tests (not scribble-test)
 				// Why does this still work?*/
-		return AssrtCoreBaseTest.ASSRT_TEST_ROOT_DIR;
+		return AssrtCoreTestBase.ASSRT_TEST_ROOT_DIR;
+	}
+
+	@Override
+	protected String[] getSkipList()
+	{
+		String[] SKIP =  // Hack: for assrt-core  // FIXME: factor out "manual skip" mechanism -- cf. "auto" skip via some Exception (e.g., AssrtCoreSyntaxException)
+			{
+				//"scribble-test/target/test-classes/bad/wfchoice/enabling/twoparty/Test01b.scr",
+				"scribble-assertions/target/test-classes/good/extensions/annotations/ChoiceWithAnnot.scr",
+			};
+		return SKIP;
 	}
 	
 	/*protected void runTest(String dir) throws CommandLineException, ScribbleException
@@ -48,46 +57,31 @@ public abstract class AssrtCoreBaseTest extends ScribTest
 	@Test
 	public void tests() throws IOException, InterruptedException, ExecutionException
 	{
+		if (checkSkip())
+		{
+			return;
+		}
+
+		String dir = ClassLoader.getSystemResource(getTestRootDir()).getFile();
+		if (File.separator.equals("\\")) // HACK: Windows
+		{
+			dir = dir.substring(1).replace("/", "\\");
+		}
+
 		try
 		{
-			String dir = ClassLoader.getSystemResource(getTestRootDir()).getFile();
-
-			if (File.separator.equals("\\")) // HACK: Windows
-			{
-				dir = dir.substring(1).replace("/", "\\");
-			}
-			
-			String[] SKIP =  // Hack: for assrt-core
-				{
-					//"scribble-test/target/test-classes/bad/wfchoice/enabling/twoparty/Test01b.scr",
-					"scribble-assertions/target/test-classes/good/extensions/annotations/ChoiceWithAnnot.scr",
-				};
-			String tmp = this.example.replace("\\", "/");
-			for (String skip : SKIP)
-			{
-				if (tmp.endsWith(skip))
-				{
-					AssrtCoreBaseTest.NUM_SKIPPED++;
-					System.out.println("[assrt-core] Manually skipping: " + this.example + " (" + AssrtCoreBaseTest.NUM_SKIPPED + " skipped.)");
-					return;
-				}
-			}
-			
 			runTest(dir);
 			Assert.assertFalse("Expecting exception", this.isBadTest);
 		}
-
 		catch (AssrtCoreSyntaxException e)  // Hack: for assrt-core
 		{
-			AssrtCoreBaseTest.NUM_SKIPPED++;
-			System.out.println("[assrt-core] Skipping: " + this.example + "  (" + AssrtCoreBaseTest.NUM_SKIPPED + " skipped)");
+			AssrtCoreTestBase.NUM_SKIPPED++;
+			System.out.println("[assrt-core] Skipping: " + this.example + "  (" + AssrtCoreTestBase.NUM_SKIPPED + " skipped)");
 		}
-
 		catch (ScribbleException e)
 		{
 			Assert.assertTrue("Unexpected exception '\n" + ClassLoader.getSystemResource(getTestRootDir()).getFile() + "\n" + e.getMessage() + "'", this.isBadTest);
 		}
-		//catch (ScribParserException | CommandLineException e)
 		catch (CommandLineException e)
 		{
 			throw new RuntimeException(e);

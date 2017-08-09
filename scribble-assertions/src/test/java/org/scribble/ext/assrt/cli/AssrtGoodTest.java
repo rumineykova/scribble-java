@@ -5,11 +5,11 @@ import java.util.Collection;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.scribble.cli.ScribTest;
+import org.scribble.cli.ScribTestBase;
 import org.scribble.cli.Harness;
 
 @RunWith(value = Parameterized.class)
-public class AssrtGoodTest extends AssrtBaseTest
+public class AssrtGoodTest extends AssrtTestBase
 {
 	protected static final String GOOD_DIR = "good";
 
@@ -22,6 +22,6 @@ public class AssrtGoodTest extends AssrtBaseTest
 	public static Collection<Object[]> data()
 	{
 		String dir = AssrtGoodTest.GOOD_DIR;
-		return Harness.checkTestDirProperty(ScribTest.GOOD_TEST, dir);
+		return Harness.checkTestDirProperty(ScribTestBase.GOOD_TEST, dir);
 	}
 }
