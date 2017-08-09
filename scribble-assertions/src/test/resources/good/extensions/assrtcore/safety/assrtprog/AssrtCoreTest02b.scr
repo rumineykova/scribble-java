@@ -1,0 +1,13 @@
+module good.extensions.assrtcore.safety.assrtprog.AssrtCoreTest02b;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
+
+
+//*
+global protocol Proto1(role A, role B)  // Testing JavaSMT
+{
+	1(x: int) from A to B; @(x > 6);
+	2(y: int) from B to A; @(y < x);
+}
+//*/

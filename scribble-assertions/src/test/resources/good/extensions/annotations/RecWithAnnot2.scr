@@ -14,6 +14,7 @@ global protocol Proto1(role C, role S)
 	} 
 }
 
+// FIXME: make separate test
 // Recursion with Annotations (complicated)
 global protocol Proto2(role A, role B, role C)  // FIXME: check model -- unexpected sat checking output
 {

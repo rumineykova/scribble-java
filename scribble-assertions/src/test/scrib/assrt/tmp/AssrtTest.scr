@@ -34,7 +34,60 @@ type <dotnet> "System.String" from "..." as str;
 // redo inlining/unfolding via model building? role/param/assert all in model states?
 
 
-//*
+
+
+
+
+
+/*
+global protocol Proto2(role A, role B)
+{
+	do Proto1(A, B); @1;  
+			// FIXME: in this case, consider subsituting the x in Proto1<x+1> like DbC? but would be inconsistent generally?
+			// FIXME: at least consider case for substituting x if syntactically just "x" and still just x -- cf. bad.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08b
+}
+
+global protocol Proto1(role A, role B) @(x=1);
+{
+	1(y:int) from A to B; @((y=x) && (x=1));
+
+	//do Proto1(A, B); @1;
+	do Proto1(A, B); @(x+1);  
+			// Unsat -- cf. DbC? -- OK there? but relies on two-unfolding cut off? 
+			// No: DbC subs the x in X<x+1> fixing it to two at two unfoldings and forever after? that's why safe there
+			
+	// FIXME: check tests for "loop counting", e.g., X<x+1> -- and also with lower bounded ints (do bounds manually)
+}
+//*/
+
+/*
+global protocol Proto1(role A, role B) @(x=3);
+{
+	1() from A to B; @(x>2);	
+
+	//do Proto1(A, B); @x;  // Currently unsat -- cf. DbC? -- DbC it wouldn't be "x", it would "already" be 3 from substitution
+			// Note, Proto1 could be called from "any context", so x can really be anything
+			// FIXME: make sat? treat single var formula as special case? cf. equality in "non-local" assertions vs. gt/lt
+
+	//do Proto1(A, B); @(x+1);  // Unsat
+	do Proto1(A, B); @(x-1);  // Unsat -- should be unsat
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+// ---
+
+
+/*
 global protocol Proto1(role A, role B)
 {
 	1(x:int) from A to B;
@@ -553,97 +606,27 @@ global protocol Proto1(role A, role B)
 //*/
 
 
-/*
-global protocol Proto1(role B, role S) @(x=3);
-{
-	1(y:int) from B to S; @(y>3);
-	choice at S
-	{
-		//2(z:int) from S to B; @((z>y) &&(y>3));
-
-		//2() from S to B; @(y>x);
-		2() from S to B; @(y>5);  // Unsat
-
-		do Proto1(B, S); @y;
-	}
-	or
-	{
-		4() from S to B;
-	}
-}
-/*/
 
 
-/*
-global protocol Proto1(role A, role B)
-{
-	1(x:int) from A to B; @(x=1);	
-	2(y:int) from A to B; @((y=2) && (y=(x+1)));	
-	3(z:int) from A to B; @((z=3) && (z=(y+1)));	
-}
-//*/
 
 
-/*
-global protocol Proto1(role A, role B) @(x=3);
-{
-	1() from A to B; @(x>2);	
-
-	//do Proto1(A, B); @3;
-	//do Proto1(A, B); @(3+1);
-
-	//do Proto1(A, B); @x;  // Currently unsat -- cf. DbC? -- DbC it wouldn't be "x", it would "already" be 3 from substitution
-			// Note, Proto1 could be called from "any context", so x can really be anything
-			// FIXME: make sat? treat single var formula as special case? cf. equality in "non-local" assertions vs. gt/lt
-
-	//do Proto1(A, B); @(x+1);  // Unsat
-	//do Proto1(A, B); @(x-1);  // Unsat -- should be unsat
-}
-//*/
 
 
-/*
-global protocol Proto1(//role A,
-		role B, role C)
-{
-	//RES(y:int) from A to B;
-	RES(z3:int) from B to C; 
-	RES(z4:int) from B to C; @(z4 = z3);
-	
-	//Using and: (forall ((z3 Int) (_x1 Int)) (and (= _x1 0) (exists ((z4 Int)) (= z4 z3)))) -- unsat forall x1 . x1 = 0
-}
-//*/
 
 
-/*
-global protocol Proto1(role A, role B) @(x=1);
-{
-	1(y:int) from A to B; @((y=x) && (x=1));
-
-	do Proto1(A, B); @1;
-	//do Proto1(A, B); @(x+1);  // Unsat -- cf. DbC?
-}
-//*/
 
 
-/*
-global protocol Proto1(role A, role B)
-{
-	1(x:int) from A to B; @(x=3);
-	2(y:int) from A to B; @(y>x);
-	
-	do Proto1(A, B);
-}
-//*/
 
 
-/*
-global protocol Proto1(role A, role B) @(x=3);
-{
-	1(y:int) from A to B; @(y = x);
-	2(z:int) from A to B; @(z = x);
-}
-//*/
+
+
+
+
+
+
+// --- ???
+
+
 
 
 /*
@@ -671,67 +654,6 @@ global protocol Proto1(role A, role B) @(x=3);
 }
 //*/
 
-
-/*
-//explicit 
-global protocol Proto1(role A, role B) @(x=3);
-{
-	//1() connect A to B;
-	2(y:int) from A to B; @(y=4);
-	//3(z:int) from B to A; @((z=y) && (z=x));
-	3(z:int) from B to A; @((z=y) && (z>x));
-	
-	do Proto1(A, B); @4;
-}
-//*/
-
-
-/*
-global protocol Proto1(role A, role B, role C)
-{
-	1(x: int) from A to B; @(x > 6);
-
-	//2(y: int) from B to A; @((y > x) && (y > 5));  // X
-	//2(y: int) from B to A; @(y < x);  // X
-	//2(y: int) from B to A; @(y = x);
-
-	2(y: int) from B to A; @(y < 5);
-
-	//3(z: int) from A to C; @(z < y);  // X
-	//3(z: int) from A to C; @(z = y);  // X
-
-	3(z: int) from A to C; @(z < 4);
-}
-//*/
-
-
-/*
-global protocol Proto1(role A, role B)
-{
-	rec X
-	{
-		choice at A
-		{
-			1(x:int) from A to B; @(x < 10);
-			continue X;
-		}
-		or
-		{
-			2(y:int) from A to B; @(y > 5);
-			continue X;
-		}
-	}
-}
-//*/
-
-
-/*
-global protocol Proto1(role A, role B)
-{
-	1(x:int) from A to B;	@(True && ((x+1) > 1));
-	2(y:int) from A to B; @((y > 1) && (y = x));  // Not sat: x=1
-}
-//*/
 
 /*
 global protocol Proto1(role A, role B, role C)
@@ -776,35 +698,6 @@ global protocol Proto1(role A, role B)
 
 
 
-
-
-
-
-/*
-global protocol Proto1(role A, role B, role C, role D)
-{
-	1(x:int) from A to B;
-	2(x:int) from C to D;
-}
-//*/
-
-
-/*
-global protocol Proto1(role A, role B)
-{
-	1(x:int) from A to B;
-	2(x:int) from B to A;
-}
-//*/
-
-
-/*
-global protocol Proto1(role A, role B)
-{
-	1(x:int) from A to B;
-	2(x:int) from A to B;
-}
-//*/
 
 
 
