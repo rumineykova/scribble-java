@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.scribble.main.AntlrSourceException;
 import org.scribble.main.ScribbleException;
 
 /*
@@ -70,7 +71,7 @@ public abstract class ScribTestBase
 		return false;
 	}
 	
-	protected void runTest(String dir) throws CommandLineException, ScribbleException
+	protected void runTest(String dir) throws CommandLineException, AntlrSourceException
 	{
 		new CommandLine(this.example, CLArgParser.JUNIT_FLAG, CLArgParser.IMPORT_PATH_FLAG, dir).run();
 					// Added JUNIT flag -- but for some reason only bad DoArgList01.scr was breaking without it...
@@ -107,6 +108,10 @@ public abstract class ScribTestBase
 			Assert.assertTrue("Unexpected exception '" + e.getMessage() + "'", this.isBadTest);
 		}
 		catch (CommandLineException e)
+		{
+			throw new RuntimeException(e);
+		}
+		catch (Exception e)  // Includes AntlrSourceExceptions that are not ScribbleExceptions -- hacky?
 		{
 			throw new RuntimeException(e);
 		}

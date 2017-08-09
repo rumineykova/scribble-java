@@ -1,16 +1,14 @@
 package org.scribble.ext.assrt.cli;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.scribble.cli.CLArgParser;
 import org.scribble.cli.CommandLineException;
 import org.scribble.cli.ScribTestBase;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
-import org.scribble.main.ScribbleException;
+import org.scribble.main.AntlrSourceException;
 
 public abstract class AssrtCoreTestBase extends ScribTestBase
 {
@@ -36,8 +34,7 @@ public abstract class AssrtCoreTestBase extends ScribTestBase
 	{
 		String[] SKIP =  // Hack: for assrt-core  // FIXME: factor out "manual skip" mechanism -- cf. "auto" skip via some Exception (e.g., AssrtCoreSyntaxException)
 			{
-				//"scribble-test/target/test-classes/bad/wfchoice/enabling/twoparty/Test01b.scr",
-				"scribble-assertions/target/test-classes/good/extensions/annotations/ChoiceWithAnnot.scr",
+				"scribble-assertions/target/test-classes/good/extensions/annotations/ChoiceWithAnnot.scr",  // Repeat annot var 
 			};
 		return SKIP;
 	}
@@ -46,7 +43,8 @@ public abstract class AssrtCoreTestBase extends ScribTestBase
 	{
 		new AssrtCommandLine(this.example, CLArgParser.JUNIT_FLAG, CLArgParser.IMPORT_PATH_FLAG, dir).run();
 	}*/
-	protected void runTest(String dir) throws CommandLineException, ScribbleException
+	@Override
+	protected void runTest(String dir) throws CommandLineException, AntlrSourceException
 	{
 		new AssrtCommandLine(this.example, CLArgParser.JUNIT_FLAG, CLArgParser.IMPORT_PATH_FLAG, dir,
 						AssrtCoreCLArgParser.ASS_FLAG, "[AssrtCoreAllTest]")  // HACK: for AssrtCommandLine 
@@ -57,34 +55,22 @@ public abstract class AssrtCoreTestBase extends ScribTestBase
 	@Test
 	public void tests() throws IOException, InterruptedException, ExecutionException
 	{
-		if (checkSkip())
-		{
-			return;
-		}
-
-		String dir = ClassLoader.getSystemResource(getTestRootDir()).getFile();
-		if (File.separator.equals("\\")) // HACK: Windows
-		{
-			dir = dir.substring(1).replace("/", "\\");
-		}
-
 		try
 		{
-			runTest(dir);
-			Assert.assertFalse("Expecting exception", this.isBadTest);
+			super.tests();
 		}
-		catch (AssrtCoreSyntaxException e)  // Hack: for assrt-core
+		catch (RuntimeException e)  // Hack: for assrt-core
 		{
-			AssrtCoreTestBase.NUM_SKIPPED++;
-			System.out.println("[assrt-core] Skipping: " + this.example + "  (" + AssrtCoreTestBase.NUM_SKIPPED + " skipped)");
-		}
-		catch (ScribbleException e)
-		{
-			Assert.assertTrue("Unexpected exception '\n" + ClassLoader.getSystemResource(getTestRootDir()).getFile() + "\n" + e.getMessage() + "'", this.isBadTest);
-		}
-		catch (CommandLineException e)
-		{
-			throw new RuntimeException(e);
+			Throwable cause = e.getCause();
+			if (cause instanceof AssrtCoreSyntaxException)
+			{
+				AssrtCoreTestBase.NUM_SKIPPED++;
+				System.out.println("[assrt-core] Skipping (non-core syntax): " + this.example + "  (" + AssrtCoreTestBase.NUM_SKIPPED + " skipped)");
+			}
+			else
+			{
+				throw e;
+			}
 		}
 	}
 }

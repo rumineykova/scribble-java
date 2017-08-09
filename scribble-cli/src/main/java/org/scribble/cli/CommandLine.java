@@ -27,6 +27,7 @@ import org.scribble.ast.Module;
 import org.scribble.ast.ProtocolDecl;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.codegen.java.JEndpointApiGenerator;
+import org.scribble.main.AntlrSourceException;
 import org.scribble.main.Job;
 import org.scribble.main.JobContext;
 import org.scribble.main.MainContext;
@@ -93,12 +94,12 @@ public class CommandLine
 		}
 	}
 
-	public static void main(String[] args) throws CommandLineException, ScribbleException
+	public static void main(String[] args) throws CommandLineException, AntlrSourceException
 	{
 		new CommandLine(args).run();
 	}
 
-	public void run() throws CommandLineException, ScribbleException  // ScribbleException is for JUnit testing
+	public void run() throws CommandLineException, AntlrSourceException  // ScribbleException is for JUnit testing
 	{
 		try
 		{
@@ -134,7 +135,7 @@ public class CommandLine
 		}
 	}
 
-	protected void runBody() throws ScribParserException, ScribbleException, CommandLineException
+	protected void runBody() throws ScribParserException, AntlrSourceException, CommandLineException
 	{
 		MainContext mc = newMainContext();
 		Job job = mc.newJob();
@@ -170,7 +171,8 @@ public class CommandLine
 		doNonAttemptableOutputTasks(job);
 	}
 
-	protected void doValidationTasks(Job job) throws ScribbleException, ScribParserException,  // Latter in case needed by subclasses
+	// AntlrSourceException super of ScribbleException -- needed for, e.g., AssrtCoreSyntaxException
+	protected void doValidationTasks(Job job) throws AntlrSourceException, ScribParserException,  // Latter in case needed by subclasses
 			CommandLineException
 	{
 		/*// Scribble extensions (custom Job passes)

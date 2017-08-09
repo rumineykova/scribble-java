@@ -27,6 +27,7 @@ import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.main.AssrtMainContext;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
+import org.scribble.main.AntlrSourceException;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.main.resource.DirectoryResourceLocator;
@@ -94,13 +95,13 @@ public class AssrtCommandLine extends CommandLine
 		}
 	}
 
-	public static void main(String[] args) throws CommandLineException, ScribbleException
+	public static void main(String[] args) throws CommandLineException, AntlrSourceException
 	{
 		new AssrtCommandLine(args).run();
 	}
 
 	@Override
-	protected void doValidationTasks(Job job) throws ScribbleException, ScribParserException, CommandLineException
+	protected void doValidationTasks(Job job) throws AssrtCoreSyntaxException, AntlrSourceException, ScribParserException, CommandLineException
 	{
 		if (this.assrtArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE))  // assrt-*core* mode
 		{
@@ -112,7 +113,7 @@ public class AssrtCommandLine extends CommandLine
 		}
 	}
 
-	private void doAssrtCoreValidationTasks(AssrtJob j) throws ScribbleException, ScribParserException, CommandLineException
+	private void doAssrtCoreValidationTasks(AssrtJob j) throws AssrtCoreSyntaxException, ScribbleException, ScribParserException, CommandLineException
 	{
 		/*if (this.args.containsKey(CLArgFlag.PROJECT))  // HACK
 			// modules/f17/src/test/scrib/demo/fase17/AppD.scr in [default] mode bug --- projection/EFSM not properly formed if this if is commented ????
@@ -149,7 +150,7 @@ public class AssrtCommandLine extends CommandLine
 	}
 
 	// Pre: assrtPreContextBuilding(job)
-	private void assrtCoreParseAndCheckWF(AssrtJob job) throws ScribbleException, ScribParserException, CommandLineException
+	private void assrtCoreParseAndCheckWF(AssrtJob job) throws AssrtCoreSyntaxException, ScribbleException, ScribParserException, CommandLineException
 	{
 		Module main = job.getContext().getMainModule();
 		for (GProtocolDecl gpd : main.getGlobalProtocolDecls())
@@ -159,7 +160,7 @@ public class AssrtCommandLine extends CommandLine
 	}
 
 	// Pre: assrtPreContextBuilding(job)
-	private void assrtCoreParseAndCheckWF(AssrtJob job, GProtocolName simpname) throws ScribbleException, ScribParserException, CommandLineException
+	private void assrtCoreParseAndCheckWF(AssrtJob job, GProtocolName simpname) throws AssrtCoreSyntaxException, ScribbleException, ScribParserException, CommandLineException
 	{
 		Module main = job.getContext().getMainModule();
 		if (!main.hasProtocolDecl(simpname))
