@@ -1,4 +1,4 @@
-module good.extensions.assrtcore.safety.assrtprog.AssrtCoreTest10e;
+module bad.extensions.assrtcore.safety.unsat.AssrtCoreTest10e;
 
 
 type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword

@@ -155,7 +155,10 @@ public class AssrtCommandLine extends CommandLine
 		Module main = job.getContext().getMainModule();
 		for (GProtocolDecl gpd : main.getGlobalProtocolDecls())
 		{
-			assrtCoreParseAndCheckWF(job, gpd.getHeader().getDeclName());  // decl name is simple name
+			if (!gpd.isAuxModifier())
+			{
+				assrtCoreParseAndCheckWF(job, gpd.getHeader().getDeclName());  // decl name is simple name
+			}
 		}
 	}
 

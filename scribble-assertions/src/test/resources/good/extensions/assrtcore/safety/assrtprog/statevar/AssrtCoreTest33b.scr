@@ -1,0 +1,14 @@
+module good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest33b;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
+
+
+//*
+global protocol Proto1(role A, role B) @(z=0);
+{
+	1(x:int) from A to B; @(x>z);  // testing statevar renaming (shadowing)
+	2() from B to A;
+	do Proto1(A, B); @1;  // Exercises renaming via unfolding
+}
+//*/

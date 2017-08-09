@@ -366,6 +366,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return this.P.entrySet().stream().anyMatch(e ->
 		{
 			List<EAction> as = e.getValue().getAllActions(); // N.B. getAllActions includes non-fireable
+			if (as.size() <= 1)  
+					// Only doing on non-unary choices -- for unary, assrt-prog implies sat
+					// Note: this means "downstream" unsat errors for unary-choice continuations will not be caught (i.e., false => false for assrt-prog)
+			{
+				return false;
+			}
 			return as.stream().anyMatch(a -> a.isSend() || a.isRequest()) && as.stream().anyMatch(a ->
 			{
 				if (a instanceof AssrtCoreESend || a instanceof AssrtCoreERequest)  // FIXME: factor out with isAssertionProgressError
