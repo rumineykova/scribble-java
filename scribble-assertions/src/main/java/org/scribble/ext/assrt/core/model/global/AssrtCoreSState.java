@@ -246,31 +246,58 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	
 	// i.e., output state has a "well-asserted" action
 	public boolean isAssertionProgressError(Job job)  // FIXME: not actually a "progress" error
+			//throws ScribbleException
 	{
+		/*return new StreamExceptionCaller<Boolean, ScribbleException>()
+			{
+				@Override
+				public Boolean trybody() throws ScribbleStreamException
+				{*/
 		return this.P.entrySet().stream().anyMatch(e ->
 		{
 			List<EAction> as = e.getValue().getAllActions(); // N.B. getAllActions includes non-fireable
-			return as.stream().anyMatch(a -> a.isSend() || a.isRequest()) && as.stream().noneMatch(a ->
+			if (as.isEmpty() || as.stream().noneMatch(a -> a.isSend() || a.isRequest())) 
+			{
+				return false;
+			}
+					
+			/*as.stream().noneMatch(a ->
 			{
 				if (a instanceof AssrtCoreESend || a instanceof AssrtCoreERequest)
-				{
+				{*/
 					Role src = e.getKey();
-					AssrtBoolFormula ass = ((AssrtCoreEAction) a).getAssertion();
+					/*AssrtBoolFormula ass = ((AssrtCoreEAction) a).getAssertion();
 					if (ass.equals(AssrtTrueFormula.TRUE))
 					{
 						return true;
-					}
+					}*/
 
-					AssrtBoolFormula AA = ass;
-					Set<AssrtIntVarFormula> varsA = new HashSet<>();
-					varsA.add(AssrtFormulaFactory
-							.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));
-					// Adding even if var not used
-					// N.B. includes the case for recursion cycles where var is "already"
-					// in F
-					if (!varsA.isEmpty()) // FIXME: currently never empty
+					AssrtBoolFormula AA = null;// = ass;
+					for (EAction a : as)
 					{
-						AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
+						if (!(a instanceof AssrtCoreESend) && !(a instanceof AssrtCoreERequest))
+						{
+							throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
+						}
+						AssrtBoolFormula ass = ((AssrtCoreEAction) a).getAssertion();
+						if (ass.equals(AssrtTrueFormula.TRUE))
+						{
+							return false;
+						}
+
+						Set<AssrtIntVarFormula> varsA = new HashSet<>();
+						varsA.add(AssrtFormulaFactory
+								.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));
+						// Adding even if var not used
+						// N.B. includes the case for recursion cycles where var is "already"
+						// in F
+						if (!varsA.isEmpty()) // FIXME: currently never empty
+						{
+							//AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
+							ass = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), ass);
+						}
+						
+						AA = (AA == null) ? ass : AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Or, AA, ass);
 					}
 
 					AssrtBoolFormula lhs = this.F.get(src).stream().reduce(
@@ -302,10 +329,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						case JAVA_SMT_Z3:
 						{
 							JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
-							return jsmt.isSat(squashed.getJavaSmtFormula());
+							return !jsmt.isSat(squashed.getJavaSmtFormula());
 						}
 						case NATIVE_Z3:
-							return Z3Wrapper.isSat(Z3Wrapper.toSmt2(squashed.toSmt2Formula()), job.getContext().main.toString());
+							return !Z3Wrapper.isSat(Z3Wrapper.toSmt2(squashed.toSmt2Formula()), job.getContext().main.toString());
 						case NONE:
 						{
 							job.debugPrintln("\n[assrt-core] WARNING: assertion progress check skipped.");
@@ -315,19 +342,22 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						default:
 							throw new RuntimeException("[assrt-core] Shouldn't get in here: " + SMT_CONFIG);
 					}
-				}
+				/*}
 				/*else if (a instanceof AssrtCoreEReceive || a instanceof AssrtEAccept)
 				{
 					return true;  // FIXME: check receive assertions? -- currently receive assertions all set to True
-				}*/
+				}* /
 				else
 				{
 					System.err.println("[assrt-core] Shouldn't get in here: " + a);
 					System.exit(1); // FIXME
 					return false;
 				}
-			});
-		});
+			});*/
+		}
+		);
+				/*}
+			}.dotry();*/
 	}
 
 	// i.e., state has an action that is not satisfiable (deadcode)
