@@ -21,6 +21,7 @@ public abstract class AssrtCoreTestBase extends ScribTestBase
 	}
 	
 	// FIXME: base class should not specify "."
+	@Override
 	protected String getTestRootDir()
 	{
 		/*return "../../../scribble-test/target/test-classes/";  
@@ -47,7 +48,7 @@ public abstract class AssrtCoreTestBase extends ScribTestBase
 	protected void runTest(String dir) throws CommandLineException, AntlrSourceException
 	{
 		new AssrtCommandLine(this.example, CLArgParser.JUNIT_FLAG, CLArgParser.IMPORT_PATH_FLAG, dir,
-						AssrtCoreCLArgParser.ASS_FLAG, "[AssrtCoreAllTest]")  // HACK: for AssrtCommandLine 
+						AssrtCoreCLArgParser.ASS_FLAG, "[AssrtCoreAllTest]")  // HACK: for AssrtCommandLine (assrt-core mode)
 				.run();
 	}
 
@@ -64,8 +65,8 @@ public abstract class AssrtCoreTestBase extends ScribTestBase
 			Throwable cause = e.getCause();
 			if (cause instanceof AssrtCoreSyntaxException)
 			{
-				AssrtCoreTestBase.NUM_SKIPPED++;
-				System.out.println("[assrt-core] Skipping (non-core syntax): " + this.example + "  (" + AssrtCoreTestBase.NUM_SKIPPED + " skipped)");
+				ScribTestBase.NUM_SKIPPED++;
+				System.out.println("[assrt-core] Skipping (non-core syntax): " + this.example + "  (" + ScribTestBase.NUM_SKIPPED + " skipped)");
 			}
 			else
 			{
