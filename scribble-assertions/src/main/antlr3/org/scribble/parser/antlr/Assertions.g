@@ -157,7 +157,7 @@ unary_bool_expr:
 |
 	'(' TRUE_KW ')'
 ->
-	TRUE_KW
+	^(TRUE)
 |
 	FALSE_KW
 ->
@@ -165,7 +165,7 @@ unary_bool_expr:
 |
 	'(' FALSE_KW ')'
 ->
-	FALSE_KW
+	^(FALSE)
 |
 	bin_comp_expr
 ; 
