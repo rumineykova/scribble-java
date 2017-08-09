@@ -92,6 +92,7 @@
 						<exclude>**/stylesheet.css</exclude>
 						<exclude>**/script.js</exclude>
 						<exclude>**/package-list</exclude>
+						<exclude>**/*.txt</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

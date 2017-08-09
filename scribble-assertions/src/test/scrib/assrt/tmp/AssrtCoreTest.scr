@@ -99,6 +99,13 @@ global protocol Proto1(role A, role B) @(x=1);
 
 
 
+/*/
+global protocol Proto1(role A, role B) @(x=1);
+{
+	1() from A to B; @(x>0);
+	do Proto1(A, B); @(x);  // FIXME: allow?
+}
+//*/
 
 
 /*
