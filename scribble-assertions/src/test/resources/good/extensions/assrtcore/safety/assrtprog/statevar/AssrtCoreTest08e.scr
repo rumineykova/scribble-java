@@ -1,4 +1,4 @@
-module bad.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08b;
+module good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08e;
 
 
 type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
@@ -8,6 +8,6 @@ type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 global protocol Proto1(role A, role B) @(x=3);
 {
 	1() from A to B; @(x>2);	
-	do Proto1(A, B); @x;
+	do Proto1(A, B); @x;  // x:=x treated as special case
 }
 //*/
