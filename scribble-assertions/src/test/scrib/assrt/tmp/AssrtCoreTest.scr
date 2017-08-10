@@ -51,6 +51,35 @@ type <dotnet> "System.String" from "..." as str;
 
 
 
+//*
+global protocol Proto1(role B, role S)
+{
+	ok() from B to S;
+	do Proto2(B, S); @Quote;  // FIXME: unknown vars check
+}
+
+global protocol Proto2(role B, role S) @(x=0);
+{
+	5() from B to S;	@False;//@(y>0);  // FIXME: unknown vars check here too?
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @(z=3);
+{
+	1(x:int) from A to B; @(x=3);
+	2(y:int) from A to B; @(y>x);
+	do Proto1(A, B);  // FIXME: statevar arg check
+}
+//*/
+
+
+
+
+
+
+
 
 
 global protocol Proto1(role A, role B) @(x=1);
@@ -142,21 +171,6 @@ global protocol Proto1(role A, role B) @(x=3);
 	do Proto1(A, B); @(x-1);  // Unsat -- should be unsat
 }
 //*/
-
-
-/*
-global protocol Proto1(role B, role S)
-{
-	ok() from B to S;
-	do Proto2(B, S); @Quote;  // FIXME: unknown vars check
-}
-
-global protocol Proto2(role B, role S) @(x=0);
-{
-	5() from B to S;	@False;//@(y>0);  // FIXME: unknown vars check here too?
-}
-//*/
-
 
 
 
