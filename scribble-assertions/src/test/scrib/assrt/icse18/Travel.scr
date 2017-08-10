@@ -12,7 +12,7 @@ type <dotnet> "System.UInt32" from "..." as int;
 type <dotnet> "System.String" from "..." as str;
 
 
-explicit global protocol Travel(role C, role A, role S)
+explicit global protocol Proto1(role C, role A, role S)
 {
 	connect C to A;
 	do Nego(C, A, S);

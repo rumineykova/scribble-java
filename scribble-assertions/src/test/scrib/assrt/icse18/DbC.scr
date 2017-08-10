@@ -30,7 +30,7 @@ global protocol Proto1(role B, role W, role S)
 	}
 }
 
-global protocol Proto2(role B, role W, role S) @(x=0);
+aux global protocol Proto2(role B, role W, role S) @(x=0);
 {
 	5(Offer:int) from B to S;	
 	choice at S
