@@ -1,11 +1,11 @@
 //Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
-//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtTravel2.scr 
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/icse18/Travel.scr 
 
 
 // http://sandbox.kidstrythisathome.com/erdos/
 
 
-module assrt.tmp.AssrtTravel2;
+module assrt.icse18.Travel;
 
 
 type <dotnet> "System.UInt32" from "..." as int;
@@ -24,8 +24,7 @@ aux global protocol Nego(role C, role A, role S)
 	quote(q:int) from A to C;
 	choice at C
 	{
-		accpt() from C to A;  @((q < 100) || (q = 100));  // Not a "good" example for API gen -- cannot do anything with this assertion except generate a run-time check?
-		//accpt() from C to A;  @False;
+		accpt() from C to A; @((q < 100) || (q = 100));  // Not a "good" example for API gen? -- can only generate a run-time check?
 		payment(str) connect C to S;
 		confirm(x1:int) from S to C;
 		ack(x2:int) from C to A;  @(x1 = x2);

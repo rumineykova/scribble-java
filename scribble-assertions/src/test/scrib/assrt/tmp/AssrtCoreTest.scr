@@ -17,6 +17,28 @@ type <dotnet> "System.String" from "..." as str;
 // FIXME: distinguish branches where "not guaranteed safe" vs "impossible"
 
 
+
+// unary choice: 
+//   pre: forall (lhs)
+//   forall lhs => (exists rhs) -- point is rhs may use vars in lhs
+//   exists (lhs /\ rhs)
+// -- forall [ (lhs /\ (lhs => (exists rhs))) => exists (lhs /\ rhs) ] -- ?
+// -- forall [ lhs /\ (lhs => (exists rhs))) ] => forall [ exists (lhs /\ rhs) ] -- ?
+/*
+(declare-fun lhs (Int Int) Bool)
+(declare-fun rhs (Int Int Int Int) Bool)
+(assert (forall ((x1 Int) (y1 Int)) (lhs x1 y1)))
+(assert  (=>   
+  (forall ((x1 Int) (y1 Int)) (and (lhs x1 y1) (=> (lhs x1 y1) (exists ((x2 Int) (y2 Int)) (rhs x1 y1 x2 y2)))))
+  (forall ((x1 Int) (y1 Int)) (exists ((x2 Int) (y2 Int)) (and (lhs x1 y1) (rhs x1 y1 x2 y2))))
+))
+(check-sat)
+(exit)
+*/
+
+
+// muZ for fixed points -- recursive statevar updates? -- http://rise4fun.com/Z3/tutorial/fixedpoints
+
 // - assertion validation
 // - receive assertions -- why receive assertions?  should WF imply receive assertions always true?
 // - explicit connections
@@ -51,7 +73,7 @@ type <dotnet> "System.String" from "..." as str;
 
 
 
-//*
+/*
 global protocol Proto1(role B, role S)
 {
 	ok() from B to S;
@@ -82,75 +104,37 @@ global protocol Proto1(role A, role B) @(z=3);
 
 
 
-global protocol Proto1(role A, role B) @(x=1);
+/*
+global protocol Proto1(role A, role B) @(x=3);
 {
-	1() from A to B; @(x>0);
-	do Proto1(A, B); @(x);
+	1() from A to B; @(x>2);	
+	do Proto2(A, B); @(x);  
+			// FIXME: need to make expr vars old in F? -- proto shouldn't be valid?
+			// could rename target y to x in this case? relies on "globally" (across subprotos) unique vars -- cf. rolename substitution
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*/
-global protocol Proto1(role A, role B) @(x=1);
+// Not aux
+global protocol Proto2(role A, role B) @(y=4);
 {
-	1() from A to B; @(x>0);
-	do Proto1(A, B); @(x);  // FIXME: allow?
+	1() from A to B; @(y>2);	
+	do Proto1(A, B); @(y);
 }
 //*/
 
-
 /*
-global protocol Proto2(role A, role B)
+global protocol Proto1(role A, role B)
 {
-	do Proto1(A, B); @1;  
+	do Proto2(A, B); @1;  
 			// FIXME: in this case, consider subsituting the x in Proto1<x+1> like DbC? but would be inconsistent generally?
 			// FIXME: at least consider case for substituting x if syntactically just "x" and still just x -- cf. bad.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08b
 }
 
-global protocol Proto1(role A, role B) @(x=1);
+global protocol Proto2(role A, role B) @(x=1);
 {
 	1(y:int) from A to B; @((y=x) && (x=1));
 
 	//do Proto1(A, B); @1;
-	do Proto1(A, B); @(x+1);  
+	do Proto2(A, B); @(x+1);  
 			// Unsat -- cf. DbC? -- OK there? but relies on two-unfolding cut off? 
 			// No: DbC subs the x in X<x+1> fixing it to two at two unfoldings and forever after? that's why safe there
 			
@@ -172,6 +156,18 @@ global protocol Proto1(role A, role B) @(x=3);
 }
 //*/
 
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B;
+	do Proto2(A, B);
+}
+
+aux global protocol Proto2(role A, role B)
+{
+	2(x:int) from B to A;  // FIXME: need proper var shadowing
+}
+//*/
 
 
 

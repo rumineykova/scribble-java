@@ -845,25 +845,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
 		appendF(F, self, f);
 		
-		
 
 		// Rename old R vars -- must come before adding new F and R clauses
 		Map<AssrtDataTypeVar, AssrtArithFormula> tmp = R.get(self);
 		AssrtDataTypeVar annot = a.getAnnotVar();
-		AssrtArithFormula expr = a.getArithExpr();
-
-		if (!annot.equals(AssrtCoreESend.DUMMY_VAR))
-		{
-			if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
-			{
-				expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), 
-						//fresh  // No: don't need to "link" R vars and F vars -- only F matters for direct formula checking
-
-						//makeFreshIntVar(annot)  // Makes model construction non-terminating, e.g., mu X(x:=..) ... X<x> -- makes unbounded fresh in x = fresh(x)
-						AssrtFormulaFactory.AssrtIntVar("_" + annot.toString())  // FIXME: is this OK?
-				);	
-			}
-		}
 		
 
 		// Following must come after F update
@@ -882,12 +867,30 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}
 			});
 		}
+		
+
+		AssrtArithFormula expr = a.getArithExpr();
+
+		if (!annot.equals(AssrtCoreESend.DUMMY_VAR))
+		{
+			if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
+			{
+				expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), 
+						//fresh  // No: don't need to "link" R vars and F vars -- only F matters for direct formula checking
+
+						//makeFreshIntVar(annot)  // Makes model construction non-terminating, e.g., mu X(x:=..) ... X<x> -- makes unbounded fresh in x = fresh(x)
+						AssrtFormulaFactory.AssrtIntVar("_" + annot.toString())  // FIXME: is this OK?
+				);	
+			}
+		}
 
 		// Update R from action -- recursion back to a rec, via a continue
 		if (!annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
 		{
 			AssrtArithFormula curr = tmp.get(annot);
-			if (!curr.equals(expr))  // CHECKME: "syntactic" check is what we want here?
+			if (!curr.equals(expr)  // CHECKME: "syntactic" check is what we want here?
+					&& !((expr instanceof AssrtIntVarFormula) && ((AssrtIntVarFormula) expr).name.equals("_" + annot.toString())))  // Hacky? if expr is just the var occurrence, then value doesn't change
+							// FIXME: generalise -- occurences of other vars can be first substituted, before "old var renaming"? -- also for rec-state updates?
 			{
 				updateRandFfromR(F, self, tmp, annot, expr);
 			}
@@ -896,6 +899,20 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//Map<Role, Set<AssrtBoolFormula>> test = copyF(F);
 		compactF(F, self);
 		//return rename;
+	}
+
+	private static void updateRandFfromR(Map<Role, Set<AssrtBoolFormula>> F, Role self,
+			Map<AssrtDataTypeVar, AssrtArithFormula> Rself, AssrtDataTypeVar annot, AssrtArithFormula expr)
+	{
+		// Must come after initial F update
+		Rself.put(annot, expr);   // "Overwrite" (if already known)
+
+		AssrtIntVarFormula iv = AssrtFormulaFactory.AssrtIntVar(annot.toString());
+		AssrtIntVarFormula fresh = makeFreshIntVar(annot);
+		Set<AssrtBoolFormula> hh = F.get(self);
+		hh = hh.stream().map(b -> b.subs(iv, fresh)).collect(Collectors.toSet());
+		hh.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
+		F.put(self, hh);
 	}
 	
 	private static void compactF(Map<Role, Set<AssrtBoolFormula>> F, Role self)//, Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R)
@@ -974,20 +991,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			//System.out.println("222: " + F.get(r) + "\n");
 
 		}*/
-	}
-
-	private static void updateRandFfromR(Map<Role, Set<AssrtBoolFormula>> F, Role self,
-			Map<AssrtDataTypeVar, AssrtArithFormula> Rself, AssrtDataTypeVar annot, AssrtArithFormula expr)
-	{
-		// Must come after initial F update
-		Rself.put(annot, expr);   // "Overwrite" (if already known)
-
-		AssrtIntVarFormula iv = AssrtFormulaFactory.AssrtIntVar(annot.toString());
-		AssrtIntVarFormula fresh = makeFreshIntVar(annot);
-		Set<AssrtBoolFormula> hh = F.get(self);
-		hh = hh.stream().map(b -> b.subs(iv, fresh)).collect(Collectors.toSet());
-		hh.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
-		F.put(self, hh);
 	}
 
 	private boolean hasMessage(Role self, Role peer)
