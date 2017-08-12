@@ -11,7 +11,9 @@ import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 // Integer literal
 public class AssrtIntValFormula extends AssrtArithFormula
 {
-	public final int val; 
+	public static final AssrtArithFormula ZERO = AssrtFormulaFactory.AssrtIntVal(0); 
+
+	public final int val;
 
 	protected AssrtIntValFormula(int i)
 	{

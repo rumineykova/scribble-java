@@ -672,7 +672,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		//Q.get(es.peer).put(self, es.toTrueAssertion());  // HACK FIXME: cf. AssrtSConfig::fire
 		//Q.get(es.peer).put(self, es);  // Now doing toTrueAssertion on message at receive side
-		Q.get(es.peer).put(self, new AssrtCoreEMessage(es.getEModelFactory(), es.peer, es.mid, es.payload, es.ass, es.annot, es.expr,
+		Q.get(es.peer).put(self, new AssrtCoreEMessage(es.getEModelFactory(), es.peer, es.mid, es.payload, es.ass, 
+				//es.annot,
+				es.stateexprs,
 				rename.get(self)));  // Now doing toTrueAssertion on message at receive side
 	}
 
@@ -848,13 +850,14 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		// Rename old R vars -- must come before adding new F and R clauses
 		Map<AssrtDataTypeVar, AssrtArithFormula> tmp = R.get(self);
-		AssrtDataTypeVar annot = a.getAnnotVar();
+		//AssrtDataTypeVar annot = a.getAnnotVar();
 		
 
 		// Following must come after F update
 
 		// Update R from state -- entering a rec "forwards", i.e., not via a continue
-		if (annot.equals(AssrtCoreESend.DUMMY_VAR))  // HACK CHECKME
+		//if (annot.equals(AssrtCoreEAction.DUMMY_VAR))  // HACK CHECKME
+		if (a.getStateExprs().isEmpty())  // FIXME
 		{
 			succ.getAnnotVars().entrySet().forEach(e ->
 			{
@@ -869,10 +872,14 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 		
 
-		AssrtArithFormula expr = a.getArithExpr();
+		//AssrtArithFormula expr = a.getArithExpr();
 
-		if (!annot.equals(AssrtCoreESend.DUMMY_VAR))
+		//if (!annot.equals(AssrtCoreEAction.DUMMY_VAR))
+		if (!a.getStateExprs().isEmpty())
 		{
+			AssrtDataTypeVar annot = succ.getAnnotVars().keySet().iterator().next();  // FIXME
+			AssrtArithFormula expr = a.getStateExprs().iterator().next();  // FIXME:
+
 			if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
 			{
 				expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), 
@@ -882,11 +889,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						AssrtFormulaFactory.AssrtIntVar("_" + annot.toString())  // FIXME: is this OK?
 				);	
 			}
-		}
 
-		// Update R from action -- recursion back to a rec, via a continue
-		if (!annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
-		{
+			// Update R from action -- recursion back to a rec, via a continue
+
 			AssrtArithFormula curr = tmp.get(annot);
 			if (!curr.equals(expr)  // CHECKME: "syntactic" check is what we want here?
 					&& !((expr instanceof AssrtIntVarFormula) && ((AssrtIntVarFormula) expr).name.equals("_" + annot.toString())))  // Hacky? if expr is just the var occurrence, then value doesn't change
@@ -1240,16 +1245,22 @@ class AssrtCoreEMessage extends AssrtCoreESend
 	}*/
 
 	public AssrtCoreEMessage(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload,
-			AssrtBoolFormula ass, AssrtDataTypeVar annot, AssrtArithFormula expr)
+			AssrtBoolFormula ass, //AssrtDataTypeVar annot, AssrtArithFormula expr
+			List<AssrtArithFormula> stateexprs)
 	{
-		this(ef, peer, mid, payload, ass, annot, expr, Collections.emptyMap());
+		this(ef, peer, mid, payload, ass, 
+				//annot, expr,
+				stateexprs,
+				Collections.emptyMap());
 	}
 
 	public AssrtCoreEMessage(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload,
-			AssrtBoolFormula ass, AssrtDataTypeVar annot, AssrtArithFormula expr,
+			AssrtBoolFormula ass, //AssrtDataTypeVar annot, AssrtArithFormula expr,
+			List<AssrtArithFormula> stateexprs,
 			Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow)
 	{
-		super(ef, peer, mid, payload, ass, annot, expr);
+		super(ef, peer, mid, payload, ass, //annot,
+				stateexprs);
 		this.shadow = Collections.unmodifiableMap(shadow);
 	}
 
@@ -1302,7 +1313,8 @@ class AssrtCoreEBot extends AssrtCoreEMessage
 	private AssrtCoreEBot()
 	{
 		super(null, Role.EMPTY_ROLE, Op.EMPTY_OPERATOR, ASSRTCORE_EMPTY_PAYLOAD, AssrtTrueFormula.TRUE,  // null ef OK?
-				AssrtCoreESend.DUMMY_VAR, AssrtCoreESend.ZERO);
+				//AssrtCoreEAction.DUMMY_VAR, AssrtIntValFormula.ZERO);
+				Collections.emptyList());
 	}
 	
 	@Override
@@ -1371,7 +1383,9 @@ class AssrtCoreEPendingRequest extends AssrtCoreEMessage  // Q stores ESends (no
 	public AssrtCoreEPendingRequest(AssrtCoreERequest msg, Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow)
 	{
 		super(null, msg.peer, msg.mid, msg.payload, msg.ass,  // HACK: null ef OK?  cannot access es.ef
-				AssrtCoreESend.DUMMY_VAR, AssrtCoreESend.ZERO, shadow);
+				//AssrtCoreEAction.DUMMY_VAR, AssrtIntValFormula.ZERO,
+				Collections.emptyList(),
+				shadow);
 		this.msg = msg;
 	}
 	

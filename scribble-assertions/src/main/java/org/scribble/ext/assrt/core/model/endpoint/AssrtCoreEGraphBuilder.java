@@ -3,9 +3,8 @@ package org.scribble.ext.assrt.core.model.endpoint;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreRecVar;
@@ -14,12 +13,10 @@ import org.scribble.ext.assrt.core.ast.local.AssrtCoreLChoice;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRec;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
-import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.model.endpoint.EGraph;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.type.Payload;
@@ -57,7 +54,10 @@ public class AssrtCoreEGraphBuilder
 		else if (lt instanceof AssrtCoreLRec)
 		{
 			AssrtCoreLRec lr = (AssrtCoreLRec) lt;
-			this.util.addAnnotVarInits(s1, Stream.of(lr.annot).collect(Collectors.toMap(a -> a, a -> lr.init)));
+
+			//this.util.addAnnotVarInits(s1, Stream.of(lr.annot).collect(Collectors.toMap(a -> a, a -> lr.init)));
+			this.util.addStateVars(s1, lr.annotvars);
+
 			Map<RecVar, AssrtEState> tmp = new HashMap<>(recs);
 			tmp.put(lr.recvar, s1);
 			build(lr.body, s1, s2, tmp);
@@ -78,12 +78,15 @@ public class AssrtCoreEGraphBuilder
 		else if (cont instanceof AssrtCoreRecVar)
 		{
 			AssrtCoreRecVar crv = (AssrtCoreRecVar) cont;
-			AssrtArithFormula expr = crv.expr;
-			AssrtEState s = recs.get(((AssrtCoreRecVar) cont).var);
+			AssrtEState s = recs.get(((AssrtCoreRecVar) cont).recvar);
 
-			AssrtDataTypeVar annot = s.getAnnotVars().keySet().iterator().next();  // FIXME: even with single var per rec, nested recs can give more than one var per state
+			//AssrtArithFormula expr = crv.annotexprs;
+			//AssrtDataTypeVar annot = s.getAnnotVars().keySet().iterator().next();
+			List<AssrtArithFormula> annotexprs = crv.annotexprs;
+			//List<AssrtDataTypeVar> annotvars = s.getAnnotVars().keySet().stream().collect(Collectors.toList());
 
-			this.util.addEdge(s1, toEAction(r, k, a, annot, expr), s);
+			this.util.addEdge(s1, toEAction(r, k, a, //annotvars,
+					annotexprs), s);
 		}
 		else
 		{
@@ -97,31 +100,39 @@ public class AssrtCoreEGraphBuilder
 	
 	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreAction a)
 	{
-		return toEAction(r, k, a, AssrtCoreESend.DUMMY_VAR, AssrtCoreESend.ZERO);
+		//return toEAction(r, k, a, AssrtCoreESend.DUMMY_VAR, AssrtCoreESend.ZERO);
+		return toEAction(r, k, a, Collections.emptyList());
 	}
 
-	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreAction a, AssrtDataTypeVar annot, AssrtArithFormula expr)
+	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreAction a,
+			//AssrtDataTypeVar annot, AssrtArithFormula expr)
+			List<AssrtArithFormula> annotexprs)
 	{
 		AssrtCoreEModelFactory ef = (AssrtCoreEModelFactory) this.util.ef;  // FIXME: factor out
 		if (k.equals(AssrtCoreLActionKind.SEND))
 		{
-			return ef.newAssrtCoreESend(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, annot, expr);
+			return ef.newAssrtCoreESend(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, //annot,
+					annotexprs);
+
 		}
 		else if (k.equals(AssrtCoreLActionKind.RECEIVE))
 		{
 			//return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
-			return ef.newAssrtCoreEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, annot, expr);
+			return ef.newAssrtCoreEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, //annot,
+					annotexprs);
 
 			// FIXME: local receive assertions -- why needed exactly?  should WF imply receive assertion always true?
 
 		}
 		else if (k.equals(AssrtCoreLActionKind.REQUEST))
 		{
-			return ef.newAssrtCoreERequest(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, annot, expr);
+			return ef.newAssrtCoreERequest(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, //annot,
+					annotexprs);
 		}
 		else if (k.equals(AssrtCoreLActionKind.ACCEPT))
 		{
-			return ef.newAssrtCoreEAccept(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, annot, expr);
+			return ef.newAssrtCoreEAccept(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, //annot,
+					annotexprs);
 		}
 		/*else if (a instanceof AssrtCoreLDisconnect)
 		{

@@ -1,5 +1,6 @@
 package org.scribble.ext.assrt.core.ast.global;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -233,7 +234,9 @@ public class AssrtCoreGProtocolDeclTranslator
 			init = (AssrtArithFormula) bcf.right;
 		}
 		AssrtCoreGType body = parseSeq(gr.getBlock().getInteractionSeq().getInteractions(), rvs, checkChoiceGuard, true);  // Check rec body is guarded
-		return this.af.AssrtCoreGRec(recvar, annot, init, body);
+
+		//return this.af.AssrtCoreGRec(recvar, annot, init, body);
+		return this.af.AssrtCoreGRec(recvar, Stream.of(annot).collect(Collectors.toMap(a -> a, a -> init)), body);
 	}
 
 	private AssrtCoreGType parseGContinue(Map<RecVar, RecVar> rvs, boolean checkRecGuard, AssrtGContinue gc)
@@ -257,7 +260,9 @@ public class AssrtCoreGProtocolDeclTranslator
 		{
 			expr = gc.annot.getFormula();
 		}
-		return this.af.AssrtCoreGRecVar(recvar, expr);
+
+		//return this.af.AssrtCoreGRecVar(recvar, expr);
+		return this.af.AssrtCoreGRecVar(recvar, Arrays.asList(expr));  // FIXME
 	}
 
 	// Parses message interactions as unary choices

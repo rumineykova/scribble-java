@@ -16,9 +16,10 @@ import org.scribble.type.name.Role;
 // FIXME: hashCode/equals
 public class AssrtCoreGRecVar extends AssrtCoreRecVar implements AssrtCoreGType
 {
-	public AssrtCoreGRecVar(RecVar var, AssrtArithFormula expr)
+	//public AssrtCoreGRecVar(RecVar var, AssrtArithFormula expr)
+	public AssrtCoreGRecVar(RecVar var, List<AssrtArithFormula> annotexprs)
 	{
-		super(var, expr);
+		super(var, annotexprs);
 	}
 
 	@Override
@@ -30,7 +31,7 @@ public class AssrtCoreGRecVar extends AssrtCoreRecVar implements AssrtCoreGType
 	@Override
 	public AssrtCoreLRecVar project(AssrtCoreAstFactory af, Role r, AssrtBoolFormula f)
 	{
-		return af.AssrtCoreLRecVar(this.var, this.expr);
+		return af.AssrtCoreLRecVar(this.recvar, this.annotexprs);
 	}
 
 	@Override

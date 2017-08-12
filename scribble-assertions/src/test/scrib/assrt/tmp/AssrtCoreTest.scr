@@ -5,26 +5,6 @@
 // http://sandbox.kidstrythisathome.com/erdos/
 
 
-module assrt.tmp.AssrtCoreTest;
-
-
-type <dotnet> "System.UInt32" from "..." as int;
-type <dotnet> "System.String" from "..." as str;
-
-
-
-
-global protocol Fib(role C, role S) @(x1=0);
-{
-	choice at C
-	{
-		ADD(x:int) from C to S; @(x=x1);
-		ADD(y:int) from C to S;
-		RES(z:int) from S to C; @(z=(x+y));
-		do Adder(C, S); @(y);
-	}
-	//or { BYE() from C to S; BYE() from S to C; }
-}
 
 
 // FIXME: debug printing for assertion passes
@@ -87,11 +67,44 @@ global protocol Fib(role C, role S) @(x1=0);
 
 
 
+module assrt.tmp.AssrtCoreTest;
+
+
+type <dotnet> "System.UInt32" from "..." as int;
+type <dotnet> "System.String" from "..." as str;
+
+
+
+/*
+global protocol Fib(role C, role S) @(x1=0);
+{
+	choice at C
+	{
+		ADD(x:int) from C to S; @(x=x1);
+		ADD(y:int) from C to S;
+		RES(z:int) from S to C; @(z=(x+y));
+		do Adder(C, S); @(y);
+	}
+	//or { BYE() from C to S; BYE() from S to C; }
+}
+//*/
 
 
 
 
 
+/*/
+global protocol Proto1(role A, role B) @(x=0);
+{
+	1() from A to B;
+	do Proto2(A, B);
+}
+
+aux global protocol Proto2(role A, role B)
+{
+	2() from B to A; @(x<1);  // FIXME: shouldn't be in scope without decl as Proto2 statevar
+}
+//*/
 
 
 /*

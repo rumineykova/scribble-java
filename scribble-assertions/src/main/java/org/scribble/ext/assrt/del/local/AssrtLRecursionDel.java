@@ -82,7 +82,7 @@ public class AssrtLRecursionDel extends LRecursionDel
 			AssrtBinCompFormula bcf = (AssrtBinCompFormula) ass.getFormula();
 			vars.put(((AssrtIntVarFormula) bcf.left).toName(), bcf.right);
 		}
-		((AssrtEGraphBuilderUtil) graph.util).addAnnotVarInits((AssrtEState) graph.util.getEntry(), vars);
+		((AssrtEGraphBuilderUtil) graph.util).addStateVars((AssrtEState) graph.util.getEntry(), vars);
 
 		graph.util.pushRecursionEntry(rv, graph.util.getEntry());
 	}

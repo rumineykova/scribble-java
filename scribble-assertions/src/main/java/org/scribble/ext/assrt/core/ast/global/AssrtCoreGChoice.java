@@ -101,12 +101,13 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": cannot merge unguarded rec vars.");
 			}
 
-			Set<RecVar> rvs = projs.values().stream().map(v -> ((AssrtCoreLRecVar) v).var).collect(Collectors.toSet());
-			Set<AssrtArithFormula> fs = projs.values().stream().map(v -> ((AssrtCoreLRecVar) v).expr).collect(Collectors.toSet());  // FIXME? syntactic equality of exprs
+			Set<RecVar> rvs = projs.values().stream().map(v -> ((AssrtCoreLRecVar) v).recvar).collect(Collectors.toSet());
+			Set<List<AssrtArithFormula>> fs = projs.values().stream().map(v -> ((AssrtCoreLRecVar) v).annotexprs).collect(Collectors.toSet());  // FIXME? syntactic equality of exprs
 			if (rvs.size() > 1 || fs.size() > 1)
 			{
 				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed unguarded rec vars: " + rvs);
 			}
+
 			return af.AssrtCoreLRecVar(rvs.iterator().next(), fs.iterator().next());
 		}
 		
