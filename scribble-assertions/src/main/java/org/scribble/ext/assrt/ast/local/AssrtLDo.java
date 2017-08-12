@@ -1,5 +1,9 @@
 package org.scribble.ext.assrt.ast.local;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.NonRoleArgList;
@@ -16,23 +20,28 @@ import org.scribble.visit.AstVisitor;
 
 public class AssrtLDo extends LDo
 {
-	public final AssrtArithExpr annot;
+	//public final AssrtArithExpr annot;
+	public final List<AssrtArithExpr> annotexprs;
 
 	public AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto)
 	{
-		this(source, roleinstans, arginstans, proto, null);
+		this(source, roleinstans, arginstans, proto, //null);
+				Collections.emptyList());
 	}
 
-	public AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto, AssrtArithExpr annot)
+	public AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto, //AssrtArithExpr annot)
+			List<AssrtArithExpr> annotexprs)
 	{
 		super(source, roleinstans, arginstans, proto);
-		this.annot = annot;
+		//this.annot = annot;
+		this.annotexprs = annotexprs;
 	}
 
 	@Override
 	protected AssrtLDo copy()
 	{
-		return new AssrtLDo(this.source, this.roles, this.args, getProtocolNameNode(), this.annot);
+		return new AssrtLDo(this.source, this.roles, this.args, getProtocolNameNode(), //this.annot);
+				this.annotexprs);
 	}
 	
 	@Override
@@ -41,8 +50,12 @@ public class AssrtLDo extends LDo
 		RoleArgList roles = this.roles.clone(af);
 		NonRoleArgList args = this.args.clone(af);
 		LProtocolNameNode proto = this.getProtocolNameNode().clone(af);
-		AssrtArithExpr annot = (this.annot == null) ? null : this.annot.clone(af);
-		return ((AssrtAstFactory) af).AssrtLDo(this.source, roles, args, proto, annot);
+		//AssrtArithExpr annot = (this.annot == null) ? null : this.annot.clone(af);
+
+		List<AssrtArithExpr> annotexprs = this.annotexprs.stream().map(e -> e.clone(af)).collect(Collectors.toList());
+
+		return ((AssrtAstFactory) af).AssrtLDo(this.source, roles, args, proto, //annot);
+				annotexprs);
 	}
 	
 	@Override
@@ -51,10 +64,12 @@ public class AssrtLDo extends LDo
 		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 
-	public AssrtLDo reconstruct(RoleArgList roles, NonRoleArgList args, ProtocolNameNode<Local> proto, AssrtArithExpr annot)
+	public AssrtLDo reconstruct(RoleArgList roles, NonRoleArgList args, ProtocolNameNode<Local> proto, //AssrtArithExpr annot)
+			List<AssrtArithExpr> annotexprs)
 	{
 		ScribDel del = del();
-		AssrtLDo ld = new AssrtLDo(this.source, roles, args, (LProtocolNameNode) proto, annot);
+		AssrtLDo ld = new AssrtLDo(this.source, roles, args, (LProtocolNameNode) proto, //annot);
+				annotexprs);
 		ld = (AssrtLDo) ld.del(del);
 		return ld;
 	}
@@ -65,7 +80,11 @@ public class AssrtLDo extends LDo
 		RoleArgList ril = (RoleArgList) visitChild(this.roles, nv);
 		NonRoleArgList al = (NonRoleArgList) visitChild(this.args, nv);
 		LProtocolNameNode proto = visitChildWithClassEqualityCheck(this, getProtocolNameNode(), nv);
-		AssrtArithExpr annot = (this.annot == null) ? null : (AssrtArithExpr) visitChild(this.annot, nv);  // FIXME: visitChildWithClassEqualityCheck
-		return reconstruct(ril, al, proto, annot);
+
+		//AssrtArithExpr annot = (this.annot == null) ? null : (AssrtArithExpr) visitChild(this.annot, nv);  // FIXME: visitChildWithClassEqualityCheck
+		List<AssrtArithExpr> annotexprs = visitChildListWithClassEqualityCheck(this, this.annotexprs, nv);
+
+		return reconstruct(ril, al, proto, //annot);
+				annotexprs);
 	}
 }

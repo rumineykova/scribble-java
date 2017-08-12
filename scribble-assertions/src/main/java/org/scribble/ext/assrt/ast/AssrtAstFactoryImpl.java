@@ -280,9 +280,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtGDo AssrtGDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto, AssrtArithExpr annot)
+	public AssrtGDo AssrtGDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto, //AssrtArithExpr annot)
+			List<AssrtArithExpr> annotexprs)
 	{
-		AssrtGDo gd = new AssrtGDo(source, roleinstans, arginstans, proto, annot);
+		AssrtGDo gd = new AssrtGDo(source, roleinstans, arginstans, proto, //annot);
+				annotexprs);
 		gd = del(gd, new AssrtGDoDel());
 		return gd;
 	}
@@ -330,9 +332,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtLDo AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto, AssrtArithExpr annot)
+	public AssrtLDo AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto, //AssrtArithExpr annot)
+			List<AssrtArithExpr> annotexprs)
 	{
-		AssrtLDo gd = new AssrtLDo(source, roleinstans, arginstans, proto, annot);
+		AssrtLDo gd = new AssrtLDo(source, roleinstans, arginstans, proto, //annot);
+				annotexprs);
 		gd = del(gd, new AssrtLDoDel());
 		return gd;
 	}

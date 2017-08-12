@@ -1,5 +1,7 @@
 package org.scribble.ext.assrt.parser.scribble.ast.global;
 
+import java.util.Arrays;
+
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.NonRoleArgList;
@@ -31,7 +33,8 @@ public class AssrtAntlrGDo
 		CommonTree annotTree = AssrtAntlrGProtocolHeader.getAssertionChild(root);
 		AssrtArithExpr annot = AssrtAntlrGDo.parseArithAnnotation(((AssrtAntlrToScribParser) parser).ap, annotTree, (AssrtAstFactory) af);
 		
-		return ((AssrtAstFactory) af).AssrtGDo(root, ril, al, pnn, annot);
+		return ((AssrtAstFactory) af).AssrtGDo(root, ril, al, pnn, //annot);
+				Arrays.asList(annot));
 	}
 
 	public static AssrtArithExpr parseArithAnnotation(AssrtAntlrToFormulaParser ap, CommonTree annotTree, AssrtAstFactory af)

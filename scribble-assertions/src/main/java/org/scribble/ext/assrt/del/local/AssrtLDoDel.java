@@ -56,7 +56,8 @@ public class AssrtLDoDel extends LDoDel
 						// Didn't keep original namenode del
 
 		//return doo.reconstruct(doo.roles, doo.args, pnn);
-		return doo.reconstruct(doo.roles, doo.args, pnn, doo.annot);
+		return doo.reconstruct(doo.roles, doo.args, pnn, //doo.annot);
+				doo.annotexprs);
 	}
 
 	// Only called if cycle
@@ -68,7 +69,13 @@ public class AssrtLDoDel extends LDoDel
 				RecVarKind.KIND, builder.getSubprotocolRecVar(subsig).toString());
 
 		//LContinue inlined = builder.job.af.LContinue(blame, recvar);
-		AssrtArithExpr annot = ((AssrtLDo) child).annot;
+		//AssrtArithExpr annot = ((AssrtLDo) child).annot;
+		AssrtLDo ldo = (AssrtLDo) child;
+		if (ldo.annotexprs.size() > 1)
+		{
+			throw new RuntimeException("[assrt] TODO: " + child);
+		}
+		AssrtArithExpr annot = ldo.annotexprs.isEmpty() ? null : ldo.annotexprs.get(0);
 		AssrtLContinue inlined = ((AssrtAstFactory) builder.job.af).AssrtLContinue(blame, recvar, annot);
 
 		builder.pushEnv(builder.popEnv().setTranslation(inlined));
@@ -95,6 +102,10 @@ public class AssrtLDoDel extends LDoDel
 			{
 				throw new RuntimeException("[assrt] TODO: " + ldo);
 			}
+			if (ldo.annotexprs.size() > 1)
+			{
+				throw new RuntimeException("[assrt] TODO: " + ldo);
+			}
 
 			AssrtAssertion ass = ((AssrtAstFactory) dinlr.job.af).AssrtAssertion(null,
 					AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
@@ -102,7 +113,10 @@ public class AssrtLDoDel extends LDoDel
 							
 							AssrtFormulaFactory.AssrtIntVar(annotvars.get(0).toString()),  // FIXME:
 							
-							ldo.annot.getFormula()));  // FIXME: null source, and bcf
+							//ldo.annot.getFormula()));  // FIXME: null source, and bcf
+
+							ldo.annotexprs.get(0).getFormula()));
+
 			AssrtLRecursion inlined = ((AssrtAstFactory) dinlr.job.af).AssrtLRecursion(blame, recvar, gb, ass);
 
 			dinlr.pushEnv(dinlr.popEnv().setTranslation(inlined));
@@ -134,6 +148,7 @@ public class AssrtLDoDel extends LDoDel
 		RoleArgList roles = ld.roles.reconstruct(ras);
 
 		//return super.leaveProjectedRoleDeclFixing(parent, child, fixer, ld.reconstruct(roles, ld.args, ld.getProtocolNameNode()));
-		return ld.reconstruct(roles, ld.args, ld.getProtocolNameNode(), ld.annot);
+		return ld.reconstruct(roles, ld.args, ld.getProtocolNameNode(), //ld.annot);
+				ld.annotexprs);	
 	}
 }

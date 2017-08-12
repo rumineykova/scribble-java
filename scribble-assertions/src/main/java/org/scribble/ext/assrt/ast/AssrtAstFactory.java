@@ -43,7 +43,8 @@ public interface AssrtAstFactory extends AstFactory
 	AssrtGConnect AssrtGConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion assertion);
 	AssrtGRecursion AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, AssrtAssertion ass);
 	AssrtGContinue AssrtGContinue(CommonTree source, RecVarNode recvar, AssrtArithExpr annot);
-	AssrtGDo AssrtGDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto, AssrtArithExpr annot);
+	AssrtGDo AssrtGDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto, //AssrtArithExpr annot);
+			List<AssrtArithExpr> annotexprs);
 
 	AssrtAnnotDataTypeElem AssrtAnnotDataTypeElem(CommonTree source, AssrtIntVarNameNode varName, DataTypeNode dataType);
 
@@ -54,7 +55,8 @@ public interface AssrtAstFactory extends AstFactory
 	AssrtLConnect AssrtLConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion assertion);
 	AssrtLRecursion AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtocolBlock block, AssrtAssertion ass);
 	AssrtLContinue AssrtLContinue(CommonTree source, RecVarNode recvar, AssrtArithExpr annot);
-	AssrtLDo AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto, AssrtArithExpr annot);
+	AssrtLDo AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto, //AssrtArithExpr annot);
+			List<AssrtArithExpr> annotexprs);
 
 	AssrtAssertion AssrtAssertion(CommonTree source, AssrtBoolFormula f);
 	AssrtArithExpr AssrtArithAnnotation(CommonTree source, AssrtArithFormula expr);

@@ -46,7 +46,8 @@ public class AssrtGDoDel extends GDoDel
 						// Didn't keep original namenode del
 
 		//return doo.reconstruct(doo.roles, doo.args, pnn);
-		return doo.reconstruct(doo.roles, doo.args, pnn, doo.annot);
+		return doo.reconstruct(doo.roles, doo.args, pnn, //doo.annot);
+				doo.annotexprs);
 	}
 
 	// Only called if cycle
@@ -57,7 +58,13 @@ public class AssrtGDoDel extends GDoDel
 		RecVarNode recvar = (RecVarNode) builder.job.af.SimpleNameNode(blame, RecVarKind.KIND, builder.getSubprotocolRecVar(subsig).toString());
 
 		//GContinue inlined = builder.job.af.GContinue(blame, recvar);
-		AssrtArithExpr annot = ((AssrtGDo) child).annot;
+		//AssrtArithExpr annot = ((AssrtGDo) child).annot;
+		AssrtGDo gdo = (AssrtGDo) child;
+		if (gdo.annotexprs.size() > 1)
+		{
+			throw new RuntimeException("[assrt] TODO: " + child);
+		}
+		AssrtArithExpr annot = gdo.annotexprs.isEmpty() ? null : gdo.annotexprs.get(0);
 		AssrtGContinue inlined = ((AssrtAstFactory) builder.job.af).AssrtGContinue(blame, recvar, annot);
 
 		builder.pushEnv(builder.popEnv().setTranslation(inlined));
@@ -95,6 +102,10 @@ public class AssrtGDoDel extends GDoDel
 				{
 					throw new RuntimeException("[assrt] TODO: " + gdo);
 				}
+				if (gdo.annotexprs.size() > 1)
+				{
+					throw new RuntimeException("[assrt] TODO: " + gdo);
+				}
 
 				AssrtAssertion ass = ((AssrtAstFactory) dinlr.job.af).AssrtAssertion(null,
 						AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
@@ -102,7 +113,10 @@ public class AssrtGDoDel extends GDoDel
 
 								AssrtFormulaFactory.AssrtIntVar(annotvars.get(0).toString()),  // FIXME:
 
-								gdo.annot.getFormula()));  // FIXME: null source, and bcf
+								//gdo.annot.getFormula()));  // FIXME: null source, and bcf
+								
+								gdo.annotexprs.get(0).getFormula()));
+								
 				inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, gb, ass);
 			}
 
@@ -149,7 +163,8 @@ public class AssrtGDoDel extends GDoDel
 			LProtocolNameNode target = Projector.makeProjectedFullNameNode(proj.job.af, gd.proto.getSource(), gd.getTargetProtocolDeclFullName(mc), popped);
 
 			//projection = gd.project(proj.job.af, self, target);
-			ld = gd.project(proj.job.af, self, target, gd.annot);
+			ld = gd.project(proj.job.af, self, target, //gd.annot);
+					gd.annotexprs);
 			
 			// FIXME: do guarded recursive subprotocol checking (i.e. role is used during chain) in reachability checking? -- required role-usage makes local choice subject inference easier, but is restrictive (e.g. proto(A, B, C) { choice at A {A->B.do Proto(A,B,C)} or {A->B.B->C} }))
 		}
