@@ -860,7 +860,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			{
 				AssrtDataTypeVar k = e.getKey();
 				AssrtArithFormula af = e.getValue();
-				if (!tmp.containsKey(k) || !tmp.get(k).equals(af))
+				if (!tmp.containsKey(k) || !tmp.get(k).equals(af))  // FIXME: need to treat statevars more like roles? i.e., statevar must be explicitly declared/passed to stay "in scope" in the subproto?
 				{
 					updateRandFfromR(F, self, tmp, k, af);
 					//putK(K, self, k);

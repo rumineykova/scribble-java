@@ -12,6 +12,21 @@ type <dotnet> "System.UInt32" from "..." as int;
 type <dotnet> "System.String" from "..." as str;
 
 
+
+
+global protocol Fib(role C, role S) @(x1=0);
+{
+	choice at C
+	{
+		ADD(x:int) from C to S; @(x=x1);
+		ADD(y:int) from C to S;
+		RES(z:int) from S to C; @(z=(x+y));
+		do Adder(C, S); @(y);
+	}
+	//or { BYE() from C to S; BYE() from S to C; }
+}
+
+
 // FIXME: debug printing for assertion passes
 
 // FIXME: distinguish branches where "not guaranteed safe" vs "impossible"
@@ -68,6 +83,12 @@ type <dotnet> "System.String" from "..." as str;
 // once any clause has an "old var", can delete the clause because model is that we don't have old var value anymore so can't evaluate the constraint
 // arguing about the "value" doesn't really make sense here, because doing forall anyway
 // it's more like, "old var" ever won't be "used" in an upcoming constraint -- at least not "directly", but also not "indirectly"? -- also not "indrectly" because of "temporal ordering" given by syntax: e.g., x->y->z->loop, if x becomes old, then any upcoming use of y must also occur after y becomes old
+
+
+
+
+
+
 
 
 
