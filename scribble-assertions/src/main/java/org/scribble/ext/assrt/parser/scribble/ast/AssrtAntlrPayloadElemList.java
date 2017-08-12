@@ -8,7 +8,7 @@ import org.scribble.ast.PayloadElem;
 import org.scribble.ast.PayloadElemList;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
+import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.parser.scribble.AssrtAntlrToScribParser;
 import org.scribble.ext.assrt.parser.scribble.ast.name.AssrtAntlrSimpleName;
 import org.scribble.parser.scribble.AntlrToScribParser;
@@ -34,7 +34,7 @@ public class AssrtAntlrPayloadElemList
 		{
 			case AssrtAntlrToScribParser.ASSRT_ANNOTPAYLOADELEM_NODE_TYPE:
 			{
-				AssrtVarNameNode var = AssrtAntlrSimpleName.toVarNameNode(getVarNameChild(ct), af);
+				AssrtIntVarNameNode var = AssrtAntlrSimpleName.toVarNameNode(getVarNameChild(ct), af);
 				DataTypeNode dt = AntlrQualifiedName.toDataTypeNameNode(getDataTypeChild(ct), af);
 				return ((AssrtAstFactory) af).AssrtAnnotDataTypeElem(ct, var, dt); 
 			}

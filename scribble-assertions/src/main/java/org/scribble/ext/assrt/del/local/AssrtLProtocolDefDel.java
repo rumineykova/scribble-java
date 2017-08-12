@@ -16,6 +16,8 @@ import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
+import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
+import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.SubprotocolSig;
 import org.scribble.type.kind.RecVarKind;
@@ -41,20 +43,29 @@ public class AssrtLProtocolDefDel extends LProtocolDefDel
 	@Override
 	public ScribNode leaveProtocolInlining(ScribNode parent, ScribNode child, ProtocolDefInliner dinlr, ScribNode visited) throws ScribbleException
 	{
+		AssrtAstFactory af = (AssrtAstFactory) dinlr.job.af;
+
 		CommonTree blame = ((LProtocolDecl) parent).header.getSource();  // Cf., GProtocolDefDel
 		SubprotocolSig subsig = dinlr.peekStack();
 		LProtocolDef def = (LProtocolDef) visited;
 		LProtocolBlock block = (LProtocolBlock) ((InlineProtocolEnv) def.block.del().env()).getTranslation();	
-		RecVarNode recvar = (RecVarNode) dinlr.job.af.SimpleNameNode(blame,  // The parent do would probably be the better source for blame
+		RecVarNode recvar = (RecVarNode) af.SimpleNameNode(blame,  // The parent do would probably be the better source for blame
 				RecVarKind.KIND, dinlr.getSubprotocolRecVar(subsig).toString());
 
 		//LRecursion rec = inl.job.af.LRecursion(blame, recvar, block);
 		LProjectionDecl lpd = (LProjectionDecl) parent;  // FIXME: factor out interface for annot LProtocolDecl and LProjectionDecl?
-		AssrtAssertion ass = ((AssrtLProtocolHeader) lpd.getHeader()).ass;
+		//AssrtAssertion ass = ((AssrtLProtocolHeader) lpd.getHeader()).ass;
+		
+		AssrtLProtocolHeader hdr = (AssrtLProtocolHeader) lpd.getHeader();
+		AssrtAssertion ass = hdr.annotvars.isEmpty()
+				? null
+				: af.AssrtAssertion(hdr.getSource(), AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
+						AssrtFormulaFactory.AssrtIntVar(hdr.annotvars.get(0).toString()), hdr.annotexprs.get(0).getFormula()));  // FIXME
+		
 		AssrtLRecursion rec = ((AssrtAstFactory) dinlr.job.af).AssrtLRecursion(blame, recvar, block, ass);  // FIXME: factor out better?
 
-		LInteractionSeq lis = dinlr.job.af.LInteractionSeq(blame, Arrays.asList(rec));
-		LProtocolDef inlined = dinlr.job.af.LProtocolDef(def.getSource(), dinlr.job.af.LProtocolBlock(blame, lis));
+		LInteractionSeq lis = af.LInteractionSeq(blame, Arrays.asList(rec));
+		LProtocolDef inlined = af.LProtocolDef(def.getSource(), dinlr.job.af.LProtocolBlock(blame, lis));
 		dinlr.pushEnv(dinlr.popEnv().setTranslation(inlined));
 		AssrtLProtocolDefDel copy = (AssrtLProtocolDefDel) setInlinedProtocolDef(inlined);  // Created using copy
 		return (LProtocolDef) ScribDelBase.popAndSetVisitorEnv(this, dinlr, (LProtocolDef) def.del(copy));

@@ -43,7 +43,7 @@ import org.scribble.ext.assrt.ast.local.AssrtLDo;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
-import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
+import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.del.AssrtAnnotDataTypeElemDel;
 import org.scribble.ext.assrt.del.global.AssrtGChoiceDel;
 import org.scribble.ext.assrt.del.global.AssrtGConnectDel;
@@ -238,9 +238,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	// Explicitly creating new Assrt nodes
 
 	@Override
-	public AssrtGProtocolHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, AssrtAssertion ass)
+	public AssrtGProtocolHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
 	{
-		AssrtGProtocolHeader gpb = new AssrtGProtocolHeader(source, name, roledecls, paramdecls, ass);
+		AssrtGProtocolHeader gpb = new AssrtGProtocolHeader(source, name, roledecls, paramdecls, //ass);
+				annotvars, annotexprs);
 		gpb = del(gpb, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
 		return gpb;
 	}
@@ -270,7 +272,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtGContinue AssrtGContinue(CommonTree source, RecVarNode recvar, AssrtArithAnnotation annot)
+	public AssrtGContinue AssrtGContinue(CommonTree source, RecVarNode recvar, AssrtArithExpr annot)
 	{
 		AssrtGContinue gc = new AssrtGContinue(source, recvar, annot);
 		gc = del(gc, new AssrtGContinueDel());
@@ -278,7 +280,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtGDo AssrtGDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto, AssrtArithAnnotation annot)
+	public AssrtGDo AssrtGDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto, AssrtArithExpr annot)
 	{
 		AssrtGDo gd = new AssrtGDo(source, roleinstans, arginstans, proto, annot);
 		gd = del(gd, new AssrtGDoDel());
@@ -286,9 +288,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtLProtocolHeader AssrtLProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, AssrtAssertion ass)
+	public AssrtLProtocolHeader AssrtLProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
 	{
-		AssrtLProtocolHeader lph = new AssrtLProtocolHeader(source, name, roledecls, paramdecls, ass);
+		AssrtLProtocolHeader lph = new AssrtLProtocolHeader(source, name, roledecls, paramdecls, //ass);
+				annotvars, annotexprs);
 		lph = del(lph, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
 		return lph;
 	}
@@ -318,7 +322,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtLContinue AssrtLContinue(CommonTree source, RecVarNode recvar, AssrtArithAnnotation annot)
+	public AssrtLContinue AssrtLContinue(CommonTree source, RecVarNode recvar, AssrtArithExpr annot)
 	{
 		AssrtLContinue lc = new AssrtLContinue(source, recvar, annot);
 		lc = del(lc, new AssrtLContinueDel());
@@ -326,7 +330,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtLDo AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto, AssrtArithAnnotation annot)
+	public AssrtLDo AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto, AssrtArithExpr annot)
 	{
 		AssrtLDo gd = new AssrtLDo(source, roleinstans, arginstans, proto, annot);
 		gd = del(gd, new AssrtLDoDel());
@@ -335,7 +339,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	
 	// An "additional" category, does not "replace" an existing one -- cf. AssrtGMessageTransfer
 	@Override
-	public AssrtAnnotDataTypeElem AssrtAnnotDataTypeElem(CommonTree source, AssrtVarNameNode var, DataTypeNode data)
+	public AssrtAnnotDataTypeElem AssrtAnnotDataTypeElem(CommonTree source, AssrtIntVarNameNode var, DataTypeNode data)
 	{
 		AssrtAnnotDataTypeElem de = new AssrtAnnotDataTypeElem(source, var, data);
 		de = del(de, new AssrtAnnotDataTypeElemDel());
@@ -347,7 +351,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	{
 		if (kind.equals(AssrtVarNameKind.KIND))
 		{
-			NameNode<? extends Kind> snn = new AssrtVarNameNode(source, identifier);
+			NameNode<? extends Kind> snn = new AssrtIntVarNameNode(source, identifier);
 			snn = del(snn, createDefaultDelegate()); 
 			return castNameNode(kind, snn);
 		}
@@ -367,9 +371,9 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtArithAnnotation AssrtArithAnnotation(CommonTree source, AssrtArithFormula expr)
+	public AssrtArithExpr AssrtArithAnnotation(CommonTree source, AssrtArithFormula expr)
 	{
-		AssrtArithAnnotation node = new AssrtArithAnnotation(source, expr); 
+		AssrtArithExpr node = new AssrtArithExpr(source, expr); 
 		node = del(node, createDefaultDelegate());
 		return node; 
 	}

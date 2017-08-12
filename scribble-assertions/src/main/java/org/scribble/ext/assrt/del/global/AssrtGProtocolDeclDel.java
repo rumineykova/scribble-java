@@ -26,7 +26,6 @@ import org.scribble.ast.local.LProtocolDef;
 import org.scribble.ast.name.qualified.LProtocolNameNode;
 import org.scribble.del.ModuleDel;
 import org.scribble.del.global.GProtocolDeclDel;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
@@ -64,8 +63,10 @@ public class AssrtGProtocolDeclDel extends GProtocolDeclDel
 		LProtocolNameNode pn = Projector.makeProjectedSimpleNameNode(af, gph.getSource(), gph.getDeclName(), self);
 		RoleDeclList roledecls = gph.roledecls.project(af, self);
 		NonRoleParamDeclList paramdecls = gph.paramdecls.project(af, self);
-		AssrtAssertion ass = gph.ass;  // null for empty  // FIXME: project?
-		AssrtLProtocolHeader hdr = gph.project(af, self, pn, roledecls, paramdecls, ass);  // FIXME: make a header del and move there? -- and in the base clase, then don't need to override here, only the header
+		//AssrtAssertion ass = gph.ass;  // null for empty  // FIXME: project?
+		
+		AssrtLProtocolHeader hdr = gph.project(af, self, pn, roledecls, paramdecls, //ass);  // FIXME: make a header del and move there? -- and in the base clase, then don't need to override here, only the header
+				gph.annotvars, gph.annotexprs);
 		
 		LProtocolDef def = (LProtocolDef) ((ProjectionEnv) gpd.def.del().env()).getProjection();
 		LProtocolDecl lpd = gpd.project(af, root, self, hdr, def);  // FIXME: is root (always) the correct module? (wrt. LProjectionDeclDel?)

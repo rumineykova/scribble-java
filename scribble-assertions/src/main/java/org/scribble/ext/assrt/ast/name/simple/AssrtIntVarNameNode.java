@@ -3,7 +3,6 @@ package org.scribble.ext.assrt.ast.name.simple;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.ScribNodeBase;
-import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.PayloadElemNameNode;
 import org.scribble.ast.name.simple.SimpleNameNode;
 import org.scribble.ext.assrt.type.kind.AssrtVarNameKind;
@@ -11,10 +10,10 @@ import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.type.Arg;
 import org.scribble.type.kind.NonRoleArgKind;
 
-// N.B. used both directly as a PayloadElemNameNode and for the annotation in AssrtAnnotDataTypeElem
-public class AssrtVarNameNode extends SimpleNameNode<AssrtVarNameKind> implements PayloadElemNameNode<AssrtVarNameKind>
+// N.B. used both directly as a PayloadElemNameNode, and for the annotation in AssrtAnnotDataTypeElem -- also used for statevars
+public class AssrtIntVarNameNode extends SimpleNameNode<AssrtVarNameKind> implements PayloadElemNameNode<AssrtVarNameKind>
 {
-	public AssrtVarNameNode(CommonTree source, String identifier)
+	public AssrtIntVarNameNode(CommonTree source, String identifier)
 	{
 		super(source, identifier);
 	}
@@ -22,17 +21,18 @@ public class AssrtVarNameNode extends SimpleNameNode<AssrtVarNameKind> implement
 	@Override
 	protected ScribNodeBase copy()
 	{
-		return new AssrtVarNameNode(this.source, getIdentifier());
+		return new AssrtIntVarNameNode(this.source, getIdentifier());
 	}
 
 	@Override
-	public NameNode<AssrtVarNameKind> clone(AstFactory af)
+	public AssrtIntVarNameNode clone(AstFactory af)
 	{
-		return (AssrtVarNameNode) af.SimpleNameNode(this.source, AssrtVarNameKind.KIND, getIdentifier());
+		return (AssrtIntVarNameNode) af.SimpleNameNode(this.source, AssrtVarNameKind.KIND, getIdentifier());
 	}
 
 	@Override
-	public AssrtDataTypeVar toName() {
+	public AssrtDataTypeVar toName()
+	{
 		return new AssrtDataTypeVar(getIdentifier());
 	}
 	
@@ -43,17 +43,17 @@ public class AssrtVarNameNode extends SimpleNameNode<AssrtVarNameKind> implement
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtVarNameNode))
+		if (!(o instanceof AssrtIntVarNameNode))
 		{
 			return false;
 		}
-		return ((AssrtVarNameNode) o).canEqual(this) && super.equals(o);
+		return ((AssrtIntVarNameNode) o).canEqual(this) && super.equals(o);
 	}
 	
 	@Override
 	public boolean canEqual(Object o)
 	{
-		return o instanceof AssrtVarNameNode;
+		return o instanceof AssrtIntVarNameNode;
 	}
 
 	@Override
@@ -73,6 +73,9 @@ public class AssrtVarNameNode extends SimpleNameNode<AssrtVarNameKind> implement
 	@Override
 	public AssrtDataTypeVar toPayloadType()
 	{
-		return toName();  // FIXME: Shoudln't this be the type, not the var name?
+		return toName();  
+				// FIXME: Shouldn't this be the type (i.e., int), not the var name? -- cf. toName
+				// however, toPayloadType is "kinded" the same way as "toName", so have to return AssrtDataTypeVar (not an int DataType)
+				// but maybe should be this way, for later toolchain stages, e.g., API generation (for these "dependent" types)
 	}
 }

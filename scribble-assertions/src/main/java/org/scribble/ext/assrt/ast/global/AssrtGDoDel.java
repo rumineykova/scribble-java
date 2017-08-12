@@ -1,5 +1,7 @@
 package org.scribble.ext.assrt.ast.global;
 
+import java.util.List;
+
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.context.ModuleContext;
@@ -13,12 +15,12 @@ import org.scribble.ast.name.qualified.LProtocolNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDelBase;
 import org.scribble.del.global.GDoDel;
-import org.scribble.ext.assrt.ast.AssrtArithAnnotation;
+import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
+import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.SubprotocolSig;
 import org.scribble.type.kind.RecVarKind;
@@ -55,7 +57,7 @@ public class AssrtGDoDel extends GDoDel
 		RecVarNode recvar = (RecVarNode) builder.job.af.SimpleNameNode(blame, RecVarKind.KIND, builder.getSubprotocolRecVar(subsig).toString());
 
 		//GContinue inlined = builder.job.af.GContinue(blame, recvar);
-		AssrtArithAnnotation annot = ((AssrtGDo) child).annot;
+		AssrtArithExpr annot = ((AssrtGDo) child).annot;
 		AssrtGContinue inlined = ((AssrtAstFactory) builder.job.af).AssrtGContinue(blame, recvar, annot);
 
 		builder.pushEnv(builder.popEnv().setTranslation(inlined));
@@ -80,15 +82,27 @@ public class AssrtGDoDel extends GDoDel
 			
 			AssrtGProtocolHeader hdr = (AssrtGProtocolHeader) gpd.getHeader();
 			AssrtGRecursion inlined;
-			if (hdr.ass == null)
+			//if (hdr.ass == null)
+			if (hdr.annotvars.isEmpty())
 			{
 				inlined = (AssrtGRecursion) dinlr.job.af.GRecursion(blame, recvar, gb);
 			}
 			else
 			{
-				AssrtBinCompFormula bcf = (AssrtBinCompFormula) ((AssrtGProtocolHeader) gpd.getHeader()).ass.getFormula();  // FIXME: bcf
+				//AssrtBinCompFormula bcf = (AssrtBinCompFormula) ((AssrtGProtocolHeader) gpd.getHeader()).ass.getFormula();  // FIXME: bcf
+				List<AssrtIntVarNameNode> annotvars = ((AssrtGProtocolHeader) gpd.getHeader()).annotvars;
+				if (annotvars.size() != 1)
+				{
+					throw new RuntimeException("[assrt] TODO: " + gdo);
+				}
+
 				AssrtAssertion ass = ((AssrtAstFactory) dinlr.job.af).AssrtAssertion(null,
-						AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, (AssrtIntVarFormula) bcf.left, gdo.annot.getFormula()));  // FIXME: null source, and bcf
+						AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
+								//(AssrtIntVarFormula) bcf.left,
+
+								AssrtFormulaFactory.AssrtIntVar(annotvars.get(0).toString()),  // FIXME:
+
+								gdo.annot.getFormula()));  // FIXME: null source, and bcf
 				inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, gb, ass);
 			}
 

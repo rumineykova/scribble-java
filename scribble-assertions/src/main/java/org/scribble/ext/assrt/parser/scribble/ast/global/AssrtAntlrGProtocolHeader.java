@@ -13,6 +13,8 @@
  */
 package org.scribble.ext.assrt.parser.scribble.ast.global;
 
+import java.util.Arrays;
+
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.NonRoleParamDeclList;
 import org.scribble.ast.RoleDeclList;
@@ -20,11 +22,13 @@ import org.scribble.ast.global.GProtocolHeader;
 import org.scribble.ast.name.qualified.GProtocolNameNode;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
+import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
 import org.scribble.ext.assrt.parser.scribble.AssrtAntlrToScribParser;
 import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
+import org.scribble.ext.assrt.type.kind.AssrtVarNameKind;
 import org.scribble.parser.scribble.AntlrToScribParser;
 import org.scribble.parser.scribble.ast.global.AntlrGProtocolHeader;
 import org.scribble.parser.scribble.ast.name.AntlrSimpleName;
@@ -45,7 +49,11 @@ public class AssrtAntlrGProtocolHeader
 		CommonTree assTree = AssrtAntlrGProtocolHeader.getAssertionChild(root);
 		AssrtAssertion ass = AssrtAntlrGProtocolHeader.parseIntVarInitDeclAnnot(((AssrtAntlrToScribParser) parser).ap, assTree, af);
 
-		return af.AssrtGProtocolHeader(root, name, rdl, pdl, ass);
+
+		AssrtBinCompFormula bcf = (AssrtBinCompFormula) ass.getFormula();
+		return af.AssrtGProtocolHeader(root, name, rdl, pdl, //ass);
+				Arrays.asList((AssrtIntVarNameNode) af.SimpleNameNode(ass.getSource(), AssrtVarNameKind.KIND, bcf.left.toString())),  // FIXME
+				Arrays.asList(af.AssrtArithAnnotation(ass.getSource(), bcf.right)));
 	}
 
 	// FIXME: factor out restrictions explicitly into the ANTLR grammar

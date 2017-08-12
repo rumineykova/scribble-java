@@ -7,21 +7,21 @@ import org.scribble.ast.local.LContinue;
 import org.scribble.ast.local.LInteractionNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDel;
-import org.scribble.ext.assrt.ast.AssrtArithAnnotation;
+import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.main.ScribbleException;
 import org.scribble.visit.AstVisitor;
 
 public class AssrtLContinue extends LContinue
 {
-	public final AssrtArithAnnotation annot;  // cf. AssrtGDo  // FIXME: make specific syntactic expr
+	public final AssrtArithExpr annot;  // cf. AssrtGDo  // FIXME: make specific syntactic expr
 	
 	public AssrtLContinue(CommonTree source, RecVarNode recvar)
 	{
 		this(source, recvar, null);
 	}
 
-	public AssrtLContinue(CommonTree source, RecVarNode recvar, AssrtArithAnnotation annot)
+	public AssrtLContinue(CommonTree source, RecVarNode recvar, AssrtArithExpr annot)
 	{
 		super(source, recvar);
 		this.annot = annot;
@@ -37,7 +37,7 @@ public class AssrtLContinue extends LContinue
 	public AssrtLContinue clone(AstFactory af)
 	{
 		RecVarNode rv = this.recvar.clone(af);
-		AssrtArithAnnotation annot = (this.annot == null) ? null : this.annot.clone(af);
+		AssrtArithExpr annot = (this.annot == null) ? null : this.annot.clone(af);
 		return ((AssrtAstFactory) af).AssrtLContinue(this.source, rv, annot);
 	}
 
@@ -47,7 +47,7 @@ public class AssrtLContinue extends LContinue
 		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 
-	public AssrtLContinue reconstruct(RecVarNode recvar, AssrtArithAnnotation annot)
+	public AssrtLContinue reconstruct(RecVarNode recvar, AssrtArithExpr annot)
 	{
 		ScribDel del = del();
 		AssrtLContinue lc = new AssrtLContinue(this.source, recvar, annot);
@@ -59,7 +59,7 @@ public class AssrtLContinue extends LContinue
 	public LContinue visitChildren(AstVisitor nv) throws ScribbleException
 	{
 		RecVarNode recvar = (RecVarNode) visitChild(this.recvar, nv);
-		AssrtArithAnnotation annot = (this.annot == null) ? null : (AssrtArithAnnotation) visitChild(this.annot, nv);
+		AssrtArithExpr annot = (this.annot == null) ? null : (AssrtArithExpr) visitChild(this.annot, nv);
 		return reconstruct(recvar, annot);
 	}
 

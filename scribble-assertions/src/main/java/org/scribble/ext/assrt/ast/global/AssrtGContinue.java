@@ -7,7 +7,7 @@ import org.scribble.ast.global.GContinue;
 import org.scribble.ast.local.LContinue;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDel;
-import org.scribble.ext.assrt.ast.AssrtArithAnnotation;
+import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.main.ScribbleException;
@@ -17,14 +17,14 @@ import org.scribble.visit.AstVisitor;
 
 public class AssrtGContinue extends GContinue
 {
-	public final AssrtArithAnnotation annot;  // cf. AssrtGDo  // FIXME: make specific syntactic expr
+	public final AssrtArithExpr annot;  // cf. AssrtGDo  // FIXME: make specific syntactic expr
 
 	public AssrtGContinue(CommonTree source, RecVarNode recvar)
 	{
 		this(source, recvar, null);
 	}
 
-	public AssrtGContinue(CommonTree source, RecVarNode recvar, AssrtArithAnnotation annot)
+	public AssrtGContinue(CommonTree source, RecVarNode recvar, AssrtArithExpr annot)
 	{
 		super(source, recvar);
 		this.annot = annot;
@@ -36,7 +36,7 @@ public class AssrtGContinue extends GContinue
 		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 
-	public AssrtLContinue project(AstFactory af, Role self, AssrtArithAnnotation annot)
+	public AssrtLContinue project(AstFactory af, Role self, AssrtArithExpr annot)
 	{
 		RecVarNode recvar = (RecVarNode) af.SimpleNameNode(this.recvar.getSource(), RecVarKind.KIND, this.recvar.toName().toString());
 		AssrtLContinue projection = ((AssrtAstFactory) af).AssrtLContinue(this.source, recvar, annot);
@@ -53,7 +53,7 @@ public class AssrtGContinue extends GContinue
 	public AssrtGContinue clone(AstFactory af)
 	{
 		RecVarNode rv = this.recvar.clone(af);
-		AssrtArithAnnotation annot = (this.annot == null) ? null : this.annot.clone(af);
+		AssrtArithExpr annot = (this.annot == null) ? null : this.annot.clone(af);
 		return ((AssrtAstFactory) af).AssrtGContinue(this.source, rv, annot);
 	}
 
@@ -63,7 +63,7 @@ public class AssrtGContinue extends GContinue
 		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 
-	public AssrtGContinue reconstruct(RecVarNode recvar, AssrtArithAnnotation annot)
+	public AssrtGContinue reconstruct(RecVarNode recvar, AssrtArithExpr annot)
 	{
 		ScribDel del = del();
 		AssrtGContinue gc = new AssrtGContinue(this.source, recvar, annot);
@@ -75,7 +75,7 @@ public class AssrtGContinue extends GContinue
 	public GContinue visitChildren(AstVisitor nv) throws ScribbleException
 	{
 		RecVarNode recvar = (RecVarNode) visitChild(this.recvar, nv);
-		AssrtArithAnnotation annot = (this.annot == null) ? null : (AssrtArithAnnotation) visitChild(this.annot, nv);  // FIXME: visit child with cast
+		AssrtArithExpr annot = (this.annot == null) ? null : (AssrtArithExpr) visitChild(this.annot, nv);  // FIXME: visit child with cast
 		return reconstruct(recvar, annot);
 	}
 

@@ -10,33 +10,33 @@ import org.scribble.main.ScribbleException;
 import org.scribble.visit.AstVisitor;
 
 // Based on AssrtAssertion
-public class AssrtArithAnnotation extends ScribNodeBase 
+public class AssrtArithExpr extends ScribNodeBase 
 {	
 	private AssrtArithFormula expr;
 
-	public AssrtArithAnnotation(CommonTree source, AssrtArithFormula expr)
+	public AssrtArithExpr(CommonTree source, AssrtArithFormula expr)
 	{
 		super(source);
 		this.expr = expr; 
 	}
 	
 	@Override
-	protected AssrtArithAnnotation copy()
+	protected AssrtArithExpr copy()
 	{
-		return new AssrtArithAnnotation(this.source, this.expr);
+		return new AssrtArithExpr(this.source, this.expr);
 	}
 	
 	@Override
-	public AssrtArithAnnotation clone(AstFactory af)
+	public AssrtArithExpr clone(AstFactory af)
 	{
-		return (AssrtArithAnnotation) ((AssrtAstFactory) af).AssrtArithAnnotation(this.source, this.expr);  // expr is immutable
+		return (AssrtArithExpr) ((AssrtAstFactory) af).AssrtArithAnnotation(this.source, this.expr);  // expr is immutable
 	}
 
-	protected AssrtArithAnnotation reconstruct(AssrtArithFormula f)
+	protected AssrtArithExpr reconstruct(AssrtArithFormula f)
 	{
 		ScribDel del = del();
-		AssrtArithAnnotation an = new AssrtArithAnnotation(this.source, f);
-		an = (AssrtArithAnnotation) an.del(del);
+		AssrtArithExpr an = new AssrtArithExpr(this.source, f);
+		an = (AssrtArithExpr) an.del(del);
 		return an;
 	}
 
