@@ -223,7 +223,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		AssrtArithFormula init;
 		if (gr.ass == null)
 		{
-			annot = makeFreshDataTypeVar();
+			annot = makeFreshDataTypeVar();  // FIXME: make empty list
 			init = AssrtFormulaFactory.AssrtIntVal(0);
 		}
 		else
@@ -349,7 +349,8 @@ public class AssrtCoreGProtocolDeclTranslator
 			/*DataTypeNode dtn = (DataTypeNode) ((AssrtAstFactory) this.job.af).QualifiedNameNode(null, DataTypeKind.KIND, "_Unit");
 			AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
 			return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, dtn);  // null source OK?*/
-			return new AssrtAnnotDataType(makeFreshDataTypeVar(), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE);
+
+			return new AssrtAnnotDataType(makeFreshDataTypeVar(), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE);  // FIXME: make empty list
 		}
 		else if (msn.payloads.getElements().size() > 1)
 		{
