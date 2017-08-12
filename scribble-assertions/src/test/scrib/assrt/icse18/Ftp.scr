@@ -30,6 +30,7 @@ global protocol Proto1(role C, role D, role S) @(ppp=0);
 				{
 					227(p:Int) from S to C; @(open(p,D) && (ppp=0));  
 							// Encode roles and vars as ints; encode linear "consumer" as function; encode linear resource usage as statevar
+									// Need to fully extend to poly recvars
 							// -- and linear ownership? -- or linear ownership subsumed by basic linear usage and basic var knowledge?
 							// FIXME: also encode basic var knowledge as functions? -- currently in model
 
