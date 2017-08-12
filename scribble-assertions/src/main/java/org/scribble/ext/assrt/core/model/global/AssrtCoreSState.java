@@ -877,6 +877,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//if (!annot.equals(AssrtCoreEAction.DUMMY_VAR))
 		if (!a.getStateExprs().isEmpty())
 		{
+			if (succ.getAnnotVars().size() > 1 || a.getStateExprs().size() > 1)
+			{
+				//throw new RuntimeException("[assrt-core] TODO: " + succ.getAnnotVars() + ", " + a.getStateExprs());
+			}
 			AssrtDataTypeVar annot = succ.getAnnotVars().keySet().iterator().next();  // FIXME
 			AssrtArithFormula expr = a.getStateExprs().iterator().next();  // FIXME:
 

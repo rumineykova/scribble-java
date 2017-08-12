@@ -17,7 +17,6 @@ import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GConnect;
 import org.scribble.ast.global.GContinue;
 import org.scribble.ast.global.GInteractionNode;
-import org.scribble.ast.global.GMessageTransfer;
 import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.ast.global.GProtocolDef;
@@ -103,13 +102,13 @@ public class AssrtCoreGProtocolDeclTranslator
 		GInteractionNode first = is.get(0);
 		if (first instanceof GSimpleInteractionNode && !(first instanceof GContinue))
 		{
-			if (first instanceof GMessageTransfer)
+			if (first instanceof AssrtGMessageTransfer)
 			{
-				return parseGMessageTransfer(is, rvs, (GMessageTransfer) first);
+				return parseAssrtGMessageTransfer(is, rvs, (AssrtGMessageTransfer) first);
 			}
-			else if (first instanceof GConnect)
+			else if (first instanceof AssrtGConnect)
 			{
-				return parseGConnect(is, rvs, (GConnect) first);
+				return parseAssrtGConnect(is, rvs, (AssrtGConnect) first);
 			}
 			/*else if (first instanceof GDisconnect)
 			{
@@ -145,7 +144,7 @@ public class AssrtCoreGProtocolDeclTranslator
 			}
 			else if (first instanceof GContinue)
 			{
-				return parseGContinue(rvs, checkRecGuard, (AssrtGContinue) first);
+				return parseAssrtGContinue(rvs, checkRecGuard, (AssrtGContinue) first);
 			}
 			else
 			{
@@ -239,7 +238,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		return this.af.AssrtCoreGRec(recvar, Stream.of(annot).collect(Collectors.toMap(a -> a, a -> init)), body);
 	}
 
-	private AssrtCoreGType parseGContinue(Map<RecVar, RecVar> rvs, boolean checkRecGuard, AssrtGContinue gc)
+	private AssrtCoreGType parseAssrtGContinue(Map<RecVar, RecVar> rvs, boolean checkRecGuard, AssrtGContinue gc)
 			throws AssrtCoreSyntaxException
 	{
 		if (checkRecGuard)
@@ -266,7 +265,7 @@ public class AssrtCoreGProtocolDeclTranslator
 	}
 
 	// Parses message interactions as unary choices
-	private AssrtCoreGChoice parseGMessageTransfer(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, GMessageTransfer gmt) throws AssrtCoreSyntaxException 
+	private AssrtCoreGChoice parseAssrtGMessageTransfer(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, AssrtGMessageTransfer gmt) throws AssrtCoreSyntaxException 
 	{
 		Op op = parseOp(gmt);
 		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
@@ -281,7 +280,7 @@ public class AssrtCoreGProtocolDeclTranslator
 
 	// Duplicated from parseGMessageTransfer (MessageTransfer and ConnectionAction have no common
 	
-	private AssrtCoreGChoice parseGConnect(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, GConnect gc) throws AssrtCoreSyntaxException 
+	private AssrtCoreGChoice parseAssrtGConnect(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, AssrtGConnect gc) throws AssrtCoreSyntaxException 
 	{
 		Op op = parseOp(gc);
 		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
@@ -307,12 +306,12 @@ public class AssrtCoreGProtocolDeclTranslator
 		return this.af.AssrtCoreGChoice(src, kind, dest, Stream.of(a).collect(Collectors.toMap(x -> x, x -> cont)));
 	}
 
-	private Op parseOp(GMessageTransfer gmt) throws AssrtCoreSyntaxException
+	private Op parseOp(AssrtGMessageTransfer gmt) throws AssrtCoreSyntaxException
 	{
 		return parseOp(gmt.msg);
 	}
 
-	private Op parseOp(GConnect gc) throws AssrtCoreSyntaxException
+	private Op parseOp(AssrtGConnect gc) throws AssrtCoreSyntaxException
 	{
 		return parseOp(gc.msg);
 	}
@@ -327,13 +326,13 @@ public class AssrtCoreGProtocolDeclTranslator
 		return msn.op.toName();
 	}
 
-	private AssrtAnnotDataType parsePayload(GMessageTransfer gmt) throws AssrtCoreSyntaxException
+	private AssrtAnnotDataType parsePayload(AssrtGMessageTransfer gmt) throws AssrtCoreSyntaxException
 	//private AssrtAnnotDataTypeElem<DataTypeKind> parsePayload(GMessageTransfer gmt) throws AssrtException
 	{
 		return parsePayload(gmt.msg);
 	}
 
-	private AssrtAnnotDataType parsePayload(GConnect gc) throws AssrtCoreSyntaxException
+	private AssrtAnnotDataType parsePayload(AssrtGConnect gc) throws AssrtCoreSyntaxException
 	{
 		return parsePayload(gc.msg);
 	}
@@ -395,14 +394,14 @@ public class AssrtCoreGProtocolDeclTranslator
 		}
 	}
 
-	private AssrtAssertion parseAssertion(GMessageTransfer gmt)
+	private AssrtAssertion parseAssertion(AssrtGMessageTransfer gmt)
 	{
-		return parseAssertion(((AssrtGMessageTransfer) gmt).ass);
+		return parseAssertion(gmt.ass);
 	}
 
-	private AssrtAssertion parseAssertion(GConnect gc)
+	private AssrtAssertion parseAssertion(AssrtGConnect gc)
 	{
-		return parseAssertion(((AssrtGConnect) gc).ass);
+		return parseAssertion(gc.ass);
 	}
 
 	// Empty assertions generated as True
@@ -412,7 +411,7 @@ public class AssrtCoreGProtocolDeclTranslator
 			// FIXME: singleton constant
 	}
 
-	private Role parseSourceRole(GMessageTransfer gmt)
+	private Role parseSourceRole(AssrtGMessageTransfer gmt)
 	{
 		return parseSourceRole(gmt.src);
 	}
@@ -427,7 +426,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		return rn.toName();
 	}
 	
-	private Role parseDestinationRole(GMessageTransfer gmt) throws AssrtCoreSyntaxException
+	private Role parseDestinationRole(AssrtGMessageTransfer gmt) throws AssrtCoreSyntaxException
 	{
 		if (gmt.getDestinations().size() > 1)
 		{
@@ -436,7 +435,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		return parseDestinationRole(gmt.getDestinations().get(0));
 	}
 
-	private Role parseDestinationRole(GConnect gc) throws AssrtCoreSyntaxException
+	private Role parseDestinationRole(AssrtGConnect gc) throws AssrtCoreSyntaxException
 	{
 		return parseDestinationRole(gc.dest);
 	}
