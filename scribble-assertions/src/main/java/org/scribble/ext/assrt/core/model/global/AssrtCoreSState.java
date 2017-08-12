@@ -851,15 +851,19 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		// Rename old R vars -- must come before adding new F and R clauses
 		Map<AssrtDataTypeVar, AssrtArithFormula> tmp = R.get(self);
 		//AssrtDataTypeVar annot = a.getAnnotVar();
+
+		// "forward" recs will have annotvars but no stateexprs
+		Map<AssrtDataTypeVar, AssrtArithFormula> annotvars = succ.getAnnotVars();
+		List<AssrtArithFormula> stateexprs = a.getStateExprs();
 		
 
 		// Following must come after F update
 
 		// Update R from state -- entering a rec "forwards", i.e., not via a continue
 		//if (annot.equals(AssrtCoreEAction.DUMMY_VAR))  // HACK CHECKME
-		if (a.getStateExprs().isEmpty())  // FIXME
+		if (stateexprs.isEmpty())
 		{
-			succ.getAnnotVars().entrySet().forEach(e ->
+			annotvars.entrySet().forEach(e ->
 			{
 				AssrtDataTypeVar k = e.getKey();
 				AssrtArithFormula af = e.getValue();
@@ -875,33 +879,44 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//AssrtArithFormula expr = a.getArithExpr();
 
 		//if (!annot.equals(AssrtCoreEAction.DUMMY_VAR))
-		if (!a.getStateExprs().isEmpty())
+		if (!stateexprs.isEmpty())
 		{
-			if (succ.getAnnotVars().size() > 1 || a.getStateExprs().size() > 1)
+			//if (annotvars.size() != stateexprs.size())
+			if (annotvars.keySet().stream().filter(k -> !k.toString().startsWith("_dum")).count() > stateexprs.size())  // HACK (stateexprs currently always size one)
 			{
-				//throw new RuntimeException("[assrt-core] TODO: " + succ.getAnnotVars() + ", " + a.getStateExprs());
-			}
-			AssrtDataTypeVar annot = succ.getAnnotVars().keySet().iterator().next();  // FIXME
-			AssrtArithFormula expr = a.getStateExprs().iterator().next();  // FIXME:
-
-			if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
-			{
-				expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), 
-						//fresh  // No: don't need to "link" R vars and F vars -- only F matters for direct formula checking
-
-						//makeFreshIntVar(annot)  // Makes model construction non-terminating, e.g., mu X(x:=..) ... X<x> -- makes unbounded fresh in x = fresh(x)
-						AssrtFormulaFactory.AssrtIntVar("_" + annot.toString())  // FIXME: is this OK?
-				);	
+				throw new RuntimeException("[assrt-core] Shouldn't get here: " + annotvars + ", " + stateexprs);  // FIXME: not actually syntactically checked yet
 			}
 
-			// Update R from action -- recursion back to a rec, via a continue
-
-			AssrtArithFormula curr = tmp.get(annot);
-			if (!curr.equals(expr)  // CHECKME: "syntactic" check is what we want here?
-					&& !((expr instanceof AssrtIntVarFormula) && ((AssrtIntVarFormula) expr).name.equals("_" + annot.toString())))  // Hacky? if expr is just the var occurrence, then value doesn't change
-							// FIXME: generalise -- occurences of other vars can be first substituted, before "old var renaming"? -- also for rec-state updates?
+			Iterator<AssrtArithFormula> afs = stateexprs.iterator();
+			for (AssrtDataTypeVar annot : annotvars.keySet())
 			{
-				updateRandFfromR(F, self, tmp, annot, expr);
+				//AssrtDataTypeVar annot = succ.getAnnotVars().keySet().iterator().next();
+				if (annot.toString().startsWith("_dum"))  // FIXME: inconsistent with afs -- eventually there should be no _dum at all
+				{
+					continue;
+				}
+				
+				//AssrtArithFormula expr = a.getStateExprs().iterator().next();
+				AssrtArithFormula expr = afs.next();
+
+				if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
+				{
+					expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), 
+							//fresh  // No: don't need to "link" R vars and F vars -- only F matters for direct formula checking
+							//makeFreshIntVar(annot)  // Makes model construction non-terminating, e.g., mu X(x:=..) ... X<x> -- makes unbounded fresh in x = fresh(x)
+							AssrtFormulaFactory.AssrtIntVar("_" + annot.toString())  // FIXME: is this OK?
+					);	
+				}
+
+				// Update R from action -- recursion back to a rec, via a continue
+
+				AssrtArithFormula curr = tmp.get(annot);
+				if (!curr.equals(expr)  // CHECKME: "syntactic" check is what we want here?
+						&& !((expr instanceof AssrtIntVarFormula) && ((AssrtIntVarFormula) expr).name.equals("_" + annot.toString())))  // Hacky? if expr is just the var occurrence, then value doesn't change
+								// FIXME: generalise -- occurences of other vars can be first substituted, before "old var renaming"? -- also for rec-state updates?
+				{
+					updateRandFfromR(F, self, tmp, annot, expr);
+				}
 			}
 		}
 
