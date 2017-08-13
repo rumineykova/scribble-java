@@ -80,6 +80,7 @@ type <dotnet> "System.String" from "..." as str;
 //*
 global protocol Proto1(role A, role B)
 {
+	//1(x:int) from A to B; @foo(A);  // FIXME: roles as fun args -- encode as ints?
 	1(x:int) from A to B; @foo(x);
 }
 //*/
@@ -89,10 +90,10 @@ global protocol Proto1(role A, role B)
 explicit global protocol Proto1(role A, role B, role C)
 {
 	connect A to B;
-	1(x:int) from A to B; @(port(x, C));  // implies port(x, C) and not(port(x, A)), not(port(x, B))
+	1(x:int) from A to B; @port(x, C);  // implies port(x, C) and not(port(x, A)), not(port(x, B))
 	connect B to C;
 	2(y:int) from B to A; @(x=y);
-	connect C to A; @(request(x, C))  // C should know x; should imply port(x, C);
+	connect C to A; @request(x, C);  // C should know x; should imply port(x, C);
 } // terminal state needs all linear used
 //*/
 

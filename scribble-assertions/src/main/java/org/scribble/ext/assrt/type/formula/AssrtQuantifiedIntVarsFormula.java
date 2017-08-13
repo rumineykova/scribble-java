@@ -7,13 +7,13 @@ import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 
-public abstract class AssrtIntVarQuantifiedFormula extends AssrtBoolFormula
+public abstract class AssrtQuantifiedIntVarsFormula extends AssrtBoolFormula
 {
 	public final List<AssrtIntVarFormula> vars;
 	public final AssrtBoolFormula expr;
 
 	// Pre: vars non empty
-	protected AssrtIntVarQuantifiedFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
+	protected AssrtQuantifiedIntVarsFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
 	{
 		this.vars = Collections.unmodifiableList(vars);
 		this.expr = expr;
@@ -26,6 +26,11 @@ public abstract class AssrtIntVarQuantifiedFormula extends AssrtBoolFormula
 		vs.removeAll(this.vars.stream().map(v -> v.toName()).collect(Collectors.toList()));
 		return vs;
 	}
+	
+	protected String bodyToString()
+	{
+		return "[" + this.vars.stream().map(Object::toString).collect(Collectors.joining(", ")) + "] (" + this.expr + ")";
+	}
 
 	@Override
 	public boolean equals(Object o)
@@ -34,11 +39,11 @@ public abstract class AssrtIntVarQuantifiedFormula extends AssrtBoolFormula
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtIntVarQuantifiedFormula))
+		if (!(o instanceof AssrtQuantifiedIntVarsFormula))
 		{
 			return false;
 		}
-		AssrtIntVarQuantifiedFormula f = (AssrtIntVarQuantifiedFormula) o;
+		AssrtQuantifiedIntVarsFormula f = (AssrtQuantifiedIntVarsFormula) o;
 		return super.equals(this)  // Does canEqual
 				&& this.vars.equals(f.vars) && this.expr.equals(f.expr);  
 	}
@@ -46,7 +51,7 @@ public abstract class AssrtIntVarQuantifiedFormula extends AssrtBoolFormula
 	@Override
 	protected boolean canEqual(Object o)
 	{
-		return o instanceof AssrtIntVarQuantifiedFormula;
+		return o instanceof AssrtQuantifiedIntVarsFormula;
 	}
 
 	@Override

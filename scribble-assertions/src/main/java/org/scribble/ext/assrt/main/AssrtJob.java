@@ -44,7 +44,7 @@ public class AssrtJob extends Job
 		switch (this.solver)
 		{
 			case JAVA_SMT_Z3: return JavaSmtWrapper.getInstance().isSat(f.getJavaSmtFormula());
-			case NATIVE_Z3:   return Z3Wrapper.isSat(Z3Wrapper.toSmt2(f.toSmt2Formula()), getContext().main.toString());
+			case NATIVE_Z3:   return Z3Wrapper.isSat(Z3Wrapper.toSmt2(f), getContext().main.toString());
 			case NONE:
 			{
 				debugPrintln("\n[assrt-core] WARNING: skipping sat check: " + f.toSmt2Formula());

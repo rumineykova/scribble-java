@@ -37,7 +37,7 @@ public class AssrtUnPredicateFormula extends AssrtBoolFormula
 	@Override
 	public String toSmt2Formula()
 	{
-		return "(" + this.name + " " + this.args.stream().map(a -> a.toSmt2Formula()).collect(Collectors.joining(", ")) + ")";
+		return "(" + this.name + " " + this.args.stream().map(a -> a.toSmt2Formula()).collect(Collectors.joining(" ")) + ")";
 	}
 
 	@Override
