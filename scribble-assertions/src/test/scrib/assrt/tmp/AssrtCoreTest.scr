@@ -75,6 +75,34 @@ type <dotnet> "System.String" from "..." as str;
 
 
 
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*/
@@ -89,7 +117,6 @@ aux global protocol Proto2(role A, role B)
 	2() from B to A; @(x<1);  // FIXME: shouldn't be in scope without decl as Proto2 statevar -- OK because aux? error caught if Proto2 checked as root
 }
 //*/
-
 
 /*
 global protocol Proto1(role B, role S)
@@ -113,6 +140,9 @@ global protocol Proto1(role A, role B) @(z=3);
 	do Proto1(A, B);  // FIXME: statevar arg check
 }
 //*/
+
+
+
 
 
 

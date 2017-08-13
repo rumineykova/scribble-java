@@ -35,7 +35,7 @@ public class Z3Wrapper
 		try
 		{
 			ScribUtil.writeToFile(tmpName, smt2);
-			String[] res = ScribUtil.runProcess("z3", tmpName);
+			String[] res = ScribUtil.runProcess("Z3", tmpName);
 			String trim = res[0].trim();
 			if (trim.equals("sat"))  // FIXME: factor out
 			{
@@ -47,7 +47,7 @@ public class Z3Wrapper
 			}
 			else
 			{
-				throw new RuntimeException("[assrt] z3 error: " + Arrays.toString(res));
+				throw new RuntimeException("[assrt] Z3 error: " + Arrays.toString(res));
 			}
 		}
 		catch (ScribbleException e)

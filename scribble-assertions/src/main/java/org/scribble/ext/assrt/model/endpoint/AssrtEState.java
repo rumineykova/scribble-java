@@ -27,7 +27,7 @@ import org.scribble.type.name.RecVar;
 
 public class AssrtEState extends EState
 {
-	private final Map<AssrtDataTypeVar, AssrtArithFormula> statevars; // Note: even with single var per rec, nested recs can give more than one var per state
+	private final Map<AssrtDataTypeVar, AssrtArithFormula> statevars; // Note: even with syntactic single var per rec, nested recs can lead to mulitple vars per state
 
 	// FIXME: make AssrtIntTypeVar?
 	protected AssrtEState(Set<RecVar> labs, Map<AssrtDataTypeVar, AssrtArithFormula> vars)  // FIXME: currently syntactically restricted to one annot var
