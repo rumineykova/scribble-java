@@ -80,7 +80,8 @@ type <dotnet> "System.String" from "..." as str;
 //*
 global protocol Proto1(role A, role B)
 {
-	1(x:int) from A to B; @foo(A);  // FIXME: unknown var error for roles
+	1(x:int) from A to B; @foo(A);  
+			// FIXME: unknown var error for roles -- roles are currently being parsed as int vars (and preds hardcoded with int args) -- maybe just hack it for now
 	//1(x:int) from A to B; @foo(x);
 }
 //*/
