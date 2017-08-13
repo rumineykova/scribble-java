@@ -6,6 +6,7 @@ import java.util.Arrays;
 import org.scribble.main.ScribbleException;
 import org.scribble.util.ScribUtil;
 
+// "Native" Z3 -- not Z3 Java API
 public class Z3Wrapper
 {
 

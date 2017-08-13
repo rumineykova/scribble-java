@@ -24,6 +24,7 @@ import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelBuilder;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSafetyErrors;
 import org.scribble.ext.assrt.main.AssrtException;
 import org.scribble.ext.assrt.main.AssrtJob;
+import org.scribble.ext.assrt.main.AssrtJob.Solver;
 import org.scribble.ext.assrt.main.AssrtMainContext;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
@@ -42,7 +43,7 @@ import org.scribble.util.ScribParserException;
 public class AssrtCommandLine extends CommandLine
 {
 
-	private final Map<AssrtCoreCLArgFlag, String[]> assrtArgs;  // Maps each flag to list of associated argument values
+	private final Map<AssrtCoreCLArgFlag, String[]> assrtCoreArgs;  // Maps each flag to list of associated argument values
 	
 	public AssrtCommandLine(String... args) throws CommandLineException
 	{
@@ -63,7 +64,7 @@ public class AssrtCommandLine extends CommandLine
 			throw new CommandLineException("No main module has been specified\r\n");
 		}
 
-		this.assrtArgs = p.getAssrtArgs();
+		this.assrtCoreArgs = p.getAssrtArgs();
 	}
 	
 	// Based on CommandLine.newMainContext
@@ -77,6 +78,10 @@ public class AssrtCommandLine extends CommandLine
 		boolean noLocalChoiceSubjectCheck = this.args.containsKey(CLArgFlag.NO_LOCAL_CHOICE_SUBJECT_CHECK);
 		boolean noAcceptCorrelationCheck = this.args.containsKey(CLArgFlag.NO_ACCEPT_CORRELATION_CHECK);
 		boolean noValidation = this.args.containsKey(CLArgFlag.NO_VALIDATION);
+		
+		Solver solver = this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_NATIVE_Z3)
+				? AssrtJob.Solver.NATIVE_Z3
+				: AssrtJob.Solver.JAVA_SMT_Z3;  // Default for base assrt -- though base assrt doesn't actually check the solver flag
 
 		List<Path> impaths = this.args.containsKey(CLArgFlag.IMPORT_PATH)
 				? CommandLine.parseImportPaths(this.args.get(CLArgFlag.IMPORT_PATH)[0])
@@ -84,14 +89,15 @@ public class AssrtCommandLine extends CommandLine
 		ResourceLocator locator = new DirectoryResourceLocator(impaths);
 		if (this.args.containsKey(CLArgFlag.INLINE_MAIN_MOD))
 		{
-			return new AssrtMainContext(debug, locator, this.args.get(CLArgFlag.INLINE_MAIN_MOD)[0], useOldWF, noLiveness, minEfsm, fair,
-					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation);
+			/*return new AssrtMainContext(debug, locator, this.args.get(CLArgFlag.INLINE_MAIN_MOD)[0], useOldWF, noLiveness, minEfsm, fair,
+					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, solver);*/
+			throw new RuntimeException("[assrt] Shouldn't get in here:\n" + this.args.get(CLArgFlag.INLINE_MAIN_MOD)[0]);  // Checked in constructor
 		}
 		else
 		{
 			Path mainpath = CommandLine.parseMainPath(this.args.get(CLArgFlag.MAIN_MOD)[0]);
 			return new AssrtMainContext(debug, locator, mainpath, useOldWF, noLiveness, minEfsm, fair,
-					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation);
+					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, solver);
 		}
 	}
 
@@ -103,7 +109,7 @@ public class AssrtCommandLine extends CommandLine
 	@Override
 	protected void doValidationTasks(Job job) throws AssrtCoreSyntaxException, AntlrSourceException, ScribParserException, CommandLineException
 	{
-		if (this.assrtArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE))  // assrt-*core* mode
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE))  // assrt-*core* mode
 		{
 			doAssrtCoreValidationTasks((AssrtJob) job);
 		}
@@ -123,7 +129,7 @@ public class AssrtCommandLine extends CommandLine
 
 		assrtCorePreContextBuilding(j);
 
-		GProtocolName simpname = new GProtocolName(this.assrtArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE)[0]);
+		GProtocolName simpname = new GProtocolName(this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE)[0]);
 		if (simpname.toString().equals("[AssrtCoreAllTest]"))  // HACK: AssrtCoreAllTest
 		{
 			assrtCoreParseAndCheckWF(j);  // Includes base passes
@@ -210,9 +216,9 @@ public class AssrtCommandLine extends CommandLine
 			job.debugPrintln("\n[assrt-core] Built endpoint graph for " + r + ":\n" + g.toDot());
 		}
 				
-		if (this.assrtArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM))
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM))
 		{
-			String[] args = this.assrtArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM);
+			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM);
 			for (int i = 0; i < args.length; i += 1)
 			{
 				Role role = CommandLine.checkRoleArg(job.getContext(), gpd.getHeader().getDeclName(), args[i]);
@@ -220,9 +226,9 @@ public class AssrtCommandLine extends CommandLine
 				System.out.println("\n" + out);  // Endpoint graphs are "inlined" (a single graph is built)
 			}
 		}
-		if (this.assrtArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG))
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG))
 		{
-			String[] args = this.assrtArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG);
+			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG);
 			for (int i = 0; i < args.length; i += 2)
 			{
 				Role role = CommandLine.checkRoleArg(job.getContext(), gpd.getHeader().getDeclName(), args[i]);
@@ -261,13 +267,13 @@ public class AssrtCommandLine extends CommandLine
 
 		job.debugPrintln("\n[assrt-core] Built model:\n" + m.toDot());
 
-		if (this.assrtArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL))
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL))
 		{
 			System.out.println("\n" + m.toDot());
 		}
-		if (this.assrtArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL_PNG))
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL_PNG))
 		{
-			String[] arg = this.assrtArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL_PNG);
+			String[] arg = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL_PNG);
 			String png = arg[0];
 			runDot(m.toDot(), png);
 		}

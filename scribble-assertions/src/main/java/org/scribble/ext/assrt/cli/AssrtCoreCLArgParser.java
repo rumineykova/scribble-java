@@ -10,34 +10,37 @@ import org.scribble.cli.CommandLineException;
 public class AssrtCoreCLArgParser extends CLArgParser
 {
 	// Unique flags
-	public static final String ASS_FLAG           = "-ass";
-	public static final String ASS_MODEL_FLAG     = "-ass-model";  // cf. SGRAPH
-	public static final String ASS_MODEL_PNG_FLAG = "-ass-modelpng";
+	public static final String ASSRT_CORE_FLAG           = "-ass";
+	public static final String ASSRT_CORE_MODEL_FLAG     = "-ass-model";  // cf. SGRAPH
+	public static final String ASSRT_CORE_MODEL_PNG_FLAG = "-ass-modelpng";
+
+	public static final String ASSRT_CORE_NATIVE_Z3      = "-Z3";
 	
 	// Non-unique flags
-	public static final String ASS_EFSM_FLAG      = "-ass-fsm";
-	public static final String ASS_EFSM_PNG_FLAG  = "-ass-fsmpng";
+	public static final String ASSRT_CORE_EFSM_FLAG      = "-ass-fsm";
+	public static final String ASSRT_CORE_EFSM_PNG_FLAG  = "-ass-fsmpng";
 	
-	private static final Map<String, AssrtCoreCLArgFlag> ASSRT_UNIQUE_FLAGS = new HashMap<>();
+	private static final Map<String, AssrtCoreCLArgFlag> ASSRT_CORE_UNIQUE_FLAGS = new HashMap<>();
 	{
-		AssrtCoreCLArgParser.ASSRT_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASS_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE);
-		AssrtCoreCLArgParser.ASSRT_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASS_MODEL_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_MODEL);
-		AssrtCoreCLArgParser.ASSRT_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASS_MODEL_PNG_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_MODEL_PNG);
+		AssrtCoreCLArgParser.ASSRT_CORE_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE);
+		AssrtCoreCLArgParser.ASSRT_CORE_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_MODEL_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_MODEL);
+		AssrtCoreCLArgParser.ASSRT_CORE_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_MODEL_PNG_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_MODEL_PNG);
+		AssrtCoreCLArgParser.ASSRT_CORE_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_NATIVE_Z3, AssrtCoreCLArgFlag.ASSRT_CORE_NATIVE_Z3);
 	}
 
-	private static final Map<String, AssrtCoreCLArgFlag> ASSRT_NON_UNIQUE_FLAGS = new HashMap<>();
+	private static final Map<String, AssrtCoreCLArgFlag> ASSRT_CORE_NON_UNIQUE_FLAGS = new HashMap<>();
 	{
-		AssrtCoreCLArgParser.ASSRT_NON_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASS_EFSM_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_EFSM);
-		AssrtCoreCLArgParser.ASSRT_NON_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASS_EFSM_PNG_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG);
+		AssrtCoreCLArgParser.ASSRT_CORE_NON_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_EFSM_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_EFSM);
+		AssrtCoreCLArgParser.ASSRT_CORE_NON_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_EFSM_PNG_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG);
 	}
 
-	private static final Map<String, AssrtCoreCLArgFlag> ASSRT_FLAGS = new HashMap<>();
+	private static final Map<String, AssrtCoreCLArgFlag> ASSRT_CORE_FLAGS = new HashMap<>();
 	{
-		AssrtCoreCLArgParser.ASSRT_FLAGS.putAll(AssrtCoreCLArgParser.ASSRT_UNIQUE_FLAGS);
-		AssrtCoreCLArgParser.ASSRT_FLAGS.putAll(AssrtCoreCLArgParser.ASSRT_NON_UNIQUE_FLAGS);
+		AssrtCoreCLArgParser.ASSRT_CORE_FLAGS.putAll(AssrtCoreCLArgParser.ASSRT_CORE_UNIQUE_FLAGS);
+		AssrtCoreCLArgParser.ASSRT_CORE_FLAGS.putAll(AssrtCoreCLArgParser.ASSRT_CORE_NON_UNIQUE_FLAGS);
 	}
 
-	private final Map<AssrtCoreCLArgFlag, String[]> assrtParsed = new HashMap<>();
+	private final Map<AssrtCoreCLArgFlag, String[]> assrtCoreParsed = new HashMap<>();
 	
 	public AssrtCoreCLArgParser(String[] args) throws CommandLineException
 	{
@@ -46,13 +49,13 @@ public class AssrtCoreCLArgParser extends CLArgParser
 	
 	public Map<AssrtCoreCLArgFlag, String[]> getAssrtArgs()
 	{
-		return this.assrtParsed;
+		return this.assrtCoreParsed;
 	}
 
 	@Override
 	protected boolean isFlag(String arg)
 	{
-		return AssrtCoreCLArgParser.ASSRT_FLAGS.containsKey(arg) || super.isFlag(arg);
+		return AssrtCoreCLArgParser.ASSRT_CORE_FLAGS.containsKey(arg) || super.isFlag(arg);
 	}
 	
 	// Pre: i is the index of the current flag to parse
@@ -66,16 +69,17 @@ public class AssrtCoreCLArgParser extends CLArgParser
 		{
 			// Unique flags
 
-			case AssrtCoreCLArgParser.ASS_FLAG:
+			case AssrtCoreCLArgParser.ASSRT_CORE_FLAG:
 			{
-				return assrtParseAss(i);
+				return assrtCoreParseAss(i);
 			}
-			case AssrtCoreCLArgParser.ASS_MODEL_PNG_FLAG:
+			case AssrtCoreCLArgParser.ASSRT_CORE_MODEL_PNG_FLAG:
 			{
-				return assrtParseFileArg(flag, i);
+				return assrtCoreParseFileArg(flag, i);
 			}
 			// No-value args -- just boolean flags
-			case AssrtCoreCLArgParser.ASS_MODEL_FLAG:
+			case AssrtCoreCLArgParser.ASSRT_CORE_MODEL_FLAG:
+			case AssrtCoreCLArgParser.ASSRT_CORE_NATIVE_Z3:
 			{
 				assrtCheckAndAddNoArgUniqueFlag(flag);
 				return i;
@@ -84,8 +88,8 @@ public class AssrtCoreCLArgParser extends CLArgParser
 			
 			// Non-unique flags
 			
-			case AssrtCoreCLArgParser.ASS_EFSM_FLAG:     return assrtParseRoleArg(flag, i);
-			case AssrtCoreCLArgParser.ASS_EFSM_PNG_FLAG: return assrtParseRoleAndFileArgs(flag, i);
+			case AssrtCoreCLArgParser.ASSRT_CORE_EFSM_FLAG:     return assrtCoreParseRoleArg(flag, i);
+			case AssrtCoreCLArgParser.ASSRT_CORE_EFSM_PNG_FLAG: return assrtCoreParseRoleAndFileArgs(flag, i);
 			
 			
 			// Base CL
@@ -97,72 +101,72 @@ public class AssrtCoreCLArgParser extends CLArgParser
 		}
 	}
 
-	private int assrtParseAss(int i) throws CommandLineException
+	private int assrtCoreParseAss(int i) throws CommandLineException
 	{
 		if ((i + 1) >= this.args.length)
 		{
 			throw new CommandLineException("Missing simple global protocol name argument.");
 		}
 		String proto = this.args[++i];
-		assrtCheckAndAddUniqueFlag(AssrtCoreCLArgParser.ASS_FLAG, new String[] { proto });
+		assrtCoreCheckAndAddUniqueFlag(AssrtCoreCLArgParser.ASSRT_CORE_FLAG, new String[] { proto });
 		return i;
 	}
 
 	private void assrtCheckAndAddNoArgUniqueFlag(String flag) throws CommandLineException
 	{
-		assrtCheckAndAddUniqueFlag(flag, new String[0]);
+		assrtCoreCheckAndAddUniqueFlag(flag, new String[0]);
 	}
 
-	private void assrtCheckAndAddUniqueFlag(String flag, String[] args) throws CommandLineException
+	private void assrtCoreCheckAndAddUniqueFlag(String flag, String[] args) throws CommandLineException
 	{
-		AssrtCoreCLArgFlag argFlag = AssrtCoreCLArgParser.ASSRT_UNIQUE_FLAGS.get(flag);
-		if (this.assrtParsed.containsKey(argFlag))
+		AssrtCoreCLArgFlag argFlag = AssrtCoreCLArgParser.ASSRT_CORE_UNIQUE_FLAGS.get(flag);
+		if (this.assrtCoreParsed.containsKey(argFlag))
 		{
 			throw new CommandLineException("Duplicate flag: " + flag);
 		}
-		this.assrtParsed.put(argFlag, args);
+		this.assrtCoreParsed.put(argFlag, args);
 	}
 
-	private int assrtParseFileArg(String f, int i) throws CommandLineException
+	private int assrtCoreParseFileArg(String f, int i) throws CommandLineException
 	{
-		AssrtCoreCLArgFlag flag = AssrtCoreCLArgParser.ASSRT_UNIQUE_FLAGS.get(f);
+		AssrtCoreCLArgFlag flag = AssrtCoreCLArgParser.ASSRT_CORE_UNIQUE_FLAGS.get(f);
 		if ((i + 1) >= this.args.length)
 		{
 			throw new CommandLineException("Missing file argument");
 		}
 		String file = this.args[++i];
-		assrtConcatArgs(flag, file);
+		assrtCoreConcatArgs(flag, file);
 		return i;
 	}
 
-	private int assrtParseRoleArg(String f, int i) throws CommandLineException
+	private int assrtCoreParseRoleArg(String f, int i) throws CommandLineException
 	{
-		AssrtCoreCLArgFlag flag = AssrtCoreCLArgParser.ASSRT_NON_UNIQUE_FLAGS.get(f);
+		AssrtCoreCLArgFlag flag = AssrtCoreCLArgParser.ASSRT_CORE_NON_UNIQUE_FLAGS.get(f);
 		if ((i + 1) >= this.args.length)
 		{
 			throw new CommandLineException("Missing role argument");
 		}
 		String role = this.args[++i];
-		assrtConcatArgs(flag, role);
+		assrtCoreConcatArgs(flag, role);
 		return i;
 	}
 
-	protected int assrtParseRoleAndFileArgs(String f, int i) throws CommandLineException
+	protected int assrtCoreParseRoleAndFileArgs(String f, int i) throws CommandLineException
 	{
-		AssrtCoreCLArgFlag flag = AssrtCoreCLArgParser.ASSRT_NON_UNIQUE_FLAGS.get(f);
+		AssrtCoreCLArgFlag flag = AssrtCoreCLArgParser.ASSRT_CORE_NON_UNIQUE_FLAGS.get(f);
 		if ((i + 2) >= this.args.length)
 		{
 			throw new CommandLineException("Missing role/file arguments");
 		}
 		String role = this.args[++i];
 		String png = this.args[++i];
-		assrtConcatArgs(flag, role, png);
+		assrtCoreConcatArgs(flag, role, png);
 		return i;
 	}
 	
-	private void assrtConcatArgs(AssrtCoreCLArgFlag flag, String... toAdd)
+	private void assrtCoreConcatArgs(AssrtCoreCLArgFlag flag, String... toAdd)
 	{
-		String[] args = this.assrtParsed.get(flag);
+		String[] args = this.assrtCoreParsed.get(flag);
 		if (args == null)
 		{
 			args = Arrays.copyOf(toAdd, toAdd.length);
@@ -174,6 +178,6 @@ public class AssrtCoreCLArgParser extends CLArgParser
 			System.arraycopy(toAdd, 0, tmp, args.length, toAdd.length);
 			args = tmp;
 		}
-		this.assrtParsed.put(flag, args);
+		this.assrtCoreParsed.put(flag, args);
 	}
 }

@@ -47,7 +47,8 @@ import com.microsoft.z3.TupleSort;
 import com.microsoft.z3.Version;
 import com.microsoft.z3.Z3Exception;
 
-class TestZ3
+// N.B. testing Z3 Java API -- not native Z3
+class TestJavaZ3
 {
     @SuppressWarnings("serial")
     class TestFailedException extends Exception
@@ -2334,7 +2335,7 @@ class TestZ3
 
     public static void main(String[] args)
     {
-        TestZ3 p = new TestZ3();
+        TestJavaZ3 p = new TestJavaZ3();
         try
         {
             com.microsoft.z3.Global.ToggleWarningMessages(true);

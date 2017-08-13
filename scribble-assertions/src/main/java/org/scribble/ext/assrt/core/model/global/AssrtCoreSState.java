@@ -19,6 +19,7 @@ import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReceive;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreERequest;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
+import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAccept;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAction;
@@ -33,8 +34,6 @@ import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.util.JavaSmtWrapper;
-import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.scribble.main.Job;
 import org.scribble.model.MPrettyState;
 import org.scribble.model.MState;
@@ -60,11 +59,14 @@ import org.scribble.type.name.Role;
 
 public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState, Global>
 {
-	// FIXME
-	enum SmtConfig { NATIVE_Z3, JAVA_SMT_Z3, NONE }
+	private static int counter = 1;
 	
-	private static final SmtConfig SMT_CONFIG = SmtConfig.NATIVE_Z3;
-	
+	private static AssrtIntVarFormula makeFreshIntVar(AssrtDataTypeVar var)
+	{
+		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString() + counter++);  // HACK
+		//return AssrtFormulaFactory.AssrtIntVar("_" + var.toString());  // HACK
+	}
+
 	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self -- for progress checking
 	
 	// In hash/equals -- cf. SState.config
@@ -253,7 +255,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				@Override
 				public Boolean trybody() throws ScribbleStreamException
 				{*/
-		return this.P.entrySet().stream().anyMatch(e ->
+		return this.P.entrySet().stream().anyMatch(e ->  // anyMatch is on the endpoints (not actions)
 		{
 			List<EAction> as = e.getValue().getAllActions(); // N.B. getAllActions includes non-fireable
 			if (as.isEmpty() || as.stream().noneMatch(a -> a.isSend() || a.isRequest())) 
@@ -320,28 +322,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					job.debugPrintln("  raw      = " + str);
 
 					AssrtBoolFormula squashed = impli.squash();
-					String squashedstr = squashed.toSmt2Formula();
 
-					job.debugPrintln("  squashed = " + squashedstr);
+					job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
 
-					switch (SMT_CONFIG)
-					{
-						case JAVA_SMT_Z3:
-						{
-							JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
-							return !jsmt.isSat(squashed.getJavaSmtFormula());
-						}
-						case NATIVE_Z3:
-							return !Z3Wrapper.isSat(Z3Wrapper.toSmt2(squashed.toSmt2Formula()), job.getContext().main.toString());
-						case NONE:
-						{
-							job.debugPrintln("\n[assrt-core] WARNING: assertion progress check skipped.");
-
-							return true;
-						}
-						default:
-							throw new RuntimeException("[assrt-core] Shouldn't get in here: " + SMT_CONFIG);
-					}
+					return !((AssrtJob) job).checkSat(squashed);
 				/*}
 				/*else if (a instanceof AssrtCoreEReceive || a instanceof AssrtEAccept)
 				{
@@ -361,7 +345,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	// i.e., state has an action that is not satisfiable (deadcode)
-	public boolean isUnsatisfiableError(Job job)  // FIXME: not actuall a "progress" error
+	public boolean isUnsatisfiableError(Job job)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
 		{
@@ -410,28 +394,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					job.debugPrintln("  formula  = " + tocheck.toSmt2Formula());
 
 					AssrtBoolFormula squashed = tocheck.squash();
-					String squashedstr = squashed.toSmt2Formula();
 
-					job.debugPrintln("  squashed = " + squashedstr);
+					job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
 
-					switch (SMT_CONFIG)
-					{
-						case JAVA_SMT_Z3:
-						{
-							JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
-							return !jsmt.isSat(squashed.getJavaSmtFormula());
-						}
-						case NATIVE_Z3:
-							return !Z3Wrapper.isSat(Z3Wrapper.toSmt2(squashed.toSmt2Formula()), job.getContext().main.toString());
-						case NONE:
-						{
-							job.debugPrintln("\n[assrt-core] WARNING: satisfiability check skipped.");
-
-							return false;
-						}
-						default:
-							throw new RuntimeException("[assrt-core] Shouldn't get in here: " + SMT_CONFIG);
-					}
+					return !((AssrtJob) job).checkSat(squashed);
 				}
 				else if (a instanceof AssrtERequest)
 				{
@@ -882,7 +848,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		if (!stateexprs.isEmpty())
 		{
 			//if (annotvars.size() != stateexprs.size())
-			if (annotvars.keySet().stream().filter(k -> !k.toString().startsWith("_dum")).count() > stateexprs.size())  // HACK (stateexprs currently always size one)
+			if (annotvars.size() > stateexprs.size())  // HACK (stateexprs currently always size one)
 			{
 				throw new RuntimeException("[assrt-core] Shouldn't get here: " + annotvars + ", " + stateexprs);  // FIXME: not actually syntactically checked yet
 			}
@@ -890,12 +856,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			Iterator<AssrtArithFormula> afs = stateexprs.iterator();
 			for (AssrtDataTypeVar annot : annotvars.keySet())
 			{
-				//AssrtDataTypeVar annot = succ.getAnnotVars().keySet().iterator().next();
-				if (annot.toString().startsWith("_dum"))  // FIXME: inconsistent with afs -- eventually there should be no _dum at all
-				{
-					continue;
-				}
-				
 				//AssrtArithFormula expr = a.getStateExprs().iterator().next();
 				AssrtArithFormula expr = afs.next();
 
@@ -1242,14 +1202,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		R.get(r).put(annot, expr);
 	}*/
-	
-	private static int counter = 1;
-	
-	private static AssrtIntVarFormula makeFreshIntVar(AssrtDataTypeVar var)
-	{
-		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString() + counter++);  // HACK
-		//return AssrtFormulaFactory.AssrtIntVar("_" + var.toString());  // HACK
-	}
 }
 
 

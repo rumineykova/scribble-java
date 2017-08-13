@@ -6,6 +6,9 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.Module;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.util.JavaSmtWrapper;
+import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
 import org.scribble.ext.assrt.visit.wf.AssrtNameDisambiguator;
 import org.scribble.main.Job;
@@ -21,12 +24,35 @@ import org.scribble.visit.wf.DelegationProtocolRefChecker;
 
 public class AssrtJob extends Job
 {
+	// N.B. currently only used by assrt-core
+	public enum Solver { NATIVE_Z3, JAVA_SMT_Z3, NONE }
+
+	public final Solver solver; //= Solver.NATIVE_Z3;
+
 	public AssrtJob(boolean debug, Map<ModuleName, Module> parsed, ModuleName main,
 			boolean useOldWF, boolean noLiveness, boolean minEfsm, boolean fair, boolean noLocalChoiceSubjectCheck,
 			boolean noAcceptCorrelationCheck, boolean noValidation, 
-			AstFactory af, EModelFactory ef, SModelFactory sf)
+			Solver solver, AstFactory af, EModelFactory ef, SModelFactory sf)
 	{
 		super(debug, parsed, main, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, af, ef, sf);
+		this.solver = solver;
+	}
+
+	// N.B. currently only used by assrt-core
+	public boolean checkSat(AssrtBoolFormula f)
+	{
+		switch (this.solver)
+		{
+			case JAVA_SMT_Z3: return JavaSmtWrapper.getInstance().isSat(f.getJavaSmtFormula());
+			case NATIVE_Z3:   return Z3Wrapper.isSat(Z3Wrapper.toSmt2(f.toSmt2Formula()), getContext().main.toString());
+			case NONE:
+			{
+				debugPrintln("\n[assrt-core] WARNING: assertion progress check skipped.");
+
+				return true;
+			}
+			default: throw new RuntimeException( "[assrt-core] Shouldn't get in here: " + this.solver);
+		}
 	}
 	
 	// FIXME: move to MainContext::newJob?
