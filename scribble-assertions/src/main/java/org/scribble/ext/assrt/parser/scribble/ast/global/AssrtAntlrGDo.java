@@ -1,11 +1,13 @@
 package org.scribble.ext.assrt.parser.scribble.ast.global;
 
+import java.util.Arrays;
+
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.RoleArgList;
 import org.scribble.ast.name.qualified.GProtocolNameNode;
-import org.scribble.ext.assrt.ast.AssrtArithAnnotation;
+import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
@@ -29,12 +31,13 @@ public class AssrtAntlrGDo
 		GProtocolNameNode pnn = AntlrQualifiedName.toGProtocolNameNode(AntlrGDo.getProtocolNameChild(root), af);
 		
 		CommonTree annotTree = AssrtAntlrGProtocolHeader.getAssertionChild(root);
-		AssrtArithAnnotation annot = AssrtAntlrGDo.parseArithAnnotation(((AssrtAntlrToScribParser) parser).ap, annotTree, (AssrtAstFactory) af);
+		AssrtArithExpr annot = AssrtAntlrGDo.parseArithAnnotation(((AssrtAntlrToScribParser) parser).ap, annotTree, (AssrtAstFactory) af);
 		
-		return ((AssrtAstFactory) af).AssrtGDo(root, ril, al, pnn, annot);
+		return ((AssrtAstFactory) af).AssrtGDo(root, ril, al, pnn, //annot);
+				Arrays.asList(annot));  // FIXME: List
 	}
 
-	public static AssrtArithAnnotation parseArithAnnotation(AssrtAntlrToFormulaParser ap, CommonTree annotTree, AssrtAstFactory af)
+	public static AssrtArithExpr parseArithAnnotation(AssrtAntlrToFormulaParser ap, CommonTree annotTree, AssrtAstFactory af)
 	{
 		AntlrToScribParser.checkForAntlrErrors(annotTree);  // Check ct root
 

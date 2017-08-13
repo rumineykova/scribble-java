@@ -1,5 +1,6 @@
 package org.scribble.ext.assrt.core.ast;
 
+import java.util.List;
 import java.util.Map;
 
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGActionKind;
@@ -49,14 +50,19 @@ public class AssrtCoreAstFactory
 		return new F17GDisconnect(src, dest);
 	}*/
 	
-	public AssrtCoreGRec AssrtCoreGRec(RecVar recvar, AssrtDataTypeVar annot, AssrtArithFormula init, AssrtCoreGType body)
+	public AssrtCoreGRec AssrtCoreGRec(RecVar recvar,
+			//AssrtDataTypeVar annot, AssrtArithFormula init,
+			Map<AssrtDataTypeVar, AssrtArithFormula> annotvars,
+			AssrtCoreGType body)
 	{
-		return new AssrtCoreGRec(recvar, annot, init, body);
+		//return new AssrtCoreGRec(recvar, annot, init, body);
+		return new AssrtCoreGRec(recvar, annotvars, body);
 	}
 	
-	public AssrtCoreGRecVar AssrtCoreGRecVar(RecVar var, AssrtArithFormula expr)
+	//public AssrtCoreGRecVar AssrtCoreGRecVar(RecVar var, AssrtArithFormula expr)
+	public AssrtCoreGRecVar AssrtCoreGRecVar(RecVar recvar, List<AssrtArithFormula> annotexprs)
 	{
-		return new AssrtCoreGRecVar(var, expr);
+		return new AssrtCoreGRecVar(recvar, annotexprs);
 	}
 
 	public AssrtCoreGEnd AssrtCoreGEnd()
@@ -94,14 +100,19 @@ public class AssrtCoreAstFactory
 		return new AssrtCoreLDisconnect(self, peer);
 	}*/
 	
-	public AssrtCoreLRec AssrtCoreLRec(RecVar recvar, AssrtDataTypeVar annot, AssrtArithFormula init, AssrtCoreLType body)
+	public AssrtCoreLRec AssrtCoreLRec(RecVar recvar, 
+			//AssrtDataTypeVar annot, AssrtArithFormula init,
+			Map<AssrtDataTypeVar, AssrtArithFormula> annotvars,
+			AssrtCoreLType body)
 	{
-		return new AssrtCoreLRec(recvar, annot, init, body);
+		//return new AssrtCoreLRec(recvar, annot, init, body);
+		return new AssrtCoreLRec(recvar, annotvars, body);
 	}
 	
-	public AssrtCoreLRecVar AssrtCoreLRecVar(RecVar var, AssrtArithFormula expr)
+	//public AssrtCoreLRecVar AssrtCoreLRecVar(RecVar var, AssrtArithFormula expr)
+	public AssrtCoreLRecVar AssrtCoreLRecVar(RecVar recvar, List<AssrtArithFormula> annotexprs)
 	{
-		return new AssrtCoreLRecVar(var, expr);
+		return new AssrtCoreLRecVar(recvar, annotexprs);
 	}
 
 	public AssrtCoreLEnd AssrtCoreLEnd()

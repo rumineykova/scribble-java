@@ -5,10 +5,11 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.ConnectionAction;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.global.GConnect;
-import org.scribble.ast.local.LConnect;
+import org.scribble.ast.local.LRequest;
 import org.scribble.ast.local.LNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.ScribDel;
+import org.scribble.ext.assrt.ast.AssrtActionAssertNode;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.main.ScribbleException;
@@ -16,7 +17,7 @@ import org.scribble.type.kind.Global;
 import org.scribble.type.name.Role;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtGConnect extends GConnect
+public class AssrtGConnect extends GConnect implements AssrtActionAssertNode
 {
 	public final AssrtAssertion ass;  // null if not specified -- should be the "true" formula in principle, but not syntactically
 			// Duplicated from AssrtGMessageTransfer
@@ -35,9 +36,9 @@ public class AssrtGConnect extends GConnect
 	public LNode project(AstFactory af, Role self)
 	{
 		LNode proj = super.project(af, self);
-		if (proj instanceof LConnect)
+		if (proj instanceof LRequest)
 		{
-			LConnect lc = (LConnect) proj;
+			LRequest lc = (LRequest) proj;
 			proj = ((AssrtAstFactory) af).AssrtLConnect(lc.getSource(), lc.src, lc.msg, lc.dest, this.ass);
 		}
 		// FIXME: 
@@ -82,6 +83,12 @@ public class AssrtGConnect extends GConnect
 		RoleNode dest = (RoleNode) visitChild(this.dest, nv);
 		AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
 		return reconstruct(src, msg, dest, ass);
+	}
+
+	@Override
+	public AssrtAssertion getAssertion()
+	{
+		return this.ass;
 	}
 
 	@Override

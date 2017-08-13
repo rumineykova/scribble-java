@@ -1,5 +1,7 @@
 package org.scribble.ext.assrt.core.ast.local;
 
+import java.util.List;
+
 import org.scribble.ext.assrt.core.ast.AssrtCoreRecVar;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.type.name.RecVar;
@@ -8,9 +10,10 @@ import org.scribble.type.name.RecVar;
 // FIXME: hashCode/equals -- already done?
 public class AssrtCoreLRecVar extends AssrtCoreRecVar implements AssrtCoreLType
 {
-	public AssrtCoreLRecVar(RecVar var, AssrtArithFormula expr)
+	//public AssrtCoreLRecVar(RecVar var, AssrtArithFormula expr)
+	public AssrtCoreLRecVar(RecVar var, List<AssrtArithFormula> annotexprs)
 	{
-		super(var, expr);
+		super(var, annotexprs);
 	}
 
 	@Override

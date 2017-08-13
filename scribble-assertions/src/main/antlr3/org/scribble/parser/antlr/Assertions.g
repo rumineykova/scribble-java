@@ -30,12 +30,17 @@ tokens
 	 * (i.e. variable) names themselves are used (for AST node root text
 	 * field)
 	 */
+	EMPTY_LIST = 'EMPTY_LIST';
+	
 	ROOT = 'ROOT'; 
 	
-	// Unary exprs (e.g., true, false, 123, x) not especially labelled
 	BINBOOLEXPR = 'BINBOOLEXPR'; 
 	BINCOMPEXPR = 'BINCOMPEXPR'; 
 	BINARITHEXPR = 'BINARITHEXPR'; 
+	
+	UNPRED = 'UNPRED';
+	ARITH_EXPR_LIST = 'ARITH_EXPR_LIST';
+
 	INTVAR  = 'INTVAR'; 
 	INTVAL = 'INTVAL'; 
 
@@ -68,7 +73,7 @@ tokens
 		source = source.substring(1, source.length());  // Remove enclosing '@' .. ';' -- cf. AssrtScribble.g ASSRT_EXPR
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
-		return (CommonTree) parser.parse().getTree();
+		return (CommonTree) parser.root().getTree();
 	}
 
 	public static CommonTree parseArithAnnotation(String source) throws RecognitionException
@@ -132,7 +137,7 @@ num:
 	^(INTVAL NUMBER)	   
 ; 
 
-parse:  
+root:  
 	bool_expr
 ->
 	^(ROOT bool_expr)
@@ -141,34 +146,49 @@ parse:
 bool_expr:
 	bin_bool_expr
 |
-	unary_bool_expr
+	par_unary_bool_expr
 ;
 	
 bin_bool_expr:
-	'(' unary_bool_expr BIN_BOOL_OP bool_expr ')'
+	'(' par_unary_bool_expr BIN_BOOL_OP bool_expr ')'
 ->
-	^(BINBOOLEXPR unary_bool_expr BIN_BOOL_OP bool_expr)
+	^(BINBOOLEXPR par_unary_bool_expr BIN_BOOL_OP bool_expr)
 ;
+
+par_unary_bool_expr:
+	unary_bool_expr
+|
+	'(' unary_bool_expr ')'
+-> 	
+	unary_bool_expr
+|
+	IDENTIFIER unint_fun_arg_list
+->
+	^(UNPRED IDENTIFIER unint_fun_arg_list)
+|
+	bin_comp_expr
+; 
 
 unary_bool_expr:
 	TRUE_KW
 ->
 	^(TRUE)
 |
-	'(' TRUE_KW ')'
-->
-	^(TRUE)
-|
 	FALSE_KW
 ->
 	^(FALSE)
-|
-	'(' FALSE_KW ')'
+;
+	
+unint_fun_arg_list:
+	'(' ')'
 ->
-	^(FALSE)
+	^(EMPTY_LIST)
 |
-	bin_comp_expr
-; 
+	'(' arith_expr (',' arith_expr )* ')'
+->
+	^(ARITH_EXPR_LIST arith_expr+)
+;
+
 
 bin_comp_expr:
 	'(' arith_expr BIN_COMP_OP arith_expr ')'
@@ -177,27 +197,27 @@ bin_comp_expr:
 ; 
 
 arith_expr: 
+	bin_arith_expr
+|
+	par_unary_arith_expr
+; 
+
+par_unary_arith_expr: 
 	unary_arith_expr
 |
-	binary_arith_expr
-; 
+	'(' unary_arith_expr ')'
+->
+	unary_arith_expr
+;
 
 unary_arith_expr: 
 	variable
 |
-	'(' variable ')'
-->
-		variable
-|
 	num
-|
-	'(' num ')'
-->
-		num
 ;
  
-binary_arith_expr:
-	'(' unary_arith_expr BIN_ARITH_OP arith_expr ')'
+bin_arith_expr:
+	'(' par_unary_arith_expr BIN_ARITH_OP arith_expr ')'
 ->
-	^(BINARITHEXPR unary_arith_expr BIN_ARITH_OP arith_expr)
+	^(BINARITHEXPR par_unary_arith_expr BIN_ARITH_OP arith_expr)
 ;

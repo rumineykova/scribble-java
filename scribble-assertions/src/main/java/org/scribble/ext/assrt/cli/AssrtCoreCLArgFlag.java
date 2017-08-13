@@ -7,6 +7,8 @@ public enum AssrtCoreCLArgFlag
 	ASSRT_CORE_MODEL,  // cf. SGRAPH
 	ASSRT_CORE_MODEL_PNG,
 	
+	ASSRT_CORE_NATIVE_Z3,
+	
 	// Non-unique flags
 	ASSRT_CORE_EFSM,
 	ASSRT_CORE_EFSM_PNG,

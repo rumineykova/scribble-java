@@ -6,6 +6,7 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ext.assrt.ast.AssrtAstFactoryImpl;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactoryImpl;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactoryImpl;
+import org.scribble.ext.assrt.main.AssrtJob.Solver;
 import org.scribble.ext.assrt.parser.scribble.AssrtAntlrToScribParser;
 import org.scribble.ext.assrt.parser.scribble.AssrtScribbleAntlrWrapper;
 import org.scribble.main.MainContext;
@@ -19,21 +20,24 @@ import org.scribble.util.ScribParserException;
 
 public class AssrtMainContext extends MainContext
 {
+	public final Solver solver; //= Solver.NATIVE_Z3;
+
 	// Load main module from file system
 	public AssrtMainContext(boolean debug, ResourceLocator locator, Path mainpath, boolean useOldWF, boolean noLiveness, boolean minEfsm,
-			boolean fair, boolean noLocalChoiceSubjectCheck, boolean noAcceptCorrelationCheck, boolean noValidation)
+			boolean fair, boolean noLocalChoiceSubjectCheck, boolean noAcceptCorrelationCheck, boolean noValidation, Solver solver)
 					throws ScribParserException, ScribbleException
 	{
 		super(debug, locator, mainpath, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation);
+		this.solver = solver;
 	}
 
 	// For inline module arg
 	public AssrtMainContext(boolean debug, ResourceLocator locator, String inline, boolean useOldWF, boolean noLiveness, boolean minEfsm,
-			boolean fair, boolean noLocalChoiceSubjectCheck, boolean noAcceptCorrelationCheck, boolean noValidation)
+			boolean fair, boolean noLocalChoiceSubjectCheck, boolean noAcceptCorrelationCheck, boolean noValidation, Solver solver)
 					throws ScribParserException, ScribbleException
 	{
 		super(debug, locator, inline, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation);
-		throw new RuntimeException("[assrt] Shouldn't get in here:\n" + inline);
+		throw new RuntimeException("[assrt] Shouldn't get in here:\n" + inline);  // Checked in AssrtCommandLine::new
 	}
 
 	@Override
@@ -41,7 +45,7 @@ public class AssrtMainContext extends MainContext
 	{
 		return new AssrtJob(this.debug, this.getParsedModules(), this.main, this.useOldWF, this.noLiveness, this.minEfsm, this.fair,
 				this.noLocalChoiceSubjectCheck, this.noAcceptCorrelationCheck, this.noValidation,
-				this.af, this.ef, this.sf);
+				this.solver, this.af, this.ef, this.sf);
 	}
 
 	@Override

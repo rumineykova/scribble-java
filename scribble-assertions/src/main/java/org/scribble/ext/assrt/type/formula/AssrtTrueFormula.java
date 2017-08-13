@@ -42,7 +42,7 @@ public class AssrtTrueFormula extends AssrtBoolFormula
 	}
 	
 	@Override
-	public Set<AssrtDataTypeVar> getVars()
+	public Set<AssrtDataTypeVar> getIntVars()
 	{
 		return Collections.emptySet(); 
 	}

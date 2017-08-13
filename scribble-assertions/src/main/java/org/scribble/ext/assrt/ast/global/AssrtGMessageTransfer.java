@@ -12,6 +12,7 @@ import org.scribble.ast.local.LNode;
 import org.scribble.ast.local.LSend;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.ScribDel;
+import org.scribble.ext.assrt.ast.AssrtActionAssertNode;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.main.ScribbleException;
@@ -20,7 +21,7 @@ import org.scribble.type.name.Role;
 import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtGMessageTransfer extends GMessageTransfer
+public class AssrtGMessageTransfer extends GMessageTransfer implements AssrtActionAssertNode
 {
 	public final AssrtAssertion ass;  // null if not specified -- should be the "true" formula in principle, but not syntactically
 			// Duplicated in, e.g., ALSend -- could factour out to in Del, but need to consider immutable pattern
@@ -90,6 +91,12 @@ public class AssrtGMessageTransfer extends GMessageTransfer
 		List<RoleNode> dests = visitChildListWithClassEqualityCheck(this, this.dests, nv);
 		AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
 		return reconstruct(src, msg, dests, ass);
+	}
+
+	@Override
+	public AssrtAssertion getAssertion()
+	{
+		return this.ass;
 	}
 
 	@Override

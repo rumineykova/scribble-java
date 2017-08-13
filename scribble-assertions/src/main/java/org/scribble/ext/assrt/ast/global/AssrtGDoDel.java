@@ -1,5 +1,7 @@
 package org.scribble.ext.assrt.ast.global;
 
+import java.util.List;
+
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.context.ModuleContext;
@@ -13,12 +15,8 @@ import org.scribble.ast.name.qualified.LProtocolNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDelBase;
 import org.scribble.del.global.GDoDel;
-import org.scribble.ext.assrt.ast.AssrtArithAnnotation;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
+import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.SubprotocolSig;
 import org.scribble.type.kind.RecVarKind;
@@ -44,7 +42,8 @@ public class AssrtGDoDel extends GDoDel
 						// Didn't keep original namenode del
 
 		//return doo.reconstruct(doo.roles, doo.args, pnn);
-		return doo.reconstruct(doo.roles, doo.args, pnn, doo.annot);
+		return doo.reconstruct(doo.roles, doo.args, pnn, //doo.annot);
+				doo.annotexprs);
 	}
 
 	// Only called if cycle
@@ -55,8 +54,9 @@ public class AssrtGDoDel extends GDoDel
 		RecVarNode recvar = (RecVarNode) builder.job.af.SimpleNameNode(blame, RecVarKind.KIND, builder.getSubprotocolRecVar(subsig).toString());
 
 		//GContinue inlined = builder.job.af.GContinue(blame, recvar);
-		AssrtArithAnnotation annot = ((AssrtGDo) child).annot;
-		AssrtGContinue inlined = ((AssrtAstFactory) builder.job.af).AssrtGContinue(blame, recvar, annot);
+		//AssrtArithExpr annot = ((AssrtGDo) child).annot;
+		AssrtGDo gdo = (AssrtGDo) child;
+		AssrtGContinue inlined = ((AssrtAstFactory) builder.job.af).AssrtGContinue(blame, recvar, gdo.annotexprs);
 
 		builder.pushEnv(builder.popEnv().setTranslation(inlined));
 		return child;
@@ -80,16 +80,15 @@ public class AssrtGDoDel extends GDoDel
 			
 			AssrtGProtocolHeader hdr = (AssrtGProtocolHeader) gpd.getHeader();
 			AssrtGRecursion inlined;
-			if (hdr.ass == null)
+			//if (hdr.ass == null)
+			if (hdr.annotvars.isEmpty())
 			{
 				inlined = (AssrtGRecursion) dinlr.job.af.GRecursion(blame, recvar, gb);
 			}
 			else
 			{
-				AssrtBinCompFormula bcf = (AssrtBinCompFormula) ((AssrtGProtocolHeader) gpd.getHeader()).ass.getFormula();  // FIXME: bcf
-				AssrtAssertion ass = ((AssrtAstFactory) dinlr.job.af).AssrtAssertion(null,
-						AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, (AssrtIntVarFormula) bcf.left, gdo.annot.getFormula()));  // FIXME: null source, and bcf
-				inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, gb, ass);
+				List<AssrtIntVarNameNode> annotvars = ((AssrtGProtocolHeader) gpd.getHeader()).annotvars;
+				inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, gb, annotvars, gdo.annotexprs);
 			}
 
 			dinlr.pushEnv(dinlr.popEnv().setTranslation(inlined));
@@ -135,7 +134,8 @@ public class AssrtGDoDel extends GDoDel
 			LProtocolNameNode target = Projector.makeProjectedFullNameNode(proj.job.af, gd.proto.getSource(), gd.getTargetProtocolDeclFullName(mc), popped);
 
 			//projection = gd.project(proj.job.af, self, target);
-			ld = gd.project(proj.job.af, self, target, gd.annot);
+			ld = gd.project(proj.job.af, self, target, //gd.annot);
+					gd.annotexprs);
 			
 			// FIXME: do guarded recursive subprotocol checking (i.e. role is used during chain) in reachability checking? -- required role-usage makes local choice subject inference easier, but is restrictive (e.g. proto(A, B, C) { choice at A {A->B.do Proto(A,B,C)} or {A->B.B->C} }))
 		}

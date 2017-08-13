@@ -21,16 +21,12 @@ import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.local.LDoDel;
 import org.scribble.del.local.LProjectionDeclDel;
 import org.scribble.del.local.LProtocolDeclDel;
-import org.scribble.ext.assrt.ast.AssrtArithAnnotation;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.ext.assrt.ast.local.AssrtLDo;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
-import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
+import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.main.JobContext;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.SubprotocolSig;
@@ -56,7 +52,8 @@ public class AssrtLDoDel extends LDoDel
 						// Didn't keep original namenode del
 
 		//return doo.reconstruct(doo.roles, doo.args, pnn);
-		return doo.reconstruct(doo.roles, doo.args, pnn, doo.annot);
+		return doo.reconstruct(doo.roles, doo.args, pnn, //doo.annot);
+				doo.annotexprs);
 	}
 
 	// Only called if cycle
@@ -68,8 +65,9 @@ public class AssrtLDoDel extends LDoDel
 				RecVarKind.KIND, builder.getSubprotocolRecVar(subsig).toString());
 
 		//LContinue inlined = builder.job.af.LContinue(blame, recvar);
-		AssrtArithAnnotation annot = ((AssrtLDo) child).annot;
-		AssrtLContinue inlined = ((AssrtAstFactory) builder.job.af).AssrtLContinue(blame, recvar, annot);
+		//AssrtArithExpr annot = ((AssrtLDo) child).annot;
+		AssrtLDo ldo = (AssrtLDo) child;
+		AssrtLContinue inlined = ((AssrtAstFactory) builder.job.af).AssrtLContinue(blame, recvar, ldo.annotexprs);
 
 		builder.pushEnv(builder.popEnv().setTranslation(inlined));
 		return child;
@@ -89,10 +87,9 @@ public class AssrtLDoDel extends LDoDel
 			//LRecursion inlined = dinlr.job.af.LRecursion(blame, recvar, gb);
 			AssrtLDo ldo = (AssrtLDo) child;
 			LProtocolDecl lpd = ldo.getTargetProtocolDecl(dinlr.job.getContext(), dinlr.getModuleContext());
-			AssrtBinCompFormula bcf = (AssrtBinCompFormula) ((AssrtLProtocolHeader) lpd.getHeader()).ass.getFormula();  // FIXME: bcf
-			AssrtAssertion ass = ((AssrtAstFactory) dinlr.job.af).AssrtAssertion(null,
-					AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, (AssrtIntVarFormula) bcf.left, ldo.annot.getFormula()));  // FIXME: null source, and bcf
-			AssrtLRecursion inlined = ((AssrtAstFactory) dinlr.job.af).AssrtLRecursion(blame, recvar, gb, ass);
+			//AssrtBinCompFormula bcf = (AssrtBinCompFormula) ((AssrtLProtocolHeader) lpd.getHeader()).ass.getFormula();  // FIXME: bcf
+			List<AssrtIntVarNameNode> annotvars = ((AssrtLProtocolHeader) lpd.getHeader()).annotvars;
+			AssrtLRecursion inlined = ((AssrtAstFactory) dinlr.job.af).AssrtLRecursion(blame, recvar, gb, annotvars, ldo.annotexprs);
 
 			dinlr.pushEnv(dinlr.popEnv().setTranslation(inlined));
 			dinlr.removeSubprotocolRecVar(subsig);
@@ -123,6 +120,7 @@ public class AssrtLDoDel extends LDoDel
 		RoleArgList roles = ld.roles.reconstruct(ras);
 
 		//return super.leaveProjectedRoleDeclFixing(parent, child, fixer, ld.reconstruct(roles, ld.args, ld.getProtocolNameNode()));
-		return ld.reconstruct(roles, ld.args, ld.getProtocolNameNode(), ld.annot);
+		return ld.reconstruct(roles, ld.args, ld.getProtocolNameNode(), //ld.annot);
+				ld.annotexprs);	
 	}
 }

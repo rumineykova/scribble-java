@@ -1,6 +1,7 @@
 package org.scribble.ext.assrt.core.ast.global;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,6 @@ import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GConnect;
 import org.scribble.ast.global.GContinue;
 import org.scribble.ast.global.GInteractionNode;
-import org.scribble.ast.global.GMessageTransfer;
 import org.scribble.ast.global.GProtocolBlock;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.ast.global.GProtocolDef;
@@ -25,6 +25,7 @@ import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.global.GProtocolDefDel;
 import org.scribble.ext.assrt.ast.AssrtAnnotDataTypeElem;
+import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
@@ -36,9 +37,6 @@ import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
@@ -102,13 +100,13 @@ public class AssrtCoreGProtocolDeclTranslator
 		GInteractionNode first = is.get(0);
 		if (first instanceof GSimpleInteractionNode && !(first instanceof GContinue))
 		{
-			if (first instanceof GMessageTransfer)
+			if (first instanceof AssrtGMessageTransfer)
 			{
-				return parseGMessageTransfer(is, rvs, (GMessageTransfer) first);
+				return parseAssrtGMessageTransfer(is, rvs, (AssrtGMessageTransfer) first);
 			}
-			else if (first instanceof GConnect)
+			else if (first instanceof AssrtGConnect)
 			{
-				return parseGConnect(is, rvs, (GConnect) first);
+				return parseAssrtGConnect(is, rvs, (AssrtGConnect) first);
 			}
 			/*else if (first instanceof GDisconnect)
 			{
@@ -144,7 +142,7 @@ public class AssrtCoreGProtocolDeclTranslator
 			}
 			else if (first instanceof GContinue)
 			{
-				return parseGContinue(rvs, checkRecGuard, (AssrtGContinue) first);
+				return parseAssrtGContinue(rvs, checkRecGuard, (AssrtGContinue) first);
 			}
 			else
 			{
@@ -219,24 +217,16 @@ public class AssrtCoreGProtocolDeclTranslator
 			rvs.put(recvar, rvn.toName());
 			recvar = rvn.toName();
 		}
-		AssrtDataTypeVar annot;
-		AssrtArithFormula init;
-		if (gr.ass == null)
-		{
-			annot = makeFreshDataTypeVar();
-			init = AssrtFormulaFactory.AssrtIntVal(0);
-		}
-		else
-		{
-			AssrtBinCompFormula bcf = (AssrtBinCompFormula) gr.ass.getFormula();
-			annot = ((AssrtIntVarFormula) bcf.left).toName();
-			init = (AssrtArithFormula) bcf.right;
-		}
 		AssrtCoreGType body = parseSeq(gr.getBlock().getInteractionSeq().getInteractions(), rvs, checkChoiceGuard, true);  // Check rec body is guarded
-		return this.af.AssrtCoreGRec(recvar, annot, init, body);
+
+		//return this.af.AssrtCoreGRec(recvar, annot, init, body);
+		//return this.af.AssrtCoreGRec(recvar, Stream.of(annot).collect(Collectors.toMap(a -> a, a -> init)), body);
+		Iterator<AssrtArithExpr> exprs = gr.annotexprs.iterator();
+		Map<AssrtDataTypeVar, AssrtArithFormula> vars = gr.annotvars.stream().collect(Collectors.toMap(v -> v.getFormula().toName(), v -> exprs.next().getFormula()));
+		return this.af.AssrtCoreGRec(recvar, vars, body);
 	}
 
-	private AssrtCoreGType parseGContinue(Map<RecVar, RecVar> rvs, boolean checkRecGuard, AssrtGContinue gc)
+	private AssrtCoreGType parseAssrtGContinue(Map<RecVar, RecVar> rvs, boolean checkRecGuard, AssrtGContinue gc)
 			throws AssrtCoreSyntaxException
 	{
 		if (checkRecGuard)
@@ -248,20 +238,12 @@ public class AssrtCoreGProtocolDeclTranslator
 		{
 			recvar = rvs.get(recvar);
 		}
-		AssrtArithFormula expr;
-		if (gc.annot == null)
-		{
-			expr = AssrtFormulaFactory.AssrtIntVal(0);
-		}
-		else
-		{
-			expr = gc.annot.getFormula();
-		}
-		return this.af.AssrtCoreGRecVar(recvar, expr);
+		List<AssrtArithFormula> exprs = gc.annotexprs.stream().map(e -> e.getFormula()).collect(Collectors.toList());
+		return this.af.AssrtCoreGRecVar(recvar, exprs);
 	}
 
 	// Parses message interactions as unary choices
-	private AssrtCoreGChoice parseGMessageTransfer(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, GMessageTransfer gmt) throws AssrtCoreSyntaxException 
+	private AssrtCoreGChoice parseAssrtGMessageTransfer(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, AssrtGMessageTransfer gmt) throws AssrtCoreSyntaxException 
 	{
 		Op op = parseOp(gmt);
 		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
@@ -276,7 +258,7 @@ public class AssrtCoreGProtocolDeclTranslator
 
 	// Duplicated from parseGMessageTransfer (MessageTransfer and ConnectionAction have no common
 	
-	private AssrtCoreGChoice parseGConnect(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, GConnect gc) throws AssrtCoreSyntaxException 
+	private AssrtCoreGChoice parseAssrtGConnect(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, AssrtGConnect gc) throws AssrtCoreSyntaxException 
 	{
 		Op op = parseOp(gc);
 		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
@@ -302,12 +284,12 @@ public class AssrtCoreGProtocolDeclTranslator
 		return this.af.AssrtCoreGChoice(src, kind, dest, Stream.of(a).collect(Collectors.toMap(x -> x, x -> cont)));
 	}
 
-	private Op parseOp(GMessageTransfer gmt) throws AssrtCoreSyntaxException
+	private Op parseOp(AssrtGMessageTransfer gmt) throws AssrtCoreSyntaxException
 	{
 		return parseOp(gmt.msg);
 	}
 
-	private Op parseOp(GConnect gc) throws AssrtCoreSyntaxException
+	private Op parseOp(AssrtGConnect gc) throws AssrtCoreSyntaxException
 	{
 		return parseOp(gc.msg);
 	}
@@ -322,13 +304,13 @@ public class AssrtCoreGProtocolDeclTranslator
 		return msn.op.toName();
 	}
 
-	private AssrtAnnotDataType parsePayload(GMessageTransfer gmt) throws AssrtCoreSyntaxException
+	private AssrtAnnotDataType parsePayload(AssrtGMessageTransfer gmt) throws AssrtCoreSyntaxException
 	//private AssrtAnnotDataTypeElem<DataTypeKind> parsePayload(GMessageTransfer gmt) throws AssrtException
 	{
 		return parsePayload(gmt.msg);
 	}
 
-	private AssrtAnnotDataType parsePayload(GConnect gc) throws AssrtCoreSyntaxException
+	private AssrtAnnotDataType parsePayload(AssrtGConnect gc) throws AssrtCoreSyntaxException
 	{
 		return parsePayload(gc.msg);
 	}
@@ -345,7 +327,8 @@ public class AssrtCoreGProtocolDeclTranslator
 			/*DataTypeNode dtn = (DataTypeNode) ((AssrtAstFactory) this.job.af).QualifiedNameNode(null, DataTypeKind.KIND, "_Unit");
 			AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
 			return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, dtn);  // null source OK?*/
-			return new AssrtAnnotDataType(makeFreshDataTypeVar(), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE);
+
+			return new AssrtAnnotDataType(makeFreshDataTypeVar(), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE);  // FIXME: make empty list
 		}
 		else if (msn.payloads.getElements().size() > 1)
 		{
@@ -390,14 +373,14 @@ public class AssrtCoreGProtocolDeclTranslator
 		}
 	}
 
-	private AssrtAssertion parseAssertion(GMessageTransfer gmt)
+	private AssrtAssertion parseAssertion(AssrtGMessageTransfer gmt)
 	{
-		return parseAssertion(((AssrtGMessageTransfer) gmt).ass);
+		return parseAssertion(gmt.ass);
 	}
 
-	private AssrtAssertion parseAssertion(GConnect gc)
+	private AssrtAssertion parseAssertion(AssrtGConnect gc)
 	{
-		return parseAssertion(((AssrtGConnect) gc).ass);
+		return parseAssertion(gc.ass);
 	}
 
 	// Empty assertions generated as True
@@ -407,7 +390,7 @@ public class AssrtCoreGProtocolDeclTranslator
 			// FIXME: singleton constant
 	}
 
-	private Role parseSourceRole(GMessageTransfer gmt)
+	private Role parseSourceRole(AssrtGMessageTransfer gmt)
 	{
 		return parseSourceRole(gmt.src);
 	}
@@ -422,7 +405,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		return rn.toName();
 	}
 	
-	private Role parseDestinationRole(GMessageTransfer gmt) throws AssrtCoreSyntaxException
+	private Role parseDestinationRole(AssrtGMessageTransfer gmt) throws AssrtCoreSyntaxException
 	{
 		if (gmt.getDestinations().size() > 1)
 		{
@@ -431,7 +414,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		return parseDestinationRole(gmt.getDestinations().get(0));
 	}
 
-	private Role parseDestinationRole(GConnect gc) throws AssrtCoreSyntaxException
+	private Role parseDestinationRole(AssrtGConnect gc) throws AssrtCoreSyntaxException
 	{
 		return parseDestinationRole(gc.dest);
 	}

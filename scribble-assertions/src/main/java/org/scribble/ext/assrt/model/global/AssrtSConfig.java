@@ -107,7 +107,7 @@ public class AssrtSConfig extends SConfig
 				//try
 				{
 					newFormula = this.formula==null?
-							new AssrtLogFormula(currFormula.getJavaSmtFormula(), currFormula.getVars()):
+							new AssrtLogFormula(currFormula.getJavaSmtFormula(), currFormula.getIntVars()):
 							this.formula.addFormula(currFormula);
 				}
 				/*catch (AssertionParseException e)
@@ -193,7 +193,7 @@ public class AssrtSConfig extends SConfig
 					
 					if (assertion !=null)
 					{
-						Set<String> varNames = assertion.getVars().stream().map(v -> v.toString()).collect(Collectors.toSet());
+						Set<String> varNames = assertion.getIntVars().stream().map(v -> v.toString()).collect(Collectors.toSet());
 						varNames.removeAll(newVarNames); 
 						if ((!varNames.isEmpty()) && (!this.varsInScope.containsKey(r) ||
 							 !this.varsInScope.get(r).containsAll(varNames)))

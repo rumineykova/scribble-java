@@ -1,27 +1,19 @@
 package org.scribble.ext.assrt.type.formula;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 import org.sosy_lab.java_smt.api.QuantifiedFormulaManager;
 
-// FIXME: factor out quanitified formula with exists?
-public class AssrtForallFormula extends AssrtBoolFormula
+public class AssrtForallIntVarsFormula extends AssrtQuantifiedIntVarsFormula
 {
-	public final List<AssrtIntVarFormula> vars;
-	public final AssrtBoolFormula expr;
-
 	// Pre: vars non empty
-	protected AssrtForallFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
+	protected AssrtForallIntVarsFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
 	{
-		this.vars = Collections.unmodifiableList(vars);
-		this.expr = expr;
+		super(vars, expr);
 	}
 	
 	@Override
@@ -34,7 +26,7 @@ public class AssrtForallFormula extends AssrtBoolFormula
 	}
 
 	@Override
-	public AssrtForallFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	public AssrtForallIntVarsFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
 		if (this.vars.contains(old))
 		{
@@ -57,29 +49,16 @@ public class AssrtForallFormula extends AssrtBoolFormula
 	@Override
 	protected BooleanFormula toJavaSmtFormula()
 	{
-		if (this.vars.stream().anyMatch(v -> v.toString().startsWith("_dum")))
-		{
-			//throw new RuntimeException("aaa: " + this.vars);
-		}
-		
 		QuantifiedFormulaManager qfm = JavaSmtWrapper.getInstance().qfm;
 		BooleanFormula expr = (BooleanFormula) this.expr.toJavaSmtFormula();
 		List<IntegerFormula> vs = this.vars.stream().map(v -> v.getJavaSmtFormula()).collect(Collectors.toList());
 		return qfm.forall(vs, expr);
 	}
-
-	@Override
-	public Set<AssrtDataTypeVar> getVars()
-	{
-		Set<AssrtDataTypeVar> vs = this.expr.getVars();
-		vs.removeAll(this.vars.stream().map(v -> v.toName()).collect(Collectors.toList()));
-		return vs;
-	}
 	
 	@Override
 	public String toString()
 	{
-		return "(forall [" + this.vars.stream().map(Object::toString).collect(Collectors.joining(", ")) + "] (" + this.expr + "))";
+		return "(forall " + bodyToString() + ")";
 	}
 
 	@Override
@@ -89,19 +68,17 @@ public class AssrtForallFormula extends AssrtBoolFormula
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtForallFormula))
+		if (!(o instanceof AssrtForallIntVarsFormula))
 		{
 			return false;
 		}
-		AssrtForallFormula f = (AssrtForallFormula) o;
-		return super.equals(this)  // Does canEqual
-				&& this.vars.equals(f.vars) && this.expr.equals(f.expr);  
+		return super.equals(this);  // Does canEqual
 	}
 	
 	@Override
 	protected boolean canEqual(Object o)
 	{
-		return o instanceof AssrtForallFormula;
+		return o instanceof AssrtForallIntVarsFormula;
 	}
 
 	@Override
@@ -109,8 +86,6 @@ public class AssrtForallFormula extends AssrtBoolFormula
 	{
 		int hash = 6803;
 		hash = 31 * hash + super.hashCode();
-		hash = 31 * hash + this.vars.hashCode();
-		hash = 31 * hash + this.expr.hashCode();
 		return hash;
 	}
 }

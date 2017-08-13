@@ -49,7 +49,7 @@ public class AssrtInlinedProtocolUnfolder extends InlinedProtocolUnfolder
 		else
 		{
 			AssrtLRecursion lr = (AssrtLRecursion) rec;
-			unfolded = lr.reconstruct(rv, (LProtocolBlock) block, lr.ass);  // FIXME: factor out better? -- could just use clone and replace del? (no, need to set new block)
+			unfolded = lr.reconstruct(rv, (LProtocolBlock) block, lr.annotvars, lr.annotexprs);  // FIXME: factor out better? -- could just use clone and replace del? (no, need to set new block)
 		}
 		this.recs.put(recvar, unfolded);
 	}

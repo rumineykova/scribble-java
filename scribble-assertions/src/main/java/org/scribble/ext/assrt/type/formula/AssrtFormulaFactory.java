@@ -11,16 +11,6 @@ public class AssrtFormulaFactory
 		return null;
 	}*/
 
-	public static AssrtIntValFormula AssrtIntVal(int i)
-	{
-		return new AssrtIntValFormula(i);
-	}
-
-	public static AssrtIntVarFormula AssrtIntVar(String text)
-	{
-		return new AssrtIntVarFormula(text);
-	}
-
 	public static AssrtBinCompFormula AssrtBinComp(AssrtBinCompFormula.Op op, AssrtArithFormula left, AssrtArithFormula right)
 	{
 		return new AssrtBinCompFormula(op, left, right); 
@@ -35,15 +25,20 @@ public class AssrtFormulaFactory
 	{
 		return new AssrtBinBoolFormula(op, left, right); 
 	}
-	
-	public static AssrtExistsFormula AssrtExistsFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
+
+	public static AssrtUnPredicateFormula AssrtUnPredicate(String name, List<AssrtArithFormula>args)
 	{
-		return new AssrtExistsFormula(vars, expr); 
+		return new AssrtUnPredicateFormula(name, args);
 	}
 
-	public static AssrtForallFormula AssrtForallFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
+	public static AssrtIntValFormula AssrtIntVal(int i)
 	{
-		return new AssrtForallFormula(vars, expr); 
+		return new AssrtIntValFormula(i);
+	}
+
+	public static AssrtIntVarFormula AssrtIntVar(String text)
+	{
+		return new AssrtIntVarFormula(text);
 	}
 	
 	/*public static AssrtTrueFormula AssrtTrueFormula() 
@@ -56,4 +51,18 @@ public class AssrtFormulaFactory
 	
 		return AssrtFalseFormula.FALSE;
 	}*/
+	
+	
+
+	// Not (currently) parsed
+	
+	public static AssrtExistsIntVarsFormula AssrtExistsFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
+	{
+		return new AssrtExistsIntVarsFormula(vars, expr); 
+	}
+
+	public static AssrtForallIntVarsFormula AssrtForallFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
+	{
+		return new AssrtForallIntVarsFormula(vars, expr); 
+	}
 }

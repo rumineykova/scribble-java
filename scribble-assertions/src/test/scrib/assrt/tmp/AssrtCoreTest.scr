@@ -5,26 +5,6 @@
 // http://sandbox.kidstrythisathome.com/erdos/
 
 
-module assrt.tmp.AssrtCoreTest;
-
-
-type <dotnet> "System.UInt32" from "..." as int;
-type <dotnet> "System.String" from "..." as str;
-
-
-
-
-global protocol Fib(role C, role S) @(x1=0);
-{
-	choice at C
-	{
-		ADD(x:int) from C to S; @(x=x1);
-		ADD(y:int) from C to S;
-		RES(z:int) from S to C; @(z=(x+y));
-		do Adder(C, S); @(y);
-	}
-	//or { BYE() from C to S; BYE() from S to C; }
-}
 
 
 // FIXME: debug printing for assertion passes
@@ -87,12 +67,84 @@ global protocol Fib(role C, role S) @(x1=0);
 
 
 
+module assrt.tmp.AssrtCoreTest;
+
+
+type <dotnet> "System.UInt32" from "..." as int;
+type <dotnet> "System.String" from "..." as str;
+
+
+// uninterpreted functions for custom API gen
+// multi statvars -- fibo, linear
+
+//*
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B; @foo(A);  
+			// FIXME: unknown var error for roles -- roles are currently being parsed as int vars (and preds hardcoded with int args) -- maybe just hack it for now
+	//1(x:int) from A to B; @foo(x);
+}
+//*/
+
+
+/*
+explicit global protocol Proto1(role A, role B, role C)
+{
+	connect A to B;
+	1(x:int) from A to B; @port(x, C);  // implies port(x, C) and not(port(x, A)), not(port(x, B))
+	connect B to C;
+	2(y:int) from B to A; @(x=y);
+	connect C to A; @request(x, C);  // C should know x; should imply port(x, C);
+} // terminal state needs all linear used
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B; 
+	2(y:int) from B to A; @(x=y);
+	3(z:int) from B to A; @(z=y);  // Should this be "linearity" error?
+}
+//*/
 
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*/
+global protocol Proto1(role A, role B) @(x=0);
+{
+	1() from A to B;
+	do Proto2(A, B);
+}
+
+aux global protocol Proto2(role A, role B)
+{
+	2() from B to A; @(x<1);  // FIXME: shouldn't be in scope without decl as Proto2 statevar -- OK because aux? error caught if Proto2 checked as root
+}
+//*/
 
 /*
 global protocol Proto1(role B, role S)
@@ -116,6 +168,9 @@ global protocol Proto1(role A, role B) @(z=3);
 	do Proto1(A, B);  // FIXME: statevar arg check
 }
 //*/
+
+
+
 
 
 

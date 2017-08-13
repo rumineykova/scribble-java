@@ -2,6 +2,7 @@ package org.scribble.ext.assrt.del.local;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,11 +15,10 @@ import org.scribble.ast.local.LProjectionDecl;
 import org.scribble.ast.local.LProtocolDecl;
 import org.scribble.ast.local.LProtocolHeader;
 import org.scribble.del.local.LProtocolDeclDel;
+import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.name.GProtocolName;
@@ -51,7 +51,8 @@ public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionD
 		RoleDeclList rdl = fixer.job.af.RoleDeclList(lpd.header.roledecls.getSource(), rds);
 		
 		AssrtLProtocolHeader tmp = (AssrtLProtocolHeader) lpd.getHeader();  // FIXME: make a LProtocolHeaderDel and factor out there? (would be less code duplication here)
-		LProtocolHeader hdr = tmp.reconstruct(tmp.getNameNode(), rdl, tmp.paramdecls, tmp.ass);
+		LProtocolHeader hdr = tmp.reconstruct(tmp.getNameNode(), rdl, tmp.paramdecls, //tmp.ass);
+				tmp.annotvars, tmp.annotexprs);
 		LProtocolDecl fixed = lpd.reconstruct(hdr, lpd.def);
 		
 		fixer.job.debugPrintln("\n[DEBUG] Projected " + getSourceProtocol() + " for " + getSelfRole() + ":\n" + fixed);
@@ -68,11 +69,13 @@ public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionD
 		AssrtLProtocolHeader hdr = (AssrtLProtocolHeader) lpd.header;
 		
 		Map<AssrtDataTypeVar, AssrtArithFormula> vars = new HashMap<>();
-		if (hdr.ass != null)
+		//if (hdr.ass != null)
+		if (!hdr.annotvars.isEmpty())
 		{
-			AssrtBinCompFormula bcf = hdr.getAnnotDataTypeVarInitDecl();
-			
-			vars.put(((AssrtIntVarFormula) bcf.left).toName(), (AssrtArithFormula) bcf.right);
+			/*AssrtBinCompFormula bcf = hdr.getAnnotDataTypeVarDecls();
+			vars.put(((AssrtIntVarFormula) bcf.left).toName(), (AssrtArithFormula) bcf.right);*/
+			Iterator<AssrtArithExpr> exprs = hdr.annotexprs.iterator();
+			hdr.annotvars.forEach(v -> vars.put(v.toName(), exprs.next().getFormula()));
 		}
 		
 		//..FIXME: add rec-annots to AssrtSConfig

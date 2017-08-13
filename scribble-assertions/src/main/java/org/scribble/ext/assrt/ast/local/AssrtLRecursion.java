@@ -1,5 +1,9 @@
 package org.scribble.ext.assrt.ast.local;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.Constants;
@@ -9,31 +13,41 @@ import org.scribble.ast.local.LProtocolBlock;
 import org.scribble.ast.local.LRecursion;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDel;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
+import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclAnnotNode;
+import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.kind.Local;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtLRecursion extends LRecursion
+public class AssrtLRecursion extends LRecursion implements AssrtStateVarDeclAnnotNode
 {
-	public final AssrtAssertion ass;  // cf. AssrtGProtocolHeader  // FIXME: make specific syntactic expr
+	//public final AssrtAssertion ass;  // cf. AssrtGProtocolHeader  // FIXME: make specific syntactic expr
+
+	public final List<AssrtIntVarNameNode> annotvars;
+	public final List<AssrtArithExpr> annotexprs;
 	
 	public AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtocolBlock block)
 	{
-		this(source, recvar, block, null);
+		this(source, recvar, block, //null);
+				Collections.emptyList(), Collections.emptyList());
 	}
 
-	public AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtocolBlock block, AssrtAssertion ass)
+	public AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtocolBlock block, //AssrtAssertion ass)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
 	{
 		super(source, recvar, block);
-		this.ass = ass;
+		//this.ass = ass;
+		this.annotvars = Collections.unmodifiableList(annotvars);
+		this.annotexprs = Collections.unmodifiableList(annotexprs);
 	}
 
 	@Override
 	protected AssrtLRecursion copy()
 	{
-		return new AssrtLRecursion(this.source, this.recvar, getBlock(), this.ass);
+		return new AssrtLRecursion(this.source, this.recvar, getBlock(), //this.ass);
+				this.annotvars, this.annotexprs);
 	}
 	
 	@Override
@@ -41,8 +55,13 @@ public class AssrtLRecursion extends LRecursion
 	{
 		RecVarNode recvar = this.recvar.clone(af);
 		LProtocolBlock block = getBlock().clone(af);
-		AssrtAssertion ass = (this.ass == null) ? null : this.ass.clone(af);
-		return ((AssrtAstFactory) af).AssrtLRecursion(this.source, recvar, block, ass);
+		//AssrtAssertion ass = (this.ass == null) ? null : this.ass.clone(af);
+
+		List<AssrtIntVarNameNode> annotvars = this.annotvars.stream().map(v -> v.clone(af)).collect(Collectors.toList());
+		List<AssrtArithExpr> annotexprs = this.annotexprs.stream().map(e -> e.clone(af)).collect(Collectors.toList());
+
+		return ((AssrtAstFactory) af).AssrtLRecursion(this.source, recvar, block, //ass);
+				annotvars, annotexprs);
 	}
 
 	@Override
@@ -51,10 +70,12 @@ public class AssrtLRecursion extends LRecursion
 		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 
-	public AssrtLRecursion reconstruct(RecVarNode recvar, ProtocolBlock<Local> block, AssrtAssertion ass)
+	public AssrtLRecursion reconstruct(RecVarNode recvar, ProtocolBlock<Local> block, //AssrtAssertion ass)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
 	{
 		ScribDel del = del();
-		AssrtLRecursion lr = new AssrtLRecursion(this.source, recvar, (LProtocolBlock) block, ass);
+		AssrtLRecursion lr = new AssrtLRecursion(this.source, recvar, (LProtocolBlock) block, //ass);
+				annotvars, annotexprs);
 		lr = (AssrtLRecursion) lr.del(del);
 		return lr;
 	}
@@ -64,8 +85,13 @@ public class AssrtLRecursion extends LRecursion
 	{
 		RecVarNode recvar = (RecVarNode) visitChild(this.recvar, nv);
 		LProtocolBlock block = visitChildWithClassEqualityCheck(this, getBlock(), nv);
-		AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
-		return reconstruct(recvar, block, ass);
+		//AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
+
+		List<AssrtIntVarNameNode> annotvars = visitChildListWithClassEqualityCheck(this, this.annotvars, nv);
+		List<AssrtArithExpr> annotexprs = visitChildListWithClassEqualityCheck(this, this.annotexprs, nv);
+
+		return reconstruct(recvar, block, //ass);
+				annotvars, annotexprs);
 	}
 
 	// Duplicated from super
@@ -93,10 +119,24 @@ public class AssrtLRecursion extends LRecursion
 	{
 		return ln instanceof AssrtLRecursion;
 	}
+	
+	@Override
+	public List<AssrtIntVarNameNode> getAnnotVars()
+	{
+		return this.annotvars;
+	}
+
+	@Override
+	public List<AssrtArithExpr> getAnnotExprs()
+	{
+		return this.annotexprs;
+	}
 
 	@Override
 	public String toString()
 	{
-		return Constants.REC_KW + " " + this.recvar + " " + this.ass + " " + this.block;
+		return Constants.REC_KW + " " + this.recvar //+ " " + this.ass + " " 
+				+ annotToString()
+				+ this.block;
 	}
 }

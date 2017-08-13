@@ -4,14 +4,20 @@ import java.util.Map;
 
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.Module;
+import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.util.JavaSmtWrapper;
+import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
 import org.scribble.ext.assrt.visit.wf.AssrtNameDisambiguator;
 import org.scribble.main.Job;
+import org.scribble.main.JobContext;
 import org.scribble.main.ScribbleException;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.global.SModelFactory;
+import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.ModuleName;
 import org.scribble.visit.ProtocolDefInliner;
 import org.scribble.visit.context.ModuleContextBuilder;
@@ -21,12 +27,39 @@ import org.scribble.visit.wf.DelegationProtocolRefChecker;
 
 public class AssrtJob extends Job
 {
+	// N.B. currently only used by assrt-core
+	public enum Solver { NATIVE_Z3, JAVA_SMT_Z3, NONE }
+
+	public final Solver solver; //= Solver.NATIVE_Z3;
+
 	public AssrtJob(boolean debug, Map<ModuleName, Module> parsed, ModuleName main,
 			boolean useOldWF, boolean noLiveness, boolean minEfsm, boolean fair, boolean noLocalChoiceSubjectCheck,
 			boolean noAcceptCorrelationCheck, boolean noValidation, 
-			AstFactory af, EModelFactory ef, SModelFactory sf)
+			Solver solver, AstFactory af, EModelFactory ef, SModelFactory sf)
 	{
 		super(debug, parsed, main, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, af, ef, sf);
+		this.solver = solver;
+	}
+
+	// N.B. currently only used by assrt-core
+	public boolean checkSat(GProtocolName simpname, AssrtBoolFormula f)  // Maybe record simpname as field (for core)
+	{
+		switch (this.solver)
+		{
+			case JAVA_SMT_Z3: return JavaSmtWrapper.getInstance().isSat(f.getJavaSmtFormula());
+			case NATIVE_Z3:
+			{
+				JobContext jc = getContext();
+				return Z3Wrapper.checkSat((GProtocolDecl) jc.getMainModule().getProtocolDecl(simpname), f);
+			}
+			case NONE:
+			{
+				debugPrintln("\n[assrt-core] WARNING: skipping sat check: " + f.toSmt2Formula());
+
+				return true;
+			}
+			default: throw new RuntimeException( "[assrt-core] Shouldn't get in here: " + this.solver);
+		}
 	}
 	
 	// FIXME: move to MainContext::newJob?

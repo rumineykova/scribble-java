@@ -33,7 +33,7 @@ public abstract class ProtocolDefDel extends ScribDelBase
 		ScribDelBase.pushVisitorEnv(this, inl);
 	}
 	
-	public ProtocolDef<?> getInlinedProtocolDef()
+	public ProtocolDef<? extends ProtocolKind> getInlinedProtocolDef()
 	{
 		return this.inlined;
 	}

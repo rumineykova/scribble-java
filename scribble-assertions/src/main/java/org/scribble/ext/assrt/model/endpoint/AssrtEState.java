@@ -27,38 +27,38 @@ import org.scribble.type.name.RecVar;
 
 public class AssrtEState extends EState
 {
-	private final Map<AssrtDataTypeVar, AssrtArithFormula> vars;
+	private final Map<AssrtDataTypeVar, AssrtArithFormula> statevars; // Note: even with syntactic single var per rec, nested recs can lead to mulitple vars per state
 
 	// FIXME: make AssrtIntTypeVar?
 	protected AssrtEState(Set<RecVar> labs, Map<AssrtDataTypeVar, AssrtArithFormula> vars)  // FIXME: currently syntactically restricted to one annot var
 	{
 		super(labs);
 		//this.vars = Collections.unmodifiableMap(vars);
-		this.vars = new HashMap<>(vars);
+		this.statevars = new HashMap<>(vars);  // Side effected by addStateVars
 	}
 	
 	@Override
 	protected AssrtEState cloneNode(EModelFactory ef, Set<RecVar> labs)
 	{
-		return ((AssrtEModelFactory) ef).newAssrtEState(labs, getAnnotVars());
+		return ((AssrtEModelFactory) ef).newAssrtEState(labs, this.statevars);
 	}
 	
-	public Map<AssrtDataTypeVar, AssrtArithFormula> getAnnotVars()
+	public Map<AssrtDataTypeVar, AssrtArithFormula> getStateVars()
 	{
-		return this.vars;
+		return this.statevars;
 	}
 
 	// For public access, do via AssrtEGraphBuilderUtil
-	protected final void addAnnotVars(Map<AssrtDataTypeVar, AssrtArithFormula> vars)
+	protected final void addStateVars(Map<AssrtDataTypeVar, AssrtArithFormula> vars)
 	{
-		this.vars.putAll(vars);
+		this.statevars.putAll(vars);
 	}
 
 	@Override
 	protected String getNodeLabel()
 	{
 		String labs = this.labs.toString();
-		return "label=\"" + this.id + ": " + labs.substring(1, labs.length() - 1) + ", " + this.vars + "\"";  // FIXME: would be more convenient for this method to return only the label body
+		return "label=\"" + this.id + ": " + labs.substring(1, labs.length() - 1) + ", " + this.statevars + "\"";  // FIXME: would be more convenient for this method to return only the label body
 	}
 	
 	@Override
@@ -72,7 +72,7 @@ public class AssrtEState extends EState
 	{
 		int hash = 6619;
 		hash = 31 * hash + super.hashCode();  // N.B. uses state ID only -- following super pattern
-		hash = 31 * hash + this.vars.hashCode();  // N.B. uses state ID only -- following super pattern
+		hash = 31 * hash + this.statevars.hashCode();  // N.B. uses state ID only -- following super pattern
 		return hash;
 	}
 
@@ -87,7 +87,7 @@ public class AssrtEState extends EState
 		{
 			return false;
 		}
-		return super.equals(o) && this.vars.equals(((AssrtEState) o).vars);  // Checks canEquals
+		return super.equals(o) && this.statevars.equals(((AssrtEState) o).statevars);  // Checks canEquals
 	}
 
 	@Override

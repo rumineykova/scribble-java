@@ -6,7 +6,7 @@ import org.scribble.ast.PayloadElem;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.del.ScribDel;
-import org.scribble.ext.assrt.ast.name.simple.AssrtVarNameNode;
+import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.kind.DataTypeKind;
@@ -15,12 +15,13 @@ import org.scribble.visit.AstVisitor;
 
 // A "name pair", perhaps similar to GDelegationElem -- factor out?
 // This is an "Elem" -- "Elems" are the elements of PayloadElemList, while PayloadElemNameNode (like DataTypeNode) are the values (an attribute) of the elems
-public class AssrtAnnotDataTypeElem extends ScribNodeBase implements PayloadElem<DataTypeKind>
+// FIXME: currently only allowed to be "int" (cf. AssrtIntVarNameNode) -- check this explicitly
+public class AssrtAnnotDataTypeElem extends ScribNodeBase implements PayloadElem<DataTypeKind>, AssrtActionVarDeclAnnotNode
 {
-	public final AssrtVarNameNode var;  // Using AssrtVarNameNode both as the annotation (as here), and as a PayloadElemNameNode -- like the below DataTypeNode
-	public final DataTypeNode data;
+	public final AssrtIntVarNameNode var;  // Using AssrtVarNameNode both as the annotation (as here), and as a PayloadElemNameNode -- like the below DataTypeNode
+	public final DataTypeNode data;  // FIXME: currently only "int"
 	
-	public AssrtAnnotDataTypeElem(CommonTree source, AssrtVarNameNode var, DataTypeNode data)
+	public AssrtAnnotDataTypeElem(CommonTree source, AssrtIntVarNameNode var, DataTypeNode data)
 	{
 		super(source);
 		this.var = var;
@@ -42,12 +43,12 @@ public class AssrtAnnotDataTypeElem extends ScribNodeBase implements PayloadElem
 	@Override
 	public AssrtAnnotDataTypeElem clone(AstFactory af)
 	{
-		AssrtVarNameNode var = ScribUtil.checkNodeClassEquality(this.var, this.var.clone(af));
+		AssrtIntVarNameNode var = ScribUtil.checkNodeClassEquality(this.var, this.var.clone(af));
 		DataTypeNode data = ScribUtil.checkNodeClassEquality(this.data, this.data.clone(af));
 		return ((AssrtAstFactory) af).AssrtAnnotDataTypeElem(this.source, var, data);
 	}
 
-	public AssrtAnnotDataTypeElem reconstruct(AssrtVarNameNode var, DataTypeNode data)
+	public AssrtAnnotDataTypeElem reconstruct(AssrtIntVarNameNode var, DataTypeNode data)
 	{
 		ScribDel del = del();
 		AssrtAnnotDataTypeElem elem = new AssrtAnnotDataTypeElem(this.source, var, data);
@@ -58,21 +59,29 @@ public class AssrtAnnotDataTypeElem extends ScribNodeBase implements PayloadElem
 	@Override 
 	public AssrtAnnotDataTypeElem visitChildren(AstVisitor nv) throws ScribbleException
 	{
-		AssrtVarNameNode var = (AssrtVarNameNode) visitChild(this.var, nv);  
+		AssrtIntVarNameNode var = (AssrtIntVarNameNode) visitChild(this.var, nv);  
 		DataTypeNode data = (DataTypeNode) visitChild(this.data, nv);
 		return reconstruct(var, data);
-	}
-	
-	@Override
-	public String toString()
-	{
-		return this.var.toString() + ": " +  this.data.toString();
 	}
 
 	@Override
 	public AssrtAnnotDataType toPayloadType()
 	{
 		// TODO: make it PayloadType AnnotPayload  // FIXME: means return just the data type?  but maybe the var is needed
-		return new AssrtAnnotDataType(this.var.toPayloadType(), this.data.toPayloadType());
+		return new AssrtAnnotDataType(//this.var.toPayloadType(),
+				this.var.toName(),
+				this.data.toPayloadType());
+	}
+
+	@Override
+	public AssrtIntVarNameNode getAnnotVar()
+	{
+		return this.var;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return this.var.toString() + ": " +  this.data.toString();
 	}
 }

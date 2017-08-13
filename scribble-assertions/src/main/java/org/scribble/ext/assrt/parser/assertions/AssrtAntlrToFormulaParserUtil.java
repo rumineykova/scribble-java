@@ -13,6 +13,10 @@ public class AssrtAntlrToFormulaParserUtil
 			case AssrtAssertionsAntlrConstants.BINBOOLEXPR_NODE_TYPE:  return AssrtAntlrNodeType.BINBOOLEXPR;
 			case AssrtAssertionsAntlrConstants.BINCOMPEXPR_NODE_TYPE:  return AssrtAntlrNodeType.BINCOMPEXPR;
 			case AssrtAssertionsAntlrConstants.BINARITHEXPR_NODE_TYPE: return AssrtAntlrNodeType.BINARITHEXPR;
+			
+			case AssrtAssertionsAntlrConstants.UNPRED_NODE_TYPE:          return AssrtAntlrNodeType.UNPRED;
+			case AssrtAssertionsAntlrConstants.ARITH_EXPR_LIST_NODE_TYPE: return AssrtAntlrNodeType.ARITH_EXPR_LIST;
+
 			case AssrtAssertionsAntlrConstants.INTVAR_NODE_TYPE:       return AssrtAntlrNodeType.INTVAR;
 			case AssrtAssertionsAntlrConstants.INTVAL_NODE_TYPE:       return AssrtAntlrNodeType.INTVAL;
 

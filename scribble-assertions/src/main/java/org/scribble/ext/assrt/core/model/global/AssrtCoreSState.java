@@ -19,6 +19,7 @@ import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReceive;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreERequest;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
+import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAccept;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAction;
@@ -33,8 +34,6 @@ import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.util.JavaSmtWrapper;
-import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.scribble.main.Job;
 import org.scribble.model.MPrettyState;
 import org.scribble.model.MState;
@@ -47,6 +46,7 @@ import org.scribble.model.global.SModelFactory;
 import org.scribble.model.global.actions.SAction;
 import org.scribble.type.Payload;
 import org.scribble.type.kind.Global;
+import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.MessageId;
 import org.scribble.type.name.Op;
 import org.scribble.type.name.PayloadElemType;
@@ -60,11 +60,14 @@ import org.scribble.type.name.Role;
 
 public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState, Global>
 {
-	// FIXME
-	enum SmtConfig { NATIVE_Z3, JAVA_SMT_Z3, NONE }
+	private static int counter = 1;
 	
-	private static final SmtConfig SMT_CONFIG = SmtConfig.NATIVE_Z3;
-	
+	private static AssrtIntVarFormula makeFreshIntVar(AssrtDataTypeVar var)
+	{
+		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString() + counter++);  // HACK
+		//return AssrtFormulaFactory.AssrtIntVar("_" + var.toString());  // HACK
+	}
+
 	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self -- for progress checking
 	
 	// In hash/equals -- cf. SState.config
@@ -228,13 +231,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							}
 							else
 							{
-								System.err.println("[assrt-core] Shouldn't get in here: " + pe);  // FIXME: runtime exception
+								throw new RuntimeException("[assrt-core] Shouldn't get in here: " + pe);
 							}
 						});
 
 						known.addAll(this.R.get(src).keySet());
 
-						return ((AssrtESend) a).ass.getVars().stream().anyMatch(v -> !known.contains(v));
+						return ((AssrtESend) a).ass.getIntVars().stream().anyMatch(v -> !known.contains(v));
 					}
 					else
 					{
@@ -245,7 +248,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 	
 	// i.e., output state has a "well-asserted" action
-	public boolean isAssertionProgressError(Job job)  // FIXME: not actually a "progress" error
+	public boolean isAssertionProgressError(Job job, GProtocolName simpname)  // FIXME: not actually a "progress" error
 			//throws ScribbleException
 	{
 		/*return new StreamExceptionCaller<Boolean, ScribbleException>()
@@ -253,7 +256,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				@Override
 				public Boolean trybody() throws ScribbleStreamException
 				{*/
-		return this.P.entrySet().stream().anyMatch(e ->
+		return this.P.entrySet().stream().anyMatch(e ->  // anyMatch is on the endpoints (not actions)
 		{
 			List<EAction> as = e.getValue().getAllActions(); // N.B. getAllActions includes non-fireable
 			if (as.isEmpty() || as.stream().noneMatch(a -> a.isSend() || a.isRequest())) 
@@ -306,7 +309,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					AssrtBoolFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, lhs, AA);
 
 					Set<AssrtDataTypeVar> free = new HashSet<>();
-					free.addAll(impli.getVars());
+					free.addAll(impli.getIntVars());
 					if (!free.isEmpty())
 					{
 						impli = AssrtFormulaFactory.AssrtForallFormula(
@@ -320,28 +323,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					job.debugPrintln("  raw      = " + str);
 
 					AssrtBoolFormula squashed = impli.squash();
-					String squashedstr = squashed.toSmt2Formula();
 
-					job.debugPrintln("  squashed = " + squashedstr);
+					job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
 
-					switch (SMT_CONFIG)
-					{
-						case JAVA_SMT_Z3:
-						{
-							JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
-							return !jsmt.isSat(squashed.getJavaSmtFormula());
-						}
-						case NATIVE_Z3:
-							return !Z3Wrapper.isSat(Z3Wrapper.toSmt2(squashed.toSmt2Formula()), job.getContext().main.toString());
-						case NONE:
-						{
-							job.debugPrintln("\n[assrt-core] WARNING: assertion progress check skipped.");
-
-							return true;
-						}
-						default:
-							throw new RuntimeException("[assrt-core] Shouldn't get in here: " + SMT_CONFIG);
-					}
+					return !((AssrtJob) job).checkSat(simpname, squashed);
 				/*}
 				/*else if (a instanceof AssrtCoreEReceive || a instanceof AssrtEAccept)
 				{
@@ -349,9 +334,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}* /
 				else
 				{
-					System.err.println("[assrt-core] Shouldn't get in here: " + a);
-					System.exit(1); // FIXME
-					return false;
+					throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
 				}
 			});*/
 		}
@@ -361,7 +344,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	// i.e., state has an action that is not satisfiable (deadcode)
-	public boolean isUnsatisfiableError(Job job)  // FIXME: not actuall a "progress" error
+	public boolean isUnsatisfiableError(Job job, GProtocolName simpname)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
 		{
@@ -397,7 +380,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							AA,
 							(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
 					Set<AssrtDataTypeVar> free = new HashSet<>();
-					free.addAll(tocheck.getVars());
+					free.addAll(tocheck.getIntVars());
 					if (!free.isEmpty())
 					{
 						tocheck = AssrtFormulaFactory.AssrtExistsFormula(
@@ -410,28 +393,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					job.debugPrintln("  formula  = " + tocheck.toSmt2Formula());
 
 					AssrtBoolFormula squashed = tocheck.squash();
-					String squashedstr = squashed.toSmt2Formula();
 
-					job.debugPrintln("  squashed = " + squashedstr);
+					job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
 
-					switch (SMT_CONFIG)
-					{
-						case JAVA_SMT_Z3:
-						{
-							JavaSmtWrapper jsmt = JavaSmtWrapper.getInstance();
-							return !jsmt.isSat(squashed.getJavaSmtFormula());
-						}
-						case NATIVE_Z3:
-							return !Z3Wrapper.isSat(Z3Wrapper.toSmt2(squashed.toSmt2Formula()), job.getContext().main.toString());
-						case NONE:
-						{
-							job.debugPrintln("\n[assrt-core] WARNING: satisfiability check skipped.");
-
-							return false;
-						}
-						default:
-							throw new RuntimeException("[assrt-core] Shouldn't get in here: " + SMT_CONFIG);
-					}
+					return !((AssrtJob) job).checkSat(simpname, squashed);
 				}
 				else if (a instanceof AssrtERequest)
 				{
@@ -443,9 +408,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}*/
 				else
 				{
-					System.err.println("[assrt-core] Shouldn't get in here: " + a);
-					System.exit(1); // FIXME
-					return false;
+					throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
 				}
 			});
 		});
@@ -672,7 +635,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		//Q.get(es.peer).put(self, es.toTrueAssertion());  // HACK FIXME: cf. AssrtSConfig::fire
 		//Q.get(es.peer).put(self, es);  // Now doing toTrueAssertion on message at receive side
-		Q.get(es.peer).put(self, new AssrtCoreEMessage(es.getEModelFactory(), es.peer, es.mid, es.payload, es.ass, es.annot, es.expr,
+		Q.get(es.peer).put(self, new AssrtCoreEMessage(es.getEModelFactory(), es.peer, es.mid, es.payload, es.ass, 
+				//es.annot,
+				es.stateexprs,
 				rename.get(self)));  // Now doing toTrueAssertion on message at receive side
 	}
 
@@ -741,7 +706,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 				// Rename existing vars with same name
 				Set<AssrtBoolFormula> hh = F.get(self);
-				if (hh.stream().anyMatch(hhh -> hhh.getVars().contains(v)))
+				if (hh.stream().anyMatch(hhh -> hhh.getIntVars().contains(v)))
 				{
 					AssrtIntVarFormula old = AssrtFormulaFactory.AssrtIntVar(v.toString());
 					AssrtIntVarFormula fresh = makeFreshIntVar(v);
@@ -847,52 +812,74 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		
 
 		// Rename old R vars -- must come before adding new F and R clauses
-		Map<AssrtDataTypeVar, AssrtArithFormula> tmp = R.get(self);
-		AssrtDataTypeVar annot = a.getAnnotVar();
+		Map<AssrtDataTypeVar, AssrtArithFormula> Rself = R.get(self);
+		//AssrtDataTypeVar annot = a.getAnnotVar();
+
+		// "forward" recs will have annotvars but no stateexprs
+		Map<AssrtDataTypeVar, AssrtArithFormula> annotvars = succ.getStateVars();
+		List<AssrtArithFormula> stateexprs = a.getStateExprs();
 		
 
 		// Following must come after F update
 
 		// Update R from state -- entering a rec "forwards", i.e., not via a continue
-		if (annot.equals(AssrtCoreESend.DUMMY_VAR))  // HACK CHECKME
+		//if (annot.equals(AssrtCoreEAction.DUMMY_VAR))  // HACK CHECKME
+		if (stateexprs.isEmpty())
 		{
-			succ.getAnnotVars().entrySet().forEach(e ->
+			annotvars.entrySet().forEach(e ->
 			{
 				AssrtDataTypeVar k = e.getKey();
 				AssrtArithFormula af = e.getValue();
-				if (!tmp.containsKey(k) || !tmp.get(k).equals(af))  // FIXME: need to treat statevars more like roles? i.e., statevar must be explicitly declared/passed to stay "in scope" in the subproto?
+				
+				
+				// FIXME: record statevar mapping for "direct substitution" modelling special case? (i.e., no "old var" renaming), e.g., x -> x, or x -> y -> x -- i.e. treat subproto statevars more like formal params
+				// Anyway, need to check something about new vs shadowed vs udapted vs etc state vars -- currently nothing is checked syntactically
+				// "forwards" rec should also be handled by action statevar update?
+				
+				
+				if (!Rself.containsKey(k) || !Rself.get(k).equals(af))  // FIXME: need to treat statevars more like roles? i.e., statevar must be explicitly declared/passed to stay "in scope" in the subproto?
 				{
-					updateRandFfromR(F, self, tmp, k, af);
+					updateRandFfromR(F, self, Rself, k, af);
 					//putK(K, self, k);
 				}
 			});
 		}
 		
 
-		AssrtArithFormula expr = a.getArithExpr();
+		//AssrtArithFormula expr = a.getArithExpr();
 
-		if (!annot.equals(AssrtCoreESend.DUMMY_VAR))
+		//if (!annot.equals(AssrtCoreEAction.DUMMY_VAR))
+		if (!stateexprs.isEmpty())
 		{
-			if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
+			if (annotvars.size() != stateexprs.size())
 			{
-				expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), 
-						//fresh  // No: don't need to "link" R vars and F vars -- only F matters for direct formula checking
-
-						//makeFreshIntVar(annot)  // Makes model construction non-terminating, e.g., mu X(x:=..) ... X<x> -- makes unbounded fresh in x = fresh(x)
-						AssrtFormulaFactory.AssrtIntVar("_" + annot.toString())  // FIXME: is this OK?
-				);	
+				throw new RuntimeException("[assrt-core] Shouldn't get here: " + annotvars + ", " + stateexprs);  // FIXME: not actually syntactically checked yet
 			}
-		}
 
-		// Update R from action -- recursion back to a rec, via a continue
-		if (!annot.equals(AssrtCoreESend.DUMMY_VAR))  // FIXME
-		{
-			AssrtArithFormula curr = tmp.get(annot);
-			if (!curr.equals(expr)  // CHECKME: "syntactic" check is what we want here?
-					&& !((expr instanceof AssrtIntVarFormula) && ((AssrtIntVarFormula) expr).name.equals("_" + annot.toString())))  // Hacky? if expr is just the var occurrence, then value doesn't change
-							// FIXME: generalise -- occurences of other vars can be first substituted, before "old var renaming"? -- also for rec-state updates?
+			Iterator<AssrtArithFormula> afs = stateexprs.iterator();
+			for (AssrtDataTypeVar annot : annotvars.keySet())
 			{
-				updateRandFfromR(F, self, tmp, annot, expr);
+				//AssrtArithFormula expr = a.getStateExprs().iterator().next();
+				AssrtArithFormula expr = afs.next();
+
+				if (expr.getIntVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
+				{
+					expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), 
+							//fresh  // No: don't need to "link" R vars and F vars -- only F matters for direct formula checking
+							//makeFreshIntVar(annot)  // Makes model construction non-terminating, e.g., mu X(x:=..) ... X<x> -- makes unbounded fresh in x = fresh(x)
+							AssrtFormulaFactory.AssrtIntVar("_" + annot.toString())  // FIXME: is this OK?
+					);	
+				}
+
+				// Update R from action -- recursion back to a rec, via a continue
+
+				AssrtArithFormula curr = Rself.get(annot);
+				if (!curr.equals(expr)  // CHECKME: "syntactic" check is what we want here?
+						&& !((expr instanceof AssrtIntVarFormula) && ((AssrtIntVarFormula) expr).name.equals("_" + annot.toString())))  // Hacky? if expr is just the var occurrence, then value doesn't change
+								// FIXME: generalise -- occurences of other vars can be first substituted, before "old var renaming"? -- also for rec-state updates?
+				{
+					updateRandFfromR(F, self, Rself, annot, expr);
+				}
 			}
 		}
 
@@ -924,7 +911,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			while (i.hasNext())
 			{
 				AssrtBoolFormula f = i.next();
-				if (f.equals(AssrtTrueFormula.TRUE) || f.getVars().stream().anyMatch(v -> v.toString().startsWith("_")))  // FIXME
+				if (f.equals(AssrtTrueFormula.TRUE) || f.getIntVars().stream().anyMatch(v -> v.toString().startsWith("_")))  // FIXME
 				{
 					i.remove();
 				}
@@ -1162,7 +1149,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//return rs.stream().collect(Collectors.toMap(r -> r, r -> new HashSet<>()));
 		return P.entrySet().stream().collect(Collectors.toMap(
 				Entry::getKey,
-				e -> e.getValue().getAnnotVars().entrySet().stream()
+				e -> e.getValue().getStateVars().entrySet().stream()
 						.map(b -> AssrtFormulaFactory.AssrtBinComp(
 								AssrtBinCompFormula.Op.Eq, 
 								AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
@@ -1185,7 +1172,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.entrySet().stream().collect(Collectors.toMap(
 				e -> e.getKey(),
-				e -> new HashMap<>(e.getValue().getAnnotVars())
+				e -> new HashMap<>(e.getValue().getStateVars())
 		));
 		/*Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.keySet().stream().collect(Collectors.toMap(r -> r, r ->
 				Stream.of(false).collect(Collectors.toMap(
@@ -1218,14 +1205,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		R.get(r).put(annot, expr);
 	}*/
-	
-	private static int counter = 1;
-	
-	private static AssrtIntVarFormula makeFreshIntVar(AssrtDataTypeVar var)
-	{
-		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString() + counter++);  // HACK
-		//return AssrtFormulaFactory.AssrtIntVar("_" + var.toString());  // HACK
-	}
 }
 
 
@@ -1240,16 +1219,22 @@ class AssrtCoreEMessage extends AssrtCoreESend
 	}*/
 
 	public AssrtCoreEMessage(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload,
-			AssrtBoolFormula ass, AssrtDataTypeVar annot, AssrtArithFormula expr)
+			AssrtBoolFormula ass, //AssrtDataTypeVar annot, AssrtArithFormula expr
+			List<AssrtArithFormula> stateexprs)
 	{
-		this(ef, peer, mid, payload, ass, annot, expr, Collections.emptyMap());
+		this(ef, peer, mid, payload, ass, 
+				//annot, expr,
+				stateexprs,
+				Collections.emptyMap());
 	}
 
 	public AssrtCoreEMessage(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload,
-			AssrtBoolFormula ass, AssrtDataTypeVar annot, AssrtArithFormula expr,
+			AssrtBoolFormula ass, //AssrtDataTypeVar annot, AssrtArithFormula expr,
+			List<AssrtArithFormula> stateexprs,
 			Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow)
 	{
-		super(ef, peer, mid, payload, ass, annot, expr);
+		super(ef, peer, mid, payload, ass, //annot,
+				stateexprs);
 		this.shadow = Collections.unmodifiableMap(shadow);
 	}
 
@@ -1302,7 +1287,8 @@ class AssrtCoreEBot extends AssrtCoreEMessage
 	private AssrtCoreEBot()
 	{
 		super(null, Role.EMPTY_ROLE, Op.EMPTY_OPERATOR, ASSRTCORE_EMPTY_PAYLOAD, AssrtTrueFormula.TRUE,  // null ef OK?
-				AssrtCoreESend.DUMMY_VAR, AssrtCoreESend.ZERO);
+				//AssrtCoreEAction.DUMMY_VAR, AssrtIntValFormula.ZERO);
+				Collections.emptyList());
 	}
 	
 	@Override
@@ -1371,7 +1357,9 @@ class AssrtCoreEPendingRequest extends AssrtCoreEMessage  // Q stores ESends (no
 	public AssrtCoreEPendingRequest(AssrtCoreERequest msg, Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow)
 	{
 		super(null, msg.peer, msg.mid, msg.payload, msg.ass,  // HACK: null ef OK?  cannot access es.ef
-				AssrtCoreESend.DUMMY_VAR, AssrtCoreESend.ZERO, shadow);
+				//AssrtCoreEAction.DUMMY_VAR, AssrtIntValFormula.ZERO,
+				Collections.emptyList(),
+				shadow);
 		this.msg = msg;
 	}
 	

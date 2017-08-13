@@ -292,8 +292,9 @@
 						<exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
 						<exclude>**/Scribble-0.3.original</exclude>
 						<exclude>**/IGNORE</exclude>
-						<exclude>bin/*.sh</exclude>
 						<exclude>scribblec.sh</exclude>
+						<exclude>bin/*.sh</exclude>
+						<exclude>bin/*.bat</exclude>
 						<exclude>**/*.swp</exclude>
 
 						<!-- FIXME: "extension" module excludes -->

@@ -109,10 +109,10 @@ public class AssrtBinCompFormula extends AssrtBoolFormula implements AssrtBinary
 	}
 	
 	@Override
-	public Set<AssrtDataTypeVar> getVars()
+	public Set<AssrtDataTypeVar> getIntVars()
 	{
-		Set<AssrtDataTypeVar> vars = new HashSet<>(this.left.getVars()); 
-		vars.addAll(this.right.getVars()); 
+		Set<AssrtDataTypeVar> vars = new HashSet<>(this.left.getIntVars()); 
+		vars.addAll(this.right.getIntVars()); 
 		return vars; 
 	}
 
