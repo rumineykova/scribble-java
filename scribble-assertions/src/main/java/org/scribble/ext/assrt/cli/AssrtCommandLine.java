@@ -238,7 +238,7 @@ public class AssrtCommandLine extends CommandLine
 			}
 		}
 
-		assrtCoreValidate(job, gpd.isExplicitModifier(), E0);  // TODO
+		assrtCoreValidate(job, simpname, gpd.isExplicitModifier(), E0);  // TODO
 
 		/*if (!job.fair)
 		{
@@ -261,7 +261,7 @@ public class AssrtCommandLine extends CommandLine
 		//return gt;
 	}
 
-	private void assrtCoreValidate(Job job, boolean isExplicit, Map<Role, EState> E0, boolean... unfair) throws ScribbleException, CommandLineException
+	private void assrtCoreValidate(Job job, GProtocolName simpname, boolean isExplicit, Map<Role, EState> E0, boolean... unfair) throws ScribbleException, CommandLineException
 	{
 		AssrtCoreSModel m = new AssrtCoreSModelBuilder(job.sf).build(E0, isExplicit);
 
@@ -280,7 +280,7 @@ public class AssrtCommandLine extends CommandLine
 		
 		if (unfair.length == 0 || !unfair[0])
 		{
-			AssrtCoreSafetyErrors serrs = m.getSafetyErrors(job);  // job just for debug printing
+			AssrtCoreSafetyErrors serrs = m.getSafetyErrors(job, simpname);  // job just for debug printing
 			if (serrs.isSafe())
 			{
 				job.debugPrintln("\n[assrt-core] Protocol safe.");

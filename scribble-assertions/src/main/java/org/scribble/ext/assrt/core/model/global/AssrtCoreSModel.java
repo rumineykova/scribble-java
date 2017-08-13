@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.scribble.main.Job;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.ESend;
+import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.Role;
 
 // 1-bounded LTS
@@ -34,7 +35,7 @@ public class AssrtCoreSModel
 		this.termSets = findTerminalSets();
 	}
 	
-	public AssrtCoreSafetyErrors getSafetyErrors(Job job)
+	public AssrtCoreSafetyErrors getSafetyErrors(Job job, GProtocolName simpname)  // Maybe refactor simpname (root proto) into the (AssrtCore)Job
 	{
 		// FIXME: check for all errors in a single pass -- any errors can be categorised later
 		
@@ -46,8 +47,8 @@ public class AssrtCoreSModel
 		Set<AssrtCoreSState> syncs = this.allStates.values().stream().filter(AssrtCoreSState::isSynchronisationError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> disconns = Collections.emptySet(); //this.allStates.values().stream().filter(AssrtCoreSState::isDisconnectedError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> unknownVars = this.allStates.values().stream().filter(AssrtCoreSState::isUnknownDataTypeVarError).collect(Collectors.toSet());
-		Set<AssrtCoreSState> asserts = this.allStates.values().stream().filter(s -> s.isAssertionProgressError(job)).collect(Collectors.toSet());
-		Set<AssrtCoreSState> unsats = this.allStates.values().stream().filter(s -> s.isUnsatisfiableError(job)).collect(Collectors.toSet());
+		Set<AssrtCoreSState> asserts = this.allStates.values().stream().filter(s -> s.isAssertionProgressError(job, simpname)).collect(Collectors.toSet());
+		Set<AssrtCoreSState> unsats = this.allStates.values().stream().filter(s -> s.isUnsatisfiableError(job, simpname)).collect(Collectors.toSet());
 		
 		/*Set<AssrtCoreSState> portOpens = this.allStates.values().stream().filter(AssrtCoreSState::isPortOpenError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> portOwners = this.allStates.values().stream().filter(AssrtCoreSState::isPortOwnershipError).collect(Collectors.toSet());*/

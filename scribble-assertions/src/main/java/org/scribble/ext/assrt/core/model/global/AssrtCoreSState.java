@@ -46,6 +46,7 @@ import org.scribble.model.global.SModelFactory;
 import org.scribble.model.global.actions.SAction;
 import org.scribble.type.Payload;
 import org.scribble.type.kind.Global;
+import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.MessageId;
 import org.scribble.type.name.Op;
 import org.scribble.type.name.PayloadElemType;
@@ -247,7 +248,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 	
 	// i.e., output state has a "well-asserted" action
-	public boolean isAssertionProgressError(Job job)  // FIXME: not actually a "progress" error
+	public boolean isAssertionProgressError(Job job, GProtocolName simpname)  // FIXME: not actually a "progress" error
 			//throws ScribbleException
 	{
 		/*return new StreamExceptionCaller<Boolean, ScribbleException>()
@@ -325,7 +326,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 					job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
 
-					return !((AssrtJob) job).checkSat(squashed);
+					return !((AssrtJob) job).checkSat(simpname, squashed);
 				/*}
 				/*else if (a instanceof AssrtCoreEReceive || a instanceof AssrtEAccept)
 				{
@@ -343,7 +344,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	// i.e., state has an action that is not satisfiable (deadcode)
-	public boolean isUnsatisfiableError(Job job)
+	public boolean isUnsatisfiableError(Job job, GProtocolName simpname)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
 		{
@@ -395,7 +396,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 					job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
 
-					return !((AssrtJob) job).checkSat(squashed);
+					return !((AssrtJob) job).checkSat(simpname, squashed);
 				}
 				else if (a instanceof AssrtERequest)
 				{

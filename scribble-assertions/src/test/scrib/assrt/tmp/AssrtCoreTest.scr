@@ -80,8 +80,8 @@ type <dotnet> "System.String" from "..." as str;
 //*
 global protocol Proto1(role A, role B)
 {
-	//1(x:int) from A to B; @foo(A);  // FIXME: roles as fun args -- encode as ints?
-	1(x:int) from A to B; @foo(x);
+	1(x:int) from A to B; @foo(A);  // FIXME: unknown var error for roles
+	//1(x:int) from A to B; @foo(x);
 }
 //*/
 
