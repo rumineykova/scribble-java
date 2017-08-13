@@ -12,7 +12,7 @@ type <dotnet> "System.UInt32" from "..." as int;
 type <dotnet> "System.String" from "..." as str;
 
 
-global protocol Proto1(role C, role D, role S) @(ppp=0);
+global protocol Proto1(role C, role D, role S) @(ppp=0);  // ppp is usage
 {
 	220 from S to C;
 	USER from C to S;

@@ -74,11 +74,27 @@ type <dotnet> "System.UInt32" from "..." as int;
 type <dotnet> "System.String" from "..." as str;
 
 
+// uninterpreted functions for custom API gen
+// multi statvars -- fibo, linear
 
+explicit global protocol Proto1(role A, role B, role C)
+{
+	connect A to B;
+	1(x:int) from A to B; @(port(x, C));  // implies port(x, C) and not(port(x, A)), not(port(x, B))
+	connect B to C;
+	2(y:int) from B to A; @(x=y);
+	connect C to A; @(request(x, C))  // C should know x; should imply port(x, C);
+} // terminal state needs all linear used
+
+
+/*
 global protocol Proto1(role A, role B)
 {
-	1() from A to B;
+	1(x:int) from A to B; 
+	2(y:int) from B to A; @(x=y);
+	3(z:int) from B to A; @(z=y);  // Should this be "linearity" error?
 }
+//*/
 
 
 

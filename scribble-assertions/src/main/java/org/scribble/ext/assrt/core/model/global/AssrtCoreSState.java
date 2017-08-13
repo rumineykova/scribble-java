@@ -831,8 +831,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				AssrtArithFormula af = e.getValue();
 				
 				
-				// FIXME: "forwards" rec should also be handled by action statevar update?
-				// anyway, need to check something about new vs shadowed vs udapted vs etc state vars -- currently nothing is checked syntactically
+				// FIXME: record statevar mapping for "direct substitution" modelling special case? (i.e., no "old var" renaming), e.g., x -> x, or x -> y -> x -- i.e. treat subproto statevars more like formal params
+				// Anyway, need to check something about new vs shadowed vs udapted vs etc state vars -- currently nothing is checked syntactically
+				// "forwards" rec should also be handled by action statevar update?
 				
 				
 				if (!Rself.containsKey(k) || !Rself.get(k).equals(af))  // FIXME: need to treat statevars more like roles? i.e., statevar must be explicitly declared/passed to stay "in scope" in the subproto?
