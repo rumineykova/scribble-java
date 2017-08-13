@@ -11,5 +11,5 @@ public interface AssrtCoreEAction extends AssrtEAction
 
 	/*AssrtDataTypeVar getAnnotVar();
 	AssrtArithFormula getArithExpr();*/
-	List<AssrtArithFormula> getStateExprs();
+	List<AssrtArithFormula> getStateExprs();  // Cf. AssrtStateVarArgAnnotNode::getAnnotExprs
 }

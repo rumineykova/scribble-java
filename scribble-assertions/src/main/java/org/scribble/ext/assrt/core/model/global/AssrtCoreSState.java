@@ -230,7 +230,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							}
 							else
 							{
-								System.err.println("[assrt-core] Shouldn't get in here: " + pe);  // FIXME: runtime exception
+								throw new RuntimeException("[assrt-core] Shouldn't get in here: " + pe);
 							}
 						});
 
@@ -811,7 +811,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		
 
 		// Rename old R vars -- must come before adding new F and R clauses
-		Map<AssrtDataTypeVar, AssrtArithFormula> tmp = R.get(self);
+		Map<AssrtDataTypeVar, AssrtArithFormula> Rself = R.get(self);
 		//AssrtDataTypeVar annot = a.getAnnotVar();
 
 		// "forward" recs will have annotvars but no stateexprs
@@ -829,9 +829,15 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			{
 				AssrtDataTypeVar k = e.getKey();
 				AssrtArithFormula af = e.getValue();
-				if (!tmp.containsKey(k) || !tmp.get(k).equals(af))  // FIXME: need to treat statevars more like roles? i.e., statevar must be explicitly declared/passed to stay "in scope" in the subproto?
+				
+				
+				// FIXME: "forwards" rec should also be handled by action statevar update?
+				// anyway, need to check something about new vs shadowed vs udapted vs etc state vars -- currently nothing is checked syntactically
+				
+				
+				if (!Rself.containsKey(k) || !Rself.get(k).equals(af))  // FIXME: need to treat statevars more like roles? i.e., statevar must be explicitly declared/passed to stay "in scope" in the subproto?
 				{
-					updateRandFfromR(F, self, tmp, k, af);
+					updateRandFfromR(F, self, Rself, k, af);
 					//putK(K, self, k);
 				}
 			});
@@ -843,8 +849,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//if (!annot.equals(AssrtCoreEAction.DUMMY_VAR))
 		if (!stateexprs.isEmpty())
 		{
-			//if (annotvars.size() != stateexprs.size())
-			if (annotvars.size() > stateexprs.size())  // HACK (stateexprs currently always size one)
+			if (annotvars.size() != stateexprs.size())
 			{
 				throw new RuntimeException("[assrt-core] Shouldn't get here: " + annotvars + ", " + stateexprs);  // FIXME: not actually syntactically checked yet
 			}
@@ -866,12 +871,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 				// Update R from action -- recursion back to a rec, via a continue
 
-				AssrtArithFormula curr = tmp.get(annot);
+				AssrtArithFormula curr = Rself.get(annot);
 				if (!curr.equals(expr)  // CHECKME: "syntactic" check is what we want here?
 						&& !((expr instanceof AssrtIntVarFormula) && ((AssrtIntVarFormula) expr).name.equals("_" + annot.toString())))  // Hacky? if expr is just the var occurrence, then value doesn't change
 								// FIXME: generalise -- occurences of other vars can be first substituted, before "old var renaming"? -- also for rec-state updates?
 				{
-					updateRandFfromR(F, self, tmp, annot, expr);
+					updateRandFfromR(F, self, Rself, annot, expr);
 				}
 			}
 		}
