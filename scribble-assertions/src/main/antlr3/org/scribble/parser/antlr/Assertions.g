@@ -159,6 +159,8 @@ par_unary_bool_expr:
 	unary_bool_expr
 |
 	'(' unary_bool_expr ')'
+-> 	
+	unary_bool_expr
 |
 	IDENTIFIER unint_fun_arg_list
 ->
@@ -204,6 +206,8 @@ par_unary_arith_expr:
 	unary_arith_expr
 |
 	'(' unary_arith_expr ')'
+->
+	unary_arith_expr
 ;
 
 unary_arith_expr: 
