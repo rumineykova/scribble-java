@@ -333,9 +333,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}* /
 				else
 				{
-					System.err.println("[assrt-core] Shouldn't get in here: " + a);
-					System.exit(1); // FIXME
-					return false;
+					throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
 				}
 			});*/
 		}
@@ -409,9 +407,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}*/
 				else
 				{
-					System.err.println("[assrt-core] Shouldn't get in here: " + a);
-					System.exit(1); // FIXME
-					return false;
+					throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
 				}
 			});
 		});
