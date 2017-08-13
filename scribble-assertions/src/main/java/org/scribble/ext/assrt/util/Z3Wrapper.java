@@ -24,10 +24,8 @@ import org.scribble.util.ScribUtil;
 public class Z3Wrapper
 {
 
-	// Duplicated from JobContext::runAut
-	// protoname only used for naming tmp file
-	//public static boolean isSat(String smt2, String protoname) //throws ScribbleException
-	public static boolean isSat(GProtocolDecl gpd, AssrtBoolFormula f) //throws ScribbleException
+	// Based on CommandLine::runDot, JobContext::runAut, etc
+	public static boolean checkSat(GProtocolDecl gpd, AssrtBoolFormula f) //throws ScribbleException
 	{
 		String tmpName = gpd.header.name + ".smt2.tmp";
 		File tmp = new File(tmpName);
@@ -84,8 +82,8 @@ public class Z3Wrapper
 		return smt2;
 	}
 
-	private static final Recursive<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnPredicates =
-			new Recursive<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>>()
+	private static final Recursive<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnPredicates
+			= new Recursive<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>>()
 	{{
 		this.func = ff ->
 		{

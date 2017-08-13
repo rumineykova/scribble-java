@@ -146,31 +146,19 @@ root:
 bool_expr:
 	bin_bool_expr
 |
-	unary_bool_expr
+	par_unary_bool_expr
 ;
 	
 bin_bool_expr:
-	'(' unary_bool_expr BIN_BOOL_OP bool_expr ')'
+	'(' par_unary_bool_expr BIN_BOOL_OP bool_expr ')'
 ->
-	^(BINBOOLEXPR unary_bool_expr BIN_BOOL_OP bool_expr)
+	^(BINBOOLEXPR par_unary_bool_expr BIN_BOOL_OP bool_expr)
 ;
 
-unary_bool_expr:
-	TRUE_KW
-->
-	^(TRUE)
+par_unary_bool_expr:
+	unary_bool_expr
 |
-	'(' TRUE_KW ')'
-->
-	^(TRUE)
-|
-	FALSE_KW
-->
-	^(FALSE)
-|
-	'(' FALSE_KW ')'
-->
-	^(FALSE)
+	'(' unary_bool_expr ')'
 |
 	IDENTIFIER unint_fun_arg_list
 ->
@@ -178,6 +166,16 @@ unary_bool_expr:
 |
 	bin_comp_expr
 ; 
+
+unary_bool_expr:
+	TRUE_KW
+->
+	^(TRUE)
+|
+	FALSE_KW
+->
+	^(FALSE)
+;
 	
 unint_fun_arg_list:
 	'(' ')'
@@ -197,27 +195,25 @@ bin_comp_expr:
 ; 
 
 arith_expr: 
+	bin_arith_expr
+|
+	par_unary_arith_expr
+; 
+
+par_unary_arith_expr: 
 	unary_arith_expr
 |
-	binary_arith_expr
-; 
+	'(' unary_arith_expr ')'
+;
 
 unary_arith_expr: 
 	variable
 |
-	'(' variable ')'
-->
-		variable
-|
 	num
-|
-	'(' num ')'
-->
-		num
 ;
  
-binary_arith_expr:
-	'(' unary_arith_expr BIN_ARITH_OP arith_expr ')'
+bin_arith_expr:
+	'(' par_unary_arith_expr BIN_ARITH_OP arith_expr ')'
 ->
-	^(BINARITHEXPR unary_arith_expr BIN_ARITH_OP arith_expr)
+	^(BINARITHEXPR par_unary_arith_expr BIN_ARITH_OP arith_expr)
 ;
