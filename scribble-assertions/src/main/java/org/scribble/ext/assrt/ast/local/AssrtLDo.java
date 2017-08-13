@@ -14,11 +14,12 @@ import org.scribble.ast.name.qualified.ProtocolNameNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
+import org.scribble.ext.assrt.ast.AssrtStateVarArgAnnotation;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.kind.Local;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtLDo extends LDo
+public class AssrtLDo extends LDo implements AssrtStateVarArgAnnotation
 {
 	//public final AssrtArithExpr annot;
 	public final List<AssrtArithExpr> annotexprs;
@@ -34,7 +35,7 @@ public class AssrtLDo extends LDo
 	{
 		super(source, roleinstans, arginstans, proto);
 		//this.annot = annot;
-		this.annotexprs = annotexprs;
+		this.annotexprs = Collections.unmodifiableList(annotexprs);
 	}
 
 	@Override
@@ -86,5 +87,17 @@ public class AssrtLDo extends LDo
 
 		return reconstruct(ril, al, proto, //annot);
 				annotexprs);
+	}
+	
+	@Override
+	public List<AssrtArithExpr> getAnnotExprs()
+	{
+		return this.annotexprs;
+	}
+
+	@Override
+	public String toString()
+	{
+		return super.toString() + annotToString();
 	}
 }

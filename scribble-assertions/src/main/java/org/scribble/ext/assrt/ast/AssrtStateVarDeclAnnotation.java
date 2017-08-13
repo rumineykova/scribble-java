@@ -1,10 +1,9 @@
-package org.scribble.ext.assrt.ast.global;
+package org.scribble.ext.assrt.ast;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 
 public interface AssrtStateVarDeclAnnotation

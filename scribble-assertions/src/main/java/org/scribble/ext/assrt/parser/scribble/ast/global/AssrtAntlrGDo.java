@@ -34,7 +34,7 @@ public class AssrtAntlrGDo
 		AssrtArithExpr annot = AssrtAntlrGDo.parseArithAnnotation(((AssrtAntlrToScribParser) parser).ap, annotTree, (AssrtAstFactory) af);
 		
 		return ((AssrtAstFactory) af).AssrtGDo(root, ril, al, pnn, //annot);
-				Arrays.asList(annot));
+				Arrays.asList(annot));  // FIXME: List
 	}
 
 	public static AssrtArithExpr parseArithAnnotation(AssrtAntlrToFormulaParser ap, CommonTree annotTree, AssrtAstFactory af)

@@ -52,7 +52,7 @@ public class AssrtAntlrGProtocolHeader
 
 		AssrtBinCompFormula bcf = (AssrtBinCompFormula) ass.getFormula();
 		return af.AssrtGProtocolHeader(root, name, rdl, pdl, //ass);
-				Arrays.asList((AssrtIntVarNameNode) af.SimpleNameNode(ass.getSource(), AssrtVarNameKind.KIND, bcf.left.toString())),  // FIXME
+				Arrays.asList((AssrtIntVarNameNode) af.SimpleNameNode(ass.getSource(), AssrtVarNameKind.KIND, bcf.left.toString())),  // FIXME: List
 				Arrays.asList(af.AssrtArithAnnotation(ass.getSource(), bcf.right)));
 	}
 

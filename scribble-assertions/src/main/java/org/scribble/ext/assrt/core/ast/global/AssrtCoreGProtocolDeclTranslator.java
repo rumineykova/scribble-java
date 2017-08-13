@@ -1,6 +1,5 @@
 package org.scribble.ext.assrt.core.ast.global;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -38,7 +37,6 @@ import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
@@ -240,18 +238,8 @@ public class AssrtCoreGProtocolDeclTranslator
 		{
 			recvar = rvs.get(recvar);
 		}
-		AssrtArithFormula expr;
-		if (gc.annot == null)
-		{
-			expr = AssrtFormulaFactory.AssrtIntVal(0);
-		}
-		else
-		{
-			expr = gc.annot.getFormula();
-		}
-
-		//return this.af.AssrtCoreGRecVar(recvar, expr);
-		return this.af.AssrtCoreGRecVar(recvar, Arrays.asList(expr));  // FIXME
+		List<AssrtArithFormula> exprs = gc.annotexprs.stream().map(e -> e.getFormula()).collect(Collectors.toList());
+		return this.af.AssrtCoreGRecVar(recvar, exprs);
 	}
 
 	// Parses message interactions as unary choices

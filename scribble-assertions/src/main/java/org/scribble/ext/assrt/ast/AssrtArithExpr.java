@@ -55,6 +55,6 @@ public class AssrtArithExpr extends ScribNodeBase implements AssrtFormulaNode
 	@Override
 	public String toString()
 	{
-		return "@" + this.expr.toString() + ";";  
+		return this.expr.toString();  
 	}
 }

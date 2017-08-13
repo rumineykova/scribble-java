@@ -17,13 +17,14 @@ import org.scribble.ast.name.qualified.ProtocolNameNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
+import org.scribble.ext.assrt.ast.AssrtStateVarArgAnnotation;
 import org.scribble.ext.assrt.ast.local.AssrtLDo;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.kind.Global;
 import org.scribble.type.name.Role;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtGDo extends GDo
+public class AssrtGDo extends GDo implements AssrtStateVarArgAnnotation
 {
 	//public final AssrtArithExpr annot;
 	public final List<AssrtArithExpr> annotexprs;
@@ -39,7 +40,7 @@ public class AssrtGDo extends GDo
 	{
 		super(source, roles, args, proto);
 		//this.annot = annot;
-		this.annotexprs = annotexprs;
+		this.annotexprs = Collections.unmodifiableList(annotexprs);
 	}
 
 	public LDo project(AstFactory af, Role self, LProtocolNameNode fullname)
@@ -106,5 +107,17 @@ public class AssrtGDo extends GDo
 
 		return reconstruct(ril, al, proto, //annot);
 				annotexprs);
+	}
+
+	@Override
+	public List<AssrtArithExpr> getAnnotExprs()
+	{
+		return this.annotexprs;
+	}
+
+	@Override
+	public String toString()
+	{
+		return super.toString() + annotToString();
 	}
 }

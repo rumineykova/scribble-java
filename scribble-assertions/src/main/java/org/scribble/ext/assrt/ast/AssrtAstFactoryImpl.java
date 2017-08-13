@@ -274,9 +274,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtGContinue AssrtGContinue(CommonTree source, RecVarNode recvar, AssrtArithExpr annot)
+	public AssrtGContinue AssrtGContinue(CommonTree source, RecVarNode recvar, //AssrtArithExpr annot)
+			List<AssrtArithExpr> annotexprs)
 	{
-		AssrtGContinue gc = new AssrtGContinue(source, recvar, annot);
+		AssrtGContinue gc = new AssrtGContinue(source, recvar, //annot);
+				annotexprs);
 		gc = del(gc, new AssrtGContinueDel());
 		return gc;
 	}
@@ -328,9 +330,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtLContinue AssrtLContinue(CommonTree source, RecVarNode recvar, AssrtArithExpr annot)
+	public AssrtLContinue AssrtLContinue(CommonTree source, RecVarNode recvar, //AssrtArithExpr annot)
+			List<AssrtArithExpr> annotexprs)
 	{
-		AssrtLContinue lc = new AssrtLContinue(source, recvar, annot);
+		AssrtLContinue lc = new AssrtLContinue(source, recvar, //annot);
+				annotexprs);
 		lc = del(lc, new AssrtLContinueDel());
 		return lc;
 	}

@@ -21,7 +21,6 @@ import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.local.LDoDel;
 import org.scribble.del.local.LProjectionDeclDel;
 import org.scribble.del.local.LProtocolDeclDel;
-import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.ext.assrt.ast.local.AssrtLDo;
@@ -68,12 +67,7 @@ public class AssrtLDoDel extends LDoDel
 		//LContinue inlined = builder.job.af.LContinue(blame, recvar);
 		//AssrtArithExpr annot = ((AssrtLDo) child).annot;
 		AssrtLDo ldo = (AssrtLDo) child;
-		if (ldo.annotexprs.size() > 1)
-		{
-			throw new RuntimeException("[assrt] TODO: " + child);
-		}
-		AssrtArithExpr annot = ldo.annotexprs.isEmpty() ? null : ldo.annotexprs.get(0);
-		AssrtLContinue inlined = ((AssrtAstFactory) builder.job.af).AssrtLContinue(blame, recvar, annot);
+		AssrtLContinue inlined = ((AssrtAstFactory) builder.job.af).AssrtLContinue(blame, recvar, ldo.annotexprs);
 
 		builder.pushEnv(builder.popEnv().setTranslation(inlined));
 		return child;
