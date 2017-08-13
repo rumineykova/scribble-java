@@ -17,6 +17,12 @@ public class AssrtIntVarFormula extends AssrtArithFormula
 	{
 		this.name = name; 
 	}
+	
+	// i.e., to "type"
+	public AssrtDataTypeVar toName()
+	{
+		return new AssrtDataTypeVar(this.name);
+	}
 
 	@Override
 	public AssrtIntVarFormula squash()
@@ -54,12 +60,6 @@ public class AssrtIntVarFormula extends AssrtArithFormula
 		Set<AssrtDataTypeVar> vars = new HashSet<>();
 		vars.add(new AssrtDataTypeVar(this.name)); 
 		return vars; 
-	}
-	
-	// i.e., to "type"
-	public AssrtDataTypeVar toName()
-	{
-		return new AssrtDataTypeVar(this.name);
 	}
 	
 	@Override

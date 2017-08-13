@@ -2,6 +2,7 @@ package org.scribble.ext.assrt.core.ast.global;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.global.GProtocolDefDel;
 import org.scribble.ext.assrt.ast.AssrtAnnotDataTypeElem;
+import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
@@ -36,9 +38,7 @@ import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
@@ -219,23 +219,13 @@ public class AssrtCoreGProtocolDeclTranslator
 			rvs.put(recvar, rvn.toName());
 			recvar = rvn.toName();
 		}
-		AssrtDataTypeVar annot;
-		AssrtArithFormula init;
-		if (gr.ass == null)
-		{
-			annot = makeFreshDataTypeVar();  // FIXME: make empty list
-			init = AssrtFormulaFactory.AssrtIntVal(0);
-		}
-		else
-		{
-			AssrtBinCompFormula bcf = (AssrtBinCompFormula) gr.ass.getFormula();
-			annot = ((AssrtIntVarFormula) bcf.left).toName();
-			init = (AssrtArithFormula) bcf.right;
-		}
 		AssrtCoreGType body = parseSeq(gr.getBlock().getInteractionSeq().getInteractions(), rvs, checkChoiceGuard, true);  // Check rec body is guarded
 
 		//return this.af.AssrtCoreGRec(recvar, annot, init, body);
-		return this.af.AssrtCoreGRec(recvar, Stream.of(annot).collect(Collectors.toMap(a -> a, a -> init)), body);
+		//return this.af.AssrtCoreGRec(recvar, Stream.of(annot).collect(Collectors.toMap(a -> a, a -> init)), body);
+		Iterator<AssrtArithExpr> exprs = gr.annotexprs.iterator();
+		Map<AssrtDataTypeVar, AssrtArithFormula> vars = gr.annotvars.stream().collect(Collectors.toMap(v -> v.getFormula().toName(), v -> exprs.next().getFormula()));
+		return this.af.AssrtCoreGRec(recvar, vars, body);
 	}
 
 	private AssrtCoreGType parseAssrtGContinue(Map<RecVar, RecVar> rvs, boolean checkRecGuard, AssrtGContinue gc)

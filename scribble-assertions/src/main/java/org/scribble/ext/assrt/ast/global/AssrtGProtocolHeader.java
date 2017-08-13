@@ -27,7 +27,7 @@ import org.scribble.type.kind.Global;
 import org.scribble.type.name.Role;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtGProtocolHeader extends GProtocolHeader
+public class AssrtGProtocolHeader extends GProtocolHeader implements AssrtStateVarDeclAnnotation
 {
 	//public final AssrtAssertion ass;  // null if not specified -- currently duplicated from AssrtGMessageTransfer
 	public final List<AssrtIntVarNameNode> annotvars;
@@ -131,10 +131,21 @@ public class AssrtGProtocolHeader extends GProtocolHeader
 	}
 	
 	@Override
+	public List<AssrtIntVarNameNode> getAnnotVars()
+	{
+		return this.annotvars;
+	}
+
+	@Override
+	public List<AssrtArithExpr> getAnnotExprs()
+	{
+		return this.annotexprs;
+	}
+	
+	@Override
 	public String toString()
 	{
-		Iterator<AssrtArithExpr> exprs = this.annotexprs.iterator();
-		return super.toString() + " " //+ this.ass;
-				+ "<" + this.annotvars.stream().map(v -> v + " := " + exprs.next()).collect(Collectors.joining(", ")) +  ">";
+		return super.toString() //+ " " + this.ass;
+				+ annotToString();
 	}
 }

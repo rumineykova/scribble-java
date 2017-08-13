@@ -11,7 +11,7 @@ import org.scribble.visit.AstVisitor;
 
 // In general, should be an action "annotation" -- but currently only used for boolean assertions
 // This is the "actual syntax" node (has source) -- cf. formula, does (and should) not record source (e.g., affects equals/hash)
-public class AssrtAssertion extends ScribNodeBase 
+public class AssrtAssertion extends ScribNodeBase implements AssrtFormulaNode
 {	
 	//private final String assertion;  // FIXME: should be String for a more general annotations feature
 
@@ -61,6 +61,7 @@ public class AssrtAssertion extends ScribNodeBase
 	}
 	
 	//public SmtFormula getFormula()
+	@Override
 	public AssrtBoolFormula getFormula()
 	{
 		/*if (this.formula == null)

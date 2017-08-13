@@ -33,7 +33,8 @@ public class AssrtGRecursionDel extends GRecursionDel implements AssrtICompoundI
 		GProtocolBlock block = (GProtocolBlock) ((InlineProtocolEnv) gr.block.del().env()).getTranslation();	
 
 		//GRecursion inlined = inl.job.af.GRecursion(gr.getSource(), recvar, block);
-		AssrtGRecursion inlined = ((AssrtAstFactory) inl.job.af).AssrtGRecursion(gr.getSource(), recvar, block, gr.ass);
+		AssrtGRecursion inlined = ((AssrtAstFactory) inl.job.af).AssrtGRecursion(gr.getSource(), recvar, block, //gr.ass);
+				gr.annotvars, gr.annotexprs);
 
 		inl.pushEnv(inl.popEnv().setTranslation(inlined));
 		return (GRecursion) super.leaveProtocolInlining(parent, child, inl, gr);
@@ -48,7 +49,8 @@ public class AssrtGRecursionDel extends GRecursionDel implements AssrtICompoundI
 		LProtocolBlock block = (LProtocolBlock) ((ProjectionEnv) gr.block.del().env()).getProjection();
 
 		//LRecursion lr = gr.project(proj.job.af, proj.peekSelf(), block);
-		AssrtLRecursion lr = gr.project(proj.job.af, proj.peekSelf(), block, gr.ass);
+		AssrtLRecursion lr = gr.project(proj.job.af, proj.peekSelf(), block, //gr.ass);
+				gr.annotvars, gr.annotexprs);
 
 		proj.pushEnv(proj.popEnv().setProjection(lr));
 

@@ -15,15 +15,12 @@ import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDelBase;
 import org.scribble.del.global.GProtocolDeclDel;
 import org.scribble.del.global.GProtocolDefDel;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.del.AssrtScribDel;
 import org.scribble.ext.assrt.main.AssrtException;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
@@ -64,14 +61,8 @@ public class AssrtGProtocolDefDel extends GProtocolDefDel implements AssrtScribD
 
 		//GRecursion rec = inl.job.af.GRecursion(blame, recvar, block);
 		AssrtGProtocolHeader hdr = (AssrtGProtocolHeader) ((GProtocolDecl) parent).getHeader();
-		//AssrtAssertion ass = hdr.ass;
-
-		AssrtAssertion ass = hdr.annotvars.isEmpty()
-				? null
-				:  af.AssrtAssertion(hdr.getSource(), AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
-								AssrtFormulaFactory.AssrtIntVar(hdr.annotvars.get(0).toString()), hdr.annotexprs.get(0).getFormula()));  // FIXME
-
-		AssrtGRecursion rec = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, block, ass);
+		AssrtGRecursion rec = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, block, //ass);
+				hdr.annotvars, hdr.annotexprs);
 
 		GInteractionSeq gis = af.GInteractionSeq(blame, Arrays.asList(rec));
 		GProtocolDef inlined = af.GProtocolDef(def.getSource(), dinlr.job.af.GProtocolBlock(blame, gis));

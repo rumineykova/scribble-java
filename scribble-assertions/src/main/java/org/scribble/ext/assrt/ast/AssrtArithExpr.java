@@ -10,7 +10,7 @@ import org.scribble.main.ScribbleException;
 import org.scribble.visit.AstVisitor;
 
 // Based on AssrtAssertion
-public class AssrtArithExpr extends ScribNodeBase 
+public class AssrtArithExpr extends ScribNodeBase implements AssrtFormulaNode
 {	
 	private AssrtArithFormula expr;
 
@@ -46,6 +46,7 @@ public class AssrtArithExpr extends ScribNodeBase
 		return reconstruct(this.expr);  // formula cannot be visited (not a ScribNode)
 	}
 	
+	@Override
 	public AssrtArithFormula getFormula()
 	{
 		return this.expr;

@@ -264,9 +264,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtGRecursion AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, AssrtAssertion ass)
+	public AssrtGRecursion AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, //AssrtAssertion ass)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
 	{
-		AssrtGRecursion gr = new AssrtGRecursion(source, recvar, block, ass);
+		AssrtGRecursion gr = new AssrtGRecursion(source, recvar, block, //ass);
+				annotvars, annotexprs);
 		gr = del(gr, new AssrtGRecursionDel());
 		return gr;
 	}
@@ -316,9 +318,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtLRecursion AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtocolBlock block, AssrtAssertion ass)
+	public AssrtLRecursion AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtocolBlock block, //AssrtAssertion ass)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
 	{
-		AssrtLRecursion lr = new AssrtLRecursion(source, recvar, block, ass);
+		AssrtLRecursion lr = new AssrtLRecursion(source, recvar, block, //ass);
+				annotvars, annotexprs);
 		lr = del(lr, new AssrtLRecursionDel());
 		return lr;
 	}

@@ -1,16 +1,3 @@
-/**
- * Copyright 2008 The Scribble Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
 package org.scribble.ext.assrt.ast.local;
 
 import java.util.Collections;
@@ -30,6 +17,7 @@ import org.scribble.ast.name.qualified.ProtocolNameNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
+import org.scribble.ext.assrt.ast.global.AssrtStateVarDeclAnnotation;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
@@ -38,7 +26,7 @@ import org.scribble.type.kind.Local;
 import org.scribble.visit.AstVisitor;
 
 // Based on AssrtGProtocolHeader
-public class AssrtLProtocolHeader extends LProtocolHeader
+public class AssrtLProtocolHeader extends LProtocolHeader implements AssrtStateVarDeclAnnotation
 {
 	//public final AssrtAssertion ass;  // null if not specified -- currently duplicated from AssrtGMessageTransfer
 	public final List<AssrtIntVarNameNode> annotvars;
@@ -126,10 +114,21 @@ public class AssrtLProtocolHeader extends LProtocolHeader
 	}
 	
 	@Override
+	public List<AssrtIntVarNameNode> getAnnotVars()
+	{
+		return this.annotvars;
+	}
+
+	@Override
+	public List<AssrtArithExpr> getAnnotExprs()
+	{
+		return this.annotexprs;
+	}
+	
+	@Override
 	public String toString()
 	{
-		Iterator<AssrtArithExpr> exprs = this.annotexprs.iterator();
-		return super.toString() + " " //+ this.ass;
-				+ "<" + this.annotvars.stream().map(v -> v + " := " + exprs.next()).collect(Collectors.joining(", ")) +  ">";
+		return super.toString() //+ " " + this.ass;
+				+ annotToString();
 	}
 }

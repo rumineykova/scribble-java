@@ -5,13 +5,16 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.PayloadElemNameNode;
 import org.scribble.ast.name.simple.SimpleNameNode;
+import org.scribble.ext.assrt.ast.AssrtFormulaNode;
+import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.kind.AssrtVarNameKind;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.type.Arg;
 import org.scribble.type.kind.NonRoleArgKind;
 
 // N.B. used both directly as a PayloadElemNameNode, and for the annotation in AssrtAnnotDataTypeElem -- also used for statevars
-public class AssrtIntVarNameNode extends SimpleNameNode<AssrtVarNameKind> implements PayloadElemNameNode<AssrtVarNameKind>
+public class AssrtIntVarNameNode extends SimpleNameNode<AssrtVarNameKind> implements PayloadElemNameNode<AssrtVarNameKind>, AssrtFormulaNode
 {
 	public AssrtIntVarNameNode(CommonTree source, String identifier)
 	{
@@ -29,11 +32,18 @@ public class AssrtIntVarNameNode extends SimpleNameNode<AssrtVarNameKind> implem
 	{
 		return (AssrtIntVarNameNode) af.SimpleNameNode(this.source, AssrtVarNameKind.KIND, getIdentifier());
 	}
+	
+	@Override
+	public AssrtIntVarFormula getFormula()
+	{
+		return AssrtFormulaFactory.AssrtIntVar(getIdentifier());
+	}
 
 	@Override
 	public AssrtDataTypeVar toName()
 	{
-		return new AssrtDataTypeVar(getIdentifier());
+		//return new AssrtDataTypeVar(getIdentifier());
+		return getFormula().toName();
 	}
 	
 	@Override

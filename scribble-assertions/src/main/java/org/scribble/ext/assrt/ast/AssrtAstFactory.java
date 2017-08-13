@@ -41,7 +41,8 @@ public interface AssrtAstFactory extends AstFactory
 
 	AssrtGMessageTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion);
 	AssrtGConnect AssrtGConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion assertion);
-	AssrtGRecursion AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, AssrtAssertion ass);
+	AssrtGRecursion AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, //AssrtAssertion ass);
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs);
 	AssrtGContinue AssrtGContinue(CommonTree source, RecVarNode recvar, AssrtArithExpr annot);
 	AssrtGDo AssrtGDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto, //AssrtArithExpr annot);
 			List<AssrtArithExpr> annotexprs);
@@ -53,7 +54,8 @@ public interface AssrtAstFactory extends AstFactory
 
 	AssrtLSend AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion);
 	AssrtLConnect AssrtLConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion assertion);
-	AssrtLRecursion AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtocolBlock block, AssrtAssertion ass);
+	AssrtLRecursion AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtocolBlock block, //AssrtAssertion ass);
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs);
 	AssrtLContinue AssrtLContinue(CommonTree source, RecVarNode recvar, AssrtArithExpr annot);
 	AssrtLDo AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto, //AssrtArithExpr annot);
 			List<AssrtArithExpr> annotexprs);

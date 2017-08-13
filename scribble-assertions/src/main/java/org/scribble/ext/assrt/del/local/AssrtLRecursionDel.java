@@ -13,18 +13,17 @@
  */
 package org.scribble.ext.assrt.del.local;
 
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.scribble.ast.ScribNode;
 import org.scribble.del.local.LRecursionDel;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
+import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.type.name.RecVar;
 import org.scribble.visit.context.EGraphBuilder;
@@ -72,16 +71,19 @@ public class AssrtLRecursionDel extends LRecursionDel
 		super.enterEGraphBuilding(parent, child, graph);
 		AssrtLRecursion lr = (AssrtLRecursion) child;
 		RecVar rv = lr.recvar.toName();
-		AssrtAssertion ass = lr.ass;
+		//AssrtAssertion ass = lr.ass;
 		graph.util.addEntryLabel(rv);
 		
 		// Cf. AssrtLProjectionDeclDel::enterEGraphBuilding
-		Map<AssrtDataTypeVar, AssrtArithFormula> vars = new HashMap<>();
+		/*Map<AssrtDataTypeVar, AssrtArithFormula> vars = new HashMap<>();
 		if (ass != null)
 		{
 			AssrtBinCompFormula bcf = (AssrtBinCompFormula) ass.getFormula();
 			vars.put(((AssrtIntVarFormula) bcf.left).toName(), bcf.right);
-		}
+		}*/
+		Iterator<AssrtArithExpr> exprs = lr.annotexprs.iterator();
+		Map<AssrtDataTypeVar, AssrtArithFormula> vars
+				= lr.annotvars.stream().collect(Collectors.toMap(v -> v.getFormula().toName(), v -> exprs.next().getFormula()));
 		((AssrtEGraphBuilderUtil) graph.util).addStateVars((AssrtEState) graph.util.getEntry(), vars);
 
 		graph.util.pushRecursionEntry(rv, graph.util.getEntry());

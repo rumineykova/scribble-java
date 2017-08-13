@@ -16,11 +16,8 @@ import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDelBase;
 import org.scribble.del.global.GDoDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
-import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.SubprotocolSig;
 import org.scribble.type.kind.RecVarKind;
@@ -96,28 +93,8 @@ public class AssrtGDoDel extends GDoDel
 			}
 			else
 			{
-				//AssrtBinCompFormula bcf = (AssrtBinCompFormula) ((AssrtGProtocolHeader) gpd.getHeader()).ass.getFormula();  // FIXME: bcf
 				List<AssrtIntVarNameNode> annotvars = ((AssrtGProtocolHeader) gpd.getHeader()).annotvars;
-				if (annotvars.size() != 1)
-				{
-					throw new RuntimeException("[assrt] TODO: " + gdo);
-				}
-				if (gdo.annotexprs.size() > 1)
-				{
-					throw new RuntimeException("[assrt] TODO: " + gdo);
-				}
-
-				AssrtAssertion ass = ((AssrtAstFactory) dinlr.job.af).AssrtAssertion(null,
-						AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
-								//(AssrtIntVarFormula) bcf.left,
-
-								AssrtFormulaFactory.AssrtIntVar(annotvars.get(0).toString()),  // FIXME:
-
-								//gdo.annot.getFormula()));  // FIXME: null source, and bcf
-								
-								gdo.annotexprs.get(0).getFormula()));
-								
-				inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, gb, ass);
+				inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, gb, annotvars, gdo.annotexprs);
 			}
 
 			dinlr.pushEnv(dinlr.popEnv().setTranslation(inlined));

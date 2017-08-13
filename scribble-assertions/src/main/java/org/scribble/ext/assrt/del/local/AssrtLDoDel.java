@@ -22,15 +22,12 @@ import org.scribble.del.local.LDoDel;
 import org.scribble.del.local.LProjectionDeclDel;
 import org.scribble.del.local.LProtocolDeclDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.ext.assrt.ast.local.AssrtLDo;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
-import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.main.JobContext;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.SubprotocolSig;
@@ -98,26 +95,7 @@ public class AssrtLDoDel extends LDoDel
 			LProtocolDecl lpd = ldo.getTargetProtocolDecl(dinlr.job.getContext(), dinlr.getModuleContext());
 			//AssrtBinCompFormula bcf = (AssrtBinCompFormula) ((AssrtLProtocolHeader) lpd.getHeader()).ass.getFormula();  // FIXME: bcf
 			List<AssrtIntVarNameNode> annotvars = ((AssrtLProtocolHeader) lpd.getHeader()).annotvars;
-			if (annotvars.size() != 1)
-			{
-				throw new RuntimeException("[assrt] TODO: " + ldo);
-			}
-			if (ldo.annotexprs.size() > 1)
-			{
-				throw new RuntimeException("[assrt] TODO: " + ldo);
-			}
-
-			AssrtAssertion ass = ((AssrtAstFactory) dinlr.job.af).AssrtAssertion(null,
-					AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
-							//(AssrtIntVarFormula) bcf.left,
-							
-							AssrtFormulaFactory.AssrtIntVar(annotvars.get(0).toString()),  // FIXME:
-							
-							//ldo.annot.getFormula()));  // FIXME: null source, and bcf
-
-							ldo.annotexprs.get(0).getFormula()));
-
-			AssrtLRecursion inlined = ((AssrtAstFactory) dinlr.job.af).AssrtLRecursion(blame, recvar, gb, ass);
+			AssrtLRecursion inlined = ((AssrtAstFactory) dinlr.job.af).AssrtLRecursion(blame, recvar, gb, annotvars, ldo.annotexprs);
 
 			dinlr.pushEnv(dinlr.popEnv().setTranslation(inlined));
 			dinlr.removeSubprotocolRecVar(subsig);
