@@ -76,9 +76,9 @@ public class AssrtExistsFormula extends AssrtBoolFormula
 	}
 
 	@Override
-	public Set<AssrtDataTypeVar> getVars()
+	public Set<AssrtDataTypeVar> getIntVars()
 	{
-		Set<AssrtDataTypeVar> vs = this.expr.getVars();
+		Set<AssrtDataTypeVar> vs = this.expr.getIntVars();
 		vs.removeAll(this.vars.stream().map(v -> v.toName()).collect(Collectors.toList()));
 		return vs;
 	}

@@ -30,12 +30,17 @@ tokens
 	 * (i.e. variable) names themselves are used (for AST node root text
 	 * field)
 	 */
+	EMPTY_LIST = 'EMPTY_LIST';
+	
 	ROOT = 'ROOT'; 
 	
-	// Unary exprs (e.g., true, false, 123, x) not especially labelled
 	BINBOOLEXPR = 'BINBOOLEXPR'; 
 	BINCOMPEXPR = 'BINCOMPEXPR'; 
 	BINARITHEXPR = 'BINARITHEXPR'; 
+	
+	UNPRED = 'UNPRED';
+	ARITH_EXPR_LIST = 'ARITH_EXPR_LIST';
+
 	INTVAR  = 'INTVAR'; 
 	INTVAL = 'INTVAL'; 
 
@@ -68,7 +73,7 @@ tokens
 		source = source.substring(1, source.length());  // Remove enclosing '@' .. ';' -- cf. AssrtScribble.g ASSRT_EXPR
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
-		return (CommonTree) parser.parse().getTree();
+		return (CommonTree) parser.root().getTree();
 	}
 
 	public static CommonTree parseArithAnnotation(String source) throws RecognitionException
@@ -132,7 +137,7 @@ num:
 	^(INTVAL NUMBER)	   
 ; 
 
-parse:  
+root:  
 	bool_expr
 ->
 	^(ROOT bool_expr)
@@ -167,8 +172,23 @@ unary_bool_expr:
 ->
 	^(FALSE)
 |
+	IDENTIFIER unint_fun_arg_list
+->
+	^(UNPRED IDENTIFIER unint_fun_arg_list)
+|
 	bin_comp_expr
 ; 
+	
+unint_fun_arg_list:
+	'(' ')'
+->
+	^(EMPTY_LIST)
+|
+	'(' arith_expr (',' arith_expr )* ')'
+->
+	^(ARITH_EXPR_LIST arith_expr+)
+;
+
 
 bin_comp_expr:
 	'(' arith_expr BIN_COMP_OP arith_expr ')'

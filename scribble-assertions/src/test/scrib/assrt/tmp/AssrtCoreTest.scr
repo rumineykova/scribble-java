@@ -77,6 +77,15 @@ type <dotnet> "System.String" from "..." as str;
 // uninterpreted functions for custom API gen
 // multi statvars -- fibo, linear
 
+//*
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B; @foo(x);
+}
+//*/
+
+
+/*
 explicit global protocol Proto1(role A, role B, role C)
 {
 	connect A to B;
@@ -85,6 +94,7 @@ explicit global protocol Proto1(role A, role B, role C)
 	2(y:int) from B to A; @(x=y);
 	connect C to A; @(request(x, C))  // C should know x; should imply port(x, C);
 } // terminal state needs all linear used
+//*/
 
 
 /*

@@ -32,7 +32,7 @@ public abstract class AssrtSmtFormula<F extends Formula>
 	 // FIXME: JSMT has a problem dealing with subsequent squashed formula, JSMT formula factory seems to cache var/expr translations
 	protected abstract F toJavaSmtFormula(); //throws AssertionParseException;
 	
-	public abstract Set<AssrtDataTypeVar> getVars();  // FIXME: change return to AssrtIntVarFormula, less confusing
+	public abstract Set<AssrtDataTypeVar> getIntVars();  // Change return to AssrtIntVarFormula? less confusing -- cf. AssrtEState.statevars
 	
 	@Override
 	public String toString()

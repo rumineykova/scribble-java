@@ -90,8 +90,8 @@ public class JavaSmtWrapper
 	public AssrtLogFormula addFormula(AssrtBoolFormula f1, AssrtBoolFormula f2) //throws AssertionParseException
 	{
 		BooleanFormula formula = this.bfm.and( f1.getJavaSmtFormula(), f2.getJavaSmtFormula());
-		Set<AssrtDataTypeVar> vars = new HashSet<>(f1.getVars()); 
-		vars.addAll(f2.getVars());
+		Set<AssrtDataTypeVar> vars = new HashSet<>(f1.getIntVars()); 
+		vars.addAll(f2.getIntVars());
 		return new AssrtLogFormula(formula, vars);
 	}
 	
@@ -149,7 +149,7 @@ public class JavaSmtWrapper
 		currFormula = (BooleanFormula) assertionFormula.getJavaSmtFormula();
 		List<IntegerFormula> contextVars; 
 		List<IntegerFormula> vars;
-		Set<String> setVars = assertionFormula.getVars()
+		Set<String> setVars = assertionFormula.getIntVars()
 				.stream().map(v -> v.toString()).collect(Collectors.toSet()); 
 				
 		BooleanFormula formula = null; 
@@ -160,10 +160,10 @@ public class JavaSmtWrapper
 			
 			if (!contextF.equals(this.bfm.makeTrue()))  // FIXME: factor out as a constant
 			{
-				setVars.removeAll(context.getVars().stream().map(v -> v.toString()).collect(Collectors.toList()));
+				setVars.removeAll(context.getIntVars().stream().map(v -> v.toString()).collect(Collectors.toList()));
 				vars = this.makeVars(new ArrayList<>(setVars));
 				
-				contextVars = this.makeVars(new ArrayList<>(context.getVars()
+				contextVars = this.makeVars(new ArrayList<>(context.getIntVars()
 																			.stream().map(v -> v.toString()).collect(Collectors.toSet())
 						));
 				

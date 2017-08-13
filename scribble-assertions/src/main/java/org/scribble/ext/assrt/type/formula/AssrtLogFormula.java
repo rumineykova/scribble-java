@@ -44,7 +44,7 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	}
 	
 	@Override
-	public Set<AssrtDataTypeVar> getVars()
+	public Set<AssrtDataTypeVar> getIntVars()
 	{
 		return new HashSet<>(this.vars); 
 	}
@@ -53,7 +53,7 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	public AssrtLogFormula addFormula(AssrtBoolFormula newFormula) //throws AssertionParseException
 	{		
 		return this.formula == null
-				? new AssrtLogFormula(newFormula.formula, newFormula.getVars())
+				? new AssrtLogFormula(newFormula.formula, newFormula.getIntVars())
 				:	JavaSmtWrapper.getInstance().addFormula(this, newFormula);
 	}
 	

@@ -47,7 +47,7 @@ public class AssrtIntValFormula extends AssrtArithFormula
 	}
 	
 	@Override
-	public Set<AssrtDataTypeVar> getVars()
+	public Set<AssrtDataTypeVar> getIntVars()
 	{
 		return Collections.emptySet();	
 	}

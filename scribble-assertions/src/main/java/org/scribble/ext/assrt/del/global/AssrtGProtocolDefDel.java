@@ -98,7 +98,7 @@ public class AssrtGProtocolDefDel extends GProtocolDefDel implements AssrtScribD
 		Set<Role> rs = ((GProtocolDeclDel) ((GProtocolDecl) parent).del()).getProtocolDeclContext().getRoleOccurrences();
 
 		Set<AssrtDataTypeVar> vars = //vid.right.getVars();
-				vid.values().stream().flatMap(f -> f.getVars().stream()).collect(Collectors.toSet());
+				vid.values().stream().flatMap(f -> f.getIntVars().stream()).collect(Collectors.toSet());
 		for (AssrtDataTypeVar v : vars) 
 		{
 			for (Role r : rs)

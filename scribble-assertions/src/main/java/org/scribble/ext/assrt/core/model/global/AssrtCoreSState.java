@@ -236,7 +236,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 						known.addAll(this.R.get(src).keySet());
 
-						return ((AssrtESend) a).ass.getVars().stream().anyMatch(v -> !known.contains(v));
+						return ((AssrtESend) a).ass.getIntVars().stream().anyMatch(v -> !known.contains(v));
 					}
 					else
 					{
@@ -308,7 +308,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					AssrtBoolFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, lhs, AA);
 
 					Set<AssrtDataTypeVar> free = new HashSet<>();
-					free.addAll(impli.getVars());
+					free.addAll(impli.getIntVars());
 					if (!free.isEmpty())
 					{
 						impli = AssrtFormulaFactory.AssrtForallFormula(
@@ -379,7 +379,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							AA,
 							(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
 					Set<AssrtDataTypeVar> free = new HashSet<>();
-					free.addAll(tocheck.getVars());
+					free.addAll(tocheck.getIntVars());
 					if (!free.isEmpty())
 					{
 						tocheck = AssrtFormulaFactory.AssrtExistsFormula(
@@ -705,7 +705,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 				// Rename existing vars with same name
 				Set<AssrtBoolFormula> hh = F.get(self);
-				if (hh.stream().anyMatch(hhh -> hhh.getVars().contains(v)))
+				if (hh.stream().anyMatch(hhh -> hhh.getIntVars().contains(v)))
 				{
 					AssrtIntVarFormula old = AssrtFormulaFactory.AssrtIntVar(v.toString());
 					AssrtIntVarFormula fresh = makeFreshIntVar(v);
@@ -861,7 +861,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				//AssrtArithFormula expr = a.getStateExprs().iterator().next();
 				AssrtArithFormula expr = afs.next();
 
-				if (expr.getVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
+				if (expr.getIntVars().contains(annot))  // CHECKME: renaming like this OK? -- basically all R vars are being left open for top-level forall
 				{
 					expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(annot.toString()), 
 							//fresh  // No: don't need to "link" R vars and F vars -- only F matters for direct formula checking
@@ -910,7 +910,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			while (i.hasNext())
 			{
 				AssrtBoolFormula f = i.next();
-				if (f.equals(AssrtTrueFormula.TRUE) || f.getVars().stream().anyMatch(v -> v.toString().startsWith("_")))  // FIXME
+				if (f.equals(AssrtTrueFormula.TRUE) || f.getIntVars().stream().anyMatch(v -> v.toString().startsWith("_")))  // FIXME
 				{
 					i.remove();
 				}

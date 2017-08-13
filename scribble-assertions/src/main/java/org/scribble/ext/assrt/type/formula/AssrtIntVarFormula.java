@@ -55,7 +55,7 @@ public class AssrtIntVarFormula extends AssrtArithFormula
 	}
 	
 	@Override
-	public Set<AssrtDataTypeVar> getVars()
+	public Set<AssrtDataTypeVar> getIntVars()
 	{
 		Set<AssrtDataTypeVar> vars = new HashSet<>();
 		vars.add(new AssrtDataTypeVar(this.name)); 
