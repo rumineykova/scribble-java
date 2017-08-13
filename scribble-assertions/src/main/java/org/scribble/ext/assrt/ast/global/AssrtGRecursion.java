@@ -24,7 +24,7 @@ import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.AssrtStateVarDeclAnnotation;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclAnnotNode;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.main.ScribbleException;
@@ -35,7 +35,7 @@ import org.scribble.visit.AstVisitor;
 
 
 // N.B. non-empty ass currently only supported via proto def inlining -- no direct syntax for rec-with-annot yet
-public class AssrtGRecursion extends GRecursion implements AssrtStateVarDeclAnnotation
+public class AssrtGRecursion extends GRecursion implements AssrtStateVarDeclAnnotNode
 {
 	//public final AssrtAssertion ass;  // cf. AssrtGProtocolHeader  // FIXME: make specific syntactic expr
 	public final List<AssrtIntVarNameNode> annotvars;

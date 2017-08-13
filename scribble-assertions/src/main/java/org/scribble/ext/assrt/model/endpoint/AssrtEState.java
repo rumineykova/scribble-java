@@ -34,16 +34,16 @@ public class AssrtEState extends EState
 	{
 		super(labs);
 		//this.vars = Collections.unmodifiableMap(vars);
-		this.statevars = new HashMap<>(vars);
+		this.statevars = new HashMap<>(vars);  // Side effected by addStateVars
 	}
 	
 	@Override
 	protected AssrtEState cloneNode(EModelFactory ef, Set<RecVar> labs)
 	{
-		return ((AssrtEModelFactory) ef).newAssrtEState(labs, getAnnotVars());
+		return ((AssrtEModelFactory) ef).newAssrtEState(labs, this.statevars);
 	}
 	
-	public Map<AssrtDataTypeVar, AssrtArithFormula> getAnnotVars()
+	public Map<AssrtDataTypeVar, AssrtArithFormula> getStateVars()
 	{
 		return this.statevars;
 	}

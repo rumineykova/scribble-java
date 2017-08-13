@@ -15,13 +15,13 @@ import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.AssrtStateVarDeclAnnotation;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclAnnotNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.kind.Local;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtLRecursion extends LRecursion implements AssrtStateVarDeclAnnotation
+public class AssrtLRecursion extends LRecursion implements AssrtStateVarDeclAnnotNode
 {
 	//public final AssrtAssertion ass;  // cf. AssrtGProtocolHeader  // FIXME: make specific syntactic expr
 

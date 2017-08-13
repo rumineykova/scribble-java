@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 
-public interface AssrtStateVarDeclAnnotation
+public interface AssrtStateVarDeclAnnotNode
 {
 	List<AssrtIntVarNameNode> getAnnotVars();
 	List<AssrtArithExpr> getAnnotExprs();

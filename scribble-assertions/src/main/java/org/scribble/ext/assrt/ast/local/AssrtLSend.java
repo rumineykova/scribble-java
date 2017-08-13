@@ -10,6 +10,7 @@ import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.local.LSend;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.ScribDel;
+import org.scribble.ext.assrt.ast.AssrtActionAssertNode;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.main.ScribbleException;
@@ -17,7 +18,7 @@ import org.scribble.type.kind.Local;
 import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtLSend extends LSend
+public class AssrtLSend extends LSend implements AssrtActionAssertNode
 {
 	public final AssrtAssertion ass;  // null if none specified syntactically  
 			// Duplicated in AGMessageTransfer -- could factour out to in Del, but need to consider immutable pattern
@@ -72,6 +73,12 @@ public class AssrtLSend extends LSend
 		List<RoleNode> dests = visitChildListWithClassEqualityCheck(this, this.dests, nv);
 		AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
 		return reconstruct(src, msg, dests, ass);
+	}
+
+	@Override
+	public AssrtAssertion getAssertion()
+	{
+		return this.ass;
 	}
 
 	@Override

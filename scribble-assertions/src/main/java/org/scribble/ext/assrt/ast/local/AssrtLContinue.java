@@ -12,11 +12,11 @@ import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.AssrtStateVarArgAnnotation;
+import org.scribble.ext.assrt.ast.AssrtStateVarArgAnnotNode;
 import org.scribble.main.ScribbleException;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtLContinue extends LContinue implements AssrtStateVarArgAnnotation
+public class AssrtLContinue extends LContinue implements AssrtStateVarArgAnnotNode
 {
 	//public final AssrtArithExpr annot;
 	public final List<AssrtArithExpr> annotexprs;  // cf. AssrtGDo

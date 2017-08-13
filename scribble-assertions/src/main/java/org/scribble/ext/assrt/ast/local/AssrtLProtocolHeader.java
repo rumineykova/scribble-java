@@ -17,7 +17,7 @@ import org.scribble.ast.name.qualified.ProtocolNameNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.AssrtStateVarDeclAnnotation;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclAnnotNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
@@ -26,7 +26,7 @@ import org.scribble.type.kind.Local;
 import org.scribble.visit.AstVisitor;
 
 // Based on AssrtGProtocolHeader
-public class AssrtLProtocolHeader extends LProtocolHeader implements AssrtStateVarDeclAnnotation
+public class AssrtLProtocolHeader extends LProtocolHeader implements AssrtStateVarDeclAnnotNode
 {
 	//public final AssrtAssertion ass;  // null if not specified -- currently duplicated from AssrtGMessageTransfer
 	public final List<AssrtIntVarNameNode> annotvars;

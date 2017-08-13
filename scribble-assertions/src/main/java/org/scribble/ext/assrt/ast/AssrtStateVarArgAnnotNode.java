@@ -3,7 +3,7 @@ package org.scribble.ext.assrt.ast;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public interface AssrtStateVarArgAnnotation
+public interface AssrtStateVarArgAnnotNode
 {
 	List<AssrtArithExpr> getAnnotExprs();
 

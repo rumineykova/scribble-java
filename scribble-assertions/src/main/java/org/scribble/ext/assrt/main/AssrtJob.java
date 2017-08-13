@@ -47,7 +47,7 @@ public class AssrtJob extends Job
 			case NATIVE_Z3:   return Z3Wrapper.isSat(Z3Wrapper.toSmt2(f.toSmt2Formula()), getContext().main.toString());
 			case NONE:
 			{
-				debugPrintln("\n[assrt-core] WARNING: assertion progress check skipped.");
+				debugPrintln("\n[assrt-core] WARNING: skipping sat check: " + f.toSmt2Formula());
 
 				return true;
 			}

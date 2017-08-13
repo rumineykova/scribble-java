@@ -16,7 +16,7 @@ import org.scribble.visit.AstVisitor;
 // A "name pair", perhaps similar to GDelegationElem -- factor out?
 // This is an "Elem" -- "Elems" are the elements of PayloadElemList, while PayloadElemNameNode (like DataTypeNode) are the values (an attribute) of the elems
 // FIXME: currently only allowed to be "int" (cf. AssrtIntVarNameNode) -- check this explicitly
-public class AssrtAnnotDataTypeElem extends ScribNodeBase implements PayloadElem<DataTypeKind>
+public class AssrtAnnotDataTypeElem extends ScribNodeBase implements PayloadElem<DataTypeKind>, AssrtActionVarDeclAnnotNode
 {
 	public final AssrtIntVarNameNode var;  // Using AssrtVarNameNode both as the annotation (as here), and as a PayloadElemNameNode -- like the below DataTypeNode
 	public final DataTypeNode data;  // FIXME: currently only "int"
@@ -63,12 +63,6 @@ public class AssrtAnnotDataTypeElem extends ScribNodeBase implements PayloadElem
 		DataTypeNode data = (DataTypeNode) visitChild(this.data, nv);
 		return reconstruct(var, data);
 	}
-	
-	@Override
-	public String toString()
-	{
-		return this.var.toString() + ": " +  this.data.toString();
-	}
 
 	@Override
 	public AssrtAnnotDataType toPayloadType()
@@ -77,5 +71,17 @@ public class AssrtAnnotDataTypeElem extends ScribNodeBase implements PayloadElem
 		return new AssrtAnnotDataType(//this.var.toPayloadType(),
 				this.var.toName(),
 				this.data.toPayloadType());
+	}
+
+	@Override
+	public AssrtIntVarNameNode getAnnotVar()
+	{
+		return this.var;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return this.var.toString() + ": " +  this.data.toString();
 	}
 }

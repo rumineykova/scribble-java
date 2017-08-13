@@ -1,8 +1,8 @@
 package org.scribble.ext.assrt.del.local;
 
-import org.scribble.del.local.LConnectDel;
+import org.scribble.del.local.LRequestDel;
 
-public class AssrtLConnectDel extends LConnectDel
+public class AssrtLRequestDel extends LRequestDel
 {
 	/*// Following AssrtLSendDel
 	@Override

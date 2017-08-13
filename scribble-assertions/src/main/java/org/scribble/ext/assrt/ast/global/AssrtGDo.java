@@ -17,14 +17,14 @@ import org.scribble.ast.name.qualified.ProtocolNameNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.AssrtStateVarArgAnnotation;
+import org.scribble.ext.assrt.ast.AssrtStateVarArgAnnotNode;
 import org.scribble.ext.assrt.ast.local.AssrtLDo;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.kind.Global;
 import org.scribble.type.name.Role;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtGDo extends GDo implements AssrtStateVarArgAnnotation
+public class AssrtGDo extends GDo implements AssrtStateVarArgAnnotNode
 {
 	//public final AssrtArithExpr annot;
 	public final List<AssrtArithExpr> annotexprs;

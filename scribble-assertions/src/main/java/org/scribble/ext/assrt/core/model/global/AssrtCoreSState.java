@@ -815,7 +815,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//AssrtDataTypeVar annot = a.getAnnotVar();
 
 		// "forward" recs will have annotvars but no stateexprs
-		Map<AssrtDataTypeVar, AssrtArithFormula> annotvars = succ.getAnnotVars();
+		Map<AssrtDataTypeVar, AssrtArithFormula> annotvars = succ.getStateVars();
 		List<AssrtArithFormula> stateexprs = a.getStateExprs();
 		
 
@@ -1142,7 +1142,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//return rs.stream().collect(Collectors.toMap(r -> r, r -> new HashSet<>()));
 		return P.entrySet().stream().collect(Collectors.toMap(
 				Entry::getKey,
-				e -> e.getValue().getAnnotVars().entrySet().stream()
+				e -> e.getValue().getStateVars().entrySet().stream()
 						.map(b -> AssrtFormulaFactory.AssrtBinComp(
 								AssrtBinCompFormula.Op.Eq, 
 								AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
@@ -1165,7 +1165,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.entrySet().stream().collect(Collectors.toMap(
 				e -> e.getKey(),
-				e -> new HashMap<>(e.getValue().getAnnotVars())
+				e -> new HashMap<>(e.getValue().getStateVars())
 		));
 		/*Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.keySet().stream().collect(Collectors.toMap(r -> r, r ->
 				Stream.of(false).collect(Collectors.toMap(
