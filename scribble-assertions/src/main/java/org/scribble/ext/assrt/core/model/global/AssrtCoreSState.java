@@ -237,7 +237,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
 								.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
 						return ((AssrtCoreEAction) a).getAssertion().getIntVars().stream()
-								.filter(v -> !rs.contains(v.toString()))
+								.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars
 								.anyMatch(v -> !known.contains(v));
 					}
 					else
@@ -310,8 +310,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
 					AssrtBoolFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, lhs, AA);
 
-					Set<AssrtDataTypeVar> free = new HashSet<>();
-					free.addAll(impli.getIntVars());
+						Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
+								.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
+					Set<AssrtDataTypeVar> free = impli.getIntVars().stream()
+							.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
+							.collect(Collectors.toSet());
 					if (!free.isEmpty())
 					{
 						impli = AssrtFormulaFactory.AssrtForallFormula(
@@ -381,8 +384,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					AssrtBoolFormula tocheck = this.F.get(src).stream().reduce(
 							AA,
 							(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
-					Set<AssrtDataTypeVar> free = new HashSet<>();
-					free.addAll(tocheck.getIntVars());
+					Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
+								.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
+					Set<AssrtDataTypeVar> free = tocheck.getIntVars().stream()
+							.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
+							.collect(Collectors.toSet());
 					if (!free.isEmpty())
 					{
 						tocheck = AssrtFormulaFactory.AssrtExistsFormula(

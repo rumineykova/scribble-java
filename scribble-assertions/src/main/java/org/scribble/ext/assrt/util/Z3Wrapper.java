@@ -77,7 +77,7 @@ public class Z3Wrapper
 				+ "(check-sat)\n"
 				+ "(exit)";
 		
-		job.debugPrintln("[assrt-core] Z3 formula:\n  " + smt2.replaceAll("\\n", "\n  "));
+		job.debugPrintln("[assrt-core] Running Z3 on:\n  " + smt2.replaceAll("\\n", "\n  "));
 		
 		return smt2;
 	}
