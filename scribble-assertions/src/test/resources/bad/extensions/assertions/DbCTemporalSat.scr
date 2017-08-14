@@ -8,8 +8,8 @@ type <java> "java.lang.Long" from "rt.jar" as Long;
 global protocol Proto1(role A, role B)
 {
 	//[x<10]
-	MSG(x:int) from A to B;  @(x < 10);
+	MSG(x:int) from A to B;  @"(x < 10)"
 
 	//[x>y && y>6]
-	MSG(y:int) from B to A;  @((x > y) && (y > 6));
+	MSG(y:int) from B to A;  @"((x > y) && (y > 6))"
 }

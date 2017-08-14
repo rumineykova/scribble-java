@@ -10,14 +10,14 @@ rec Loop {
 	choice at A {
 	
 	//[x<10]
-	MSG1(x:int) from A to B;  @(x < 10);
+	MSG1(x:int) from A to B;  @"(x < 10)"
 	
 	} or {
 	//[y>10]
-	MSG2(y:int) from A to B;  @(y > 10);
+	MSG2(y:int) from A to B;  @"(y > 10)"
 	continue Loop; 
 	}
 }
 	//[z<y]
-	MSG3(z:int) from B to C;  @(z < y);
+	MSG3(z:int) from B to C;  @"(z < y)"
 }

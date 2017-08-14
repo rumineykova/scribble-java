@@ -7,8 +7,8 @@ type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 //*
 global protocol Proto1(role A, role B, role C)
 {
-	1(x:int) from A to B; @(x>3);
-	2(y:int) from B to C; @(y>x);  // testing compacting -- x being referred to at C
+	1(x:int) from A to B; @"(x>3)"
+	2(y:int) from B to C; @"(y>x)"  // testing compacting -- x being referred to at C
 	do Proto1(A, B, C);
 }
 //*/

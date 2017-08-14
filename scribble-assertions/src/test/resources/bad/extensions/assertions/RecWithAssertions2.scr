@@ -10,14 +10,14 @@ global protocol Proto1(role A, role B, role C)
 	{
 		choice at A
 		{
-			MSG1(x:int) from A to B;  @(x < 10);
-			MSG3(z:int) from B to C;  @(z < y);
+			MSG1(x:int) from A to B;  @"(x < 10)"
+			MSG3(z:int) from B to C;  @"(z < y)"
 			MSG3() from B to C;
 		}
 		or
 		{
-			MSG2(y:int) from A to B;  @(y > 10);
-			MSG4(z1:int) from B to C;  @(z1 < y);  // Artificial
+			MSG2(y:int) from A to B;  @"(y > 10)"
+			MSG4(z1:int) from B to C;  @"(z1 < y)"  // Artificial
 			continue Loop; 
 		}
 	}

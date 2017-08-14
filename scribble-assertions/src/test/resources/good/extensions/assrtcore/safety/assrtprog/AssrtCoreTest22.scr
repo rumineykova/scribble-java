@@ -12,10 +12,10 @@ global protocol Proto1(role A, role B)
 	{
 		2() from A to B;
 	}
-	//or { 3() from A to B; @False; }  // Uncomment is unsat
+	//or { 3() from A to B; @""False" }  // Uncomment is unsat
 	or
 	{
-		4() from A to B; @(x>3);  // Assertion-progress because of first case
+		4() from A to B; @"(x>3)"  // Assertion-progress because of first case
 	}
 }
 //*/

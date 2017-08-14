@@ -132,6 +132,7 @@ NUMBER:
 	//(DIGIT)+  // Doesn't work -- why? (and why does above work?)
 
 
+// making fragment seems to break whole parsing
 BIN_COMP_OP:
     '>' | '<' | '='		 
 ; 
@@ -177,6 +178,7 @@ statevararglist:
 ->
 	^(ASSRT_STATEVARARGLIST arith_expr+)
 ;
+//	'<' arith_expr (',' arith_expr)* '>' -- seems to break assertion parsing
 	
 	
 // root	

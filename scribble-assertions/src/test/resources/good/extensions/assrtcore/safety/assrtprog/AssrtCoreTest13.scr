@@ -10,7 +10,7 @@ global protocol Proto1(role A, role B)
 	1(x:int) from A to B; 
 	choice at B
 	{
-		2() from B to A; @(x>0);  // Assrt-prog because of other choice branch
+		2() from B to A; @"(x>0)"  // Assrt-prog because of other choice branch
 	}		
 	or { 3() from B to A; }  // Unsat if case commented
 }

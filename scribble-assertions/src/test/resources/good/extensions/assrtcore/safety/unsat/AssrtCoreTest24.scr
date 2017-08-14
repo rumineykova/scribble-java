@@ -5,13 +5,13 @@ type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 
 
 //*
-global protocol Proto1(role A, role B) @(z=1);
+global protocol Proto1(role A, role B) @"(z:=1)"
 {
 	1(x:int) from A to B;
 	choice at B
 	{
-		2() from B to A; @(x>z);  // Sat check
-		do Proto1(A, B); @x;
+		2() from B to A; @"(x>z)"  // Sat check
+		do Proto1(A, B); @"(x)"
 	}
 	or
 	{

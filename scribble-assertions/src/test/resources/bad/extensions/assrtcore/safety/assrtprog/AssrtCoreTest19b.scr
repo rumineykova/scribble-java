@@ -7,11 +7,11 @@ type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 //*
 global protocol Proto1(role A, role B, role C)
 {
-	1(x:int) from B to A; @(x>4);
+	1(x:int) from B to A; @"(x>4)"
 	choice at A
 	{
-		2() from A to B; @(x>6);
-		2() from B to C; @(x>5);
+		2() from A to B; @"(x>6)"
+		2() from B to C; @"(x>5)"
 	}	
 	//or { 3() from A to B; 3() from B to C; }  // Comment is assert-prog error
 }

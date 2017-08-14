@@ -13,7 +13,7 @@ global protocol Proto1(role A, role B)
 
 aux global protocol Proto2(role A, role B)
 {
-	2(y:int) from A to B; @(y>x);  
+	2(y:int) from A to B; @"(y>x)"
 			// "Naive" renaming approach for "old" vars is broken, can never "compact" the old y's because of "outer" x
 			// How about fixed "one-level" renaming of old vars? and no compacting? -- no, get contradicting clauses for a given old var, from different renamings
 	do Proto2(A, B);
