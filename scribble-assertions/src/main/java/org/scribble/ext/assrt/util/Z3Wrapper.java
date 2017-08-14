@@ -11,13 +11,13 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.scribble.ast.global.GProtocolDecl;
+import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.type.formula.AssrtBinaryFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtQuantifiedIntVarsFormula;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.type.formula.AssrtUnPredicateFormula;
 import org.scribble.main.ScribbleException;
-import org.scribble.type.name.Role;
 import org.scribble.util.ScribUtil;
 
 // "Native" Z3 -- not Z3 Java API
@@ -25,7 +25,7 @@ public class Z3Wrapper
 {
 
 	// Based on CommandLine::runDot, JobContext::runAut, etc
-	public static boolean checkSat(GProtocolDecl gpd, AssrtBoolFormula f) //throws ScribbleException
+	public static boolean checkSat(AssrtJob job, GProtocolDecl gpd, AssrtBoolFormula f) //throws ScribbleException
 	{
 		String tmpName = gpd.header.name + ".smt2.tmp";
 		File tmp = new File(tmpName);
@@ -33,7 +33,7 @@ public class Z3Wrapper
 		{
 			throw new RuntimeException("Cannot overwrite: " + tmpName);
 		}
-		String smt2 = toSmt2(gpd, f);
+		String smt2 = toSmt2(job, gpd, f);
 		try
 		{
 			ScribUtil.writeToFile(tmpName, smt2);
@@ -62,10 +62,10 @@ public class Z3Wrapper
 		}
 	}
 	
-	private static String toSmt2(GProtocolDecl gpd, AssrtBoolFormula f)
+	private static String toSmt2(AssrtJob job, GProtocolDecl gpd, AssrtBoolFormula f)
 	{
 		String smt2 = "";
-		List<Role> rs = gpd.getHeader().roledecls.getRoles();
+		List<String> rs = gpd.getHeader().roledecls.getRoles().stream().map(Object::toString).sorted().collect(Collectors.toList());
 		smt2 += IntStream.range(0, rs.size())
 				.mapToObj(i -> "(declare-const " + rs.get(i) + " Int)\n(assert (= " + rs.get(i) + " " + i +"))\n").collect(Collectors.joining(""));
 		Set<AssrtUnPredicateFormula> preds = getUnPredicates.func.apply(f);
@@ -77,7 +77,7 @@ public class Z3Wrapper
 				+ "(check-sat)\n"
 				+ "(exit)";
 		
-		//System.out.println("[assrt-core] Z3 string: " + smt2);
+		job.debugPrintln("[assrt-core] Z3 formula:\n  " + smt2.replaceAll("\\n", "\n  "));
 		
 		return smt2;
 	}
