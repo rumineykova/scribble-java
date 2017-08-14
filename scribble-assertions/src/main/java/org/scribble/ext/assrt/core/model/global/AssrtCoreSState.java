@@ -21,10 +21,7 @@ import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
 import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
-import org.scribble.ext.assrt.model.endpoint.action.AssrtEAccept;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAction;
-import org.scribble.ext.assrt.model.endpoint.action.AssrtERequest;
-import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
@@ -121,7 +118,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			return hasMessage(dest, src) && 
 					//!as.contains(this.Q.get(dest).get(src).toDual(src));
 					as.stream()
-						.map(a -> ((AssrtESend) a.toDual(dest)).toTrueAssertion())
+						.map(a -> ((AssrtCoreESend) a.toDual(dest)).toTrueAssertion())
 						.noneMatch(a -> a.equals(this.Q.get(dest).get(src).toTrueAssertion()));   // cf. toTrueAssertion done now only on receiver side
 								// HACK FIXME: check assertion implication (not just syntactic equals) -- cf. AssrtSConfig::fire
 		}
@@ -145,7 +142,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 									 
 								 // Otherwise all initial request messages considered as bad
 								 && s.getActions().stream()
-										 .map(a -> ((AssrtERequest) a.toDual(r1)).toTrueAssertion())
+										 .map(a -> ((AssrtCoreERequest) a.toDual(r1)).toTrueAssertion())
 										 .noneMatch(a -> a.equals(((AssrtCoreEPendingRequest) this.Q.get(r1).get(r2)).getMessage().toTrueAssertion()))  
 											 
 								 )
@@ -213,17 +210,17 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		});
 	}
 	
-	public boolean isUnknownDataTypeVarError()
+	public boolean isUnknownDataTypeVarError(Job job, GProtocolName simpname)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
 				e.getValue().getAllActions().stream().anyMatch(a -> 
 				{
-					if (a instanceof AssrtESend)
+					if (a.isSend() || a.isRequest())
 					{
 						Role src = e.getKey();
 
 						Set<AssrtDataTypeVar> known = new HashSet<>(this.K.get(src));
-						((AssrtESend) a).payload.elems.forEach(pe ->  // Currently exactly one elem
+						a.payload.elems.forEach(pe ->  // Currently exactly one elem
 						{
 							if (pe instanceof AssrtAnnotDataType)
 							{
@@ -237,13 +234,18 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 						known.addAll(this.R.get(src).keySet());
 
-						return ((AssrtESend) a).ass.getIntVars().stream().anyMatch(v -> !known.contains(v));
+						Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
+								.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
+						return ((AssrtCoreEAction) a).getAssertion().getIntVars().stream()
+								.filter(v -> !rs.contains(v.toString()))
+								.anyMatch(v -> !known.contains(v));
 					}
 					else
 					{
-						// FIXME: receive assertions
+						// FIXME: receive assertions? currently hardcoded to True
+
+						return false;
 					}
-					return false;
 				}));
 	}
 	
@@ -360,7 +362,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				if (a instanceof AssrtCoreESend || a instanceof AssrtCoreERequest)  // FIXME: factor out with isAssertionProgressError
 				{
 					Role src = e.getKey();
-					AssrtBoolFormula ass = ((AssrtEAction) a).getAssertion();
+					AssrtBoolFormula ass = ((AssrtCoreEAction) a).getAssertion();
 					if (ass.equals(AssrtTrueFormula.TRUE))  // OK to skip? i.e., no need to check existing F (impli LHS) is true?
 					{
 						return false; 
@@ -398,11 +400,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 					return !((AssrtJob) job).checkSat(simpname, squashed);
 				}
-				else if (a instanceof AssrtERequest)
+				else if (a instanceof AssrtCoreERequest)
 				{
 					return false; // TODO: request
 				}
-				/*else if (a instanceof AssrtCoreEReceive || a instanceof AssrtEAccept)
+				/*else if (a instanceof AssrtCoreEReceive || a instanceof AssrtCoreEAccept)
 				{
 					return true;  // FIXME: check receive assertions? -- currently receive assertions all set to True
 				}*/
@@ -437,12 +439,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}
 				else if (a.isRequest())
 				{
-					AssrtERequest ec = (AssrtERequest) a;  // FIXME: core
+					AssrtCoreERequest ec = (AssrtCoreERequest) a;  // FIXME: core
 					getRequestFireable(res, self, ec);
 				}
 				else if (a.isAccept())
 				{
-					AssrtEAccept ea = (AssrtEAccept) a;  // FIXME: core
+					AssrtCoreEAccept ea = (AssrtCoreEAccept) a;  // FIXME: core
 					getAcceptFireable(res, self, ea);
 				}
 				/*else if (a.isDisconnect())
@@ -459,7 +461,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return res;
 	}
 
-	private void getSendFireable(Map<Role, List<EAction>> res, Role self, AssrtESend es)
+	private void getSendFireable(Map<Role, List<EAction>> res, Role self, AssrtCoreESend es)
 	{
 		if (hasPendingRequest(self) || !isInputQueueEstablished(self, es.peer) || hasMessage(es.peer, self))
 		{
@@ -512,7 +514,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 	}
 
-	private void getRequestFireable(Map<Role, List<EAction>> res, Role self, AssrtERequest es)
+	private void getRequestFireable(Map<Role, List<EAction>> res, Role self, AssrtCoreERequest es)
 	{
 		if (hasPendingRequest(self) ||
 				   // not ( Q(r, r') = Q(r', r) = \bot ) -- i.e., either of them are not \bot
@@ -544,7 +546,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	// Based on getReceiveFireable
-	private void getAcceptFireable(Map<Role, List<EAction>> res, Role self, AssrtEAccept ea)
+	private void getAcceptFireable(Map<Role, List<EAction>> res, Role self, AssrtCoreEAccept ea)
 	{
 		if (hasPendingRequest(self) || !isPendingRequest(ea.peer, self))
 		{
@@ -990,7 +992,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	// i.e. "fully" established, not "pending" -- semantics relies on all action firing being guarded on !hasPendingConnect
 	private boolean isInputQueueEstablished(Role dest, Role src)  // N.B. is more like the "input buffer" at r1 for r2 -- not the actual "connection from r1 to r2"
 	{
-		AssrtESend es = this.Q.get(dest).get(src);
+		AssrtCoreESend es = this.Q.get(dest).get(src);
 		return !(es instanceof AssrtCoreEBot) && !(es instanceof AssrtCoreEPendingRequest);
 		//return es != null && es.equals(AssrtCoreEBot.ASSSRTCORE_BOT);  // Would be same as above
 	}
@@ -999,7 +1001,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private boolean isPendingRequest(Role req, Role acc)  // FIXME: for open/port annotations
 	{
 		//return (this.ports.get(r1).get(r2) != null) || (this.ports.get(r2).get(r1) != null);
-		AssrtESend es = this.Q.get(acc).get(req);  // N.B. reverse direction to isConnected
+		AssrtCoreESend es = this.Q.get(acc).get(req);  // N.B. reverse direction to isConnected
 		return es instanceof AssrtCoreEPendingRequest;
 	}
 

@@ -80,7 +80,8 @@ type <dotnet> "System.String" from "..." as str;
 //*
 global protocol Proto1(role A, role B)
 {
-	1(x:int) from A to B; @foo(A);  
+	1(x:int) from A to B; @ port(x, A);  
+	
 			// FIXME: unknown var error for roles -- roles are currently being parsed as int vars (and preds hardcoded with int args) -- maybe just hack it for now
 	//1(x:int) from A to B; @foo(x);
 }
@@ -91,10 +92,22 @@ global protocol Proto1(role A, role B)
 explicit global protocol Proto1(role A, role B, role C)
 {
 	connect A to B;
-	1(x:int) from A to B; @port(x, C);  // implies port(x, C) and not(port(x, A)), not(port(x, B))
-	connect B to C;
-	2(y:int) from B to A; @(x=y);
-	connect C to A; @request(x, C);  // C should know x; should imply port(x, C);
+	1(lin x:int) from A to B; @port(x, C);  // implies port(x, C) and not(port(x, A)), not(port(x, B))
+	
+	rec X1 (used_x = 0) {
+
+		1(z:int) from B to C; @(fw(x -> z) ... used_x =0); // implies port(x, C) and not(port(x, A)), not(port(x, B))
+		
+		rec X2 (used_x = 1) {
+
+			1(z2:int) from B to C; @(... used_x = 0); // implies port(x, C) and not(port(x, A)), not(port(x, B))
+
+			connect B to C;
+			2(y:int) from B to A; @(x=y);
+
+			connect C to A; @request(x, C);  // C should know x; should imply port(x, C);
+		}
+		}
 } // terminal state needs all linear used
 //*/
 

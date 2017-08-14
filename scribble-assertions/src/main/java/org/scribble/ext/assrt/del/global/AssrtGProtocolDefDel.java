@@ -95,13 +95,22 @@ public class AssrtGProtocolDefDel extends GProtocolDefDel implements AssrtScribD
 		/*RoleCollector coll = new RoleCollector(checker.job, checker.getModuleContext());  // Would need to do for general recs
 		((GProtocolDecl) parent).getDef().accept(coll);
 		Set<Role> names = coll.getNames();*/
-		Set<Role> rs = ((GProtocolDeclDel) ((GProtocolDecl) parent).del()).getProtocolDeclContext().getRoleOccurrences();
 
+		GProtocolDecl gpd = (GProtocolDecl) parent;
+		//Set<String> rds = gpd.header.roledecls.getRoles().stream().map(x -> x.toString()).collect(Collectors.toSet());
 		Set<AssrtDataTypeVar> vars = //vid.right.getVars();
-				vid.values().stream().flatMap(f -> f.getIntVars().stream()).collect(Collectors.toSet());
+				 vid.values().stream()
+				.flatMap(f -> f.getIntVars().stream())
+
+				//.filter(v -> !rds.contains(v.toString()))  // HACK: filter out role occurrences -- all names currently parsed as AssrtIntVarFormula
+
+				.collect(Collectors.toSet());
+
+		Set<Role> ros = ((GProtocolDeclDel) gpd.del()).getProtocolDeclContext().getRoleOccurrences();
+		
 		for (AssrtDataTypeVar v : vars) 
 		{
-			for (Role r : rs)
+			for (Role r : ros)
 			{
 				if (!env.isDataTypeVarKnown(r, v))
 				{
@@ -118,7 +127,7 @@ public class AssrtGProtocolDefDel extends GProtocolDefDel implements AssrtScribD
 			{
 				throw new AssrtException("[assrt] Protocol header var name " + var + " is already declared."); 
 			}
-			for (Role r : rs)
+			for (Role r : ros)
 			{
 				env = env.addAnnotDataType(r, new AssrtAnnotDataType(var, new DataType("int")));   // FIXME: factor out int constant
 			}
