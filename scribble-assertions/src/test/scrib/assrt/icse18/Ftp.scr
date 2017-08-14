@@ -8,6 +8,8 @@
 module assrt.icse18.Ftp;
 
 
+sig <java> ... as 220;
+
 type <dotnet> "System.UInt32" from "..." as int;
 type <dotnet> "System.String" from "..." as str;
 

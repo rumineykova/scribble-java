@@ -50,7 +50,7 @@ public class AssrtJob extends Job
 			case NATIVE_Z3:
 			{
 				JobContext jc = getContext();
-				return Z3Wrapper.checkSat((GProtocolDecl) jc.getMainModule().getProtocolDecl(simpname), f);
+				return Z3Wrapper.checkSat(this, (GProtocolDecl) jc.getMainModule().getProtocolDecl(simpname), f);
 			}
 			case NONE:
 			{

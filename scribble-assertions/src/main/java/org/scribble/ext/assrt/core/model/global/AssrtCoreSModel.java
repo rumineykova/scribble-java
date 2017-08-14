@@ -46,7 +46,8 @@ public class AssrtCoreSModel
 		Set<AssrtCoreSState> unconns = this.allStates.values().stream().filter(AssrtCoreSState::isUnconnectedError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> syncs = this.allStates.values().stream().filter(AssrtCoreSState::isSynchronisationError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> disconns = Collections.emptySet(); //this.allStates.values().stream().filter(AssrtCoreSState::isDisconnectedError).collect(Collectors.toSet());
-		Set<AssrtCoreSState> unknownVars = this.allStates.values().stream().filter(AssrtCoreSState::isUnknownDataTypeVarError).collect(Collectors.toSet());
+
+		Set<AssrtCoreSState> unknownVars = this.allStates.values().stream().filter(s -> s.isUnknownDataTypeVarError(job, simpname)).collect(Collectors.toSet());
 		Set<AssrtCoreSState> asserts = this.allStates.values().stream().filter(s -> s.isAssertionProgressError(job, simpname)).collect(Collectors.toSet());
 		Set<AssrtCoreSState> unsats = this.allStates.values().stream().filter(s -> s.isUnsatisfiableError(job, simpname)).collect(Collectors.toSet());
 		

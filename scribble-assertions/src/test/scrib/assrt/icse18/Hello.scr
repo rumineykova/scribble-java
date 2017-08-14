@@ -1,0 +1,24 @@
+//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/icse18/Hello.scr 
+
+
+// http://sandbox.kidstrythisathome.com/erdos/
+
+
+module assrt.icse18.Hello;
+
+
+type <dotnet> "System.UInt32" from "..." as int;
+type <dotnet> "System.String" from "..." as str;
+
+
+// No "linear" treatment of values yet -- just code/API generation for message value dependent patterns (cf. actual dependent typing)
+explicit global protocol Proto1(role A, role B, role C)
+{
+	connect A to B;
+	1(p:int) from A to B; @open(p, C);  // Open fresh port at A (for C) -- send the port value to B
+	connect B to C;
+	2(q:int) from B to C; @(p=q);       // Forward the (port) value from B to C;
+	connect C to A;       @port(q);     // Connect to port q
+}
+		

@@ -9,6 +9,7 @@ import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 // Variable occurrence
+// FIXME: currently also used for roles -- probably need to parse as "ambig" and disamb later
 public class AssrtIntVarFormula extends AssrtArithFormula
 {
 	public final String name; 
@@ -58,7 +59,7 @@ public class AssrtIntVarFormula extends AssrtArithFormula
 	public Set<AssrtDataTypeVar> getIntVars()
 	{
 		Set<AssrtDataTypeVar> vars = new HashSet<>();
-		vars.add(new AssrtDataTypeVar(this.name)); 
+		vars.add(new AssrtDataTypeVar(this.name));  // FIXME: currently may also be a role
 		return vars; 
 	}
 	
