@@ -15,6 +15,7 @@ package org.scribble.ext.assrt.parser.scribble.ast.global;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.NonRoleParamDeclList;
@@ -53,19 +54,21 @@ public class AssrtAntlrGProtocolHeader
 	
 	private static List<AssrtIntVarNameNode> parseAssrtStateVarDeclListVars(CommonTree assTree, AssrtAstFactory af)
 	{
-		@SuppressWarnings("unchecked")
-		List<CommonTree> cs = (List<CommonTree>) assTree.getChildren();  // List of ASSRT_STATEVARDECL
+		List<CommonTree> cs = 
+				((Stream<?>) assTree.getChildren().stream())  // Stream of ASSRT_STATEVARDECL
+					.map(c -> (CommonTree) ((CommonTree) c).getChild(0)).collect(Collectors.toList());  // List of INTVAR
 		return cs.stream().map(c -> 
-					(AssrtIntVarNameNode) af.SimpleNameNode(c, AssrtVarNameKind.KIND, c.getChild(0).getChild(0).getText()))  // Cf. AssrtAntlrIntVarFormula::parse
+					(AssrtIntVarNameNode) af.SimpleNameNode(c, AssrtVarNameKind.KIND, c.getChild(0).getText()))  // Cf. AssrtAntlrIntVarFormula::parseIntVarFormula
 				.collect(Collectors.toList());
 	}
 	
 	private static List<AssrtArithExpr> parseAssrtStateVarDeclListExprs(AssrtAntlrToFormulaParser ap, CommonTree assTree, AssrtAstFactory af)
 	{
-		@SuppressWarnings("unchecked")
-		List<CommonTree> cs = (List<CommonTree>) assTree.getChildren();
+		List<CommonTree> cs = 
+				((Stream<?>) assTree.getChildren().stream())  // Stream of ASSRT_STATEVARDECL
+					.map(c -> (CommonTree) ((CommonTree) c).getChild(1)).collect(Collectors.toList());  // List of arith-exprs
 		return cs.stream().map(c -> 
-					AssrtAntlrGDo.parseArithAnnotation(ap, (CommonTree) c.getChild(1), af))
+					AssrtAntlrGDo.parseArithAnnotation(ap, c, af))
 				.collect(Collectors.toList());
 	}
 
