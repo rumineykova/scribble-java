@@ -78,12 +78,9 @@ type <dotnet> "System.String" from "..." as str;
 // multi statvars -- fibo, linear
 
 //*
-global protocol Proto1(role A, role B)
+global protocol Proto1(role A, role B) @"(x:=(0+3), y:=1)"
 {
-	1(x:int) from A to B; @ port(x, A);  
-	
-			// FIXME: unknown var error for roles -- roles are currently being parsed as int vars (and preds hardcoded with int args) -- maybe just hack it for now
-	//1(x:int) from A to B; @foo(x);
+	1(z:int) from A to B;  //@"((x<3) && (x >1))"
 }
 //*/
 

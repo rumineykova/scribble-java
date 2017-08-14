@@ -30,7 +30,7 @@ public class AssrtAntlrGDo
 		NonRoleArgList al = (NonRoleArgList) parser.parse(AntlrGDo.getNonRoleArgListChild(root), af);
 		GProtocolNameNode pnn = AntlrQualifiedName.toGProtocolNameNode(AntlrGDo.getProtocolNameChild(root), af);
 		
-		CommonTree annotTree = AssrtAntlrGProtocolHeader.getAssertionChild(root);
+		CommonTree annotTree = AssrtAntlrGProtocolHeader.getAssrtStateVarDeclListChild(root);
 		AssrtArithExpr annot = AssrtAntlrGDo.parseArithAnnotation(((AssrtAntlrToScribParser) parser).ap, annotTree, (AssrtAstFactory) af);
 		
 		return ((AssrtAstFactory) af).AssrtGDo(root, ril, al, pnn, //annot);
@@ -49,6 +49,6 @@ public class AssrtAntlrGDo
 
 	public static CommonTree getAssertionChild(CommonTree root)
 	{
-		return (CommonTree) root.getChild(AssrtAntlrGProtocolHeader.ASSERTION_CHILD_INDEX);
+		return (CommonTree) root.getChild(AssrtAntlrGProtocolHeader.ASSRT_STATEVARDECLLIST_CHILD_INDEX);
 	}
 }

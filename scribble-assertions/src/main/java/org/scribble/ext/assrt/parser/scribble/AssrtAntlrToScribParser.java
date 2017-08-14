@@ -48,7 +48,7 @@ public class AssrtAntlrToScribParser extends AntlrToScribParser
 			case ASSRT_GLOBALPROTOCOLHEADER_NODE_TYPE:  return AssrtAntlrGProtocolHeader.parseAssrtGProtocolHeader(this, ct, aaf);
 			case ASSRT_GLOBALMESSAGETRANSFER_NODE_TYPE: return AssrtAntlrGMessageTransfer.parseAssrtGMessageTransfer(this, ct, aaf);
 			case ASSRT_GLOBALCONNECT_NODE_TYPE:         return AssrtAntlrGConnect.parseAssrtGConnect(this, ct, aaf);
-			case ASSRT_GLOBALDO_NODE_TYPE:         return AssrtAntlrGDo.parseAssrtGDo(this, ct, aaf);
+			case ASSRT_GLOBALDO_NODE_TYPE:              return AssrtAntlrGDo.parseAssrtGDo(this, ct, aaf);
 
 			default: return super.parse(ct, af);
 		}

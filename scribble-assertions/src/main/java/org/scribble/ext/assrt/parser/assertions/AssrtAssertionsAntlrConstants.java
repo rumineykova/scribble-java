@@ -18,10 +18,15 @@ public class AssrtAssertionsAntlrConstants
 
 	public static final String FALSE_NODE_TYPE = "FALSE";
 	public static final String TRUE_NODE_TYPE = "TRUE";
+	
+	//public static final String ASSRT_STATEVARDECLLIST_NODE_TYPE = "ASSRT_STATEVARDECLLIST";  // Parsed internally by AssrtAntlrGProtocolHeader
 
 	public enum AssrtAntlrNodeType
 	{
 		// For AssrtScribParser
-		BINBOOLEXPR, BINCOMPEXPR, BINARITHEXPR, UNPRED, ARITH_EXPR_LIST, INTVAR, INTVAL, FALSE, TRUE
+		BINBOOLEXPR, BINCOMPEXPR, BINARITHEXPR,
+		UNPRED, ARITH_EXPR_LIST,
+		INTVAR, INTVAL, FALSE, TRUE,
+		//ASSRT_STATEVARDECLLIST
 	}
 }
