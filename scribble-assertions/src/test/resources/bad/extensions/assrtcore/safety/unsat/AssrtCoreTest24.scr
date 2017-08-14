@@ -7,12 +7,12 @@ type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 //*
 global protocol Proto1(role A, role B)
 {
-	1(x:int) from A to B; @(x>3);
+	1(x:int) from A to B; @"(x>3)"
 	choice at B
 	{
-		2() from B to A; @(x<3);
-		2() from B to A; @False;  // Not detected as error (unary-choice assrt-prog OK)
-		2() from A to B; @False;
+		2() from B to A; @"(x<3)"
+		2() from B to A; @"False"  // Not detected as error (unary-choice assrt-prog OK)
+		2() from A to B; @"False"
 	}	
 	or
 	{

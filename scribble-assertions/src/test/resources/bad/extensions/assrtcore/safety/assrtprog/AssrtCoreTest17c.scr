@@ -24,7 +24,7 @@ aux global protocol Proto2(role A, role B)
 	choice at B
 	{
 		3() from B to A;
-		4() from A to B; @False;
+		4() from A to B; @"False"
 	}
 	or
 	{

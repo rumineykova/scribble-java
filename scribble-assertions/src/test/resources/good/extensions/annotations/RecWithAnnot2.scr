@@ -24,7 +24,7 @@ global protocol Proto2(role A, role B, role C)  // FIXME: check model -- unexpec
 		{
 			ADD(x:int) from A to B;  
 			ADD(z:int) from B to C;
-			RES(z1:int) from B to C; @(z1 = z);  // Weird, but based on original RecWithAnnot
+			RES(z1:int) from B to C; @"(z1 = z)"  // Weird, but based on original RecWithAnnot
 		}
 		or
 		{

@@ -10,12 +10,12 @@ global protocol Proto1(role A, role B, role C)
 	choice at A {
 		ADD(x:int) from A to B;  
 		ADD(z1:int) from B to C;
-		ADD(z2:int) from B to C; @(z2 = z1);
+		ADD(z2:int) from B to C; @"(z2 = z1)"
 		 
 	} or {
 		RES(y:int) from A to B;
 		RES(z3:int) from B to C; 
-		RES(z4:int) from B to C; @(z4 = z3);
+		RES(z4:int) from B to C; @"(z4 = z3)"
 	}			
 	}
 	

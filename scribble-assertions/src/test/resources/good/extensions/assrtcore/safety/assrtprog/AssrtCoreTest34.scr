@@ -10,11 +10,11 @@ global protocol Proto1(role A, role B)
 	1(x:int) from A to B;
 	choice at B
 	{
-		2() from B to A; @(x<5);
+		2() from B to A; @"(x<5)"
 	}
 	or
 	{
-		3() from B to A; @((x=5) || (x>5));  // Testing assert-prog check rhs disjunction
+		3() from B to A; @"((x=5) || (x>5))"  // Testing assert-prog check rhs disjunction
 	}
 }
 //*/

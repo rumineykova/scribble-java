@@ -46,6 +46,10 @@ tokens
 
 	TRUE = 'TRUE';
 	FALSE = 'FALSE';
+	
+	ASSRT_STATEVARDECLLIST = 'ASSRT_STATEVARDECLLIST';
+	ASSRT_STATEVARDECL = 'ASSRT_STATEVARDECL';
+	ASSRT_STATEVARARGLIST = 'ASSRT_STATEVARARGLIST';
 }
 
 @parser::header
@@ -70,7 +74,7 @@ tokens
 	// Takes the whole AssrtScribble.g ASSRT_EXPPR
 	public static CommonTree parseAssertion(String source) throws RecognitionException
 	{
-		source = source.substring(1, source.length());  // Remove enclosing '@' .. ';' -- cf. AssrtScribble.g ASSRT_EXPR
+		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
 		return (CommonTree) parser.root().getTree();
@@ -78,10 +82,26 @@ tokens
 
 	public static CommonTree parseArithAnnotation(String source) throws RecognitionException
 	{
-		source = source.substring(1, source.length());  // Remove enclosing '@' .. ';' -- cf. AssrtScribble.g ASSRT_EXPR
+		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
 		return (CommonTree) parser.arith_expr().getTree();
+	}
+
+	public static CommonTree parseStateVarDeclList(String source) throws RecognitionException
+	{
+		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
+		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
+		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
+		return (CommonTree) parser.statevardecllist().getTree();
+	}
+
+	public static CommonTree parseStateVarArgList(String source) throws RecognitionException
+	{
+		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
+		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
+		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
+		return (CommonTree) parser.statevararglist().getTree();
 	}
 }
 
@@ -112,6 +132,7 @@ NUMBER:
 	//(DIGIT)+  // Doesn't work -- why? (and why does above work?)
 
 
+// making fragment seems to break whole parsing
 BIN_COMP_OP:
     '>' | '<' | '='		 
 ; 
@@ -137,6 +158,31 @@ num:
 	^(INTVAL NUMBER)	   
 ; 
 
+	
+// statevars
+	
+statevardecllist:
+	'(' statevardecl (',' statevardecl)* ')'
+->
+	^(ASSRT_STATEVARDECLLIST statevardecl+)
+;
+	
+statevardecl:
+	variable ':=' arith_expr
+->
+	^(ASSRT_STATEVARDECL variable arith_expr)
+;
+	
+statevararglist:
+	'(' arith_expr (',' arith_expr)* ')'
+->
+	^(ASSRT_STATEVARARGLIST arith_expr+)
+;
+//	'<' arith_expr (',' arith_expr)* '>' -- seems to break assertion parsing
+	
+	
+// root	
+	
 root:  
 	bool_expr
 ->

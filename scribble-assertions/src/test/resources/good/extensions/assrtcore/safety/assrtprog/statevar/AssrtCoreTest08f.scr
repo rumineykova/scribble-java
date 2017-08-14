@@ -5,16 +5,16 @@ type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 
 
 //*
-global protocol Proto1(role A, role B) @(x=3);
+global protocol Proto1(role A, role B) @"(x:=3)"
 {
-	1() from A to B; @(x>2);	
-	do Proto2(A, B); @(x);
+	1() from A to B; @"(x>2)"
+	do Proto2(A, B); @"(x)"
 }
 
 // Not aux
-global protocol Proto2(role A, role B) @(y=4);
+global protocol Proto2(role A, role B) @"(y:=4)"
 {
-	1() from A to B; @(y>2);	
-	do Proto2(A, B); @(y);
+	1() from A to B; @"(y>2)"
+	do Proto2(A, B); @"(y)"
 }
 //*/

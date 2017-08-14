@@ -8,13 +8,13 @@ type <java> "java.lang.integer" from "rt.jar" as int;
 global protocol Proto1(role S, role B, role C, role D)
 {
 	ADD(x:int) from C to S;
-	Add(x1:int) from S to B; @(x1 = x);
+	Add(x1:int) from S to B; @"(x1 = x)"
 	
-	ADD(x2:int) from C to B; @(x2 = x);
+	ADD(x2:int) from C to B; @"(x2 = x)"
 	
 	Add(y:int) from C to D; 
 	
-	Add(x3:int) from B to D; @(x3 = x1);
+	Add(x3:int) from B to D; @"(x3 = x1)"
 	
-	Add(y1:int) from D to S; @(y1 = y);
+	Add(y1:int) from D to S; @"(y1 = y)"
 }

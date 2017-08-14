@@ -8,7 +8,7 @@ type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 global protocol Proto1(role B, role C)
 {
 	RES(z3:int) from B to C; 
-	RES(z4:int) from B to C; @(z4 = z3);
+	RES(z4:int) from B to C; @"(z4 = z3)"
 	
 	// Bad: using and: (forall ((z3 Int) (_x1 Int)) (and (= _x1 0) (exists ((z4 Int)) (= z4 z3)))) -- unsat forall _x1 . _x1 = 0
 }

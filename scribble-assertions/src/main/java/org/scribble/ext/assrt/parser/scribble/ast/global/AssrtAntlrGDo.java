@@ -1,6 +1,8 @@
 package org.scribble.ext.assrt.parser.scribble.ast.global;
 
-import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
@@ -30,11 +32,16 @@ public class AssrtAntlrGDo
 		NonRoleArgList al = (NonRoleArgList) parser.parse(AntlrGDo.getNonRoleArgListChild(root), af);
 		GProtocolNameNode pnn = AntlrQualifiedName.toGProtocolNameNode(AntlrGDo.getProtocolNameChild(root), af);
 		
-		CommonTree annotTree = AssrtAntlrGProtocolHeader.getAssertionChild(root);
-		AssrtArithExpr annot = AssrtAntlrGDo.parseArithAnnotation(((AssrtAntlrToScribParser) parser).ap, annotTree, (AssrtAstFactory) af);
-		
+		CommonTree annotTree = AssrtAntlrGProtocolHeader.getAssrtStateVarDeclListChild(root);
+		List<AssrtArithExpr> annotexprs = parseAssrtStateVarArgList(((AssrtAntlrToScribParser) parser).ap, annotTree, (AssrtAstFactory) af);
 		return ((AssrtAstFactory) af).AssrtGDo(root, ril, al, pnn, //annot);
-				Arrays.asList(annot));  // FIXME: List
+				annotexprs);
+	}
+	
+	private static List<AssrtArithExpr> parseAssrtStateVarArgList(AssrtAntlrToFormulaParser ap, CommonTree assTree, AssrtAstFactory af)
+	{
+		return ((Stream<?>) assTree.getChildren().stream())  // Stream of arith_expr
+				.map(c -> parseArithAnnotation(ap, (CommonTree) c, af)).collect(Collectors.toList());
 	}
 
 	public static AssrtArithExpr parseArithAnnotation(AssrtAntlrToFormulaParser ap, CommonTree annotTree, AssrtAstFactory af)
@@ -49,6 +56,6 @@ public class AssrtAntlrGDo
 
 	public static CommonTree getAssertionChild(CommonTree root)
 	{
-		return (CommonTree) root.getChild(AssrtAntlrGProtocolHeader.ASSERTION_CHILD_INDEX);
+		return (CommonTree) root.getChild(AssrtAntlrGProtocolHeader.ASSRT_STATEVARDECLLIST_CHILD_INDEX);
 	}
 }

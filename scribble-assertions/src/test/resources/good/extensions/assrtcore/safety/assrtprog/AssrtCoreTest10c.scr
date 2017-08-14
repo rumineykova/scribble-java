@@ -5,13 +5,13 @@ type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 
 
 //*
-global protocol Proto1(role B, role S) @(x=3);
+global protocol Proto1(role B, role S) @"(x:=3)"
 {
-	1(y:int) from B to S; @(y>3);
+	1(y:int) from B to S; @"(y>3)"
 	choice at S
 	{
-		2() from S to B; @(y>x);  // Example of "y" do arg being fine (most unary-choice patterns are not assrt-prog)
-		do Proto1(B, S); @y;
+		2() from S to B; @"(y>x)"  // Example of "y" do arg being fine (most unary-choice patterns are not assrt-prog)
+		do Proto1(B, S); @"(y)"
 	}
 	or { 4() from S to B; }
 }

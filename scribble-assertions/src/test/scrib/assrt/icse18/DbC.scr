@@ -12,16 +12,16 @@ type <dotnet> "System.UInt32" from "..." as int;
 //*
 global protocol Proto1(role B, role W, role S)
 {
-	1(Query:int) from B to W;      @(Query>0);
-	2(Instock:int) from W to S;    @(Instock<Query);
-	3a(Available:int) from S to B; @(Available=Instock);
+	1(Query:int) from B to W;      @"(Query>0)"
+	2(Instock:int) from W to S;    @"(Instock<Query)"
+	3a(Available:int) from S to B; @"(Available=Instock)"
 	3b(Quote:int) from S to B;
 	
 	choice at B
 	{
-		ok() from B to S;   @(Available>0); 
+		ok() from B to S;   @"(Available>0)" 
 		ok() from B to W; 
-		do Proto2(B, W, S); @Quote;
+		do Proto2(B, W, S); @"(Quote)"
 	}
 	or
 	{
@@ -30,19 +30,19 @@ global protocol Proto1(role B, role W, role S)
 	}
 }
 
-aux global protocol Proto2(role B, role W, role S) @(x=0);
+aux global protocol Proto2(role B, role W, role S) @"(x:=0)"
 {
 	5(Offer:int) from B to S;	
 	choice at S
 	{
-		hag() from S to B;  @(Offer>x);
-		hag() from S to W;  //@False;  // Uncomment is assert-prog error
-		do Proto2(B, W, S); @Offer;
+		hag() from S to B;  @"(Offer>x)"
+		hag() from S to W;  //@"False"  // Uncomment is assert-prog error
+		do Proto2(B, W, S); @"(Offer)"
 	}
 	or
 	{
-		exit() from S to B;   //@False;  // Uncomment is still assert-prog, but unsat
-		cancel() from S to W; //@False;  // Uncomment is assert-prog error if above is commented (otherwise this is assert-prog by false LHS, but anyway above is unsat)
+		exit() from S to B;   //@"False"  // Uncomment is still assert-prog, but unsat
+		cancel() from S to W; //@"False"  // Uncomment is assert-prog error if above is commented (otherwise this is assert-prog by false LHS, but anyway above is unsat)
 	}
 	or
 	{

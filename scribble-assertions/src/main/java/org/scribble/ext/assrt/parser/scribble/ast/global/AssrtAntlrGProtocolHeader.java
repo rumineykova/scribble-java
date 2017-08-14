@@ -13,21 +13,20 @@
  */
 package org.scribble.ext.assrt.parser.scribble.ast.global;
 
-import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.NonRoleParamDeclList;
 import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.global.GProtocolHeader;
 import org.scribble.ast.name.qualified.GProtocolNameNode;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
+import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
 import org.scribble.ext.assrt.parser.scribble.AssrtAntlrToScribParser;
-import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.kind.AssrtVarNameKind;
 import org.scribble.parser.scribble.AntlrToScribParser;
 import org.scribble.parser.scribble.ast.global.AntlrGProtocolHeader;
@@ -38,7 +37,7 @@ public class AssrtAntlrGProtocolHeader
 {
 	// Original element indices unchanged
 
-	public static final int ASSERTION_CHILD_INDEX = 3;
+	public static final int ASSRT_STATEVARDECLLIST_CHILD_INDEX = 3;
 
 	public static GProtocolHeader parseAssrtGProtocolHeader(AntlrToScribParser parser, CommonTree root, AssrtAstFactory af) throws ScribParserException
 	{
@@ -46,44 +45,35 @@ public class AssrtAntlrGProtocolHeader
 		RoleDeclList rdl = (RoleDeclList) parser.parse(AntlrGProtocolHeader.getRoleDeclListChild(root), af);
 		NonRoleParamDeclList pdl = (NonRoleParamDeclList) parser.parse(AntlrGProtocolHeader.getParamDeclListChild(root), af);
 		
-		CommonTree assTree = AssrtAntlrGProtocolHeader.getAssertionChild(root);
-		AssrtAssertion ass = AssrtAntlrGProtocolHeader.parseIntVarInitDeclAnnot(((AssrtAntlrToScribParser) parser).ap, assTree, af);
-
-
-		AssrtBinCompFormula bcf = (AssrtBinCompFormula) ass.getFormula();
+		CommonTree assTree = AssrtAntlrGProtocolHeader.getAssrtStateVarDeclListChild(root);  // ASSRT_STATEVARDECLLIST
+		List<AssrtIntVarNameNode> annotvars = parseAssrtStateVarDeclListVars(assTree, af);
+		List<AssrtArithExpr> annotexprs = parseAssrtStateVarDeclListExprs(((AssrtAntlrToScribParser) parser).ap, assTree, af);
 		return af.AssrtGProtocolHeader(root, name, rdl, pdl, //ass);
-				Arrays.asList((AssrtIntVarNameNode) af.SimpleNameNode(ass.getSource(), AssrtVarNameKind.KIND, bcf.left.toString())),  // FIXME: List
-				Arrays.asList(af.AssrtArithAnnotation(ass.getSource(), bcf.right)));
+				annotvars, annotexprs);
+	}
+	
+	private static List<AssrtIntVarNameNode> parseAssrtStateVarDeclListVars(CommonTree assTree, AssrtAstFactory af)
+	{
+		List<CommonTree> cs = 
+				((Stream<?>) assTree.getChildren().stream())  // Stream of ASSRT_STATEVARDECL
+					.map(c -> (CommonTree) ((CommonTree) c).getChild(0)).collect(Collectors.toList());  // List of INTVAR
+		return cs.stream().map(c -> 
+					(AssrtIntVarNameNode) af.SimpleNameNode(c, AssrtVarNameKind.KIND, c.getChild(0).getText()))  // Cf. AssrtAntlrIntVarFormula::parseIntVarFormula
+				.collect(Collectors.toList());
+	}
+	
+	private static List<AssrtArithExpr> parseAssrtStateVarDeclListExprs(AssrtAntlrToFormulaParser ap, CommonTree assTree, AssrtAstFactory af)
+	{
+		List<CommonTree> cs = 
+				((Stream<?>) assTree.getChildren().stream())  // Stream of ASSRT_STATEVARDECL
+					.map(c -> (CommonTree) ((CommonTree) c).getChild(1)).collect(Collectors.toList());  // List of arith-exprs
+		return cs.stream().map(c -> 
+					AssrtAntlrGDo.parseArithAnnotation(ap, c, af))
+				.collect(Collectors.toList());
 	}
 
-	// FIXME: factor out restrictions explicitly into the ANTLR grammar
-	// FIXME: make a different AST class for GProtocolHeader, distinct from AssrtAssertion -- not really an assertion, it's just a initialised-declaration expr
-	private static AssrtAssertion parseIntVarInitDeclAnnot(AssrtAntlrToFormulaParser fp, CommonTree assTree, AssrtAstFactory af) throws ScribParserException
+	public static CommonTree getAssrtStateVarDeclListChild(CommonTree root)
 	{
-		// FIXME: factor out of AssrtAntlrGMessageTransfer
-		AssrtAssertion ass = AssrtAntlrGMessageTransfer.parseAssertion(fp, assTree, af);
-
-		AssrtBoolFormula f = ass.getFormula();
-		if (!(f instanceof AssrtBinCompFormula))
-		{
-			throw new ScribParserException("[assrt] Protocol header annotation must be an int variable initialised-declaration expression, not: " + f);
-		}
-		AssrtBinCompFormula bcf = (AssrtBinCompFormula) f;
-		if (((AssrtBinCompFormula) f).op != AssrtBinCompFormula.Op.Eq)
-		{
-			throw new ScribParserException("[assrt] Protocol header annotation must be an int variable initialised-declaration expression, not: " + f);
-		}
-		else if (!(bcf.left instanceof AssrtIntVarFormula))
-		{
-			throw new ScribParserException("[assrt] Protocol header annotation LHS must be an int variable, not: " + bcf.left);
-		}
-		// Above implies that bcf.right was parsed as arith expr
-		
-		return ass;
-	}
-
-	public static CommonTree getAssertionChild(CommonTree root)
-	{
-		return (CommonTree) root.getChild(AssrtAntlrGProtocolHeader.ASSERTION_CHILD_INDEX);
+		return (CommonTree) root.getChild(AssrtAntlrGProtocolHeader.ASSRT_STATEVARDECLLIST_CHILD_INDEX);
 	}
 }

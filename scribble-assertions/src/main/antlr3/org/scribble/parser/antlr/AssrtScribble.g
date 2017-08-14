@@ -174,11 +174,14 @@ tokens
 	//ASSRT_EMPTY_ASSERTION = '__empty_assertion';
 	//ASSERTION = 'global-assertion'; 
 
-  // May have empty assertion -- null AST
+  // Empty assertions first parsed as original (not Assert) categories -- later translated to null assertion Assrts via AssrtAntlrToScribParser
 	ASSRT_GLOBALPROTOCOLHEADER = 'ASSRT_GLOBALPROTOCOLHEADER';
 	ASSRT_GLOBALMESSAGETRANSFER = 'ASSRT_GLOBALMESSAGETRANSFER';
 	ASSRT_GLOBALCONNECT = 'ASSRT_GLOBALCONNECT';
 	ASSRT_GLOBALDO = 'ASSRT_GLOBALDO';
+	
+	//ASSRT_STATEVARDECLLIST = 'ASSRT_STATEVARDECLLIST';
+	//ASSRT_STATEVARARGLIST = 'ASSRT_STATEVARARGLIST';
 }
 
 
@@ -268,9 +271,9 @@ IDENTIFIER:
 ;
 
 fragment SYMBOL:
-	'{' | '}' | '(' | ')' | '[' | ']' | ':' | '/' | '\\' | '.' | '\#'
+	'{' | '}' | '(' | ')' | '[' | ']' | ':' | '/' | '\\' | '.' | '\#' | '|'
 |
-	'&' | '?' | '!'	| UNDERSCORE
+	'&' | '?' | '!'	| UNDERSCORE | ',' | '=' | '<' | '>' | '+' | '-' | '*'
 ;
 
 
@@ -278,7 +281,7 @@ fragment SYMBOL:
 // quotes.
 // Parser doesn't work without quotes here (e.g. if inlined into parser rules)
 EXTIDENTIFIER:
-  '\"' (LETTER | DIGIT | SYMBOL)* '\"'
+  '\"' (LETTER | DIGIT | SYMBOL | WHITESPACE)* '\"'
 	//(LETTER | DIGIT | SYMBOL)*
 ;
 
@@ -297,13 +300,14 @@ fragment UNDERSCORE:
 
 // Assertion formula
 
-ASSRT_EXPR: 
-	'@' (LETTER | DIGIT | ASSRT_SYMBOL | WHITESPACE)* ';'
-; 
+//ASSRT_EXPR: 
+//	(LETTER | DIGIT | ASSRT_SYMBOL | WHITESPACE)*
+//; 
+//	'@' (LETTER | DIGIT | ASSRT_SYMBOL | WHITESPACE)* ';'
 
-fragment ASSRT_SYMBOL: 
-	'=' | '>' | '<'  | '||' | '&&' | '+' | '-' | '*' | '(' | ')' | ','
-;  
+//fragment ASSRT_SYMBOL: 
+//	'=' | '>' | '<'  | '||' | '&&' | '+' | '-' | '*' | '(' | ')' | ','
+//;  
 
  
 /****************************************************************************
@@ -325,7 +329,7 @@ parametername:    simplename;
 recursionvarname: simplename;
 rolename:         simplename;
 scopename:        simplename;
-varname: 		  simplename; 
+varname:          simplename; 
 
 ambiguousname:
 	simplename
@@ -346,7 +350,7 @@ simplemembername:           simplename;  // Only for member declarations
 
 qualifiedname:
 	IDENTIFIER ('.' IDENTIFIER)*
-	->
+->
 	^(QUALIFIEDNAME IDENTIFIER+)
 ;
 
@@ -390,7 +394,7 @@ importdecl:
 
 importmodule:
 	IMPORT_KW modulename ';'
-	->
+->
 	^(IMPORTMODULE modulename EMPTY_ALIAS)
 |
 	IMPORT_KW modulename AS_KW simplemodulename ';'
@@ -400,11 +404,11 @@ importmodule:
 
 importmember:
 	FROM_KW modulename IMPORT_KW simplemembername ';'
-	->
+->
 	^(IMPORTMEMBER modulename simplemembername EMPTY_ALIAS)
 |
 	FROM_KW modulename IMPORT_KW simplemembername AS_KW simplemembername ';'
-	->
+->
 	^(IMPORTMEMBER modulename simplemembername simplemembername)
 ;
 
@@ -421,13 +425,13 @@ datatypedecl:
 
 payloadtypedecl:
 	TYPE_KW '<' IDENTIFIER '>' EXTIDENTIFIER FROM_KW EXTIDENTIFIER AS_KW simplepayloadtypename ';'
-	->
+->
 	^(PAYLOADTYPEDECL IDENTIFIER EXTIDENTIFIER EXTIDENTIFIER simplepayloadtypename)
 ;
 
 messagesignaturedecl:
 	SIG_KW '<' IDENTIFIER '>' EXTIDENTIFIER FROM_KW EXTIDENTIFIER AS_KW simplemessagesignaturename ';'
-	->
+->
 	^(MESSAGESIGNATUREDECL IDENTIFIER EXTIDENTIFIER EXTIDENTIFIER simplemessagesignaturename)
 ;
 
@@ -441,20 +445,20 @@ messagesignaturedecl:
 
 messagesignature:
 	'(' payload ')'
-	->
+->
 	^(MESSAGESIGNATURE EMPTY_OPERATOR payload)
 |
 	//messageoperator '(' payload ')'  // Doesn't work (conflict with IDENTIFIER?)
 	IDENTIFIER '(' payload ')'
-	->
+->
 	^(MESSAGESIGNATURE IDENTIFIER payload)
 |
 	'(' ')'
-	->
+->
 	^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD))
 |
 	IDENTIFIER '(' ')'
-	->
+->
 	^(MESSAGESIGNATURE IDENTIFIER ^(PAYLOAD))
 ;
 
@@ -469,7 +473,8 @@ payloadelement:
 /*	ambiguousname  // Parser doesn't distinguish simple from qualified properly, even with backtrack
 |*/
 	qualifiedname  // This case subsumes simple names  // FIXME: ambiguousqualifiedname (or ambiguousname should just be qualified)
-| varname ':' qualifiedname
+|
+	varname ':' qualifiedname
 -> 
 	^(ASSRT_ANNOTPAYLOADELEM varname qualifiedname)
 |
@@ -495,72 +500,87 @@ protocoldecl:
  */
 globalprotocoldecl:
 	globalprotocolheader globalprotocoldefinition
-	->
+->
 	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition)
 |
 	globalprotocoldeclmodifiers globalprotocolheader globalprotocoldefinition  // HACK: backwards compat for "implicit" connections 
-	->
+->
 	^(GLOBALPROTOCOLDECL globalprotocolheader globalprotocoldefinition globalprotocoldeclmodifiers)
 ;
 	
 globalprotocoldeclmodifiers:
 	AUX_KW EXPLICIT_KW 
-	->
+->
 	^(GLOBALPROTOCOLDECLMODS AUX_KW EXPLICIT_KW)
 |
 	EXPLICIT_KW
-	->
+->
 	^(GLOBALPROTOCOLDECLMODS EXPLICIT_KW)
 |
 	AUX_KW
-	->
+->
 	^(GLOBALPROTOCOLDECLMODS AUX_KW)
 ;
 
 globalprotocolheader:
 	GLOBAL_KW PROTOCOL_KW simpleprotocolname roledecllist
-	->
+->
 	^(GLOBALPROTOCOLHEADER simpleprotocolname ^(PARAMETERDECLLIST) roledecllist)
 |
 	GLOBAL_KW PROTOCOL_KW simpleprotocolname parameterdecllist roledecllist
-	->
+->
 	^(GLOBALPROTOCOLHEADER simpleprotocolname parameterdecllist roledecllist)
 
 |
-	GLOBAL_KW PROTOCOL_KW simpleprotocolname roledecllist ASSRT_EXPR
-	->
-	^(ASSRT_GLOBALPROTOCOLHEADER simpleprotocolname ^(PARAMETERDECLLIST) roledecllist { AssertionsParser.parseAssertion($ASSRT_EXPR.text) })
+	GLOBAL_KW PROTOCOL_KW simpleprotocolname roledecllist '@' EXTIDENTIFIER
+->
+	^(ASSRT_GLOBALPROTOCOLHEADER simpleprotocolname ^(PARAMETERDECLLIST) roledecllist { AssertionsParser.parseStateVarDeclList($EXTIDENTIFIER.text) })
 ;
+/*GLOBAL_KW PROTOCOL_KW simpleprotocolname roledecllist '@' statevardecllist
+->
+	^(ASSRT_GLOBALPROTOCOLHEADER simpleprotocolname ^(PARAMETERDECLLIST) roledecllist statevardecllist)
+;*/
 // Following same pattern as globalmessagetransfer: explicitly invoke AssertionsParser, and extra assertion element only for new category
 // -- later translation by AssrtAntlrToScribParser converts original nodes to empty-assertion new nodes
-// FIXME: should not be an ASSRT_EXPR -- should be just an (integer) var decl expr (which is not a bool expr)
-// e.g., x := 3
+	
+/*statevardecllist:
+	'(' statevardecl (',' statevardecl)* ')'
+->
+	^(ASSRT_STATEVARDECLLIST statevardecl+)
+;
+	
+statevardecl:
+	varname ':' '=' EXTIDENTIFIER
+->
+	^(varname { AssertionsParser.parseArithAnnotation($EXTIDENTIFIER.text) })
+;*/
+	
 
 roledecllist:
 	'(' roledecl (',' roledecl)* ')'
-	->
+->
 	^(ROLEDECLLIST roledecl+)
 ;
 
 roledecl:
 	ROLE_KW rolename
-	->
+->
 	^(ROLEDECL rolename)
 ;
 
 parameterdecllist:
 	'<' parameterdecl (',' parameterdecl)* '>'
-	->
+->
 	^(PARAMETERDECLLIST parameterdecl+)
 ;
 
 parameterdecl:
 	 TYPE_KW parametername
-	->
+->
 	^(PARAMETERDECL KIND_PAYLOADTYPE parametername)
 |
 	 SIG_KW parametername
-	->
+->
 	^(PARAMETERDECL KIND_MESSAGESIGNATURE parametername)
 ;
 
@@ -570,7 +590,7 @@ parameterdecl:
  */
 globalprotocoldefinition:
 	globalprotocolblock
-	->
+->
 	^(GLOBALPROTOCOLDEF globalprotocolblock)
 ;
 
@@ -580,17 +600,17 @@ globalprotocoldefinition:
  */
 globalprotocolblock:
 	'{' globalinteractionsequence '}'
-	->
+->
 	^(GLOBALPROTOCOLBLOCK globalinteractionsequence)
 /*|
 	'(' connectdecl ')' '{' globalinteractionsequence '}'
-	->
+->
 	^(GLOBALPROTOCOLBLOCK globalinteractionsequence connectdecl)*/
 ;
 
 globalinteractionsequence:
 	globalinteraction*
-	->
+->
 	^(GLOBALINTERACTIONSEQUENCE globalinteraction*)
 ;
 
@@ -622,17 +642,17 @@ globalinteraction:
  */
 globalmessagetransfer:
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
-	->
+->
 	//^(GLOBALMESSAGETRANSFER ASSRT_EMPTY_ASSERTION message rolename rolename+) 
 	^(GLOBALMESSAGETRANSFER message rolename rolename+)  
 			// Returning base GLOBALMESSAGETRANSFER (i.e., no ASSRT_EMPTY_ASSERTION) -- relying on AssrtAntlrToScribParser to use AssrtAstFactory to create AssrtGMessageTransfer with empty assertion
 | 
-	message FROM_KW rolename TO_KW rolename (',' rolename )* ';' ASSRT_EXPR 
-	->
-	^(ASSRT_GLOBALMESSAGETRANSFER { AssertionsParser.parseAssertion($ASSRT_EXPR.text) } message rolename rolename+)
+	message FROM_KW rolename TO_KW rolename (',' rolename )* ';' '@' EXTIDENTIFIER
+->
+	^(ASSRT_GLOBALMESSAGETRANSFER { AssertionsParser.parseAssertion($EXTIDENTIFIER.text) } message rolename rolename+)
 			// Calling a separate parser this way loses line/char number information
 ;
-//	ASSRT_EXPR message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
+//message FROM_KW rolename TO_KW rolename (',' rolename )* ';' ASSRT_EXPR 
 	
 message:
 	messagesignature
@@ -646,25 +666,25 @@ message:
 
 globalconnect:
 	CONNECT_KW rolename TO_KW rolename ';'
-	->
+->
 	^(GLOBALCONNECT rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
 	message CONNECT_KW rolename TO_KW rolename ';'
-	->
+->
 	^(GLOBALCONNECT rolename rolename message)
 |
 	//ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
-	CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
-	->
-	^(ASSRT_GLOBALCONNECT {AssertionsParser.parseAssertion($ASSRT_EXPR.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
+	CONNECT_KW rolename TO_KW rolename ';' '@' EXTIDENTIFIER
+->
+	^(ASSRT_GLOBALCONNECT {AssertionsParser.parseAssertion($EXTIDENTIFIER.text)} rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 |
 	//ASSRT_EXPR message CONNECT_KW rolename TO_KW rolename ';'
-	message CONNECT_KW rolename TO_KW rolename ';' ASSRT_EXPR 
-	->
-	^(ASSRT_GLOBALCONNECT {AssertionsParser.parseAssertion($ASSRT_EXPR.text)} rolename rolename message)
+	message CONNECT_KW rolename TO_KW rolename ';' '@' EXTIDENTIFIER
+->
+	^(ASSRT_GLOBALCONNECT {AssertionsParser.parseAssertion($EXTIDENTIFIER.text)} rolename rolename message)
 ;
 /*	'(' connectdecl (',' connectdecl)* ')'
-	->
+->
 	^(CONNECTDECLLIST connectdecl+)
 ;* /
 	'(' connectdecl ')' 
@@ -672,20 +692,20 @@ globalconnect:
 
 /*connectdecl:
 	CONNECT_KW rolename '->>' rolename
-	->
+->
 	^(CONNECTDECL rolename rolename)
 ;*/
 
 globaldisconnect:
 	DISCONNECT_KW rolename AND_KW rolename ';'
-	->
+->
 	^(GLOBALDISCONNECT rolename rolename )
 ;
 
 globalwrap:
 	//message CONNECT_KW rolename TO_KW rolename
 	WRAP_KW rolename TO_KW rolename ';'
-	->
+->
 	^(GLOBALWRAP rolename rolename)
 ;
 
@@ -695,7 +715,7 @@ globalwrap:
  */
 globalchoice:
 	CHOICE_KW AT_KW rolename globalprotocolblock (OR_KW globalprotocolblock)*
-	->
+->
 	^(GLOBALCHOICE rolename globalprotocolblock+)
 ;
 
@@ -705,13 +725,13 @@ globalchoice:
  */
 globalrecursion:
 	REC_KW recursionvarname globalprotocolblock
-	->
+->
 	^(GLOBALRECURSION recursionvarname globalprotocolblock)
 ;
 
 globalcontinue:
 	CONTINUE_KW recursionvarname ';'
-	->
+->
 	^(GLOBALCONTINUE recursionvarname)
 ;
 
@@ -721,7 +741,7 @@ globalcontinue:
  * /
 globalparallel:
 	PAR_KW globalprotocolblock (AND_KW globalprotocolblock)*
-	->
+->
 	^(GLOBALPARALLEL globalprotocolblock+)
 ;*/
 
@@ -731,17 +751,17 @@ globalparallel:
  * /
 globalinterruptible:
 	INTERRUPTIBLE_KW globalprotocolblock WITH_KW '{' globalinterrupt* '}'
-	->
+->
 	^(GLOBALINTERRUPTIBLE EMPTY_SCOPENAME globalprotocolblock globalinterrupt*)
 |
 	INTERRUPTIBLE_KW scopename globalprotocolblock WITH_KW '{' (globalinterrupt)* '}'
-	->
+->
 	^(GLOBALINTERRUPTIBLE scopename globalprotocolblock globalinterrupt*)
 ;
 
 globalinterrupt:
 	message (',' message)* BY_KW rolename ';'
-	->
+->
 	^(GLOBALINTERRUPT rolename message+)
 ;*/
 
@@ -751,35 +771,35 @@ globalinterrupt:
  */
 globaldo:
 	DO_KW protocolname roleinstantiationlist ';'
-	->
+->
 	^(GLOBALDO protocolname ^(ARGUMENTINSTANTIATIONLIST) roleinstantiationlist)
 |
 	DO_KW protocolname argumentinstantiationlist roleinstantiationlist ';'
-	->
+->
 	^(GLOBALDO protocolname argumentinstantiationlist roleinstantiationlist)
 
 |
-	DO_KW protocolname roleinstantiationlist ';' ASSRT_EXPR
-	->
-	^(ASSRT_GLOBALDO protocolname ^(ARGUMENTINSTANTIATIONLIST) roleinstantiationlist { AssertionsParser.parseArithAnnotation($ASSRT_EXPR.text) })
+	DO_KW protocolname roleinstantiationlist ';' '@' EXTIDENTIFIER
+->
+	^(ASSRT_GLOBALDO protocolname ^(ARGUMENTINSTANTIATIONLIST) roleinstantiationlist { AssertionsParser.parseStateVarArgList($EXTIDENTIFIER.text) })
 ;
 // TODO: arguments + annot
 
 roleinstantiationlist:
 	'(' roleinstantiation (',' roleinstantiation)* ')'
-	->
+->
 	^(ROLEINSTANTIATIONLIST roleinstantiation+)
 ;
 
 roleinstantiation:
 	rolename
-	->
+->
 	^(ROLEINSTANTIATION rolename)  // FIXME: not consistent with arginstas/payloadeles
 ;
 
 argumentinstantiationlist:
 	'<' argumentinstantiation (',' argumentinstantiation)* '>'
-	->
+->
 	^(ARGUMENTINSTANTIATIONLIST argumentinstantiation+)
 ;
 
@@ -800,24 +820,24 @@ argumentinstantiation:
  * /
 localprotocoldecl:
 	localprotocolheader localprotocoldefinition
-	->
+->
 	^(LOCALPROTOCOLDECL localprotocolheader localprotocoldefinition)
 ;
 
 localprotocolheader:
 	LOCAL_KW PROTOCOL_KW simpleprotocolname localroledecllist
-	->
+->
 	//simpleprotocolname EMPTY_PARAMETERDECLLIST localroledecllist
 	simpleprotocolname ^(PARAMETERDECLLIST) localroledecllist
 |
 	LOCAL_KW PROTOCOL_KW simpleprotocolname parameterdecllist localroledecllist
-	->
+->
 	simpleprotocolname parameterdecllist localroledecllist
 ;
 
 localroledecllist:
 	'(' localroledecl (',' localroledecl)* ')'
-	->
+->
 	^(LOCALROLEDECLLIST localroledecl+)
 ;
 
@@ -825,7 +845,7 @@ localroledecl:
 	roledecl
 |
 	SELF_KW rolename
-	->
+->
 	^(SELFDECL rolename)
 ;
 
@@ -835,7 +855,7 @@ localroledecl:
  * /
 localprotocoldefinition:
 	localprotocolblock
-	->
+->
 	^(LOCALPROTOCOLDEF localprotocolblock)
 ;
 
@@ -845,13 +865,13 @@ localprotocoldefinition:
  * /
 localprotocolblock:
 	'{' localinteractionsequence '}'
-	->
+->
 	^(LOCALPROTOCOLBLOCK localinteractionsequence)
 ;
 
 localinteractionsequence:
 	(localinteraction)*
-	->
+->
 	^(LOCALINTERACTIONSEQUENCE localinteraction*)
 ;
 
@@ -879,13 +899,13 @@ localinteraction:
  * /
 localsend:
 	message TO_KW rolename (',' rolename)* ';'
-	->
+->
 	^(LOCALSEND message rolename+)
 ;
 
 localreceive:
 	message FROM_KW IDENTIFIER ';'
-	->
+->
 	^(LOCALRECEIVE message IDENTIFIER)
 ;
 
@@ -895,7 +915,7 @@ localreceive:
  * /
 localchoice:
 	CHOICE_KW AT_KW rolename localprotocolblock (OR_KW localprotocolblock)*
-	->
+->
 	^(LOCALCHOICE rolename localprotocolblock+)
 ;
 
@@ -905,13 +925,13 @@ localchoice:
  * /
 localrecursion:
 	REC_KW recursionvarname localprotocolblock
-	->
+->
 	^(LOCALRECURSION recursionvarname localprotocolblock)
 ;
 
 localcontinue:
 	CONTINUE_KW recursionvarname ';'
-	->
+->
 	^(LOCALCONTINUE recursionvarname)
 ;
 
@@ -921,7 +941,7 @@ localcontinue:
  * /
 localparallel:
 	PAR_KW localprotocolblock (AND_KW localprotocolblock)*
-	->
+->
 	^(LOCALPARALLEL localprotocolblock+)
 ;
 
@@ -931,11 +951,11 @@ localparallel:
  * /
 localinterruptible:
 	INTERRUPTIBLE_KW scopename localprotocolblock WITH_KW '{' localcatches* '}'
-	->
+->
 	^(LOCALINTERRUPTIBLE scopename localprotocolblock EMPTY_LOCALTHROW localcatches*)
 |
 	INTERRUPTIBLE_KW scopename localprotocolblock WITH_KW '{' localthrows localcatches* '}'
-	->
+->
 	^(LOCALINTERRUPTIBLE scopename localprotocolblock localthrows localcatches*)
 ;
 
@@ -947,13 +967,13 @@ localinterruptible:
 
 localthrows:
 	THROWS_KW message (',' message)* TO_KW rolename (',' rolename)* ';'
-	->
+->
 	^(LOCALTHROWS rolename+ TO_KW message+)
 ;
 
 localcatches:
 	CATCHES_KW message (',' message)* FROM_KW rolename ';'
-	->
+->
 	^(LOCALCATCHES rolename message+)
 ;
 
@@ -963,21 +983,21 @@ localcatches:
  * /
 localdo:
 	DO_KW protocolname roleinstantiationlist ';'
-	->
+->
 	//^(LOCALDO NO_SCOPE protocolname EMPTY_ARGUMENTINSTANTIATIONLIST roleinstantiationlist)
 	^(LOCALDO NO_SCOPE protocolname ^(ARGUMENTINSTANTIATIONLIST) roleinstantiationlist)
 |
 	DO_KW protocolname argumentinstantiationlist roleinstantiationlist ';'
-	->
+->
 	^(LOCALDO NO_SCOPE protocolname argumentinstantiationlist roleinstantiationlist)
 |
 	DO_KW scopename ':' protocolname roleinstantiationlist ';'
-	->
+->
 	//^(LOCALDO scopename protocolname EMPTY_ARGUMENTINSTANTIATIONLIST roleinstantiationlist)
 	^(LOCALDO scopename protocolname ^(ARGUMENTINSTANTIATIONLIST) roleinstantiationlist)
 |
 	DO_KW scopename ':' protocolname argumentinstantiationlist roleinstantiationlist ';'
-	->
+->
 	^(LOCALDO scopename protocolname argumentinstantiationlist roleinstantiationlist)
 ;
 */

@@ -10,7 +10,7 @@ rec Loop {
 	choice at A {
 		ADD(x:int) from A to B;  
 		ADD(z:int) from B to C;
-		RES(y1:int) from B to C; @(y1 = y);  // Artificial
+		RES(y1:int) from B to C; @"(y1 = y)"  // Artificial
 	} or {
 		RES(y:int) from A to B;
 		RES(z1:int) from B to C; 
