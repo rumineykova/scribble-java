@@ -50,7 +50,6 @@ tokens
 	ASSRT_STATEVARDECLLIST = 'ASSRT_STATEVARDECLLIST';
 	ASSRT_STATEVARDECL = 'ASSRT_STATEVARDECL';
 	ASSRT_STATEVARARGLIST = 'ASSRT_STATEVARARGLIST';
-	ASSRT_STATEVARARG = 'ASSRT_STATEVARARG';
 }
 
 @parser::header
@@ -95,6 +94,14 @@ tokens
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
 		return (CommonTree) parser.statevardecllist().getTree();
+	}
+
+	public static CommonTree parseStateVarArgList(String source) throws RecognitionException
+	{
+		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
+		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
+		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
+		return (CommonTree) parser.statevararglist().getTree();
 	}
 }
 
@@ -163,6 +170,12 @@ statevardecl:
 	variable ':=' arith_expr
 ->
 	^(ASSRT_STATEVARDECL variable arith_expr)
+;
+	
+statevararglist:
+	'(' arith_expr (',' arith_expr)* ')'
+->
+	^(ASSRT_STATEVARARGLIST arith_expr+)
 ;
 	
 	

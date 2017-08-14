@@ -781,7 +781,7 @@ globaldo:
 |
 	DO_KW protocolname roleinstantiationlist ';' '@' EXTIDENTIFIER
 ->
-	^(ASSRT_GLOBALDO protocolname ^(ARGUMENTINSTANTIATIONLIST) roleinstantiationlist { AssertionsParser.parseArithAnnotation($EXTIDENTIFIER.text) })
+	^(ASSRT_GLOBALDO protocolname ^(ARGUMENTINSTANTIATIONLIST) roleinstantiationlist { AssertionsParser.parseStateVarArgList($EXTIDENTIFIER.text) })
 ;
 // TODO: arguments + annot
 
