@@ -60,6 +60,12 @@ public class AssrtEState extends EState
 		String labs = this.labs.toString();
 		return "label=\"" + this.id + ": " + labs.substring(1, labs.length() - 1) + ", " + this.statevars + "\"";  // FIXME: would be more convenient for this method to return only the label body
 	}
+
+	@Override
+	protected String getEdgeLabel(EAction msg)
+	{
+		return "label=\"" + msg.toString().replaceAll("\\\"", "\\\\\"") + "\"";
+	}
 	
 	@Override
 	public AssrtEState getSuccessor(EAction a)

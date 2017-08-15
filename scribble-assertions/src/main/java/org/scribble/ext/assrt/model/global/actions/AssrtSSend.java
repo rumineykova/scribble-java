@@ -1,13 +1,12 @@
 package org.scribble.ext.assrt.model.global.actions;
 
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.model.global.actions.SSend;
 import org.scribble.type.Payload;
 import org.scribble.type.name.MessageId;
 import org.scribble.type.name.Role;
 
-public class AssrtSSend extends SSend
+public class AssrtSSend extends SSend implements AssrtSAction
 {
 	//public final AssrtAssertion assertion;  // Cf., e.g., AGMessageTransfer
 	public final AssrtBoolFormula ass;  // Not null (cf. AssrtESend)
@@ -16,6 +15,19 @@ public class AssrtSSend extends SSend
 	{
 		super(subj, obj, mid, payload);
 		this.ass = bf;
+	}
+
+	@Override
+	public AssrtBoolFormula getAssertion()
+	{
+		return this.ass;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return super.toString() + assertionToString();
+				//+ (this.ass.equals(AssrtTrueFormula.TRUE) ? "" : "@" + this.ass + ";");  // FIXME
 	}
 
 	@Override
@@ -47,12 +59,5 @@ public class AssrtSSend extends SSend
 	public boolean canEqual(Object o)
 	{
 		return o instanceof AssrtSSend;
-	}
-	
-	@Override
-	public String toString()
-	{
-		return super.toString()
-				+ (this.ass.equals(AssrtTrueFormula.TRUE) ? "" : "@" + this.ass + ";");  // FIXME
 	}
 }

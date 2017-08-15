@@ -1,7 +1,6 @@
 package org.scribble.ext.assrt.core.model.global.action;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
@@ -10,7 +9,7 @@ import org.scribble.type.Payload;
 import org.scribble.type.name.MessageId;
 import org.scribble.type.name.Role;
 
-public class AssrtCoreSSend extends AssrtSSend
+public class AssrtCoreSSend extends AssrtSSend implements AssrtCoreSAction
 {
 	// Annot needed -- e.g. mu X(x:=..) . mu Y(y:=..) ... X<123> -- rec var X will be discarded, so edge action needs to record which var is being updated
 	/*public final AssrtDataTypeVar annot;  // Not null (by AssrtCoreGProtocolTranslator)
@@ -25,6 +24,20 @@ public class AssrtCoreSSend extends AssrtSSend
 		super(subj, obj, mid, payload, bf);
 		//this.annot = annot;
 		this.stateexprs = stateexprs;
+	}
+
+	@Override
+	public List<AssrtArithFormula> getStateExprs()
+	{
+		return this.stateexprs;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return super.toString() + stateExprsToString();
+				//+ ((this.annot.toString().startsWith("_dum")) ? "" : "<" + this.annot + " := " + this.expr + ">");  // FIXME
+				//+ (this.stateexprs.isEmpty() ? "" : "<" + this.stateexprs.stream().map(Object::toString).collect(Collectors.joining(", ")) + ">");
 	}
 
 	@Override
@@ -58,13 +71,5 @@ public class AssrtCoreSSend extends AssrtSSend
 	public boolean canEqual(Object o)
 	{
 		return o instanceof AssrtCoreSSend;
-	}
-	
-	@Override
-	public String toString()
-	{
-		return super.toString()
-				//+ ((this.annot.toString().startsWith("_dum")) ? "" : "<" + this.annot + " := " + this.expr + ">");  // FIXME
-				+ (this.stateexprs.isEmpty() ? "" : "<" + this.stateexprs.stream().map(Object::toString).collect(Collectors.joining(", ")) + ">");
 	}
 }

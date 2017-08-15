@@ -6,9 +6,9 @@ import org.scribble.model.MState;
 import org.scribble.model.endpoint.EState;
 import org.scribble.model.global.SState;
 import org.scribble.model.global.SStateErrors;
+import org.scribble.model.global.actions.SAction;
 import org.scribble.type.name.Role;
 
-// FIXME: hashCode/equals
 public class AssrtSState extends SState
 {
 	protected AssrtSState(AssrtSConfig config)
@@ -25,6 +25,12 @@ public class AssrtSState extends SState
 		Map<Role, EState> unsatAssertion = ((AssrtSConfig) this.config).getUnsatAssertions();   // FIXME: replace cast by something better?
 
 		return new AssrtSStateErrors(errs.stuck, errs.waitFor, errs.orphans, errs.unfinished, varsNotInScope, unsatAssertion);
+	}
+
+	@Override
+	protected String getEdgeLabel(SAction msg)
+	{
+		return "label=\"" + msg.toString().replaceAll("\\\"", "\\\\\"") + "\"";
 	}
 	
 	@Override

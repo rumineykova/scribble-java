@@ -1,9 +1,9 @@
-package org.scribble.ext.assrt.model.endpoint.action;
+package org.scribble.ext.assrt.model.global.actions;
 
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 
-public interface AssrtEAction
+public interface AssrtSAction
 {
 	AssrtBoolFormula getAssertion();
 	

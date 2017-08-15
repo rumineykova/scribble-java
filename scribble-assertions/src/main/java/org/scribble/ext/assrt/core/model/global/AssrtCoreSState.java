@@ -55,6 +55,7 @@ import org.scribble.type.name.Role;
 //.. for scribble, need a property connecting "unrefined" safety and "refined"...
 
 
+// N.B. does *not* extend AssrtSState -- affects, e.g., dot printing
 public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState, Global>
 {
 	private static int counter = 1;
@@ -1039,8 +1040,17 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	@Override
 	protected String getNodeLabel()
 	{
-		String lab = "(P=" + this.P + ",\nQ=" + this.Q + ",\nR=" + this.R + ",\nK=" + this.K + ",\nF=" + this.F + ",\nrename=" + this.rename + ")";
+		String lab = "(P=" + this.P + ",\nQ=" 
+			//+ this.Q 
+			+ this.Q.toString().replaceAll("\\\"", "\\\\\"")
+			+ ",\nR=" + this.R + ",\nK=" + this.K + ",\nF=" + this.F + ",\nrename=" + this.rename + ")";
 		return "label=\"" + this.id + ":" + lab + "\"";
+	}
+
+	@Override
+	protected String getEdgeLabel(SAction msg)
+	{
+		return "label=\"" + msg.toString().replaceAll("\\\"", "\\\\\"") + "\"";
 	}
 
 	@Override
@@ -1249,7 +1259,8 @@ class AssrtCoreEMessage extends AssrtCoreESend
 	@Override
 	public String toString()
 	{
-		return super.toString() + this.shadow;
+		return super.toString()
+				+ (this.shadow.isEmpty() ? "" : this.shadow.toString());
 	} 
 
 	@Override
