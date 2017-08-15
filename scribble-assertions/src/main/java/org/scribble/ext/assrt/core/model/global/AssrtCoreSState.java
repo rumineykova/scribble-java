@@ -837,6 +837,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		
 
 		//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
+		// FIXME: filter open from f -- i.e., don't add to sender K
+		/// Maybe make f CNF? -- https://stackoverflow.com/questions/10992531/convert-formula-to-cnf 
 		appendF(F, self, f);
 		
 

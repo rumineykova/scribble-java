@@ -77,13 +77,36 @@ type <dotnet> "System.UInt32" from "..." as int;
 type <dotnet> "System.String" from "..." as str;
 
 
+global protocol Proto1(role A, role B)  @"(x := 1) x>0"
+{
+	1() from A to B; //@"(x>3)"
+
+	do Proto1(A, B);  @"(x+1)"
+	//do Proto1(A, B);  @"(x-1)"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // uninterpreted functions for custom API gen
 // multi statvars -- fibo, linear
-
-global protocol Proto1(role A, role B)
-{
-	1(x:int) from A to B; @"(x<3)"
-}
 /*
 global protocol Proto1(role A, role B) @"(x:=(0+3), y:=1)"
 {
