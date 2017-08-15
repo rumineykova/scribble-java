@@ -1,5 +1,6 @@
 package org.scribble.ext.assrt.core.model.endpoint.action;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
@@ -27,7 +28,7 @@ public class AssrtCoreEAccept extends AssrtEAccept implements AssrtCoreEAction
 	{
 		super(ef, peer, mid, payload, bf);
 		//this.annot = annot;
-		this.stateexprs = stateexprs;
+		this.stateexprs = Collections.unmodifiableList(stateexprs);
 	}
 	
 	@Override

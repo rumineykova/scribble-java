@@ -333,6 +333,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						//RR = ((AssrtBinBoolFormula) RR).getRight();  // if only one term, RR will be the BCF
 						lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs, RR);
 					}
+					AssrtBoolFormula RARA = this.Rass.get(src).stream().reduce(AssrtTrueFormula.TRUE, 
+							(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
+					if (!RARA.equals(AssrtTrueFormula.TRUE))
+					{
+						lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs, RARA);
+					}
 					
 					AssrtBoolFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, lhs, AA);
 
@@ -406,6 +412,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					{
 						AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
 					}
+					
+					
+					// FIXME: R and Rass?
+					
 
 					AssrtBoolFormula tocheck = this.F.get(src).stream().reduce(
 							AA,
@@ -448,6 +458,109 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		});
 	}
 
+	
+	public boolean isRecursionAssertionError(Job job, GProtocolName simpname)
+	{
+		return this.P.entrySet().stream().anyMatch(e ->
+		{
+			return e.getValue().getAllActions().stream().anyMatch(a ->
+			{
+				AssrtCoreEAction b = (AssrtCoreEAction) a;
+				List<AssrtArithFormula> exprs = b.getStateExprs();
+				if (exprs.isEmpty())
+				{
+					return false;
+				}
+
+				Role src = e.getKey();
+				AssrtEState curr = e.getValue();
+				AssrtEState succ = curr.getSuccessor(a);
+				/*AssrtBoolFormula ass = ((AssrtCoreEAction) a).getAssertion();
+				if (ass.equals(AssrtTrueFormula.TRUE))
+				{
+					return true;
+				}*/
+
+				AssrtBoolFormula RARA = this.Rass.get(src).stream().reduce(AssrtTrueFormula.TRUE, 
+						(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
+				// Do check even if AA is True? To check statevar update isn't a contradiction?
+				// FIXME: that won't be checked by this, lhs just becomes false -- this should be checked by unsat? (but that is only poly choices)
+				if (RARA.equals(AssrtTrueFormula.TRUE))
+				{
+					return false;
+				}
+				
+				List<AssrtDataTypeVar> old = new LinkedList<>(succ.getStateVars().keySet());  // FIXME statevar ordering w.r.t. exprs
+				List<AssrtIntVarFormula> fresh = old.stream().map(v -> makeFreshIntVar(v)).collect(Collectors.toList());
+
+				//List<AssrtDataTypeVar> rara = new LinkedList<>(RARA.getIntVars());
+				
+				Iterator<AssrtIntVarFormula> it3 = fresh.iterator();
+				for (AssrtDataTypeVar v : old)
+				{
+					RARA = RARA.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()), it3.next());
+				}
+				
+				Iterator<AssrtArithFormula> it = exprs.iterator();
+				Iterator<AssrtIntVarFormula> it2 = fresh.iterator();
+				AssrtBoolFormula reduce = old.stream()
+						.map(v -> (AssrtBoolFormula)  // Cast needed
+							AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
+									AssrtFormulaFactory.AssrtIntVar(it2.next().toString()),
+									it.next()))
+						.reduce((b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)).get();
+				RARA = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, RARA, reduce);
+				RARA = AssrtFormulaFactory.AssrtExistsFormula(
+						fresh.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList()),
+						RARA);
+
+				AssrtBoolFormula lhs = this.F.get(src).stream().reduce(
+						AssrtTrueFormula.TRUE,
+						(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
+				
+				Map<AssrtDataTypeVar, AssrtArithFormula> statevars = this.R.get(src);
+				if (!statevars.isEmpty())
+				{
+					AssrtBoolFormula RR = statevars.entrySet().stream().map(x -> (AssrtBoolFormula)  // Cast needed for reduce
+							AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
+								AssrtFormulaFactory.AssrtIntVar(x.getKey().toString()),
+								x.getValue()))
+						.reduce(
+							//(AssrtBoolFormula) AssrtTrueFormula.TRUE,
+							(e1, e2) -> (AssrtBoolFormula) AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, e1, e2)
+					).get();
+					//RR = ((AssrtBinBoolFormula) RR).getRight();  // if only one term, RR will be the BCF
+					lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs, RR);
+				}
+				
+				AssrtBoolFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, lhs, RARA);
+
+				Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
+						.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
+				Set<AssrtDataTypeVar> free = impli.getIntVars().stream()
+						.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
+						.collect(Collectors.toSet());
+				if (!free.isEmpty())
+				{
+					impli = AssrtFormulaFactory.AssrtForallFormula(
+							free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
+									.collect(Collectors.toList()),
+							impli);
+				}
+				
+				job.debugPrintln("\n[assrt-core] Checking recursion assertion for " + src + " at " + succ + "(" + this.id + "):");
+				String str = impli.toSmt2Formula();
+				job.debugPrintln("  raw      = " + str);
+
+				AssrtBoolFormula squashed = impli.squash();
+
+				job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
+
+				return !((AssrtJob) job).checkSat(simpname, squashed);
+			});
+		});
+	}
+	
 	// FIXME: List<AssrtCoreEAction> -- after also doing assert-core request/accept
 	public Map<Role, List<EAction>> getFireable()
 	{
