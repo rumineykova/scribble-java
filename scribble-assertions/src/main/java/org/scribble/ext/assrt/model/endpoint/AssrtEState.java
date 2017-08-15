@@ -34,7 +34,7 @@ public class AssrtEState extends EState
 	private final Map<AssrtDataTypeVar, AssrtArithFormula> statevars; // Note: even with syntactic single var per rec, nested recs can lead to mulitple vars per state
 	
 	private //final
-			AssrtBoolFormula ass;
+			AssrtBoolFormula ass;  // FIXME: make Set
 
 	// FIXME: make AssrtIntTypeVar?
 	protected AssrtEState(Set<RecVar> labs, Map<AssrtDataTypeVar, AssrtArithFormula> vars,
@@ -66,7 +66,7 @@ public class AssrtEState extends EState
 		
 		this.ass = (this.ass.equals(AssrtTrueFormula.TRUE))
 				? ass
-				: AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, this.ass, ass);
+				: AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, this.ass, ass);  // FIXME: make Set
 	}
 
 	@Override
