@@ -29,8 +29,10 @@ import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.type.formula.AssrtUnPredicateFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.scribble.main.Job;
 import org.scribble.model.MPrettyState;
 import org.scribble.model.MState;
@@ -815,6 +817,24 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			hh = hh.stream().map(b -> b.subs(old, fresh)).collect(Collectors.toSet());
 			F.put(self, hh);
 		}*/
+
+		
+		Set<AssrtUnPredicateFormula> preds = Z3Wrapper.getUnPredicates.func.apply(f);  // FIXME: refactor out of Z3Wrapper
+		// FIXME: unint-pref currrently has to be a top-level clause (assuming CNF), but should generalise
+		// FIXME: factor out API for unint-funs properly
+		List<AssrtUnPredicateFormula> opens = preds.stream().filter(p -> p.name.toString().equals("open")).collect(Collectors.toList());
+		for (AssrtUnPredicateFormula p : opens)
+		{
+			if (p.args.size() != 2)
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + p);
+			}
+			//String port = ((AssrtIntVarFormula) i.next()).name;
+			Role client = new Role(((AssrtIntVarFormula) p.args.get(1)).name);  // FIXME: port/role values hacked as int var formulas
+
+			appendF(F, client, p);
+		}
+		
 
 		//...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
 		appendF(F, self, f);

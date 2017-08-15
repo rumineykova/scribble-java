@@ -89,8 +89,8 @@ public class Z3Wrapper
 		return smt2;
 	}
 
-	private static final Recursive<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnPredicates
-			= new Recursive<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>>()
+	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnPredicates  // FIXME: move?
+			= new RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>>()
 	{{
 		this.func = ff ->
 		{
@@ -113,13 +113,6 @@ public class Z3Wrapper
 			}
 		};
 	}};
-}
-
-
-// FIXME: factor out?
-class Recursive<F>  // F should be a functional interface
-{
-	public F func;
 }
 
 	/*private static Set<AssrtUnPredicateFormula> getUnPredicates(AssrtSmtFormula<?> f) 
