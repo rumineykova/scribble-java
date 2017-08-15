@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.type.name.RecVar;
 
@@ -16,13 +17,17 @@ public abstract class AssrtCoreRec<B extends AssrtCoreType> implements AssrtCore
 	public final Map<AssrtDataTypeVar, AssrtArithFormula> annotvars;  // Int  // Non-null
 	//public final AssrtArithFormula init;
 	
+	public final AssrtBoolFormula ass;
+	
 	//public AssrtCoreRec(RecVar recvar, AssrtDataTypeVar annot, AssrtArithFormula init, B body)
-	public AssrtCoreRec(RecVar recvar, Map<AssrtDataTypeVar, AssrtArithFormula> annotvars, B body)
+	public AssrtCoreRec(RecVar recvar, Map<AssrtDataTypeVar, AssrtArithFormula> annotvars, B body,
+			AssrtBoolFormula ass)
 	{
 		this.recvar = recvar;
 		this.annotvars = Collections.unmodifiableMap(annotvars);
 		//this.init = init;
 		this.body = body;
+		this.ass = ass;
 	}
 	
 	@Override
@@ -30,7 +35,9 @@ public abstract class AssrtCoreRec<B extends AssrtCoreType> implements AssrtCore
 	{
 		//return "mu " + this.recvar + "(" + this.annot + " := " + this.init + ")" + "." + this.body;
 		return "mu " + this.recvar + "(" + this.annotvars.entrySet().stream()
-				.map(e -> e.getKey() + " := " + e.getValue()).collect(Collectors.joining(", "))+ ")" + "." + this.body;
+				.map(e -> e.getKey() + " := " + e.getValue()).collect(Collectors.joining(", "))+ ")"
+						+ this.ass
+						+ "." + this.body;
 	}
 
 	@Override
@@ -48,7 +55,8 @@ public abstract class AssrtCoreRec<B extends AssrtCoreType> implements AssrtCore
 		return them.canEquals(this) && this.recvar.equals(them.recvar) 
 				//&& this.annot.equals(them.annot) && this.init.equals(them.init) 
 				&& this.annotvars.equals(them.annotvars)
-				&& this.body.equals(them.body); // FIXME: check B kind is equal?
+				&& this.body.equals(them.body) // FIXME: check B kind is equal?
+				&& this.ass.equals(them.ass);
 	}
 	
 	@Override
@@ -64,6 +72,7 @@ public abstract class AssrtCoreRec<B extends AssrtCoreType> implements AssrtCore
 		//result = prime * result + this.init.hashCode();
 		result = prime * result + this.body.hashCode();
 		//result = prime * result + ((body == null) ? 0 : body.hashCode());
+		result = prime * result + this.ass.hashCode();
 		return result;
 	}
 }

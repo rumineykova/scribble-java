@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.scribble.ext.assrt.core.ast.AssrtCoreRec;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.type.name.RecVar;
 
@@ -11,10 +12,12 @@ public class AssrtCoreLRec extends AssrtCoreRec<AssrtCoreLType> implements Assrt
 {
 	public AssrtCoreLRec(RecVar recvar, //AssrtDataTypeVar annot, AssrtArithFormula init,
 			Map<AssrtDataTypeVar, AssrtArithFormula> annotvars,
-			AssrtCoreLType body)
+			AssrtCoreLType body,
+			AssrtBoolFormula ass)
 	{
 		//super(recvar, annot, init, body);
-		super(recvar, annotvars, body);
+		super(recvar, annotvars, body,
+				ass);
 	}
 
 	@Override

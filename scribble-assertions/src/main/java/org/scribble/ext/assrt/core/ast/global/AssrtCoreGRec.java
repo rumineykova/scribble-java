@@ -2,7 +2,6 @@ package org.scribble.ext.assrt.core.ast.global;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreRec;
@@ -22,11 +21,13 @@ public class AssrtCoreGRec extends AssrtCoreRec<AssrtCoreGType> implements Assrt
 {
 	public AssrtCoreGRec(RecVar recvar, //AssrtDataTypeVar annot, AssrtArithFormula init,
 			Map<AssrtDataTypeVar, AssrtArithFormula> annotvars,
-			AssrtCoreGType body)
+			AssrtCoreGType body,
+			AssrtBoolFormula ass)
 	{
 		super(recvar, //annot, init,
 				annotvars,
-				body);
+				body,
+				ass);
 	}
 
 	@Override
@@ -34,8 +35,10 @@ public class AssrtCoreGRec extends AssrtCoreRec<AssrtCoreGType> implements Assrt
 	{
 		List<AssrtAnnotDataType> res = this.body.collectAnnotDataTypes();
 		//res.add(new AssrtAnnotDataType(this.annot, new DataType("int")));  // FIXME: factor out int constant
-		res.addAll(this.annotvars.keySet().stream()
-				.map(v -> new AssrtAnnotDataType(v, new DataType("int"))).collect(Collectors.toList()));  // FIXME: factor out int constant
+		/*res.addAll(this.annotvars.keySet().stream()
+				.map(v -> new AssrtAnnotDataType(v, new DataType("int"))).collect(Collectors.toList()));  // FIXME: factor out int constant*/
+		this.annotvars.keySet().stream().forEach(v -> res.add(new AssrtAnnotDataType(v, new DataType("int"))));  // FIXME: factor out int constant
+		this.ass.getIntVars().stream().forEach(v -> res.add(new AssrtAnnotDataType(v, new DataType("int"))));
 		return res;
 	}
 
@@ -45,7 +48,8 @@ public class AssrtCoreGRec extends AssrtCoreRec<AssrtCoreGType> implements Assrt
 		AssrtCoreLType proj = this.body.project(af, r, f);
 		return (proj instanceof AssrtCoreLRecVar) ? AssrtCoreLEnd.END : af.AssrtCoreLRec(this.recvar, //this.annot, this.init,
 				this.annotvars,
-				proj);
+				proj,
+				this.ass);
 	}
 
 	@Override
