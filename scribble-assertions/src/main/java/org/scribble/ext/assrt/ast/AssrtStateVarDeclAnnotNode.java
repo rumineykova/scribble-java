@@ -10,10 +10,13 @@ public interface AssrtStateVarDeclAnnotNode
 {
 	List<AssrtIntVarNameNode> getAnnotVars();
 	List<AssrtArithExpr> getAnnotExprs();
+	AssrtAssertion getAssertion();
 
 	default String annotToString()
 	{
 		Iterator<AssrtArithExpr> exprs = getAnnotExprs().iterator();
-		return " @" + getAnnotVars().stream().map(v -> v + " := " + exprs.next()).collect(Collectors.joining(", ")) +  ";";
+		AssrtAssertion ass = getAssertion();
+		return " @(\"" + getAnnotVars().stream().map(v -> v + " := " + exprs.next()).collect(Collectors.joining(", ")) +  ")\" "
+				+ ((ass == null) ? "" : ass);
 	}
 }

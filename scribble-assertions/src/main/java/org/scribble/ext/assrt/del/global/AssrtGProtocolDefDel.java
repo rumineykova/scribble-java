@@ -62,7 +62,8 @@ public class AssrtGProtocolDefDel extends GProtocolDefDel implements AssrtScribD
 		//GRecursion rec = inl.job.af.GRecursion(blame, recvar, block);
 		AssrtGProtocolHeader hdr = (AssrtGProtocolHeader) ((GProtocolDecl) parent).getHeader();
 		AssrtGRecursion rec = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, block, //ass);
-				hdr.annotvars, hdr.annotexprs);
+				hdr.annotvars, hdr.annotexprs,
+				hdr.ass);
 
 		GInteractionSeq gis = af.GInteractionSeq(blame, Arrays.asList(rec));
 		GProtocolDef inlined = af.GProtocolDef(def.getSource(), dinlr.job.af.GProtocolBlock(blame, gis));

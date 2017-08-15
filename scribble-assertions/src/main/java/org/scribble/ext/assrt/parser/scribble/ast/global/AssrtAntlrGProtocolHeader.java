@@ -49,7 +49,8 @@ public class AssrtAntlrGProtocolHeader
 		List<AssrtIntVarNameNode> annotvars = parseAssrtStateVarDeclListVars(assTree, af);
 		List<AssrtArithExpr> annotexprs = parseAssrtStateVarDeclListExprs(((AssrtAntlrToScribParser) parser).ap, assTree, af);
 		return af.AssrtGProtocolHeader(root, name, rdl, pdl, //ass);
-				annotvars, annotexprs);
+				annotvars, annotexprs,
+				null);  // FIXME
 	}
 	
 	private static List<AssrtIntVarNameNode> parseAssrtStateVarDeclListVars(CommonTree assTree, AssrtAstFactory af)

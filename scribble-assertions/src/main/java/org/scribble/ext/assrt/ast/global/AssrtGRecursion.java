@@ -23,6 +23,7 @@ import org.scribble.ast.local.LRecursion;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
+import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.AssrtStateVarDeclAnnotNode;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
@@ -37,23 +38,25 @@ import org.scribble.visit.AstVisitor;
 // N.B. non-empty ass currently only supported via proto def inlining -- no direct syntax for rec-with-annot yet
 public class AssrtGRecursion extends GRecursion implements AssrtStateVarDeclAnnotNode
 {
-	//public final AssrtAssertion ass;  // cf. AssrtGProtocolHeader  // FIXME: make specific syntactic expr
 	public final List<AssrtIntVarNameNode> annotvars;
 	public final List<AssrtArithExpr> annotexprs;
+	public final AssrtAssertion ass;  // cf. AssrtGProtocolHeader  // FIXME: make specific syntactic expr
 
 	public AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block)
 	{
 		this(source, recvar, block, //null);
-				Collections.emptyList(), Collections.emptyList());
+				Collections.emptyList(), Collections.emptyList(),
+				null);
 	}
 	
 	public AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
+			AssrtAssertion ass)
 	{
 		super(source, recvar, block);
-		//this.ass = ass;
 		this.annotvars = Collections.unmodifiableList(annotvars);
 		this.annotexprs = Collections.unmodifiableList(annotexprs);
+		this.ass = ass;
 	}
 
 	public LRecursion project(AstFactory af, Role self, LProtocolBlock block)
@@ -62,7 +65,8 @@ public class AssrtGRecursion extends GRecursion implements AssrtStateVarDeclAnno
 	}
 
 	public AssrtLRecursion project(AstFactory af, Role self, LProtocolBlock block, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
+			AssrtAssertion ass)
 	{
 		RecVarNode recvar = this.recvar.clone(af);
 		AssrtLRecursion lr = null;
@@ -72,7 +76,8 @@ public class AssrtGRecursion extends GRecursion implements AssrtStateVarDeclAnno
 		if (!pruned.isEmpty())
 		{
 			lr = ((AssrtAstFactory) af).AssrtLRecursion(this.source, recvar, pruned, //ass);
-					annotvars, annotexprs);
+					annotvars, annotexprs,
+					ass);
 		}
 		return lr;
 	}
@@ -127,7 +132,9 @@ public class AssrtGRecursion extends GRecursion implements AssrtStateVarDeclAnno
 						return af.LProtocolBlock(block.getSource(),
 								af.LInteractionSeq(block.seq.getSource(), Arrays.asList(
 										((AssrtAstFactory) af).AssrtLRecursion(lr.getSource(), lr.recvar, pruned, //lr.ass))));
-												lr.annotvars, lr.annotexprs))));
+												lr.annotvars, lr.annotexprs,
+												lr.ass)
+										)));
 					}
 				}
 				else
@@ -142,7 +149,8 @@ public class AssrtGRecursion extends GRecursion implements AssrtStateVarDeclAnno
 	protected AssrtGRecursion copy()
 	{
 		return new AssrtGRecursion(this.source, this.recvar, getBlock(), //this.ass);
-				this.annotvars, this.annotexprs);
+				this.annotvars, this.annotexprs,
+				this.ass);
 	}
 	
 	@Override
@@ -150,13 +158,14 @@ public class AssrtGRecursion extends GRecursion implements AssrtStateVarDeclAnno
 	{
 		RecVarNode recvar = this.recvar.clone(af);
 		GProtocolBlock block = getBlock().clone(af);
-		//AssrtAssertion ass = (this.ass == null) ? null : this.ass.clone(af);
 
 		List<AssrtIntVarNameNode> annotvars = this.annotvars.stream().map(v -> v.clone(af)).collect(Collectors.toList());
 		List<AssrtArithExpr> annotexprs = this.annotexprs.stream().map(e -> e.clone(af)).collect(Collectors.toList());
+		AssrtAssertion ass = (this.ass == null) ? null : this.ass.clone(af);
 
 		return ((AssrtAstFactory) af).AssrtGRecursion(this.source, recvar, block, //ass);
-				annotvars, annotexprs);
+				annotvars, annotexprs,
+				ass);
 	}
 
 	@Override
@@ -166,11 +175,13 @@ public class AssrtGRecursion extends GRecursion implements AssrtStateVarDeclAnno
 	}
 
 	public AssrtGRecursion reconstruct(RecVarNode recvar, ProtocolBlock<Global> block, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
+			AssrtAssertion ass)
 	{
 		ScribDel del = del();
 		AssrtGRecursion gr = new AssrtGRecursion(this.source, recvar, (GProtocolBlock) block, //ass);
-				annotvars, annotexprs);
+				annotvars, annotexprs,
+				ass);
 
 		gr = (AssrtGRecursion) gr.del(del);
 		return gr;
@@ -181,13 +192,14 @@ public class AssrtGRecursion extends GRecursion implements AssrtStateVarDeclAnno
 	{
 		RecVarNode recvar = (RecVarNode) visitChild(this.recvar, nv);
 		GProtocolBlock block = visitChildWithClassEqualityCheck(this, getBlock(), nv);
-		//AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
 
 		List<AssrtIntVarNameNode> annotvars = visitChildListWithClassEqualityCheck(this, this.annotvars, nv);
 		List<AssrtArithExpr> annotexprs = visitChildListWithClassEqualityCheck(this, this.annotexprs, nv);
+		AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
 
 		return reconstruct(recvar, block, //ass);
-				annotvars, annotexprs);
+				annotvars, annotexprs,
+				ass);
 	}
 	
 	@Override
@@ -200,6 +212,12 @@ public class AssrtGRecursion extends GRecursion implements AssrtStateVarDeclAnno
 	public List<AssrtArithExpr> getAnnotExprs()
 	{
 		return this.annotexprs;
+	}
+
+	@Override
+	public AssrtAssertion getAssertion()
+	{
+		return this.ass;
 	}
 
 	@Override

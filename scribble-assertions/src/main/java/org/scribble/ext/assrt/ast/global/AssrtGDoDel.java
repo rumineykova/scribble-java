@@ -81,14 +81,16 @@ public class AssrtGDoDel extends GDoDel
 			AssrtGProtocolHeader hdr = (AssrtGProtocolHeader) gpd.getHeader();
 			AssrtGRecursion inlined;
 			//if (hdr.ass == null)
-			if (hdr.annotvars.isEmpty())
+			if (hdr.annotvars.isEmpty()
+					&& hdr.ass == null)
 			{
 				inlined = (AssrtGRecursion) dinlr.job.af.GRecursion(blame, recvar, gb);
 			}
 			else
 			{
-				List<AssrtIntVarNameNode> annotvars = ((AssrtGProtocolHeader) gpd.getHeader()).annotvars;
-				inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, gb, annotvars, gdo.annotexprs);
+				List<AssrtIntVarNameNode> annotvars = hdr.annotvars;
+				inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, gb, annotvars, gdo.annotexprs,
+						hdr.ass);
 			}
 
 			dinlr.pushEnv(dinlr.popEnv().setTranslation(inlined));

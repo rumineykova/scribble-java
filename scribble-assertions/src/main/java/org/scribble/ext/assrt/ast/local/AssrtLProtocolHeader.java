@@ -16,6 +16,7 @@ import org.scribble.ast.name.qualified.LProtocolNameNode;
 import org.scribble.ast.name.qualified.ProtocolNameNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
+import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.AssrtStateVarDeclAnnotNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
@@ -28,23 +29,25 @@ import org.scribble.visit.AstVisitor;
 // Based on AssrtGProtocolHeader
 public class AssrtLProtocolHeader extends LProtocolHeader implements AssrtStateVarDeclAnnotNode
 {
-	//public final AssrtAssertion ass;  // null if not specified -- currently duplicated from AssrtGMessageTransfer
 	public final List<AssrtIntVarNameNode> annotvars;
 	public final List<AssrtArithExpr> annotexprs;
+	public final AssrtAssertion ass;  // null if not specified -- currently duplicated from AssrtGMessageTransfer
 
 	public AssrtLProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
 	{
 		this(source, name, roledecls, paramdecls, //null);
-				Collections.emptyList(), Collections.emptyList());
+				Collections.emptyList(), Collections.emptyList(),
+				null);
 	}
 
 	public AssrtLProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
+			AssrtAssertion ass)
 	{
 		super(source, name, roledecls, paramdecls);
-		//this.ass = ass;
 		this.annotvars = Collections.unmodifiableList(annotvars);
 		this.annotexprs = Collections.unmodifiableList(annotexprs);
+		this.ass = ass;
 	}
 	
 	// Duplicated from AssrtGProtocolHeader
@@ -62,7 +65,8 @@ public class AssrtLProtocolHeader extends LProtocolHeader implements AssrtStateV
 	protected ScribNodeBase copy()
 	{
 		return new AssrtLProtocolHeader(this.source, getNameNode(), this.roledecls, this.paramdecls, //this.ass);
-				this.annotvars, this.annotexprs);
+				this.annotvars, this.annotexprs,
+				this.ass);
 	}
 	
 	@Override
@@ -71,13 +75,14 @@ public class AssrtLProtocolHeader extends LProtocolHeader implements AssrtStateV
 		LProtocolNameNode name = getNameNode().clone(af);
 		RoleDeclList roledecls = this.roledecls.clone(af);
 		NonRoleParamDeclList paramdecls = this.paramdecls.clone(af);
-		//AssrtAssertion ass = (this.ass == null) ? null : this.ass.clone(af);
 
 		List<AssrtIntVarNameNode> annotvars = this.annotvars.stream().map(v -> v.clone(af)).collect(Collectors.toList());
 		List<AssrtArithExpr> annotexprs = this.annotexprs.stream().map(e -> e.clone(af)).collect(Collectors.toList());
+		AssrtAssertion ass = (this.ass == null) ? null : this.ass.clone(af);
 
 		return ((AssrtAstFactory) af).AssrtLProtocolHeader(this.source, name, roledecls, paramdecls, //ass);
-				annotvars, annotexprs);
+				annotvars, annotexprs,
+				ass);
 	}
 
 	@Override
@@ -87,13 +92,15 @@ public class AssrtLProtocolHeader extends LProtocolHeader implements AssrtStateV
 	}
 
 	public AssrtLProtocolHeader reconstruct(ProtocolNameNode<Local> name, RoleDeclList rdl, NonRoleParamDeclList pdl, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
+			AssrtAssertion ass)
 	{
 		ScribDel del = del();
 		//AssrtLProtocolHeader lph = new AssrtLProtocolHeader(this.source, (LProtocolNameNode) name, rdl, pdl, ass);
 
 		AssrtLProtocolHeader lph = new AssrtLProtocolHeader(this.source, (LProtocolNameNode) name, rdl, pdl, //ass);
-				annotvars, annotexprs);
+				annotvars, annotexprs,
+				ass);
 
 		lph = (AssrtLProtocolHeader) lph.del(del);
 		return lph;
@@ -104,13 +111,14 @@ public class AssrtLProtocolHeader extends LProtocolHeader implements AssrtStateV
 	{
 		RoleDeclList rdl = (RoleDeclList) visitChild(this.roledecls, nv);
 		NonRoleParamDeclList pdl = (NonRoleParamDeclList) visitChild(this.paramdecls, nv);
-		//AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
 
 		List<AssrtIntVarNameNode> annotvars = visitChildListWithClassEqualityCheck(this, this.annotvars, nv);
 		List<AssrtArithExpr> annotexprs = visitChildListWithClassEqualityCheck(this, this.annotexprs, nv);
+		AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
 
 		return reconstruct((LProtocolNameNode) this.name, rdl, pdl, //ass);
-				annotvars, annotexprs);
+				annotvars, annotexprs,
+				ass);
 	}
 	
 	@Override
@@ -123,6 +131,12 @@ public class AssrtLProtocolHeader extends LProtocolHeader implements AssrtStateV
 	public List<AssrtArithExpr> getAnnotExprs()
 	{
 		return this.annotexprs;
+	}
+
+	@Override
+	public AssrtAssertion getAssertion()
+	{
+		return this.ass;
 	}
 	
 	@Override

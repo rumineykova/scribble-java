@@ -52,7 +52,8 @@ public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionD
 		
 		AssrtLProtocolHeader tmp = (AssrtLProtocolHeader) lpd.getHeader();  // FIXME: make a LProtocolHeaderDel and factor out there? (would be less code duplication here)
 		LProtocolHeader hdr = tmp.reconstruct(tmp.getNameNode(), rdl, tmp.paramdecls, //tmp.ass);
-				tmp.annotvars, tmp.annotexprs);
+				tmp.annotvars, tmp.annotexprs,
+				tmp.ass);
 		LProtocolDecl fixed = lpd.reconstruct(hdr, lpd.def);
 		
 		fixer.job.debugPrintln("\n[DEBUG] Projected " + getSourceProtocol() + " for " + getSelfRole() + ":\n" + fixed);

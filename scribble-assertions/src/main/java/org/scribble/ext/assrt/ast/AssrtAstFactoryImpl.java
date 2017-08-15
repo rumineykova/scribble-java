@@ -239,10 +239,12 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 
 	@Override
 	public AssrtGProtocolHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
+			AssrtAssertion ass)
 	{
 		AssrtGProtocolHeader gpb = new AssrtGProtocolHeader(source, name, roledecls, paramdecls, //ass);
-				annotvars, annotexprs);
+				annotvars, annotexprs,
+				ass);
 		gpb = del(gpb, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
 		return gpb;
 	}
@@ -265,10 +267,12 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 
 	@Override
 	public AssrtGRecursion AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
+			AssrtAssertion ass)
 	{
 		AssrtGRecursion gr = new AssrtGRecursion(source, recvar, block, //ass);
-				annotvars, annotexprs);
+				annotvars, annotexprs,
+				ass);
 		gr = del(gr, new AssrtGRecursionDel());
 		return gr;
 	}
@@ -295,10 +299,12 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 
 	@Override
 	public AssrtLProtocolHeader AssrtLProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
+			AssrtAssertion ass)
 	{
 		AssrtLProtocolHeader lph = new AssrtLProtocolHeader(source, name, roledecls, paramdecls, //ass);
-				annotvars, annotexprs);
+				annotvars, annotexprs,
+				ass);
 		lph = del(lph, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
 		return lph;
 	}
@@ -321,10 +327,12 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 
 	@Override
 	public AssrtLRecursion AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtocolBlock block, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
+			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
+			AssrtAssertion ass)
 	{
 		AssrtLRecursion lr = new AssrtLRecursion(source, recvar, block, //ass);
-				annotvars, annotexprs);
+				annotvars, annotexprs,
+				ass);
 		lr = del(lr, new AssrtLRecursionDel());
 		return lr;
 	}
