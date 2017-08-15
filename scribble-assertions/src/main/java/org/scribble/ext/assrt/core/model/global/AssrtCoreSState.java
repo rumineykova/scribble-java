@@ -1243,12 +1243,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//return rs.stream().collect(Collectors.toMap(r -> r, r -> new HashSet<>()));
 		return P.entrySet().stream().collect(Collectors.toMap(
 				Entry::getKey,
-				e -> e.getValue().getStateVars().entrySet().stream()
+				/*e -> e.getValue().getStateVars().entrySet().stream()
 						.map(b -> AssrtFormulaFactory.AssrtBinComp(
 								AssrtBinCompFormula.Op.Eq, 
 								AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
 								b.getValue()))
-						.collect(Collectors.toSet())
+						.collect(Collectors.toSet())*/
+				e -> new HashSet<>()
 		));
 	}
 
