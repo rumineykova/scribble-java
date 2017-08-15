@@ -17,6 +17,7 @@ import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.model.endpoint.EGraph;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.type.Payload;
@@ -36,7 +37,8 @@ public class AssrtCoreEGraphBuilder
 	
 	public EGraph build(AssrtCoreLType lt)
 	{
-		this.util.init(((AssrtCoreEModelFactory) this.job.ef).newAssrtEState(Collections.emptySet(), new HashMap<>()));
+		this.util.init(((AssrtCoreEModelFactory) this.job.ef).newAssrtEState(Collections.emptySet(), new HashMap<>(), 
+				AssrtTrueFormula.TRUE));
 		build(lt, this.util.getEntry(), this.util.getExit(), new HashMap<>());
 		return this.util.finalise();
 	}
@@ -56,7 +58,8 @@ public class AssrtCoreEGraphBuilder
 			AssrtCoreLRec lr = (AssrtCoreLRec) lt;
 
 			//this.util.addAnnotVarInits(s1, Stream.of(lr.annot).collect(Collectors.toMap(a -> a, a -> lr.init)));
-			this.util.addStateVars(s1, lr.annotvars);
+			this.util.addStateVars(s1, lr.annotvars,
+					lr.ass);
 
 			Map<RecVar, AssrtEState> tmp = new HashMap<>(recs);
 			tmp.put(lr.recvar, s1);

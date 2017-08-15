@@ -25,5 +25,6 @@ public interface AssrtEModelFactory extends EModelFactory
 	AssrtERequest newAssrtERequest(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf);
 	AssrtEAccept newAssrtEAccept(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf);
 	
-	AssrtEState newAssrtEState(Set<RecVar> labs, Map<AssrtDataTypeVar, AssrtArithFormula> vars);
+	AssrtEState newAssrtEState(Set<RecVar> labs, Map<AssrtDataTypeVar, AssrtArithFormula> vars,
+			AssrtBoolFormula ass);
 }

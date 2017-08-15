@@ -18,6 +18,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.model.MState;
 import org.scribble.model.endpoint.EModelFactory;
@@ -28,19 +32,25 @@ import org.scribble.type.name.RecVar;
 public class AssrtEState extends EState
 {
 	private final Map<AssrtDataTypeVar, AssrtArithFormula> statevars; // Note: even with syntactic single var per rec, nested recs can lead to mulitple vars per state
+	
+	private //final
+			AssrtBoolFormula ass;
 
 	// FIXME: make AssrtIntTypeVar?
-	protected AssrtEState(Set<RecVar> labs, Map<AssrtDataTypeVar, AssrtArithFormula> vars)  // FIXME: currently syntactically restricted to one annot var
+	protected AssrtEState(Set<RecVar> labs, Map<AssrtDataTypeVar, AssrtArithFormula> vars,
+			AssrtBoolFormula ass)  // FIXME: currently syntactically restricted to one annot var
 	{
 		super(labs);
 		//this.vars = Collections.unmodifiableMap(vars);
 		this.statevars = new HashMap<>(vars);  // Side effected by addStateVars
+		this.ass = ass;
 	}
 	
 	@Override
 	protected AssrtEState cloneNode(EModelFactory ef, Set<RecVar> labs)
 	{
-		return ((AssrtEModelFactory) ef).newAssrtEState(labs, this.statevars);
+		return ((AssrtEModelFactory) ef).newAssrtEState(labs, this.statevars,
+				this.ass);
 	}
 	
 	public Map<AssrtDataTypeVar, AssrtArithFormula> getStateVars()
@@ -49,16 +59,24 @@ public class AssrtEState extends EState
 	}
 
 	// For public access, do via AssrtEGraphBuilderUtil
-	protected final void addStateVars(Map<AssrtDataTypeVar, AssrtArithFormula> vars)
+	protected final void addStateVars(Map<AssrtDataTypeVar, AssrtArithFormula> vars,
+			AssrtBoolFormula ass)
 	{
 		this.statevars.putAll(vars);
+		
+		this.ass = (this.ass.equals(AssrtTrueFormula.TRUE))
+				? ass
+				: AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, this.ass, ass);
 	}
 
 	@Override
 	protected String getNodeLabel()
 	{
 		String labs = this.labs.toString();
-		return "label=\"" + this.id + ": " + labs.substring(1, labs.length() - 1) + ", " + this.statevars + "\"";  // FIXME: would be more convenient for this method to return only the label body
+		return "label=\"" + this.id + ": " + labs.substring(1, labs.length() - 1)
+				+ (this.statevars.isEmpty() ? "" : ", " + this.statevars)
+				+ (this.ass.equals(AssrtTrueFormula.TRUE) ? "" : ", " + this.ass)
+				+ "\"";  // FIXME: would be more convenient for this method to return only the label body
 	}
 
 	@Override
@@ -78,7 +96,8 @@ public class AssrtEState extends EState
 	{
 		int hash = 6619;
 		hash = 31 * hash + super.hashCode();  // N.B. uses state ID only -- following super pattern
-		hash = 31 * hash + this.statevars.hashCode();  // N.B. uses state ID only -- following super pattern
+		hash = 31 * hash + this.statevars.hashCode();
+		hash = 31 * hash + this.ass.hashCode();
 		return hash;
 	}
 
@@ -93,7 +112,9 @@ public class AssrtEState extends EState
 		{
 			return false;
 		}
-		return super.equals(o) && this.statevars.equals(((AssrtEState) o).statevars);  // Checks canEquals
+		AssrtEState them = (AssrtEState) o;
+		return super.equals(o) && this.statevars.equals(them.statevars)
+				&& this.ass.equals(them.ass);  // Checks canEquals
 	}
 
 	@Override

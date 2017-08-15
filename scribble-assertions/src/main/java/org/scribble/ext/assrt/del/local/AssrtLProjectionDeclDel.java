@@ -19,6 +19,8 @@ import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.name.GProtocolName;
@@ -81,6 +83,9 @@ public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionD
 		
 		//..FIXME: add rec-annots to AssrtSConfig
 		
-		builder.util.init(((AssrtEModelFactory) builder.job.ef).newAssrtEState(Collections.emptySet(), vars));
+		AssrtBoolFormula ass = (hdr.ass == null) ? AssrtTrueFormula.TRUE : hdr.ass.getFormula();
+
+		builder.util.init(((AssrtEModelFactory) builder.job.ef).newAssrtEState(Collections.emptySet(), vars,
+				ass));
 	}
 }
