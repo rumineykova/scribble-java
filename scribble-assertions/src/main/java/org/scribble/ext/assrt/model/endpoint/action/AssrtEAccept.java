@@ -42,6 +42,12 @@ public class AssrtEAccept extends EAccept implements AssrtEAction
 	}
 	
 	@Override
+	public String toString()
+	{
+		return super.toString() + assertionToString();
+	}
+	
+	@Override
 	public int hashCode()
 	{
 		int hash = 6029;
@@ -70,11 +76,5 @@ public class AssrtEAccept extends EAccept implements AssrtEAction
 	public boolean canEqual(Object o)
 	{
 		return o instanceof AssrtEAccept;
-	}
-	
-	@Override
-	public String toString()
-	{
-		return super.toString() + "@" + this.ass + ";";
 	}
 }

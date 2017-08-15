@@ -68,10 +68,17 @@ public class Z3Wrapper
 		List<String> rs = gpd.getHeader().roledecls.getRoles().stream().map(Object::toString).sorted().collect(Collectors.toList());
 		smt2 += IntStream.range(0, rs.size())
 				.mapToObj(i -> "(declare-const " + rs.get(i) + " Int)\n(assert (= " + rs.get(i) + " " + i +"))\n").collect(Collectors.joining(""));
+						// FIXME: make a Role sort?
+
 		Set<AssrtUnPredicateFormula> preds = getUnPredicates.func.apply(f);
 		smt2 += preds.stream().map(p -> "(declare-fun " + p.name + " ("
 				+ IntStream.range(0, p.args.size()).mapToObj(i -> ("(Int)")).collect(Collectors.joining(" "))
 				+ ") Bool)\n").collect(Collectors.joining(""));
+		if (preds.stream().anyMatch(p -> p.name.equals("port")))  // FIXME: factor out
+		{
+			smt2 += "(assert (forall ((p Int) (r Int)) (=> (port p r) (open p r))))\n";
+		}
+		
 		smt2 +=  
 				  "(assert " + f.toSmt2Formula() + ")\n"
 				+ "(check-sat)\n"
@@ -82,8 +89,8 @@ public class Z3Wrapper
 		return smt2;
 	}
 
-	private static final Recursive<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnPredicates
-			= new Recursive<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>>()
+	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnPredicates  // FIXME: move?
+			= new RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>>()
 	{{
 		this.func = ff ->
 		{
@@ -106,13 +113,6 @@ public class Z3Wrapper
 			}
 		};
 	}};
-}
-
-
-// FIXME: factor out?
-class Recursive<F>  // F should be a functional interface
-{
-	public F func;
 }
 
 	/*private static Set<AssrtUnPredicateFormula> getUnPredicates(AssrtSmtFormula<?> f) 

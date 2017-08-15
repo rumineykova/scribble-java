@@ -50,6 +50,12 @@ public class AssrtERequest extends ERequest implements AssrtEAction
 	}
 	
 	@Override
+	public String toString()
+	{
+		return super.toString() + assertionToString();
+	}
+	
+	@Override
 	public int hashCode()
 	{
 		int hash = 6011;
@@ -78,11 +84,5 @@ public class AssrtERequest extends ERequest implements AssrtEAction
 	public boolean canEqual(Object o)
 	{
 		return o instanceof AssrtERequest;
-	}
-	
-	@Override
-	public String toString()
-	{
-		return super.toString() + "@" + this.ass + ";";
 	}
 }

@@ -50,6 +50,12 @@ public class AssrtESend extends ESend implements AssrtEAction
 	}
 	
 	@Override
+	public String toString()
+	{
+		return super.toString() + assertionToString();
+	}
+	
+	@Override
 	public int hashCode()
 	{
 		int hash = 5501;
@@ -78,12 +84,5 @@ public class AssrtESend extends ESend implements AssrtEAction
 	public boolean canEqual(Object o)
 	{
 		return o instanceof AssrtESend;
-	}
-	
-	@Override
-	public String toString()
-	{
-		return super.toString()
-				+ (this.ass.equals(AssrtTrueFormula.TRUE) ? "" : "@" + this.ass + ";");  // FIXME
 	}
 }

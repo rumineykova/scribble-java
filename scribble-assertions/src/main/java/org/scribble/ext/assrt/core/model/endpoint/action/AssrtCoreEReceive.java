@@ -2,7 +2,6 @@ package org.scribble.ext.assrt.core.model.endpoint.action;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactory;
@@ -62,6 +61,15 @@ public class AssrtCoreEReceive extends AssrtEReceive implements AssrtCoreEAction
 	}
 	
 	@Override
+	public String toString()
+	{
+		//return super.toString() + "@" + this.ass + ";";
+		return super.toString() + stateExprsToString();
+				//+ ((this.annot.toString().startsWith("_dum")) ? "" : "<" + this.annot + " := " + this.expr + ">");  // FIXME
+				//+ (this.stateexprs.isEmpty() ? "" : "<" + this.stateexprs.stream().map(Object::toString).collect(Collectors.joining(", ")) + ">");
+	}
+	
+	@Override
 	public int hashCode()
 	{
 		int hash = 6763;
@@ -92,14 +100,5 @@ public class AssrtCoreEReceive extends AssrtEReceive implements AssrtCoreEAction
 	public boolean canEqual(Object o)
 	{
 		return o instanceof AssrtCoreEReceive;
-	}
-	
-	@Override
-	public String toString()
-	{
-		//return super.toString() + "@" + this.ass + ";";
-		return super.toString()
-				//+ ((this.annot.toString().startsWith("_dum")) ? "" : "<" + this.annot + " := " + this.expr + ">");  // FIXME
-				+ (this.stateexprs.isEmpty() ? "" : "<" + this.stateexprs.stream().map(Object::toString).collect(Collectors.joining(", ")) + ">");
 	}
 }
