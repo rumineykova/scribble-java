@@ -49,6 +49,7 @@ tokens
 	
 	ASSRT_STATEVARDECLLIST = 'ASSRT_STATEVARDECLLIST';
 	ASSRT_STATEVARDECL = 'ASSRT_STATEVARDECL';
+	ASSRT_STATEVARDECLLISTASSERTION = 'ASSRT_STATEVARDECLLISTASSERTION';
 	ASSRT_STATEVARARGLIST = 'ASSRT_STATEVARARGLIST';
 }
 
@@ -162,9 +163,9 @@ num:
 // statevars
 	
 statevardecllist:
-	'(' statevardecl (',' statevardecl)* ')'
+	'(' statevardecl (',' statevardecl)* ')' (bool_expr)?
 ->
-	^(ASSRT_STATEVARDECLLIST statevardecl+)
+	^(ASSRT_STATEVARDECLLIST ^(ASSRT_STATEVARDECLLISTASSERTION bool_expr?) statevardecl+)
 ;
 	
 statevardecl:

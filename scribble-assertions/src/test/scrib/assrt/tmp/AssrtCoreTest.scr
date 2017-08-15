@@ -87,8 +87,8 @@ global protocol Proto1(role A, role B)  @"(x := 1)"
 //*/
 
 //*
-global protocol Proto1(role A, role B)  @"(x := 1) x>0"
 //global protocol Proto1(role A, role B)  @"(x := 1)"
+global protocol Proto1(role A, role B)  @"(x := 1) (x>0)"
 {
 	//1() from A to B;
 	1() from A to B; @"(x<3)"

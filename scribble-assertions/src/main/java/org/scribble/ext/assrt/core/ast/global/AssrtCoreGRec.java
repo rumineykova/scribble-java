@@ -31,14 +31,14 @@ public class AssrtCoreGRec extends AssrtCoreRec<AssrtCoreGType> implements Assrt
 	}
 
 	@Override
-	public List<AssrtAnnotDataType> collectAnnotDataTypes()
+	public List<AssrtAnnotDataType> collectAnnotDataTypeVarDecls()
 	{
-		List<AssrtAnnotDataType> res = this.body.collectAnnotDataTypes();
+		List<AssrtAnnotDataType> res = this.body.collectAnnotDataTypeVarDecls();
 		//res.add(new AssrtAnnotDataType(this.annot, new DataType("int")));  // FIXME: factor out int constant
 		/*res.addAll(this.annotvars.keySet().stream()
 				.map(v -> new AssrtAnnotDataType(v, new DataType("int"))).collect(Collectors.toList()));  // FIXME: factor out int constant*/
 		this.annotvars.keySet().stream().forEach(v -> res.add(new AssrtAnnotDataType(v, new DataType("int"))));  // FIXME: factor out int constant
-		this.ass.getIntVars().stream().forEach(v -> res.add(new AssrtAnnotDataType(v, new DataType("int"))));
+		//this.ass.getIntVars().stream().forEach(v -> res.add(new AssrtAnnotDataType(v, new DataType("int"))));  // No: not decls
 		return res;
 	}
 

@@ -23,7 +23,7 @@ public class AssrtCoreGRecVar extends AssrtCoreRecVar implements AssrtCoreGType
 	}
 
 	@Override
-	public List<AssrtAnnotDataType> collectAnnotDataTypes()
+	public List<AssrtAnnotDataType> collectAnnotDataTypeVarDecls()
 	{
 		return Collections.emptyList();
 	}

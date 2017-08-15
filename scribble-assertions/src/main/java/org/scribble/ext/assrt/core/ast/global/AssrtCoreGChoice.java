@@ -45,10 +45,10 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 	}*/
 
 	@Override
-	public List<AssrtAnnotDataType> collectAnnotDataTypes()
+	public List<AssrtAnnotDataType> collectAnnotDataTypeVarDecls()
 	{
 		List<AssrtAnnotDataType> res = this.cases.keySet().stream().map(a -> a.pay).collect(Collectors.toList());
-		this.cases.keySet().forEach(a -> res.addAll(this.cases.get(a).collectAnnotDataTypes()));
+		this.cases.keySet().forEach(a -> res.addAll(this.cases.get(a).collectAnnotDataTypeVarDecls()));
 		return res;
 	}
 

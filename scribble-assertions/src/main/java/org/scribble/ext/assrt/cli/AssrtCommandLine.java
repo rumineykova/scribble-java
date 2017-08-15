@@ -188,7 +188,7 @@ public class AssrtCommandLine extends CommandLine
 		
 		job.debugPrintln("\n[assrt-core] Translated:\n  " + gt);
 		
-		List<AssrtDataTypeVar> adts = gt.collectAnnotDataTypes().stream().map(v -> v.var).collect(Collectors.toList());
+		List<AssrtDataTypeVar> adts = gt.collectAnnotDataTypeVarDecls().stream().map(v -> v.var).collect(Collectors.toList());
 		job.debugPrintln("\n[assrt-core] Collected data type annotation var decls: " + adts);
 		Set<AssrtDataTypeVar> dups = adts.stream().filter(i -> Collections.frequency(adts, i) > 1)
 				.collect(Collectors.toSet());	
