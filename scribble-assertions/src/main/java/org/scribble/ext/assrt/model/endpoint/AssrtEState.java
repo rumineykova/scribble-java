@@ -57,6 +57,11 @@ public class AssrtEState extends EState
 	{
 		return this.statevars;
 	}
+	
+	public AssrtBoolFormula getAssertion()
+	{
+		return this.ass;
+	}
 
 	// For public access, do via AssrtEGraphBuilderUtil
 	protected final void addStateVars(Map<AssrtDataTypeVar, AssrtArithFormula> vars,

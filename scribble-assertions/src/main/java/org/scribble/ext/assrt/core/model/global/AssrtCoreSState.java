@@ -74,6 +74,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private final Map<Role, AssrtEState> P;          
 	private final Map<Role, Map<Role, AssrtCoreEMessage>> Q;  // null value means connected and empty -- dest -> src -> msg
 	private final Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R;  
+	
+	private final Map<Role, Set<AssrtBoolFormula>> Rass;
 
 	private final Map<Role, Set<AssrtDataTypeVar>> K;  // Conflict between having this in the state, and formula building?
 	private final Map<Role, Set<AssrtBoolFormula>> F;   // N.B. because F not in equals/hash, "final" receive in a recursion doesn't get built -- cf., unsat check only for send actions
@@ -82,13 +84,16 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	public AssrtCoreSState(Map<Role, AssrtEState> P, boolean explicit)
 	{
-		this(P, makeQ(P.keySet(), explicit), makeR(P), makeK(P.keySet()), makeF(P), 
+		this(P, makeQ(P.keySet(), explicit), makeR(P),
+				makeRass(P),
+				makeK(P.keySet()), makeF(P), 
 				P.keySet().stream().collect(Collectors.toMap(r -> r, r -> new HashMap<>())));
 	}
 
 	// Pre: non-aliased "ownership" of all Map contents
 	protected AssrtCoreSState(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMessage>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
+			Map<Role, Set<AssrtBoolFormula>> Rass,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBoolFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename
 	)
@@ -97,6 +102,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		this.P = Collections.unmodifiableMap(P);
 		this.Q = Collections.unmodifiableMap(Q);  // Don't need copyQ, etc. -- should already be fully "owned"
 		this.R = Collections.unmodifiableMap(R);
+		
+		this.Rass = Collections.unmodifiableMap(Rass);
 
 		this.K = Collections.unmodifiableMap(K);
 		this.F = Collections.unmodifiableMap(F);
@@ -605,6 +612,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		//R.get(self).putAll(succ.getAnnotVars());  // Should "overwrite" previous var values -- no, do later (and from action info, not state)
 
+		Map<Role, Set<AssrtBoolFormula>> Rass = AssrtCoreSState.copyRass(this.Rass);
+
 		Map<Role, Set<AssrtDataTypeVar>> K = AssrtCoreSState.copyK(this.K);
 		Map<Role, Set<AssrtBoolFormula>> F = AssrtCoreSState.copyF(this.F);
 
@@ -614,19 +623,19 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		if (a.isSend())
 		{
-			fireSend(P, Q, R, K, F, rename, self, (AssrtCoreESend) a, succ);
+			fireSend(P, Q, R, Rass, K, F, rename, self, (AssrtCoreESend) a, succ);
 		}
 		else if (a.isReceive())
 		{
-			fireReceive(P, Q, R, K, F, rename, self, (AssrtCoreEReceive) a, succ);
+			fireReceive(P, Q, R, Rass, K, F, rename, self, (AssrtCoreEReceive) a, succ);
 		}
 		else if (a.isRequest())
 		{
-			fireRequest(P, Q, R, K, F, rename, self, (AssrtCoreERequest) a, succ);  // FIXME: core
+			fireRequest(P, Q, R, Rass, K, F, rename, self, (AssrtCoreERequest) a, succ);  // FIXME: core
 		}
 		else if (a.isAccept())
 		{
-			fireAccept(P, Q, R, K, F, rename, self, (AssrtCoreEAccept) a, succ);  // FIXME: core
+			fireAccept(P, Q, R, Rass, K, F, rename, self, (AssrtCoreEAccept) a, succ);  // FIXME: core
 		}
 		/*else if (a.isDisconnect())
 		{
@@ -639,24 +648,25 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
 		}
 		
-		AssrtCoreSState tmp = new AssrtCoreSState(P, Q, R, K, F, rename);
+		AssrtCoreSState next = new AssrtCoreSState(P, Q, R, Rass, K, F, rename);
 
 		//System.out.println("\n444: " + tmp.toNodeDot() + "\n"); if (F.get(self).size() > 5) throw new RuntimeException("stop");
 
-		return tmp;
+		return next;
 	}
 
 
 	// Update (in place) P, Q, R, K and F
 	private static void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMessage>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
+			Map<Role, Set<AssrtBoolFormula>> Rass,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBoolFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreESend es, AssrtEState succ)
 	{
 		P.put(self, succ);
 
-		outputUpdateKF(R, K, F, rename, self, es, succ);
+		outputUpdateKF(R, Rass, K, F, rename, self, es, succ);
 
 		//updateR(R, self, es);
 
@@ -670,6 +680,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private static void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMessage>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R, 
+			Map<Role, Set<AssrtBoolFormula>> Rass,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBoolFormula>> F,   // FIXME: manage F with receive assertions?
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreEReceive er, AssrtEState succ)
@@ -678,7 +689,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		AssrtCoreEMessage m = Q.get(self).put(er.peer, null);  // null is \epsilon
 		
 		//inputUpdateK(K,  self, er);
-		inputUpdateKF(R, K, F, rename, self, er, m, succ, m.shadow);
+		inputUpdateKF(R, Rass, K, F, rename, self, er, m, succ, m.shadow);
 				
 		// Must come after F update
 		//updateR(R, self, er);
@@ -686,13 +697,14 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private static void fireRequest(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMessage>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
+			Map<Role, Set<AssrtBoolFormula>> Rass,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBoolFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreERequest er, AssrtEState succ)
 	{
 		P.put(self, succ);
 
-		outputUpdateKF(R, K, F, rename, self, er, succ);
+		outputUpdateKF(R, Rass, K, F, rename, self, er, succ);
 
 		//Q.get(es.peer).put(self, new AssrtCoreEPendingRequest(es.toTrueAssertion()));  // HACK FIXME: cf. AssrtSConfig::fire
 		Q.get(er.peer).put(self, new AssrtCoreEPendingRequest(er, rename.get(self)));  // Now doing toTrueAssertion on accept side
@@ -701,6 +713,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	// FIXME: R
 	private static void fireAccept(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMessage>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
+			Map<Role, Set<AssrtBoolFormula>> Rass,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBoolFormula>> F, 
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreEAccept ea, AssrtEState succ)
@@ -712,10 +725,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//Q.get(self).put(ea.peer, null);
 		Q.get(ea.peer).put(self, null);
 
-		inputUpdateKF(R, K, F, rename, self, (AssrtCoreEAction) ea, m, succ, pr.shadow);  // FIXME: core
+		inputUpdateKF(R, Rass, K, F, rename, self, (AssrtCoreEAction) ea, m, succ, pr.shadow);  // FIXME: core
 	}
 
 	private static void outputUpdateKF(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
+			Map<Role, Set<AssrtBoolFormula>> Rass,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBoolFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreEAction a, AssrtEState succ)  // FIXME: EAction closest base type
@@ -743,7 +757,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					F.put(self, hh);
 				}
 
-				updateKFR(R, K, F, rename, self, a, v, a.getAssertion(), succ);
+				updateKFR(R, Rass, K, F, rename, self, a, v, a.getAssertion(), succ);
 			}
 			else
 			{
@@ -756,6 +770,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	// a is the EFSM input action, which has (hacked) True ass; m is the dequeued msg, which carries the (actual) ass from the output side
 	// FIXME: factor better with outputUpdateKF
 	private static void inputUpdateKF(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
+			Map<Role, Set<AssrtBoolFormula>> Rass,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBoolFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreEAction a, AssrtEAction m, AssrtEState succ,
@@ -789,7 +804,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				rename.get(self).putAll(shadow);
 
 
-				updateKFR(R, K, F, rename, self, a, v, f, succ);  // Actual assertion (f) for annotvar (v) added in here
+				updateKFR(R, Rass, K, F, rename, self, a, v, f, succ);  // Actual assertion (f) for annotvar (v) added in here
 				
 				//AssrtFormulaHolder 
 				//h = F.get(self);  // FIXME: needed because updateRKF modifies F again
@@ -815,6 +830,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private static //Map<AssrtIntVarFormula, AssrtIntVarFormula>
 			void updateKFR(
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
+			Map<Role, Set<AssrtBoolFormula>> Rass,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBoolFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreEAction a, AssrtDataTypeVar v, AssrtBoolFormula f, AssrtEState succ)  // FIXME: EAction closest base type
@@ -890,6 +906,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					//putK(K, self, k);
 				}
 			});
+			
+			AssrtBoolFormula ass = succ.getAssertion();
+			if (!ass.equals(AssrtTrueFormula.TRUE))
+			{
+				Rass.get(self).add(ass);
+			}
 		}
 		
 
@@ -1092,7 +1114,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		String lab = "(P=" + this.P + ",\nQ=" 
 			//+ this.Q 
 			+ this.Q.toString().replaceAll("\\\"", "\\\\\"")
-			+ ",\nR=" + this.R + ",\nK=" + this.K + ",\nF=" + this.F + ",\nrename=" + this.rename + ")";
+			+ ",\nR=" + this.R
+			+ ",\nRass=" + this.Rass
+			+ ",\nK=" + this.K + ",\nF=" + this.F + ",\nrename=" + this.rename + ")";
 		return "label=\"" + this.id + ":" + lab + "\"";
 	}
 
@@ -1116,6 +1140,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		hash = 31 * hash + this.Q.hashCode();
 		hash = 31 * hash + this.R.hashCode();
 
+		hash = 31 * hash + this.Rass.hashCode();
+
 		hash = 31 * hash + this.K.hashCode();
 		hash = 31 * hash + this.F.hashCode();
 
@@ -1136,6 +1162,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 		AssrtCoreSState them = (AssrtCoreSState) o;
 		return them.canEquals(this) && this.P.equals(them.P) && this.Q.equals(them.Q) && this.R.equals(them.R)
+				&& this.Rass.equals(them.Rass)
 				&& this.K.equals(them.K) && this.F.equals(them.F);
 	}
 
@@ -1238,7 +1265,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private static Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> makeR(Map<Role, AssrtEState> P)
 	{
 		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.entrySet().stream().collect(Collectors.toMap(
-				e -> e.getKey(),
+				Entry::getKey,
 				e -> new HashMap<>(e.getValue().getStateVars())
 		));
 		/*Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.keySet().stream().collect(Collectors.toMap(r -> r, r ->
@@ -1252,6 +1279,28 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private static Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> copyR(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R)
 	{
 		return R.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> new HashMap<>(e.getValue())));
+	}
+	
+	private static Map<Role, Set<AssrtBoolFormula>> makeRass(Map<Role, AssrtEState> P)
+	{
+		return P.entrySet().stream().collect(Collectors.toMap(
+				Entry::getKey,
+				e ->
+				{
+					Set<AssrtBoolFormula> set = new HashSet<>();
+					AssrtBoolFormula ass = e.getValue().getAssertion();
+					if (!ass.equals(AssrtTrueFormula.TRUE))
+					{
+						set.add(ass);
+					}
+					return set;
+				}
+		));
+	}
+	
+	private static Map<Role, Set<AssrtBoolFormula>> copyRass(Map<Role, Set<AssrtBoolFormula>> Rass)
+	{
+		return Rass.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
 	}
 	
 	private static Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> copyRename(Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
