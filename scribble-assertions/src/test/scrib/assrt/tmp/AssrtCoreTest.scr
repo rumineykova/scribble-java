@@ -103,7 +103,7 @@ global protocol Proto1(role A, role B)  @"(x := 1) (x>0)"
 
 
 
-
+// try: mu X . ( A->B 1 . X + A->B 2 . mu Y . A->B 3 . Y ) with statevars and assertions
 
 
 
