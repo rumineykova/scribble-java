@@ -34,7 +34,7 @@ public class AssrtEState extends EState
 	private final Map<AssrtDataTypeVar, AssrtArithFormula> statevars; // Note: even with syntactic single var per rec, nested recs can lead to mulitple vars per state
 	
 	private //final
-			AssrtBoolFormula ass;  // FIXME: make Set
+			AssrtBoolFormula ass;  // FIXME: make Set -- and eliminate placeholder True from various, use empty set instead
 
 	// FIXME: make AssrtIntTypeVar?
 	protected AssrtEState(Set<RecVar> labs, Map<AssrtDataTypeVar, AssrtArithFormula> vars,
