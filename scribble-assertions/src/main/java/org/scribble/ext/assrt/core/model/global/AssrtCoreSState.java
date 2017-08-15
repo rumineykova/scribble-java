@@ -311,6 +311,22 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					AssrtBoolFormula lhs = this.F.get(src).stream().reduce(
 							AssrtTrueFormula.TRUE,
 							(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
+					
+					Map<AssrtDataTypeVar, AssrtArithFormula> statevars = this.R.get(src);
+					if (!statevars.isEmpty())
+					{
+						AssrtBoolFormula RR = statevars.entrySet().stream().map(x -> (AssrtBoolFormula)  // Cast needed for reduce
+									AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
+											AssrtFormulaFactory.AssrtIntVar(x.getKey().toString()),
+											x.getValue()))
+								.reduce(
+									//(AssrtBoolFormula) AssrtTrueFormula.TRUE,
+									(e1, e2) -> (AssrtBoolFormula) AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, e1, e2)
+								).get();
+						//RR = ((AssrtBinBoolFormula) RR).getRight();  // if only one term, RR will be the BCF
+						lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs, RR);
+					}
+					
 					AssrtBoolFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, lhs, AA);
 
 						Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
@@ -870,7 +886,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				
 				if (!Rself.containsKey(k) || !Rself.get(k).equals(af))  // FIXME: need to treat statevars more like roles? i.e., statevar must be explicitly declared/passed to stay "in scope" in the subproto?
 				{
-					updateRandFfromR(F, self, Rself, k, af);
+					updateRandFfromR(F, self, Rself, k, af, true);
 					//putK(K, self, k);
 				}
 			});
@@ -909,7 +925,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						&& !((expr instanceof AssrtIntVarFormula) && ((AssrtIntVarFormula) expr).name.equals("_" + annot.toString())))  // Hacky? if expr is just the var occurrence, then value doesn't change
 								// FIXME: generalise -- occurences of other vars can be first substituted, before "old var renaming"? -- also for rec-state updates?
 				{
-					updateRandFfromR(F, self, Rself, annot, expr);
+					updateRandFfromR(F, self, Rself, annot, expr, false);
 				}
 			}
 		}
@@ -920,8 +936,19 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	private static void updateRandFfromR(Map<Role, Set<AssrtBoolFormula>> F, Role self,
-			Map<AssrtDataTypeVar, AssrtArithFormula> Rself, AssrtDataTypeVar annot, AssrtArithFormula expr)
+			Map<AssrtDataTypeVar, AssrtArithFormula> Rself, AssrtDataTypeVar annot, AssrtArithFormula expr, boolean forwards)
 	{
+		if (!forwards)
+		{
+			for (AssrtDataTypeVar v : expr.getIntVars())
+			{
+				AssrtIntVarFormula fresh = //makeFreshIntVar(v);
+					AssrtFormulaFactory.AssrtIntVar("__" + v.toString());
+				expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()), fresh);
+			}
+		}
+
+
 		// Must come after initial F update
 		Rself.put(annot, expr);   // "Overwrite" (if already known)
 
@@ -929,7 +956,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		AssrtIntVarFormula fresh = makeFreshIntVar(annot);
 		Set<AssrtBoolFormula> hh = F.get(self);
 		hh = hh.stream().map(b -> b.subs(iv, fresh)).collect(Collectors.toSet());
-		hh.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
+		//hh.add(AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, iv, expr));
 		F.put(self, hh);
 	}
 	

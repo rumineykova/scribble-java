@@ -77,13 +77,28 @@ type <dotnet> "System.UInt32" from "..." as int;
 type <dotnet> "System.String" from "..." as str;
 
 
-global protocol Proto1(role A, role B)  @"(x := 1) x>0"
+/*
+global protocol Proto1(role A, role B)  @"(x := 1)"
 {
-	1() from A to B; //@"(x>3)"
+	1(y:int) from A to B;  @"(y > x)"
+	2() from B to A;
+	do Proto1(A, B);  @"(x)"
+}
+//*/
 
-	do Proto1(A, B);  @"(x+1)"
+//*
+//global protocol Proto1(role A, role B)  @"(x := 1) x>0"
+global protocol Proto1(role A, role B)  @"(x := 1)"
+{
+	//1() from A to B;
+	1() from A to B; @"(x<3)"
+	//2() from B to A;
+
+	do Proto1(A, B);  @"(x)"
+	//do Proto1(A, B);  @"((x+1))"
 	//do Proto1(A, B);  @"(x-1)"
 }
+//*/
 
 
 
