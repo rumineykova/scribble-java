@@ -16,7 +16,7 @@ public class AssrtAntlrCompExpr
 	public static AssrtSmtFormula<?> parseCompExpr(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
 	{
 		//AssrtArithFormula left = (AssrtArithFormula) parser.parse(getLeftChild(root)); 
-		AssrtSmtFormula<?> left = (AssrtSmtFormula<?>) parser.parse(getLeftChild(root)); 
+		AssrtSmtFormula<?> left = parser.parse(getLeftChild(root)); 
 		if (root.getChildCount() < 2)
 		{
 			return left;

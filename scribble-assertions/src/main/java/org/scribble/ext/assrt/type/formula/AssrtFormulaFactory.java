@@ -26,7 +26,7 @@ public class AssrtFormulaFactory
 		return new AssrtBinBoolFormula(op, left, right); 
 	}
 
-	public static AssrtUnPredicateFormula AssrtUnPredicate(String name, List<AssrtArithFormula>args)
+	public static AssrtUnPredicateFormula AssrtUnPredicate(String name, List<AssrtArithFormula> args)
 	{
 		return new AssrtUnPredicateFormula(name, args);
 	}

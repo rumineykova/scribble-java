@@ -13,21 +13,21 @@ import org.scribble.ext.assrt.type.formula.AssrtUnPredicateFormula;
 public class AssrtAntlrUnFun
 {
 	public static final int NAME_INDEX = 0;
-	public static final int ARITH_EXPR_LIST_INDEX = 1;
+	public static final int UNFUNARGLIST_INDEX = 1;
 	
 	public static AssrtUnPredicateFormula parseUnFun(AssrtAntlrToFormulaParser parser, CommonTree root)
 	{
 		String name = getNameChild(root).getText();
-		CommonTree exprs = getArithExprListChild(root);
-		List<AssrtArithFormula> args = (exprs.getChildCount() > 0)
-				? parseArithExprList(parser, exprs)
+		CommonTree arglist = getUnFunArgListChild(root);
+		List<AssrtArithFormula> args = (arglist.getChildCount() > 0)
+				? parseUnFunArgList(parser, arglist)
 				: Collections.emptyList();
 		return AssrtFormulaFactory.AssrtUnPredicate(name, args);  // Currently assumed to be a predicate on ints
 	}
 	
-	public static List<AssrtArithFormula> parseArithExprList(AssrtAntlrToFormulaParser parser, CommonTree exprs)
+	public static List<AssrtArithFormula> parseUnFunArgList(AssrtAntlrToFormulaParser parser, CommonTree args)
 	{
-		return ((List<?>) exprs.getChildren()).stream()
+		return ((List<?>) args.getChildren()).stream()
 				.map(c -> (AssrtArithFormula) parser.parse((CommonTree) c)).collect(Collectors.toList());
 	}
 	
@@ -36,8 +36,8 @@ public class AssrtAntlrUnFun
 		return (CommonTree) root.getChild(NAME_INDEX);
 	}
 	
-	public static CommonTree getArithExprListChild(CommonTree root)
+	public static CommonTree getUnFunArgListChild(CommonTree root)
 	{
-		return (CommonTree) root.getChild(ARITH_EXPR_LIST_INDEX);
+		return (CommonTree) root.getChild(UNFUNARGLIST_INDEX);
 	}
 }
