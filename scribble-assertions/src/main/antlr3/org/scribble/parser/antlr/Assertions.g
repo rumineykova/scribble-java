@@ -72,7 +72,6 @@ tokens
   	System.exit(1);
 	}
   
-	// Takes the whole AssrtScribble.g ASSRT_EXPPR
 	public static CommonTree parseAssertion(String source) throws RecognitionException
 	{
 		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
@@ -163,18 +162,16 @@ statevararglist:
 ->
 	^(ASSRT_STATEVARARGLIST arith_expr+)
 ;
-//	'(' arith_expr (',' arith_expr)* ')'
-//	'<' arith_expr (',' arith_expr)* '>' -- seems to break assertion parsing
 	
 	
 // root	
 	
-// ANTLR seems to force a pattern where expr "kinds" are nested under a single expr
 root:  
 	expr
 ->
 	^(ROOT expr)
 ;
+// ANTLR seems to force a pattern where expr "kinds" are nested under a single expr
 
 expr:
 	bool_expr

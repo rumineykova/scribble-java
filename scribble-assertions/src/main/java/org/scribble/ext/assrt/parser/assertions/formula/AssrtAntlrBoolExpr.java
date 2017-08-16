@@ -23,7 +23,7 @@ public class AssrtAntlrBoolExpr
 			return left;
 		}
 		AssrtBinBoolFormula.Op op = parseOp(getOpChild(root)); 
-		AssrtBoolFormula right = (AssrtBoolFormula) parser.parse(getRightChild(root));
+		AssrtBoolFormula right = (AssrtBoolFormula) parser.parse(getRightChild(root));  // FIXME: throw ScribbleParserException for unexpected types
 		return AssrtFormulaFactory.AssrtBinBool(op, (AssrtBoolFormula) left, right); 
 		
 	}
