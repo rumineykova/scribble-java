@@ -1,5 +1,6 @@
 package org.scribble.ext.assrt.core.ast;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +53,7 @@ public class AssrtCoreAstFactory
 	
 	public AssrtCoreGRec AssrtCoreGRec(RecVar recvar,
 			//AssrtDataTypeVar annot, AssrtArithFormula init,
-			Map<AssrtDataTypeVar, AssrtArithFormula> annotvars,
+			LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars,
 			AssrtCoreGType body,
 			AssrtBoolFormula ass)
 	{
@@ -104,7 +105,7 @@ public class AssrtCoreAstFactory
 	
 	public AssrtCoreLRec AssrtCoreLRec(RecVar recvar, 
 			//AssrtDataTypeVar annot, AssrtArithFormula init,
-			Map<AssrtDataTypeVar, AssrtArithFormula> annotvars,
+			LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars,
 			AssrtCoreLType body,
 			AssrtBoolFormula ass)
 	{

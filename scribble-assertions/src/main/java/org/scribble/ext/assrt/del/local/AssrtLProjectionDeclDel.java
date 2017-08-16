@@ -1,10 +1,9 @@
 package org.scribble.ext.assrt.del.local;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -71,7 +70,7 @@ public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionD
 		LProjectionDecl lpd = (LProjectionDecl) child;
 		AssrtLProtocolHeader hdr = (AssrtLProtocolHeader) lpd.header;
 		
-		Map<AssrtDataTypeVar, AssrtArithFormula> vars = new HashMap<>();
+		LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars = new LinkedHashMap<>();
 		//if (hdr.ass != null)
 		if (!hdr.annotvars.isEmpty())
 		{

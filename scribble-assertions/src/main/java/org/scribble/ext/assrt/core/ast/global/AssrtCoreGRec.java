@@ -1,7 +1,7 @@
 package org.scribble.ext.assrt.core.ast.global;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreRec;
@@ -20,7 +20,7 @@ import org.scribble.type.name.Role;
 public class AssrtCoreGRec extends AssrtCoreRec<AssrtCoreGType> implements AssrtCoreGType
 {
 	public AssrtCoreGRec(RecVar recvar, //AssrtDataTypeVar annot, AssrtArithFormula init,
-			Map<AssrtDataTypeVar, AssrtArithFormula> annotvars,
+			LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars,
 			AssrtCoreGType body,
 			AssrtBoolFormula ass)
 	{

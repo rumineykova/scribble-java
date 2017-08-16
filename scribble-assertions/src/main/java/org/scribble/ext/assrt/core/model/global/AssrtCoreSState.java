@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -532,6 +533,16 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					//RR = ((AssrtBinBoolFormula) RR).getRight();  // if only one term, RR will be the BCF
 					lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs, RR);
 				}
+				AssrtBoolFormula ass = b.getAssertion();
+				if (!ass.equals(AssrtTrueFormula.TRUE))
+				{
+					lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs, ass);
+				}
+				AssrtBoolFormula ass2 = succ.getAssertion();
+				if (!ass2.equals(AssrtTrueFormula.TRUE))
+				{
+					lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs, ass2);
+				}
 				
 				AssrtBoolFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, lhs, RARA);
 
@@ -992,7 +1003,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//AssrtDataTypeVar annot = a.getAnnotVar();
 
 		// "forward" recs will have annotvars but no stateexprs
-		Map<AssrtDataTypeVar, AssrtArithFormula> annotvars = succ.getStateVars();
+		LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars = succ.getStateVars();
 		List<AssrtArithFormula> stateexprs = a.getStateExprs();
 		
 
@@ -1039,7 +1050,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			}
 
 			Iterator<AssrtArithFormula> afs = stateexprs.iterator();
-			for (AssrtDataTypeVar annot : annotvars.keySet())
+			for (AssrtDataTypeVar annot : annotvars.keySet())  // FIXME: statevar ordering
 			{
 				//AssrtArithFormula expr = a.getStateExprs().iterator().next();
 				AssrtArithFormula expr = afs.next();

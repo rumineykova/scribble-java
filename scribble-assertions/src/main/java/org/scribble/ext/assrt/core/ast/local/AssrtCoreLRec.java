@@ -1,6 +1,6 @@
 package org.scribble.ext.assrt.core.ast.local;
 
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 import org.scribble.ext.assrt.core.ast.AssrtCoreRec;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
@@ -11,7 +11,7 @@ import org.scribble.type.name.RecVar;
 public class AssrtCoreLRec extends AssrtCoreRec<AssrtCoreLType> implements AssrtCoreLType
 {
 	public AssrtCoreLRec(RecVar recvar, //AssrtDataTypeVar annot, AssrtArithFormula init,
-			Map<AssrtDataTypeVar, AssrtArithFormula> annotvars,
+			LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars,
 			AssrtCoreLType body,
 			AssrtBoolFormula ass)
 	{

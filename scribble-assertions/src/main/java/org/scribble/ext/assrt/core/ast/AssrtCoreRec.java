@@ -1,7 +1,6 @@
 package org.scribble.ext.assrt.core.ast;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
@@ -14,17 +13,18 @@ public abstract class AssrtCoreRec<B extends AssrtCoreType> implements AssrtCore
 	public final RecVar recvar;  // FIXME: RecVarNode?  (Cf. AssrtCoreAction.op/pay)
 	public final B body;
 
-	public final Map<AssrtDataTypeVar, AssrtArithFormula> annotvars;  // Int  // Non-null
+	public final LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars;  // Int  // Non-null
 	//public final AssrtArithFormula init;
 	
 	public final AssrtBoolFormula ass;
 	
 	//public AssrtCoreRec(RecVar recvar, AssrtDataTypeVar annot, AssrtArithFormula init, B body)
-	public AssrtCoreRec(RecVar recvar, Map<AssrtDataTypeVar, AssrtArithFormula> annotvars, B body,
+	public AssrtCoreRec(RecVar recvar, LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars, B body,
 			AssrtBoolFormula ass)
 	{
 		this.recvar = recvar;
-		this.annotvars = Collections.unmodifiableMap(annotvars);
+		this.annotvars = //Collections.unmodifiableMap(annotvars);
+				new LinkedHashMap<>(annotvars);
 		//this.init = init;
 		this.body = body;
 		this.ass = ass;

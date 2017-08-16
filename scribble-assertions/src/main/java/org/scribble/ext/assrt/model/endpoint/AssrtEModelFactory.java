@@ -1,6 +1,6 @@
 package org.scribble.ext.assrt.model.endpoint;
 
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAccept;
@@ -25,6 +25,6 @@ public interface AssrtEModelFactory extends EModelFactory
 	AssrtERequest newAssrtERequest(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf);
 	AssrtEAccept newAssrtEAccept(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf);
 	
-	AssrtEState newAssrtEState(Set<RecVar> labs, Map<AssrtDataTypeVar, AssrtArithFormula> vars,
+	AssrtEState newAssrtEState(Set<RecVar> labs, LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars,
 			AssrtBoolFormula ass);
 }

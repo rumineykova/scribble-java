@@ -2,6 +2,7 @@ package org.scribble.ext.assrt.core.ast.global;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
+import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
@@ -223,7 +225,13 @@ public class AssrtCoreGProtocolDeclTranslator
 		//return this.af.AssrtCoreGRec(recvar, annot, init, body);
 		//return this.af.AssrtCoreGRec(recvar, Stream.of(annot).collect(Collectors.toMap(a -> a, a -> init)), body);
 		Iterator<AssrtArithExpr> exprs = gr.annotexprs.iterator();
-		Map<AssrtDataTypeVar, AssrtArithFormula> vars = gr.annotvars.stream().collect(Collectors.toMap(v -> v.getFormula().toName(), v -> exprs.next().getFormula()));
+		/*Map<AssrtDataTypeVar, AssrtArithFormula> vars
+				= gr.annotvars.stream().collect(Collectors.toMap(v -> v.getFormula().toName(), v -> exprs.next().getFormula()));*/
+		LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars = new LinkedHashMap<>();
+		for (AssrtIntVarNameNode vv : gr.annotvars)
+		{
+			vars.put(vv.getFormula().toName(), exprs.next().getFormula());
+		}
 		AssrtBoolFormula ass = (gr.ass == null) ? AssrtTrueFormula.TRUE : gr.ass.getFormula();
 		return this.af.AssrtCoreGRec(recvar, vars, body, ass);
 	}

@@ -3,6 +3,7 @@ package org.scribble.ext.assrt.core.model.endpoint;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class AssrtCoreEGraphBuilder
 	
 	public EGraph build(AssrtCoreLType lt)
 	{
-		this.util.init(((AssrtCoreEModelFactory) this.job.ef).newAssrtEState(Collections.emptySet(), new HashMap<>(), 
+		this.util.init(((AssrtCoreEModelFactory) this.job.ef).newAssrtEState(Collections.emptySet(), new LinkedHashMap<>(), 
 				AssrtTrueFormula.TRUE));
 		build(lt, this.util.getEntry(), this.util.getExit(), new HashMap<>());
 		return this.util.finalise();
