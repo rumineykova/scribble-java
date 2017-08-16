@@ -16,7 +16,7 @@ type <dotnet> "System.String" from "..." as str;
 explicit global protocol Proto1(role A, role B, role C)
 {
 	connect A to B;
-	1(p:int) from A to B;  @"open(p, B)"  // Open fresh port at A (for C) -- send the port value to B
+	1(p:int) from A to B;  @"open(p, C)"  // Open fresh port at A (for C) -- send the port value to B
 	connect B to C;
 	2(q:int) from B to C;  @"(p=q)"       // Forward the (port) value from B to C;
 	connect C to A;        @"port(q, C)"     // Connect to port q
