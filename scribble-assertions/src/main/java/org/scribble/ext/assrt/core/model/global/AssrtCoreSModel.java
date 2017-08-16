@@ -50,7 +50,7 @@ public class AssrtCoreSModel
 		Set<AssrtCoreSState> unknownVars = this.allStates.values().stream().filter(s -> s.isUnknownDataTypeVarError(job, simpname)).collect(Collectors.toSet());
 		Set<AssrtCoreSState> asserts = this.allStates.values().stream().filter(s -> s.isAssertionProgressError(job, simpname)).collect(Collectors.toSet());
 		Set<AssrtCoreSState> unsats = this.allStates.values().stream().filter(s -> s.isUnsatisfiableError(job, simpname)).collect(Collectors.toSet());
-		Set<AssrtCoreSState> recasserts = this.allStates.values().stream().filter(s -> s.isRecursionAssertionError(job, simpname)).collect(Collectors.toSet());
+		Set<AssrtCoreSState> recasserts = this.allStates.values().stream().filter(s -> s.isRecursionAssertionError(job, simpname, init)).collect(Collectors.toSet());
 		
 		/*Set<AssrtCoreSState> portOpens = this.allStates.values().stream().filter(AssrtCoreSState::isPortOpenError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> portOwners = this.allStates.values().stream().filter(AssrtCoreSState::isPortOwnershipError).collect(Collectors.toSet());*/

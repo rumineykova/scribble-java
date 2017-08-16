@@ -81,7 +81,8 @@ type <dotnet> "System.String" from "..." as str;
 
 // try: mu X . ( A->B 1 . X + A->B 2 . mu Y . A->B 3 . Y ) with statevars and assertions
 
-//*
+/*
+//global protocol Proto1(role A, role B) @"(x := 1) (x>0)"
 global protocol Proto1(role A, role B) @"(x := 0) (x>0)"
 {
 	//1(y:int) from A to B; @"(y>1)"
@@ -92,8 +93,8 @@ global protocol Proto1(role A, role B) @"(x := 0) (x>0)"
 /*
 global protocol Proto1(role A, role B)
 {
-	1(y:int) from A to B; @"(y>1)"
-	//1(y:int) from A to B; @"(y>3)"
+	//1(y:int) from A to B; @"(y>1)"
+	1(y:int) from A to B; @"(y>3)"
 	do Proto2(A, B); @"(y)"
 }
 

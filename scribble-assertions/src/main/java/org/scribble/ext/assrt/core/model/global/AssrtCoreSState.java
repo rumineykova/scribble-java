@@ -479,14 +479,54 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	
-	public boolean isRecursionAssertionError(Job job, GProtocolName simpname)
+	public boolean isRecursionAssertionError(Job job, GProtocolName simpname, AssrtCoreSState init)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
 		{
-			return e.getValue().getAllActions().stream().anyMatch(a ->
-			{
-				Role self = e.getKey();
+			Role self = e.getKey();
+			AssrtEState curr = e.getValue();
 
+			if (this.id == init.id)  // Otherwise initial assertions not checked, since no incoming action (cf. below)
+			{
+				AssrtBoolFormula initRass = curr.getAssertion();
+				if (!initRass.equals(AssrtTrueFormula.TRUE))
+				{
+					AssrtBoolFormula initRR = this.R.get(self).entrySet().stream()
+							.map(vv -> (AssrtBoolFormula)  // Cast needed
+								AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
+									AssrtFormulaFactory.AssrtIntVar(vv.getKey().toString()),
+									vv.getValue()))  // do-statevar expr args for "forwards" rec already inlined into rec-statevars
+							.reduce((b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)).get();
+
+					AssrtBoolFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, initRR, initRass);
+
+					Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
+							.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
+					Set<AssrtDataTypeVar> free = impli.getIntVars().stream()
+							.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
+							.collect(Collectors.toSet());
+					if (!free.isEmpty())
+					{
+						impli = AssrtFormulaFactory.AssrtForallFormula(
+								free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
+										.collect(Collectors.toList()),
+								impli);
+					}
+					
+					job.debugPrintln("\n[assrt-core] Checking initial recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
+					String str = impli.toSmt2Formula();
+					job.debugPrintln("  raw      = " + str);
+
+					AssrtBoolFormula squashed = impli.squash();
+
+					job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
+
+					return !((AssrtJob) job).checkSat(simpname, squashed);
+				}
+			}	
+			
+			return curr.getAllActions().stream().anyMatch(a ->
+			{
 				if(a.isSend() || a.isRequest())
 				{
 					// Proceed
@@ -503,7 +543,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					throw new RuntimeException("[assrt] Shouldn't get in here: ");
 				}
 				
-				AssrtEState curr = e.getValue();
 				AssrtEState succ = curr.getSuccessor(a);
 				AssrtCoreEAction b = (AssrtCoreEAction) a;
 				List<AssrtArithFormula> exprs = b.getStateExprs();
