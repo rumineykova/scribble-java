@@ -149,6 +149,10 @@ statevardecllist:
 	'(' statevardecl (',' statevardecl)* ')' (bool_expr)?
 ->
 	^(ASSRT_STATEVARDECLLIST ^(ASSRT_STATEVARDECLLISTASSERTION bool_expr?) statevardecl+)
+|
+	bool_expr
+->
+	^(ASSRT_STATEVARDECLLIST ^(ASSRT_STATEVARDECLLISTASSERTION bool_expr))
 ;
 	
 statevardecl:

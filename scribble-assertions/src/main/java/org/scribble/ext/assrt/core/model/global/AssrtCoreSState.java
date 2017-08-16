@@ -496,7 +496,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 								AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
 									AssrtFormulaFactory.AssrtIntVar(vv.getKey().toString()),
 									vv.getValue()))  // do-statevar expr args for "forwards" rec already inlined into rec-statevars
-							.reduce((b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)).get();
+							.reduce(AssrtTrueFormula.TRUE,  // Currently allowing recurison-assertion without any statevardecls (i.e., cannot use any vars), but pointless?
+									(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
 
 					AssrtBoolFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, initRR, initRass);
 
