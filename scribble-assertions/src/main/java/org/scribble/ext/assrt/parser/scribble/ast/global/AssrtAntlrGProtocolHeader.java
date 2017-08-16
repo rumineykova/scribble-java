@@ -1,5 +1,6 @@
 package org.scribble.ext.assrt.parser.scribble.ast.global;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,8 +36,12 @@ public class AssrtAntlrGProtocolHeader
 		AssrtAntlrToFormulaParser ap = ((AssrtAntlrToScribParser) parser).ap;
 	
 		CommonTree assTree = AssrtAntlrGProtocolHeader.getAssrtStateVarDeclListChild(root);  // ASSRT_STATEVARDECLLIST
-		List<AssrtIntVarNameNode> annotvars = parseAssrtStateVarDeclListVars(assTree, af);
-		List<AssrtArithExpr> annotexprs = parseAssrtStateVarDeclListExprs(ap, assTree, af);
+		List<AssrtIntVarNameNode> annotvars = (assTree.getChildCount() > 1)
+				? parseAssrtStateVarDeclListVars(assTree, af)
+				: Collections.emptyList();
+		List<AssrtArithExpr> annotexprs = (assTree.getChildCount() > 1)
+				? parseAssrtStateVarDeclListExprs(ap, assTree, af)
+				: Collections.emptyList();
 		AssrtAssertion ass = parseAssrtStateVarDeclListAssertionChild(ap, assTree, af);
 		return af.AssrtGProtocolHeader(root, name, rdl, pdl, //ass);
 				annotvars, annotexprs,
