@@ -9,6 +9,6 @@ global protocol Proto1(role A, role B) @"(z:=0)"
 {
 	1(x:int) from A to B; @"(x>z)"  // testing statevar renaming (shadowing)
 	2() from B to A;
-	do Proto1(A, B); @"(1)"  // Exercises renaming via unfolding
+	do Proto1(A, B); @"<1>"  // Exercises renaming via unfolding
 }
 //*/

@@ -159,10 +159,11 @@ statevardecl:
 ;
 	
 statevararglist:
-	'(' arith_expr (',' arith_expr)* ')'
+	'<' arith_expr (',' arith_expr)* '>'
 ->
 	^(ASSRT_STATEVARARGLIST arith_expr+)
 ;
+//	'(' arith_expr (',' arith_expr)* ')'
 //	'<' arith_expr (',' arith_expr)* '>' -- seems to break assertion parsing
 	
 	

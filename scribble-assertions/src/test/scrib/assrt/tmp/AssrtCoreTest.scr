@@ -81,9 +81,9 @@ global protocol Proto1(role A, role B) @"(x:=(1+(1-1)))"
 {
 	1() from A to B; 
 	//@"(((x>1) && (x>2)) && (x>3))"
-	//@"(x>3)"
-	@"(((True)))"
-	2() from B to A; @"foo()"
+	@"x<3 && x<2"
+	//@"(((True)))"
+	//2() from B to A; @"foo()"
 }
 
 

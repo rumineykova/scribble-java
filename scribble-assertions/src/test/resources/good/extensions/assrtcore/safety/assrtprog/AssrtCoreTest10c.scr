@@ -11,7 +11,7 @@ global protocol Proto1(role B, role S) @"(x:=3)"
 	choice at S
 	{
 		2() from S to B; @"(y>x)"  // Example of "y" do arg being fine (most unary-choice patterns are not assrt-prog)
-		do Proto1(B, S); @"(y)"
+		do Proto1(B, S); @"<y>"
 	}
 	or { 4() from S to B; }
 }

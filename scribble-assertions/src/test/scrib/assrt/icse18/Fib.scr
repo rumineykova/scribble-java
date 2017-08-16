@@ -13,7 +13,7 @@ global protocol Proto1(role C, role S)
 		Val(x1:int) from C to S;  @"(x1 = x)"
 		Add(y1:int) from C to S;  @"(y1 = y)"
 		Sum(z:int) from S to C;   @"(z  = (x1+y1))"
-		do Proto1(C, S);          @"(y1, z)"
+		do Proto1(C, S);          @"<y1, z>"
 	}
 	or
 	{
