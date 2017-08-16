@@ -466,6 +466,24 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			return e.getValue().getAllActions().stream().anyMatch(a ->
 			{
+				Role self = e.getKey();
+
+				if(a.isSend() || a.isRequest())
+				{
+					// Proceed
+				}
+				else if (a.isReceive() || a.isAccept())
+				{
+					if (!hasMessage(self, a.peer) && !isPendingRequest(a.peer, self))
+					{
+						return false;
+					}
+				}
+				else
+				{
+					throw new RuntimeException("[assrt] Shouldn't get in here: ");
+				}
+				
 				AssrtCoreEAction b = (AssrtCoreEAction) a;
 				List<AssrtArithFormula> exprs = b.getStateExprs();
 				if (exprs.isEmpty())
@@ -473,7 +491,6 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					return false;
 				}
 
-				Role src = e.getKey();
 				AssrtEState curr = e.getValue();
 				AssrtEState succ = curr.getSuccessor(a);
 				/*AssrtBoolFormula ass = ((AssrtCoreEAction) a).getAssertion();
@@ -482,7 +499,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					return true;
 				}*/
 
-				AssrtBoolFormula RARA = this.Rass.get(src).stream().reduce(AssrtTrueFormula.TRUE, 
+				AssrtBoolFormula RARA = this.Rass.get(self).stream().reduce(AssrtTrueFormula.TRUE, 
 						(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
 				// Do check even if AA is True? To check statevar update isn't a contradiction?
 				// FIXME: that won't be checked by this, lhs just becomes false -- this should be checked by unsat? (but that is only poly choices)
@@ -502,24 +519,24 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					RARA = RARA.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()), it3.next());
 				}
 				
-				Iterator<AssrtArithFormula> it = exprs.iterator();
-				Iterator<AssrtIntVarFormula> it2 = fresh.iterator();
+				Iterator<AssrtArithFormula> i_exprs = exprs.iterator();
+				Iterator<AssrtIntVarFormula> i_fresh = fresh.iterator();
 				AssrtBoolFormula reduce = old.stream()
 						.map(v -> (AssrtBoolFormula)  // Cast needed
 							AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
-									AssrtFormulaFactory.AssrtIntVar(it2.next().toString()),
-									it.next()))
+									AssrtFormulaFactory.AssrtIntVar(i_fresh.next().toString()),
+									i_exprs.next()))
 						.reduce((b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)).get();
 				RARA = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, RARA, reduce);
 				RARA = AssrtFormulaFactory.AssrtExistsFormula(
 						fresh.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList()),
 						RARA);
 
-				AssrtBoolFormula lhs = this.F.get(src).stream().reduce(
+				AssrtBoolFormula lhs = this.F.get(self).stream().reduce(
 						AssrtTrueFormula.TRUE,
 						(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
 				
-				Map<AssrtDataTypeVar, AssrtArithFormula> statevars = this.R.get(src);
+				Map<AssrtDataTypeVar, AssrtArithFormula> statevars = this.R.get(self);
 				if (!statevars.isEmpty())
 				{
 					AssrtBoolFormula RR = statevars.entrySet().stream().map(x -> (AssrtBoolFormula)  // Cast needed for reduce
@@ -533,7 +550,17 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					//RR = ((AssrtBinBoolFormula) RR).getRight();  // if only one term, RR will be the BCF
 					lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs, RR);
 				}
-				AssrtBoolFormula ass = b.getAssertion();
+				
+				AssrtBoolFormula ass;
+				if (a.isSend() || a.isRequest())  // FIXME: AssrtEAction doesn't have those methods
+				{
+					ass = b.getAssertion();
+				}
+				else //(a.isReceive() || a.isAccept())  // Has message/request already checked
+				{
+					ass = this.Q.get(self).get(a.peer).getAssertion();  // Cf. inputUpdateKF m.getAssertion()
+				}
+				
 				if (!ass.equals(AssrtTrueFormula.TRUE))
 				{
 					lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs, ass);
@@ -559,7 +586,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							impli);
 				}
 				
-				job.debugPrintln("\n[assrt-core] Checking recursion assertion for " + src + " at " + succ + "(" + this.id + "):");
+				job.debugPrintln("\n[assrt-core] Checking recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
 				String str = impli.toSmt2Formula();
 				job.debugPrintln("  raw      = " + str);
 
@@ -1184,6 +1211,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}*/
 	}
 
+	// Doesn't include pending requests, checks isInputQueueEstablished
 	private boolean hasMessage(Role self, Role peer)
 	{
 		return isInputQueueEstablished(self, peer)  // input queue is established (not \bot and not <a>)
@@ -1194,8 +1222,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	// i.e. "fully" established, not "pending" -- semantics relies on all action firing being guarded on !hasPendingConnect
 	private boolean isInputQueueEstablished(Role dest, Role src)  // N.B. is more like the "input buffer" at r1 for r2 -- not the actual "connection from r1 to r2"
 	{
-		AssrtCoreESend es = this.Q.get(dest).get(src);
-		return !(es instanceof AssrtCoreEBot) && !(es instanceof AssrtCoreEPendingRequest);
+		AssrtCoreEMessage m = this.Q.get(dest).get(src);
+		return !(m instanceof AssrtCoreEBot) && !(m instanceof AssrtCoreEPendingRequest);
 		//return es != null && es.equals(AssrtCoreEBot.ASSSRTCORE_BOT);  // Would be same as above
 	}
 
@@ -1203,8 +1231,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private boolean isPendingRequest(Role req, Role acc)  // FIXME: for open/port annotations
 	{
 		//return (this.ports.get(r1).get(r2) != null) || (this.ports.get(r2).get(r1) != null);
-		AssrtCoreESend es = this.Q.get(acc).get(req);  // N.B. reverse direction to isConnected
-		return es instanceof AssrtCoreEPendingRequest;
+		AssrtCoreEMessage m = this.Q.get(acc).get(req);  // N.B. reverse direction to isConnected
+		return m instanceof AssrtCoreEPendingRequest;
 	}
 
 	private boolean hasPendingRequest(Role req)

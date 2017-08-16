@@ -87,6 +87,15 @@ global protocol Proto1(role A, role B)  @"(x := 1)"
 //*/
 
 //*
+global protocol Proto1(role A, role B)  @"(x := 2) (x>1)"
+{
+	1() from A to B; @"(x>1)"
+	2() from B to A;
+	do Proto1(A, B);  @"((x+1))"  // f(x)
+}
+//*/
+
+/*
 //global protocol Proto1(role A, role B)  @"(x := 1)"
 global protocol Proto1(role A, role B)  @"(x := 2) (x>1)"
 //global protocol Proto1(role A, role B)  @"(x := 1) (y>0)"
@@ -102,7 +111,7 @@ global protocol Proto1(role A, role B)  @"(x := 2) (x>1)"
 }
 //*/
 
-global protocol Proto1(role C, role S) @"(x := 0, y := 1) (x>0)"  // FIXME
+//global protocol Proto1(role C, role S) @"(x := 0, y := 1) (x>0)"  // FIXME
 
 
 // try: mu X . ( A->B 1 . X + A->B 2 . mu Y . A->B 3 . Y ) with statevars and assertions
