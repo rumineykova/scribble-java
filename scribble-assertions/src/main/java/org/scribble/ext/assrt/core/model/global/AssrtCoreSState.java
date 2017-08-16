@@ -414,13 +414,32 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
 					}
 					
-					
-					// FIXME: R and Rass?
-					
-
 					AssrtBoolFormula tocheck = this.F.get(src).stream().reduce(
 							AA,
 							(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
+					
+					Map<AssrtDataTypeVar, AssrtArithFormula> statevars = this.R.get(src);
+					if (!statevars.isEmpty())
+					{
+						AssrtBoolFormula RR = statevars.entrySet().stream().map(x -> (AssrtBoolFormula)  // Cast needed for reduce
+									AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
+											AssrtFormulaFactory.AssrtIntVar(x.getKey().toString()),
+											x.getValue()))
+								.reduce(
+									//(AssrtBoolFormula) AssrtTrueFormula.TRUE,
+									(e1, e2) -> (AssrtBoolFormula) AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, e1, e2)
+								).get();
+						//RR = ((AssrtBinBoolFormula) RR).getRight();  // if only one term, RR will be the BCF
+						tocheck = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, tocheck, RR);
+					}
+					AssrtBoolFormula RARA = this.Rass.get(src).stream().reduce(AssrtTrueFormula.TRUE, 
+							(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
+					if (!RARA.equals(AssrtTrueFormula.TRUE))
+					{
+						tocheck = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, tocheck, RARA);
+					}
+					// Include RR and RARA, to check lhs is sat for assrt-prog (o/w false => any)
+
 					Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
 								.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
 					Set<AssrtDataTypeVar> free = tocheck.getIntVars().stream()
@@ -428,7 +447,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							.collect(Collectors.toSet());
 					if (!free.isEmpty())
 					{
-						tocheck = AssrtFormulaFactory.AssrtExistsFormula(
+						tocheck = AssrtFormulaFactory.AssrtExistsFormula(  // Cf. assrt-prog, don't need action to be sat *forall* prev, just sat for *some* prev
 								free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
 										.collect(Collectors.toList()),
 								tocheck);

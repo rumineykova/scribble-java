@@ -87,11 +87,15 @@ global protocol Proto1(role A, role B)  @"(x := 1)"
 //*/
 
 //*
-global protocol Proto1(role A, role B)  @"(x := 2) (x>1)"
+global protocol Proto1(role A, role B)  @"(x := 3)
+		(x>2)"
+		//(x>0)"
+		//(x>1)"
 {
 	1() from A to B; @"(x>1)"
-	2() from B to A;
-	do Proto1(A, B);  @"((x+1))"  // f(x)
+	//2() from B to A;
+	do Proto1(A, B);  @"((x+1))"
+	//do Proto1(A, B);  @"((x-1))"
 }
 //*/
 

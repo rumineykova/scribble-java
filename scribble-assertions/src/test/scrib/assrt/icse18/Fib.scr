@@ -3,8 +3,10 @@ module assrt.icse18.Fib;
 
 type <dotnet> "System.UInt32" from "..." as int;
 
-//global protocol Proto1(role C, role S) @"(x := 0, y := 1) (y>0))"
-global protocol Proto1(role C, role S) @"(x := 0, y := 1) ((x=0) && ((x>0) && (y>0)))"
+global protocol Proto1(role C, role S) @"(x := 0, y := 1)
+		((y>0) && ((x=0) || (x>0)))"
+		//((x=0) && ((x>0) && (y>0)))"  // check unsat
+		//(y>0))"
 {
 	choice at C
 	{
