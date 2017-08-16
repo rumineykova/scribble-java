@@ -2,12 +2,12 @@ package org.scribble.ext.assrt.parser.assertions;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertionsAntlrConstants.AssrtAntlrNodeType;
-import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrBinArithFormula;
-import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrBinBoolFormula;
-import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrBinCompFormula;
-import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrIntValFormula;
-import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrIntVarFormula;
-import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrUnPredicateFormula;
+import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrArithExpr;
+import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrBoolExpr;
+import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrCompExpr;
+import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrIntVal;
+import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrIntVar;
+import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrUnFun;
 import org.scribble.ext.assrt.type.formula.AssrtFalseFormula;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
@@ -41,15 +41,15 @@ public class AssrtAntlrToFormulaParser
 		AssrtAntlrNodeType type = AssrtAntlrToFormulaParserUtil.getAntlrNodeType(ct);
 		switch (type)
 		{
-			case BINBOOLEXPR:  return AssrtAntlrBinBoolFormula.parseBinBoolFormula(this, ct);
-			case BINCOMPEXPR:  return AssrtAntlrBinCompFormula.parseBinCompFormula(this, ct);
-			case BINARITHEXPR: return AssrtAntlrBinArithFormula.parseBinArithFormula(this, ct);
-			case UNPRED:       return AssrtAntlrUnPredicateFormula.parseUnPredicate(this, ct);
-			case INTVAR:       return AssrtAntlrIntVarFormula.parseIntVarFormula(this, ct);
-			case INTVAL:       return AssrtAntlrIntValFormula.parseIntValFormula(this, ct);
-			case FALSE:        return AssrtFalseFormula.FALSE;
-			case TRUE:         return AssrtTrueFormula.TRUE;
-			default:           throw new RuntimeException("[assrt] Unexpected ANTLR node type: " + type);
+			case BOOLEXPR:  return AssrtAntlrBoolExpr.parseBoolExpr(this, ct);
+			case COMPEXPR:  return AssrtAntlrCompExpr.parseCompExpr(this, ct);
+			case ARITHEXPR: return AssrtAntlrArithExpr.parseArithExpr(this, ct);
+			case UNFUN:     return AssrtAntlrUnFun.parseUnFun(this, ct);
+			case INTVAR:    return AssrtAntlrIntVar.parseIntVar(this, ct);
+			case INTVAL:    return AssrtAntlrIntVal.parseIntVal(this, ct);
+			case FALSE:     return AssrtFalseFormula.FALSE;
+			case TRUE:      return AssrtTrueFormula.TRUE;
+			default:        throw new RuntimeException("[assrt] Unexpected ANTLR node type: " + type);
 		}
 	}
 }

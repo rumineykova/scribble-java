@@ -30,27 +30,27 @@ tokens
 	 * (i.e. variable) names themselves are used (for AST node root text
 	 * field)
 	 */
-	EMPTY_LIST = 'EMPTY_LIST';
+	//EMPTY_LIST = 'EMPTY_LIST';
 	
 	ROOT = 'ROOT'; 
 	
-	BINBOOLEXPR = 'BINBOOLEXPR'; 
-	BINCOMPEXPR = 'BINCOMPEXPR'; 
-	BINARITHEXPR = 'BINARITHEXPR'; 
+	BOOLEXPR  = 'BOOLEXPR'; 
+	COMPEXPR  = 'COMPEXPR'; 
+	ARITHEXPR = 'ARITHEXPR'; 
 	
-	UNPRED = 'UNPRED';
-	ARITH_EXPR_LIST = 'ARITH_EXPR_LIST';
+	UNFUN        = 'UNFUN';
+	UNFUNARGLIST = 'UNFUNARGLIST';
 
-	INTVAR  = 'INTVAR'; 
+	INTVAR = 'INTVAR'; 
 	INTVAL = 'INTVAL'; 
 
-	TRUE = 'TRUE';
+	TRUE  = 'TRUE';
 	FALSE = 'FALSE';
 	
-	ASSRT_STATEVARDECLLIST = 'ASSRT_STATEVARDECLLIST';
-	ASSRT_STATEVARDECL = 'ASSRT_STATEVARDECL';
+	ASSRT_STATEVARDECLLIST          = 'ASSRT_STATEVARDECLLIST';
+	ASSRT_STATEVARDECL              = 'ASSRT_STATEVARDECL';
 	ASSRT_STATEVARDECLLISTASSERTION = 'ASSRT_STATEVARDECLLISTASSERTION';
-	ASSRT_STATEVARARGLIST = 'ASSRT_STATEVARARGLIST';
+	ASSRT_STATEVARARGLIST           = 'ASSRT_STATEVARARGLIST';
 }
 
 @parser::header
@@ -72,7 +72,6 @@ tokens
   	System.exit(1);
 	}
   
-	// Takes the whole AssrtScribble.g ASSRT_EXPPR
 	public static CommonTree parseAssertion(String source) throws RecognitionException
 	{
 		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
@@ -125,26 +124,10 @@ fragment DIGIT:
 IDENTIFIER:
 	LETTER (LETTER | DIGIT)*
 ;  
-//	LETTER (LETTER | DIGIT)* 
 
 NUMBER: 
-	(DIGIT)* 
+	(DIGIT)+
 ; 
-	//(DIGIT)+  // Doesn't work -- why? (and why does above work?)
-
-
-// making fragment seems to break whole parsing
-BIN_COMP_OP:
-    '>' | '<' | '='		 
-; 
-
-BIN_ARITH_OP:	 
-  '+' | '-' | '*' 	
-; 
-
-BIN_BOOL_OP:
-   '||' | '&&'
-; 	 	
 
 
 variable: 
@@ -175,22 +158,92 @@ statevardecl:
 ;
 	
 statevararglist:
-	'(' arith_expr (',' arith_expr)* ')'
+	'<' arith_expr (',' arith_expr)* '>'
 ->
 	^(ASSRT_STATEVARARGLIST arith_expr+)
 ;
-//	'<' arith_expr (',' arith_expr)* '>' -- seems to break assertion parsing
 	
 	
 // root	
 	
 root:  
-	bool_expr
+	expr
 ->
-	^(ROOT bool_expr)
+	^(ROOT expr)
+;
+// ANTLR seems to force a pattern where expr "kinds" are nested under a single expr
+
+expr:
+	bool_expr
+;
+	
+bool_expr:
+	bool_unary_expr (op=('||' | '&&') bool_unary_expr)?
+->
+	^(BOOLEXPR bool_unary_expr $op? bool_unary_expr?)
+;
+	
+bool_unary_expr:
+	TRUE_KW
+->
+	^(TRUE)
+|
+	FALSE_KW
+->
+	^(FALSE)
+|
+	comp_expr
 ;
 
-bool_expr:
+comp_expr:
+	arith_expr (op=('<' | '>' | '=') arith_expr)?
+->
+	^(COMPEXPR arith_expr $op? arith_expr?)
+;
+	
+arith_expr:
+	arith_unary_expr (op=('+' | '-') arith_unary_expr)?
+->
+	^(ARITHEXPR arith_unary_expr $op? arith_unary_expr?)
+;
+	
+arith_unary_expr:
+	variable
+|
+	num
+|
+	par_expr
+|
+	unint_fun
+;
+	
+par_expr:
+	'(' expr ')'
+->
+	expr
+;
+
+unint_fun:
+	IDENTIFIER unint_fun_arg_list
+->
+	^(UNFUN IDENTIFIER unint_fun_arg_list)
+; 
+	
+unint_fun_arg_list:
+	'(' (arith_expr (',' arith_expr )*)? ')'
+->
+	^(UNFUNARGLIST arith_expr*)
+;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+/*bool_expr:
 	bin_bool_expr
 |
 	par_unary_bool_expr
@@ -199,7 +252,7 @@ bool_expr:
 bin_bool_expr:
 	'(' par_unary_bool_expr BIN_BOOL_OP bool_expr ')'
 ->
-	^(BINBOOLEXPR par_unary_bool_expr BIN_BOOL_OP bool_expr)
+	^(BOOLEXPR par_unary_bool_expr BIN_BOOL_OP bool_expr)
 ;
 
 par_unary_bool_expr:
@@ -211,7 +264,7 @@ par_unary_bool_expr:
 |
 	IDENTIFIER unint_fun_arg_list
 ->
-	^(UNPRED IDENTIFIER unint_fun_arg_list)
+	^(UNFUN IDENTIFIER unint_fun_arg_list)
 |
 	bin_comp_expr
 ; 
@@ -233,14 +286,14 @@ unint_fun_arg_list:
 |
 	'(' arith_expr (',' arith_expr )* ')'
 ->
-	^(ARITH_EXPR_LIST arith_expr+)
+	^(UNFUNARGLIST arith_expr+)
 ;
 
 
 bin_comp_expr:
 	'(' arith_expr BIN_COMP_OP arith_expr ')'
 -> 
-	^(BINCOMPEXPR arith_expr BIN_COMP_OP arith_expr)
+	^(COMPEXPR arith_expr BIN_COMP_OP arith_expr)
 ; 
 
 arith_expr: 
@@ -266,5 +319,6 @@ unary_arith_expr:
 bin_arith_expr:
 	'(' par_unary_arith_expr BIN_ARITH_OP arith_expr ')'
 ->
-	^(BINARITHEXPR par_unary_arith_expr BIN_ARITH_OP arith_expr)
+	^(ARITHEXPR par_unary_arith_expr BIN_ARITH_OP arith_expr)
 ;
+*/

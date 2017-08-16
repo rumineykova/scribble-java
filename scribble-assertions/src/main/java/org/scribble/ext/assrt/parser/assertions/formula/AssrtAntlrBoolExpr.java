@@ -5,21 +5,26 @@ import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
 import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 
 // N.B. parsed to type objects, not AST (source not recorded -- e.g., for equals/hashCode)
 // To record source, need additional AST classes from which these type objects should be derived
-public class AssrtAntlrBinBoolFormula
+public class AssrtAntlrBoolExpr
 {	
 	private static Integer CHILD_OP_INDEX = 1; 
 	private static Integer CHILD_LEFT_FORMULA_INDEX = 0;
 	private static Integer CHILD_RIGHT_FORMULA_INDEX = 2;
 	
-	public static AssrtBoolFormula parseBinBoolFormula(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
+	public static AssrtSmtFormula<?> parseBoolExpr(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
 	{	
+		AssrtSmtFormula<?> left = parser.parse(getLeftChild(root)); 
+		if (root.getChildCount() < 2)
+		{
+			return left;
+		}
 		AssrtBinBoolFormula.Op op = parseOp(getOpChild(root)); 
-		AssrtBoolFormula left = (AssrtBoolFormula) parser.parse(getLeftChild(root)); 
-		AssrtBoolFormula right = (AssrtBoolFormula) parser.parse(getRightChild(root));
-		return AssrtFormulaFactory.AssrtBinBool(op, left, right); 
+		AssrtBoolFormula right = (AssrtBoolFormula) parser.parse(getRightChild(root));  // FIXME: throw ScribbleParserException for unexpected types
+		return AssrtFormulaFactory.AssrtBinBool(op, (AssrtBoolFormula) left, right); 
 		
 	}
 	
