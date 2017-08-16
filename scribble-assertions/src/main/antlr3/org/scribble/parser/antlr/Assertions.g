@@ -167,7 +167,7 @@ statevararglist:
 // root	
 	
 root:  
-	expr
+	expr EOF
 ->
 	^(ROOT expr)
 ;

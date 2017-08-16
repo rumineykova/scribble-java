@@ -77,13 +77,13 @@ type <dotnet> "System.UInt32" from "..." as int;
 type <dotnet> "System.String" from "..." as str;
 
 
-global protocol Proto1(role A, role B) @"(x:=(1+(1-1)))"
+global protocol Proto1(role A, role B) @"(x:=(1+(1-1)), y:=4)"
 {
-	1() from A to B; 
+	1() from A to B; @ "x<3 && x<3 || x<3"
 	//@"(((x>1) && (x>2)) && (x>3))"
-	@"x<3 && x<2"
 	//@"(((True)))"
 	//2() from B to A; @"foo()"
+	do Proto1(A, B);  @"<0, 0>"
 }
 
 
