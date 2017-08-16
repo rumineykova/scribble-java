@@ -5,6 +5,7 @@ import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 
 
 public class AssrtAntlrBinArithFormula
@@ -13,12 +14,17 @@ public class AssrtAntlrBinArithFormula
 	private static Integer CHILD_LEFT_FORMULA_INDEX = 0;
 	private static Integer CHILD_RIGHT_FORMULA_INDEX = 2;
 	
-	public static AssrtBinArithFormula parseBinArithFormula(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
+	//public static AssrtBinArithFormula parseBinArithFormula(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
+	public static AssrtSmtFormula<?> parseBinArithFormula(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
 	{	
+		AssrtSmtFormula<?> left = parser.parse(getLeftChild(root)); 
+		if (root.getChildCount() < 2)
+		{
+			return left;
+		}
 		AssrtBinArithFormula.Op op = parseOp(getOpChild(root)); 
-		AssrtArithFormula left = (AssrtArithFormula) parser.parse(getLeftChild(root)); 
 		AssrtArithFormula right = (AssrtArithFormula) parser.parse(getRightChild(root));
-		return AssrtFormulaFactory.AssrtBinArith(op, left, right); 
+		return AssrtFormulaFactory.AssrtBinArith(op, (AssrtArithFormula) left, right); 
 	}
 	
 	public static CommonTree getOpChild(CommonTree root)

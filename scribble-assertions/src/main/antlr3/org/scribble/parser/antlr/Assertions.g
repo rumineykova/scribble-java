@@ -51,6 +51,8 @@ tokens
 	ASSRT_STATEVARDECL = 'ASSRT_STATEVARDECL';
 	ASSRT_STATEVARDECLLISTASSERTION = 'ASSRT_STATEVARDECLLISTASSERTION';
 	ASSRT_STATEVARARGLIST = 'ASSRT_STATEVARARGLIST';
+	
+	ARITHEXPR = 'ARITHEXPR';
 }
 
 @parser::header
@@ -125,26 +127,10 @@ fragment DIGIT:
 IDENTIFIER:
 	LETTER (LETTER | DIGIT)*
 ;  
-//	LETTER (LETTER | DIGIT)* 
 
 NUMBER: 
-	(DIGIT)* 
+	(DIGIT)+
 ; 
-	//(DIGIT)+  // Doesn't work -- why? (and why does above work?)
-
-
-// making fragment seems to break whole parsing
-BIN_COMP_OP:
-    '>' | '<' | '='		 
-; 
-
-BIN_ARITH_OP:	 
-  '+' | '-' | '*' 	
-; 
-
-BIN_BOOL_OP:
-   '||' | '&&'
-; 	 	
 
 
 variable: 
@@ -184,13 +170,84 @@ statevararglist:
 	
 // root	
 	
+// ANTLR seems to force a pattern where expr "kinds" are nested under a single expr
 root:  
-	bool_expr
+	expr
 ->
-	^(ROOT bool_expr)
+	^(ROOT expr)
 ;
 
+expr:
+	bool_expr
+;
+	
 bool_expr:
+	bool_unary_expr (op=('||' | '&&') bool_unary_expr)?
+->
+	^(BINBOOLEXPR bool_unary_expr $op? bool_unary_expr?)
+;
+	
+bool_unary_expr:
+	TRUE_KW
+->
+	^(TRUE)
+|
+	FALSE_KW
+->
+	^(FALSE)
+|
+	comp_expr
+;
+
+comp_expr:
+	arith_expr (op=('<' | '>' | '=') arith_expr)?
+->
+	^(BINCOMPEXPR arith_expr $op? arith_expr?)
+;
+	
+arith_expr:
+	arith_unary_expr (op=('+' | '-') arith_unary_expr)?
+->
+	^(BINARITHEXPR arith_unary_expr $op? arith_unary_expr?)
+;
+	
+arith_unary_expr:
+	variable
+|
+	num
+|
+	par_expr
+|
+	unint_fun
+;
+	
+par_expr:
+	'(' expr ')'
+->
+	expr
+;
+
+unint_fun:
+	IDENTIFIER unint_fun_arg_list
+->
+	^(UNPRED IDENTIFIER unint_fun_arg_list)
+; 
+	
+unint_fun_arg_list:
+	'(' (arith_expr (',' arith_expr )*)? ')'
+->
+	^(ARITH_EXPR_LIST arith_expr*)
+;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+/*bool_expr:
 	bin_bool_expr
 |
 	par_unary_bool_expr
@@ -268,3 +325,4 @@ bin_arith_expr:
 ->
 	^(BINARITHEXPR par_unary_arith_expr BIN_ARITH_OP arith_expr)
 ;
+*/

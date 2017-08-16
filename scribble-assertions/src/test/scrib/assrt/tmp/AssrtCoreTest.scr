@@ -77,6 +77,14 @@ type <dotnet> "System.UInt32" from "..." as int;
 type <dotnet> "System.String" from "..." as str;
 
 
+global protocol Proto1(role A, role B) @"(x:=(1+(1-1)))"
+{
+	1() from A to B; 
+	@"(((x>1) && (x>2)) && (x>3))"
+	//@"(x>3)"
+	2() from B to A; @"foo()"
+}
+
 
 
 // TOO try: mu X . ( A->B 1 . X + A->B 2 . mu Y . A->B 3 . Y ) with statevars and assertions
@@ -114,7 +122,7 @@ global protocol Proto1(role A, role B)  @"(x := 1)"
 }
 //*/
 
-//*
+/*
 global protocol Proto1(role A, role B)  
 		@"(x := 3) (x>2)"
 		//@"(x := 3) (x>0)"
@@ -122,6 +130,9 @@ global protocol Proto1(role A, role B)
 {
 	1() from A to B; @"(x>1)"
 	//2() from B to A;
+	//do Proto1(A, B);  @"(x)"  
+			// CHECKME: no longer needs to be special case, given appropriate rec-assertion? -- but at least is an optimisation?
+			// no: special case still different, no "old var" renaming (no "inductive unrolling")
 	//do Proto1(A, B);  @"((x+1))"
 	do Proto1(A, B);  @"((x-1))"
 }

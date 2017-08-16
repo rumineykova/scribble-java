@@ -1,5 +1,6 @@
 package org.scribble.ext.assrt.parser.assertions.formula;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,13 +18,16 @@ public class AssrtAntlrUnPredicateFormula
 	public static AssrtUnPredicateFormula parseUnPredicate(AssrtAntlrToFormulaParser parser, CommonTree root)
 	{
 		String name = getNameChild(root).getText();
-		List<AssrtArithFormula> args = parseArithExprList(parser, getArithExprListChild(root));
+		CommonTree exprs = getArithExprListChild(root);
+		List<AssrtArithFormula> args = (exprs.getChildCount() > 0)
+				? parseArithExprList(parser, exprs)
+				: Collections.emptyList();
 		return AssrtFormulaFactory.AssrtUnPredicate(name, args);
 	}
 	
-	public static List<AssrtArithFormula> parseArithExprList(AssrtAntlrToFormulaParser parser, CommonTree expr)
+	public static List<AssrtArithFormula> parseArithExprList(AssrtAntlrToFormulaParser parser, CommonTree exprs)
 	{
-		return ((List<?>) expr.getChildren()).stream()
+		return ((List<?>) exprs.getChildren()).stream()
 				.map(c -> (AssrtArithFormula) parser.parse((CommonTree) c)).collect(Collectors.toList());
 	}
 	
