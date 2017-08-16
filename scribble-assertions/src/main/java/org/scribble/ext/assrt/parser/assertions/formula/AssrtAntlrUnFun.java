@@ -10,19 +10,19 @@ import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.formula.AssrtUnPredicateFormula;
 
-public class AssrtAntlrUnPredicateFormula
+public class AssrtAntlrUnFun
 {
 	public static final int NAME_INDEX = 0;
 	public static final int ARITH_EXPR_LIST_INDEX = 1;
 	
-	public static AssrtUnPredicateFormula parseUnPredicate(AssrtAntlrToFormulaParser parser, CommonTree root)
+	public static AssrtUnPredicateFormula parseUnFun(AssrtAntlrToFormulaParser parser, CommonTree root)
 	{
 		String name = getNameChild(root).getText();
 		CommonTree exprs = getArithExprListChild(root);
 		List<AssrtArithFormula> args = (exprs.getChildCount() > 0)
 				? parseArithExprList(parser, exprs)
 				: Collections.emptyList();
-		return AssrtFormulaFactory.AssrtUnPredicate(name, args);
+		return AssrtFormulaFactory.AssrtUnPredicate(name, args);  // Currently assumed to be a predicate on ints
 	}
 	
 	public static List<AssrtArithFormula> parseArithExprList(AssrtAntlrToFormulaParser parser, CommonTree exprs)

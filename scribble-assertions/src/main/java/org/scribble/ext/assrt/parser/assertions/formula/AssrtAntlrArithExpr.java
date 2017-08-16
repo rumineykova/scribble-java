@@ -2,30 +2,29 @@ package org.scribble.ext.assrt.parser.assertions.formula;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
-import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBinArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 
-// N.B. parsed to type objects, not AST (source not recorded -- e.g., for equals/hashCode)
-// To record source, need additional AST classes from which these type objects should be derived
-public class AssrtAntlrBinBoolFormula
-{	
+
+public class AssrtAntlrArithExpr
+{
 	private static Integer CHILD_OP_INDEX = 1; 
 	private static Integer CHILD_LEFT_FORMULA_INDEX = 0;
 	private static Integer CHILD_RIGHT_FORMULA_INDEX = 2;
 	
-	public static AssrtSmtFormula<?> parseBinBoolFormula(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
+	//public static AssrtBinArithFormula parseBinArithFormula(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
+	public static AssrtSmtFormula<?> parseArithExpr(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
 	{	
 		AssrtSmtFormula<?> left = parser.parse(getLeftChild(root)); 
 		if (root.getChildCount() < 2)
 		{
 			return left;
 		}
-		AssrtBinBoolFormula.Op op = parseOp(getOpChild(root)); 
-		AssrtBoolFormula right = (AssrtBoolFormula) parser.parse(getRightChild(root));
-		return AssrtFormulaFactory.AssrtBinBool(op, (AssrtBoolFormula) left, right); 
-		
+		AssrtBinArithFormula.Op op = parseOp(getOpChild(root)); 
+		AssrtArithFormula right = (AssrtArithFormula) parser.parse(getRightChild(root));
+		return AssrtFormulaFactory.AssrtBinArith(op, (AssrtArithFormula) left, right); 
 	}
 	
 	public static CommonTree getOpChild(CommonTree root)
@@ -43,13 +42,15 @@ public class AssrtAntlrBinBoolFormula
 		return (CommonTree) root.getChild(CHILD_RIGHT_FORMULA_INDEX);
 	}
 
-	private static AssrtBinBoolFormula.Op parseOp(CommonTree op) 
+	private static AssrtBinArithFormula.Op parseOp(CommonTree op) 
 	{
 		switch (op.getText()) 
 		{
-			case "&&": return AssrtBinBoolFormula.Op.And;
-			case "||": return AssrtBinBoolFormula.Op.Or;
+			case "+": return AssrtBinArithFormula.Op.Add;
+			case "-": return AssrtBinArithFormula.Op.Subt;
+			case "*": return AssrtBinArithFormula.Op.Mult;
 			default:  throw new RuntimeException("[assrt] Shouldn't get in here: " + op.getText());  // Due to AssrtAssertions.g
 		}
 	}
 }
+

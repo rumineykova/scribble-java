@@ -7,13 +7,13 @@ import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 
-public class AssrtAntlrBinCompFormula
+public class AssrtAntlrCompExpr
 {
 	private static Integer CHILD_OP_INDEX = 1; 
 	private static Integer CHILD_LEFT_FORMULA_INDEX = 0;
 	private static Integer CHILD_RIGHT_FORMULA_INDEX = 2;
 	
-	public static AssrtSmtFormula<?> parseBinCompFormula(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
+	public static AssrtSmtFormula<?> parseCompExpr(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
 	{
 		//AssrtArithFormula left = (AssrtArithFormula) parser.parse(getLeftChild(root)); 
 		AssrtSmtFormula<?> left = (AssrtSmtFormula<?>) parser.parse(getLeftChild(root)); 
