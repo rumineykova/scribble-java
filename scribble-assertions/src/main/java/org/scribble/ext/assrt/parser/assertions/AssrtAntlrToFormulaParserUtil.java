@@ -10,12 +10,12 @@ public class AssrtAntlrToFormulaParserUtil
 		String type = ct.getToken().getText();
 		switch (type)
 		{
-			case AssrtAssertionsAntlrConstants.BINBOOLEXPR_NODE_TYPE:     return AssrtAntlrNodeType.BINBOOLEXPR;
-			case AssrtAssertionsAntlrConstants.BINCOMPEXPR_NODE_TYPE:     return AssrtAntlrNodeType.BINCOMPEXPR;
-			case AssrtAssertionsAntlrConstants.BINARITHEXPR_NODE_TYPE:    return AssrtAntlrNodeType.BINARITHEXPR;
+			case AssrtAssertionsAntlrConstants.BOOLEXPR_NODE_TYPE:     return AssrtAntlrNodeType.BOOLEXPR;
+			case AssrtAssertionsAntlrConstants.COMPEXPR_NODE_TYPE:     return AssrtAntlrNodeType.COMPEXPR;
+			case AssrtAssertionsAntlrConstants.ARITHEXPR_NODE_TYPE:    return AssrtAntlrNodeType.ARITHEXPR;
 			
-			case AssrtAssertionsAntlrConstants.UNPRED_NODE_TYPE:          return AssrtAntlrNodeType.UNPRED;
-			case AssrtAssertionsAntlrConstants.ARITH_EXPR_LIST_NODE_TYPE: return AssrtAntlrNodeType.ARITH_EXPR_LIST;
+			case AssrtAssertionsAntlrConstants.UNFUN_NODE_TYPE:          return AssrtAntlrNodeType.UNFUN;
+			case AssrtAssertionsAntlrConstants.UNFUNARGLIST_NODE_TYPE: return AssrtAntlrNodeType.UNFUNARGLIST;
 
 			case AssrtAssertionsAntlrConstants.INTVAR_NODE_TYPE:          return AssrtAntlrNodeType.INTVAR;
 			case AssrtAssertionsAntlrConstants.INTVAL_NODE_TYPE:          return AssrtAntlrNodeType.INTVAL;

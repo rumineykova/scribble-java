@@ -34,12 +34,12 @@ tokens
 	
 	ROOT = 'ROOT'; 
 	
-	BINBOOLEXPR = 'BINBOOLEXPR'; 
-	BINCOMPEXPR = 'BINCOMPEXPR'; 
-	BINARITHEXPR = 'BINARITHEXPR'; 
+	BOOLEXPR = 'BOOLEXPR'; 
+	COMPEXPR = 'COMPEXPR'; 
+	ARITHEXPR = 'ARITHEXPR'; 
 	
-	UNPRED = 'UNPRED';
-	ARITH_EXPR_LIST = 'ARITH_EXPR_LIST';
+	UNFUN = 'UNFUN';
+	UNFUNARGLIST = 'UNFUNARGLIST';
 
 	INTVAR  = 'INTVAR'; 
 	INTVAL = 'INTVAL'; 
@@ -51,8 +51,6 @@ tokens
 	ASSRT_STATEVARDECL = 'ASSRT_STATEVARDECL';
 	ASSRT_STATEVARDECLLISTASSERTION = 'ASSRT_STATEVARDECLLISTASSERTION';
 	ASSRT_STATEVARARGLIST = 'ASSRT_STATEVARARGLIST';
-	
-	ARITHEXPR = 'ARITHEXPR';
 }
 
 @parser::header
@@ -184,7 +182,7 @@ expr:
 bool_expr:
 	bool_unary_expr (op=('||' | '&&') bool_unary_expr)?
 ->
-	^(BINBOOLEXPR bool_unary_expr $op? bool_unary_expr?)
+	^(BOOLEXPR bool_unary_expr $op? bool_unary_expr?)
 ;
 	
 bool_unary_expr:
@@ -202,13 +200,13 @@ bool_unary_expr:
 comp_expr:
 	arith_expr (op=('<' | '>' | '=') arith_expr)?
 ->
-	^(BINCOMPEXPR arith_expr $op? arith_expr?)
+	^(COMPEXPR arith_expr $op? arith_expr?)
 ;
 	
 arith_expr:
 	arith_unary_expr (op=('+' | '-') arith_unary_expr)?
 ->
-	^(BINARITHEXPR arith_unary_expr $op? arith_unary_expr?)
+	^(ARITHEXPR arith_unary_expr $op? arith_unary_expr?)
 ;
 	
 arith_unary_expr:
@@ -230,13 +228,13 @@ par_expr:
 unint_fun:
 	IDENTIFIER unint_fun_arg_list
 ->
-	^(UNPRED IDENTIFIER unint_fun_arg_list)
+	^(UNFUN IDENTIFIER unint_fun_arg_list)
 ; 
 	
 unint_fun_arg_list:
 	'(' (arith_expr (',' arith_expr )*)? ')'
 ->
-	^(ARITH_EXPR_LIST arith_expr*)
+	^(UNFUNARGLIST arith_expr*)
 ;
 	
 	
@@ -256,7 +254,7 @@ unint_fun_arg_list:
 bin_bool_expr:
 	'(' par_unary_bool_expr BIN_BOOL_OP bool_expr ')'
 ->
-	^(BINBOOLEXPR par_unary_bool_expr BIN_BOOL_OP bool_expr)
+	^(BOOLEXPR par_unary_bool_expr BIN_BOOL_OP bool_expr)
 ;
 
 par_unary_bool_expr:
@@ -268,7 +266,7 @@ par_unary_bool_expr:
 |
 	IDENTIFIER unint_fun_arg_list
 ->
-	^(UNPRED IDENTIFIER unint_fun_arg_list)
+	^(UNFUN IDENTIFIER unint_fun_arg_list)
 |
 	bin_comp_expr
 ; 
@@ -290,14 +288,14 @@ unint_fun_arg_list:
 |
 	'(' arith_expr (',' arith_expr )* ')'
 ->
-	^(ARITH_EXPR_LIST arith_expr+)
+	^(UNFUNARGLIST arith_expr+)
 ;
 
 
 bin_comp_expr:
 	'(' arith_expr BIN_COMP_OP arith_expr ')'
 -> 
-	^(BINCOMPEXPR arith_expr BIN_COMP_OP arith_expr)
+	^(COMPEXPR arith_expr BIN_COMP_OP arith_expr)
 ; 
 
 arith_expr: 
@@ -323,6 +321,6 @@ unary_arith_expr:
 bin_arith_expr:
 	'(' par_unary_arith_expr BIN_ARITH_OP arith_expr ')'
 ->
-	^(BINARITHEXPR par_unary_arith_expr BIN_ARITH_OP arith_expr)
+	^(ARITHEXPR par_unary_arith_expr BIN_ARITH_OP arith_expr)
 ;
 */

@@ -41,10 +41,10 @@ public class AssrtAntlrToFormulaParser
 		AssrtAntlrNodeType type = AssrtAntlrToFormulaParserUtil.getAntlrNodeType(ct);
 		switch (type)
 		{
-			case BINBOOLEXPR:  return AssrtAntlrBinBoolFormula.parseBinBoolFormula(this, ct);
-			case BINCOMPEXPR:  return AssrtAntlrBinCompFormula.parseBinCompFormula(this, ct);
-			case BINARITHEXPR: return AssrtAntlrBinArithFormula.parseBinArithFormula(this, ct);
-			case UNPRED:       return AssrtAntlrUnPredicateFormula.parseUnPredicate(this, ct);
+			case BOOLEXPR:  return AssrtAntlrBinBoolFormula.parseBinBoolFormula(this, ct);
+			case COMPEXPR:  return AssrtAntlrBinCompFormula.parseBinCompFormula(this, ct);
+			case ARITHEXPR: return AssrtAntlrBinArithFormula.parseBinArithFormula(this, ct);
+			case UNFUN:       return AssrtAntlrUnPredicateFormula.parseUnPredicate(this, ct);
 			case INTVAR:       return AssrtAntlrIntVarFormula.parseIntVarFormula(this, ct);
 			case INTVAL:       return AssrtAntlrIntValFormula.parseIntValFormula(this, ct);
 			case FALSE:        return AssrtFalseFormula.FALSE;
