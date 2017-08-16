@@ -34,13 +34,14 @@ public class AssrtCoreSafetyErrors
 		UnknownDataTypeVar,
 		AssertionProgress,
 		UnsatisfiableError,
+		RecursionAssertionError,
 	}
 	
 	private final Map<ERR, Set<AssrtCoreSState>> errors = new LinkedHashMap<>();
 	
 	public AssrtCoreSafetyErrors(Set<AssrtCoreSState> reception, Set<AssrtCoreSState> orphan, Set<AssrtCoreSState> unfinishedRole,
 			Set<AssrtCoreSState> connection, Set<AssrtCoreSState> unconnected, Set<AssrtCoreSState> synchronisation, Set<AssrtCoreSState> disconnect,
-			Set<AssrtCoreSState> unknownVars, Set<AssrtCoreSState> asserts, Set<AssrtCoreSState> unsats
+			Set<AssrtCoreSState> unknownVars, Set<AssrtCoreSState> asserts, Set<AssrtCoreSState> unsats, Set<AssrtCoreSState> recasserts
 			)
 			//Set<AssrtCoreSState> portOpens, Set<AssrtCoreSState> portOwners)
 	{
@@ -64,6 +65,7 @@ public class AssrtCoreSafetyErrors
 		this.errors.put(ERR.UnknownDataTypeVar, unknownVars);
 		this.errors.put(ERR.AssertionProgress, asserts);
 		this.errors.put(ERR.UnsatisfiableError, unsats);
+		this.errors.put(ERR.RecursionAssertionError, recasserts);
 	}
 	
 	public boolean isSafe()

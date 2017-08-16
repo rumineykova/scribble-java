@@ -3,18 +3,53 @@ module assrt.icse18.Fib;
 
 type <dotnet> "System.UInt32" from "..." as int;
 
-
-global protocol Proto1(role C, role S) @"(x := 0, y := 1)"
+global protocol Proto1(role C, role S) @"(x := 0, y := 1)
+		((y>0) && ((x=0) || (x>0)))"
+		//((x=0) && ((x>0) && (y>0)))"  // Bad initial Rass (and later unsat)
+		//(y>0))"
 {
 	choice at C
 	{
 		Val(x1:int) from C to S;  @"(x1 = x)"
 		Add(y1:int) from C to S;  @"(y1 = y)"
 		Sum(z:int) from S to C;   @"(z  = (x1+y1))"
-		do Proto1(C, S);          @"(x1, y1)"
+		do Proto1(C, S);          @"(y1, z)"
 	}
 	or
 	{
 		Bye() from C to S;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+//global protocol Proto1(role C, role S) @"(x := 0, y := 1) (x>0)"
+//global protocol Proto1(role C, role S) @"(x := 0, y := 1) (y>0)"   //..need x > 0
+global protocol Proto1(role C, role S) @"(x := 0, y := 1) ((x=0) && ((x>0) && (y>0)))"
+{
+	choice at C
+	{
+		Val(x1:int) from C to S;  @"(x1 = x)"
+		Add(y1:int) from C to S;  @"(y1 = y)" //@"((y1 = y) && (y > 0))"
+		Sum(z:int) from S to C;   @"(z  = (x1+y1))"
+		//Sum(z:int) from C to S;   @"(z  = (x1+y1))"
+		1() from S to C;
+		//do Proto1(C, S);          @"(x1, y1)"
+		do Proto1(C, S);          @"(y1, z)"
+	}
+	or
+	{
+		Bye() from C to S;
+	}
+}
+//*/

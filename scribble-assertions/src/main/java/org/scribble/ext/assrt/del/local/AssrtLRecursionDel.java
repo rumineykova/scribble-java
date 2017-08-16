@@ -14,16 +14,18 @@
 package org.scribble.ext.assrt.del.local;
 
 import java.util.Iterator;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
 
 import org.scribble.ast.ScribNode;
 import org.scribble.del.local.LRecursionDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
+import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.type.name.RecVar;
 import org.scribble.visit.context.EGraphBuilder;
@@ -82,9 +84,16 @@ public class AssrtLRecursionDel extends LRecursionDel
 			vars.put(((AssrtIntVarFormula) bcf.left).toName(), bcf.right);
 		}*/
 		Iterator<AssrtArithExpr> exprs = lr.annotexprs.iterator();
-		Map<AssrtDataTypeVar, AssrtArithFormula> vars
-				= lr.annotvars.stream().collect(Collectors.toMap(v -> v.getFormula().toName(), v -> exprs.next().getFormula()));
-		((AssrtEGraphBuilderUtil) graph.util).addStateVars((AssrtEState) graph.util.getEntry(), vars);
+		/*Map<AssrtDataTypeVar, AssrtArithFormula> vars
+				= lr.annotvars.stream().collect(Collectors.toMap(v -> v.getFormula().toName(), v -> exprs.next().getFormula()));*/
+		LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars = new LinkedHashMap<>();
+		for (AssrtIntVarNameNode vv : lr.annotvars)
+		{
+			vars.put(vv.getFormula().toName(), exprs.next().getFormula());
+		}
+		AssrtBoolFormula ass = (lr.ass == null) ? AssrtTrueFormula.TRUE : lr.ass.getFormula();
+		((AssrtEGraphBuilderUtil) graph.util).addStateVars((AssrtEState) graph.util.getEntry(), vars,
+				ass);
 
 		graph.util.pushRecursionEntry(rv, graph.util.getEntry());
 	}

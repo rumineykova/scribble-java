@@ -1,9 +1,11 @@
 package org.scribble.ext.assrt.model.endpoint;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.model.endpoint.EGraphBuilderUtil;
 import org.scribble.model.endpoint.EState;
@@ -22,13 +24,17 @@ public class AssrtEGraphBuilderUtil extends EGraphBuilderUtil
 	{
 		clear();  // Duplicated from super
 		reset(//(AssrtEState)
-				init, ((AssrtEModelFactory) this.ef).newAssrtEState(Collections.emptySet(), Collections.emptyMap()));
+				init, ((AssrtEModelFactory) this.ef).newAssrtEState(Collections.emptySet(), new LinkedHashMap<>(),
+						AssrtTrueFormula.TRUE
+				));
 	}
 	
-	public void addStateVars(AssrtEState s, Map<AssrtDataTypeVar, AssrtArithFormula> vars)
+	public void addStateVars(AssrtEState s, LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars,
+			AssrtBoolFormula ass)
 	{
 		//((AssrtEState) this.entry).addAnnotVars(vars);
-		s.addStateVars(vars);
+		s.addStateVars(vars,
+				ass);
 	}
 	
 	@Override

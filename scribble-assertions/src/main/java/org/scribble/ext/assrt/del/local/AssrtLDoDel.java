@@ -88,8 +88,10 @@ public class AssrtLDoDel extends LDoDel
 			AssrtLDo ldo = (AssrtLDo) child;
 			LProtocolDecl lpd = ldo.getTargetProtocolDecl(dinlr.job.getContext(), dinlr.getModuleContext());
 			//AssrtBinCompFormula bcf = (AssrtBinCompFormula) ((AssrtLProtocolHeader) lpd.getHeader()).ass.getFormula();  // FIXME: bcf
-			List<AssrtIntVarNameNode> annotvars = ((AssrtLProtocolHeader) lpd.getHeader()).annotvars;
-			AssrtLRecursion inlined = ((AssrtAstFactory) dinlr.job.af).AssrtLRecursion(blame, recvar, gb, annotvars, ldo.annotexprs);
+			AssrtLProtocolHeader hdr =(AssrtLProtocolHeader) lpd.getHeader();
+			List<AssrtIntVarNameNode> annotvars = hdr.annotvars;
+			AssrtLRecursion inlined = ((AssrtAstFactory) dinlr.job.af).AssrtLRecursion(blame, recvar, gb, annotvars, ldo.annotexprs,
+					hdr.ass);
 
 			dinlr.pushEnv(dinlr.popEnv().setTranslation(inlined));
 			dinlr.removeSubprotocolRecVar(subsig);

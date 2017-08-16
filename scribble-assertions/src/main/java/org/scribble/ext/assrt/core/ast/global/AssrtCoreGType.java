@@ -16,5 +16,5 @@ public interface AssrtCoreGType extends AssrtCoreType
 	
 	AssrtCoreLType project(AssrtCoreAstFactory af, Role subj, AssrtBoolFormula f) throws AssrtCoreSyntaxException;
 	
-	List<AssrtAnnotDataType> collectAnnotDataTypes();  // Currently only the vars are needed (not the data types)
+	List<AssrtAnnotDataType> collectAnnotDataTypeVarDecls();  // Currently only the vars are needed (not the data types)
 }

@@ -1,21 +1,7 @@
-/**
- * Copyright 2008 The Scribble Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
 package org.scribble.ext.assrt.parser.scribble.ast.global;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.NonRoleParamDeclList;
@@ -23,6 +9,7 @@ import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.global.GProtocolHeader;
 import org.scribble.ast.name.qualified.GProtocolNameNode;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
+import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
@@ -45,17 +32,33 @@ public class AssrtAntlrGProtocolHeader
 		RoleDeclList rdl = (RoleDeclList) parser.parse(AntlrGProtocolHeader.getRoleDeclListChild(root), af);
 		NonRoleParamDeclList pdl = (NonRoleParamDeclList) parser.parse(AntlrGProtocolHeader.getParamDeclListChild(root), af);
 		
+		AssrtAntlrToFormulaParser ap = ((AssrtAntlrToScribParser) parser).ap;
+	
 		CommonTree assTree = AssrtAntlrGProtocolHeader.getAssrtStateVarDeclListChild(root);  // ASSRT_STATEVARDECLLIST
 		List<AssrtIntVarNameNode> annotvars = parseAssrtStateVarDeclListVars(assTree, af);
-		List<AssrtArithExpr> annotexprs = parseAssrtStateVarDeclListExprs(((AssrtAntlrToScribParser) parser).ap, assTree, af);
+		List<AssrtArithExpr> annotexprs = parseAssrtStateVarDeclListExprs(ap, assTree, af);
+		AssrtAssertion ass = parseAssrtStateVarDeclListAssertionChild(ap, assTree, af);
 		return af.AssrtGProtocolHeader(root, name, rdl, pdl, //ass);
-				annotvars, annotexprs);
+				annotvars, annotexprs,
+				ass);
 	}
 	
+	public static final int ASSRT_STATEVARDECLLISTASSERTION_CHILD_INDEX = 0;
+	public static final int ASSRT_STATEVARDECL_CHILDREN_START_INDEX = 1;
+	
+	private static AssrtAssertion parseAssrtStateVarDeclListAssertionChild(AssrtAntlrToFormulaParser ap, CommonTree assTree, AssrtAstFactory af)
+	{
+		CommonTree ass = (CommonTree) assTree.getChild(ASSRT_STATEVARDECLLISTASSERTION_CHILD_INDEX);
+		return (ass.getChildCount() == 0)
+				? null
+				: AssrtAntlrGMessageTransfer.parseAssertion(ap, ass, af);
+	}
+
 	private static List<AssrtIntVarNameNode> parseAssrtStateVarDeclListVars(CommonTree assTree, AssrtAstFactory af)
 	{
+		List<?> children = assTree.getChildren();
 		List<CommonTree> cs = 
-				((Stream<?>) assTree.getChildren().stream())  // Stream of ASSRT_STATEVARDECL
+				children.subList(ASSRT_STATEVARDECL_CHILDREN_START_INDEX, children.size()).stream()  // Stream of ASSRT_STATEVARDECL
 					.map(c -> (CommonTree) ((CommonTree) c).getChild(0)).collect(Collectors.toList());  // List of INTVAR
 		return cs.stream().map(c -> 
 					(AssrtIntVarNameNode) af.SimpleNameNode(c, AssrtVarNameKind.KIND, c.getChild(0).getText()))  // Cf. AssrtAntlrIntVarFormula::parseIntVarFormula
@@ -64,8 +67,9 @@ public class AssrtAntlrGProtocolHeader
 	
 	private static List<AssrtArithExpr> parseAssrtStateVarDeclListExprs(AssrtAntlrToFormulaParser ap, CommonTree assTree, AssrtAstFactory af)
 	{
+		List<?> children = assTree.getChildren();
 		List<CommonTree> cs = 
-				((Stream<?>) assTree.getChildren().stream())  // Stream of ASSRT_STATEVARDECL
+				children.subList(ASSRT_STATEVARDECL_CHILDREN_START_INDEX, children.size()).stream()  // Stream of ASSRT_STATEVARDECL
 					.map(c -> (CommonTree) ((CommonTree) c).getChild(1)).collect(Collectors.toList());  // List of arith-exprs
 		return cs.stream().map(c -> 
 					AssrtAntlrGDo.parseArithAnnotation(ap, c, af))

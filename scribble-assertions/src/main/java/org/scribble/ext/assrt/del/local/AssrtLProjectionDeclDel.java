@@ -1,10 +1,9 @@
 package org.scribble.ext.assrt.del.local;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,6 +18,8 @@ import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.name.GProtocolName;
@@ -52,7 +53,8 @@ public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionD
 		
 		AssrtLProtocolHeader tmp = (AssrtLProtocolHeader) lpd.getHeader();  // FIXME: make a LProtocolHeaderDel and factor out there? (would be less code duplication here)
 		LProtocolHeader hdr = tmp.reconstruct(tmp.getNameNode(), rdl, tmp.paramdecls, //tmp.ass);
-				tmp.annotvars, tmp.annotexprs);
+				tmp.annotvars, tmp.annotexprs,
+				tmp.ass);
 		LProtocolDecl fixed = lpd.reconstruct(hdr, lpd.def);
 		
 		fixer.job.debugPrintln("\n[DEBUG] Projected " + getSourceProtocol() + " for " + getSelfRole() + ":\n" + fixed);
@@ -68,7 +70,7 @@ public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionD
 		LProjectionDecl lpd = (LProjectionDecl) child;
 		AssrtLProtocolHeader hdr = (AssrtLProtocolHeader) lpd.header;
 		
-		Map<AssrtDataTypeVar, AssrtArithFormula> vars = new HashMap<>();
+		LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars = new LinkedHashMap<>();
 		//if (hdr.ass != null)
 		if (!hdr.annotvars.isEmpty())
 		{
@@ -80,6 +82,9 @@ public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionD
 		
 		//..FIXME: add rec-annots to AssrtSConfig
 		
-		builder.util.init(((AssrtEModelFactory) builder.job.ef).newAssrtEState(Collections.emptySet(), vars));
+		AssrtBoolFormula ass = (hdr.ass == null) ? AssrtTrueFormula.TRUE : hdr.ass.getFormula();
+
+		builder.util.init(((AssrtEModelFactory) builder.job.ef).newAssrtEState(Collections.emptySet(), vars,
+				ass));
 	}
 }

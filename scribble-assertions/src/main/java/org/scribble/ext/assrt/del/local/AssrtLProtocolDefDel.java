@@ -53,7 +53,8 @@ public class AssrtLProtocolDefDel extends LProtocolDefDel
 		LProjectionDecl lpd = (LProjectionDecl) parent;  // FIXME: factor out interface for annot LProtocolDecl and LProjectionDecl?
 		AssrtLProtocolHeader hdr = (AssrtLProtocolHeader) lpd.getHeader();
 		AssrtLRecursion rec = ((AssrtAstFactory) dinlr.job.af).AssrtLRecursion(blame, recvar, block, //ass);  // FIXME: factor out better?
-				hdr.annotvars, hdr.annotexprs);
+				hdr.annotvars, hdr.annotexprs,
+				hdr.ass);
 
 		LInteractionSeq lis = af.LInteractionSeq(blame, Arrays.asList(rec));
 		LProtocolDef inlined = af.LProtocolDef(def.getSource(), dinlr.job.af.LProtocolBlock(blame, lis));

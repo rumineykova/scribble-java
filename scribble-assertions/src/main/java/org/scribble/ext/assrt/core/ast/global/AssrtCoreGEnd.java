@@ -21,7 +21,7 @@ public class AssrtCoreGEnd extends AssrtCoreEnd implements AssrtCoreGType
 	}
 
 	@Override
-	public List<AssrtAnnotDataType> collectAnnotDataTypes()
+	public List<AssrtAnnotDataType> collectAnnotDataTypeVarDecls()
 	{
 		return Collections.emptyList();
 	}

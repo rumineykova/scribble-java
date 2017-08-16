@@ -1,5 +1,6 @@
 package org.scribble.ext.assrt.core.ast;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,11 +53,13 @@ public class AssrtCoreAstFactory
 	
 	public AssrtCoreGRec AssrtCoreGRec(RecVar recvar,
 			//AssrtDataTypeVar annot, AssrtArithFormula init,
-			Map<AssrtDataTypeVar, AssrtArithFormula> annotvars,
-			AssrtCoreGType body)
+			LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars,
+			AssrtCoreGType body,
+			AssrtBoolFormula ass)
 	{
 		//return new AssrtCoreGRec(recvar, annot, init, body);
-		return new AssrtCoreGRec(recvar, annotvars, body);
+		return new AssrtCoreGRec(recvar, annotvars, body,
+				ass);
 	}
 	
 	//public AssrtCoreGRecVar AssrtCoreGRecVar(RecVar var, AssrtArithFormula expr)
@@ -102,11 +105,13 @@ public class AssrtCoreAstFactory
 	
 	public AssrtCoreLRec AssrtCoreLRec(RecVar recvar, 
 			//AssrtDataTypeVar annot, AssrtArithFormula init,
-			Map<AssrtDataTypeVar, AssrtArithFormula> annotvars,
-			AssrtCoreLType body)
+			LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars,
+			AssrtCoreLType body,
+			AssrtBoolFormula ass)
 	{
 		//return new AssrtCoreLRec(recvar, annot, init, body);
-		return new AssrtCoreLRec(recvar, annotvars, body);
+		return new AssrtCoreLRec(recvar, annotvars, body,
+				ass);
 	}
 	
 	//public AssrtCoreLRecVar AssrtCoreLRecVar(RecVar var, AssrtArithFormula expr)

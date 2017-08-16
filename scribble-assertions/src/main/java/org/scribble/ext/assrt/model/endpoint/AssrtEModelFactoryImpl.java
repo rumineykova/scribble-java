@@ -1,7 +1,6 @@
 package org.scribble.ext.assrt.model.endpoint;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAccept;
@@ -10,6 +9,7 @@ import org.scribble.ext.assrt.model.endpoint.action.AssrtERequest;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.model.endpoint.EModelFactoryImpl;
 import org.scribble.model.endpoint.EState;
@@ -58,7 +58,8 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl implements AssrtEM
 	@Override
 	public EState newEState(Set<RecVar> labs)  // Used in a more places than above "disabled" actions -- e.g., LInteractionSeqDel, to be uniform need to make an AssrtLInteractionSeqDel
 	{
-		return newAssrtEState(labs, Collections.emptyMap());
+		return newAssrtEState(labs, new LinkedHashMap<>(),
+				AssrtTrueFormula.TRUE);
 	}
 
 	
@@ -90,8 +91,10 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl implements AssrtEM
 	}
 
 	@Override
-	public AssrtEState newAssrtEState(Set<RecVar> labs, Map<AssrtDataTypeVar, AssrtArithFormula> vars)  // FIXME: AssrtIntVar?
+	public AssrtEState newAssrtEState(Set<RecVar> labs, LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars,  // FIXME: AssrtIntVar?
+			AssrtBoolFormula ass) 
 	{
-		return new AssrtEState(labs, vars);
+		return new AssrtEState(labs, vars,
+				ass);
 	}
 }
