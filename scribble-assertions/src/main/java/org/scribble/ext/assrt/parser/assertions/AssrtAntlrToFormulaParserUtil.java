@@ -13,15 +13,17 @@ public class AssrtAntlrToFormulaParserUtil
 			case AssrtAssertionsAntlrConstants.BOOLEXPR_NODE_TYPE:     return AssrtAntlrNodeType.BOOLEXPR;
 			case AssrtAssertionsAntlrConstants.COMPEXPR_NODE_TYPE:     return AssrtAntlrNodeType.COMPEXPR;
 			case AssrtAssertionsAntlrConstants.ARITHEXPR_NODE_TYPE:    return AssrtAntlrNodeType.ARITHEXPR;
+			case AssrtAssertionsAntlrConstants.NEGEXPR_NODE_TYPE:      return AssrtAntlrNodeType.NEGEXPR;
 			
-			case AssrtAssertionsAntlrConstants.UNFUN_NODE_TYPE:          return AssrtAntlrNodeType.UNFUN;
+			case AssrtAssertionsAntlrConstants.UNFUN_NODE_TYPE:        return AssrtAntlrNodeType.UNFUN;
 			case AssrtAssertionsAntlrConstants.UNFUNARGLIST_NODE_TYPE: return AssrtAntlrNodeType.UNFUNARGLIST;
 
-			case AssrtAssertionsAntlrConstants.INTVAR_NODE_TYPE:          return AssrtAntlrNodeType.INTVAR;
-			case AssrtAssertionsAntlrConstants.INTVAL_NODE_TYPE:          return AssrtAntlrNodeType.INTVAL;
+			case AssrtAssertionsAntlrConstants.INTVAR_NODE_TYPE:        return AssrtAntlrNodeType.INTVAR;
+			case AssrtAssertionsAntlrConstants.INTVAL_NODE_TYPE:        return AssrtAntlrNodeType.INTVAL;
+			case AssrtAssertionsAntlrConstants.NEGINTVAL_NODE_TYPE:     return AssrtAntlrNodeType.NEGINTVAL;
 
-			case AssrtAssertionsAntlrConstants.FALSE_NODE_TYPE:           return AssrtAntlrNodeType.FALSE;
-			case AssrtAssertionsAntlrConstants.TRUE_NODE_TYPE:            return AssrtAntlrNodeType.TRUE;
+			case AssrtAssertionsAntlrConstants.FALSE_NODE_TYPE:         return AssrtAntlrNodeType.FALSE;
+			case AssrtAssertionsAntlrConstants.TRUE_NODE_TYPE:          return AssrtAntlrNodeType.TRUE;
 			
 			//case AssrtAssertionsAntlrConstants.ASSRT_STATEVARDECLLIST_NODE_TYPE: return AssrtAntlrNodeType.ASSRT_STATEVARDECLLIST;
 

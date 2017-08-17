@@ -10,6 +10,11 @@ public class AssrtFormulaFactory
 			AssrtAssertParser assertionsScribParser, CommonTree ct) {
 		return null;
 	}*/
+	
+	public static AssrtBinBoolFormula AssrtBinBool(AssrtBinBoolFormula.Op op, AssrtBoolFormula left, AssrtBoolFormula right)
+	{
+		return new AssrtBinBoolFormula(op, left, right); 
+	}
 
 	public static AssrtBinCompFormula AssrtBinComp(AssrtBinCompFormula.Op op, AssrtArithFormula left, AssrtArithFormula right)
 	{
@@ -21,9 +26,9 @@ public class AssrtFormulaFactory
 		return new AssrtBinArithFormula(op, left, right); 
 	}
 	
-	public static AssrtBinBoolFormula AssrtBinBool(AssrtBinBoolFormula.Op op, AssrtBoolFormula left, AssrtBoolFormula right)
+	public static AssrtNegFormula AssrtNeg(AssrtBoolFormula expr)
 	{
-		return new AssrtBinBoolFormula(op, left, right); 
+		return new AssrtNegFormula(expr); 
 	}
 
 	public static AssrtUnPredicateFormula AssrtUnPredicate(String name, List<AssrtArithFormula> args)

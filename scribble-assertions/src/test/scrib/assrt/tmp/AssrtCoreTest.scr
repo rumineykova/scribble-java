@@ -27,8 +27,8 @@
   (forall ((x1 Int) (y1 Int)) (and (lhs x1 y1) (=> (lhs x1 y1) (exists ((x2 Int) (y2 Int)) (rhs x1 y1 x2 y2)))))
   (forall ((x1 Int) (y1 Int)) (exists ((x2 Int) (y2 Int)) (and (lhs x1 y1) (rhs x1 y1 x2 y2))))
 ))
-(check-sat)
-(exit)
+(check-sat)  // FIXME: check negation is unsat
+(exit)  
 */
 
 
@@ -76,6 +76,17 @@ module assrt.tmp.AssrtCoreTest;
 type <dotnet> "System.UInt32" from "..." as int;
 type <dotnet> "System.String" from "..." as str;
 
+
+//*
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B;  @"!(x<3)"
+	2() from A to B;  @"(True && !(False))"
+
+}
+//*/
+
+/*
 global protocol Proto1(role A, role B)
 {
 	1() from A to B;
@@ -86,14 +97,16 @@ aux global protocol Proto2(role A, role B) @"2<3"  // FIXME: unknown vars check
 {
 	2() from A to B;
 }
+//*/
+
 /*
 global protocol Proto1(role A, role B) @"(x:=(1+(1-1)), y:=4)"
 {
-	1() from A to B; @ "(x<3 && x<3) || x<3"
+	1() from A to B; @ "(x<3 && x<3) || x<3+(1+2)"
 	//@"(((x>1) && (x>2)) && (x>3))"
 	//@"(((True)))"
-	//2() from B to A; @"foo()"
-	2() from B to A; @"((((True))))"
+	2() from B to A; @"foo()"  // FIXME: constants
+	//2() from B to A; @"((((True))))"
 	do Proto1(A, B);  @"<0, 0>"
 }
 //*/
