@@ -391,7 +391,7 @@ messagesignaturename: membername;
  * Section 3.2.2 Top-level Module Structure
  */
 module:
-	moduledecl importdecl* datatypedecl* protocoldecl*
+	moduledecl importdecl* datatypedecl* protocoldecl* EOF
 ->
 	^(MODULE moduledecl importdecl* datatypedecl* protocoldecl*)
 ;
