@@ -216,6 +216,31 @@ public class AssrtCommandLine extends CommandLine
 			job.debugPrintln("\n[assrt-core] Built endpoint graph for " + r + ":\n" + g.toDot());
 		}
 				
+		AssrtCoreSModel model = assrtCoreValidate(job, simpname, gpd.isExplicitModifier(), E0);  // TODO
+
+		/*if (!job.fair)
+		{
+			Map<Role, EState> U0 = new HashMap<>();
+			for (Role r : E0.keySet())
+			{
+				EState u = E0.get(r).unfairTransform();
+				U0.put(r, u);
+
+				job.debugPrintln
+				//System.out.println
+						("\n[assrt-core] Unfair transform for " + r + ":\n" + u.toDot());
+			}
+			
+			//validate(job, gpd.isExplicitModifier(), U0, true);  //TODO
+		}*/
+		
+		//((AssrtJob) job).runF17ProjectionPasses();  // projections not built on demand; cf. models
+
+		//return gt;
+		
+
+		// FIXME: factor out -- cf. super.doAttemptableOutputTasks
+		
 		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM))
 		{
 			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM);
@@ -237,50 +262,27 @@ public class AssrtCommandLine extends CommandLine
 				runDot(out, png);
 			}
 		}
-
-		assrtCoreValidate(job, simpname, gpd.isExplicitModifier(), E0);  // TODO
-
-		/*if (!job.fair)
-		{
-			Map<Role, EState> U0 = new HashMap<>();
-			for (Role r : E0.keySet())
-			{
-				EState u = E0.get(r).unfairTransform();
-				U0.put(r, u);
-
-				job.debugPrintln
-				//System.out.println
-						("\n[assrt-core] Unfair transform for " + r + ":\n" + u.toDot());
-			}
-			
-			//validate(job, gpd.isExplicitModifier(), U0, true);  //TODO
-		}*/
-		
-		//((AssrtJob) job).runF17ProjectionPasses();  // projections not built on demand; cf. models
-
-		//return gt;
-	}
-
-	private void assrtCoreValidate(Job job, GProtocolName simpname, boolean isExplicit, Map<Role, EState> E0, boolean... unfair) throws ScribbleException, CommandLineException
-	{
-		AssrtCoreSModel m = new AssrtCoreSModelBuilder(job.sf).build(E0, isExplicit);
-
-		job.debugPrintln("\n[assrt-core] Built model:\n" + m.toDot());
-
 		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL))
 		{
-			System.out.println("\n" + m.toDot());
+			System.out.println("\n" + model.toDot());
 		}
 		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL_PNG))
 		{
 			String[] arg = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL_PNG);
 			String png = arg[0];
-			runDot(m.toDot(), png);
+			runDot(model.toDot(), png);
 		}
+	}
+
+	private AssrtCoreSModel assrtCoreValidate(Job job, GProtocolName simpname, boolean isExplicit, Map<Role, EState> E0, boolean... unfair) throws ScribbleException, CommandLineException
+	{
+		AssrtCoreSModel model = new AssrtCoreSModelBuilder(job.sf).build(E0, isExplicit);
+
+		job.debugPrintln("\n[assrt-core] Built model:\n" + model.toDot());
 		
 		if (unfair.length == 0 || !unfair[0])
 		{
-			AssrtCoreSafetyErrors serrs = m.getSafetyErrors(job, simpname);  // job just for debug printing
+			AssrtCoreSafetyErrors serrs = model.getSafetyErrors(job, simpname);  // job just for debug printing
 			if (serrs.isSafe())
 			{
 				job.debugPrintln("\n[assrt-core] Protocol safe.");
@@ -320,5 +322,7 @@ public class AssrtCommandLine extends CommandLine
 			
 			throw new F17Exception("\n[f17] " + ((unfair.length == 0) ? "Fair protocol" : "Protocol") + " violates progress.\n" + perrs);
 		}*/
+		
+		return model;
 	}
 }

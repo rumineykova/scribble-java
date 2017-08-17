@@ -1,5 +1,5 @@
 //Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
-//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest.scr -V -ass Proto1
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest.scr -Z3 -ass Proto1 -V 
 
 
 // http://sandbox.kidstrythisathome.com/erdos/
@@ -98,7 +98,7 @@ type <dotnet> "System.String" from "..." as str;
 global protocol Proto1(role A, role B)
 {
 	1(x:int) from A to B;	
-	//2(y:int) from B to A;	 @"y>x"
+	2(y:int) from B to A;	 @"y>x"
 }
 
 
