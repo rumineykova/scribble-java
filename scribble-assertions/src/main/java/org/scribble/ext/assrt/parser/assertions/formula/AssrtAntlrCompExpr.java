@@ -47,7 +47,9 @@ public class AssrtAntlrCompExpr
 		{
 			case "=": return AssrtBinCompFormula.Op.Eq;
 			case "<": return AssrtBinCompFormula.Op.LessThan;
+			case "<=": return AssrtBinCompFormula.Op.LessThanEq;
 			case ">": return AssrtBinCompFormula.Op.GreaterThan;
+			case ">=": return AssrtBinCompFormula.Op.GreaterThanEq;
 			default:  throw new RuntimeException("[assrt] Shouldn't get in here: " + op.getText());  // Due to AssrtAssertions.g
 		}
 	}

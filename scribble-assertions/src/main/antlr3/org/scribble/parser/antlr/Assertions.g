@@ -37,12 +37,14 @@ tokens
 	BOOLEXPR  = 'BOOLEXPR'; 
 	COMPEXPR  = 'COMPEXPR'; 
 	ARITHEXPR = 'ARITHEXPR'; 
+	NEGEXPR   = 'NEGEXPR';
 	
 	UNFUN        = 'UNFUN';
 	UNFUNARGLIST = 'UNFUNARGLIST';
 
 	INTVAR = 'INTVAR'; 
 	INTVAL = 'INTVAL'; 
+	NEGINTVAL = 'NEGINTVAL'; 
 
 	TRUE  = 'TRUE';
 	FALSE = 'FALSE';
@@ -140,6 +142,10 @@ num:
 	NUMBER
 ->
 	^(INTVAL NUMBER)	   
+|
+	'-' NUMBER
+->
+	^(NEGINTVAL NUMBER)
 ; 
 
 	
@@ -198,15 +204,16 @@ bool_unary_expr:
 |
 	comp_expr
 ;
+// '¬' doesn't seem to work
 
 comp_expr:
-	arith_expr (op=('<' | '>' | '=') arith_expr)?
+	arith_expr (op=('=' | '<' | '<=' | '>' | '>=') arith_expr)?
 ->
 	^(COMPEXPR arith_expr $op? arith_expr?)
 ;
 	
 arith_expr:
-	arith_unary_expr (op=('+' | '-') arith_unary_expr)?
+	arith_unary_expr (op=('+' | '-' | '*') arith_unary_expr)?
 ->
 	^(ARITHEXPR arith_unary_expr $op? arith_unary_expr?)
 ;
@@ -217,6 +224,10 @@ arith_unary_expr:
 	num
 |
 	par_expr
+|
+	'!' par_expr
+->
+	^(NEGEXPR par_expr)
 |
 	unint_fun
 ;

@@ -14,18 +14,22 @@ public class AssrtBinCompFormula extends AssrtBoolFormula implements AssrtBinary
 {
 	public enum Op
 	{
-		GreaterThan, 
+		Eq,
 		LessThan, 
-		Eq;
+		LessThanEq, 
+		GreaterThan, 
+		GreaterThanEq;
 		
 		@Override
 		public String toString()
 		{
 			switch (this)
 			{
-				case GreaterThan: return ">";
-				case LessThan: return "<";
 				case Eq: return "=";
+				case LessThan: return "<";
+				case LessThanEq: return "<=";
+				case GreaterThan: return ">";
+				case GreaterThanEq: return ">=";
 				default: throw new RuntimeException("Won't get in here: " + this);
 			}
 		}
@@ -81,9 +85,11 @@ public class AssrtBinCompFormula extends AssrtBoolFormula implements AssrtBinary
 		String op;
 		switch(this.op)
 		{
-			case Eq:          op = "="; break;
-			case GreaterThan: op = ">"; break;
-			case LessThan:    op = "<"; break;
+			case Eq:            op = "=";  break;
+			case LessThan:      op = "<";  break;
+			case LessThanEq:    op = "<="; break;
+			case GreaterThan:   op = ">";  break;
+			case GreaterThanEq: op = ">="; break;
 			default: throw new RuntimeException("[assrt] Shouldn't get in here: " + this.op);
 		}
 		return "(" + op + " " + left + " " + right + ")";
