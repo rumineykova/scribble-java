@@ -137,7 +137,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	// Includes orphan pending requests -- maybe shouldn't?  handled by synchronisation error?
-	public boolean isOrphanError(Map<Role, EState> E0)
+	public boolean isOrphanError(Map<Role, AssrtEState> E0)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
 		{
@@ -164,7 +164,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		});
 	}
 
-	public boolean isUnfinishedRoleError(Map<Role, EState> E0)
+	public boolean isUnfinishedRoleError(Map<Role, AssrtEState> E0)
 	{
 		return this.isTerminal() &&
 				this.P.entrySet().stream().anyMatch(e -> isActive(e.getValue(), E0.get(e.getKey()).id));

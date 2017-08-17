@@ -101,6 +101,18 @@ global protocol Proto1(role A, role B)
 	2(y:int) from B to A;	 @"y>x"
 }
 
+global protocol Proto2(role A, role B)
+{
+	1() from A to B;	
+	2(y:int) from B to A;	 @"y>x"
+}
+
+global protocol Proto3(role A, role B, role C)
+{
+	1(x:int) from A to B;	
+	2(y:int) from B to C;	 @"y>x"
+	3(z:int) from C to A;	 @"z>x"
+}
 
 
 

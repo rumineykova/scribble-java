@@ -13,7 +13,7 @@ global protocol Proto1(role A, role B, role C)
 	} or {
 		RES(y:int) from A to B;
 		RES(z:int) from B to C; 
-	}			}
+	}	
 	
 	RES(z) from B to C; 
 }
