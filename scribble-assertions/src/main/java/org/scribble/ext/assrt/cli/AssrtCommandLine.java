@@ -26,6 +26,7 @@ import org.scribble.ext.assrt.main.AssrtException;
 import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.main.AssrtJob.Solver;
 import org.scribble.ext.assrt.main.AssrtMainContext;
+import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.main.AntlrSourceException;
@@ -34,7 +35,6 @@ import org.scribble.main.ScribbleException;
 import org.scribble.main.resource.DirectoryResourceLocator;
 import org.scribble.main.resource.ResourceLocator;
 import org.scribble.model.endpoint.EGraph;
-import org.scribble.model.endpoint.EState;
 import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.Role;
 import org.scribble.util.ScribParserException;
@@ -176,10 +176,10 @@ public class AssrtCommandLine extends CommandLine
 		{
 			throw new AssrtException("[assrt-core] Global protocol not found: " + simpname);
 		}
-		GProtocolDecl gpd = (GProtocolDecl) main.getProtocolDecl(simpname);
+		this.gpd = (GProtocolDecl) main.getProtocolDecl(simpname);
 
 		AssrtCoreAstFactory af = new AssrtCoreAstFactory();
-		AssrtCoreGType gt = new AssrtCoreGProtocolDeclTranslator(job, af).translate(gpd);
+		AssrtCoreGType gt = new AssrtCoreGProtocolDeclTranslator(job, af).translate(this.gpd);
 		
 		/*..HERE FIXME: need to add global assrt rec/continue and fix global inlining -- below steps use only the inlined *global*
 		CHECKME: base assrt "works" because projected local proto decl does keep the assertion, and inlining of local, which does handle the assertions (AssrtLProjectionDeclDel), is done from the "base" protocol decl(s) -- i.e., not from the inlined global (CHECKME?)
@@ -207,16 +207,17 @@ public class AssrtCommandLine extends CommandLine
 		}
 
 		AssrtCoreEGraphBuilder builder = new AssrtCoreEGraphBuilder(job);
-		Map<Role, EState> E0 = new HashMap<>();
+		this.E0 = new HashMap<>();
 		for (Role r : P0.keySet())
 		{
 			EGraph g = builder.build(P0.get(r));
-			E0.put(r, g.init);
+			this.E0.put(r, (AssrtEState) g.init);
 
+			
 			job.debugPrintln("\n[assrt-core] Built endpoint graph for " + r + ":\n" + g.toDot());
 		}
 				
-		AssrtCoreSModel model = assrtCoreValidate(job, simpname, gpd.isExplicitModifier(), E0);  // TODO
+		assrtCoreValidate(job, simpname, gpd.isExplicitModifier());//, this.E0);  // TODO
 
 		/*if (!job.fair)
 		{
@@ -237,10 +238,16 @@ public class AssrtCommandLine extends CommandLine
 		//((AssrtJob) job).runF17ProjectionPasses();  // projections not built on demand; cf. models
 
 		//return gt;
+	}
 		
+	// HACK: store in (Core) Job/JobContext?
+	protected GProtocolDecl gpd;
+	protected Map<Role, AssrtEState> E0;  // There is no core version
+	protected AssrtCoreSModel model;
 
 		// FIXME: factor out -- cf. super.doAttemptableOutputTasks
-		
+	protected void doAttemptableOutputTasks(Job job) throws CommandLineException, ScribbleException
+	{
 		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM))
 		{
 			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM);
@@ -274,15 +281,17 @@ public class AssrtCommandLine extends CommandLine
 		}
 	}
 
-	private AssrtCoreSModel assrtCoreValidate(Job job, GProtocolName simpname, boolean isExplicit, Map<Role, EState> E0, boolean... unfair) throws ScribbleException, CommandLineException
+	private void assrtCoreValidate(Job job, GProtocolName simpname, boolean isExplicit, 
+			//Map<Role, AssrtEState> E0,
+			boolean... unfair) throws ScribbleException, CommandLineException
 	{
-		AssrtCoreSModel model = new AssrtCoreSModelBuilder(job.sf).build(E0, isExplicit);
+		this.model = new AssrtCoreSModelBuilder(job.sf).build(this.E0, isExplicit);
 
-		job.debugPrintln("\n[assrt-core] Built model:\n" + model.toDot());
+		job.debugPrintln("\n[assrt-core] Built model:\n" + this.model.toDot());
 		
 		if (unfair.length == 0 || !unfair[0])
 		{
-			AssrtCoreSafetyErrors serrs = model.getSafetyErrors(job, simpname);  // job just for debug printing
+			AssrtCoreSafetyErrors serrs = this.model.getSafetyErrors(job, simpname);  // job just for debug printing
 			if (serrs.isSafe())
 			{
 				job.debugPrintln("\n[assrt-core] Protocol safe.");
@@ -322,7 +331,5 @@ public class AssrtCommandLine extends CommandLine
 			
 			throw new F17Exception("\n[f17] " + ((unfair.length == 0) ? "Fair protocol" : "Protocol") + " violates progress.\n" + perrs);
 		}*/
-		
-		return model;
 	}
 }

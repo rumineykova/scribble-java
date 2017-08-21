@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.main.Job;
-import org.scribble.model.endpoint.EState;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.Role;
@@ -17,7 +17,7 @@ import org.scribble.type.name.Role;
 // Factor out with SGraph/SModel?
 public class AssrtCoreSModel
 {
-	public final Map<Role, EState> E0;
+	public final Map<Role, AssrtEState> E0;
 	public final AssrtCoreSState init;
 	
 	public Map<Integer, AssrtCoreSState> allStates; // State ID -> GMState
@@ -25,7 +25,7 @@ public class AssrtCoreSModel
 	private Map<Integer, Set<Integer>> reach; // State ID -> reachable states (not reflexive)
 	private Set<Set<Integer>> termSets;
 
-	protected AssrtCoreSModel(Map<Role, EState> E0, AssrtCoreSState init, Map<Integer, AssrtCoreSState> allStates)
+	protected AssrtCoreSModel(Map<Role, AssrtEState> E0, AssrtCoreSState init, Map<Integer, AssrtCoreSState> allStates)
 	{
 		this.E0 = Collections.unmodifiableMap(E0);
 		this.init = init;
