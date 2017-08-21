@@ -94,7 +94,24 @@ type <dotnet> "System.String" from "..." as str;
 */
 
 
+
+
+
 /*
+..demo:
+- model building: model state extensions for assertions
+-- assert-prog vs. sat -- DbC assert-prog choice case disjunction
+-- bounded model with recursion (1): actvar renaming ("oldvar" GC) -- leveraging syntactic unfolding "semantics" of recursion
+-- async MP: renaming following message flows
+- statevars
+-- bounded model with recursion (2): conservative forall on old statevars
+-- "same var" special case
+-- statevar invariants -- statevar-assert-prog
+- uninterpreted funs
+-- domain-specific theories (e.g., open/port)
+-- encode roles/etc as ints
+-- domain-specific API gen
+
 global protocol Proto1(role A, role B)
 {
 	1(x:int) from A to B;  @"x>3"
@@ -111,7 +128,32 @@ global protocol Proto1(role A, role B)
 }
 //*/
 
-//*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 global protocol Proto1a(role A, role B)  @"(x:=1)"
 {
 	1(x:int) from A to B;	
