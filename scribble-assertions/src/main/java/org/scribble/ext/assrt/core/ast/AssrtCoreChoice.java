@@ -7,14 +7,14 @@ import java.util.stream.Collectors;
 import org.scribble.type.kind.ProtocolKind;
 import org.scribble.type.name.Role;
 
-public abstract class AssrtCoreChoice<A extends AssrtCoreAction, C extends AssrtCoreType, K extends ProtocolKind> implements AssrtCoreType
+public abstract class AssrtCoreChoice<C extends AssrtCoreType, K extends ProtocolKind> implements AssrtCoreType
 {
 	public final Role role;  // FIXME: RoleNode?  Cf. AssrtCoreAction.op/pay
 	public final AssrtCoreActionKind<K> kind;
-	public final Map<A, C> cases;
+	public final Map<AssrtCoreMessage, C> cases;
 	
 	// Pre: cases.size() > 1
-	public AssrtCoreChoice(Role role, AssrtCoreActionKind<K> kind, Map<A, C> cases)
+	public AssrtCoreChoice(Role role, AssrtCoreActionKind<K> kind, Map<AssrtCoreMessage, C> cases)
 	{
 		this.role = role;
 		this.kind = kind;
@@ -63,7 +63,7 @@ public abstract class AssrtCoreChoice<A extends AssrtCoreAction, C extends Assrt
 		{
 			return false;
 		}
-		AssrtCoreChoice<?, ?, ?> them = (AssrtCoreChoice<?, ?, ?>) obj; 
+		AssrtCoreChoice<?, ?> them = (AssrtCoreChoice<?, ?>) obj; 
 		return them.canEquals(this)
 				&& this.role.equals(them.role) && this.kind.equals(them.kind) && this.cases.equals(them.cases);
 				// FIXME: check A, C are equal

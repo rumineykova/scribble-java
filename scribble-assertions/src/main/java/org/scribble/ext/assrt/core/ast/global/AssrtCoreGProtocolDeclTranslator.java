@@ -34,7 +34,7 @@ import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
-import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
+import org.scribble.ext.assrt.core.ast.AssrtCoreMessage;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
@@ -166,7 +166,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		Role src = null;
 		Role dest = null;
 		AssrtCoreActionKind<Global> kind = null;  // FIXME: generic parameter
-		Map<AssrtCoreAction, AssrtCoreGType> cases = new HashMap<>();
+		Map<AssrtCoreMessage, AssrtCoreGType> cases = new HashMap<>();
 		for (AssrtCoreGType c : children)
 		{
 			// Because all cases should be action guards (unary choices)
@@ -196,9 +196,9 @@ public class AssrtCoreGProtocolDeclTranslator
 			}
 			
 			// "Flatten" nested choices (already checked they are guarded) -- Scribble choice subjects ignored
-			for (Entry<AssrtCoreAction, AssrtCoreGType> e : tmp.cases.entrySet())
+			for (Entry<AssrtCoreMessage, AssrtCoreGType> e : tmp.cases.entrySet())
 			{
-				AssrtCoreAction k = e.getKey();
+				AssrtCoreMessage k = e.getKey();
 				if (cases.keySet().stream().anyMatch(x -> x.op.equals(k.op)))
 				{
 					throw new AssrtCoreSyntaxException(gc.getSource(), "[assrt-core] Non-deterministic actions not supported: " + k.op);
@@ -259,7 +259,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
 		AssrtAnnotDataType pay = parsePayload(gmt);
 		AssrtAssertion ass = parseAssertion(gmt);
-		AssrtCoreAction a = this.af.AssrtCoreAction(op, pay, ass.getFormula());
+		AssrtCoreMessage a = this.af.AssrtCoreAction(op, pay, ass.getFormula());
 		Role src = parseSourceRole(gmt);
 		Role dest = parseDestinationRole(gmt);
 		AssrtCoreGActionKind kind = AssrtCoreGActionKind.MESSAGE;
@@ -274,7 +274,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
 		AssrtAnnotDataType pay = parsePayload(gc);
 		AssrtAssertion ass = parseAssertion(gc);
-		AssrtCoreAction a = this.af.AssrtCoreAction(op, pay, ass.getFormula());
+		AssrtCoreMessage a = this.af.AssrtCoreAction(op, pay, ass.getFormula());
 		Role src = parseSourceRole(gc);
 		Role dest = parseDestinationRole(gc);
 		AssrtCoreGActionKind kind = AssrtCoreGActionKind.CONNECT;
@@ -283,7 +283,7 @@ public class AssrtCoreGProtocolDeclTranslator
 
 	private AssrtCoreGChoice parseGSimpleInteractionNode(
 			List<GInteractionNode> is, Map<RecVar, RecVar> rvs, 
-			Role src, AssrtCoreAction a, Role dest, AssrtCoreGActionKind kind) throws AssrtCoreSyntaxException 
+			Role src, AssrtCoreMessage a, Role dest, AssrtCoreGActionKind kind) throws AssrtCoreSyntaxException 
 	{
 		if (src.equals(dest))
 		{

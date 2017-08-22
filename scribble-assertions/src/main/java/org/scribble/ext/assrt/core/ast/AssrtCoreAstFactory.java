@@ -35,13 +35,13 @@ public class AssrtCoreAstFactory
 	}
 	
 	// Pre: not null
-	public AssrtCoreAction AssrtCoreAction(Op op, AssrtAnnotDataType pay, AssrtBoolFormula ass)
+	public AssrtCoreMessage AssrtCoreAction(Op op, AssrtAnnotDataType pay, AssrtBoolFormula ass)
 	//public AssrtCoreAction action(OpNode op, AssrtAnnotDataTypeElem<DataTypeKind> pay, AssrtAssertion ass)
 	{
-		return new AssrtCoreAction(op, pay, ass);
+		return new AssrtCoreMessage(op, pay, ass);
 	}
 	
-	public AssrtCoreGChoice AssrtCoreGChoice(Role src, AssrtCoreGActionKind kind, Role dest, Map<AssrtCoreAction, AssrtCoreGType> cases)
+	public AssrtCoreGChoice AssrtCoreGChoice(Role src, AssrtCoreGActionKind kind, Role dest, Map<AssrtCoreMessage, AssrtCoreGType> cases)
 	{
 		return new AssrtCoreGChoice(src, kind, dest, cases);
 	}
@@ -73,7 +73,7 @@ public class AssrtCoreAstFactory
 		return AssrtCoreGEnd.END;
 	}
 
-	public AssrtCoreLChoice AssrtCoreLChoice(Role role, AssrtCoreLActionKind kind, Map<AssrtCoreAction, AssrtCoreLType> cases)
+	public AssrtCoreLChoice AssrtCoreLChoice(Role role, AssrtCoreLActionKind kind, Map<AssrtCoreMessage, AssrtCoreLType> cases)
 	{
 		return new AssrtCoreLChoice(role, kind, cases);
 	}

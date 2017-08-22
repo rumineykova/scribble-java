@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
+import org.scribble.ext.assrt.core.ast.AssrtCoreMessage;
 import org.scribble.ext.assrt.core.ast.AssrtCoreRecVar;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLActionKind;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLChoice;
@@ -73,7 +73,7 @@ public class AssrtCoreEGraphBuilder
 	}
 
 	private void buildEdgeAndContinuation(AssrtEState s1, AssrtEState s2, Map<RecVar, AssrtEState> recs, 
-			Role r, AssrtCoreLActionKind k, AssrtCoreAction a, AssrtCoreLType cont)
+			Role r, AssrtCoreLActionKind k, AssrtCoreMessage a, AssrtCoreLType cont)
 	{
 		if (cont instanceof AssrtCoreLEnd)
 		{
@@ -102,13 +102,13 @@ public class AssrtCoreEGraphBuilder
 		}
 	}
 	
-	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreAction a)
+	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreMessage a)
 	{
 		//return toEAction(r, k, a, AssrtCoreESend.DUMMY_VAR, AssrtCoreESend.ZERO);
 		return toEAction(r, k, a, Collections.emptyList());
 	}
 
-	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreAction a,
+	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreMessage a,
 			//AssrtDataTypeVar annot, AssrtArithFormula expr)
 			List<AssrtArithFormula> annotexprs)
 	{
