@@ -33,6 +33,7 @@ class AssrtCoreAction
 		int hash = 43;
 		//hash = 31 * hash + this.subjs.hashCode();
 		hash = 31 * hash + this.op.hashCode();
+		hash = 31 * hash + this.pay.hashCode();
 		hash = 31 * hash + this.ass.hashCode();
 		return hash;
 	}
@@ -51,7 +52,8 @@ class AssrtCoreAction
 		AssrtCoreAction them = (AssrtCoreAction) obj;
 		//return them.canEquals(this) && this.subjs.equals(them.subjs);
 		return //them.canEquals(this) && 
-				this.op.equals(them.op) && this.ass.equals(them.ass);
+				   this.op.equals(them.op) && this.pay.equals(them.pay)
+				&& this.ass.equals(them.ass);
 	}
 
 	//protected abstract boolean canEquals(Object o);

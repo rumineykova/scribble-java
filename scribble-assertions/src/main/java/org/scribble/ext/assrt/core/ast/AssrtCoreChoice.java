@@ -80,14 +80,9 @@ public abstract class AssrtCoreChoice<A extends AssrtCoreAction, C extends Assrt
 	{
 		String s = this.cases.entrySet().stream()
 				.map(e -> e.getKey() + "." + e.getValue()).collect(Collectors.joining(", "));
-		if (this.cases.size() > 1)
-		{
-			s = "{ " + s + " }";
-		}
-		else
-		{
-			s = ":" + s;
-		}
+		s = (this.cases.size() > 1)
+				? "{ " + s + " }"
+				: ":" + s;
 		return s;
 	}
 }

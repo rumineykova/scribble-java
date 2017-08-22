@@ -68,6 +68,7 @@ public class AssrtCommandLine extends CommandLine
 	}
 	
 	// Based on CommandLine.newMainContext
+	@Override
 	protected AssrtMainContext newMainContext() throws ScribParserException, ScribbleException
 	{
 		boolean debug = this.args.containsKey(CLArgFlag.VERBOSE);  // TODO: factor out with CommandLine (cf. MainContext fields)
