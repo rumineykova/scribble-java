@@ -68,6 +68,7 @@ public class AssrtCommandLine extends CommandLine
 	}
 	
 	// Based on CommandLine.newMainContext
+	@Override
 	protected AssrtMainContext newMainContext() throws ScribParserException, ScribbleException
 	{
 		boolean debug = this.args.containsKey(CLArgFlag.VERBOSE);  // TODO: factor out with CommandLine (cf. MainContext fields)
@@ -245,8 +246,9 @@ public class AssrtCommandLine extends CommandLine
 	protected Map<Role, AssrtEState> E0;  // There is no core version
 	protected AssrtCoreSModel model;
 
-		// FIXME: factor out -- cf. super.doAttemptableOutputTasks
-	protected void doAttemptableOutputTasks(Job job) throws CommandLineException, ScribbleException
+	// FIXME: factor out -- cf. super.doAttemptableOutputTasks
+	@Override
+	protected void tryOutputTasks(Job job) throws CommandLineException, ScribbleException
 	{
 		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM))
 		{

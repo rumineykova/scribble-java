@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.core.ast.AssrtCoreAction;
+import org.scribble.ext.assrt.core.ast.AssrtCoreMessage;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreChoice;
@@ -27,12 +27,12 @@ import org.scribble.type.kind.Global;
 import org.scribble.type.name.RecVar;
 import org.scribble.type.name.Role;
 
-public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCoreGType, Global> implements AssrtCoreGType
+public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> implements AssrtCoreGType
 {
 	public final Role src;   // Singleton -- no disconnect for now
 	public final Role dest;  // this.dest == super.role
 
-	public AssrtCoreGChoice(Role src, AssrtCoreGActionKind kind, Role dest, Map<AssrtCoreAction, AssrtCoreGType> cases)
+	public AssrtCoreGChoice(Role src, AssrtCoreGActionKind kind, Role dest, Map<AssrtCoreMessage, AssrtCoreGType> cases)
 	{
 		super(dest, kind, cases);
 		this.src = src;
@@ -55,10 +55,10 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 	@Override
 	public AssrtCoreLType project(AssrtCoreAstFactory af, Role r, AssrtBoolFormula f) throws AssrtCoreSyntaxException
 	{
-		Map<AssrtCoreAction, AssrtCoreLType> projs = new HashMap<>();
-		for (Entry<AssrtCoreAction, AssrtCoreGType> e : this.cases.entrySet())
+		Map<AssrtCoreMessage, AssrtCoreLType> projs = new HashMap<>();
+		for (Entry<AssrtCoreMessage, AssrtCoreGType> e : this.cases.entrySet())
 		{
-			AssrtCoreAction a = e.getKey();
+			AssrtCoreMessage a = e.getKey();
 			AssrtBoolFormula fproj = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f, a.ass);
 
 			if (this.dest.equals(r))  // Projecting receiver side
@@ -140,7 +140,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed action kinds: " + kinds);
 		}
 		
-		Map<AssrtCoreAction, AssrtCoreLType> merged = new HashMap<>();
+		Map<AssrtCoreMessage, AssrtCoreLType> merged = new HashMap<>();
 		choices.forEach(v ->
 		{
 			if (!v.kind.equals(AssrtCoreLActionKind.RECEIVE))
@@ -149,7 +149,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreAction, AssrtCore
 			}
 			v.cases.entrySet().forEach(e ->
 			{
-				AssrtCoreAction k = e.getKey();
+				AssrtCoreMessage k = e.getKey();
 				AssrtCoreLType b = e.getValue();
 				if (merged.containsKey(k)) //&& !b.equals(merged.get(k))) // TODO
 				{

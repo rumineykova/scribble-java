@@ -6,14 +6,14 @@ import org.scribble.type.name.Op;
 
 
 public //abstract
-class AssrtCoreAction
+class AssrtCoreMessage
 {
 	public final Op op;
 	//public final AssrtAnnotDataTypeElem<DataTypeKind> pay;
 	public final AssrtAnnotDataType pay;
 	public final AssrtBoolFormula ass;  // cnf?  Set?  // Not null -- empty ass set to True by AssrtCoreGProtocolDeclTranslator
 	
-	public AssrtCoreAction(Op op, AssrtAnnotDataType pay, AssrtBoolFormula ass)
+	public AssrtCoreMessage(Op op, AssrtAnnotDataType pay, AssrtBoolFormula ass)
 	//public AssrtCoreAction(OpNode op, AssrtAnnotDataTypeElem<DataTypeKind> pay, AssrtAssertion ass)
 	{
 		this.op = op;
@@ -33,6 +33,7 @@ class AssrtCoreAction
 		int hash = 43;
 		//hash = 31 * hash + this.subjs.hashCode();
 		hash = 31 * hash + this.op.hashCode();
+		hash = 31 * hash + this.pay.hashCode();
 		hash = 31 * hash + this.ass.hashCode();
 		return hash;
 	}
@@ -44,14 +45,15 @@ class AssrtCoreAction
 		{
 			return true;
 		}
-		if (!(obj instanceof AssrtCoreAction))
+		if (!(obj instanceof AssrtCoreMessage))
 		{
 			return false;
 		}
-		AssrtCoreAction them = (AssrtCoreAction) obj;
+		AssrtCoreMessage them = (AssrtCoreMessage) obj;
 		//return them.canEquals(this) && this.subjs.equals(them.subjs);
 		return //them.canEquals(this) && 
-				this.op.equals(them.op) && this.ass.equals(them.ass);
+				   this.op.equals(them.op) && this.pay.equals(them.pay)
+				&& this.ass.equals(them.ass);
 	}
 
 	//protected abstract boolean canEquals(Object o);
