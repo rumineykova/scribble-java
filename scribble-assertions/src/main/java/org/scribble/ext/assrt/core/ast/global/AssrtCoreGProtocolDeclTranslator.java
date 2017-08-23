@@ -266,7 +266,7 @@ public class AssrtCoreGProtocolDeclTranslator
 		return parseGSimpleInteractionNode(is, rvs, src, a, dest, kind);
 	}
 
-	// Duplicated from parseGMessageTransfer (MessageTransfer and ConnectionAction have no common
+	// Duplicated from parseGMessageTransfer (MessageTransfer and ConnectionAction have no common base
 	
 	private AssrtCoreGChoice parseAssrtGConnect(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, AssrtGConnect gc) throws AssrtCoreSyntaxException 
 	{
@@ -329,7 +329,7 @@ public class AssrtCoreGProtocolDeclTranslator
 	{
 		if (!mn.isMessageSigNode())
 		{
-			throw new AssrtCoreSyntaxException(mn.getSource(), " [assrt-core] Message sign names not supported: " + mn);  // TODO: MessageSigName
+			throw new AssrtCoreSyntaxException(mn.getSource(), " [assrt-core] Message sig names not supported: " + mn);  // TODO: MessageSigName
 		}
 		MessageSigNode msn = ((MessageSigNode) mn);
 		if (msn.payloads.getElements().isEmpty())
