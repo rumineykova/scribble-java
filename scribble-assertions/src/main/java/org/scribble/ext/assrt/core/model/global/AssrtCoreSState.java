@@ -231,7 +231,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						Role src = e.getKey();
 
 						Set<AssrtDataTypeVar> known = new HashSet<>(this.K.get(src));
-						a.payload.elems.forEach(pe ->  // Currently exactly one elem
+						a.payload.elems.forEach(pe ->
 						{
 							if (pe instanceof AssrtAnnotDataType)
 							{
@@ -302,9 +302,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						}
 
 						Set<AssrtIntVarFormula> varsA = new HashSet<>();
-						varsA.add(AssrtFormulaFactory
-								.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));
-						// Adding even if var not used
+						/*varsA.add(AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));  
+								// Adding even if var not used*/
+						a.payload.elems.forEach(x -> varsA.add(AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) x).var.toString())));
 						// N.B. includes the case for recursion cycles where var is "already"
 						// in F
 						if (!varsA.isEmpty()) // FIXME: currently never empty
@@ -406,8 +406,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 					AssrtBoolFormula AA = ass;
 					Set<AssrtIntVarFormula> varsA = new HashSet<>();
-					AssrtIntVarFormula vvv = AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString());
-					varsA.add(vvv); // Adding even if var not used
+					/*AssrtIntVarFormula vvv = AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString());
+					varsA.add(vvv); // Adding even if var not used*/
+					a.payload.elems.forEach(x -> varsA.add(AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) x).var.toString())));
 							// N.B. includes the case for recursion cycles where var is "already" in F
 					if (!varsA.isEmpty()) // FIXME: currently never empty
 					{
@@ -766,7 +767,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		boolean ok = true;
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 				es.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>)::iterator)*/
-		PayloadElemType<?> pt = es.payload.elems.get(0);  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
+		for (PayloadElemType<?> pt : es.payload.elems)  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
 		{
 			if (pt instanceof AssrtAnnotDataType)
 			{
@@ -813,7 +814,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		
 		// FIXME: factor out with send?
 		boolean ok = true;
-		PayloadElemType<?> pt = es.payload.elems.get(0);  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
+		for (PayloadElemType<?> pt : es.payload.elems)  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
 		{
 			if (pt instanceof AssrtAnnotDataType)
 			{
@@ -990,7 +991,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
-		PayloadElemType<?> pt = ((EAction) a).payload.elems.get(0);
+		for (PayloadElemType<?> pt : ((EAction) a).payload.elems)
 		{
 			if (pt instanceof AssrtAnnotDataType)
 			{
@@ -1032,7 +1033,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
-		PayloadElemType<?> pt = ((EAction) a).payload.elems.get(0);
+		for (PayloadElemType<?> pt : ((EAction) a).payload.elems)
 		{
 			if (pt instanceof AssrtAnnotDataType)
 			{

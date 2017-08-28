@@ -1,11 +1,11 @@
 package org.scribble.ext.assrt.core.model.endpoint;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.core.ast.AssrtCoreMessage;
 import org.scribble.ext.assrt.core.ast.AssrtCoreRecVar;
@@ -19,9 +19,11 @@ import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.type.kind.AssrtAnnotDataTypeKind;
 import org.scribble.model.endpoint.EGraph;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.type.Payload;
+import org.scribble.type.name.PayloadElemType;
 import org.scribble.type.name.RecVar;
 import org.scribble.type.name.Role;
 
@@ -116,14 +118,20 @@ public class AssrtCoreEGraphBuilder
 		AssrtCoreEModelFactory ef = (AssrtCoreEModelFactory) this.util.ef;  // FIXME: factor out
 		if (k.equals(AssrtCoreLActionKind.SEND))
 		{
-			return ef.newAssrtCoreESend(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, //annot,
+			return ef.newAssrtCoreESend(r, a.op, 
+					//new Payload(Arrays.asList(a.pays)),
+					new Payload(a.pays.stream().map(p -> (PayloadElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					a.ass, //annot,
 					annotexprs);
 
 		}
 		else if (k.equals(AssrtCoreLActionKind.RECEIVE))
 		{
 			//return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
-			return ef.newAssrtCoreEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, //annot,
+			return ef.newAssrtCoreEReceive(r, a.op,
+					//new Payload(Arrays.asList(a.pays)),
+					new Payload(a.pays.stream().map(p -> (PayloadElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					a.ass, //annot,
 					annotexprs);
 
 			// FIXME: local receive assertions -- why needed exactly?  should WF imply receive assertion always true?
@@ -131,12 +139,18 @@ public class AssrtCoreEGraphBuilder
 		}
 		else if (k.equals(AssrtCoreLActionKind.REQUEST))
 		{
-			return ef.newAssrtCoreERequest(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, //annot,
+			return ef.newAssrtCoreERequest(r, a.op,
+					//new Payload(Arrays.asList(a.pays)),
+					new Payload(a.pays.stream().map(p -> (PayloadElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					a.ass, //annot,
 					annotexprs);
 		}
 		else if (k.equals(AssrtCoreLActionKind.ACCEPT))
 		{
-			return ef.newAssrtCoreEAccept(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass, //annot,
+			return ef.newAssrtCoreEAccept(r, a.op,
+					//new Payload(Arrays.asList(a.pays)),
+					new Payload(a.pays.stream().map(p -> (PayloadElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					a.ass, //annot,
 					annotexprs);
 		}
 		/*else if (a instanceof AssrtCoreLDisconnect)
