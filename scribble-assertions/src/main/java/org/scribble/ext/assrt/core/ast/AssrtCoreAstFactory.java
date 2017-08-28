@@ -35,10 +35,10 @@ public class AssrtCoreAstFactory
 	}
 	
 	// Pre: not null
-	public AssrtCoreMessage AssrtCoreAction(Op op, AssrtAnnotDataType pay, AssrtBoolFormula ass)
-	//public AssrtCoreAction action(OpNode op, AssrtAnnotDataTypeElem<DataTypeKind> pay, AssrtAssertion ass)
+	//public AssrtCoreMessage AssrtCoreAction(Op op, AssrtAnnotDataType pay, AssrtBoolFormula ass)
+	public AssrtCoreMessage AssrtCoreAction(Op op, List<AssrtAnnotDataType> pays, AssrtBoolFormula ass)
 	{
-		return new AssrtCoreMessage(op, pay, ass);
+		return new AssrtCoreMessage(op, pays, ass);
 	}
 	
 	public AssrtCoreGChoice AssrtCoreGChoice(Role src, AssrtCoreGActionKind kind, Role dest, Map<AssrtCoreMessage, AssrtCoreGType> cases)

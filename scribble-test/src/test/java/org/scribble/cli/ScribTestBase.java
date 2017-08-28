@@ -64,7 +64,7 @@ public abstract class ScribTestBase
 			if (tmp.endsWith(skip))
 			{
 				ScribTestBase.NUM_SKIPPED++;
-				System.out.println("[scrib-test] Test on skip-list: " + this.example + " (" + ScribTestBase.NUM_SKIPPED + " skipped.)");
+				System.out.println("[scrib-test] Skip-listed: " + this.example + " (" + ScribTestBase.NUM_SKIPPED + " skipped.)");
 				return true;
 			}
 		}

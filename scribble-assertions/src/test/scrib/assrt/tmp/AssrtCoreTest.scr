@@ -97,6 +97,23 @@ type <dotnet> "System.String" from "..." as str;
 
 
 
+global protocol Proto1(role A, role B)
+{
+	1(x:int, y:int) from A to B;  @"x>3 && y>4"
+	2() from B to A;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 ..demo:
 - model building: model state extensions for assertions

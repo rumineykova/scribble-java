@@ -34,9 +34,9 @@ import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
-import org.scribble.ext.assrt.core.ast.AssrtCoreMessage;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
+import org.scribble.ext.assrt.core.ast.AssrtCoreMessage;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
@@ -256,10 +256,10 @@ public class AssrtCoreGProtocolDeclTranslator
 	private AssrtCoreGChoice parseAssrtGMessageTransfer(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, AssrtGMessageTransfer gmt) throws AssrtCoreSyntaxException 
 	{
 		Op op = parseOp(gmt);
-		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
-		AssrtAnnotDataType pay = parsePayload(gmt);
+		//AssrtAnnotDataType pay = parsePayload(gmt);
+		List<AssrtAnnotDataType> pays = parsePayload(gmt);
 		AssrtAssertion ass = parseAssertion(gmt);
-		AssrtCoreMessage a = this.af.AssrtCoreAction(op, pay, ass.getFormula());
+		AssrtCoreMessage a = this.af.AssrtCoreAction(op, pays, ass.getFormula());
 		Role src = parseSourceRole(gmt);
 		Role dest = parseDestinationRole(gmt);
 		AssrtCoreGActionKind kind = AssrtCoreGActionKind.MESSAGE;
@@ -271,10 +271,10 @@ public class AssrtCoreGProtocolDeclTranslator
 	private AssrtCoreGChoice parseAssrtGConnect(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, AssrtGConnect gc) throws AssrtCoreSyntaxException 
 	{
 		Op op = parseOp(gc);
-		//AssrtAnnotDataTypeElem<DataTypeKind> pay = parsePayload(gmt);
-		AssrtAnnotDataType pay = parsePayload(gc);
+		//AssrtAnnotDataType pay = parsePayload(gc);
+		List<AssrtAnnotDataType> pays = parsePayload(gc);
 		AssrtAssertion ass = parseAssertion(gc);
-		AssrtCoreMessage a = this.af.AssrtCoreAction(op, pay, ass.getFormula());
+		AssrtCoreMessage a = this.af.AssrtCoreAction(op, pays, ass.getFormula());
 		Role src = parseSourceRole(gc);
 		Role dest = parseDestinationRole(gc);
 		AssrtCoreGActionKind kind = AssrtCoreGActionKind.CONNECT;
@@ -314,18 +314,20 @@ public class AssrtCoreGProtocolDeclTranslator
 		return msn.op.toName();
 	}
 
-	private AssrtAnnotDataType parsePayload(AssrtGMessageTransfer gmt) throws AssrtCoreSyntaxException
-	//private AssrtAnnotDataTypeElem<DataTypeKind> parsePayload(GMessageTransfer gmt) throws AssrtException
+	//private AssrtAnnotDataType parsePayload(AssrtGMessageTransfer gmt) throws AssrtCoreSyntaxException
+	private List<AssrtAnnotDataType> parsePayload(AssrtGMessageTransfer gmt) throws AssrtCoreSyntaxException
 	{
 		return parsePayload(gmt.msg);
 	}
 
-	private AssrtAnnotDataType parsePayload(AssrtGConnect gc) throws AssrtCoreSyntaxException
+	//private AssrtAnnotDataType parsePayload(AssrtGConnect gc) throws AssrtCoreSyntaxException
+	private List<AssrtAnnotDataType> parsePayload(AssrtGConnect gc) throws AssrtCoreSyntaxException
 	{
 		return parsePayload(gc.msg);
 	}
 
-	private AssrtAnnotDataType parsePayload(MessageNode mn) throws AssrtCoreSyntaxException
+	//private AssrtAnnotDataType parsePayload(MessageNode mn) throws AssrtCoreSyntaxException
+	private List<AssrtAnnotDataType> parsePayload(MessageNode mn) throws AssrtCoreSyntaxException
 	{
 		if (!mn.isMessageSigNode())
 		{
@@ -338,49 +340,57 @@ public class AssrtCoreGProtocolDeclTranslator
 			AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
 			return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, dtn);  // null source OK?*/
 
-			return new AssrtAnnotDataType(makeFreshDataTypeVar(), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE);  // FIXME: make empty list
+			return Stream.of(new AssrtAnnotDataType(makeFreshDataTypeVar(), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE))
+					.collect(Collectors.toList());  // FIXME: make empty list
 		}
-		else if (msn.payloads.getElements().size() > 1)
+		/*else if (msn.payloads.getElements().size() > 1)
 		{
 			throw new AssrtCoreSyntaxException(msn.getSource(), "[assrt-core] Payload with more than one element not supported: " + mn);
-		}
-
-		PayloadElem<?> pe = msn.payloads.getElements().get(0);
-		if (!(pe instanceof AssrtAnnotDataTypeElem) && !(pe instanceof UnaryPayloadElem<?>))
-		{
-			// Already ruled out by parsing?  e.g., GDelegationElem
-			throw new AssrtCoreSyntaxException("[assrt-core] Payload element not supported: " + pe);
-		}
-		/*else if (pe instanceof LDelegationElem)  // No: only created by projection, won't be parsed
-		{
-			throw new AssrtCoreSyntaxException("[assrt-core] Payload element not supported: " + pe);
 		}*/
-		
-		if (pe instanceof AssrtAnnotDataTypeElem)
+
+		//PayloadElem<?> pe = msn.payloads.getElements().get(0);
+		List<AssrtAnnotDataType> res = new LinkedList<>();
+		for (PayloadElem<?> pe : msn.payloads.getElements())
 		{
-			AssrtAnnotDataType adt = ((AssrtAnnotDataTypeElem) pe).toPayloadType();
-			String type = adt.data.toString();
-			if (!type.equals("int") && !type.endsWith(".int"))  // HACK FIXME (currently "int" for F#)
+			if (!(pe instanceof AssrtAnnotDataTypeElem) && !(pe instanceof UnaryPayloadElem<?>))
 			{
-				throw new AssrtCoreSyntaxException(pe.getSource(), "[assrt-core] Payload annotations not supported for non- \"int\" type kind: " + pe);
+				// Already ruled out by parsing?  e.g., GDelegationElem
+				throw new AssrtCoreSyntaxException("[assrt-core] Payload element not supported: " + pe);
 			}
-			
-			// FIXME: non-annotated payload elems get created with fresh vars, i.e., non- int types
-			// Also empty payloads are created as Unit type
-			// But current model building implicitly treats all vars as int -- this works, but is not clean
-			
-			return adt;
-		}
-		else
-		{
-			PayloadElemType<?> pet = ((UnaryPayloadElem<?>) pe).toPayloadType();
-			if (!pet.isDataType())
+			/*else if (pe instanceof LDelegationElem)  // No: only created by projection, won't be parsed
 			{
-			// i.e., AssrtDataTypeVar not allowed (should be "encoded")
-				throw new AssrtCoreSyntaxException(pe.getSource(), "[assrt-core] Non- datatype kind payload not supported: " + pe);
+				throw new AssrtCoreSyntaxException("[assrt-core] Payload element not supported: " + pe);
+			}*/
+			
+			if (pe instanceof AssrtAnnotDataTypeElem)
+			{
+				AssrtAnnotDataType adt = ((AssrtAnnotDataTypeElem) pe).toPayloadType();
+				String type = adt.data.toString();
+				if (!type.equals("int") && !type.endsWith(".int"))  // HACK FIXME (currently "int" for F#)
+				{
+					throw new AssrtCoreSyntaxException(pe.getSource(), "[assrt-core] Payload annotations not supported for non- \"int\" type kind: " + pe);
+				}
+				
+				// FIXME: non-annotated payload elems get created with fresh vars, i.e., non- int types
+				// Also empty payloads are created as Unit type
+				// But current model building implicitly treats all vars as int -- this works, but is not clean
+				
+				//return adt;
+				res.add(adt);
 			}
-			return new AssrtAnnotDataType(makeFreshDataTypeVar(), (DataType) pet);
+			else
+			{
+				PayloadElemType<?> pet = ((UnaryPayloadElem<?>) pe).toPayloadType();
+				if (!pet.isDataType())
+				{
+				// i.e., AssrtDataTypeVar not allowed (should be "encoded")
+					throw new AssrtCoreSyntaxException(pe.getSource(), "[assrt-core] Non- datatype kind payload not supported: " + pe);
+				}
+				//return new AssrtAnnotDataType(makeFreshDataTypeVar(), (DataType) pet);
+				res.add(new AssrtAnnotDataType(makeFreshDataTypeVar(), (DataType) pet));
+			}
 		}
+		return res;
 	}
 
 	private AssrtAssertion parseAssertion(AssrtGMessageTransfer gmt)

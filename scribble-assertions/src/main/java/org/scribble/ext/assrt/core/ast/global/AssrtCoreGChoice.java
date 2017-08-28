@@ -47,7 +47,8 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> im
 	@Override
 	public List<AssrtAnnotDataType> collectAnnotDataTypeVarDecls()
 	{
-		List<AssrtAnnotDataType> res = this.cases.keySet().stream().map(a -> a.pay).collect(Collectors.toList());
+		//List<AssrtAnnotDataType> res = this.cases.keySet().stream().map(a -> a.pays).collect(Collectors.toList());
+		List<AssrtAnnotDataType> res = this.cases.keySet().stream().flatMap(a -> a.pays.stream()).collect(Collectors.toList());
 		this.cases.keySet().forEach(a -> res.addAll(this.cases.get(a).collectAnnotDataTypeVarDecls()));
 		return res;
 	}
@@ -78,7 +79,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> im
 						// HACK FIXME: currently also hacking all "message-carried assertions" to True, i.e., AssrtCoreState::fireSend/Request -- cf. AssrtSConfig::fire
 						// AssrtCoreState::getReceive/AcceptFireable currently use syntactic equality of assertions
 
-				a = af.AssrtCoreAction(a.op, a.pay, fproj);
+				a = af.AssrtCoreAction(a.op, a.pays, fproj);
 			}
 
 			projs.put(a, e.getValue().project(af, r, fproj));
