@@ -28,7 +28,8 @@ import org.scribble.type.name.Role;
 public class AssrtCoreEGraphBuilder
 {
 	private final AssrtJob job;
-	private final AssrtEGraphBuilderUtil util;
+	private final AssrtEGraphBuilderUtil util;  // Not using any features for unguarded choice/recursion/continue (recursion manually tracked here)
+
 	
 	public AssrtCoreEGraphBuilder(AssrtJob job)
 	{
@@ -82,7 +83,7 @@ public class AssrtCoreEGraphBuilder
 		else if (cont instanceof AssrtCoreRecVar)
 		{
 			AssrtCoreRecVar crv = (AssrtCoreRecVar) cont;
-			AssrtEState s = recs.get(((AssrtCoreRecVar) cont).recvar);
+			AssrtEState s = recs.get(crv.recvar);
 
 			//AssrtArithFormula expr = crv.annotexprs;
 			//AssrtDataTypeVar annot = s.getAnnotVars().keySet().iterator().next();
