@@ -1,6 +1,7 @@
 package org.scribble.ext.assrt.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -27,38 +28,40 @@ public class Z3Wrapper
 	// Based on CommandLine::runDot, JobContext::runAut, etc
 	public static boolean checkSat(AssrtJob job, GProtocolDecl gpd, AssrtBoolFormula f) //throws ScribbleException
 	{
-		String tmpName = gpd.header.name + ".smt2.tmp";
-		File tmp = new File(tmpName);
-		if (tmp.exists())  // Factor out with CommandLine.runDot (file exists check)
-		{
-			throw new RuntimeException("Cannot overwrite: " + tmpName);
-		}
-		String smt2 = toSmt2(job, gpd, f);
-		try
-		{
-			ScribUtil.writeToFile(tmpName, smt2);
-			String[] res = ScribUtil.runProcess("z3", tmpName);
-			String trim = res[0].trim();
-			if (trim.equals("sat"))  // FIXME: factor out
+		File tmp;
+		try {
+			tmp = File.createTempFile("gpd.header.name", ".smt2.tmp");
+			try
 			{
-				return true;
+				String tmpName = tmp.getName();				
+				String smt2 = toSmt2(job, gpd, f);
+				ScribUtil.writeToFile(tmpName, smt2);
+				String[] res = ScribUtil.runProcess("Z3", tmpName);
+				String trim = res[0].trim();
+				if (trim.equals("sat"))  // FIXME: factor out
+				{
+					return true;
+				}
+				else if (trim.equals("unsat"))
+				{
+					return false;
+				}
+				else
+				{
+					throw new RuntimeException("[assrt] Z3 error: " + Arrays.toString(res));
+				}
 			}
-			else if (trim.equals("unsat"))
+			catch (ScribbleException e)
 			{
-				return false;
+				throw new RuntimeException(e);
 			}
-			else
+			finally
 			{
-				throw new RuntimeException("[assrt] Z3 error: " + Arrays.toString(res));
+				tmp.delete();
 			}
-		}
-		catch (ScribbleException e)
+		} catch (IOException e)
 		{
 			throw new RuntimeException(e);
-		}
-		finally
-		{
-			tmp.delete();
 		}
 	}
 	
