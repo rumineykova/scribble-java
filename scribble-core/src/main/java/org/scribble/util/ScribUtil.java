@@ -76,8 +76,8 @@ public class ScribUtil
 	// Returns [ stdout, stderr ]
 	public static String[] runProcess(String... cmdAndArgs) throws ScribbleException
 	{
-			try
-			{
+		try
+		{
 			ProcessBuilder pb = new ProcessBuilder(cmdAndArgs);
 			Process p = pb.start();
 			p.waitFor();

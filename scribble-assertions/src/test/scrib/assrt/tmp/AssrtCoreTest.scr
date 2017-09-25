@@ -77,7 +77,7 @@ type <dotnet> "System.UInt32" from "..." as int;
 type <dotnet> "System.String" from "..." as str;
 
 /*
-- model checking: uniform validation for integrating different MPSt features
+- model checking: uniform validation for integrating different MPST features
 - assertions only "reduce" behaviours? true-only assertions
 - basic model based on "types" -- so 1-bounded finite
 - how to introduce semantics of assertions into model and stay finite?

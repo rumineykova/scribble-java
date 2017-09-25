@@ -29,11 +29,12 @@ public class Z3Wrapper
 	public static boolean checkSat(AssrtJob job, GProtocolDecl gpd, AssrtBoolFormula f) //throws ScribbleException
 	{
 		File tmp;
-		try {
+		try
+		{
 			tmp = File.createTempFile("gpd.header.name", ".smt2.tmp");
 			try
 			{
-				String tmpName = tmp.getName();				
+				String tmpName = tmp.getAbsolutePath();				
 				String smt2 = toSmt2(job, gpd, f);
 				ScribUtil.writeToFile(tmpName, smt2);
 				String[] res = ScribUtil.runProcess("Z3", tmpName);
