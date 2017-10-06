@@ -25,8 +25,7 @@ import org.scribble.util.ScribUtil;
 public class Z3Wrapper
 {
 
-	// Based on CommandLine::runDot, JobContext::runAut, etc
-	public static boolean checkSat(AssrtJob job, GProtocolDecl gpd, AssrtBoolFormula f) //throws ScribbleException
+	public static boolean checkSat(String smt2) //throws ScribbleException
 	{
 		File tmp;
 		try
@@ -35,7 +34,6 @@ public class Z3Wrapper
 			try
 			{
 				String tmpName = tmp.getAbsolutePath();				
-				String smt2 = toSmt2(job, gpd, f);
 				ScribUtil.writeToFile(tmpName, smt2);
 				String[] res = ScribUtil.runProcess("Z3", tmpName);
 				String trim = res[0].trim();
@@ -60,10 +58,17 @@ public class Z3Wrapper
 			{
 				tmp.delete();
 			}
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	// Based on CommandLine::runDot, JobContext::runAut, etc
+	public static boolean checkSat(AssrtJob job, GProtocolDecl gpd, AssrtBoolFormula f) //throws ScribbleException
+	{
+		return checkSat(toSmt2(job, gpd, f));
 	}
 	
 	private static String toSmt2(AssrtJob job, GProtocolDecl gpd, AssrtBoolFormula f)
@@ -74,7 +79,7 @@ public class Z3Wrapper
 				.mapToObj(i -> "(declare-const " + rs.get(i) + " Int)\n(assert (= " + rs.get(i) + " " + i +"))\n").collect(Collectors.joining(""));
 						// FIXME: make a Role sort?
 
-		Set<AssrtUnPredicateFormula> preds = getUnPredicates.func.apply(f);
+		Set<AssrtUnPredicateFormula> preds = getUnintPreds.func.apply(f);
 		smt2 += preds.stream().map(p -> "(declare-fun " + p.name + " ("
 				+ IntStream.range(0, p.args.size()).mapToObj(i -> ("(Int)")).collect(Collectors.joining(" "))
 				+ ") Bool)\n").collect(Collectors.joining(""));
@@ -93,7 +98,7 @@ public class Z3Wrapper
 		return smt2;
 	}
 
-	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnPredicates  // FIXME: move?
+	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnintPreds  // FIXME: move?
 			= new RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>>()
 	{{
 		this.func = ff ->
