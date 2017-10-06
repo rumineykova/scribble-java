@@ -1,0 +1,103 @@
+//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/sh/SH.scr -Z3 -ass SH -V 
+
+//$ bin/scribblec.bat scribble-assertions/src/test/scrib/assrt/sh/SH.scr -Z3 -ass SH -ass-fsm P -V 
+
+module assrt.sh.SH;
+
+
+type <dotnet> "System.UInt32" from "..." as int;
+//type <dotnet> "System.String" from "..." as str;
+
+
+global protocol SH(role P, role R, role C)
+{
+	plane(x1:int, x2:int, x3:int, x4:int) from P to R;
+	do Loop(P, R, C);
+}
+
+aux global protocol Loop(role P, role R, role C)
+{
+	choice at P
+	{
+		Above(v1:int) from P to R;   
+		Res(b1:int) from R to P;                    @"b1=0 || b1=1"
+		Above(v2:int) from P to R;   
+		Res(b2:int) from R to P;                    @"b2=0 || b2=1"
+		choice at P
+		{
+			BothIn() from P to R;                     @"b1=1 && b2=1"
+			BothIn(r1:int) from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			BothOut() from P to R;                    @"b1=0 && b2=0"
+			BothOut() from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			Intersect() from P to R;                  @"(b1=1 && b2=0) || (b1=0 && b2=1)"
+			Res(i:int) from R to P;
+			choice at P
+			{
+				One(r2:int) from P to C;                @"b2=0 && r2=i"
+				do Loop(P, R, C);
+			}
+			or
+			{
+				Two(r3:int, r4:int) from P to C;        @"b2=1 && (r3=i && r4=v2)"
+				do Loop(P, R, C);
+			}
+		}
+	}
+	or
+	{
+		Close() from P to R;   
+		Close() from P to C;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+/*
+global protocol SH(role P, role R, role C) {
+	plane(x1:int, x2:int, x3:int, x4:int) from P to R;
+	rec Loop {
+		choice at P {
+			check(p1:int, p2:int) from P to R;
+			PointsToForward(res:int) from R to P; @"res>=0 && res<=2"
+			choice at R {
+				noIntersection() from R to P; @"res=1"
+				OnePoint(v1:int) from P to C; @"v1=p2"
+				continue Loop;
+			} or {
+				noPoints() from R to P; @"res=0"
+				noPoints() from P to C;
+				continue Loop; 
+			} or {
+				intersection(p3:int) from R to P; @"res=1 || res=2"
+				choice at P {
+					OnePointb(v2:int) from P to C; @"res=1 && v2=p3"
+					continue Loop;
+				} or {
+					TwoPoint(v3:int, v4:int) from P to C; @"res=2 && (v3=p3 && v4=p2)"
+					continue Loop;
+				}
+			}
+		} or {
+			Close() from P to R;
+			Close() from P to C;
+		}
+	}
+}
+//*/
+
