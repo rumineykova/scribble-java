@@ -7,7 +7,8 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.Constants;
 import org.scribble.ast.Module;
-import org.scribble.ast.NonProtocolDecl;
+import org.scribble.ast.ModuleMember;
+import org.scribble.ast.NameDeclNode;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.qualified.MemberNameNode;
 import org.scribble.del.ScribDel;
@@ -15,12 +16,13 @@ import org.scribble.ext.assrt.ast.name.qualified.AssrtAssertNameNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtSortNode;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.type.kind.AssrtAssertKind;
+import org.scribble.ext.assrt.type.name.AssrtAssertName;
 import org.scribble.main.ScribbleException;
-import org.scribble.type.name.MemberName;
+import org.scribble.type.name.ModuleName;
 import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtAssertDecl extends NonProtocolDecl<AssrtAssertKind>
+public class AssrtAssertDecl extends NameDeclNode<AssrtAssertKind> implements ModuleMember
 {
 	public final List<AssrtSortNode> params;
 	public final AssrtSortNode ret;
@@ -28,7 +30,8 @@ public class AssrtAssertDecl extends NonProtocolDecl<AssrtAssertKind>
 	
 	public AssrtAssertDecl(CommonTree source, AssrtAssertNameNode name, List<AssrtSortNode> params, AssrtSortNode ret, AssrtSmtFormula<?> expr)
 	{
-		super(source, "f#", "FIXME", "FIXME", name);  // FIXME
+		//super(source, "f#", "FIXME", "FIXME", name);  // FIXME
+		super(source, name);
 		this.params = Collections.unmodifiableList(params);
 		this.ret = ret;
 		this.expr = expr;
@@ -47,12 +50,6 @@ public class AssrtAssertDecl extends NonProtocolDecl<AssrtAssertKind>
 		List<AssrtSortNode> params = ScribUtil.cloneList(af, this.params);
 		AssrtSortNode ret = (AssrtSortNode) this.ret.clone(af);
 		return ((AssrtAstFactory) af).AssrtAssertDecl(this.source, name, params, ret, this.expr);
-	}
-
-	@Override
-	public AssrtAssertDecl reconstruct(String schema, String extName, String extSource, MemberNameNode<AssrtAssertKind> name)
-	{
-		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 
 	public AssrtAssertDecl reconstruct(MemberNameNode<AssrtAssertKind> name, List<AssrtSortNode> params, AssrtSortNode ret, AssrtSmtFormula<?> expr)
@@ -79,22 +76,21 @@ public class AssrtAssertDecl extends NonProtocolDecl<AssrtAssertKind>
 	}
 
 	@Override
-	public MemberName<AssrtAssertKind> getDeclName()  // FIXME: asserts aren't directly "typed"
+	public AssrtAssertName getDeclName()  // FIXME: asserts aren't directly "typed"
 	{
-		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
+		return (AssrtAssertName) super.getDeclName();
 	}
 
 	@Override
-	public MemberName<AssrtAssertKind> getFullMemberName(Module mod)  // FIXME: asserts aren't directly "typed"
+	public AssrtAssertName getFullMemberName(Module mod)  // FIXME: asserts aren't directly "typed"
 	{
-		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
+		ModuleName fullmodname = mod.getFullModuleName();
+		return new AssrtAssertName(fullmodname, getDeclName());
 	}
 
 	@Override
 	public String toString()
 	{
-		return Constants.TYPE_KW + " <" + this.schema + "> " + this.extName
-				+ " " + Constants.FROM_KW + " " + this.extSource + " "
-				+ Constants.AS_KW + " " + this.name + ";";
+		return Constants.ASSERT_KW + this.name + this.params + " " + this.ret + " = " + this.expr + ";";
 	}
 }

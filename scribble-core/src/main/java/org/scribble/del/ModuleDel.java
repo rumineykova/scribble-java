@@ -25,10 +25,11 @@ import java.util.stream.Collectors;
 import org.scribble.ast.ImportDecl;
 import org.scribble.ast.Module;
 import org.scribble.ast.ModuleDecl;
-import org.scribble.ast.NonProtocolDecl;
+import org.scribble.ast.DataOrSigDeclNode;
 import org.scribble.ast.ProtocolDecl;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.context.ModuleContext;
+import org.scribble.ast.context.ScribNameMap;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.ast.local.LProtocolDecl;
 import org.scribble.ast.name.qualified.ModuleNameNode;
@@ -49,7 +50,7 @@ public class ModuleDel extends ScribDelBase
 
 	}
 
-	private ModuleDel copy()
+	protected ModuleDel copy()
 	{
 		return new ModuleDel();
 	}
@@ -57,7 +58,7 @@ public class ModuleDel extends ScribDelBase
 	@Override
 	public void enterModuleContextBuilding(ScribNode parent, ScribNode child, ModuleContextBuilder builder) throws ScribbleException
 	{
-		builder.setModuleContext(new ModuleContext(builder.job.getContext(), (Module) child));
+		builder.setModuleContext(new ModuleContext(builder.job.getContext(), (Module) child, new ScribNameMap(), new ScribNameMap()));
 	}
 
 	// Maybe better to create on enter, so can be used during the context build pass (Context would need to be "cached" in the visitor to be accessed)
@@ -73,16 +74,16 @@ public class ModuleDel extends ScribDelBase
 	{
 		Module mod = (Module) visited;
 		// Imports checked in ModuleContext -- that is built before disamb is run
-		List<NonProtocolDecl<?>> npds = mod.getNonProtocolDecls();
-		List<String> npdnames = npds.stream().map((npd) -> npd.getDeclName().toString()).collect(Collectors.toList()); 
+		List<DataOrSigDeclNode<?>> npds = mod.getDataOrSigDecls();
+		List<String> npdnames = npds.stream().map(npd -> npd.getDeclName().toString()).collect(Collectors.toList()); 
 				// Have to use Strings, as can be different kinds (datatype, sig)
+		//if (npds.size() != npdnames.stream().distinct().count())  // Doesn't determine the actual dup'd names
 		final Set<String> dups1 = getDuplicates(npdnames);
-		//if (npds.size() != npdnames.stream().distinct().count())
 		if (!dups1.isEmpty())
 		{
-			NonProtocolDecl<?> first =
-					npds.stream().filter((npd) -> dups1.contains(npd.getDeclName().toString())).collect(Collectors.toList()).get(0);
-			throw new ScribbleException(first.getSource(), "Duplicate non-protocol decls: " + first.getDeclName());
+			DataOrSigDeclNode<?> first =
+					npds.stream().filter(npd -> dups1.contains(npd.getDeclName().toString())).collect(Collectors.toList()).get(0);
+			throw new ScribbleException(first.getSource(), "Duplicate data/sig decls: " + first.getDeclName());
 		}
 		List<ProtocolDecl<?>> pds = mod.getProtocolDecls();
 		List<String> pdnames = pds.stream().map((pd) -> pd.header.getDeclName().toString()).collect(Collectors.toList());
@@ -92,7 +93,7 @@ public class ModuleDel extends ScribDelBase
 		if (!dups2.isEmpty())
 		{
 			ProtocolDecl<?> first =
-					pds.stream().filter((pd) -> dups2.contains(pd.header.getDeclName().toString())).collect(Collectors.toList()).get(0);
+					pds.stream().filter(pd -> dups2.contains(pd.header.getDeclName().toString())).collect(Collectors.toList()).get(0);
 			throw new ScribbleException(first.getSource(), "Duplicate protocol decls: " + first.header.getDeclName());  // Global and locals also required to be distinct
 		}
 		return mod;
@@ -101,8 +102,7 @@ public class ModuleDel extends ScribDelBase
 	private static Set<String> getDuplicates(Collection<String> ss)
 	{
 		Set<String> uniques = new HashSet<>();
-		Set
-		<String> dups = new HashSet<>();
+		Set<String> dups = new HashSet<>();
 		for (String npd : ss)
 		{
 			if (!uniques.add(npd))
@@ -141,7 +141,7 @@ public class ModuleDel extends ScribDelBase
 			}
 		}
 		
-		List<NonProtocolDecl<?>> data = new LinkedList<>(root.getNonProtocolDecls());  // FIXME: copy?  // FIXME: only project the dependencies
+		List<DataOrSigDeclNode<?>> data = new LinkedList<>(root.getDataOrSigDecls());  // FIXME: copy?  // FIXME: only project the dependencies
 		List<ProtocolDecl<?>> protos = Arrays.asList(lpd);
 		return proj.job.af.Module(gpd.header.getSource(), moddecl, imports, data, protos);
 	}

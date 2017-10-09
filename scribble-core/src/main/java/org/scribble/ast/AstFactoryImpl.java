@@ -204,7 +204,7 @@ public class AstFactoryImpl implements AstFactory
 	}
 	
 	@Override
-	public Module Module(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<NonProtocolDecl<?>> data,
+	public Module Module(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<DataOrSigDeclNode<?>> data,
 			List<ProtocolDecl<?>> protos)
 	{
 		Module mod = new Module(source, moddecl, imports, data, protos);

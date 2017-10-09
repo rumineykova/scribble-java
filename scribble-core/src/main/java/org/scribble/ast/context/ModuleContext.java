@@ -13,7 +13,6 @@
  */
 package org.scribble.ast.context;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.scribble.ast.DataTypeDecl;
@@ -21,7 +20,7 @@ import org.scribble.ast.ImportDecl;
 import org.scribble.ast.ImportModule;
 import org.scribble.ast.MessageSigNameDecl;
 import org.scribble.ast.Module;
-import org.scribble.ast.NonProtocolDecl;
+import org.scribble.ast.DataOrSigDeclNode;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.ast.local.LProtocolDecl;
 import org.scribble.main.JobContext;
@@ -46,17 +45,20 @@ public class ModuleContext
   // All transitive name dependencies of this module: all names fully qualified
 	// The ScribNames maps are basically just used as sets (identity map)
 	// Cf. ProtocolDeclContext protocol dependencies from protocoldecl as root
-	private final ScribNames deps = new ScribNames();
+	private final ScribNameMap deps;// = new ScribNameMap();
 
 	// The modules and member names that are visible from this Module -- mapped to "cannonical" (fully qualified) names
 	// visible names -> fully qualified names
   // Directly visible names from this module
-	private final ScribNames visible = new ScribNames();
+	protected final ScribNameMap visible;// = new ScribNameMap();
 
 	// Made by ModuleContextBuilder
 	// ModuleContext is the root context
-	public ModuleContext(JobContext jcontext, Module root) throws ScribbleException
+	public ModuleContext(JobContext jcontext, Module root, ScribNameMap deps, ScribNameMap visible) throws ScribbleException
 	{
+		this.deps = deps;
+		this.visible = visible;
+		
 		ModuleName fullname = root.getFullModuleName(); 
 		ModuleName simpname = root.moddecl.getDeclName();
 
@@ -79,10 +81,10 @@ public class ModuleContext
 
 	// Register mod under name modname, modname could be the full module name or an import alias
 	// Adds member names qualified by mod
-	private static void addModule(ScribNames names, Module mod, ModuleName modname) throws ScribbleException
+	protected void addModule(ScribNameMap names, Module mod, ModuleName modname) throws ScribbleException
 	{
 		names.modules.put(modname, mod.getFullModuleName());
-		for (NonProtocolDecl<?> npd : mod.getNonProtocolDecls())
+		for (DataOrSigDeclNode<?> npd : mod.getDataOrSigDecls())
 		{
 			if (npd.isDataTypeDecl())
 			{
@@ -134,9 +136,9 @@ public class ModuleContext
 
 	// Adds "local" imports by alias or full name
 	// Adds "local" members by simple names
-	private void addVisible(JobContext jcontext, Module root) throws ScribbleException
+	protected void addVisible(JobContext jcontext, Module root) throws ScribbleException
 	{
-		// Unlike for deps, visible is not done transitively
+		// Unlike for deps (via addImportDependencies), visible is not done transitively
 		for (ImportDecl<?> id : root.getImportDecls())
 		{
 			if (id.isImportModule())
@@ -157,7 +159,7 @@ public class ModuleContext
 			}
 		}
 		
-		for (NonProtocolDecl<?> npd : root.getNonProtocolDecls())
+		for (DataOrSigDeclNode<?> npd : root.getDataOrSigDecls())
 		{
 			if (npd.isDataTypeDecl())
 			{
@@ -237,7 +239,7 @@ public class ModuleContext
 		return this.visible.isVisibleProtocolDeclName(visname);
 	}
 
-	public static <K extends ProtocolKind> ProtocolName<K> getProtocolDeclFullName(ScribNames names, ProtocolName<K> proto)
+	public static <K extends ProtocolKind> ProtocolName<K> getProtocolDeclFullName(ScribNameMap names, ProtocolName<K> proto)
 	{
 		ProtocolName<? extends ProtocolKind> pn = (proto.getKind().equals(Global.KIND))
 				? getFullName(names.globals, (GProtocolName) proto)
@@ -261,32 +263,5 @@ public class ModuleContext
 	public String toString()
 	{
 		return "[deps=" + this.deps + ", visible=" + this.visible + "]";
-	}
-}
-
-class ScribNames
-{
-	// names -> fully qualified names
-	protected final Map<ModuleName, ModuleName> modules = new HashMap<>();
-	protected final Map<DataType, DataType> data = new HashMap<>();
-	protected final Map<MessageSigName, MessageSigName> sigs = new HashMap<>();
-	protected final Map<GProtocolName, GProtocolName> globals = new HashMap<>();
-	protected final Map<LProtocolName, LProtocolName> locals = new HashMap<>();
-	
-	@Override
-	public String toString()
-	{
-		return "(modules=" + this.modules + ", types=" + this.data + ", sigs=" + this.sigs
-				+ ", globals=" + this.globals + ", locals=" + this.locals + ")";
-	}
-	
-	public <K extends ProtocolKind> boolean isVisibleProtocolDeclName(ProtocolName<K> visname)
-	{
-		return this.globals.containsKey(visname) || this.locals.containsKey(visname);
-	}
-	
-	public boolean isVisibleDataType(DataType visname)
-	{
-		return this.data.containsKey(visname);
 	}
 }	

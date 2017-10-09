@@ -33,6 +33,8 @@ public class Constants
 	public static final String INSTANTIATES_KW = "instantiates";
 	public static final String AS_KW = "as";
 
+	public static final String ASSERT_KW = "assert";
+
 	public static final String CONNECT_KW = "connect";
 	public static final String DISCONNECT_KW = "disconnect";
 	public static final String WRAP_KW = "wrap";

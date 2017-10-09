@@ -7,7 +7,7 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.ImportDecl;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.ModuleDecl;
-import org.scribble.ast.NonProtocolDecl;
+import org.scribble.ast.DataOrSigDeclNode;
 import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.NonRoleParamDeclList;
 import org.scribble.ast.ProtocolDecl;
@@ -76,7 +76,7 @@ public interface AssrtAstFactory extends AstFactory
 	AssrtAssertion AssrtAssertion(CommonTree source, AssrtBoolFormula f);
 	AssrtArithExpr AssrtArithAnnotation(CommonTree source, AssrtArithFormula expr);
 
-	AssrtModule AssrtModule(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<NonProtocolDecl<?>> data,
+	AssrtModule AssrtModule(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<DataOrSigDeclNode<?>> data,
 			List<ProtocolDecl<?>> protos, List<AssrtAssertDecl> asserts);
 	AssrtAssertDecl AssrtAssertDecl(CommonTree source, AssrtAssertNameNode name, List<AssrtSortNode> params, AssrtSortNode ret, AssrtSmtFormula<?> expr);
 }

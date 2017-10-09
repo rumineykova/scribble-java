@@ -97,12 +97,13 @@ type <dotnet> "System.String" from "..." as str;
 */
 
 
-assert f(x:int) bool = "x";
+//assert f(x:int) bool = "x";
 
 global protocol Proto1(role A, role B)
 {
 	1(x:int) from A to B;
-	2(y:int) from B to A;  @"y = f(x)"
+	//2(y:int) from B to A;  @"y = f(x)"
+	2(y:int) from B to A;
 }
 
 

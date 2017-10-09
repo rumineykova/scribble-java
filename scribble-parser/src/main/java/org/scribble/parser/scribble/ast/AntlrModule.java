@@ -23,7 +23,7 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.ImportDecl;
 import org.scribble.ast.Module;
 import org.scribble.ast.ModuleDecl;
-import org.scribble.ast.NonProtocolDecl;
+import org.scribble.ast.DataOrSigDeclNode;
 import org.scribble.ast.ProtocolDecl;
 import org.scribble.parser.scribble.AntlrToScribParser;
 import org.scribble.parser.scribble.AntlrToScribParserUtil;
@@ -38,7 +38,7 @@ public class AntlrModule
 	{
 		ModuleDecl md = (ModuleDecl) parser.parse(getModuleDeclChild(ct), af);
 		List<ImportDecl<?>> ids = new LinkedList<>();
-		List<NonProtocolDecl<?>> ptds = new LinkedList<>();
+		List<DataOrSigDeclNode<?>> ptds = new LinkedList<>();
 		List<ProtocolDecl<?>> pds = new LinkedList<>();
 		for (CommonTree id : getImportDeclChildren(ct))
 		{
@@ -47,7 +47,7 @@ public class AntlrModule
 		}
 		for (CommonTree ptd : getDataTypeDeclChildren(ct))
 		{
-			NonProtocolDecl<?> tmp = (NonProtocolDecl<?>) parser.parse(ptd, af);
+			DataOrSigDeclNode<?> tmp = (DataOrSigDeclNode<?>) parser.parse(ptd, af);
 			ptds.add(tmp);
 		}
 		for (CommonTree pd : getProtocolDeclChildren(ct))

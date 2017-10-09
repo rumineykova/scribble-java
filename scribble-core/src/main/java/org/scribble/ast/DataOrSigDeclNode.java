@@ -16,18 +16,18 @@ package org.scribble.ast;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.name.qualified.MemberNameNode;
 import org.scribble.main.ScribbleException;
-import org.scribble.type.kind.NonProtocolKind;
+import org.scribble.type.kind.NonRoleArgKind;
 import org.scribble.type.name.MemberName;
 import org.scribble.visit.AstVisitor;
 
-// Rename to something better
-public abstract class NonProtocolDecl<K extends NonProtocolKind> extends NameDeclNode<K> implements ModuleMember
+// Rename to something better -- one characteristic is both data and sigs are "typed" using their names
+public abstract class DataOrSigDeclNode<K extends NonRoleArgKind> extends NameDeclNode<K> implements ModuleMember
 {
 	public final String schema;
 	public final String extName;
 	public final String extSource;
 
-	public NonProtocolDecl(CommonTree source, String schema, String extName, String extSource, MemberNameNode<K> name)
+	public DataOrSigDeclNode(CommonTree source, String schema, String extName, String extSource, MemberNameNode<K> name)
 	{
 		super(source, name);
 		this.schema = schema;
@@ -35,10 +35,10 @@ public abstract class NonProtocolDecl<K extends NonProtocolKind> extends NameDec
 		this.extSource = extSource;
 	}
 	
-	public abstract NonProtocolDecl<K> reconstruct(String schema, String extName, String source, MemberNameNode<K> name);
+	public abstract DataOrSigDeclNode<K> reconstruct(String schema, String extName, String source, MemberNameNode<K> name);
 
 	@Override
-	public NonProtocolDecl<K> visitChildren(AstVisitor nv) throws ScribbleException
+	public DataOrSigDeclNode<K> visitChildren(AstVisitor nv) throws ScribbleException
 	{
 		MemberNameNode<K> name = (MemberNameNode<K>) visitChildWithClassEqualityCheck(this, this.name, nv);
 		return reconstruct(this.schema, this.extName, this.extSource, name);
@@ -55,9 +55,10 @@ public abstract class NonProtocolDecl<K extends NonProtocolKind> extends NameDec
 		return false;
 	}
 	
+	@Override
 	public MemberNameNode<K> getNameNode()
 	{
-		return (MemberNameNode<K>) this.name;
+		return (MemberNameNode<K>) super.getNameNode();
 	}
 
 	@Override

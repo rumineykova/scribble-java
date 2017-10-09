@@ -6,13 +6,14 @@ import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
+import org.scribble.ast.DataOrSigDeclNode;
 import org.scribble.ast.ImportDecl;
 import org.scribble.ast.Module;
 import org.scribble.ast.ModuleDecl;
-import org.scribble.ast.NonProtocolDecl;
 import org.scribble.ast.ProtocolDecl;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.del.ScribDel;
+import org.scribble.ext.assrt.type.name.AssrtAssertName;
 import org.scribble.main.ScribbleException;
 import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;
@@ -22,13 +23,13 @@ public class AssrtModule extends Module
 	public final List<AssrtAssertDecl> asserts;
 
 	public AssrtModule(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports,
-			List<NonProtocolDecl<?>> data, List<ProtocolDecl<?>> protos)
+			List<DataOrSigDeclNode<?>> data, List<ProtocolDecl<?>> protos)
 	{
 		this(source, moddecl, imports, data, protos, Collections.emptyList());
 	}
 	
 	public AssrtModule(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports,
-			List<NonProtocolDecl<?>> data, List<ProtocolDecl<?>> protos, List<AssrtAssertDecl> asserts)
+			List<DataOrSigDeclNode<?>> data, List<ProtocolDecl<?>> protos, List<AssrtAssertDecl> asserts)
 	{
 		super(source, moddecl, imports, data, protos);
 		this.asserts = Collections.unmodifiableList(asserts);
@@ -45,7 +46,7 @@ public class AssrtModule extends Module
 	{
 		ModuleDecl moddecl = (ModuleDecl) this.moddecl.clone(af);
 		List<ImportDecl<?>> imports = ScribUtil.cloneList(af, this.imports);
-		List<NonProtocolDecl<?>> data = ScribUtil.cloneList(af, this.data);
+		List<DataOrSigDeclNode<?>> data = ScribUtil.cloneList(af, this.data);
 		List<ProtocolDecl<?>> protos = ScribUtil.cloneList(af, this.protos);
 
 		List<AssrtAssertDecl> asserts = ScribUtil.cloneList(af, this.asserts);
@@ -54,12 +55,12 @@ public class AssrtModule extends Module
 	}
 	
 	@Override
-	public AssrtModule reconstruct(ModuleDecl moddecl, List<ImportDecl<?>> imports, List<NonProtocolDecl<?>> data, List<ProtocolDecl<?>> protos)
+	public AssrtModule reconstruct(ModuleDecl moddecl, List<ImportDecl<?>> imports, List<DataOrSigDeclNode<?>> data, List<ProtocolDecl<?>> protos)
 	{
 		throw new RuntimeException("[assert] Shouldn't get in here: " + this);
 	}
 
-	public AssrtModule reconstruct(ModuleDecl moddecl, List<ImportDecl<?>> imports, List<NonProtocolDecl<?>> data, List<ProtocolDecl<?>> protos,
+	public AssrtModule reconstruct(ModuleDecl moddecl, List<ImportDecl<?>> imports, List<DataOrSigDeclNode<?>> data, List<ProtocolDecl<?>> protos,
 			List<AssrtAssertDecl> asserts)
 	{
 		ScribDel del = del();
@@ -74,7 +75,7 @@ public class AssrtModule extends Module
 		ModuleDecl moddecl = (ModuleDecl) visitChild(this.moddecl, nv);
 		// class equality check probably too restrictive
 		List<ImportDecl<?>> imports = ScribNodeBase.visitChildListWithClassEqualityCheck(this, this.imports, nv);
-		List<NonProtocolDecl<?>> data = ScribNodeBase.visitChildListWithClassEqualityCheck(this, this.data, nv);
+		List<DataOrSigDeclNode<?>> data = ScribNodeBase.visitChildListWithClassEqualityCheck(this, this.data, nv);
 		List<ProtocolDecl<?>> protos = ScribNodeBase.visitChildListWithClassEqualityCheck(this, this.protos, nv);
 
 		List<AssrtAssertDecl> asserts = ScribNodeBase.visitChildListWithClassEqualityCheck(this, this.asserts, nv);
@@ -92,5 +93,20 @@ public class AssrtModule extends Module
 				+ this.asserts.stream().map(ass -> "\n" + ass).collect(Collectors.joining(""))
 
 				+ this.protos.stream().map(proto -> "\n" + proto).collect(Collectors.joining(""));
+	}
+	
+	public List<AssrtAssertDecl> getAssertDecls()
+	{
+		return this.asserts;
+	}
+
+	public AssrtAssertDecl getAssertDecl(AssrtAssertName simpname)
+	{
+		List<AssrtAssertDecl> ads = this.asserts.stream().filter(ad -> ad.getDeclName().equals(simpname)).collect(Collectors.toList());
+		if (ads.isEmpty())
+		{
+			throw new RuntimeException("Assert decl not found: " + simpname);
+		}
+		return ads.get(0);  // > 1 checked by ModuleDel context building
 	}
 }

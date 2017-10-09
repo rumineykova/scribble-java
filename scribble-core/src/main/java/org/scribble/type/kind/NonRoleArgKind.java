@@ -14,9 +14,9 @@
 package org.scribble.type.kind;
 
 
-// Following sesstype.Arg hierarchy
-// Non-role args -- includes AmbigKind (cf. AntlrNonRoleArgList)
-public interface NonRoleArgKind extends NonProtocolKind
+// Following type.Arg hierarchy
+// Non-role args (meaning do-args) -- includes AmbigKind (cf. AntlrNonRoleArgList)
+public interface NonRoleArgKind extends Kind //NonProtocolKind
 {
 
 }

@@ -27,6 +27,11 @@ public abstract class NameDeclNode<K extends Kind> extends ScribNodeBase
 		super(source);
 		this.name = name;
 	}
+	
+	public NameNode<K> getNameNode()
+	{
+		return this.name;
+	}
 
 	public Name<K> getDeclName()
 	{

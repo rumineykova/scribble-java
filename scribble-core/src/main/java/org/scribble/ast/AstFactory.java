@@ -74,7 +74,7 @@ import org.scribble.type.name.Role;
 
 public interface AstFactory
 {
-	Module Module(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<NonProtocolDecl<?>> data, List<ProtocolDecl<?>> protos);
+	Module Module(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<DataOrSigDeclNode<?>> data, List<ProtocolDecl<?>> protos);
 	
 	MessageSigNode MessageSigNode(CommonTree source, OpNode op, PayloadElemList payload);
 

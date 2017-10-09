@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.DataOrSigDeclNode;
 import org.scribble.ast.ImportDecl;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.ModuleDecl;
-import org.scribble.ast.NonProtocolDecl;
 import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.NonRoleParamDeclList;
 import org.scribble.ast.ProtocolDecl;
@@ -33,7 +33,6 @@ import org.scribble.ast.name.qualified.LProtocolNameNode;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
-import org.scribble.del.ModuleDel;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
@@ -51,6 +50,7 @@ import org.scribble.ext.assrt.ast.name.qualified.AssrtAssertNameNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtSortNode;
 import org.scribble.ext.assrt.del.AssrtAnnotDataTypeElemDel;
+import org.scribble.ext.assrt.del.AssrtModuleDel;
 import org.scribble.ext.assrt.del.global.AssrtGChoiceDel;
 import org.scribble.ext.assrt.del.global.AssrtGConnectDel;
 import org.scribble.ext.assrt.del.global.AssrtGContinueDel;
@@ -192,11 +192,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	 */
 	
 	@Override
-	public AssrtModule Module(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<NonProtocolDecl<?>> data,
+	public AssrtModule Module(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<DataOrSigDeclNode<?>> data,
 			List<ProtocolDecl<?>> protos)
 	{
 		AssrtModule mod = new AssrtModule(source, moddecl, imports, data, protos);
-		mod = del(mod, new ModuleDel());
+		mod = del(mod, new AssrtModuleDel());
 		return mod;
 	}
 
@@ -421,11 +421,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtModule AssrtModule(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<NonProtocolDecl<?>> data,
+	public AssrtModule AssrtModule(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<DataOrSigDeclNode<?>> data,
 			List<ProtocolDecl<?>> protos, List<AssrtAssertDecl> asserts)
 	{
 		AssrtModule mod = new AssrtModule(source, moddecl, imports, data, protos, asserts);
-		mod = del(mod, new ModuleDel());  // FIXME
+		mod = del(mod, new AssrtModuleDel());
 		return mod;
 	}
 

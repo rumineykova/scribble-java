@@ -14,6 +14,7 @@
 package org.scribble.type.kind;
 
 
+@Deprecated
 public interface NonProtocolKind extends Kind
 {
 

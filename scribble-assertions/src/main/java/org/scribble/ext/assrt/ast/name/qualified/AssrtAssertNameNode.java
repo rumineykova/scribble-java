@@ -4,7 +4,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.name.qualified.MemberNameNode;
 import org.scribble.ext.assrt.type.kind.AssrtAssertKind;
-import org.scribble.type.name.MemberName;
+import org.scribble.ext.assrt.type.name.AssrtAssertName;
 
 public class AssrtAssertNameNode extends MemberNameNode<AssrtAssertKind>  // Duplicated From DataTypeNode
 {
@@ -26,9 +26,12 @@ public class AssrtAssertNameNode extends MemberNameNode<AssrtAssertKind>  // Dup
 	}
 
 	@Override
-	public MemberName<AssrtAssertKind> toName()  // FIXME: asserts aren't directly "typed"
+	public AssrtAssertName toName()
 	{
-		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
+		AssrtAssertName membname = new AssrtAssertName(getLastElement());
+		return isPrefixed()
+				? new AssrtAssertName(getModuleNamePrefix(), membname)
+		    : membname;
 	}
 	
 	@Override

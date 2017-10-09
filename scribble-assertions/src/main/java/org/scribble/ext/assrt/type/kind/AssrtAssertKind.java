@@ -2,11 +2,8 @@ package org.scribble.ext.assrt.type.kind;
 
 import org.scribble.type.kind.AbstractKind;
 import org.scribble.type.kind.ModuleMemberKind;
-import org.scribble.type.kind.NonProtocolKind;
 
-public class AssrtAssertKind extends AbstractKind implements
-		NonProtocolKind,  // For NonProtocolDecl -- maybe better to incorporate that aspect into ModuleMemberKind though (and use NonProtocolDecl for "actual typing")
-		ModuleMemberKind
+public class AssrtAssertKind extends AbstractKind implements ModuleMemberKind
 {
 	public static final AssrtAssertKind KIND = new AssrtAssertKind();
 	

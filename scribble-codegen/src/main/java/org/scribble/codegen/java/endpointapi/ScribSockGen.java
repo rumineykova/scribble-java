@@ -15,7 +15,7 @@ package org.scribble.codegen.java.endpointapi;
 
 import org.scribble.ast.DataTypeDecl;
 import org.scribble.ast.MessageSigNameDecl;
-import org.scribble.ast.NonProtocolDecl;
+import org.scribble.ast.DataOrSigDeclNode;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.codegen.java.util.ClassBuilder;
 import org.scribble.codegen.java.util.ConstructorBuilder;
@@ -267,7 +267,7 @@ public abstract class ScribSockGen extends StateChanTypeGen
 		checkJavaSchema(msd);
 	}
 	
-	protected static void checkJavaSchema(NonProtocolDecl<?> npd) throws ScribbleException
+	protected static void checkJavaSchema(DataOrSigDeclNode<?> npd) throws ScribbleException
 	{
 		if (!npd.schema.equals(ScribSockGen.JAVA_SCHEMA))  // FIXME: factor out
 		{

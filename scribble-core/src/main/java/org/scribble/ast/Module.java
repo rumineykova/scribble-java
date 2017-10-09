@@ -25,7 +25,7 @@ import org.scribble.ast.local.LProtocolDecl;
 import org.scribble.del.ScribDel;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.kind.Global;
-import org.scribble.type.kind.Kind;
+import org.scribble.type.kind.NonRoleArgKind;
 import org.scribble.type.kind.ProtocolKind;
 import org.scribble.type.name.DataType;
 import org.scribble.type.name.MessageSigName;
@@ -40,11 +40,11 @@ public class Module extends ScribNodeBase
 
 	// Using (implicitly bounded) nested wildcards for mixed element lists (better practice to use separate lists?)
 	public final List<ImportDecl<?>> imports;
-	public final List<NonProtocolDecl<?>> data;
+	public final List<DataOrSigDeclNode<?>> data;
 	public final List<ProtocolDecl<?>> protos;
 	
 	public Module(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports,
-			List<NonProtocolDecl<?>> data, List<ProtocolDecl<?>> protos)
+			List<DataOrSigDeclNode<?>> data, List<ProtocolDecl<?>> protos)
 	{
 		super(source);
 		this.moddecl = moddecl;
@@ -64,12 +64,12 @@ public class Module extends ScribNodeBase
 	{
 		ModuleDecl moddecl = (ModuleDecl) this.moddecl.clone(af);
 		List<ImportDecl<?>> imports = ScribUtil.cloneList(af, this.imports);
-		List<NonProtocolDecl<?>> data = ScribUtil.cloneList(af, this.data);
+		List<DataOrSigDeclNode<?>> data = ScribUtil.cloneList(af, this.data);
 		List<ProtocolDecl<?>> protos = ScribUtil.cloneList(af, this.protos);
 		return af.Module(this.source, moddecl, imports, data, protos);
 	}
 	
-	public Module reconstruct(ModuleDecl moddecl, List<ImportDecl<?>> imports, List<NonProtocolDecl<?>> data, List<ProtocolDecl<?>> protos)
+	public Module reconstruct(ModuleDecl moddecl, List<ImportDecl<?>> imports, List<DataOrSigDeclNode<?>> data, List<ProtocolDecl<?>> protos)
 	{
 		ScribDel del = del();
 		Module m = new Module(this.source, moddecl, imports, data, protos);
@@ -83,7 +83,7 @@ public class Module extends ScribNodeBase
 		ModuleDecl moddecl = (ModuleDecl) visitChild(this.moddecl, nv);
 		// class equality check probably too restrictive
 		List<ImportDecl<?>> imports = ScribNodeBase.visitChildListWithClassEqualityCheck(this, this.imports, nv);
-		List<NonProtocolDecl<?>> data = ScribNodeBase.visitChildListWithClassEqualityCheck(this, this.data, nv);
+		List<DataOrSigDeclNode<?>> data = ScribNodeBase.visitChildListWithClassEqualityCheck(this, this.data, nv);
 		List<ProtocolDecl<?>> protos = ScribNodeBase.visitChildListWithClassEqualityCheck(this, this.protos, nv);
 		return reconstruct(moddecl, imports, data, protos);
 	}
@@ -105,7 +105,7 @@ public class Module extends ScribNodeBase
 	// ptn simple alias name
 	public DataTypeDecl getDataTypeDecl(DataType simpname)  // Simple name (as for getProtocolDecl)
 	{
-		for (NonProtocolDecl<? extends Kind> dtd : this.data)
+		for (DataOrSigDeclNode<? extends NonRoleArgKind> dtd : this.data)
 		{
 			if (dtd.isDataTypeDecl() && dtd.getDeclName().equals(simpname))
 			{
@@ -118,7 +118,7 @@ public class Module extends ScribNodeBase
 	// msn simple alias name
 	public MessageSigNameDecl getMessageSigDecl(MessageSigName simpname)
 	{
-		for (NonProtocolDecl<?> dtd : this.data)
+		for (DataOrSigDeclNode<?> dtd : this.data)
 		{
 			if (dtd instanceof MessageSigNameDecl && dtd.getDeclName().equals(simpname))
 			{
@@ -133,7 +133,7 @@ public class Module extends ScribNodeBase
 		return Collections.unmodifiableList(this.imports);
 	}
 
-	public List<NonProtocolDecl<?>> getNonProtocolDecls()
+	public List<DataOrSigDeclNode<?>> getDataOrSigDecls()
 	{
 		return Collections.unmodifiableList(this.data);
 	}

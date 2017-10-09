@@ -21,7 +21,7 @@ import org.scribble.type.kind.DataTypeKind;
 import org.scribble.type.name.DataType;
 import org.scribble.type.name.ModuleName;
 
-public class DataTypeDecl extends NonProtocolDecl<DataTypeKind>
+public class DataTypeDecl extends DataOrSigDeclNode<DataTypeKind>
 {
 	public DataTypeDecl(CommonTree source, String schema, String extName, String extSource, DataTypeNode name)
 	{

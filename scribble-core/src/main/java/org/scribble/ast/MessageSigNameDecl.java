@@ -21,7 +21,7 @@ import org.scribble.type.kind.SigKind;
 import org.scribble.type.name.MessageSigName;
 import org.scribble.type.name.ModuleName;
 
-public class MessageSigNameDecl extends NonProtocolDecl<SigKind>
+public class MessageSigNameDecl extends DataOrSigDeclNode<SigKind>
 {
 	public MessageSigNameDecl(CommonTree source, String schema, String extName, String extSource, MessageSigNameNode name)
 	{
