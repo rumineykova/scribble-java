@@ -79,7 +79,8 @@ public class AssrtCommandLine extends CommandLine
 		boolean noLocalChoiceSubjectCheck = this.args.containsKey(CLArgFlag.NO_LOCAL_CHOICE_SUBJECT_CHECK);
 		boolean noAcceptCorrelationCheck = this.args.containsKey(CLArgFlag.NO_ACCEPT_CORRELATION_CHECK);
 		boolean noValidation = this.args.containsKey(CLArgFlag.NO_VALIDATION);
-		
+
+		boolean assrtBatching = this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_BATCHING);
 		Solver solver = this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_NATIVE_Z3)
 				? AssrtJob.Solver.NATIVE_Z3
 				: AssrtJob.Solver.JAVA_SMT_Z3;  // Default for base assrt -- though base assrt doesn't actually check the solver flag
@@ -98,7 +99,7 @@ public class AssrtCommandLine extends CommandLine
 		{
 			Path mainpath = CommandLine.parseMainPath(this.args.get(CLArgFlag.MAIN_MOD)[0]);
 			return new AssrtMainContext(debug, locator, mainpath, useOldWF, noLiveness, minEfsm, fair,
-					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, solver);
+					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, solver, assrtBatching);
 		}
 	}
 

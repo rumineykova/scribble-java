@@ -1,5 +1,6 @@
 package org.scribble.ext.assrt.core.model.global;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,7 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
+import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.main.Job;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.type.name.GProtocolName;
@@ -37,25 +40,69 @@ public class AssrtCoreSModel
 	
 	public AssrtCoreSafetyErrors getSafetyErrors(Job job, GProtocolName simpname)  // Maybe refactor simpname (root proto) into the (AssrtCore)Job
 	{
-		// FIXME: check for all errors in a single pass -- any errors can be categorised later
+		AssrtJob j = (AssrtJob) job;
 		
-		Set<AssrtCoreSState> recepts = this.allStates.values().stream().filter(AssrtCoreSState::isReceptionError).collect(Collectors.toSet());
-		Set<AssrtCoreSState> orphans = this.allStates.values().stream().filter(s -> s.isOrphanError(this.E0)).collect(Collectors.toSet());
-		Set<AssrtCoreSState> unfins = this.allStates.values().stream().filter(s -> s.isUnfinishedRoleError(this.E0)).collect(Collectors.toSet());
-		Set<AssrtCoreSState> conns = this.allStates.values().stream().filter(AssrtCoreSState::isConnectionError).collect(Collectors.toSet());
-		Set<AssrtCoreSState> unconns = this.allStates.values().stream().filter(AssrtCoreSState::isUnconnectedError).collect(Collectors.toSet());
-		Set<AssrtCoreSState> syncs = this.allStates.values().stream().filter(AssrtCoreSState::isSynchronisationError).collect(Collectors.toSet());
-		Set<AssrtCoreSState> disconns = Collections.emptySet(); //this.allStates.values().stream().filter(AssrtCoreSState::isDisconnectedError).collect(Collectors.toSet());
+		Collection<AssrtCoreSState> all = this.allStates.values();
+		
+		Set<AssrtCoreSState> recepts  = all.stream().filter(AssrtCoreSState::isReceptionError).collect(Collectors.toSet());
+		Set<AssrtCoreSState> orphans  = all.stream().filter(s -> s.isOrphanError(this.E0)).collect(Collectors.toSet());
+		Set<AssrtCoreSState> unfins   = all.stream().filter(s -> s.isUnfinishedRoleError(this.E0)).collect(Collectors.toSet());
+		Set<AssrtCoreSState> conns    = all.stream().filter(AssrtCoreSState::isConnectionError).collect(Collectors.toSet());
+		Set<AssrtCoreSState> unconns  = all.stream().filter(AssrtCoreSState::isUnconnectedError).collect(Collectors.toSet());
+		Set<AssrtCoreSState> syncs    = all.stream().filter(AssrtCoreSState::isSynchronisationError).collect(Collectors.toSet());
+		Set<AssrtCoreSState> disconns = Collections.emptySet();  // TODO
+				//this.allStates.values().stream().filter(AssrtCoreSState::isDisconnectedError).collect(Collectors.toSet());
 
-		Set<AssrtCoreSState> unknownVars = this.allStates.values().stream().filter(s -> s.isUnknownDataTypeVarError(job, simpname)).collect(Collectors.toSet());
-		Set<AssrtCoreSState> asserts = this.allStates.values().stream().filter(s -> s.isAssertionProgressError(job, simpname)).collect(Collectors.toSet());
-		Set<AssrtCoreSState> unsats = this.allStates.values().stream().filter(s -> s.isUnsatisfiableError(job, simpname)).collect(Collectors.toSet());
-		Set<AssrtCoreSState> recasserts = this.allStates.values().stream().filter(s -> s.isRecursionAssertionError(job, simpname, init)).collect(Collectors.toSet());
+		Set<AssrtCoreSState> unknownVars = all.stream()
+				.filter(s -> s.isUnknownDataTypeVarError(job, simpname)).collect(Collectors.toSet());
+
+		Set<AssrtCoreSState> asserts = null;  
+		Set<AssrtCoreSState> unsats = null;   
+		Set<AssrtCoreSState> recasserts = null;
+
+		if (j.batching)
+		{
+			// Check for all errors in a single pass -- any errors can be categorised later
+			Set<AssrtBoolFormula> fs = new HashSet<>();
+			fs.addAll(
+					all.stream().flatMap(s -> s.getAssertionProgressChecks(job, simpname).stream())
+						.collect(Collectors.toSet())
+			);
+			fs.addAll(
+					all.stream().flatMap(s -> s.getSatisfiableChecks(job, simpname).stream())
+						.collect(Collectors.toSet())
+			);
+			fs.addAll(
+					all.stream().flatMap(s -> s.getRecursionAssertionChecks(job, simpname, this.init).stream())
+						.collect(Collectors.toSet())
+			);
+			/*String smt2 = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
+						.map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining(""))
+					+ "(check-sat)\n(exit)";
+			if (Z3Wrapper.checkSat(smt2))*/  // FIXME: won't work for unint-funs without using Z3Wrapper.toSmt2
+			if (j.checkSat(simpname, fs))
+			{	
+				asserts     = Collections.emptySet();
+				unsats      = Collections.emptySet();
+				recasserts  = Collections.emptySet();
+			}
+		}
+		
+		if (!j.batching || asserts == null)
+		{
+			asserts     = all.stream()
+				.filter(s -> s.isAssertionProgressError(job, simpname)).collect(Collectors.toSet());
+			unsats      = all.stream()
+				.filter(s -> s.isUnsatisfiableError(job, simpname)).collect(Collectors.toSet());
+			recasserts  = all.stream()
+				.filter(s -> s.isRecursionAssertionError(job, simpname, this.init)).collect(Collectors.toSet());
+		}
 		
 		/*Set<AssrtCoreSState> portOpens = this.allStates.values().stream().filter(AssrtCoreSState::isPortOpenError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> portOwners = this.allStates.values().stream().filter(AssrtCoreSState::isPortOwnershipError).collect(Collectors.toSet());*/
 
-		return new AssrtCoreSafetyErrors(recepts, orphans, unfins, conns, unconns, syncs, disconns, unknownVars, asserts, unsats, recasserts);
+		return new AssrtCoreSafetyErrors(recepts, orphans, unfins, conns, unconns, syncs, disconns,
+				unknownVars, asserts, unsats, recasserts);
 	}
 	
 	public boolean isActive(AssrtCoreSState s, Role r)
@@ -65,6 +112,7 @@ public class AssrtCoreSModel
 	
 	public AssrtCoreProgressErrors getProgressErrors()
 	{
+		//return new AssrtCoreProgressErrors(Collections.emptyMap(), Collections.emptyMap());
 		Map<Role, Set<Set<AssrtCoreSState>>> roleProgress = new HashMap<>();
 				/*this.E0.keySet().stream().collect(Collectors.toMap((r) -> r, (r) ->
 					this.termSets.stream().map((ts) -> ts.stream().map((i) -> this.allStates.get(i)).collect(Collectors.toSet()))
@@ -118,6 +166,7 @@ public class AssrtCoreSModel
 		
 		return new AssrtCoreProgressErrors(roleProgress, eventualReception);
 	}
+	//*/
 	
 	// Revised "eventual reception" -- 1-bounded stable property with subject role side condition
 	// FIXME: refactor as actual eventual reception -- though original one may be better for error feedback

@@ -1,6 +1,7 @@
 package org.scribble.ext.assrt.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.scribble.ext.assrt.type.formula.AssrtBinaryFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtQuantifiedIntVarsFormula;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.formula.AssrtUnPredicateFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.util.ScribUtil;
@@ -25,44 +27,55 @@ public class Z3Wrapper
 {
 
 	// Based on CommandLine::runDot, JobContext::runAut, etc
-	public static boolean checkSat(AssrtJob job, GProtocolDecl gpd, AssrtBoolFormula f) //throws ScribbleException
+	public static boolean checkSat(AssrtJob job, GProtocolDecl gpd, Set<AssrtBoolFormula> fs) //throws ScribbleException
 	{
-		String tmpName = gpd.header.name + ".smt2.tmp";
-		File tmp = new File(tmpName);
-		if (tmp.exists())  // Factor out with CommandLine.runDot (file exists check)
-		{
-			throw new RuntimeException("Cannot overwrite: " + tmpName);
-		}
-		String smt2 = toSmt2(job, gpd, f);
+		fs = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE)).collect(Collectors.toSet());
+		return fs.isEmpty() ? true : checkSat(toSmt2(job, gpd, fs));
+	}
+
+	// smt2 is the full Z3 source
+	private static boolean checkSat(String smt2) //throws ScribbleException
+	{
+		File tmp;
 		try
 		{
-			ScribUtil.writeToFile(tmpName, smt2);
-			String[] res = ScribUtil.runProcess("z3", tmpName);
-			String trim = res[0].trim();
-			if (trim.equals("sat"))  // FIXME: factor out
+			tmp = File.createTempFile("gpd.header.name", ".smt2.tmp");
+			try
 			{
-				return true;
+				String tmpName = tmp.getAbsolutePath();				
+				ScribUtil.writeToFile(tmpName, smt2);
+				String[] res = ScribUtil.runProcess("Z3", tmpName);
+				String trim = res[0].trim();
+				if (trim.equals("sat"))  // FIXME: factor out
+				{
+					return true;
+				}
+				else if (trim.equals("unsat"))
+				{
+					return false;
+				}
+				else
+				{
+					throw new RuntimeException("[assrt] Z3 error: " + Arrays.toString(res));
+				}
 			}
-			else if (trim.equals("unsat"))
+			catch (ScribbleException e)
 			{
-				return false;
+				throw new RuntimeException(e);
 			}
-			else
+			finally
 			{
-				throw new RuntimeException("[assrt] Z3 error: " + Arrays.toString(res));
+				tmp.delete();
 			}
 		}
-		catch (ScribbleException e)
+		catch (IOException e)
 		{
 			throw new RuntimeException(e);
 		}
-		finally
-		{
-			tmp.delete();
-		}
 	}
 	
-	private static String toSmt2(AssrtJob job, GProtocolDecl gpd, AssrtBoolFormula f)
+	// fs shouldn't be empty (but OK)
+	private static String toSmt2(AssrtJob job, GProtocolDecl gpd, Set<AssrtBoolFormula> fs)
 	{
 		String smt2 = "";
 		List<String> rs = gpd.getHeader().roledecls.getRoles().stream().map(Object::toString).sorted().collect(Collectors.toList());
@@ -70,7 +83,7 @@ public class Z3Wrapper
 				.mapToObj(i -> "(declare-const " + rs.get(i) + " Int)\n(assert (= " + rs.get(i) + " " + i +"))\n").collect(Collectors.joining(""));
 						// FIXME: make a Role sort?
 
-		Set<AssrtUnPredicateFormula> preds = getUnPredicates.func.apply(f);
+		Set<AssrtUnPredicateFormula> preds = fs.stream().flatMap(f -> getUnintPreds.func.apply(f).stream()).collect(Collectors.toSet());
 		smt2 += preds.stream().map(p -> "(declare-fun " + p.name + " ("
 				+ IntStream.range(0, p.args.size()).mapToObj(i -> ("(Int)")).collect(Collectors.joining(" "))
 				+ ") Bool)\n").collect(Collectors.joining(""));
@@ -80,7 +93,7 @@ public class Z3Wrapper
 		}
 		
 		smt2 +=  
-				  "(assert " + f.toSmt2Formula() + ")\n"
+				  fs.stream().map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining())
 				+ "(check-sat)\n"
 				+ "(exit)";
 		
@@ -89,7 +102,7 @@ public class Z3Wrapper
 		return smt2;
 	}
 
-	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnPredicates  // FIXME: move?
+	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnintPreds  // FIXME: move to utils?
 			= new RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>>()
 	{{
 		this.func = ff ->
