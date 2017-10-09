@@ -14,7 +14,8 @@ public class AssrtCoreCLArgParser extends CLArgParser
 	public static final String ASSRT_CORE_MODEL_FLAG     = "-ass-model";  // cf. SGRAPH
 	public static final String ASSRT_CORE_MODEL_PNG_FLAG = "-ass-modelpng";
 
-	public static final String ASSRT_CORE_NATIVE_Z3      = "-Z3";
+	public static final String ASSRT_CORE_NATIVE_Z3_FLAG = "-Z3";
+	public static final String ASSRT_CORE_BATCHING_FLAG  = "-batch";
 	
 	// Non-unique flags
 	public static final String ASSRT_CORE_EFSM_FLAG      = "-ass-fsm";
@@ -25,7 +26,8 @@ public class AssrtCoreCLArgParser extends CLArgParser
 		AssrtCoreCLArgParser.ASSRT_CORE_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE);
 		AssrtCoreCLArgParser.ASSRT_CORE_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_MODEL_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_MODEL);
 		AssrtCoreCLArgParser.ASSRT_CORE_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_MODEL_PNG_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_MODEL_PNG);
-		AssrtCoreCLArgParser.ASSRT_CORE_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_NATIVE_Z3, AssrtCoreCLArgFlag.ASSRT_CORE_NATIVE_Z3);
+		AssrtCoreCLArgParser.ASSRT_CORE_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_NATIVE_Z3_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_NATIVE_Z3);
+		AssrtCoreCLArgParser.ASSRT_CORE_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_BATCHING_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_BATCHING);
 	}
 
 	private static final Map<String, AssrtCoreCLArgFlag> ASSRT_CORE_NON_UNIQUE_FLAGS = new HashMap<>();
@@ -79,7 +81,8 @@ public class AssrtCoreCLArgParser extends CLArgParser
 			}
 			// No-value args -- just boolean flags
 			case AssrtCoreCLArgParser.ASSRT_CORE_MODEL_FLAG:
-			case AssrtCoreCLArgParser.ASSRT_CORE_NATIVE_Z3:
+			case AssrtCoreCLArgParser.ASSRT_CORE_NATIVE_Z3_FLAG:
+			case AssrtCoreCLArgParser.ASSRT_CORE_BATCHING_FLAG:
 			{
 				assrtCheckAndAddNoArgUniqueFlag(flag);
 				return i;

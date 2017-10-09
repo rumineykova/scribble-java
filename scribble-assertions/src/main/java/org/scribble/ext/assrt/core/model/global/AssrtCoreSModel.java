@@ -40,7 +40,7 @@ public class AssrtCoreSModel
 	
 	public AssrtCoreSafetyErrors getSafetyErrors(Job job, GProtocolName simpname)  // Maybe refactor simpname (root proto) into the (AssrtCore)Job
 	{
-		// FIXME: check for all errors in a single pass -- any errors can be categorised later
+		AssrtJob j = (AssrtJob) job;
 		
 		Collection<AssrtCoreSState> all = this.allStates.values();
 		
@@ -56,34 +56,39 @@ public class AssrtCoreSModel
 		Set<AssrtCoreSState> unknownVars = all.stream()
 				.filter(s -> s.isUnknownDataTypeVarError(job, simpname)).collect(Collectors.toSet());
 
-		Set<AssrtCoreSState> asserts;  
-		Set<AssrtCoreSState> unsats;   
-		Set<AssrtCoreSState> recasserts;
+		Set<AssrtCoreSState> asserts = null;  
+		Set<AssrtCoreSState> unsats = null;   
+		Set<AssrtCoreSState> recasserts = null;
 
-		Set<AssrtBoolFormula> fs = new HashSet<>();
-		fs.addAll(
-				all.stream().flatMap(s -> s.getAssertionProgressChecks(job, simpname).stream())
-					.collect(Collectors.toSet())
-		);
-		fs.addAll(
-				all.stream().flatMap(s -> s.getSatisfiableChecks(job, simpname).stream())
-					.collect(Collectors.toSet())
-		);
-		fs.addAll(
-				all.stream().flatMap(s -> s.getRecursionAssertionChecks(job, simpname, this.init).stream())
-					.collect(Collectors.toSet())
-		);
-		/*String smt2 = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
-					.map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining(""))
-				+ "(check-sat)\n(exit)";
-		if (Z3Wrapper.checkSat(smt2))*/  // FIXME: won't work for unint-funs without using Z3Wrapper.toSmt2
-		if (((AssrtJob) job).checkSat(simpname, fs))
-		{	
-			asserts     = Collections.emptySet();
-			unsats      = Collections.emptySet();
-			recasserts  = Collections.emptySet();
+		if (j.batching)
+		{
+			// Check for all errors in a single pass -- any errors can be categorised later
+			Set<AssrtBoolFormula> fs = new HashSet<>();
+			fs.addAll(
+					all.stream().flatMap(s -> s.getAssertionProgressChecks(job, simpname).stream())
+						.collect(Collectors.toSet())
+			);
+			fs.addAll(
+					all.stream().flatMap(s -> s.getSatisfiableChecks(job, simpname).stream())
+						.collect(Collectors.toSet())
+			);
+			fs.addAll(
+					all.stream().flatMap(s -> s.getRecursionAssertionChecks(job, simpname, this.init).stream())
+						.collect(Collectors.toSet())
+			);
+			/*String smt2 = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
+						.map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining(""))
+					+ "(check-sat)\n(exit)";
+			if (Z3Wrapper.checkSat(smt2))*/  // FIXME: won't work for unint-funs without using Z3Wrapper.toSmt2
+			if (j.checkSat(simpname, fs))
+			{	
+				asserts     = Collections.emptySet();
+				unsats      = Collections.emptySet();
+				recasserts  = Collections.emptySet();
+			}
 		}
-		else
+		
+		if (!j.batching || asserts == null)
 		{
 			asserts     = all.stream()
 				.filter(s -> s.isAssertionProgressError(job, simpname)).collect(Collectors.toSet());

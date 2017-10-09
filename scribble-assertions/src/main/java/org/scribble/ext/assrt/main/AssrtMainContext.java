@@ -21,19 +21,21 @@ import org.scribble.util.ScribParserException;
 public class AssrtMainContext extends MainContext
 {
 	public final Solver solver; //= Solver.NATIVE_Z3;
+	public final boolean batching;
 
 	// Load main module from file system
 	public AssrtMainContext(boolean debug, ResourceLocator locator, Path mainpath, boolean useOldWF, boolean noLiveness, boolean minEfsm,
-			boolean fair, boolean noLocalChoiceSubjectCheck, boolean noAcceptCorrelationCheck, boolean noValidation, Solver solver)
+			boolean fair, boolean noLocalChoiceSubjectCheck, boolean noAcceptCorrelationCheck, boolean noValidation, Solver solver, boolean batching)
 					throws ScribParserException, ScribbleException
 	{
 		super(debug, locator, mainpath, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation);
 		this.solver = solver;
+		this.batching = batching;
 	}
 
 	// For inline module arg
 	public AssrtMainContext(boolean debug, ResourceLocator locator, String inline, boolean useOldWF, boolean noLiveness, boolean minEfsm,
-			boolean fair, boolean noLocalChoiceSubjectCheck, boolean noAcceptCorrelationCheck, boolean noValidation, Solver solver)
+			boolean fair, boolean noLocalChoiceSubjectCheck, boolean noAcceptCorrelationCheck, boolean noValidation, Solver solver, boolean assrtBatching)
 					throws ScribParserException, ScribbleException
 	{
 		super(debug, locator, inline, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation);
@@ -45,7 +47,7 @@ public class AssrtMainContext extends MainContext
 	{
 		return new AssrtJob(this.debug, this.getParsedModules(), this.main, this.useOldWF, this.noLiveness, this.minEfsm, this.fair,
 				this.noLocalChoiceSubjectCheck, this.noAcceptCorrelationCheck, this.noValidation,
-				this.solver, this.af, this.ef, this.sf);
+				this.solver, this.batching, this.af, this.ef, this.sf);
 	}
 
 	@Override

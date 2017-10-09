@@ -33,14 +33,16 @@ public class AssrtJob extends Job
 	public enum Solver { NATIVE_Z3, JAVA_SMT_Z3, NONE }
 
 	public final Solver solver; //= Solver.NATIVE_Z3;
+	public final boolean batching;
 
 	public AssrtJob(boolean debug, Map<ModuleName, Module> parsed, ModuleName main,
 			boolean useOldWF, boolean noLiveness, boolean minEfsm, boolean fair, boolean noLocalChoiceSubjectCheck,
 			boolean noAcceptCorrelationCheck, boolean noValidation, 
-			Solver solver, AstFactory af, EModelFactory ef, SModelFactory sf)
+			Solver solver, boolean batching, AstFactory af, EModelFactory ef, SModelFactory sf)
 	{
 		super(debug, parsed, main, useOldWF, noLiveness, minEfsm, fair, noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, af, ef, sf);
 		this.solver = solver;
+		this.batching = batching;
 	}
 
 	// N.B. currently only used by assrt-core

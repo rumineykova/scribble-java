@@ -53,6 +53,9 @@
 
 // redo inlining/unfolding via model building? role/param/assert all in model states?
 
+// FIXME: batching optimisation contains redundancy? -- all formulae are standalone (full "trace histories"), but maybe not necessary if batching?
+
+
 
 
 // unsat is a preserving safety error, op sem should freeze on an unsat choice -- but otherwise should allow branch selection, even if not "strictly" assert-prog

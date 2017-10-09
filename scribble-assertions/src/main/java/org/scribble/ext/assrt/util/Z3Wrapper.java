@@ -17,6 +17,7 @@ import org.scribble.ext.assrt.type.formula.AssrtBinaryFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtQuantifiedIntVarsFormula;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
+import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.formula.AssrtUnPredicateFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.util.ScribUtil;
@@ -28,7 +29,8 @@ public class Z3Wrapper
 	// Based on CommandLine::runDot, JobContext::runAut, etc
 	public static boolean checkSat(AssrtJob job, GProtocolDecl gpd, Set<AssrtBoolFormula> fs) //throws ScribbleException
 	{
-		return checkSat(toSmt2(job, gpd, fs));
+		fs = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE)).collect(Collectors.toSet());
+		return fs.isEmpty() ? true : checkSat(toSmt2(job, gpd, fs));
 	}
 
 	// smt2 is the full Z3 source
@@ -72,6 +74,7 @@ public class Z3Wrapper
 		}
 	}
 	
+	// fs shouldn't be empty (but OK)
 	private static String toSmt2(AssrtJob job, GProtocolDecl gpd, Set<AssrtBoolFormula> fs)
 	{
 		String smt2 = "";
@@ -99,7 +102,7 @@ public class Z3Wrapper
 		return smt2;
 	}
 
-	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnintPreds  // FIXME: move?
+	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnintPreds  // FIXME: move to utils?
 			= new RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>>()
 	{{
 		this.func = ff ->
