@@ -204,11 +204,12 @@ public class AstFactoryImpl implements AstFactory
 	}
 	
 	@Override
-	public Module Module(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<NonProtocolDecl<?>> data, List<ProtocolDecl<?>> protos)
+	public Module Module(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<NonProtocolDecl<?>> data,
+			List<ProtocolDecl<?>> protos)
 	{
-		Module module = new Module(source, moddecl, imports, data, protos);
-		module = del(module, new ModuleDel());
-		return module;
+		Module mod = new Module(source, moddecl, imports, data, protos);
+		mod = del(mod, new ModuleDel());
+		return mod;
 	}
 
 	@Override

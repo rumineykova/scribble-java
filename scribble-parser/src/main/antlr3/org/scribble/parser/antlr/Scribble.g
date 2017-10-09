@@ -353,7 +353,7 @@ simplename:
 parametername:    simplename;
 recursionvarname: simplename;
 rolename:         simplename;
-scopename:        simplename;
+//scopename:        simplename;
 
 ambiguousname:
 	simplename

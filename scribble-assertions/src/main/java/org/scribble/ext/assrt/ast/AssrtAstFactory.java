@@ -4,9 +4,13 @@ import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
+import org.scribble.ast.ImportDecl;
 import org.scribble.ast.MessageNode;
+import org.scribble.ast.ModuleDecl;
+import org.scribble.ast.NonProtocolDecl;
 import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.NonRoleParamDeclList;
+import org.scribble.ast.ProtocolDecl;
 import org.scribble.ast.RoleArgList;
 import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.global.GProtocolBlock;
@@ -22,15 +26,18 @@ import org.scribble.ext.assrt.ast.global.AssrtGDo;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
-import org.scribble.ext.assrt.ast.local.AssrtLRequest;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.ext.assrt.ast.local.AssrtLDo;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
+import org.scribble.ext.assrt.ast.local.AssrtLRequest;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
+import org.scribble.ext.assrt.ast.name.qualified.AssrtAssertNameNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
+import org.scribble.ext.assrt.ast.name.simple.AssrtSortNode;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 
 
 public interface AssrtAstFactory extends AstFactory
@@ -68,4 +75,8 @@ public interface AssrtAstFactory extends AstFactory
 
 	AssrtAssertion AssrtAssertion(CommonTree source, AssrtBoolFormula f);
 	AssrtArithExpr AssrtArithAnnotation(CommonTree source, AssrtArithFormula expr);
+
+	AssrtModule AssrtModule(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<NonProtocolDecl<?>> data,
+			List<ProtocolDecl<?>> protos, List<AssrtAssertDecl> asserts);
+	AssrtAssertDecl AssrtAssertDecl(CommonTree source, AssrtAssertNameNode name, List<AssrtSortNode> params, AssrtSortNode ret, AssrtSmtFormula<?> expr);
 }

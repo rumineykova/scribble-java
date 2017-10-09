@@ -31,9 +31,9 @@ public class AssrtFormulaFactory
 		return new AssrtNegFormula(expr); 
 	}
 
-	public static AssrtUnPredicateFormula AssrtUnPredicate(String name, List<AssrtArithFormula> args)
+	public static AssrtUnintPredicateFormula AssrtUnPredicate(String name, List<AssrtArithFormula> args)
 	{
-		return new AssrtUnPredicateFormula(name, args);
+		return new AssrtUnintPredicateFormula(name, args);
 	}
 
 	public static AssrtIntValFormula AssrtIntVal(int i)

@@ -59,6 +59,8 @@ tokens
 	CATCHES_KW = 'catches';*/
 	DO_KW = 'do';
 	//SPAWN_KW = 'spawn';
+
+	ASSERT_KW = 'assert';
 	
 	
 	/*
@@ -182,6 +184,10 @@ tokens
 	
 	//ASSRT_STATEVARDECLLIST = 'ASSRT_STATEVARDECLLIST';
 	//ASSRT_STATEVARARGLIST = 'ASSRT_STATEVARARGLIST';
+	
+	ASSRT_ASSERT = 'ASSRT_ASSERT';
+	ASSRT_UNINTFUNARGLIST = 'ASSRT_UNINTFUNARGLIST';
+	ASSRT_UNINTFUNARG = 'ASSRT_UNINTFUNARG';
 }
 
 
@@ -327,7 +333,7 @@ simplename:
 parametername:    simplename;
 recursionvarname: simplename;
 rolename:         simplename;
-scopename:        simplename;
+//scopename:        simplename;
 varname:          simplename; 
 
 ambiguousname:
@@ -366,9 +372,9 @@ messagesignaturename: membername;
  * Section 3.2.2 Top-level Module Structure
  */
 module:
-	moduledecl importdecl* datatypedecl* protocoldecl* EOF
+	moduledecl importdecl* datatypedecl* assertdecl* protocoldecl* EOF
 ->
-	^(MODULE moduledecl importdecl* datatypedecl* protocoldecl*)
+	^(MODULE moduledecl importdecl* datatypedecl* assertdecl* protocoldecl*)
 ;
 
 
@@ -435,6 +441,23 @@ messagesignaturedecl:
 ;
 
 
+assertdecl:
+	ASSERT_KW IDENTIFIER unintfunarglist simplepayloadtypename '=' EXTIDENTIFIER ';'
+;
+
+unintfunarglist:
+	'(' (unintfunarg (',' unintfunarg)*)? ')'
+->
+	^(ASSRT_UNINTFUNARGLIST unintfunarg*)
+;
+
+unintfunarg:
+	varname ':' simplepayloadtypename
+-> 
+	^(ASSRT_UNINTFUNARG varname simplepayloadtypename)
+;
+
+
 /**
  * Section 3.5 Message Signatures
  */
@@ -473,14 +496,14 @@ payloadelement:
 |*/
 	qualifiedname  // This case subsumes simple names  // FIXME: ambiguousqualifiedname (or ambiguousname should just be qualified)
 |
-	varname ':' qualifiedname
--> 
-	^(ASSRT_ANNOTPAYLOADELEM varname qualifiedname)
-|
 	protocolname '@' rolename
 ->
 	^(DELEGATION rolename protocolname)
 
+|
+	varname ':' qualifiedname
+-> 
+	^(ASSRT_ANNOTPAYLOADELEM varname qualifiedname)
 ;
 
 

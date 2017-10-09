@@ -8,14 +8,14 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtUnPredicateFormula;
+import org.scribble.ext.assrt.type.formula.AssrtUnintPredicateFormula;
 
 public class AssrtAntlrUnFun
 {
 	public static final int NAME_INDEX = 0;
 	public static final int UNFUNARGLIST_INDEX = 1;
 	
-	public static AssrtUnPredicateFormula parseUnFun(AssrtAntlrToFormulaParser parser, CommonTree root)
+	public static AssrtUnintPredicateFormula parseUnFun(AssrtAntlrToFormulaParser parser, CommonTree root)
 	{
 		String name = getNameChild(root).getText();
 		CommonTree arglist = getUnFunArgListChild(root);

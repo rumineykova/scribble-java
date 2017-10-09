@@ -6,19 +6,32 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.type.name.AssrtSort;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
 
 // Make abstract, and use subclasses for specific functions? e.g., for ports
-public class AssrtUnPredicateFormula extends AssrtBoolFormula
+public class AssrtUnintPredicateFormula extends AssrtBoolFormula implements AssrtUnintFunFormula<BooleanFormula>
 {
 	public final String name;
 	public final List<AssrtArithFormula> args;
 
-	protected AssrtUnPredicateFormula(String name, List<AssrtArithFormula> args)
+	protected AssrtUnintPredicateFormula(String name, List<AssrtArithFormula> args)
 	{
 		this.name = name;
 		this.args = Collections.unmodifiableList(args);
+	}
+
+	@Override
+	public List<AssrtSort> getParamSorts()
+	{
+		throw new RuntimeException("[assrt] TODO: " + this);
+	}
+
+	@Override
+	public AssrtSort getReturnSort()
+	{
+		throw new RuntimeException("[assrt] TODO: " + this);
 	}
 
 	@Override
@@ -30,7 +43,7 @@ public class AssrtUnPredicateFormula extends AssrtBoolFormula
 	@Override
 	public AssrtBoolFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
-		return new AssrtUnPredicateFormula(this.name, 
+		return new AssrtUnintPredicateFormula(this.name, 
 				this.args.stream().map(a -> a.subs(old, neu)).collect(Collectors.toList()));
 	}
 
@@ -65,11 +78,11 @@ public class AssrtUnPredicateFormula extends AssrtBoolFormula
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtUnPredicateFormula))
+		if (!(o instanceof AssrtUnintPredicateFormula))
 		{
 			return false;
 		}
-		AssrtUnPredicateFormula them = (AssrtUnPredicateFormula) o;
+		AssrtUnintPredicateFormula them = (AssrtUnintPredicateFormula) o;
 		return super.equals(this)  // Does canEqual
 				&& this.name.equals(them.name) && this.args.equals(them.args);  
 	}
@@ -77,7 +90,7 @@ public class AssrtUnPredicateFormula extends AssrtBoolFormula
 	@Override
 	protected boolean canEqual(Object o)
 	{
-		return o instanceof AssrtUnPredicateFormula;
+		return o instanceof AssrtUnintPredicateFormula;
 	}
 
 	@Override

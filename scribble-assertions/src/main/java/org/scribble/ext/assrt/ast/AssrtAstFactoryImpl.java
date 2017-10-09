@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactoryImpl;
+import org.scribble.ast.ImportDecl;
 import org.scribble.ast.MessageNode;
+import org.scribble.ast.ModuleDecl;
+import org.scribble.ast.NonProtocolDecl;
 import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.NonRoleParamDeclList;
 import org.scribble.ast.ProtocolDecl;
@@ -30,6 +33,7 @@ import org.scribble.ast.name.qualified.LProtocolNameNode;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.del.ModuleDel;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
@@ -37,13 +41,15 @@ import org.scribble.ext.assrt.ast.global.AssrtGDoDel;
 import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
-import org.scribble.ext.assrt.ast.local.AssrtLRequest;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.ext.assrt.ast.local.AssrtLDo;
 import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
+import org.scribble.ext.assrt.ast.local.AssrtLRequest;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
+import org.scribble.ext.assrt.ast.name.qualified.AssrtAssertNameNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
+import org.scribble.ext.assrt.ast.name.simple.AssrtSortNode;
 import org.scribble.ext.assrt.del.AssrtAnnotDataTypeElemDel;
 import org.scribble.ext.assrt.del.global.AssrtGChoiceDel;
 import org.scribble.ext.assrt.del.global.AssrtGConnectDel;
@@ -53,7 +59,6 @@ import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolDeclDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolDefDel;
 import org.scribble.ext.assrt.del.global.AssrtGRecursionDel;
-import org.scribble.ext.assrt.del.local.AssrtLRequestDel;
 import org.scribble.ext.assrt.del.local.AssrtLContinueDel;
 import org.scribble.ext.assrt.del.local.AssrtLDoDel;
 import org.scribble.ext.assrt.del.local.AssrtLProjectionDeclDel;
@@ -61,10 +66,12 @@ import org.scribble.ext.assrt.del.local.AssrtLProtocolBlockDel;
 import org.scribble.ext.assrt.del.local.AssrtLProtocolDefDel;
 import org.scribble.ext.assrt.del.local.AssrtLReceiveDel;
 import org.scribble.ext.assrt.del.local.AssrtLRecursionDel;
+import org.scribble.ext.assrt.del.local.AssrtLRequestDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.type.kind.AssrtVarNameKind;
 import org.scribble.type.kind.Kind;
 import org.scribble.type.name.GProtocolName;
@@ -75,7 +82,9 @@ import org.scribble.type.name.Role;
 public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFactory
 {
 	
-	// Instantiating existing node classes with new dels
+	/**
+	 *  Instantiating existing node classes with new dels
+	 */
 
 	@Override
 	public GProtocolDecl GProtocolDecl(CommonTree source, List<GProtocolDecl.Modifiers> mods, GProtocolHeader header, GProtocolDef def)
@@ -178,7 +187,18 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}*/
 	
 	
-	// Returning new node classes in place of existing
+	/**
+	 *  Returning new node classes in place of existing
+	 */
+	
+	@Override
+	public AssrtModule Module(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<NonProtocolDecl<?>> data,
+			List<ProtocolDecl<?>> protos)
+	{
+		AssrtModule mod = new AssrtModule(source, moddecl, imports, data, protos);
+		mod = del(mod, new ModuleDel());
+		return mod;
+	}
 
 	// Still used by parsing for empty annotation/assertion nodes -- but we return an Assrt node
 	// Easier to make all global as Assrt nodes, to avoid cast checks in, e.g., AssrtGProtocolDeclDel::leaveProjection (for GProtocolHeader), and so all projections will be Assrt kinds only
@@ -235,7 +255,9 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 	
 
-	// Explicitly creating new Assrt nodes
+	/**
+	 *  Explicitly creating new Assrt nodes
+	 */
 
 	@Override
 	public AssrtGProtocolHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
@@ -394,6 +416,23 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	public AssrtArithExpr AssrtArithAnnotation(CommonTree source, AssrtArithFormula expr)
 	{
 		AssrtArithExpr node = new AssrtArithExpr(source, expr); 
+		node = del(node, createDefaultDelegate());
+		return node; 
+	}
+
+	@Override
+	public AssrtModule AssrtModule(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<NonProtocolDecl<?>> data,
+			List<ProtocolDecl<?>> protos, List<AssrtAssertDecl> asserts)
+	{
+		AssrtModule mod = new AssrtModule(source, moddecl, imports, data, protos, asserts);
+		mod = del(mod, new ModuleDel());  // FIXME
+		return mod;
+	}
+
+	@Override
+	public AssrtAssertDecl AssrtAssertDecl(CommonTree source, AssrtAssertNameNode name, List<AssrtSortNode> params, AssrtSortNode ret, AssrtSmtFormula<?> expr)
+	{
+		AssrtAssertDecl node = new AssrtAssertDecl(source, name, params, ret, expr); 
 		node = del(node, createDefaultDelegate());
 		return node; 
 	}

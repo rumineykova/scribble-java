@@ -10,7 +10,7 @@ import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 // Binary comparison
-public class AssrtBinCompFormula extends AssrtBoolFormula implements AssrtBinaryFormula<IntegerFormula>
+public class AssrtBinCompFormula extends AssrtBoolFormula implements AssrtBinFormula<IntegerFormula>
 {
 	public enum Op
 	{

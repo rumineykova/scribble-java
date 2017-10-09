@@ -14,7 +14,6 @@
 package org.scribble.ast;
 
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -40,18 +39,18 @@ public class Module extends ScribNodeBase
 	public final ModuleDecl moddecl;
 
 	// Using (implicitly bounded) nested wildcards for mixed element lists (better practice to use separate lists?)
-	private final List<ImportDecl<?>> imports;
-	private final List<NonProtocolDecl<?>> data;
-	private final List<ProtocolDecl<?>> protos;
+	public final List<ImportDecl<?>> imports;
+	public final List<NonProtocolDecl<?>> data;
+	public final List<ProtocolDecl<?>> protos;
 	
 	public Module(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports,
 			List<NonProtocolDecl<?>> data, List<ProtocolDecl<?>> protos)
 	{
 		super(source);
 		this.moddecl = moddecl;
-		this.imports = new LinkedList<>(imports);
-		this.data = new LinkedList<>(data);
-		this.protos = new LinkedList<>(protos);
+		this.imports = Collections.unmodifiableList(imports);
+		this.data = Collections.unmodifiableList(data);
+		this.protos = Collections.unmodifiableList(protos);
 	}
 
 	@Override
@@ -97,20 +96,10 @@ public class Module extends ScribNodeBase
 	@Override
 	public String toString()
 	{
-		String s = moddecl.toString();
-		for (ImportDecl<? extends Kind> id : this.imports)
-		{
-			s += "\n" + id;
-		}
-		for (NonProtocolDecl<? extends Kind> dtd : this.data)
-		{
-			s += "\n" + dtd;
-		}
-		for (ProtocolDecl<? extends ProtocolKind> pd : this.protos)
-		{
-			s += "\n" + pd;
-		}
-		return s;
+		return moddecl.toString()
+				+ this.imports.stream().map(id -> "\n" + id).collect(Collectors.joining(""))
+				+ this.data.stream().map(dtd -> "\n" + dtd).collect(Collectors.joining(""))
+				+ this.protos.stream().map(proto -> "\n" + proto).collect(Collectors.joining(""));
 	}
 
 	// ptn simple alias name

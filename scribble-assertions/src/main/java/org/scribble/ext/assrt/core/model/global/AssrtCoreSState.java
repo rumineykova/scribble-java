@@ -31,7 +31,7 @@ import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.type.formula.AssrtUnPredicateFormula;
+import org.scribble.ext.assrt.type.formula.AssrtUnintPredicateFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.util.Z3Wrapper;
@@ -1223,11 +1223,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}*/
 
 		
-		Set<AssrtUnPredicateFormula> preds = Z3Wrapper.getUnintPreds.func.apply(f);  // FIXME: refactor out of Z3Wrapper
+		Set<AssrtUnintPredicateFormula> preds = Z3Wrapper.getUnintPreds.func.apply(f);  // FIXME: refactor out of Z3Wrapper
 		// FIXME: unint-pref currrently has to be a top-level clause (assuming CNF), but should generalise
 		// FIXME: factor out API for unint-funs properly
-		List<AssrtUnPredicateFormula> opens = preds.stream().filter(p -> p.name.toString().equals("open")).collect(Collectors.toList());
-		for (AssrtUnPredicateFormula p : opens)
+		List<AssrtUnintPredicateFormula> opens = preds.stream().filter(p -> p.name.toString().equals("open")).collect(Collectors.toList());
+		for (AssrtUnintPredicateFormula p : opens)
 		{
 			if (p.args.size() != 2)
 			{

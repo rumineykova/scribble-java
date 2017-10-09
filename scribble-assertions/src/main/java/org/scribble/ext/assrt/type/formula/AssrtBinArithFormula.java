@@ -10,7 +10,7 @@ import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 
 // Binary arithmetic
-public class AssrtBinArithFormula extends AssrtArithFormula implements AssrtBinaryFormula<IntegerFormula>
+public class AssrtBinArithFormula extends AssrtArithFormula implements AssrtBinFormula<IntegerFormula>
 {
 	public enum Op
 	{

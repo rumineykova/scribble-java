@@ -13,12 +13,12 @@ import java.util.stream.Stream;
 
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.ext.assrt.main.AssrtJob;
-import org.scribble.ext.assrt.type.formula.AssrtBinaryFormula;
+import org.scribble.ext.assrt.type.formula.AssrtBinFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtQuantifiedIntVarsFormula;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.type.formula.AssrtUnPredicateFormula;
+import org.scribble.ext.assrt.type.formula.AssrtUnintPredicateFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.util.ScribUtil;
 
@@ -92,7 +92,7 @@ public class Z3Wrapper
 				.mapToObj(i -> "(declare-const " + rs.get(i) + " Int)\n(assert (= " + rs.get(i) + " " + i +"))\n").collect(Collectors.joining(""));
 						// FIXME: make a Role sort?
 
-		Set<AssrtUnPredicateFormula> preds = fs.stream().flatMap(f -> getUnintPreds.func.apply(f).stream()).collect(Collectors.toSet());
+		Set<AssrtUnintPredicateFormula> preds = fs.stream().flatMap(f -> getUnintPreds.func.apply(f).stream()).collect(Collectors.toSet());
 		smt2 += preds.stream().map(p -> "(declare-fun " + p.name + " ("
 				+ IntStream.range(0, p.args.size()).mapToObj(i -> ("(Int)")).collect(Collectors.joining(" "))
 				+ ") Bool)\n").collect(Collectors.joining(""));
@@ -107,23 +107,23 @@ public class Z3Wrapper
 				+ "(exit)";
 	}
 
-	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnintPreds  // FIXME: move to utils?
-			= new RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>>()
+	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnintPredicateFormula>>> getUnintPreds  // FIXME: move to utils?
+			= new RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnintPredicateFormula>>>()
 	{{
 		this.func = ff ->
 		{
-			if (ff instanceof AssrtBinaryFormula)
+			if (ff instanceof AssrtBinFormula)
 			{
-				AssrtBinaryFormula<?> bf = (AssrtBinaryFormula<?>) ff;
+				AssrtBinFormula<?> bf = (AssrtBinFormula<?>) ff;
 				return Stream.of(bf.getLeft(), bf.getRight()).flatMap(x -> this.func.apply(x).stream()).collect(Collectors.toSet());
 			}
 			else if (ff instanceof AssrtQuantifiedIntVarsFormula)
 			{
 				return this.func.apply(((AssrtQuantifiedIntVarsFormula) ff).expr);
 			}
-			else if (ff instanceof AssrtUnPredicateFormula)
+			else if (ff instanceof AssrtUnintPredicateFormula)
 			{
-				return Stream.of((AssrtUnPredicateFormula) ff).collect(Collectors.toSet());  // Nested predicates not possible
+				return Stream.of((AssrtUnintPredicateFormula) ff).collect(Collectors.toSet());  // Nested predicates not possible
 			}
 			else
 			{
