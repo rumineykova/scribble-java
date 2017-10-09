@@ -30,7 +30,16 @@ public class Z3Wrapper
 	public static boolean checkSat(AssrtJob job, GProtocolDecl gpd, Set<AssrtBoolFormula> fs) //throws ScribbleException
 	{
 		fs = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE)).collect(Collectors.toSet());
-		return fs.isEmpty() ? true : checkSat(toSmt2(job, gpd, fs));
+		if (fs.isEmpty())
+		{
+			return true;
+		}
+
+		String smt2 = toSmt2(job, gpd, fs);
+
+		job.debugPrintln("\n[assrt-core] Running Z3 on:\n  " + smt2.replaceAll("\\n", "\n  "));
+
+		return checkSat(smt2);
 	}
 
 	// smt2 is the full Z3 source
@@ -92,14 +101,10 @@ public class Z3Wrapper
 			smt2 += "(assert (forall ((p Int) (r Int)) (=> (port p r) (open p r))))\n";
 		}
 		
-		smt2 +=  
-				  fs.stream().map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining())
+		return smt2
+				+ fs.stream().map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining())
 				+ "(check-sat)\n"
 				+ "(exit)";
-		
-		job.debugPrintln("[assrt-core] Running Z3 on:\n  " + smt2.replaceAll("\\n", "\n  "));
-		
-		return smt2;
 	}
 
 	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnPredicateFormula>>> getUnintPreds  // FIXME: move to utils?
