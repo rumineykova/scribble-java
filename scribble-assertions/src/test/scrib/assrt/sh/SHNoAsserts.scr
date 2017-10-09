@@ -1,0 +1,66 @@
+//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/sh/SH.scr -Z3 -ass SH -V 
+
+//$ bin/scribblec.bat scribble-assertions/src/test/scrib/assrt/sh/SH.scr -Z3 -ass SH -ass-fsm P -V 
+
+module assrt.sh.SHNoAsserts;
+
+
+type <dotnet> "System.UInt32" from "..." as int;
+//type <dotnet> "System.String" from "..." as str;
+
+
+// negate assertions, and get-model on conjunction?
+
+
+global protocol SH(role P, role R, role C)
+{
+	plane(x1:int, x2:int, x3:int, x4:int) from P to R;
+	do Loop(P, R, C);
+}
+
+aux global protocol Loop(role P, role R, role C)
+{
+	choice at P
+	{
+		Above(v1:int) from P to R;   
+		Res(b1:int) from R to P;
+		Above(v2:int) from P to R;   
+		Res(b2:int) from R to P;
+		choice at P
+		{
+			BothIn() from P to R;
+			BothIn(r1:int) from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			BothOut() from P to R;
+			BothOut() from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			Intersect() from P to R;
+			Res(i:int) from R to P;
+			choice at P
+			{
+				One(r2:int) from P to C;
+				do Loop(P, R, C);
+			}
+			or
+			{
+				Two(r3:int, r4:int) from P to C;
+				do Loop(P, R, C);
+			}
+		}
+	}
+	or
+	{
+		Close() from P to R;   
+		Close() from P to C;
+	}
+}
+
+
+

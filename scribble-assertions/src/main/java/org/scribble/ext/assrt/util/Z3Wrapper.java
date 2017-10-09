@@ -25,7 +25,14 @@ import org.scribble.util.ScribUtil;
 public class Z3Wrapper
 {
 
-	public static boolean checkSat(String smt2) //throws ScribbleException
+	// Based on CommandLine::runDot, JobContext::runAut, etc
+	public static boolean checkSat(AssrtJob job, GProtocolDecl gpd, Set<AssrtBoolFormula> fs) //throws ScribbleException
+	{
+		return checkSat(toSmt2(job, gpd, fs));
+	}
+
+	// smt2 is the full Z3 source
+	private static boolean checkSat(String smt2) //throws ScribbleException
 	{
 		File tmp;
 		try
@@ -64,14 +71,8 @@ public class Z3Wrapper
 			throw new RuntimeException(e);
 		}
 	}
-
-	// Based on CommandLine::runDot, JobContext::runAut, etc
-	public static boolean checkSat(AssrtJob job, GProtocolDecl gpd, AssrtBoolFormula f) //throws ScribbleException
-	{
-		return checkSat(toSmt2(job, gpd, f));
-	}
 	
-	private static String toSmt2(AssrtJob job, GProtocolDecl gpd, AssrtBoolFormula f)
+	private static String toSmt2(AssrtJob job, GProtocolDecl gpd, Set<AssrtBoolFormula> fs)
 	{
 		String smt2 = "";
 		List<String> rs = gpd.getHeader().roledecls.getRoles().stream().map(Object::toString).sorted().collect(Collectors.toList());
@@ -79,7 +80,7 @@ public class Z3Wrapper
 				.mapToObj(i -> "(declare-const " + rs.get(i) + " Int)\n(assert (= " + rs.get(i) + " " + i +"))\n").collect(Collectors.joining(""));
 						// FIXME: make a Role sort?
 
-		Set<AssrtUnPredicateFormula> preds = getUnintPreds.func.apply(f);
+		Set<AssrtUnPredicateFormula> preds = fs.stream().flatMap(f -> getUnintPreds.func.apply(f).stream()).collect(Collectors.toSet());
 		smt2 += preds.stream().map(p -> "(declare-fun " + p.name + " ("
 				+ IntStream.range(0, p.args.size()).mapToObj(i -> ("(Int)")).collect(Collectors.joining(" "))
 				+ ") Bool)\n").collect(Collectors.joining(""));
@@ -89,7 +90,7 @@ public class Z3Wrapper
 		}
 		
 		smt2 +=  
-				  "(assert " + f.toSmt2Formula() + ")\n"
+				  fs.stream().map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining())
 				+ "(check-sat)\n"
 				+ "(exit)";
 		

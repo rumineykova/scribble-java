@@ -10,6 +10,9 @@ type <dotnet> "System.UInt32" from "..." as int;
 //type <dotnet> "System.String" from "..." as str;
 
 
+// negate assertions, and get-model on conjunction?
+
+
 global protocol SH(role P, role R, role C)
 {
 	plane(x1:int, x2:int, x3:int, x4:int) from P to R;

@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAccept;
@@ -404,7 +405,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			job.debugPrintln("\n[assrt-core] Checking assertion progress for " + e.getKey() + " at " + e.getValue() + "(" + this.id + "):");
 			job.debugPrintln("  squashed = " + f.toSmt2Formula());
 
-			return !((AssrtJob) job).checkSat(simpname, f);
+			return !((AssrtJob) job).checkSat(simpname, Stream.of(f).collect(Collectors.toSet()));
 		}
 		);
 	}
@@ -515,7 +516,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 					job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
 
-					return !((AssrtJob) job).checkSat(simpname, squashed);
+					return !((AssrtJob) job).checkSat(simpname, Stream.of(squashed).collect(Collectors.toSet()));
 				}
 				else if (a instanceof AssrtCoreERequest)
 				{
@@ -792,7 +793,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 				job.debugPrintln("  squashed = " + f.toSmt2Formula());
 
-				return !((AssrtJob) job).checkSat(simpname, f);
+				return !((AssrtJob) job).checkSat(simpname, Stream.of(f).collect(Collectors.toSet()));
 			});
 		}
 		else
@@ -813,7 +814,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 					job.debugPrintln("  squashed = " + f.toSmt2Formula());
 
-					return !((AssrtJob) job).checkSat(simpname, f);
+					return !((AssrtJob) job).checkSat(simpname, Stream.of(f).collect(Collectors.toSet()));
 				});
 			});
 		}

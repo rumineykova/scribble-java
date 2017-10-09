@@ -8,10 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.scribble.main.Job;
 import org.scribble.model.endpoint.actions.ESend;
 import org.scribble.type.name.GProtocolName;
@@ -74,10 +73,11 @@ public class AssrtCoreSModel
 				all.stream().flatMap(s -> s.getRecursionAssertionChecks(job, simpname, this.init).stream())
 					.collect(Collectors.toSet())
 		);
-		String smt2 = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
+		/*String smt2 = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
 					.map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining(""))
 				+ "(check-sat)\n(exit)";
-		if (Z3Wrapper.checkSat(smt2))  // FIXME: won't work for unint-funs without using Z3Wrapper.toSmt2
+		if (Z3Wrapper.checkSat(smt2))*/  // FIXME: won't work for unint-funs without using Z3Wrapper.toSmt2
+		if (((AssrtJob) job).checkSat(simpname, fs))
 		{	
 			asserts     = Collections.emptySet();
 			unsats      = Collections.emptySet();
