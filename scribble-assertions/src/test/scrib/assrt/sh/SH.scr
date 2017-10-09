@@ -10,7 +10,7 @@ type <dotnet> "System.UInt32" from "..." as int;
 //type <dotnet> "System.String" from "..." as str;
 
 
-// negate assertions, and get-model on conjunction?
+// negate assertions, and get-model on conjunction? -- depends on handling unbounds vars/funs (may be satisfiable both ways)
 
 
 global protocol SH(role P, role R, role C)
