@@ -47,10 +47,10 @@ public class SmtpC
 	private static final String HOST = "smtp.cc.ic.ac.uk";
 	private static final int PORT = 25;
 
-	private static final String MAIL_TO = "rhu@doc.ic.ac.uk";
-	private static final String RCPT_FROM = "rhu@doc.ic.ac.uk";
-	private static final String SUBJECT = "subject";
-	private static final String BODY = "body";
+	private static final String MAIL_TO = "rn710@doc.ic.ac.uk";
+	private static final String RCPT_FROM = "rn710@doc.ic.ac.uk";
+	private static final String SUBJECT = "Session Types rock!";
+	private static final String BODY = "Session Types rock";
 	
 	public SmtpC() throws Exception
 	{
@@ -186,15 +186,15 @@ public class SmtpC
 	private void sendMail(Smtp_C_12 s12) throws Exception
 	{
 		s12.send(S, new Rcpt(RCPT_FROM))
-			 .async(S, _250)
-			 .send(S, new Data()) 
-			 .async(S, _354)
-			 .send(S, new Subject(SUBJECT))
-			 .send(S, new DataLine(BODY))
-			 .send(S, new EndOfData())
-			 .receive(S, _250, new Buf<>()) 
-			 .send(S, new Quit())
-			 .receive(S, _221, new Buf<>());
+			.receive(S, _250, new Buf<>())
+			.send(S, new Data())
+			.receive(S, _354, new Buf<>())
+			.send(S, new Subject("Session Types rock!"))
+			.send(S, new DataLine("Hello"))
+			.send(S, new EndOfData())
+			.receive(S, _250, new Buf<>())
+			.send(S, new Quit())
+			.receive(S, _221, new Buf<>());
 	}
 	
 
