@@ -22,7 +22,7 @@ public class Voter
 	{
 		EVoting vp = new EVoting();
 		try (MPSTEndpoint<EVoting, V> se = new MPSTEndpoint<>(vp, EVoting.V, new ObjectStreamFormatter()))
-		{
+		{			
 			se.connect(EVoting.V, SocketChannelEndpoint::new, "localhost", 8888);
 			String name = "my name"; 
 			EVoting_V_1 s1 = new EVoting_V_1(se);
