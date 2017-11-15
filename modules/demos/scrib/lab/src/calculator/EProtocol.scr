@@ -13,7 +13,7 @@ global protocol Calc(role S , role C ) {
 			result(int) from S to C ;
 			continue Loop ;
 		} or {
-			multiply(int, int) from C to S ;
+			multiply(int, int) from S to C;
 			result(int) from S to C ;
 			continue Loop ;
 		} or {
