@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.scribble.ext.assrt.cli.AssrtCommandLine;
 import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
@@ -30,16 +31,24 @@ public class AssrtCoreSModel
 
 	protected AssrtCoreSModel(Map<Role, AssrtEState> E0, AssrtCoreSState init, Map<Integer, AssrtCoreSState> allStates)
 	{
+		AssrtCommandLine.time(null, 95);
+
 		this.E0 = Collections.unmodifiableMap(E0);
 		this.init = init;
 		this.allStates = Collections.unmodifiableMap(allStates);
 
+		AssrtCommandLine.time(null, 96);
+
 		this.reach = getReachabilityMap();
+		AssrtCommandLine.time(null, 97);
 		this.termSets = findTerminalSets();
+		AssrtCommandLine.time(null, 98);
 	}
 	
 	public AssrtCoreSafetyErrors getSafetyErrors(Job job, GProtocolName simpname)  // Maybe refactor simpname (root proto) into the (AssrtCore)Job
 	{
+		AssrtCommandLine.time(null, 10);
+		
 		AssrtJob j = (AssrtJob) job;
 		
 		Collection<AssrtCoreSState> all = this.allStates.values();
@@ -53,8 +62,12 @@ public class AssrtCoreSModel
 		Set<AssrtCoreSState> disconns = Collections.emptySet();  // TODO
 				//this.allStates.values().stream().filter(AssrtCoreSState::isDisconnectedError).collect(Collectors.toSet());
 
+		AssrtCommandLine.time(null, 11);
+
 		Set<AssrtCoreSState> unknownVars = all.stream()
 				.filter(s -> s.isUnknownDataTypeVarError(job, simpname)).collect(Collectors.toSet());
+
+		AssrtCommandLine.time(null, 12);
 
 		Set<AssrtCoreSState> asserts = null;  
 		Set<AssrtCoreSState> unsats = null;   
@@ -100,6 +113,8 @@ public class AssrtCoreSModel
 		
 		/*Set<AssrtCoreSState> portOpens = this.allStates.values().stream().filter(AssrtCoreSState::isPortOpenError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> portOwners = this.allStates.values().stream().filter(AssrtCoreSState::isPortOwnershipError).collect(Collectors.toSet());*/
+
+		AssrtCommandLine.time(null, 13);
 
 		return new AssrtCoreSafetyErrors(recepts, orphans, unfins, conns, unconns, syncs, disconns,
 				unknownVars, asserts, unsats, recasserts);

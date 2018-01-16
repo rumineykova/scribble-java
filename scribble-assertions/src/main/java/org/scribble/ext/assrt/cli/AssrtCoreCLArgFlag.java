@@ -13,4 +13,7 @@ public enum AssrtCoreCLArgFlag
 	// Non-unique flags
 	ASSRT_CORE_EFSM,
 	ASSRT_CORE_EFSM_PNG,
+
+	ASSRT_STP_EFSM,
+	ASSRT_STP_EFSM_PNG,
 }

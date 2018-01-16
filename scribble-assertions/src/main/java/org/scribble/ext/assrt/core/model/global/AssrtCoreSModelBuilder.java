@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.scribble.ext.assrt.cli.AssrtCommandLine;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.model.global.SModelFactory;
@@ -35,7 +36,10 @@ public class AssrtCoreSModelBuilder  // SModel is a wrapper for SGraph with mode
 		todo.add(init);
 		
 		while (!todo.isEmpty())
+		//for (int zz = 0; !todo.isEmpty(); zz++)
 		{
+			//System.err.print(zz + " ");
+				
 			Iterator<AssrtCoreSState> i = todo.iterator();
 			AssrtCoreSState curr = i.next();
 			i.remove();
@@ -103,6 +107,10 @@ public class AssrtCoreSModelBuilder  // SModel is a wrapper for SGraph with mode
 			}
 		}
 		
-		return new AssrtCoreSModel(E0, init, seen);
+		AssrtCommandLine.time(null, 93);
+		AssrtCoreSModel res = new AssrtCoreSModel(E0, init, seen);
+		AssrtCommandLine.time(null, 94);
+		
+		return res;
 	}
 }

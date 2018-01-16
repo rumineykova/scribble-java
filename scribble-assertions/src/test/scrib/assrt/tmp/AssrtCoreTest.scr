@@ -97,18 +97,118 @@ type <dotnet> "System.String" from "..." as str;
 */
 
 
-global protocol Proto1(role A, role B)
+global protocol Proto1(role A, role B, role C)
 {
-	1(x:int) from A to B;   @"x>3"
+	1(x:int) from A to B;  @"x>3"
+	choice at A
+	{
+		2(int) from A to B;  @"x>5"
+
+		//3(int) from A to C;  @"x>6"  // Bad  // TODO add as unit test
+		3(int) from A to C;  @"x>4"  // OK
+	}
+	or
+	{
+		4(int) from A to B;
+		5(int) from A to C;
+	}
+}
+
+
+
+/*
+global protocol P1(role A, role B, role C)
+{
+	1(x:int) from A to C;
+	2(y:int) from B to C;  @"y>x"
+
+	//2(y:int) from C to B;  @"y>x"  // FIXME: paper definition
+}
+
+global protocol P2(role A, role B)
+{
+	1(x:int) from A to B;  @"x>3"
 	choice at B
+	{
+		2() from B to A;
+	}
+	or
+	{
+		3(y:int) from B to A; @"((y > (x + 1)) && y < 4)"
+	}
+}
+
+global protocol P3(role A, role B, role C)
+{
+	1(x : int) from A to B; @"x > 3"
+	2(y : int) from C to B; //@"(y<3 || y=3)"//"!(y=3)"//@"True"
+	choice at B
+	{
+		3() from B to A; @"x < y"
+	}
+	or
+	{
+		4() from B to A; @"x > y"
+	}
+}
+//*/
+
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	/*1(x : int) from A to B; @"x > 3"
+	choice at B
+	{
+		2() from B to A; @"True"
+	}
+	or
+	{
+		3(y : int) from B to A; @"((y > (x + 1)) && y < 4)"
+	}*/
+	
+	/*1(x : int) from A to B; @"x > 3"
+	2(y : int) from C to B; @"True"
+	choice at B
+	{
+		3() from B to A; @"x < y"
+	}
+	or
+	{
+		4() from B to A; @"y > x"
+	}* /
+	
+	1(x:int) from A to B;  @"x>3"
+	2(y:int) from A to C;  @"y>x"
+
+
+
+
+	/*0(z:int) from B to A;   @"(z>3)"
+	choice at A
+	{
+		1(x:int) from A to B;   @"(x>3)"
+	}
+	or
+	{
+		2(y:int) from A to B;   @"(y>3)"
+	}*/
+		
+	
+	
+	
+	/*choice at B
 	{
 		2(y:int) from B to A;   @"y=x && y>3"
 	}
 	or
 	{
 		3(z:int) from B to A;   @"z=x && z<3"
-	}
+	}* /
 }
+//*/
+
 
 /*
 assert f(x:int) bool = "x";  

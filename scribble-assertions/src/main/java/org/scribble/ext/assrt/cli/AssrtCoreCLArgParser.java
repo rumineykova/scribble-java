@@ -20,6 +20,9 @@ public class AssrtCoreCLArgParser extends CLArgParser
 	// Non-unique flags
 	public static final String ASSRT_CORE_EFSM_FLAG      = "-ass-fsm";
 	public static final String ASSRT_CORE_EFSM_PNG_FLAG  = "-ass-fsmpng";
+
+	public static final String ASSRT_STP_EFSM_FLAG      = "-stp-fsm";
+	public static final String ASSRT_STP_EFSM_PNG_FLAG  = "-stp-fsmpng";
 	
 	private static final Map<String, AssrtCoreCLArgFlag> ASSRT_CORE_UNIQUE_FLAGS = new HashMap<>();
 	{
@@ -34,6 +37,8 @@ public class AssrtCoreCLArgParser extends CLArgParser
 	{
 		AssrtCoreCLArgParser.ASSRT_CORE_NON_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_EFSM_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_EFSM);
 		AssrtCoreCLArgParser.ASSRT_CORE_NON_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_CORE_EFSM_PNG_FLAG, AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG);
+		AssrtCoreCLArgParser.ASSRT_CORE_NON_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_STP_EFSM_FLAG, AssrtCoreCLArgFlag.ASSRT_STP_EFSM);
+		AssrtCoreCLArgParser.ASSRT_CORE_NON_UNIQUE_FLAGS.put(AssrtCoreCLArgParser.ASSRT_STP_EFSM_PNG_FLAG, AssrtCoreCLArgFlag.ASSRT_STP_EFSM_PNG);
 	}
 
 	private static final Map<String, AssrtCoreCLArgFlag> ASSRT_CORE_FLAGS = new HashMap<>();
@@ -93,6 +98,9 @@ public class AssrtCoreCLArgParser extends CLArgParser
 			
 			case AssrtCoreCLArgParser.ASSRT_CORE_EFSM_FLAG:     return assrtCoreParseRoleArg(flag, i);
 			case AssrtCoreCLArgParser.ASSRT_CORE_EFSM_PNG_FLAG: return assrtCoreParseRoleAndFileArgs(flag, i);
+
+			case AssrtCoreCLArgParser.ASSRT_STP_EFSM_FLAG:      return assrtCoreParseRoleArg(flag, i);
+			case AssrtCoreCLArgParser.ASSRT_STP_EFSM_PNG_FLAG:  return assrtCoreParseRoleAndFileArgs(flag, i);
 			
 			
 			// Base CL
