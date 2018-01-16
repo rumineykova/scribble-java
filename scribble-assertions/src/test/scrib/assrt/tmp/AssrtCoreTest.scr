@@ -97,6 +97,16 @@ type <dotnet> "System.String" from "..." as str;
 */
 
 
+//*
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B;
+	2(y:int) from A to B;  @"x=y"
+}
+//*/
+
+
+/*
 global protocol Proto1(role A, role B, role C)
 {
 	1(x:int) from A to B;  @"x>3"
@@ -113,6 +123,7 @@ global protocol Proto1(role A, role B, role C)
 		5(int) from A to C;
 	}
 }
+//*/
 
 
 

@@ -14,8 +14,8 @@ import org.scribble.ext.assrt.core.model.stp.action.AssrtStpESend;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactoryImpl;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.type.Payload;
 import org.scribble.type.name.MessageId;
 import org.scribble.type.name.RecVar;
@@ -64,14 +64,14 @@ public class AssrtCoreEModelFactoryImpl extends AssrtEModelFactoryImpl implement
 
 	@Override
 	public AssrtStpESend newAssrtStpESend(Role peer, MessageId<?> mid, Payload payload,
-			Map<AssrtDataTypeVar, AssrtSmtFormula<?>> sigma, AssrtBoolFormula A)
+			Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma, AssrtBoolFormula A)
 	{
 		return new AssrtStpESend(this, peer, mid, payload, sigma, A);
 	}
 
 	@Override
 	public AssrtStpEReceive newAssrtStpEReceive(Role peer, MessageId<?> mid, Payload payload,
-			Map<AssrtDataTypeVar, AssrtSmtFormula<?>> sigma, AssrtBoolFormula A)
+			Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma, AssrtBoolFormula A)
 	{
 		return new AssrtStpEReceive(this, peer, mid, payload, sigma, A);
 	}

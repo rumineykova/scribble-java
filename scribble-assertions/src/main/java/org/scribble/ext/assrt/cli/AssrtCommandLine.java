@@ -215,7 +215,6 @@ public class AssrtCommandLine extends CommandLine
 			throw new AssrtCoreSyntaxException("[assrt-core] Repeat data type annotation variable declarations not allowed: " + dups);
 		}
 
-		Map<Role, AssrtCoreLType> P0 = new HashMap<>();
 		for (Role r : gpd.header.roledecls.getRoles())
 		{
 			AssrtCoreLType lt = gt.project(af, r, AssrtTrueFormula.TRUE);
@@ -264,6 +263,7 @@ public class AssrtCommandLine extends CommandLine
 		
 	// HACK: store in (Core) Job/JobContext?
 	protected GProtocolDecl gpd;
+	protected Map<Role, AssrtCoreLType> P0 = new HashMap<>();
 	protected Map<Role, AssrtEState> E0;  // There is no core version
 	protected AssrtCoreSModel model;
 
@@ -271,6 +271,16 @@ public class AssrtCommandLine extends CommandLine
 	@Override
 	protected void tryOutputTasks(Job job) throws CommandLineException, ScribbleException
 	{
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_PROJECT))
+		{
+			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_PROJECT);
+			for (int i = 0; i < args.length; i += 1)
+			{
+				Role role = CommandLine.checkRoleArg(job.getContext(), gpd.getHeader().getDeclName(), args[i]);
+				String out = P0.get(role).toString();
+				System.out.println("\n" + out);  // Endpoint graphs are "inlined" (a single graph is built)
+			}
+		}
 		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM))
 		{
 			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM);

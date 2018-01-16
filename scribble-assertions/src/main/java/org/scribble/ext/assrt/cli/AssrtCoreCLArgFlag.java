@@ -11,6 +11,8 @@ public enum AssrtCoreCLArgFlag
 	ASSRT_CORE_BATCHING,
 	
 	// Non-unique flags
+	ASSRT_CORE_PROJECT,
+
 	ASSRT_CORE_EFSM,
 	ASSRT_CORE_EFSM_PNG,
 

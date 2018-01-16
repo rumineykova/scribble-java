@@ -8,8 +8,8 @@ import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.model.endpoint.EModelFactory;
 import org.scribble.model.global.SModelFactory;
 import org.scribble.type.Payload;
@@ -18,11 +18,11 @@ import org.scribble.type.name.Role;
 
 public class AssrtStpESend extends AssrtCoreESend implements AssrtStpEAction
 {
-	public final Map<AssrtDataTypeVar, AssrtSmtFormula<?>> sigma;
+	public final Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma;
 	public final AssrtBoolFormula A;  // aliases this.ass
 
 	public AssrtStpESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, 
-		Map<AssrtDataTypeVar, AssrtSmtFormula<?>> sigma, AssrtBoolFormula A)
+		Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma, AssrtBoolFormula A)
 	{
 		super(ef, peer, mid, payload, A, Collections.emptyList());
 		this.sigma = Collections.unmodifiableMap(sigma);
@@ -30,7 +30,7 @@ public class AssrtStpESend extends AssrtCoreESend implements AssrtStpEAction
 	}
 
 	@Override
-	public Map<AssrtDataTypeVar, AssrtSmtFormula<?>> getSigma()
+	public Map<AssrtIntVarFormula, AssrtSmtFormula<?>> getSigma()
 	{
 		return this.sigma;
 	}

@@ -14,8 +14,8 @@ import org.scribble.ext.assrt.core.model.stp.action.AssrtStpESend;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.type.Payload;
 import org.scribble.type.name.MessageId;
 import org.scribble.type.name.RecVar;
@@ -37,7 +37,7 @@ public interface AssrtCoreEModelFactory extends AssrtEModelFactory
 	
 	AssrtStpEState newAssertStpEState(Set<RecVar> labs);
 	AssrtStpESend newAssrtStpESend(Role peer, MessageId<?> mid, Payload payload, 
-			Map<AssrtDataTypeVar, AssrtSmtFormula<?>> sigma, AssrtBoolFormula A);
+			Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma, AssrtBoolFormula A);
 	AssrtStpEReceive newAssrtStpEReceive(Role peer, MessageId<?> mid, Payload payload,
-			Map<AssrtDataTypeVar, AssrtSmtFormula<?>> sigma, AssrtBoolFormula A);
+			Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma, AssrtBoolFormula A);
 }
