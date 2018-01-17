@@ -396,7 +396,7 @@ public class AssrtCommandLine extends CommandLine
 
 	public static <T> T time(T t, int i)
 	{
-		System.err.println(i + ": " + System.currentTimeMillis());
+		//System.err.println(i + ": " + System.currentTimeMillis());
 		return t;
 	}
 }

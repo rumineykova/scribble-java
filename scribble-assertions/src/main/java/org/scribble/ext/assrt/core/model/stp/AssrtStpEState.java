@@ -140,8 +140,8 @@ public class AssrtStpEState extends AssrtEState
 					-- WF property: if x is *used* at any state, it must be *necessarily* known at that state
 			...  // fill sigma, update A*/
 					
-					A = A.getCnf();
-					List<AssrtBoolFormula> cs = AssrtBinBoolFormula.getCnfClauses(A);
+			A = A.getCnf();
+			List<AssrtBoolFormula> cs = AssrtBinBoolFormula.getCnfClauses(A);
 			
 			List<PayloadElemType<?>> tmp = new LinkedList<>();
 			for (PayloadElemType<?> pet : ea.payload.elems)
@@ -149,32 +149,36 @@ public class AssrtStpEState extends AssrtEState
 				boolean constructive = false;
 				if (pet instanceof AssrtPayloadElemType<?>)
 				{
-					//AssrtPayloadElemType<?> apet = (AssrtPayloadElemType<?>) pet;
+					// AssrtPayloadElemType<?> apet = (AssrtPayloadElemType<?>) pet;
 
 					for (AssrtBoolFormula c : cs)
-							{
-								 if (!(c instanceof AssrtBinCompFormula)) 
-								 {
-									 continue;
-								 }
-						AssrtBinCompFormula f = (AssrtBinCompFormula) c;
-						//if (f.op == AssrtBinCompFormula.Op.Eq)
-						if (vs.stream().anyMatch(v -> v.toString().equals(f.left.toString())))
+					{
+						if (!(c instanceof AssrtBinCompFormula))
 						{
-							sigma.put((AssrtIntVarFormula) f.left, f.right);
-							constructive = true;
-							cs.remove(c);
-							break;
+							continue;
 						}
-						else if (vs.stream().anyMatch(v -> v.toString().equals(f.right.toString())))
+						AssrtBinCompFormula f = (AssrtBinCompFormula) c;
+						System.out.println("aaa: " + f);
+						if (f.op == AssrtBinCompFormula.Op.Eq)
 						{
-							sigma.put((AssrtIntVarFormula) f.right, f.left);
-							constructive = true;
-							cs.remove(c);
-							break;
+							if (vs.stream().anyMatch(v -> v.toString().equals(f.right.toString())))
+							{
+								sigma.put((AssrtIntVarFormula) f.left, f.right);
+								constructive = true;
+								cs.remove(c);
+								break;
+							}
+							else if (vs.stream().anyMatch(v -> v.toString().equals(f.left.toString())))
+							{
+								sigma.put((AssrtIntVarFormula) f.right, f.left);
+								constructive = true;
+								cs.remove(c);
+								break;
+							}
 						}
 					}
 				}
+
 				if (constructive)
 				{
 					if (cs.isEmpty())

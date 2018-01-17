@@ -3,6 +3,7 @@ package org.scribble.ext.assrt.core.model.stp.action;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReceive;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSReceive;
@@ -56,7 +57,8 @@ public class AssrtStpEReceive extends AssrtCoreEReceive implements AssrtStpEActi
 	@Override
 	public String toString()
 	{
-		return this.obj + getCommSymbol() + this.mid + this.payload + "; " + this.sigma + "; " + this.A;
+		return this.obj + getCommSymbol() + this.mid + this.payload + "@\"" + this.A + "\""
+				+ (this.sigma.isEmpty() ? "" : "{" + this.sigma.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.joining("")) + "}");
 	}
 	
 	@Override

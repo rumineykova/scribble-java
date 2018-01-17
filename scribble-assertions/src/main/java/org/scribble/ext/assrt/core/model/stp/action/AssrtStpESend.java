@@ -3,6 +3,7 @@ package org.scribble.ext.assrt.core.model.stp.action;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
@@ -59,10 +60,12 @@ public class AssrtStpESend extends AssrtCoreESend implements AssrtStpEAction
 		throw new RuntimeException("Shouldn't get in here: " + this);
 	}
 	
+	//[ label="C|HELLO(x: int)@\"(x > 5)\"{x:y+1}" ];
 	@Override
 	public String toString()
 	{
-		return this.obj + getCommSymbol() + this.mid + this.payload + "; " + this.sigma + "; " + this.A;
+		return this.obj + getCommSymbol() + this.mid + this.payload + "@\"" + this.A + "\""
+				+ (this.sigma.isEmpty() ? "" : "{" + this.sigma.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.joining("")) + "}");
 	}
 	
 	@Override
