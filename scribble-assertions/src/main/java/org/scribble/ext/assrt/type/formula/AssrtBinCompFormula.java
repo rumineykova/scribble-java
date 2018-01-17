@@ -59,6 +59,24 @@ public class AssrtBinCompFormula extends AssrtBoolFormula implements AssrtBinFor
 	}
 
 	@Override
+	public AssrtBoolFormula getCnf()
+	{
+		return this;
+	}
+
+	@Override
+	public boolean isNF(AssrtBinBoolFormula.Op op)
+	{
+		return true;
+	}
+
+	@Override
+	public boolean hasOp(AssrtBinBoolFormula.Op op)
+	{
+		return false;
+	}
+
+	@Override
 	//public AssrtBinCompFormula squash()
 	public AssrtBoolFormula squash()  // For True
 	{

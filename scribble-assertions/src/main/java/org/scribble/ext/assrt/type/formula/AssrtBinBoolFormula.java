@@ -1,6 +1,8 @@
 package org.scribble.ext.assrt.type.formula;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
@@ -52,6 +54,113 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 			throw new RuntimeException("[assrt] Shouldn't get in here: " + op);
 		}*/
 	}
+
+	@Override
+	public AssrtBoolFormula getCnf()
+	{
+		switch (this.op)
+		{
+			case And:
+			{
+				AssrtBoolFormula l = this.left.getCnf();
+				AssrtBoolFormula r = this.right.getCnf();
+				return AssrtFormulaFactory.AssrtBinBool(Op.And, l, r);
+			}
+			case Imply:
+			{
+				throw new RuntimeException("[assrt-core] TODO: " + this);
+			}
+			case Or:
+			{
+				if (this.left.hasOp(Op.And))
+				{
+					List<AssrtBoolFormula> fs = getCnfClauses(this.left.getCnf());
+					AssrtBinBoolFormula res = fs.stream().map(f -> AssrtFormulaFactory.AssrtBinBool(Op.Or, f, this.right))
+							.reduce((f1, f2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f1, f2)).get();
+					return res.getCnf();
+				}
+				else if (this.right.hasOp(Op.And))  // FIXME: factor out with above
+				{
+					List<AssrtBoolFormula> fs = getCnfClauses(this.right.getCnf());
+					AssrtBinBoolFormula res = fs.stream().map(f -> AssrtFormulaFactory.AssrtBinBool(Op.Or, this.left, f))
+							.reduce((f1, f2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f1, f2)).get();
+					return res.getCnf();
+				}
+				else
+				{
+					return this;
+				}
+			}
+			default:
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
+			}
+		}
+	}
+
+	private List<AssrtBoolFormula> getCnfClauses(AssrtBoolFormula f)
+	{
+		List<AssrtBoolFormula> fs = new LinkedList<>();
+		while (f instanceof AssrtBinBoolFormula)
+		{
+			AssrtBinBoolFormula c = (AssrtBinBoolFormula) f;
+			if (c.op != Op.And)
+			{
+				break;
+			}
+			fs.add(c.left);
+			f = c.right;
+		}
+		fs.add(f);
+		return fs;
+	}
+	
+	//public boolean isDisjunction()
+	public boolean isNF(AssrtBinBoolFormula.Op top)
+	{
+		if (this.op == top)
+		{
+			return this.left.isNF(top) && this.right.isNF(top);
+		}
+		else
+		{
+			return !this.left.hasOp(top) && !this.right.hasOp(top);
+		}
+	}
+
+	@Override
+	public boolean hasOp(AssrtBinBoolFormula.Op op)
+	{
+		return (this.op == op) || this.left.hasOp(op) || this.right.hasOp(op);
+	}
+
+	/*@Override
+	public AssrtBoolFormula getDisjunction()
+	{
+		switch (this.op)
+		{
+			case And:
+			{
+				AssrtBoolFormula l = this.left.getCnf();
+				AssrtBoolFormula r = this.right.getCnf();
+				return AssrtFormulaFactory.AssrtBinBool(Op.And, l, r);
+			}
+			case Imply:
+			{
+				throw new RuntimeException("[assrt-core] TODO: " + this);
+			}
+			case Or:
+			{
+				AssrtBoolFormula l = this.left.getCnf();
+				AssrtBoolFormula r = this.right.getCnf();
+				return AssrtFormulaFactory.AssrtBinBool(Op.And, l, r);
+			}
+			default:
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
+			}
+		}
+	}*/
 	
 	@Override
 	public AssrtBoolFormula squash()

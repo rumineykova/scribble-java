@@ -102,7 +102,7 @@ public class AssrtStpEState extends AssrtEState
 						}
 						else
 						{
-							throw new RuntimeException("TODO: " + pet);
+							throw new RuntimeException("[assrt-core] TODO: " + pet);
 						}
 					}
 				}
@@ -125,7 +125,7 @@ public class AssrtStpEState extends AssrtEState
 		}
 		else
 		{
-			throw new RuntimeException("Shouldn't get in here: " + a);
+			throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
 		}
 	}
 
