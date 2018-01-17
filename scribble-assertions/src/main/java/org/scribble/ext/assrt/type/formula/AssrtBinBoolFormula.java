@@ -97,23 +97,6 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 			}
 		}
 	}
-
-	private List<AssrtBoolFormula> getCnfClauses(AssrtBoolFormula f)
-	{
-		List<AssrtBoolFormula> fs = new LinkedList<>();
-		while (f instanceof AssrtBinBoolFormula)
-		{
-			AssrtBinBoolFormula c = (AssrtBinBoolFormula) f;
-			if (c.op != Op.And)
-			{
-				break;
-			}
-			fs.add(c.left);
-			f = c.right;
-		}
-		fs.add(f);
-		return fs;
-	}
 	
 	//public boolean isDisjunction()
 	public boolean isNF(AssrtBinBoolFormula.Op top)
@@ -319,5 +302,22 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 		hash = 31 * hash + this.left.hashCode();
 		hash = 31 * hash + this.right.hashCode();
 		return hash;
+	}
+
+	public static List<AssrtBoolFormula> getCnfClauses(AssrtBoolFormula f)
+	{
+		List<AssrtBoolFormula> fs = new LinkedList<>();
+		while (f instanceof AssrtBinBoolFormula)
+		{
+			AssrtBinBoolFormula c = (AssrtBinBoolFormula) f;
+			if (c.op != Op.And)
+			{
+				break;
+			}
+			fs.add(c.left);
+			f = c.right;
+		}
+		fs.add(f);
+		return fs;
 	}
 }

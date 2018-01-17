@@ -19,8 +19,10 @@ import org.scribble.ext.assrt.core.model.stp.action.AssrtStpEAction;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpEReceive;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpESend;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
+import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
@@ -137,6 +139,9 @@ public class AssrtStpEState extends AssrtEState
 			/*... add known vars to AssrtStpEState (but don't use in hash) -- or just collect them alongside the build-traversal
 					-- WF property: if x is *used* at any state, it must be *necessarily* known at that state
 			...  // fill sigma, update A*/
+					
+					A = A.getCnf();
+					List<AssrtBoolFormula> cs = AssrtBinBoolFormula.getCnfClauses(A);
 			
 			List<PayloadElemType<?>> tmp = new LinkedList<>();
 			for (PayloadElemType<?> pet : ea.payload.elems)
@@ -145,27 +150,41 @@ public class AssrtStpEState extends AssrtEState
 				if (pet instanceof AssrtPayloadElemType<?>)
 				{
 					//AssrtPayloadElemType<?> apet = (AssrtPayloadElemType<?>) pet;
-					if (A instanceof AssrtBinCompFormula)
-					{
-						AssrtBinCompFormula f = (AssrtBinCompFormula) A;
-						if (f.op == AssrtBinCompFormula.Op.Eq)
+
+					for (AssrtBoolFormula c : cs)
+							{
+								 if (!(c instanceof AssrtBinCompFormula)) 
+								 {
+									 continue;
+								 }
+						AssrtBinCompFormula f = (AssrtBinCompFormula) c;
+						//if (f.op == AssrtBinCompFormula.Op.Eq)
+						if (vs.stream().anyMatch(v -> v.toString().equals(f.left.toString())))
 						{
-							if (vs.stream().anyMatch(v -> v.toString().equals(f.left.toString())))
-							{
-								sigma.put((AssrtIntVarFormula) f.left, f.right);
-								constructive = true;
-							}
-							else if (vs.stream().anyMatch(v -> v.toString().equals(f.right.toString())))
-							{
-								sigma.put((AssrtIntVarFormula) f.right, f.left);
-								constructive = true;
-							}
+							sigma.put((AssrtIntVarFormula) f.left, f.right);
+							constructive = true;
+							cs.remove(c);
+							break;
+						}
+						else if (vs.stream().anyMatch(v -> v.toString().equals(f.right.toString())))
+						{
+							sigma.put((AssrtIntVarFormula) f.right, f.left);
+							constructive = true;
+							cs.remove(c);
+							break;
 						}
 					}
 				}
 				if (constructive)
 				{
-					A = AssrtTrueFormula.TRUE;
+					if (cs.isEmpty())
+					{
+						A = AssrtTrueFormula.TRUE;
+					}
+					else
+					{
+						A = cs.stream().reduce((f1, f2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f1, f2)).get();
+					}
 				}
 				else
 				{

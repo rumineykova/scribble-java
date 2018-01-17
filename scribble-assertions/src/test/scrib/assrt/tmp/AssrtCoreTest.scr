@@ -97,14 +97,19 @@ type <dotnet> "System.String" from "..." as str;
 */
 
 
-//*
+/*
 global protocol Proto1(role A, role B)
 {
-	//1(x:int) from A to B;  @"x>1 || (x>2 && x>3)"
+	//1(x:int) from A to B;  @"x>1 || (x>2 && x>3)"  // Testing CNF
 
-	1(x:int) from A to B;  @"(x>1 && x>2) || x>3"
+	//1(x:int) from A to B;  @"(x>1 && x>2) || x>3"
+}
+//*/
 
-	//2(y:int) from A to B;
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B;
+	2(y:int) from A to B;  @"y=x && x=x"
 }
 //*/
 
