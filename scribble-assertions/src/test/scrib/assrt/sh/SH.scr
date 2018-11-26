@@ -15,7 +15,7 @@ type <dotnet> "System.UInt32" from "..." as int;
 
 global protocol SH(role P, role R, role C)
 {
-	plane(x1:int, x2:int, x3:int, x4:int) from P to R;
+	Plane(x1:int, x2:int, x3:int, x4:int) from P to R;
 	do Loop(P, R, C);
 }
 
@@ -23,9 +23,9 @@ aux global protocol Loop(role P, role R, role C)
 {
 	choice at P
 	{
-		Above(v1:int) from P to R;   
+		IsAbove(v1:int) from P to R;   
 		Res(b1:int) from R to P;                    @"b1=0 || b1=1"
-		Above(v2:int) from P to R;   
+		IsAbove(v2:int) from P to R;   
 		Res(b2:int) from R to P;                    @"b2=0 || b2=1"
 		choice at P
 		{
@@ -41,16 +41,16 @@ aux global protocol Loop(role P, role R, role C)
 		}
 		or
 		{
-			Intersect() from P to R;                  @"(b1=1 && b2=0) || (b1=0 && b2=1)"
+			Intrsct() from P to R;                  @"(b1=1 && b2=0) || (b1=0 && b2=1)"
 			Res(i:int) from R to P;
 			choice at P
 			{
-				One(r2:int) from P to C;                @"b2=0 && r2=i"
+				SecOut(r2:int) from P to C;                @"b2=0 && r2=i"
 				do Loop(P, R, C);
 			}
 			or
 			{
-				Two(r3:int, r4:int) from P to C;        @"b2=1 && (r3=i && r4=v2)"
+				SecIn(r3:int, r4:int) from P to C;        @"b2=1 && (r3=i && r4=v2)"
 				do Loop(P, R, C);
 			}
 		}

@@ -16,4 +16,9 @@ public abstract class AssrtBoolFormula extends AssrtSmtFormula<BooleanFormula>
 
 	@Override
 	public abstract AssrtBoolFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu);
+	
+	public abstract AssrtBoolFormula getCnf();
+	@Deprecated
+	public abstract boolean isNF(AssrtBinBoolFormula.Op top);
+	public abstract boolean hasOp(AssrtBinBoolFormula.Op op);
 }

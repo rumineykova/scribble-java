@@ -15,6 +15,24 @@ public class AssrtForallIntVarsFormula extends AssrtQuantifiedIntVarsFormula
 	{
 		super(vars, expr);
 	}
+
+	@Override
+	public AssrtBoolFormula getCnf()
+	{
+		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
+	}
+
+	@Override
+	public boolean isNF(AssrtBinBoolFormula.Op op)
+	{
+		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
+	}
+
+	@Override
+	public boolean hasOp(AssrtBinBoolFormula.Op op)
+	{
+		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
+	}
 	
 	@Override
 	public AssrtBoolFormula squash()

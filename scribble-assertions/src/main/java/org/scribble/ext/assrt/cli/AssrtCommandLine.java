@@ -19,9 +19,11 @@ import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGType;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEGraphBuilder;
+import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModel;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelBuilder;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSafetyErrors;
+import org.scribble.ext.assrt.core.model.stp.AssrtStpEState;
 import org.scribble.ext.assrt.main.AssrtException;
 import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.main.AssrtJob.Solver;
@@ -49,10 +51,13 @@ public class AssrtCommandLine extends CommandLine
 	{
 		this(new AssrtCoreCLArgParser(args));
 	}
-
+	
 	private AssrtCommandLine(AssrtCoreCLArgParser p) throws CommandLineException
 	{
-		super(p);  // calls p.parse()
+		//super(p);  // calls p.parse()
+
+		super(time(p, 0));  // calls p.parse()
+
 		if (this.args.containsKey(CLArgFlag.INLINE_MAIN_MOD))
 		{
 			// FIXME: should be fine
@@ -63,6 +68,8 @@ public class AssrtCommandLine extends CommandLine
 		{
 			throw new CommandLineException("No main module has been specified\r\n");
 		}
+		
+		time(null, 1);
 
 		this.assrtCoreArgs = p.getAssrtArgs();
 	}
@@ -113,6 +120,8 @@ public class AssrtCommandLine extends CommandLine
 	{
 		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE))  // assrt-*core* mode
 		{
+			time(null, 2);
+
 			doAssrtCoreValidationTasks((AssrtJob) job);
 		}
 		else
@@ -129,7 +138,11 @@ public class AssrtCommandLine extends CommandLine
 
 		}*/
 
+		time(null, 3);
+		
 		assrtCorePreContextBuilding(j);
+
+		time(null, 4);
 
 		GProtocolName simpname = new GProtocolName(this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE)[0]);
 		if (simpname.toString().equals("[AssrtCoreAllTest]"))  // HACK: AssrtCoreAllTest
@@ -173,6 +186,8 @@ public class AssrtCommandLine extends CommandLine
 	// Pre: assrtPreContextBuilding(job)
 	private void assrtCoreParseAndCheckWF(AssrtJob job, GProtocolName simpname) throws AssrtCoreSyntaxException, ScribbleException, ScribParserException, CommandLineException
 	{
+		time(null, 5);
+
 		Module main = job.getContext().getMainModule();
 		if (!main.hasProtocolDecl(simpname))
 		{
@@ -188,6 +203,7 @@ public class AssrtCommandLine extends CommandLine
 		(in base, inlining of global is only for global level (syntactic) checks -- model checking is done from the separately inlined locals -- inlined global is also for "extensions" like this one and f17)
 		-- does inlining->projection give the same as "base projection"->inlining?*/
 		
+		time(null, 6);
 		job.debugPrintln("\n[assrt-core] Translated:\n  " + gt);
 		
 		List<AssrtDataTypeVar> adts = gt.collectAnnotDataTypeVarDecls().stream().map(v -> v.var).collect(Collectors.toList());
@@ -199,7 +215,6 @@ public class AssrtCommandLine extends CommandLine
 			throw new AssrtCoreSyntaxException("[assrt-core] Repeat data type annotation variable declarations not allowed: " + dups);
 		}
 
-		Map<Role, AssrtCoreLType> P0 = new HashMap<>();
 		for (Role r : gpd.header.roledecls.getRoles())
 		{
 			AssrtCoreLType lt = gt.project(af, r, AssrtTrueFormula.TRUE);
@@ -207,6 +222,7 @@ public class AssrtCommandLine extends CommandLine
 
 			job.debugPrintln("\n[assrt-core] Projected onto " + r + ":\n  " + lt);
 		}
+		time(null, 7);
 
 		AssrtCoreEGraphBuilder builder = new AssrtCoreEGraphBuilder(job);
 		this.E0 = new HashMap<>();
@@ -218,8 +234,11 @@ public class AssrtCommandLine extends CommandLine
 			
 			job.debugPrintln("\n[assrt-core] Built endpoint graph for " + r + ":\n" + g.toDot());
 		}
+		time(null, 8);
 				
 		assrtCoreValidate(job, simpname, gpd.isExplicitModifier());//, this.E0);  // TODO
+
+		time(null, 100);
 
 		/*if (!job.fair)
 		{
@@ -244,6 +263,7 @@ public class AssrtCommandLine extends CommandLine
 		
 	// HACK: store in (Core) Job/JobContext?
 	protected GProtocolDecl gpd;
+	protected Map<Role, AssrtCoreLType> P0 = new HashMap<>();
 	protected Map<Role, AssrtEState> E0;  // There is no core version
 	protected AssrtCoreSModel model;
 
@@ -251,6 +271,16 @@ public class AssrtCommandLine extends CommandLine
 	@Override
 	protected void tryOutputTasks(Job job) throws CommandLineException, ScribbleException
 	{
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_PROJECT))
+		{
+			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_PROJECT);
+			for (int i = 0; i < args.length; i += 1)
+			{
+				Role role = CommandLine.checkRoleArg(job.getContext(), gpd.getHeader().getDeclName(), args[i]);
+				String out = P0.get(role).toString();
+				System.out.println("\n" + out);  // Endpoint graphs are "inlined" (a single graph is built)
+			}
+		}
 		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM))
 		{
 			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM);
@@ -282,13 +312,41 @@ public class AssrtCommandLine extends CommandLine
 			String png = arg[0];
 			runDot(model.toDot(), png);
 		}
+
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_STP_EFSM))
+		{
+			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_STP_EFSM);
+			for (int i = 0; i < args.length; i += 1)
+			{
+				Role role = CommandLine.checkRoleArg(job.getContext(), gpd.getHeader().getDeclName(), args[i]);
+				AssrtStpEState init = AssrtStpEState.from((AssrtCoreEModelFactory) job.ef, E0.get(role));
+				String out = init.toDot();
+				System.out.println("\n" + out);  // Endpoint graphs are "inlined" (a single graph is built)
+			}
+		}
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG))
+		{
+			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG);
+			for (int i = 0; i < args.length; i += 2)
+			{
+				Role role = CommandLine.checkRoleArg(job.getContext(), gpd.getHeader().getDeclName(), args[i]);
+				String png = args[i+1];
+				AssrtStpEState init = AssrtStpEState.from((AssrtCoreEModelFactory) job.ef, E0.get(role));
+				String out = init.toDot();
+				runDot(out, png);
+			}
+		}
 	}
 
 	private void assrtCoreValidate(Job job, GProtocolName simpname, boolean isExplicit, 
 			//Map<Role, AssrtEState> E0,
 			boolean... unfair) throws ScribbleException, CommandLineException
 	{
+		time(null, 91);
+		
 		this.model = new AssrtCoreSModelBuilder(job.sf).build(this.E0, isExplicit);
+
+		time(null, 92);
 
 		job.debugPrintln("\n[assrt-core] Built model:\n" + this.model.toDot());
 		
@@ -334,5 +392,11 @@ public class AssrtCommandLine extends CommandLine
 			
 			throw new F17Exception("\n[f17] " + ((unfair.length == 0) ? "Fair protocol" : "Protocol") + " violates progress.\n" + perrs);
 		}*/
+	}
+
+	public static <T> T time(T t, int i)
+	{
+		//System.err.println(i + ": " + System.currentTimeMillis());
+		return t;
 	}
 }

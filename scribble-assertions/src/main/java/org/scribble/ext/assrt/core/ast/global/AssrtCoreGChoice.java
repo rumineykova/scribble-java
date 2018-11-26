@@ -38,16 +38,10 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> im
 		this.src = src;
 		this.dest = dest;
 	}
-	
-	/*public Map<AssrtCoreAction, AssrtCoreGType> getCases()
-	{
-		return this.cases;
-	}*/
 
 	@Override
 	public List<AssrtAnnotDataType> collectAnnotDataTypeVarDecls()
 	{
-		//List<AssrtAnnotDataType> res = this.cases.keySet().stream().map(a -> a.pays).collect(Collectors.toList());
 		List<AssrtAnnotDataType> res = this.cases.keySet().stream().flatMap(a -> a.pays.stream()).collect(Collectors.toList());
 		this.cases.keySet().forEach(a -> res.addAll(this.cases.get(a).collectAnnotDataTypeVarDecls()));
 		return res;

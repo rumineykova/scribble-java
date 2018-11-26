@@ -18,6 +18,24 @@ public class AssrtTrueFormula extends AssrtBoolFormula
 	}
 
 	@Override
+	public AssrtBoolFormula getCnf()
+	{
+		return this;
+	}
+
+	@Override
+	public boolean isNF(AssrtBinBoolFormula.Op op)
+	{
+		return true;
+	}
+
+	@Override
+	public boolean hasOp(AssrtBinBoolFormula.Op op)
+	{
+		return false;
+	}
+
+	@Override
 	public AssrtBoolFormula squash()
 	{
 		return this;
