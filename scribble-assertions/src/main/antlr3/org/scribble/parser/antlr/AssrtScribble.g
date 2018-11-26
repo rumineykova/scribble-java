@@ -553,6 +553,7 @@ globalprotocolheader:
 ->
 	^(GLOBALPROTOCOLHEADER simpleprotocolname parameterdecllist roledecllist)
 
+// TODO: parameterdecllist and annot
 |
 	GLOBAL_KW PROTOCOL_KW simpleprotocolname roledecllist '@' EXTIDENTIFIER
 ->
