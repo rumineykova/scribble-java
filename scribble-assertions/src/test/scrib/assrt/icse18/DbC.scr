@@ -24,7 +24,7 @@ global protocol Proto1(role B, role W, role S)
 	}
 	or
 	{
-		quit()          from B to S;  @"Available<0"
+		quit()          from B to S;  @"Available<=0"
 		quit()          from B to W;
 	}
 }
