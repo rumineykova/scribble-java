@@ -557,7 +557,7 @@ globalprotocolheader:
 |
 	GLOBAL_KW PROTOCOL_KW simpleprotocolname roledecllist '@' EXTIDENTIFIER
 ->
-	^(ASSRT_GLOBALPROTOCOLHEADER simpleprotocolname ^(PARAMETERDECLLIST) roledecllist { AssertionsParser.parseStateVarDeclList($EXTIDENTIFIER.text) })
+	^(ASSRT_GLOBALPROTOCOLHEADER simpleprotocolname ^(PARAMETERDECLLIST) roledecllist { AssertionsParser.parseStateVarDeclList($EXTIDENTIFIER.text) })  // use ".tree" for Tree instead of text String
 ;
 /*GLOBAL_KW PROTOCOL_KW simpleprotocolname roledecllist '@' statevardecllist
 ->
