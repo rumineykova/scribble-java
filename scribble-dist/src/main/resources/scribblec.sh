@@ -26,9 +26,15 @@
 
 # ANTLR 3 runtime location (if no lib jar)
 ANTLR='scribble-parser/lib/antlr-3.5.2-complete.jar'
+<<<<<<< HEAD
   # or the Maven install location, e.g.,
   #     '~/.m2/repository/org/antlr/antlr-runtime/3.4/antlr-runtime-3.4.jar'
   # or  '/cygdrive/c/Users/[User]/.m2/repository/org/antlr/antlr-runtime/3.4/antlr-runtime-3.4.jar'
+=======
+  # e.g., '~/.m2/repository/org/antlr/antlr-runtime/3.4/antlr-runtime-3.4.jar'
+  # or    '/cygdrive/c/Users/[User]/.m2/repository/org/antlr/antlr-runtime/3.4/antlr-runtime-3.4.jar'
+  # (i.e., the Maven install location)
+>>>>>>> d2341969bc1c5fb6a394fec8ef1bd5ec7a428677
 
 DIR=`dirname "$0"`   # Default (script is in scribble-java rootdir)
 #DIR=`dirname "$0"`/.. # (E.g., script is in rootdir/bin)
@@ -51,9 +57,6 @@ Options:
   --verbose                  Echo the java command$
 
   -ip <path>                 Scribble module import path$
-
-  -oldwf                     Use the simpler syntactic protocol well-formedness
-
 
   -project <simple global protocol name> <role>  Project protocol
 
@@ -103,16 +106,20 @@ ARGS=
 
 CLASSPATH=$DIR'/scribble-cli/target/classes/'
 CLASSPATH=$CLASSPATH':'$DIR'/scribble-core/target/classes'
+CLASSPATH=$CLASSPATH':'$DIR'/scribble-lang/target/classes'
 CLASSPATH=$CLASSPATH':'$DIR'/scribble-parser/target/classes'
 CLASSPATH=$CLASSPATH':'$DIR'/scribble-codegen/target/classes'
+CLASSPATH=$CLASSPATH':'$DIR'/scribble-main/target/classes'
 CLASSPATH=$CLASSPATH':'$ANTLR
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/antlr.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/antlr-runtime.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/commons-io.jar'
-CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-cli.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-core.jar'
+CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-lang.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-parser.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-codegen.jar'
+CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-main.jar'
+CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-cli.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/stringtemplate.jar'
 CLASSPATH="'"`fixpath "$CLASSPATH"`"'"
 
