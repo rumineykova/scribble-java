@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 import org.scribble.ast.Module;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.cli.CLArgFlag;
+import org.scribble.cli.CLFlag;
+import org.scribble.cli.CLFlags;
 import org.scribble.cli.CommandLine;
 import org.scribble.cli.CommandLineException;
 import org.scribble.core.model.endpoint.EGraph;
@@ -44,39 +46,33 @@ import org.scribble.util.ScribParserException;
 // Includes assrt-core functionality (all extra args are currently for assrt-core)
 public class AssrtCommandLine extends CommandLine
 {
-
-	private final Map<AssrtCoreCLArgFlag, String[]> assrtCoreArgs;  // Maps each flag to list of associated argument values
-	
-	public AssrtCommandLine(String... args) throws CommandLineException
+	public AssrtCommandLine(String... args)
 	{
-		this(new AssrtCoreCLArgParser(args));
+		super(args);
+		if (hasFlag(CLFlags.INLINE_MAIN_MOD_FLAG))
+		{
+			// TODO: should work OK
+			throw new RuntimeException("[assrt] Inline modules not supported:\n"
+					+ getUniqueFlagArgs(CLFlags.INLINE_MAIN_MOD_FLAG)[0]);
+		}
 	}
-	
-	private AssrtCommandLine(AssrtCoreCLArgParser p) throws CommandLineException
+
+	public static void main(String[] args)
+			throws CommandLineException, AntlrSourceException
 	{
-		//super(p);  // calls p.parse()
+		new AssrtCommandLine(args).run();
+	}
 
-		super(time(p, 0));  // calls p.parse()
-
-		if (this.args.containsKey(CLArgFlag.INLINE_MAIN_MOD))
-		{
-			// FIXME: should be fine
-			throw new RuntimeException("[assrt] Inline modules not supported:\n" + this.args.get(CLArgFlag.INLINE_MAIN_MOD));
-		}
-		// FIXME? Duplicated from core
-		if (!this.args.containsKey(CLArgFlag.MAIN_MOD))
-		{
-			throw new CommandLineException("No main module has been specified\r\n");
-		}
-		
-		time(null, 1);
-
-		this.assrtCoreArgs = p.getAssrtArgs();
+	@Override
+	protected AssrtCoreCLFlags newCLFlags()
+	{
+		return new AssrtCoreCLFlags();
 	}
 	
 	// Based on CommandLine.newMainContext
 	@Override
 	protected AssrtMainContext newMainContext() throws ScribParserException, ScribbleException
+	//protected Main newMain() throws ScribParserException, ScribException
 	{
 		boolean debug = this.args.containsKey(CLArgFlag.VERBOSE);  // TODO: factor out with CommandLine (cf. MainContext fields)
 		boolean useOldWF = this.args.containsKey(CLArgFlag.OLD_WF);
@@ -87,8 +83,8 @@ public class AssrtCommandLine extends CommandLine
 		boolean noAcceptCorrelationCheck = this.args.containsKey(CLArgFlag.NO_ACCEPT_CORRELATION_CHECK);
 		boolean noValidation = this.args.containsKey(CLArgFlag.NO_VALIDATION);
 
-		boolean assrtBatching = this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_BATCHING);
-		Solver solver = this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_NATIVE_Z3)
+		boolean assrtBatching = this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_BATCHING);
+		Solver solver = this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_NATIVE_Z3)
 				? AssrtJob.Solver.NATIVE_Z3
 				: AssrtJob.Solver.JAVA_SMT_Z3;  // Default for base assrt -- though base assrt doesn't actually check the solver flag
 
@@ -110,17 +106,37 @@ public class AssrtCommandLine extends CommandLine
 		}
 	}
 
-	public static void main(String[] args) throws CommandLineException, AntlrSourceException
-	{
-		new AssrtCommandLine(args).run();
-	}
-
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	@Override
 	protected void runValidationTasks(Job job) throws AssrtCoreSyntaxException, AntlrSourceException, ScribParserException, CommandLineException
 	{
-		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE))  // assrt-*core* mode
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE))  // assrt-*core* mode
 		{
-			time(null, 2);
 
 			doAssrtCoreValidationTasks((AssrtJob) job);
 		}
@@ -138,13 +154,9 @@ public class AssrtCommandLine extends CommandLine
 
 		}*/
 
-		time(null, 3);
-		
 		assrtCorePreContextBuilding(j);
 
-		time(null, 4);
-
-		GProtocolName simpname = new GProtocolName(this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE)[0]);
+		GProtocolName simpname = new GProtocolName(this.assrtCoreArgs.get(AssrtCoreCLFlags.ASSRT_CORE)[0]);
 		if (simpname.toString().equals("[AssrtCoreAllTest]"))  // HACK: AssrtCoreAllTest
 		{
 			assrtCoreParseAndCheckWF(j);  // Includes base passes
@@ -186,8 +198,6 @@ public class AssrtCommandLine extends CommandLine
 	// Pre: assrtPreContextBuilding(job)
 	private void assrtCoreParseAndCheckWF(AssrtJob job, GProtocolName simpname) throws AssrtCoreSyntaxException, ScribbleException, ScribParserException, CommandLineException
 	{
-		time(null, 5);
-
 		Module main = job.getContext().getMainModule();
 		if (!main.hasProtocolDecl(simpname))
 		{
@@ -203,7 +213,6 @@ public class AssrtCommandLine extends CommandLine
 		(in base, inlining of global is only for global level (syntactic) checks -- model checking is done from the separately inlined locals -- inlined global is also for "extensions" like this one and f17)
 		-- does inlining->projection give the same as "base projection"->inlining?*/
 		
-		time(null, 6);
 		job.debugPrintln("\n[assrt-core] Translated:\n  " + gt);
 		
 		List<AssrtDataTypeVar> adts = gt.collectAnnotDataTypeVarDecls().stream().map(v -> v.var).collect(Collectors.toList());
@@ -222,7 +231,6 @@ public class AssrtCommandLine extends CommandLine
 
 			job.debugPrintln("\n[assrt-core] Projected onto " + r + ":\n  " + lt);
 		}
-		time(null, 7);
 
 		AssrtCoreEGraphBuilder builder = new AssrtCoreEGraphBuilder(job);
 		this.E0 = new HashMap<>();
@@ -234,11 +242,8 @@ public class AssrtCommandLine extends CommandLine
 			
 			job.debugPrintln("\n[assrt-core] Built endpoint graph for " + r + ":\n" + g.toDot());
 		}
-		time(null, 8);
 				
 		assrtCoreValidate(job, simpname, gpd.isExplicitModifier());//, this.E0);  // TODO
-
-		time(null, 100);
 
 		/*if (!job.fair)
 		{
@@ -271,9 +276,9 @@ public class AssrtCommandLine extends CommandLine
 	@Override
 	protected void tryOutputTasks(Job job) throws CommandLineException, ScribbleException
 	{
-		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_PROJECT))
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_PROJECT))
 		{
-			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_PROJECT);
+			String[] args = this.assrtCoreArgs.get(AssrtCoreCLFlags.ASSRT_CORE_PROJECT);
 			for (int i = 0; i < args.length; i += 1)
 			{
 				Role role = CommandLine.checkRoleArg(job.getContext(), gpd.getHeader().getDeclName(), args[i]);
@@ -281,9 +286,9 @@ public class AssrtCommandLine extends CommandLine
 				System.out.println("\n" + out);  // Endpoint graphs are "inlined" (a single graph is built)
 			}
 		}
-		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM))
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_EFSM))
 		{
-			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM);
+			String[] args = this.assrtCoreArgs.get(AssrtCoreCLFlags.ASSRT_CORE_EFSM);
 			for (int i = 0; i < args.length; i += 1)
 			{
 				Role role = CommandLine.checkRoleArg(job.getContext(), gpd.getHeader().getDeclName(), args[i]);
@@ -291,9 +296,9 @@ public class AssrtCommandLine extends CommandLine
 				System.out.println("\n" + out);  // Endpoint graphs are "inlined" (a single graph is built)
 			}
 		}
-		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG))
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_EFSM_PNG))
 		{
-			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG);
+			String[] args = this.assrtCoreArgs.get(AssrtCoreCLFlags.ASSRT_CORE_EFSM_PNG);
 			for (int i = 0; i < args.length; i += 2)
 			{
 				Role role = CommandLine.checkRoleArg(job.getContext(), gpd.getHeader().getDeclName(), args[i]);
@@ -302,20 +307,20 @@ public class AssrtCommandLine extends CommandLine
 				runDot(out, png);
 			}
 		}
-		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL))
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_MODEL))
 		{
 			System.out.println("\n" + model.toDot());
 		}
-		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL_PNG))
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_MODEL_PNG))
 		{
-			String[] arg = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_MODEL_PNG);
+			String[] arg = this.assrtCoreArgs.get(AssrtCoreCLFlags.ASSRT_CORE_MODEL_PNG);
 			String png = arg[0];
 			runDot(model.toDot(), png);
 		}
 
-		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_STP_EFSM))
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_STP_EFSM))
 		{
-			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_STP_EFSM);
+			String[] args = this.assrtCoreArgs.get(AssrtCoreCLFlags.ASSRT_STP_EFSM);
 			for (int i = 0; i < args.length; i += 1)
 			{
 				Role role = CommandLine.checkRoleArg(job.getContext(), gpd.getHeader().getDeclName(), args[i]);
@@ -324,9 +329,9 @@ public class AssrtCommandLine extends CommandLine
 				System.out.println("\n" + out);  // Endpoint graphs are "inlined" (a single graph is built)
 			}
 		}
-		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG))
+		if (this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_EFSM_PNG))
 		{
-			String[] args = this.assrtCoreArgs.get(AssrtCoreCLArgFlag.ASSRT_CORE_EFSM_PNG);
+			String[] args = this.assrtCoreArgs.get(AssrtCoreCLFlags.ASSRT_CORE_EFSM_PNG);
 			for (int i = 0; i < args.length; i += 2)
 			{
 				Role role = CommandLine.checkRoleArg(job.getContext(), gpd.getHeader().getDeclName(), args[i]);
@@ -342,11 +347,7 @@ public class AssrtCommandLine extends CommandLine
 			//Map<Role, AssrtEState> E0,
 			boolean... unfair) throws ScribbleException, CommandLineException
 	{
-		time(null, 91);
-		
 		this.model = new AssrtCoreSModelBuilder(job.sf).build(this.E0, isExplicit);
-
-		time(null, 92);
 
 		job.debugPrintln("\n[assrt-core] Built model:\n" + this.model.toDot());
 		
@@ -392,11 +393,5 @@ public class AssrtCommandLine extends CommandLine
 			
 			throw new F17Exception("\n[f17] " + ((unfair.length == 0) ? "Fair protocol" : "Protocol") + " violates progress.\n" + perrs);
 		}*/
-	}
-
-	public static <T> T time(T t, int i)
-	{
-		//System.err.println(i + ": " + System.currentTimeMillis());
-		return t;
 	}
 }

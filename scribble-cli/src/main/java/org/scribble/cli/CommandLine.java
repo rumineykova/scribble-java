@@ -79,20 +79,26 @@ public class CommandLine
 			throw new RuntimeException("Dummy");  // Already exited above
 		}
 	}
+
+	public static void main(String[] args)
+			throws CommandLineException, AntlrSourceException
+	{
+		new CommandLine(args).run();
+	}
 	
-	// A Scribble extension should override newCLFlags/newCLArgParser/newMain as apporpriate
+	// A Scribble extension should override newCLFlags/newCLArgParser/newMain/newCoreArgs as appropriate
 	protected CLFlags newCLFlags()
 	{
 		return new CLFlags();
 	}
 
-	// A Scribble extension should override newCLFlags/newCLArgParser/newMain as apporpriate
+	// A Scribble extension should override newCLFlags/newCLArgParser/newMain/newCoreArgs as appropriate
 	protected CLArgParser newCLArgParser(CLFlags flags, String[] args)
 	{
 		return new CLArgParser(flags, args);
 	}
 
-	// A Scribble extension should override newCLFlags/newCLArgParser/newMain as apporpriate
+	// A Scribble extension should override newCLFlags/newCLArgParser/newMain/newCoreArgs as appropriate
 	protected Main newMain() throws ScribParserException, ScribException
 	{
 		Map<CoreArgs, Boolean> args = Collections.unmodifiableMap(newCoreArgs());
@@ -114,7 +120,7 @@ public class CommandLine
 		}
 	}
 	
-	// A Scribble extension should override as appropriate
+	// A Scribble extension should override newCLFlags/newCLArgParser/newMain/newCoreArgs as appropriate
 	protected Map<CoreArgs, Boolean> newCoreArgs()
 	{
 		Map<CoreArgs, Boolean> args = new HashMap<>();
@@ -225,12 +231,6 @@ public class CommandLine
 				throw new RuntimeException("Shouldn't get here: " + task.left);
 					// Bad flag should be caught by CLArgParser
 		}
-	}
-
-	public static void main(String[] args)
-			throws CommandLineException, AntlrSourceException
-	{
-		new CommandLine(args).run();
 	}
 
 	public void run() throws CommandLineException, 
