@@ -13,6 +13,8 @@ import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.cli.CLArgFlag;
 import org.scribble.cli.CommandLine;
 import org.scribble.cli.CommandLineException;
+import org.scribble.core.model.endpoint.EGraph;
+import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
@@ -31,14 +33,12 @@ import org.scribble.ext.assrt.main.AssrtMainContext;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
-import org.scribble.main.AntlrSourceException;
-import org.scribble.main.Job;
+import org.scribble.job.Job;
 import org.scribble.main.ScribbleException;
-import org.scribble.main.resource.DirectoryResourceLocator;
-import org.scribble.main.resource.ResourceLocator;
-import org.scribble.model.endpoint.EGraph;
+import org.scribble.main.resource.locator.DirectoryResourceLocator;
+import org.scribble.main.resource.locator.ResourceLocator;
 import org.scribble.type.name.GProtocolName;
-import org.scribble.type.name.Role;
+import org.scribble.util.AntlrSourceException;
 import org.scribble.util.ScribParserException;
 
 // Includes assrt-core functionality (all extra args are currently for assrt-core)
@@ -116,7 +116,7 @@ public class AssrtCommandLine extends CommandLine
 	}
 
 	@Override
-	protected void doValidationTasks(Job job) throws AssrtCoreSyntaxException, AntlrSourceException, ScribParserException, CommandLineException
+	protected void runValidationTasks(Job job) throws AssrtCoreSyntaxException, AntlrSourceException, ScribParserException, CommandLineException
 	{
 		if (this.assrtCoreArgs.containsKey(AssrtCoreCLArgFlag.ASSRT_CORE))  // assrt-*core* mode
 		{
@@ -126,7 +126,7 @@ public class AssrtCommandLine extends CommandLine
 		}
 		else
 		{
-			super.doValidationTasks(job);
+			super.runValidationTasks(job);
 		}
 	}
 

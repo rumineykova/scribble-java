@@ -22,9 +22,9 @@ public class CLFlag
 	final String lab;  // ID field: CLFlags String constant -- N.B. includes "-" prefix
 	final int numArgs;
 	final boolean unique;
-	final boolean enact;
-	final boolean barrier;  // TODO: rename, barrier misleading (sounds like a sync)
-	final String err;
+	final boolean enact;  // Means CommandLine (etc) should process this flag in some way (via some Job/Core function)
+	final boolean barrier;  // Pre: this.enact  // TODO: rename, barrier misleading (sounds like a sync)
+	final String err;  // Error message for missing arguments (unused if numArgs == 0)
 	final List<String> clashes;
 
 	public CLFlag(String lab, int numArgs, boolean unique, boolean enact,

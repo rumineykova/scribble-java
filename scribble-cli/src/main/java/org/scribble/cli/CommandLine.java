@@ -80,32 +80,22 @@ public class CommandLine
 		}
 	}
 	
-	private boolean hasFlag(String flag)
-	{
-		return this.args.stream().anyMatch(x -> x.left.equals(flag));
-	}
-
-	private String[] getUniqueFlagArgs(String flag)
-	{
-		return this.args.stream().filter(x -> x.left.equals(flag)).findAny()
-				.get().right;
-	}
-	
+	// A Scribble extension should override newCLFlags/newCLArgParser/newMain as apporpriate
 	protected CLFlags newCLFlags()
 	{
 		return new CLFlags();
 	}
 
-	// A Scribble extension should override as appropriate
+	// A Scribble extension should override newCLFlags/newCLArgParser/newMain as apporpriate
 	protected CLArgParser newCLArgParser(CLFlags flags, String[] args)
 	{
 		return new CLArgParser(flags, args);
 	}
 
-	// A Scribble extension should override as appropriate
+	// A Scribble extension should override newCLFlags/newCLArgParser/newMain as apporpriate
 	protected Main newMain() throws ScribParserException, ScribException
 	{
-		Map<CoreArgs, Boolean> args = Collections.unmodifiableMap(parseCoreArgs());
+		Map<CoreArgs, Boolean> args = Collections.unmodifiableMap(newCoreArgs());
 		if (hasFlag(CLFlags.INLINE_MAIN_MOD_FLAG))
 		{
 			String inline = getUniqueFlagArgs(CLFlags.INLINE_MAIN_MOD_FLAG)[0];
@@ -125,7 +115,7 @@ public class CommandLine
 	}
 	
 	// A Scribble extension should override as appropriate
-	protected Map<CoreArgs, Boolean> parseCoreArgs()
+	protected Map<CoreArgs, Boolean> newCoreArgs()
 	{
 		Map<CoreArgs, Boolean> args = new HashMap<>();
 		args.put(CoreArgs.VERBOSE, hasFlag(CLFlags.VERBOSE_FLAG));
@@ -140,10 +130,21 @@ public class CommandLine
 		args.put(CoreArgs.NO_VALIDATION, hasFlag(CLFlags.NO_VALIDATION_FLAG));
 		return args;
 	}
+	
+	protected boolean hasFlag(String flag)
+	{
+		return this.args.stream().anyMatch(x -> x.left.equals(flag));
+	}
+
+	protected String[] getUniqueFlagArgs(String flag)
+	{
+		return this.args.stream().filter(x -> x.left.equals(flag)).findAny()
+				.get().right;
+	}
 
 	// AntlrSourceException super of ScribbleException -- needed for, e.g., AssrtCoreSyntaxException
-	// A Scribble extension should override as appropriate
-	protected void doValidationTasks(Job job) 
+	// A Scribble extension should override runValidationTasks/tryBarrierTask/tryNonBarrierTask as appropriate
+	protected void runValidationTasks(Job job) 
 			throws AntlrSourceException, ScribParserException,  // Latter in case needed by subclasses
 				CommandLineException
 	{
@@ -151,7 +152,7 @@ public class CommandLine
 		job.getCore().runPasses();
 	}
 
-	// A Scribble extension should override as appropriate
+	// A Scribble extension should override runValidationTasks/tryBarrierTask/tryNonBarrierTask as appropriate
 	// TODO: rename, barrier misleading (sounds like a sync)
 	protected void tryNonBarrierTask(Job job, Pair<String, String[]> task)
 			throws CommandLineException, ScribException
@@ -201,7 +202,7 @@ public class CommandLine
 		}
 	}
 
-	// A Scribble extension should override as appropriate
+	// A Scribble extension should override runValidationTasks/tryBarrierTask/tryNonBarrierTask as appropriate
 	// TODO: rename, barrier misleading (sounds like a sync)
 	protected void tryBarrierTask(Job job,
 			Pair<String, String[]> task) throws ScribException, CommandLineException
@@ -235,7 +236,7 @@ public class CommandLine
 	public void run() throws CommandLineException, 
 			AntlrSourceException  // For JUnit harness (ScribException)
 	{
-		try
+		try  // TODO: refactor, flatten try's
 		{
 			try
 			{
@@ -244,11 +245,11 @@ public class CommandLine
 			catch (ScribException e)  // Wouldn't need to do this if not Runnable (so maybe change)
 			{
 				if (hasFlag(CLFlags.JUNIT_FLAG)  // JUnit harness looks for an exception
-						|| hasFlag(CLFlags.VERBOSE_FLAG))  // Also print full trace for -V
+						|| hasFlag(CLFlags.VERBOSE_FLAG))  // Output full stack trace for -V
 				{
 					throw e;
 				}
-				else
+				else  // Otherwise, print exception message and suppress trace
 				{
 					System.err.println(e.getMessage());
 					System.exit(1);
@@ -257,7 +258,7 @@ public class CommandLine
 		}
 		catch (ScribParserException | CommandLineException e)
 		{
-			System.err.println(e.getMessage());  // No need to give full stack trace, even for debug, for command line errors
+			System.err.println(e.getMessage());  // No need to give full stack trace, even for debug, for CommandLine errors
 			System.exit(1);
 		}
 		catch (RuntimeScribException e)
@@ -274,7 +275,7 @@ public class CommandLine
 		Main mc = newMain();  // Represents current instance of tooling for given CL args
 		Job job = mc.newJob();  // A Job is some series of passes performed on each Module in the MainContext (e.g., cf. Job::runVisitorPass)
 		ScribException err = null;
-		try { doValidationTasks(job); } catch (ScribException x) { err = x; }
+		try { runValidationTasks(job); } catch (ScribException x) { err = x; }
 		for (Pair<String, String[]> a : this.args)
 		{
 			CLFlag flag = this.flags.explicit.get(a.left);  // null for CLFlags.MAIN_MOD_FLAG
@@ -302,7 +303,7 @@ public class CommandLine
 		}
 	}
 
-	// TODO: option to write to file, like API classes
+	// TODO: option to write to file, like API gen
 	private void printProjection(Job job, String[] args)
 			throws CommandLineException, ScribException
 	{

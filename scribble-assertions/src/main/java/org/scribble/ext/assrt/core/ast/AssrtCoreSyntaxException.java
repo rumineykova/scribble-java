@@ -1,7 +1,7 @@
 package org.scribble.ext.assrt.core.ast;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.main.AntlrSourceException;
+import org.scribble.util.AntlrSourceException;
 
 // For parsing errors due to core syntax restrictions (vs. "full" Scribble) -- distinction used for JUnit testing (i.e., to indicate non core syntax that are otherwise valid protocols)
 // i.e., should only be thrown by AssrtCoreGProtocolDeclTranslator

@@ -1,9 +1,9 @@
 package org.scribble.ext.assrt.cli;
 
-import org.scribble.cli.CLArgParser;
+import org.scribble.cli.CLFlags;
 import org.scribble.cli.CommandLineException;
-import org.scribble.cli.ScribTestBase;
-import org.scribble.main.AntlrSourceException;
+import org.scribble.test.ScribTestBase;
+import org.scribble.util.AntlrSourceException;
 
 public abstract class AssrtTestBase extends ScribTestBase
 {
@@ -43,6 +43,6 @@ public abstract class AssrtTestBase extends ScribTestBase
 	@Override
 	protected void runTest(String dir) throws CommandLineException, AntlrSourceException
 	{
-		new AssrtCommandLine(this.example, CLArgParser.JUNIT_FLAG, CLArgParser.IMPORT_PATH_FLAG, dir).run();
+		new AssrtCommandLine(this.example, CLFlags.JUNIT_FLAG, CLFlags.IMPORT_PATH_FLAG, dir).run();
 	}
 }

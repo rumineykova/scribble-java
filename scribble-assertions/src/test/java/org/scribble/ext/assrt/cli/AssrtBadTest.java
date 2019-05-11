@@ -5,8 +5,8 @@ import java.util.Collection;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.scribble.cli.ScribTestBase;
-import org.scribble.cli.Harness;
+import org.scribble.test.Harness;
+import org.scribble.test.ScribTestBase;
 
 @RunWith(Parameterized.class)
 public class AssrtBadTest extends AssrtTestBase

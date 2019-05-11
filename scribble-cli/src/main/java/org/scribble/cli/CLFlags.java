@@ -86,39 +86,36 @@ public class CLFlags
 						"Missing inline module: "));
 
 		flags.put(JUNIT_FLAG, 
-				new CLFlag(JUNIT_FLAG, 0, true, false, false, "Duplicate flag: "));
+				new CLFlag(JUNIT_FLAG, 0, true, false, false, ""));
 		flags.put(VERBOSE_FLAG, 
-				new CLFlag(VERBOSE_FLAG, 0, true, false, false, "Duplicate flag: "));
+				new CLFlag(VERBOSE_FLAG, 0, true, false, false, ""));
 		flags.put(STATECHAN_SUBTYPES_FLAG, 
-				new CLFlag(STATECHAN_SUBTYPES_FLAG, 0, true, false, false,
-						"Duplicate flag: "));
+				new CLFlag(STATECHAN_SUBTYPES_FLAG, 0, true, false, false, ""));
 		flags.put(OLD_WF_FLAG, 
-				new CLFlag(OLD_WF_FLAG, 0, true, false, false, "Duplicate flag: ",
+				new CLFlag(OLD_WF_FLAG, 0, true, false, false, "",
 						SGRAPH_FLAG, UNFAIR_SGRAPH_FLAG, SGRAPH_PNG_FLAG,
 						UNFAIR_SGRAPH_PNG_FLAG));
 		flags.put(NO_PROGRESS_FLAG, 
-				new CLFlag(NO_PROGRESS_FLAG, 0, true, false, false, "Duplicate flag: "));
+				new CLFlag(NO_PROGRESS_FLAG, 0, true, false, false, ""));
 		flags.put(LTSCONVERT_MIN_FLAG, 
-				new CLFlag(LTSCONVERT_MIN_FLAG, 0, true, false, false,
-						"Duplicate flag: "));
+				new CLFlag(LTSCONVERT_MIN_FLAG, 0, true, false, false, ""));
 		flags.put(FAIR_FLAG, 
-				new CLFlag(FAIR_FLAG, 0, true, false, false, "Duplicate flag: "));
+				new CLFlag(FAIR_FLAG, 0, true, false, false, ""));
 		flags.put(NO_LOCAL_CHOICE_SUBJECT_CHECK_FLAG, 
 				new CLFlag(NO_LOCAL_CHOICE_SUBJECT_CHECK_FLAG, 0, true, false, false,
-						"Duplicate flag: "));
+						""));
 		flags.put(NO_ACCEPT_CORRELATION_CHECK_FLAG, 
 				new CLFlag(NO_ACCEPT_CORRELATION_CHECK_FLAG, 0, true, false, false,
-						"Duplicate flag: "));
-		flags.put(NO_VALIDATION_FLAG, 
-				new CLFlag(NO_VALIDATION_FLAG, 0, true, false, false,
-						"Duplicate flag: "));
+						""));
+		flags.put(NO_VALIDATION_FLAG,
+				new CLFlag(NO_VALIDATION_FLAG, 0, true, false, false, ""));
 
 		// These two are mutually exclusive
 		flags.put(DOT_FLAG, 
-				new CLFlag(DOT_FLAG, 0, true, false, false, "Duplicate flag: ",
+				new CLFlag(DOT_FLAG, 0, true, false, false, "",
 						CLFlags.AUT_FLAG));
 		flags.put(AUT_FLAG, 
-				new CLFlag(AUT_FLAG, 0, true, false, false, "Duplicate flag: ",
+				new CLFlag(AUT_FLAG, 0, true, false, false, "",
 						CLFlags.DOT_FLAG));
 
 		// Non-unique, no barrier

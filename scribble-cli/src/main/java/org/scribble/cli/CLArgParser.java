@@ -37,7 +37,8 @@ public class CLArgParser
 		this.raw = raw;
 	}		
 	
-	// Return: left = CLFlags String constant, right = flag args (if any)
+	// Return: Pair.left = CLFlags String constant, Pair.right = flag args (if any)
+	// N.B. List because, e.g., multiple -project
 	public List<Pair<String, String[]>> getParsed() throws CommandLineException
 	{
 		parseArgs();
@@ -108,7 +109,7 @@ public class CLArgParser
 		{
 			if (getParsedKeys().contains(lab))
 			{
-				throw new CommandLineException("duplicate: " + lab);
+				throw new CommandLineException("Duplicate flag: " + lab);
 			}
 		}
 		int num = this.flags.explicit.get(lab).numArgs;

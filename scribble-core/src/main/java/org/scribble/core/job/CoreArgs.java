@@ -13,6 +13,7 @@
  */
 package org.scribble.core.job;
 
+// TODO: rename CoreFlags  // Currently only "flags" (booleans), but could be generalised (e.g., store CoreConfig.main)
 public enum CoreArgs
 {
 	VERBOSE,

@@ -24,8 +24,8 @@ import org.scribble.core.visit.STypeVisitorFactory;
 // The "static" (constant) info for Jobs -- cf. JobContext "dynamic" state
 public class CoreConfig
 {
-	public final ModuleName main;  // Full name 
-	public final Map<CoreArgs, Boolean> args;  // CHECKME: verbose/debug printing parameter ?
+	public final ModuleName main;  // Full name   // CHECKME: refactor as a CoreArg?
+	public final Map<CoreArgs, Boolean> args;  // TODO: Rename flags and make Set
 
 	public final STypeFactory tf;
 	public final STypeVisitorFactory vf;

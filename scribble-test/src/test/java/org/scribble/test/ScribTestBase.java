@@ -33,8 +33,8 @@ public abstract class ScribTestBase
 {
 	protected static int NUM_SKIPPED = 0;  // HACK
 
-	protected static final boolean GOOD_TEST = false;
-	protected static final boolean BAD_TEST = !GOOD_TEST;
+	public static final boolean GOOD_TEST = false;
+	public static final boolean BAD_TEST = !GOOD_TEST;
 
 	protected final String example;
 	protected final boolean isBadTest;
