@@ -73,6 +73,16 @@
 
 
 
+
+// merging TODO
+// - rename "new" factory methods? (easily confused with new expr)  centralise?
+// - coreconfig flags set
+
+
+
+
+
+
 module assrt.tmp.AssrtCoreTest;
 
 

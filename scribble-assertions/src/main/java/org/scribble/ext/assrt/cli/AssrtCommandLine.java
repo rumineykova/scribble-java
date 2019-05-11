@@ -10,11 +10,10 @@ import java.util.stream.Collectors;
 
 import org.scribble.ast.Module;
 import org.scribble.ast.global.GProtocolDecl;
-import org.scribble.cli.CLArgFlag;
-import org.scribble.cli.CLFlag;
 import org.scribble.cli.CLFlags;
 import org.scribble.cli.CommandLine;
 import org.scribble.cli.CommandLineException;
+import org.scribble.core.job.CoreArgs;
 import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
@@ -31,16 +30,18 @@ import org.scribble.ext.assrt.core.model.stp.AssrtStpEState;
 import org.scribble.ext.assrt.main.AssrtException;
 import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.main.AssrtJob.Solver;
-import org.scribble.ext.assrt.main.AssrtMainContext;
+import org.scribble.ext.assrt.main.AssrtMain;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.job.Job;
+import org.scribble.main.Main;
 import org.scribble.main.ScribbleException;
 import org.scribble.main.resource.locator.DirectoryResourceLocator;
 import org.scribble.main.resource.locator.ResourceLocator;
 import org.scribble.type.name.GProtocolName;
 import org.scribble.util.AntlrSourceException;
+import org.scribble.util.ScribException;
 import org.scribble.util.ScribParserException;
 
 // Includes assrt-core functionality (all extra args are currently for assrt-core)
@@ -49,12 +50,6 @@ public class AssrtCommandLine extends CommandLine
 	public AssrtCommandLine(String... args)
 	{
 		super(args);
-		if (hasFlag(CLFlags.INLINE_MAIN_MOD_FLAG))
-		{
-			// TODO: should work OK
-			throw new RuntimeException("[assrt] Inline modules not supported:\n"
-					+ getUniqueFlagArgs(CLFlags.INLINE_MAIN_MOD_FLAG)[0]);
-		}
 	}
 
 	public static void main(String[] args)
@@ -71,39 +66,45 @@ public class AssrtCommandLine extends CommandLine
 	
 	// Based on CommandLine.newMainContext
 	@Override
-	protected AssrtMainContext newMainContext() throws ScribParserException, ScribbleException
-	//protected Main newMain() throws ScribParserException, ScribException
+	protected Main newMain() throws ScribParserException, ScribException
 	{
-		boolean debug = this.args.containsKey(CLArgFlag.VERBOSE);  // TODO: factor out with CommandLine (cf. MainContext fields)
-		boolean useOldWF = this.args.containsKey(CLArgFlag.OLD_WF);
-		boolean noLiveness = this.args.containsKey(CLArgFlag.NO_LIVENESS);
-		boolean minEfsm = this.args.containsKey(CLArgFlag.LTSCONVERT_MIN);
-		boolean fair = this.args.containsKey(CLArgFlag.FAIR);
-		boolean noLocalChoiceSubjectCheck = this.args.containsKey(CLArgFlag.NO_LOCAL_CHOICE_SUBJECT_CHECK);
-		boolean noAcceptCorrelationCheck = this.args.containsKey(CLArgFlag.NO_ACCEPT_CORRELATION_CHECK);
-		boolean noValidation = this.args.containsKey(CLArgFlag.NO_VALIDATION);
-
-		boolean assrtBatching = this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_BATCHING);
-		Solver solver = this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_NATIVE_Z3)
-				? AssrtJob.Solver.NATIVE_Z3
-				: AssrtJob.Solver.JAVA_SMT_Z3;  // Default for base assrt -- though base assrt doesn't actually check the solver flag
-
-		List<Path> impaths = this.args.containsKey(CLArgFlag.IMPORT_PATH)
-				? CommandLine.parseImportPaths(this.args.get(CLArgFlag.IMPORT_PATH)[0])
-				: Collections.emptyList();
-		ResourceLocator locator = new DirectoryResourceLocator(impaths);
-		if (this.args.containsKey(CLArgFlag.INLINE_MAIN_MOD))
+		Map<CoreArgs, Boolean> args = Collections.unmodifiableMap(newCoreArgs());
+		if (hasFlag(CLFlags.INLINE_MAIN_MOD_FLAG))
 		{
-			/*return new AssrtMainContext(debug, locator, this.args.get(CLArgFlag.INLINE_MAIN_MOD)[0], useOldWF, noLiveness, minEfsm, fair,
-					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, solver);*/
-			throw new RuntimeException("[assrt] Shouldn't get in here:\n" + this.args.get(CLArgFlag.INLINE_MAIN_MOD)[0]);  // Checked in constructor
+			// TODO: should work OK
+			throw new RuntimeException("[assrt] Inline modules not supported:\n"
+					+ getUniqueFlagArgs(CLFlags.INLINE_MAIN_MOD_FLAG)[0]);
 		}
 		else
 		{
-			Path mainpath = CommandLine.parseMainPath(this.args.get(CLArgFlag.MAIN_MOD)[0]);
-			return new AssrtMainContext(debug, locator, mainpath, useOldWF, noLiveness, minEfsm, fair,
+			List<Path> impaths = hasFlag(CLFlags.IMPORT_PATH_FLAG)
+					? CommandLine
+							.parseImportPaths(getUniqueFlagArgs(CLFlags.IMPORT_PATH_FLAG)[0])
+					: Collections.emptyList();
+			ResourceLocator locator = new DirectoryResourceLocator(impaths);
+			Path mainpath = CommandLine
+					.parseMainPath(getUniqueFlagArgs(CLFlags.MAIN_MOD_FLAG)[0]);
+			//return new Main(locator, mainpath, args);
+			
+		Solver solver = this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_NATIVE_Z3)
+				? AssrtJob.Solver.NATIVE_Z3
+				: AssrtJob.Solver.JAVA_SMT_Z3;  // Default for base assrt -- though base assrt doesn't actually check the solver flag
+			
+			return new AssrtMain(debug, locator, mainpath, useOldWF, noLiveness, minEfsm, fair,
 					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, solver, assrtBatching);
 		}
+	}
+
+	@Override
+	protected Map<CoreArgs, Boolean> newCoreArgs()
+	{
+		Map<CoreArgs, Boolean> args = super.newCoreArgs();
+
+		args.put(CoreArgs.VERBOSE, hasFlag(CLFlags.VERBOSE_FLAG));
+
+		boolean assrtBatching = this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_BATCHING);
+
+		return args;
 	}
 
 	

@@ -81,11 +81,13 @@ public class Job
 		this.context = newJobContext(this, parsed);  // Single instance per Job, should not be shared between Jobs
 	}
 
+	// A Scribble extension should override newVisitorFactory/STypeFactory as appropriate
 	protected VisitorFactory newVisitorFactory()
 	{
 		return new VisitorFactoryImpl();
 	}
 	
+	// A Scribble extension should override newVisitorFactory/STypeFactory as appropriate
 	// Used by GTypeTranslator (cf. getCore)
 	protected STypeFactory newSTypeFactory()
 	{
@@ -106,6 +108,15 @@ public class Job
 			Map<ModuleName, Module> parsed) throws ScribException
 	{
 		return new JobContext(this, parsed);
+	}
+	
+	// A Scribble extension should override newJobConfig/Context/Core as appropriate
+	protected Core newCore(ModuleName mainFullname, Map<CoreArgs, Boolean> args,
+			//Map<ModuleName, ModuleContext> modcs, 
+			Set<GProtocol> imeds, STypeFactory tf)
+	{
+		return new Core(mainFullname, args, //modcs, 
+				imeds, tf);
 	}
 	
 	// First run Visitor passes, then call toJob
@@ -159,15 +170,6 @@ public class Job
 					imeds, this.config.tf);
 		}
 		return this.core;
-	}
-	
-	// A Scribble extension should override newJobConfig/Context/Core as appropriate
-	protected Core newCore(ModuleName mainFullname, Map<CoreArgs, Boolean> args,
-			//Map<ModuleName, ModuleContext> modcs, 
-			Set<GProtocol> imeds, STypeFactory tf)
-	{
-		return new Core(mainFullname, args, //modcs, 
-				imeds, tf);
 	}
 
 	// Returns: fullname -> Module -- CHECKME TODO: refactor local Module creation to Job?

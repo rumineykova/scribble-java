@@ -36,7 +36,7 @@ public class JobConfig
 	public final STypeFactory tf;
 	
 	// N.B. MainContext is in a different non-visible (by Maven) package
-	public JobConfig(ModuleName mainFullname, Map<CoreArgs, Boolean> args,
+	protected JobConfig(ModuleName mainFullname, Map<CoreArgs, Boolean> args,
 			AstFactory af, DelFactory df, VisitorFactory vf, STypeFactory tf)
 	{
 		this.main = mainFullname;

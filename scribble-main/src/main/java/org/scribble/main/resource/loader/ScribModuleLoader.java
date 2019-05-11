@@ -60,6 +60,7 @@ public class ScribModuleLoader extends DefaultModuleLoader
 	}
 
 	// CHECKME: check only called once?  at start?
+	@Deprecated
 	public Pair<Resource, Module> loadMainModule(String inline)
 			throws ScribException, ScribParserException
 	{

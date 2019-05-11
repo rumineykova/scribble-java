@@ -75,6 +75,7 @@ public class Main
 	}
 
 	// Load an inline module arg -- module imports not allowed (currently no ResourceLocator)
+	@Deprecated
 	public Main(String inline, Map<CoreArgs, Boolean> args)
 			throws ScribException, ScribParserException
 	{
@@ -89,18 +90,20 @@ public class Main
 		this.antlr = newAntlr();
 
 		// Set this.loader and load main
+		String inline = hack.right;
+		ResourceLocator locator = hack.left;
 		Pair<Resource, Module> main;
-		if (hack.right == null)
+		//if (inline == null)
 		{
 			//this.locator = hack.left;
-			this.loader = new ScribModuleLoader(hack.left, this.antlr);
+			this.loader = new ScribModuleLoader(locator, this.antlr);
 			main = this.loader.loadMainModule(mainpath);
 		}
-		else
+		/*else
 		{
 			//this.locator = null;
 			this.loader = new ScribModuleLoader(null, this.antlr);  // CHECKME: null locator OK?
-			main = this.loader.loadMainModule(hack.right);
+			main = this.loader.loadMainModule(inline);
 			if (main.right.getImportDeclChildren().stream()
 					.anyMatch(x -> x.isImportModule()))
 			{
@@ -108,7 +111,7 @@ public class Main
 						"Module imports not permitted in inline main modules.");
 						// Because (currently) null locator
 			}
-		}
+		}*/
 
 		this.main = main.right.getFullModuleName();
 		this.args = Collections.unmodifiableMap(args);

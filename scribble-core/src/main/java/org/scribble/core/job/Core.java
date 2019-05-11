@@ -65,12 +65,14 @@ public class Core
 				imeds);  // Single instance per Core and should never be shared
 	}
 	
+	// A Scribble extension should override newSTypeVisitorFactory/ModelFactory as appropriate
 	protected STypeVisitorFactory newSTypeVisitorFactory()
 	{
 		return new STypeVisitorFactoryImpl(new GTypeVisitorFactoryImpl(),
 				new LTypeVisitorFactoryImpl());
 	}
 	
+	// A Scribble extension should override newSTypeVisitorFactory/ModelFactory as appropriate
 	protected ModelFactory newModelFactory()
 	{
 		return new ModelFactory(EModelFactoryImpl::new,

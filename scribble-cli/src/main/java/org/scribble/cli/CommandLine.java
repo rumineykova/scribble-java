@@ -86,41 +86,38 @@ public class CommandLine
 		new CommandLine(args).run();
 	}
 	
-	// A Scribble extension should override newCLFlags/newCLArgParser/newMain/newCoreArgs as appropriate
+	// A Scribble extension should override newCLFlags/CLArgParser/Main/CoreArgs as appropriate
 	protected CLFlags newCLFlags()
 	{
 		return new CLFlags();
 	}
 
-	// A Scribble extension should override newCLFlags/newCLArgParser/newMain/newCoreArgs as appropriate
+	// A Scribble extension should override newCLFlags/CLArgParser/Main/CoreArgs as appropriate
 	protected CLArgParser newCLArgParser(CLFlags flags, String[] args)
 	{
 		return new CLArgParser(flags, args);
 	}
 
-	// A Scribble extension should override newCLFlags/newCLArgParser/newMain/newCoreArgs as appropriate
+	// A Scribble extension should override newCLFlags/CLArgParser/Main/CoreArgs as appropriate
 	protected Main newMain() throws ScribParserException, ScribException
 	{
 		Map<CoreArgs, Boolean> args = Collections.unmodifiableMap(newCoreArgs());
-		if (hasFlag(CLFlags.INLINE_MAIN_MOD_FLAG))
+		/*if (hasFlag(CLFlags.INLINE_MAIN_MOD_FLAG))
 		{
 			String inline = getUniqueFlagArgs(CLFlags.INLINE_MAIN_MOD_FLAG)[0];
-			return new Main(inline, args);
+			//return new Main(inline, args);
+			throw new RuntimeException("[TODO] Refactor inline via tmp directory/file creation: " + inline);
 		}
-		else
+		else*/  // FIXME: refactor inline via tmp directory/file creation
 		{
-			List<Path> impaths = hasFlag(CLFlags.IMPORT_PATH_FLAG)
-					? CommandLine
-							.parseImportPaths(getUniqueFlagArgs(CLFlags.IMPORT_PATH_FLAG)[0])
-					: Collections.emptyList();
+			List<Path> impaths = parseImportPaths();
 			ResourceLocator locator = new DirectoryResourceLocator(impaths);
-			Path mainpath = CommandLine
-					.parseMainPath(getUniqueFlagArgs(CLFlags.MAIN_MOD_FLAG)[0]);
+			Path mainpath = parseMainPath();
 			return new Main(locator, mainpath, args);
 		}
 	}
 	
-	// A Scribble extension should override newCLFlags/newCLArgParser/newMain/newCoreArgs as appropriate
+	// A Scribble extension should override newCLFlags/CLArgParser/Main/CoreArgs as appropriate
 	protected Map<CoreArgs, Boolean> newCoreArgs()
 	{
 		Map<CoreArgs, Boolean> args = new HashMap<>();
@@ -448,10 +445,10 @@ public class CommandLine
 	private SGraph getSGraph(Job job, GProtoName fullname, boolean fair)
 			throws ScribException
 	{
-		CoreContext jobc2 = job.getCore().getContext();
+		CoreContext corec = job.getCore().getContext();
 		SGraph model = fair 
-				? jobc2.getSGraph(fullname)
-				: jobc2.getUnfairSGraph(fullname);
+				? corec.getSGraph(fullname)
+				: corec.getUnfairSGraph(fullname);
 		if (model == null)
 		{
 			throw new RuntimeScribException("Shouldn't see this: " + fullname);
@@ -487,40 +484,21 @@ public class CommandLine
 		classes.keySet().forEach(f);
 	}
 
-	protected static void runDot(String dot, String png)
-			throws ScribException, CommandLineException
+	protected Path parseMainPath()
 	{
-		File tmp = null;
-		try
-		{
-			tmp = File.createTempFile(png, ".tmp");
-			String tmpName = tmp.getAbsolutePath();				
-			ScribUtil.writeToFile(tmpName, dot);
-			String[] res = ScribUtil.runProcess("dot", "-Tpng", "-o" + png, tmpName);
-			System.out.print(!res[1].isEmpty() ? res[1] : res[0]);  // already "\n" terminated
-		}
-		catch (IOException e)
-		{
-			throw new CommandLineException(e);
-		}
-		finally
-		{
-			if (tmp != null)
-			{
-				tmp.delete();
-			}
-		}
-	}
-
-	protected static Path parseMainPath(String path)
-	{
+		String path = getUniqueFlagArgs(CLFlags.MAIN_MOD_FLAG)[0];
 		return Paths.get(path);
 	}
 
-	protected static List<Path> parseImportPaths(String paths)
+	protected List<Path> parseImportPaths()
 	{
-		return Arrays.stream(paths.split(File.pathSeparator)).map(s -> Paths.get(s))
-				.collect(Collectors.toList());
+		if (!hasFlag(CLFlags.IMPORT_PATH_FLAG))
+		{
+			return Collections.emptyList();
+		}
+		String impaths = getUniqueFlagArgs(CLFlags.IMPORT_PATH_FLAG)[0];
+		return Arrays.stream(impaths.split(File.pathSeparator))
+				.map(x -> Paths.get(x)).collect(Collectors.toList());
 	}
 
 	protected static GProtoName checkGlobalProtocolArg(JobContext jobc,
@@ -545,8 +523,8 @@ public class CommandLine
 		return new GProtoName(jobc.job.config.main, simpgpn);  // TODO: take Job param instead of Jobcontext
 	}
 
-	protected static Role checkRoleArg(JobContext jobc,
-			GProtoName fullname, String rolename) throws CommandLineException
+	protected static Role checkRoleArg(JobContext jobc, GProtoName fullname,
+			String rolename) throws CommandLineException
 	{
 		ProtoDecl<?> pd = jobc.getMainModule()
 				.getGProtocolDeclChild(fullname.getSimpleName());
@@ -557,5 +535,31 @@ public class CommandLine
 					"Role not declared for " + fullname + ": " + role);
 		}
 		return role;
+	}
+
+	// CHECKME: relocate?
+	protected static void runDot(String dot, String png)
+			throws ScribException, CommandLineException
+	{
+		File tmp = null;
+		try
+		{
+			tmp = File.createTempFile(png, ".tmp");
+			String tmpName = tmp.getAbsolutePath();				
+			ScribUtil.writeToFile(tmpName, dot);
+			String[] res = ScribUtil.runProcess("dot", "-Tpng", "-o" + png, tmpName);
+			System.out.print(!res[1].isEmpty() ? res[1] : res[0]);  // already "\n" terminated
+		}
+		catch (IOException e)
+		{
+			throw new CommandLineException(e);
+		}
+		finally
+		{
+			if (tmp != null)
+			{
+				tmp.delete();
+			}
+		}
 	}
 }

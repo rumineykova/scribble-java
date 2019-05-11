@@ -48,8 +48,8 @@ public abstract class AssrtCoreTestBase extends ScribTestBase
 	protected void runTest(String dir) throws CommandLineException, AntlrSourceException
 	{
 		new AssrtCommandLine(this.example, CLFlags.JUNIT_FLAG, CLFlags.IMPORT_PATH_FLAG, dir,
-						AssrtCoreCLArgParser.ASSRT_CORE_NATIVE_Z3_FLAG, AssrtCoreCLArgParser.ASSRT_CORE_BATCHING_FLAG,
-						AssrtCoreCLArgParser.ASSRT_CORE_FLAG, "[AssrtCoreAllTest]")  // HACK: for AssrtCommandLine (assrt-core mode)
+						AssrtCoreCLFlags.ASSRT_CORE_NATIVE_Z3_FLAG, AssrtCoreCLFlags.ASSRT_CORE_BATCHING_FLAG,
+						AssrtCoreCLFlags.ASSRT_CORE_FLAG, "[AssrtCoreAllTest]")  // HACK: for AssrtCommandLine (assrt-core mode)
 				.run();
 	}
 

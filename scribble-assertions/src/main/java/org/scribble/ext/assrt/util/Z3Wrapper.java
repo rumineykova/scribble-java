@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.scribble.ast.global.GProtocolDecl;
+import org.scribble.ast.global.GProtoDecl;
 import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.type.formula.AssrtBinFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
@@ -19,7 +19,7 @@ import org.scribble.ext.assrt.type.formula.AssrtQuantifiedIntVarsFormula;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.formula.AssrtUnintPredicateFormula;
-import org.scribble.main.ScribbleException;
+import org.scribble.util.ScribException;
 import org.scribble.util.ScribUtil;
 
 // "Native" Z3 -- not Z3 Java API
@@ -27,9 +27,11 @@ public class Z3Wrapper
 {
 
 	// Based on CommandLine::runDot, JobContext::runAut, etc
-	public static boolean checkSat(AssrtJob job, GProtocolDecl gpd, Set<AssrtBoolFormula> fs) //throws ScribbleException
+	public static boolean checkSat(AssrtJob job, GProtoDecl gpd,
+			Set<AssrtBoolFormula> fs)  //throws ScribbleException
 	{
-		fs = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE)).collect(Collectors.toSet());
+		fs = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
+				.collect(Collectors.toSet());
 		if (fs.isEmpty())
 		{
 			return true;
@@ -37,7 +39,8 @@ public class Z3Wrapper
 
 		String smt2 = toSmt2(job, gpd, fs);
 
-		job.debugPrintln("\n[assrt-core] Running Z3 on:\n  " + smt2.replaceAll("\\n", "\n  "));
+		job.verbosePrintln(
+				"\n[assrt-core] Running Z3 on:\n  " + smt2.replaceAll("\\n", "\n  "));
 
 		return checkSat(smt2);
 	}
@@ -68,7 +71,7 @@ public class Z3Wrapper
 					throw new RuntimeException("[assrt] Z3 error: " + Arrays.toString(res));
 				}
 			}
-			catch (ScribbleException e)
+			catch (ScribException e)
 			{
 				throw new RuntimeException(e);
 			}
@@ -84,30 +87,40 @@ public class Z3Wrapper
 	}
 	
 	// fs shouldn't be empty (but OK)
-	private static String toSmt2(AssrtJob job, GProtocolDecl gpd, Set<AssrtBoolFormula> fs)
+	private static String toSmt2(AssrtJob job, GProtoDecl gpd, Set<AssrtBoolFormula> fs)
 	{
 		String smt2 = "";
-		List<String> rs = gpd.getHeader().roledecls.getRoles().stream().map(Object::toString).sorted().collect(Collectors.toList());
-		smt2 += IntStream.range(0, rs.size())
-				.mapToObj(i -> "(declare-const " + rs.get(i) + " Int)\n(assert (= " + rs.get(i) + " " + i +"))\n").collect(Collectors.joining(""));
+		List<String> rs = gpd.getHeaderChild().getRoleDeclListChild().getRoles()
+				.stream().map(Object::toString).sorted().collect(Collectors.toList());
+		smt2 += IntStream
+				.range(0, rs.size()).mapToObj(i -> "(declare-const " + rs.get(i)
+						+ " Int)\n(assert (= " + rs.get(i) + " " + i + "))\n")
+				.collect(Collectors.joining(""));
 						// FIXME: make a Role sort?
 
-		Set<AssrtUnintPredicateFormula> preds = fs.stream().flatMap(f -> getUnintPreds.func.apply(f).stream()).collect(Collectors.toSet());
-		smt2 += preds.stream().map(p -> "(declare-fun " + p.name + " ("
-				+ IntStream.range(0, p.args.size()).mapToObj(i -> ("(Int)")).collect(Collectors.joining(" "))
-				+ ") Bool)\n").collect(Collectors.joining(""));
+		Set<AssrtUnintPredicateFormula> preds = fs.stream()
+				.flatMap(f -> getUnintPreds.func.apply(f).stream())
+				.collect(Collectors.toSet());
+		smt2 += preds.stream()
+				.map(p -> "(declare-fun " + p.name + " ("
+						+ IntStream.range(0, p.args.size()).mapToObj(i -> ("(Int)"))
+								.collect(Collectors.joining(" "))
+						+ ") Bool)\n")
+				.collect(Collectors.joining(""));
 		if (preds.stream().anyMatch(p -> p.name.equals("port")))  // FIXME: factor out
 		{
 			smt2 += "(assert (forall ((p Int) (r Int)) (=> (port p r) (open p r))))\n";
 		}
 		
 		return smt2
-				+ fs.stream().map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining())
+				+ fs.stream().map(f -> "(assert " + f.toSmt2Formula() + ")\n")
+						.collect(Collectors.joining())
 				+ "(check-sat)\n"
 				+ "(exit)";
 	}
 
-	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnintPredicateFormula>>> getUnintPreds  // FIXME: move to utils?
+	// FIXME: move to utils?
+	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnintPredicateFormula>>> getUnintPreds
 			= new RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnintPredicateFormula>>>()
 	{{
 		this.func = ff ->
@@ -115,7 +128,9 @@ public class Z3Wrapper
 			if (ff instanceof AssrtBinFormula)
 			{
 				AssrtBinFormula<?> bf = (AssrtBinFormula<?>) ff;
-				return Stream.of(bf.getLeft(), bf.getRight()).flatMap(x -> this.func.apply(x).stream()).collect(Collectors.toSet());
+									return Stream.of(bf.getLeft(), bf.getRight())
+											.flatMap(x -> this.func.apply(x).stream())
+											.collect(Collectors.toSet());
 			}
 			else if (ff instanceof AssrtQuantifiedIntVarsFormula)
 			{
@@ -123,7 +138,9 @@ public class Z3Wrapper
 			}
 			else if (ff instanceof AssrtUnintPredicateFormula)
 			{
-				return Stream.of((AssrtUnintPredicateFormula) ff).collect(Collectors.toSet());  // Nested predicates not possible
+				return Stream.of((AssrtUnintPredicateFormula) ff)
+						.collect(Collectors.toSet());
+						// Nested predicates not possible
 			}
 			else
 			{

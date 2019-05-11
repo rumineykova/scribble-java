@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 
 
 // Module supplied directly as a String arg.
+@Deprecated
 public class InlineResource extends AbstractResource
 {
 	//private final String res;
