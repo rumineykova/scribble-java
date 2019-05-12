@@ -16,7 +16,7 @@ import org.scribble.core.type.session.STypeFactory;
 import org.scribble.core.type.session.global.GTypeFactoryImpl;
 import org.scribble.core.type.session.local.LTypeFactoryImpl;
 import org.scribble.del.DelFactory;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;

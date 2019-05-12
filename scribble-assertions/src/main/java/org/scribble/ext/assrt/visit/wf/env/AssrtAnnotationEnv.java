@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.type.name.Role;
 import org.scribble.visit.env.Env;
 

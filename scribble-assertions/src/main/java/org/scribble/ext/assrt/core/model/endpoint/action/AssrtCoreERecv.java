@@ -10,9 +10,9 @@ import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactory;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSRecv;
+import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtERecv;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 
 public class AssrtCoreERecv extends AssrtERecv implements AssrtCoreEAction
 {

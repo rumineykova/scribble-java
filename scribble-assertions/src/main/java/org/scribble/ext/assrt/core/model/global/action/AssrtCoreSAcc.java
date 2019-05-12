@@ -5,9 +5,9 @@ import java.util.List;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.model.global.actions.AssrtSAcc;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 
 public class AssrtCoreSAcc extends AssrtSAcc implements AssrtCoreSAction
 {

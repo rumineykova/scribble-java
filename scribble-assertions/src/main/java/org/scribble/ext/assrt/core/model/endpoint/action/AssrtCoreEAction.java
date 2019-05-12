@@ -3,8 +3,8 @@ package org.scribble.ext.assrt.core.model.endpoint.action;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAction;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 
 public interface AssrtCoreEAction extends AssrtEAction
 {

@@ -9,12 +9,12 @@ import org.scribble.core.model.global.SingleBuffers;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtLogFormula;
 import org.scribble.ext.assrt.model.global.actions.AssrtSAcc;
 import org.scribble.ext.assrt.model.global.actions.AssrtSRecv;
 import org.scribble.ext.assrt.model.global.actions.AssrtSReq;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtLogFormula;
 
 public interface AssrtSModelFactory extends SModelFactory
 {

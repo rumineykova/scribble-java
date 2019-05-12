@@ -5,11 +5,11 @@ import org.scribble.core.model.endpoint.actions.ESend;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.model.global.AssrtSModelFactory;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 
 // FIXME: treating assertion as String -- assertion now has equals/hashCode
 public class AssrtESend extends ESend implements AssrtEAction

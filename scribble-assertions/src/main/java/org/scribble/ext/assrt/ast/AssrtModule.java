@@ -13,7 +13,7 @@ import org.scribble.ast.ModuleDecl;
 import org.scribble.ast.ProtocolDecl;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.del.ScribDel;
-import org.scribble.ext.assrt.type.name.AssrtAssertName;
+import org.scribble.ext.assrt.core.type.name.AssrtAssertName;
 import org.scribble.main.ScribbleException;
 import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;

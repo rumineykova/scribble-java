@@ -22,12 +22,12 @@ import org.scribble.core.model.endpoint.EModelFactory;
 import org.scribble.core.model.endpoint.EState;
 import org.scribble.core.model.endpoint.actions.EAction;
 import org.scribble.core.type.name.RecVar;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 
 public class AssrtEState extends EState
 {

@@ -5,10 +5,10 @@ import org.scribble.core.model.endpoint.actions.EAcc;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.model.global.AssrtSModelFactory;
 import org.scribble.ext.assrt.model.global.actions.AssrtSAcc;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 
 // Duplicated from AssrtEreceive
 public class AssrtEAcc extends EAcc implements AssrtEAction

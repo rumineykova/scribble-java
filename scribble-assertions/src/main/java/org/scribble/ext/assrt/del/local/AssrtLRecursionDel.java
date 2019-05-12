@@ -21,12 +21,12 @@ import org.scribble.del.local.LRecursionDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
+import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.type.name.RecVar;
 import org.scribble.visit.context.EGraphBuilder;
 

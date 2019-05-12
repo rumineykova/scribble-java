@@ -4,7 +4,7 @@ import org.scribble.core.model.global.actions.SRecv;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 
 public class AssrtSRecv extends SRecv implements AssrtSAction
 {

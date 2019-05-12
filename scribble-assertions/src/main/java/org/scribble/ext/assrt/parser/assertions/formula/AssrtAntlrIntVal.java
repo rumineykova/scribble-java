@@ -1,9 +1,9 @@
 package org.scribble.ext.assrt.parser.assertions.formula;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.core.type.formula.AssrtIntValFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtIntValFormula;
 
 public class AssrtAntlrIntVal
 {

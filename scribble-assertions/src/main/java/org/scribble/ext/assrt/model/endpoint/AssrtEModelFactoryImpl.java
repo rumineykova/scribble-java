@@ -14,14 +14,14 @@ import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAcc;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtERecv;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEReq;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 
 public class AssrtEModelFactoryImpl extends EModelFactoryImpl
 		implements AssrtEModelFactory

@@ -11,10 +11,10 @@ import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
-import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 
 public class AssrtStpESend extends AssrtCoreESend implements AssrtStpEAction
 {

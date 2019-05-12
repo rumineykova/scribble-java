@@ -12,13 +12,13 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.scribble.ast.global.GProtoDecl;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtQuantifiedIntVarsFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtUnintPredicateFormula;
 import org.scribble.ext.assrt.main.AssrtJob;
-import org.scribble.ext.assrt.type.formula.AssrtBinFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtQuantifiedIntVarsFormula;
-import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.type.formula.AssrtUnintPredicateFormula;
 import org.scribble.util.ScribException;
 import org.scribble.util.ScribUtil;
 

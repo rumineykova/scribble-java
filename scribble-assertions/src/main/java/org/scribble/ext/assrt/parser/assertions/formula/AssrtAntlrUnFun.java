@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.core.type.formula.AssrtUnintPredicateFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtUnintPredicateFormula;
 
 public class AssrtAntlrUnFun
 {

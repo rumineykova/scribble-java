@@ -6,10 +6,10 @@ import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.PayloadElemNameNode;
 import org.scribble.ast.name.simple.SimpleNameNode;
 import org.scribble.ext.assrt.ast.AssrtFormulaNode;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
-import org.scribble.ext.assrt.type.kind.AssrtVarNameKind;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
+import org.scribble.ext.assrt.core.type.kind.AssrtVarNameKind;
+import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.type.Arg;
 import org.scribble.type.kind.NonRoleArgKind;
 

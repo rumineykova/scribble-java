@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.scribble.ast.context.ScribNameMap;
-import org.scribble.ext.assrt.type.name.AssrtAssertName;
+import org.scribble.ext.assrt.core.type.name.AssrtAssertName;
 
 // Mutable
 public class AssrtScribNameMap extends ScribNameMap

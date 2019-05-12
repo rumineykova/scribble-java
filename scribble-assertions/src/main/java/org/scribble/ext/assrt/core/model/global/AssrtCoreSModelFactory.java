@@ -10,8 +10,8 @@ import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSAcc;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSRecv;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSReq;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 
 public interface AssrtCoreSModelFactory extends SModelFactory
 {

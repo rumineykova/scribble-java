@@ -16,7 +16,7 @@ import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.AssrtModule;
 import org.scribble.ext.assrt.ast.context.AssrtModuleContext;
 import org.scribble.ext.assrt.ast.context.AssrtScribNameMap;
-import org.scribble.ext.assrt.type.name.AssrtAssertName;
+import org.scribble.ext.assrt.core.type.name.AssrtAssertName;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.Role;

@@ -7,7 +7,7 @@ import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.qualified.DataTypeNode;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
-import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.kind.DataTypeKind;
 import org.scribble.util.ScribUtil;

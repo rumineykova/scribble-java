@@ -4,8 +4,8 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.ast.name.simple.SimpleNameNode;
-import org.scribble.ext.assrt.type.kind.AssrtSortKind;
-import org.scribble.ext.assrt.type.name.AssrtSort;
+import org.scribble.ext.assrt.core.type.kind.AssrtSortKind;
+import org.scribble.ext.assrt.core.type.name.AssrtSort;
 
 public class AssrtSortNode extends SimpleNameNode<AssrtSortKind> //implements PayloadElemNameNode<AssrtVarNameKind>, AssrtFormulaNode
 {

@@ -1,7 +1,7 @@
 package org.scribble.ext.assrt.model.endpoint.action;
 
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 
 public interface AssrtEAction
 {

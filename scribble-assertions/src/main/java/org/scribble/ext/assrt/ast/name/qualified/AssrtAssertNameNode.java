@@ -3,8 +3,8 @@ package org.scribble.ext.assrt.ast.name.qualified;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.name.qualified.MemberNameNode;
-import org.scribble.ext.assrt.type.kind.AssrtAssertKind;
-import org.scribble.ext.assrt.type.name.AssrtAssertName;
+import org.scribble.ext.assrt.core.type.kind.AssrtAssertKind;
+import org.scribble.ext.assrt.core.type.name.AssrtAssertName;
 
 public class AssrtAssertNameNode extends MemberNameNode<AssrtAssertKind>  // Duplicated From DataTypeNode
 {

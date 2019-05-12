@@ -13,20 +13,20 @@ import org.scribble.core.type.name.PayElemType;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
-import org.scribble.ext.assrt.core.ast.AssrtCoreMsg;
-import org.scribble.ext.assrt.core.ast.AssrtCoreRecVar;
-import org.scribble.ext.assrt.core.ast.local.AssrtCoreLActionKind;
-import org.scribble.ext.assrt.core.ast.local.AssrtCoreLChoice;
-import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
-import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRec;
-import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
 import org.scribble.ext.assrt.core.job.AssrtCore;
+import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.kind.AssrtAnnotDataTypeKind;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreRecVar;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLActionKind;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLChoice;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLRec;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
 import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.type.kind.AssrtAnnotDataTypeKind;
 
 public class AssrtCoreEGraphBuilder
 {

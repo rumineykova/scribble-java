@@ -4,7 +4,7 @@ import org.scribble.core.model.global.actions.SAcc;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 
 // Duplicated from SReceive
 public class AssrtSAcc extends SAcc implements AssrtSAction

@@ -20,13 +20,13 @@ import org.scribble.core.model.global.SingleBuffers;
 import org.scribble.core.type.kind.PayElemKind;
 import org.scribble.core.type.name.PayElemType;
 import org.scribble.core.type.name.Role;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtLogFormula;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtPayloadElemType;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtERecv;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtLogFormula;
-import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.type.name.AssrtPayloadElemType;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 
 // FIXME: equals/hashCode -- done?
@@ -176,9 +176,10 @@ public class AssrtSConfig extends SConfig
 				.collect(Collectors.toList());
 	}
 
+	// FIXME: refactor
 	public Map<Role, EState> getVarsNotInScope()
 	{
-		throw new RuntimeException("[TODO]: ");
+		return checkHistorySensitivity();
 	}
 	
 	// For now we are checking that only the sender knows all variables. 

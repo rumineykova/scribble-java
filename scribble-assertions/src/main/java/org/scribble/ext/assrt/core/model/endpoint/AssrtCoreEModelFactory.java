@@ -15,11 +15,11 @@ import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.stp.AssrtStpEState;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpEReceive;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpESend;
+import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
-import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 
 public interface AssrtCoreEModelFactory extends AssrtEModelFactory
 {

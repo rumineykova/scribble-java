@@ -23,17 +23,17 @@ import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpEAction;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpEReceive;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpESend;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinCompFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtPayloadElemType;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
-import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
-import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.type.name.AssrtPayloadElemType;
 
 public class AssrtStpEState extends AssrtEState
 {

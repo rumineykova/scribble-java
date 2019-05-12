@@ -5,7 +5,7 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.del.ScribDel;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
 import org.scribble.main.ScribbleException;
 import org.scribble.visit.AstVisitor;
 

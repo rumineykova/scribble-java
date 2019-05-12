@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.scribble.cli.CLFlags;
 import org.scribble.cli.CommandLineException;
-import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
 import org.scribble.test.ScribTestBase;
 import org.scribble.util.AntlrSourceException;
 
