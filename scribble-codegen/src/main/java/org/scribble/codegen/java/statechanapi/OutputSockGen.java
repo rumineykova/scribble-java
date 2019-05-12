@@ -63,7 +63,7 @@ public class OutputSockGen extends ScribSockGen
 		boolean hasWrap = false;
 		for (EAction a : curr.getDetActions())  // (Scribble ensures all "a" are input or all are output)
 		{
-			EState succ = curr.getDetSuccessor(a);
+			EState succ = curr.getDetSucc(a);
 			
 			MethodBuilder mb = this.cb.newMethod();
 			if (a.isSend())

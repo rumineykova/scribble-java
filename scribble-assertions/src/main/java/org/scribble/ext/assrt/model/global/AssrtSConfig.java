@@ -9,7 +9,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.model.endpoint.action.AssrtEReceive;
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.model.endpoint.EFsm;
+import org.scribble.core.model.endpoint.EState;
+import org.scribble.core.model.endpoint.actions.EAction;
+import org.scribble.core.model.endpoint.actions.ERecv;
+import org.scribble.core.model.endpoint.actions.ESend;
+import org.scribble.core.model.global.SConfig;
+import org.scribble.core.model.global.SingleBuffers;
+import org.scribble.core.type.kind.PayElemKind;
+import org.scribble.core.type.name.PayElemType;
+import org.scribble.core.type.name.Role;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtERecv;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtLogFormula;
@@ -17,17 +28,6 @@ import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.type.name.AssrtPayloadElemType;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
-import org.scribble.model.endpoint.EFSM;
-import org.scribble.model.endpoint.EState;
-import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.model.endpoint.actions.EReceive;
-import org.scribble.model.endpoint.actions.ESend;
-import org.scribble.model.global.SBuffers;
-import org.scribble.model.global.SConfig;
-import org.scribble.model.global.SModelFactory;
-import org.scribble.type.kind.PayloadTypeKind;
-import org.scribble.type.name.PayloadElemType;
-import org.scribble.type.name.Role;
 
 // FIXME: equals/hashCode -- done?
 // FIXME: override getFireable to check send ass implies recv ass
@@ -36,9 +36,11 @@ public class AssrtSConfig extends SConfig
 	public final AssrtLogFormula formula;
 	public final Map<Role, Set<String>> varsInScope; 
 	
-	protected AssrtSConfig(SModelFactory sf, Map<Role, EFSM> state, SBuffers buffs, AssrtLogFormula formula, Map<Role, Set<String>> varsInScope)
+	protected AssrtSConfig(ModelFactory mf, Map<Role, EFsm> state,
+			SingleBuffers buffs, AssrtLogFormula formula,
+			Map<Role, Set<String>> varsInScope)
 	{
-		super(sf, state, buffs);
+		super(mf, state, buffs);
 		this.formula = formula; 
 		this.varsInScope = Collections.unmodifiableMap(varsInScope);
 	}
@@ -46,18 +48,18 @@ public class AssrtSConfig extends SConfig
 	// FIXME: factor out better with super?
 	@Override
 	//public List<ASConfig> fire(Role r, EAction a)
-	public List<SConfig> fire(Role r, EAction a)
+	public List<SConfig> async(Role r, EAction a)
 	{
 		//List<ASConfig> res = new LinkedList<>();
 		List<SConfig> res = new LinkedList<>();
 		
 		//List<EndpointState> succs = this.states.get(r).takeAll(a);
-		List<EFSM> succs = this.efsms.get(r).fireAll(a);
+		List<EFsm> succs = this.efsms.get(r).getSuccs(a);
 		//for (EndpointState succ : succs)
-		for (EFSM succ : succs)
+		for (EFsm succ : succs)
 		{
 			//Map<Role, EndpointState> tmp1 = new HashMap<>(this.states);
-			Map<Role, EFSM> tmp1 = new HashMap<>(this.efsms);
+			Map<Role, EFsm> tmp1 = new HashMap<>(this.efsms);
 			//Map<Role, Map<Role, Send>> tmp2 = new HashMap<>(this.buffs);
 		
 			tmp1.put(r, succ);
@@ -73,11 +75,11 @@ public class AssrtSConfig extends SConfig
 			{
 				tmp3.put(r, null);
 			}*/
-			SBuffers tmp2 = 
+			SingleBuffers tmp2 = 
 						//a.isSend()       ? this.buffs.send(r, (ESend) a)
-						a.isSend()       ? this.buffs.send(r, ((AssrtESend) a).toTrueAssertion())  // HACK FIXME: project receive assertion properly and check implication 
+						a.isSend()       ? this.queues.send(r, ((AssrtESend) a).toTrueAssertion())  // HACK FIXME: project receive assertion properly and check implication 
 					
-					: a.isReceive()    ? this.buffs.receive(r, (EReceive) a)
+					: a.isReceive()    ? this.queues.receive(r, (ERecv) a)
 					//: a.isDisconnect() ? this.buffs.disconnect(r, (EDisconnect) a)
 					: null;
 			if (tmp2 == null)
@@ -92,7 +94,7 @@ public class AssrtSConfig extends SConfig
 			}
 			else if (a.isReceive()) 
 			{
-				assertion = ((AssrtEReceive) a).ass;
+				assertion = ((AssrtERecv) a).ass;
 			}
 			else
 			{
@@ -123,7 +125,7 @@ public class AssrtSConfig extends SConfig
 
 			if (a.isSend())
 			{
-				for (PayloadElemType<? extends PayloadTypeKind> elem : a.payload.elems)
+				for (PayElemType<? extends PayElemKind> elem : a.payload.elems)
 				{
 					if (elem instanceof AssrtPayloadElemType<?>) // FIXME?
 					{
@@ -157,7 +159,9 @@ public class AssrtSConfig extends SConfig
 				}
 			}
 
-			res.add(((AssrtSModelFactory) this.sf).newAssrtSConfig(tmp1, tmp2, nextFormula, vars));  // FIXME: factor out with sync and with SConfig -- make an SModelBuilder (factored out with SGraph.buildSGraph), cf. AstFactory
+			res.add(((AssrtSModelFactory) this.mf.global).newAssrtSConfig(tmp1, tmp2,
+					nextFormula, vars));
+					// FIXME: factor out with sync and with SConfig -- make an SModelBuilder (factored out with SGraph.buildSGraph), cf. AstFactory
 		}
 
 		return res;
@@ -166,9 +170,15 @@ public class AssrtSConfig extends SConfig
 	@Override
 	public List<SConfig> sync(Role r1, EAction a1, Role r2, EAction a2)
 	{
-		AssrtSModelFactory sf = (AssrtSModelFactory) this.sf;
-		return super.sync(r1, a1, r2, a2).stream()  // Inefficient, but reduces code duplication
-				.map(c -> sf.newAssrtSConfig(c.efsms, c.buffs, this.formula, this.varsInScope)).collect(Collectors.toList());
+		AssrtSModelFactory sf = (AssrtSModelFactory) this.mf.global;
+		return super.sync(r1, a1, r2, a2).stream().map(c -> sf  // Inefficient, but reduces code duplication
+				.newAssrtSConfig(c.efsms, c.queues, this.formula, this.varsInScope))
+				.collect(Collectors.toList());
+	}
+
+	public Map<Role, EState> getVarsNotInScope()
+	{
+		throw new RuntimeException("[TODO]: ");
 	}
 	
 	// For now we are checking that only the sender knows all variables. 
@@ -178,8 +188,8 @@ public class AssrtSConfig extends SConfig
 		for (Role r : this.efsms.keySet())
 		{
 			Set<ESend> unknownVars = new HashSet<ESend>(); 
-			EFSM s = this.efsms.get(r);
-			for (EAction action : s.getAllFireable())  
+			EFsm s = this.efsms.get(r);
+			for (EAction action : s.curr.getActions())  
 			{
 				if (action.isSend())
 				{
@@ -217,8 +227,8 @@ public class AssrtSConfig extends SConfig
 		for (Role r : this.efsms.keySet())
 		{
 			Set<ESend> unsafStates = new HashSet<ESend>(); 
-			EFSM s = this.efsms.get(r);
-			for (EAction action : s.getAllFireable())  
+			EFsm s = this.efsms.get(r);
+			for (EAction action : s.curr.getActions())  
 			{
 				if (action.isSend()) {
 					AssrtESend send = (AssrtESend)action;

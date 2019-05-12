@@ -206,7 +206,7 @@ public class SessionApiGenerator extends ApiGen
 	{
 		Module mod = this.job.getContext().getModule(this.gpn.getPrefix());
 		GProtoName simpname = this.gpn.getSimpleName();
-		GProtoDecl gpd = (GProtoDecl) mod.getGProtocolDeclChild(simpname);
+		GProtoDecl gpd = (GProtoDecl) mod.getGProtoDeclChild(simpname);
 		for (Role r : gpd.getRoles())
 		{
 			//constructRoleClass(this.cb.newClass(), r);

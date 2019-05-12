@@ -2,14 +2,14 @@ package org.scribble.ext.assrt.core.ast.local;
 
 import java.util.Map;
 
-import org.scribble.ext.assrt.core.ast.AssrtCoreMessage;
+import org.scribble.ext.assrt.core.ast.AssrtCoreMsg;
 import org.scribble.ext.assrt.core.ast.AssrtCoreChoice;
 import org.scribble.type.kind.Local;
 import org.scribble.type.name.Role;
 
 public class AssrtCoreLChoice extends AssrtCoreChoice<AssrtCoreLType, Local> implements AssrtCoreLType
 {
-	public AssrtCoreLChoice(Role role, AssrtCoreLActionKind kind, Map<AssrtCoreMessage, AssrtCoreLType> cases)
+	public AssrtCoreLChoice(Role role, AssrtCoreLActionKind kind, Map<AssrtCoreMsg, AssrtCoreLType> cases)
 	{
 		super(role, kind, cases);
 	}

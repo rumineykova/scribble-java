@@ -86,7 +86,7 @@ public class CaseIfaceGen extends IOStateIfaceGen
 		{
 			MethodBuilder mb = this.ib.newAbstractMethod();
 			CaseSockGen.setCaseReceiveDiscardHeaderWithoutReturnType(this.apigen, a, mb); 
-			EState succ = this.curr.getDetSuccessor(a);
+			EState succ = this.curr.getDetSucc(a);
 			if (succ.isTerminal())
 			{
 				ScribSockGen.setNextSocketReturnType(this.apigen, mb, succ);

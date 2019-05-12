@@ -17,6 +17,9 @@ public interface AssrtCoreEAction extends AssrtEAction
 	default String stateExprsToString()
 	{
 		List<AssrtArithFormula> exprs = getStateExprs();
-		return (exprs.isEmpty() ? "" : "<" + exprs.stream().map(Object::toString).collect(Collectors.joining(", ")) + ">");
+		return exprs.isEmpty() 
+				? "" 
+				: ("<" + exprs.stream().map(Object::toString)
+						.collect(Collectors.joining(", ")) + ">");
 	}
 }

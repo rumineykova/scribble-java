@@ -7,42 +7,48 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.core.ast.AssrtCoreMessage;
+import org.scribble.core.model.endpoint.EGraph;
+import org.scribble.core.model.endpoint.actions.EAction;
+import org.scribble.core.type.name.PayElemType;
+import org.scribble.core.type.name.RecVar;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.core.ast.AssrtCoreMsg;
 import org.scribble.ext.assrt.core.ast.AssrtCoreRecVar;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLActionKind;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLChoice;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLRec;
 import org.scribble.ext.assrt.core.ast.local.AssrtCoreLType;
+import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.kind.AssrtAnnotDataTypeKind;
-import org.scribble.model.endpoint.EGraph;
-import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.type.Payload;
-import org.scribble.type.name.PayloadElemType;
-import org.scribble.type.name.RecVar;
-import org.scribble.type.name.Role;
 
 public class AssrtCoreEGraphBuilder
 {
 	private final AssrtJob job;
+	private final AssrtCore core;
 	private final AssrtEGraphBuilderUtil util;  // Not using any features for unguarded choice/recursion/continue (recursion manually tracked here)
 
 	
 	public AssrtCoreEGraphBuilder(AssrtJob job)
 	{
 		this.job = job;
-		this.util = (AssrtEGraphBuilderUtil) job.newEGraphBuilderUtil();
+		this.core = (AssrtCore) job.getCore();
+		this.util = (AssrtEGraphBuilderUtil) this.core.config.mf.local
+				.EGraphBuilderUtil();
 	}
 	
 	public EGraph build(AssrtCoreLType lt)
 	{
-		this.util.init(((AssrtCoreEModelFactory) this.job.ef).newAssrtEState(Collections.emptySet(), new LinkedHashMap<>(), 
-				AssrtTrueFormula.TRUE));
+		this.util.setEntry(((AssrtCoreEModelFactory) this.core.config.mf.local)
+				.newAssrtEState(Collections.emptySet(), new LinkedHashMap<>(),
+						AssrtTrueFormula.TRUE));
+		
 		build(lt, this.util.getEntry(), this.util.getExit(), new HashMap<>());
 		return this.util.finalise();
 	}
@@ -76,7 +82,7 @@ public class AssrtCoreEGraphBuilder
 	}
 
 	private void buildEdgeAndContinuation(AssrtEState s1, AssrtEState s2, Map<RecVar, AssrtEState> recs, 
-			Role r, AssrtCoreLActionKind k, AssrtCoreMessage a, AssrtCoreLType cont)
+			Role r, AssrtCoreLActionKind k, AssrtCoreMsg a, AssrtCoreLType cont)
 	{
 		if (cont instanceof AssrtCoreLEnd)
 		{
@@ -97,7 +103,7 @@ public class AssrtCoreEGraphBuilder
 		}
 		else
 		{
-			AssrtEState s = (AssrtEState) ((AssrtCoreEModelFactory) this.util.ef).newEState(Collections.emptySet());  
+			AssrtEState s = (AssrtEState) ((AssrtCoreEModelFactory) this.util.ef).EState(Collections.emptySet());  
 					// FIXME: call Assrt directly? -- no "vars" here though (intermediate sequence states), only on rec states
 
 			this.util.addEdge(s1, toEAction(r, k, a), s);
@@ -105,13 +111,13 @@ public class AssrtCoreEGraphBuilder
 		}
 	}
 	
-	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreMessage a)
+	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreMsg a)
 	{
 		//return toEAction(r, k, a, AssrtCoreESend.DUMMY_VAR, AssrtCoreESend.ZERO);
 		return toEAction(r, k, a, Collections.emptyList());
 	}
 
-	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreMessage a,
+	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreMsg a,
 			//AssrtDataTypeVar annot, AssrtArithFormula expr)
 			List<AssrtArithFormula> annotexprs)
 	{
@@ -120,7 +126,7 @@ public class AssrtCoreEGraphBuilder
 		{
 			return ef.newAssrtCoreESend(r, a.op, 
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pays.stream().map(p -> (PayloadElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					new Payload(a.pays.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 
@@ -130,7 +136,7 @@ public class AssrtCoreEGraphBuilder
 			//return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
 			return ef.newAssrtCoreEReceive(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pays.stream().map(p -> (PayloadElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					new Payload(a.pays.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 
@@ -141,7 +147,7 @@ public class AssrtCoreEGraphBuilder
 		{
 			return ef.newAssrtCoreERequest(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pays.stream().map(p -> (PayloadElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					new Payload(a.pays.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 		}
@@ -149,7 +155,7 @@ public class AssrtCoreEGraphBuilder
 		{
 			return ef.newAssrtCoreEAccept(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pays.stream().map(p -> (PayloadElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					new Payload(a.pays.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 		}

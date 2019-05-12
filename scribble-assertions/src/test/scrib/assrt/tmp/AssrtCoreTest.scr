@@ -78,7 +78,9 @@
 // - rename "new" factory methods? (easily confused with new expr)  centralise?
 // - coreconfig flags Map->Set
 // - rename AssrtCore to Core -- implement "strict" mode via translator?
+	// - proto params not supported -- CHECKME: mixing rec/continue with protodecl/do
 // - refactor exceptions to main packages
+// - refactor -inline via temporary directory/file
 
 
 

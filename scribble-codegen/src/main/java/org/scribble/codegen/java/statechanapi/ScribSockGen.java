@@ -155,7 +155,7 @@ public abstract class ScribSockGen extends StateChanTypeGen
 
 		GProtoDecl gpd = (GProtoDecl) this.apigen.getJob().getContext()
 				.getModule(this.apigen.gpn.getPrefix())
-				.getGProtocolDeclChild(this.apigen.gpn.getSimpleName());
+				.getGProtoDeclChild(this.apigen.gpn.getSimpleName());
 		String epClass = gpd.isExplicit() ? EXPLICITENDPOINT_CLASS
 				: MPSTENDPOINT_CLASS;
 		ConstructorBuilder ctor2 = cb.newConstructor(

@@ -38,7 +38,7 @@ public class PayElemList extends ScribNodeBase
 		super(node);
 	}
 	
-	List<PayElem<?>> getElementChildren()
+	public List<PayElem<?>> getElementChildren()
 	{
 		return getChildren().stream().map(x -> (PayElem<?>) x)
 				.collect(Collectors.toList());

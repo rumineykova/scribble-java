@@ -1,16 +1,17 @@
 package org.scribble.ext.assrt.model.global.actions;
 
+import org.scribble.core.model.global.actions.SReq;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.model.global.actions.SRequest;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
-public class AssrtSRequest extends SRequest implements AssrtSAction
+public class AssrtSReq extends SReq implements AssrtSAction
 {
 	public final AssrtBoolFormula ass;  // Not null (cf. AssrtESend)
 
-	public AssrtSRequest(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtSReq(Role subj, Role obj, MsgId<?> mid, Payload payload,
+			AssrtBoolFormula bf)
 	{
 		super(subj, obj, mid, payload);
 		this.ass = bf;
@@ -44,18 +45,18 @@ public class AssrtSRequest extends SRequest implements AssrtSAction
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtSRequest))
+		if (!(o instanceof AssrtSReq))
 		{
 			return false;
 		}
-		AssrtSRequest as = (AssrtSRequest) o;
+		AssrtSReq as = (AssrtSReq) o;
 		return super.equals(o)  // Does canEqual
 				&& this.ass.toString().equals(as.ass.toString());  // FIXME: treating as String (cf. AssrtESend)
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
-		return o instanceof AssrtSRequest;
+		return o instanceof AssrtSReq;
 	}
 }

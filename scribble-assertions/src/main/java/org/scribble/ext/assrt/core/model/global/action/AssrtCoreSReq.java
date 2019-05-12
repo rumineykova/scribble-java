@@ -2,14 +2,14 @@ package org.scribble.ext.assrt.core.model.global.action;
 
 import java.util.List;
 
-import org.scribble.ext.assrt.model.global.actions.AssrtSAccept;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.model.global.actions.AssrtSReq;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
-public class AssrtCoreSAccept extends AssrtSAccept implements AssrtCoreSAction
+public class AssrtCoreSReq extends AssrtSReq implements AssrtCoreSAction
 {
 	// Annot needed -- e.g. mu X(x:=..) . mu Y(y:=..) ... X<123> -- rec var X will be discarded, so edge action needs to record which var is being updated
 	/*public final AssrtDataTypeVar annot;  // Not null (by AssrtCoreGProtocolTranslator)
@@ -17,9 +17,8 @@ public class AssrtCoreSAccept extends AssrtSAccept implements AssrtCoreSAction
 
 	public final List<AssrtArithFormula> stateexprs;
 
-	public AssrtCoreSAccept(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf,
-			//AssrtDataTypeVar annot, AssrtArithFormula expr)
-			List<AssrtArithFormula> stateexprs)
+	public AssrtCoreSReq(Role subj, Role obj, MsgId<?> mid, Payload payload,
+			AssrtBoolFormula bf, List<AssrtArithFormula> stateexprs)
 	{
 		super(subj, obj, mid, payload, bf);
 		//this.annot = annot;
@@ -43,7 +42,7 @@ public class AssrtCoreSAccept extends AssrtSAccept implements AssrtCoreSAction
 	@Override
 	public int hashCode()
 	{
-		int hash = 6947;
+		int hash = 6917;
 		hash = 31 * hash + super.hashCode();
 		//hash = 31 * hash + this.annot.hashCode();
 		hash = 31 * hash + this.stateexprs.hashCode();
@@ -57,19 +56,19 @@ public class AssrtCoreSAccept extends AssrtSAccept implements AssrtCoreSAction
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtCoreSAccept))
+		if (!(o instanceof AssrtCoreSReq))
 		{
 			return false;
 		}
-		AssrtCoreSAccept as = (AssrtCoreSAccept) o;
+		AssrtCoreSReq as = (AssrtCoreSReq) o;
 		return super.equals(o)  // Does canEqual
 				//&& this.annot.equals(as.annot)
 				&& this.stateexprs.equals(as.stateexprs);
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
-		return o instanceof AssrtCoreSAccept;
+		return o instanceof AssrtCoreSReq;
 	}
 }

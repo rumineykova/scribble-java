@@ -23,7 +23,7 @@ import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
-import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
+import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
@@ -47,7 +47,7 @@ public interface AssrtAstFactory extends AstFactory
 			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
 			AssrtAssertion ass);
 
-	AssrtGMessageTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion);
+	AssrtGMsgTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion);
 	AssrtGConnect AssrtGConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion assertion);
 	AssrtGRecursion AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, //AssrtAssertion ass);
 			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,

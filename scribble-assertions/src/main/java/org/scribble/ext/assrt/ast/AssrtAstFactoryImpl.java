@@ -37,7 +37,7 @@ import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
 import org.scribble.ext.assrt.ast.global.AssrtGDoDel;
-import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
+import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
@@ -215,9 +215,9 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	// Same pattern as for GProtocolHeader
 	// Non-annotated message transfers still created as AssrtGMessageTransfer -- null assertion, but AssrtGMessageTransferDel is still needed (why?)
 	@Override
-	public AssrtGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	public AssrtGMsgTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
 	{
-		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests);
+		AssrtGMsgTransfer gmt = new AssrtGMsgTransfer(source, src, msg, dests);
 		gmt = del(gmt, new AssrtGMessageTransferDel());
 		return gmt;
 	}
@@ -272,9 +272,9 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtGMessageTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
+	public AssrtGMsgTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
 	{
-		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests, assertion);
+		AssrtGMsgTransfer gmt = new AssrtGMsgTransfer(source, src, msg, dests, assertion);
 		gmt = del(gmt, new AssrtGMessageTransferDel());
 		return gmt;
 	}

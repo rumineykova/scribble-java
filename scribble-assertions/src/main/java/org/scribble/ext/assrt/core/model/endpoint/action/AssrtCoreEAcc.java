@@ -3,46 +3,43 @@ package org.scribble.ext.assrt.core.model.endpoint.action;
 import java.util.Collections;
 import java.util.List;
 
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactory;
-import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSAccept;
-import org.scribble.ext.assrt.model.endpoint.action.AssrtEAccept;
+import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSAcc;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtEAcc;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.model.endpoint.EModelFactory;
-import org.scribble.model.global.SModelFactory;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
-public class AssrtCoreEAccept extends AssrtEAccept implements AssrtCoreEAction
+public class AssrtCoreEAcc extends AssrtEAcc implements AssrtCoreEAction
 {
 	// Annot needed -- e.g. mu X(x:=..) . mu Y(y:=..) ... X<123> -- rec var X will be discarded, so edge action needs to record which var is being updated
 	/*public final AssrtDataTypeVar annot;  // Not null (by AssrtCoreGProtocolTranslator)
 	public final AssrtArithFormula expr;*/
 	public final List<AssrtArithFormula> stateexprs;
 	
-	public AssrtCoreEAccept(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf,
-			//AssrtDataTypeVar annot, AssrtArithFormula expr)
-			List<AssrtArithFormula> stateexprs)
+	public AssrtCoreEAcc(ModelFactory mf, Role peer, MsgId<?> mid,
+			Payload payload, AssrtBoolFormula bf, List<AssrtArithFormula> stateexprs)
 	{
-		super(ef, peer, mid, payload, bf);
-		//this.annot = annot;
+		super(mf, peer, mid, payload, bf);
 		this.stateexprs = Collections.unmodifiableList(stateexprs);
 	}
 	
 	@Override
-	public AssrtCoreERequest toDual(Role self)
+	public AssrtCoreEReq toDual(Role self)
 	{
-		return ((AssrtCoreEModelFactory) this.ef).newAssrtCoreERequest(self, this.mid, this.payload, this.ass, //this.annot,
-				this.stateexprs);
+		return ((AssrtCoreEModelFactory) this.mf.local).newAssrtCoreERequest(self,
+				this.mid, this.payload, this.ass, this.stateexprs);
 	}
 
 	@Override
-	public AssrtCoreSAccept toGlobal(SModelFactory sf, Role self)
+	public AssrtCoreSAcc toGlobal(Role self)
 	{
-		return ((AssrtCoreSModelFactory) sf).newAssrtCoreSAccept(self, this.peer, this.mid, this.payload, this.ass, //this.annot,
-				this.stateexprs);
+		return ((AssrtCoreSModelFactory) this.mf.global).newAssrtCoreSAccept(self,
+				this.peer, this.mid, this.payload, this.ass, this.stateexprs);
 	}
 
 	/*@Override
@@ -85,19 +82,19 @@ public class AssrtCoreEAccept extends AssrtEAccept implements AssrtCoreEAction
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtCoreEAccept))
+		if (!(o instanceof AssrtCoreEAcc))
 		{
 			return false;
 		}
-		AssrtCoreEAccept as = (AssrtCoreEAccept) o;
+		AssrtCoreEAcc as = (AssrtCoreEAcc) o;
 		return super.equals(o)  // Does canEquals
 				//&& this.annot.equals(as.annot)
 				&& this.stateexprs.equals(as.stateexprs);
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
-		return o instanceof AssrtCoreEAccept;
+		return o instanceof AssrtCoreEAcc;
 	}
 }

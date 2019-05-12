@@ -94,7 +94,7 @@ public class CaseSockGen extends ScribSockGen
 
 		for (EAction a : this.curr.getDetActions())
 		{
-			EState succ = this.curr.getDetSuccessor(a);
+			EState succ = this.curr.getDetSucc(a);
 			addReceiveMethod(this.cb, a, succ);
 			addCaseReceiveMethod(this.cb, a, succ);
 			if (!a.payload.isEmpty() || a.mid.isSigName())

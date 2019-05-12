@@ -9,16 +9,16 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.cli.AssrtCommandLine;
+import org.scribble.core.model.endpoint.actions.EAction;
+import org.scribble.core.model.global.SModelFactory;
+import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
-import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.model.global.SModelFactory;
-import org.scribble.type.name.Role;
 
 
 // Duplicated from F17LTSBuilder
 public class AssrtCoreSModelBuilder  // SModel is a wrapper for SGraph with model validation methods -- here, just build "model" directly (no "graph")
 {
+	@Deprecated
 	private final SModelFactory sf;
 	
 	public AssrtCoreSModelBuilder(SModelFactory sf)
@@ -97,7 +97,7 @@ public class AssrtCoreSModelBuilder  // SModel is a wrapper for SGraph with mode
 					{
 						next = todo.stream().filter(s -> s.equals(tmp)).iterator().next();
 					}
-					curr.addEdge(a.toGlobal(this.sf, self), next);
+					curr.addEdge(a.toGlobal(self), next);
 					curr.addSubject(self);
 					if (!seen.values().contains(next) && !todo.contains(next))
 					{
@@ -107,9 +107,7 @@ public class AssrtCoreSModelBuilder  // SModel is a wrapper for SGraph with mode
 			}
 		}
 		
-		AssrtCommandLine.time(null, 93);
 		AssrtCoreSModel res = new AssrtCoreSModel(E0, init, seen);
-		AssrtCommandLine.time(null, 94);
 		
 		return res;
 	}

@@ -4,7 +4,10 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import org.scribble.ast.AstFactory;
+import org.scribble.ast.Module;
 import org.scribble.core.job.CoreArgs;
+import org.scribble.core.type.name.ModuleName;
+import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtAstFactoryImpl;
 import org.scribble.ext.assrt.parser.scribble.AssrtScribbleAntlrWrapper;
 import org.scribble.main.Main;
@@ -32,16 +35,16 @@ public class AssrtMain extends Main
 	}
 	
 	@Override
-	protected AstFactory newAstFactory()
+	protected AstFactory newAstFactory(ScribAntlrWrapper antlr)
 	{
 		return new AssrtAstFactoryImpl();
 	}
 
 	@Override
-	public AssrtJob newJob()
+	public AssrtJob newJob(Map<ModuleName, Module> parsed,
+			Map<CoreArgs, Boolean> args, ModuleName mainFullname, AstFactory af,
+			DelFactory df)
 	{
-		return new AssrtJob(this.debug, this.getParsedModules(), this.main, this.useOldWF, this.noLiveness, this.minEfsm, this.fair,
-				this.noLocalChoiceSubjectCheck, this.noAcceptCorrelationCheck, this.noValidation,
-				this.solver, this.batching, this.af, this.ef, this.sf);
+		return new AssrtJob(parsed, args, mainFullname, af, df);
 	}
 }

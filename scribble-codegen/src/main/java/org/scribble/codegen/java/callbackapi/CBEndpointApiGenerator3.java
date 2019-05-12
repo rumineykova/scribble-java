@@ -532,7 +532,7 @@ public class CBEndpointApiGenerator3
 				+ ");");
 		for (EAction a : s.getActions())
 		{
-			EState succ = s.getDetSuccessor(a);
+			EState succ = s.getDetSucc(a);
 			stateCons.addBodyLine("this.succs.put(" + getOpsPackage() + "." + SessionApiGenerator.getOpClassName(a.mid) + "." + SessionApiGenerator.getOpClassName(a.mid)  // FIXME: factor out
 					+ ", \""
 					/*+ ((succ.getStateKind() == EStateKind.TERMINAL)

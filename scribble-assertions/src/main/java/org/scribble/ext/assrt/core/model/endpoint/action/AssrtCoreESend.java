@@ -3,6 +3,10 @@ package org.scribble.ext.assrt.core.model.endpoint.action;
 import java.util.Collections;
 import java.util.List;
 
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactory;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
@@ -10,11 +14,6 @@ import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.model.endpoint.EModelFactory;
-import org.scribble.model.global.SModelFactory;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
 public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 {
@@ -23,36 +22,40 @@ public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 	public final AssrtArithFormula expr;*/
 	public final List<AssrtArithFormula> stateexprs;
 
-	public AssrtCoreESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula ass,
-			//AssrtDataTypeVar annot, AssrtArithFormula expr)
-			List<AssrtArithFormula> stateexprs)
+	public AssrtCoreESend(ModelFactory mf, Role peer, MsgId<?> mid,
+			Payload payload, AssrtBoolFormula ass, List<AssrtArithFormula> stateexprs)
 	{
-		super(ef, peer, mid, payload, ass);
+		super(mf, peer, mid, payload, ass);
 		//this.annot = annot;
 		this.stateexprs = Collections.unmodifiableList(stateexprs);
+	}
+	
+	@Deprecated
+	public ModelFactory getModelFactory()
+	{
+		return this.mf;
 	}
 	
 	// HACK: replace assertion by True
 	@Override
 	public AssrtCoreESend toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
 	{
-		return ((AssrtCoreEModelFactory) this.ef).newAssrtCoreESend(this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE, 
-				//AssrtCoreEAction.DUMMY_VAR, AssrtIntValFormula.ZERO);  // HACK FIXME
-				Collections.emptyList());
+		return ((AssrtCoreEModelFactory) this.mf.local).newAssrtCoreESend(this.peer,
+				this.mid, this.payload, AssrtTrueFormula.TRUE, Collections.emptyList());
 	}
 
 	@Override
-	public AssrtCoreEReceive toDual(Role self)
+	public AssrtCoreERecv toDual(Role self)
 	{
-		return ((AssrtCoreEModelFactory) this.ef).newAssrtCoreEReceive(self, this.mid, this.payload, this.ass, //this.annot,
-				this.stateexprs);
+		return ((AssrtCoreEModelFactory) this.mf.local).newAssrtCoreEReceive(self,
+				this.mid, this.payload, this.ass, this.stateexprs);
 	}
 
 	@Override
-	public AssrtCoreSSend toGlobal(SModelFactory sf, Role self)
+	public AssrtCoreSSend toGlobal(Role self)
 	{
-		return ((AssrtCoreSModelFactory) sf).newAssrtCoreSSend(self, this.peer, this.mid, this.payload, this.ass, //this.annot,
-				this.stateexprs);
+		return ((AssrtCoreSModelFactory) this.mf.global).newAssrtCoreSSend(self,
+				this.peer, this.mid, this.payload, this.ass, this.stateexprs);
 	}
 
 	/*@Override
@@ -105,7 +108,7 @@ public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtCoreESend;
 	}

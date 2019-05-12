@@ -1,17 +1,18 @@
 package org.scribble.ext.assrt.model.global.actions;
 
+import org.scribble.core.model.global.actions.SAcc;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.model.global.actions.SAccept;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
 // Duplicated from SReceive
-public class AssrtSAccept extends SAccept implements AssrtSAction
+public class AssrtSAcc extends SAcc implements AssrtSAction
 {
-	public final AssrtBoolFormula ass;  // Cf., e.g., AGMessageTransfer  // Not null (cf. AssrtEReceive)
+	public final AssrtBoolFormula ass;  // Cf., e.g., AGMsgTransfer  // Not null (cf. AssrtEReceive)
 
-	public AssrtSAccept(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtSAcc(Role subj, Role obj, MsgId<?> mid, Payload payload,
+			AssrtBoolFormula bf)
 	{
 		super(subj, obj, mid, payload);
 		this.ass = bf;
@@ -45,18 +46,18 @@ public class AssrtSAccept extends SAccept implements AssrtSAction
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtSAccept))
+		if (!(o instanceof AssrtSAcc))
 		{
 			return false;
 		}
-		AssrtSAccept as = (AssrtSAccept) o;
+		AssrtSAcc as = (AssrtSAcc) o;
 		return super.equals(o)  // Does canEqual
 				&& this.ass.toString().equals(as.ass.toString());  // FIXME: treating as String (cf. AssrtEReceive)
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
-		return o instanceof AssrtSAccept;
+		return o instanceof AssrtSAcc;
 	}
 }

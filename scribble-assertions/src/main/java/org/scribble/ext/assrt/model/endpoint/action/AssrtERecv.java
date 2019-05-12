@@ -1,24 +1,24 @@
 package org.scribble.ext.assrt.model.endpoint.action;
 
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.model.endpoint.actions.ERecv;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.model.global.AssrtSModelFactory;
-import org.scribble.ext.assrt.model.global.actions.AssrtSReceive;
+import org.scribble.ext.assrt.model.global.actions.AssrtSRecv;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.model.endpoint.EModelFactory;
-import org.scribble.model.endpoint.actions.EReceive;
-import org.scribble.model.global.SModelFactory;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
-public class AssrtEReceive extends EReceive implements AssrtEAction
+public class AssrtERecv extends ERecv implements AssrtEAction
 {
 	//public final AssrtAssertion assertion;  // Cf., e.g., ALSend
 	public final AssrtBoolFormula ass;  // Not null -- empty set to True by parsing
 
-	public AssrtEReceive(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtERecv(ModelFactory mf, Role peer, MsgId<?> mid, Payload payload,
+			AssrtBoolFormula bf)
 	{
-		super(ef, peer, mid, payload);
+		super(mf, peer, mid, payload);
 		this.ass = bf;
 	}
 	
@@ -33,13 +33,15 @@ public class AssrtEReceive extends EReceive implements AssrtEAction
 	public AssrtESend toDual(Role self)
 	{
 		//throw new RuntimeException("[assrt-core] Shouldn't get here: " + this);
-		return ((AssrtEModelFactory) this.ef).newAssrtESend(self, this.mid, this.payload, this.ass);
+		return ((AssrtEModelFactory) this.mf.local).newAssrtESend(self, this.mid,
+				this.payload, this.ass);
 	}
 
 	@Override
-	public AssrtSReceive toGlobal(SModelFactory sf, Role self)
+	public AssrtSRecv toGlobal(Role self)
 	{
-		return ((AssrtSModelFactory) sf).newAssrtSReceive(self, this.peer, this.mid, this.payload, this.ass);
+		return ((AssrtSModelFactory) this.mf.global).newAssrtSReceive(self,
+				this.peer, this.mid, this.payload, this.ass);
 	}
 	
 	@Override
@@ -64,18 +66,18 @@ public class AssrtEReceive extends EReceive implements AssrtEAction
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtEReceive))
+		if (!(o instanceof AssrtERecv))
 		{
 			return false;
 		}
-		AssrtEReceive as = (AssrtEReceive) o;
+		AssrtERecv as = (AssrtERecv) o;
 		return super.equals(o)  // Does canEquals
 				&& this.ass.toString().equals(as.ass.toString());  // FIXME: treating as String (cf. AssrtESend)
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
-		return o instanceof AssrtEReceive;
+		return o instanceof AssrtERecv;
 	}
 }

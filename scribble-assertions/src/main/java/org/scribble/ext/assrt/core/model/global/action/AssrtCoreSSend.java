@@ -2,12 +2,12 @@ package org.scribble.ext.assrt.core.model.global.action;
 
 import java.util.List;
 
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
 public class AssrtCoreSSend extends AssrtSSend implements AssrtCoreSAction
 {
@@ -17,9 +17,8 @@ public class AssrtCoreSSend extends AssrtSSend implements AssrtCoreSAction
 
 	public final List<AssrtArithFormula> stateexprs;
 
-	public AssrtCoreSSend(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf,
-			//AssrtDataTypeVar annot, AssrtArithFormula expr)
-			List<AssrtArithFormula> stateexprs)
+	public AssrtCoreSSend(Role subj, Role obj, MsgId<?> mid, Payload payload,
+			AssrtBoolFormula bf, List<AssrtArithFormula> stateexprs)
 	{
 		super(subj, obj, mid, payload, bf);
 		//this.annot = annot;
@@ -68,7 +67,7 @@ public class AssrtCoreSSend extends AssrtSSend implements AssrtCoreSAction
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtCoreSSend;
 	}

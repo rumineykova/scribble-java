@@ -178,15 +178,15 @@ public class Module extends ScribNodeBase
 	}
 	
 	// CHECKME: allow global and local protocols with same simpname in same module? -- currently, no?
-	public boolean hasGProtocolDecl(GProtoName simpname)
+	public boolean hasGProtoDecl(GProtoName simpname)
 	{
-		return hasProtocolDeclChild(simpname, ProtoDecl::isGlobal).isPresent();
+		return hasProtoDeclChild(simpname, ProtoDecl::isGlobal).isPresent();
 	}
 	
 	// Pre: hasGProtocolDecl(simpname)
-	public GProtoDecl getGProtocolDeclChild(GProtoName simpname)
+	public GProtoDecl getGProtoDeclChild(GProtoName simpname)
 	{
-		Optional<ProtoDecl<?>> res = hasProtocolDeclChild(simpname,
+		Optional<ProtoDecl<?>> res = hasProtoDeclChild(simpname,
 				ProtoDecl::isGlobal);
 		if (!res.isPresent())
 		{
@@ -195,9 +195,9 @@ public class Module extends ScribNodeBase
 		return (GProtoDecl) res.get();
 	}
 
-	public LProtoDecl getLProtocolDeclChild(LProtoName simpname)
+	public LProtoDecl getLProtoDeclChild(LProtoName simpname)
 	{
-		Optional<ProtoDecl<?>> res = hasProtocolDeclChild(simpname,
+		Optional<ProtoDecl<?>> res = hasProtoDeclChild(simpname,
 				ProtoDecl::isLocal);
 		if (!res.isPresent())
 		{
@@ -206,7 +206,7 @@ public class Module extends ScribNodeBase
 		return (LProtoDecl) res.get();
 	}
 
-	private Optional<ProtoDecl<?>> hasProtocolDeclChild(
+	private Optional<ProtoDecl<?>> hasProtoDeclChild(
 			ProtoName<?> simpname, Predicate<ProtoDecl<?>> f)
 	{
 		return getProtoDeclChildren().stream()

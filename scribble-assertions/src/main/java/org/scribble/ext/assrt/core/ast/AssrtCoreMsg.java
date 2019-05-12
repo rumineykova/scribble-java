@@ -3,13 +3,13 @@ package org.scribble.ext.assrt.core.ast;
 import java.util.Collections;
 import java.util.List;
 
+import org.scribble.core.type.name.Op;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
-import org.scribble.type.name.Op;
 
 
 public //abstract
-class AssrtCoreMessage
+		class AssrtCoreMsg
 {
 	public final Op op;
 	//public final AssrtAnnotDataType pay;
@@ -17,7 +17,7 @@ class AssrtCoreMessage
 	public final AssrtBoolFormula ass;  // cnf?  Set?  // Not null -- empty ass set to True by AssrtCoreGProtocolDeclTranslator
 	
 	//public AssrtCoreMessage(Op op, AssrtAnnotDataType pay, AssrtBoolFormula ass)
-	public AssrtCoreMessage(Op op, List<AssrtAnnotDataType> pays, AssrtBoolFormula ass)
+	public AssrtCoreMsg(Op op, List<AssrtAnnotDataType> pays, AssrtBoolFormula ass)
 	{
 		this.op = op;
 		this.pays = Collections.unmodifiableList(pays);
@@ -53,11 +53,11 @@ class AssrtCoreMessage
 		{
 			return true;
 		}
-		if (!(obj instanceof AssrtCoreMessage))
+		if (!(obj instanceof AssrtCoreMsg))
 		{
 			return false;
 		}
-		AssrtCoreMessage them = (AssrtCoreMessage) obj;
+		AssrtCoreMsg them = (AssrtCoreMsg) obj;
 		//return them.canEquals(this) && this.subjs.equals(them.subjs);
 		return //them.canEquals(this) && 
 				   this.op.equals(them.op) && this.pays.equals(them.pays)

@@ -189,14 +189,14 @@ tokens
   import org.scribble.ast.NonRoleArg;
   import org.scribble.ast.ScribNodeBase;
   import org.scribble.ast.UnaryPayElem;
+  import org.scribble.ast.name.qualified.DataNameNode;
   import org.scribble.ast.name.simple.AmbigNameNode;
+  import org.scribble.ast.name.simple.DataParamNode;
   import org.scribble.ast.name.simple.IdNode;
   import org.scribble.ast.name.simple.OpNode;
   import org.scribble.ast.name.simple.RecVarNode;
   import org.scribble.ast.name.simple.RoleNode;
   import org.scribble.ast.name.simple.SigParamNode;
-  import org.scribble.ast.name.simple.DataParamNode;
-  import org.scribble.ast.name.qualified.DataNameNode;
 }
 
 
@@ -239,6 +239,7 @@ WHITESPACE:
 		$channel = HIDDEN;
 	}
 ;
+
 
 /**
  * Section 2.2 Comments
@@ -405,6 +406,7 @@ payelems:
 	payelem (',' payelem)* -> ^(PAYELEM_LIST payelem+)
 ;
 	
+// {parsePayloadElem($qualifiedname.tree)}  // Use ".text" instead of ".tree" for token String 
 payelem:
 	// Payload element must be a data kind, cannot be a sig name
 	// Qualified name must be a data type name
@@ -415,16 +417,14 @@ payelem:
 |
 	qualifieddataname -> ^(UNARY_PAYELEM qualifieddataname)	
 ;
-//	{ parsePayloadElem($qualifiedname.tree) }  // Use ".text" instead of ".tree" for token String 
 	
-
-
 
 /**
  * Section 3.6 Protocol Declarations
  */
 protodecl:
-	gprotodecl ;
+	gprotodecl
+;
 
 
 /**
@@ -444,12 +444,12 @@ protomods:
 | t=EXPLICIT_KW        -> ^(PROTOMOD_LIST[$t] EXPLICIT_KW)
 ;
 
+// N.B. intermed translation uses full proto name
 gprotoheader:
 	t=GLOBAL_KW PROTOCOL_KW simplegprotoname paramdecls roledecls
 ->
 	^(GPROTOHEADER[$t] simplegprotoname paramdecls roledecls)
 ;
-// N.B. intermed translation uses full proto name
 
 roledecls: 
 	t='(' roledecl (',' roledecl)* ')' -> ^(ROLEDECL_LIST[$t] roledecl+) ;
@@ -484,7 +484,7 @@ gprotodef:
 
 
 /**
- * Section 3.7.3 Global Interaction Sequences and Blocks
+ * Section 3.7.3 Global Interaction Blocks and Sequences
  */
 gprotoblock:
 	t='{' gseq '}' -> ^(GPROTOBLOCK[$t] gseq)
@@ -496,7 +496,7 @@ gseq:
 
 ginteraction:
 	// Simple session node: directed interaction
-  gconnect | gmsgtransfer
+	gconnect | gmsgtransfer
 
 	// Simple session node: basic interaction
 	| gwrap | gdisconnect 
@@ -516,7 +516,7 @@ message:
 	siglit | ambigname  // ambigname = sig name or sig param name
 ;  
 
-// TODO: qualified (messagesig) names -- although qualified signame subsumes parametername case
+// TODO: qualified (sig)names -- although qualified signame subsumes param name case
 gmsgtransfer:
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 ->
@@ -597,6 +597,7 @@ nonroleargs:
 ;
 
 // Grammatically same as message, but qualifiedname case may also be a payload type
+// {parseNonRoleArg($qualifiedname.tree)}  // Like payelem, simple names need disambiguation
 nonrolearg:
 	siglit -> ^(NONROLEARG siglit)
 |
@@ -604,7 +605,6 @@ nonrolearg:
 |
 	qualifieddataname -> ^(NONROLEARG qualifieddataname)  // FIXME: sig name -- need an ambig qualified name
 ;
-//	{ parseNonRoleArg($qualifiedname.tree) }  // Like payelem, simple names need disambiguation
 
 
 

@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.core.ast.AssrtCoreMessage;
+import org.scribble.ext.assrt.core.ast.AssrtCoreMsg;
 import org.scribble.ext.assrt.core.ast.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.ast.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.ast.AssrtCoreChoice;
@@ -32,7 +32,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> im
 	public final Role src;   // Singleton -- no disconnect for now
 	public final Role dest;  // this.dest == super.role
 
-	public AssrtCoreGChoice(Role src, AssrtCoreGActionKind kind, Role dest, Map<AssrtCoreMessage, AssrtCoreGType> cases)
+	public AssrtCoreGChoice(Role src, AssrtCoreGActionKind kind, Role dest, Map<AssrtCoreMsg, AssrtCoreGType> cases)
 	{
 		super(dest, kind, cases);
 		this.src = src;
@@ -50,10 +50,10 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> im
 	@Override
 	public AssrtCoreLType project(AssrtCoreAstFactory af, Role r, AssrtBoolFormula f) throws AssrtCoreSyntaxException
 	{
-		Map<AssrtCoreMessage, AssrtCoreLType> projs = new HashMap<>();
-		for (Entry<AssrtCoreMessage, AssrtCoreGType> e : this.cases.entrySet())
+		Map<AssrtCoreMsg, AssrtCoreLType> projs = new HashMap<>();
+		for (Entry<AssrtCoreMsg, AssrtCoreGType> e : this.cases.entrySet())
 		{
-			AssrtCoreMessage a = e.getKey();
+			AssrtCoreMsg a = e.getKey();
 			AssrtBoolFormula fproj = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f, a.ass);
 
 			if (this.dest.equals(r))  // Projecting receiver side
@@ -135,7 +135,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> im
 			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed action kinds: " + kinds);
 		}
 		
-		Map<AssrtCoreMessage, AssrtCoreLType> merged = new HashMap<>();
+		Map<AssrtCoreMsg, AssrtCoreLType> merged = new HashMap<>();
 		choices.forEach(v ->
 		{
 			if (!v.kind.equals(AssrtCoreLActionKind.RECEIVE))
@@ -144,7 +144,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> im
 			}
 			v.cases.entrySet().forEach(e ->
 			{
-				AssrtCoreMessage k = e.getKey();
+				AssrtCoreMsg k = e.getKey();
 				AssrtCoreLType b = e.getValue();
 				if (merged.containsKey(k)) //&& !b.equals(merged.get(k))) // TODO
 				{

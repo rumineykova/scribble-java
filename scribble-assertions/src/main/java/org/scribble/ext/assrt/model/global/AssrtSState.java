@@ -2,12 +2,12 @@ package org.scribble.ext.assrt.model.global;
 
 import java.util.Map;
 
-import org.scribble.model.MState;
-import org.scribble.model.endpoint.EState;
-import org.scribble.model.global.SState;
-import org.scribble.model.global.SStateErrors;
-import org.scribble.model.global.actions.SAction;
-import org.scribble.type.name.Role;
+import org.scribble.core.model.MState;
+import org.scribble.core.model.endpoint.EState;
+import org.scribble.core.model.global.SState;
+import org.scribble.core.model.global.SStateErrors;
+import org.scribble.core.model.global.actions.SAction;
+import org.scribble.core.type.name.Role;
 
 public class AssrtSState extends SState
 {
@@ -21,10 +21,14 @@ public class AssrtSState extends SState
 	{
 		SStateErrors errs = super.getErrors();
 
-		Map<Role, EState> varsNotInScope = ((AssrtSConfig) this.config).checkHistorySensitivity();
-		Map<Role, EState> unsatAssertion = ((AssrtSConfig) this.config).getUnsatAssertions();   // FIXME: replace cast by something better?
+		Map<Role, EState> varsNotInScope = ((AssrtSConfig) this.config)
+				.checkHistorySensitivity();
+		Map<Role, EState> unsatAssertion = ((AssrtSConfig) this.config)
+				.getUnsatAssertions();
+				// FIXME: replace cast by something better?
 
-		return new AssrtSStateErrors(errs.stuck, errs.waitFor, errs.orphans, errs.unfinished, varsNotInScope, unsatAssertion);
+		return new AssrtSStateErrors(errs.stuck, errs.waitFor, errs.orphans,
+				errs.unfinished, varsNotInScope, unsatAssertion);
 	}
 
 	@Override

@@ -3,56 +3,53 @@ package org.scribble.ext.assrt.core.model.endpoint.action;
 import java.util.Collections;
 import java.util.List;
 
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactory;
-import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSRequest;
-import org.scribble.ext.assrt.model.endpoint.action.AssrtERequest;
+import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSReq;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtEReq;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.model.endpoint.EModelFactory;
-import org.scribble.model.global.SModelFactory;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
-public class AssrtCoreERequest extends AssrtERequest implements AssrtCoreEAction
+public class AssrtCoreEReq extends AssrtEReq implements AssrtCoreEAction
 {
 	// Annot needed -- e.g. mu X(x:=..) . mu Y(y:=..) ... X<123> -- rec var X will be discarded, so edge action needs to record which var is being updated
 	/*public final AssrtDataTypeVar annot;  // Not null (by AssrtCoreGProtocolTranslator)
 	public final AssrtArithFormula expr;*/
 	public final List<AssrtArithFormula> stateexprs;
 
-	public AssrtCoreERequest(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula ass,
-			//AssrtDataTypeVar annot, AssrtArithFormula expr)
-				List<AssrtArithFormula> stateexprs)
+	public AssrtCoreEReq(ModelFactory mf, Role peer, MsgId<?> mid,
+			Payload payload, AssrtBoolFormula ass, List<AssrtArithFormula> stateexprs)
 	{
-		super(ef, peer, mid, payload, ass);
-		//this.annot = annot;
+		super(mf, peer, mid, payload, ass);
 		this.stateexprs = Collections.unmodifiableList(stateexprs);
 	}
 	
 	// HACK: replace assertion by True
 	@Override
-	public AssrtCoreERequest toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
+	public AssrtCoreEReq toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
 	{
-		return ((AssrtCoreEModelFactory) this.ef).newAssrtCoreERequest(this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE, 
-				//DUMMY_VAR, ZERO);  // HACK FIXME
+		return ((AssrtCoreEModelFactory) this.mf.local).newAssrtCoreERequest(
+				this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE,
 				Collections.emptyList());
 	}
 
 	@Override
-	public AssrtCoreEAccept toDual(Role self)
+	public AssrtCoreEAcc toDual(Role self)
 	{
-		return ((AssrtCoreEModelFactory) this.ef).newAssrtCoreEAccept(self, this.mid, this.payload, this.ass, //this.annot,
-				this.stateexprs);
+		return ((AssrtCoreEModelFactory) this.mf.local).newAssrtCoreEAccept(self,
+				this.mid, this.payload, this.ass, this.stateexprs);
 	}
 
 	@Override
-	public AssrtCoreSRequest toGlobal(SModelFactory sf, Role self)
+	public AssrtCoreSReq toGlobal(Role self)
 	{
-		return ((AssrtCoreSModelFactory) sf).newAssrtCoreSRequest(self, this.peer, this.mid, this.payload, this.ass, //this.annot,
-				this.stateexprs);
+		return ((AssrtCoreSModelFactory) this.mf.global).newAssrtCoreSRequest(self,
+				this.peer, this.mid, this.payload, this.ass, this.stateexprs);
 	}
 
 	/*@Override
@@ -95,19 +92,19 @@ public class AssrtCoreERequest extends AssrtERequest implements AssrtCoreEAction
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtCoreERequest))
+		if (!(o instanceof AssrtCoreEReq))
 		{
 			return false;
 		}
-		AssrtCoreERequest as = (AssrtCoreERequest) o;
+		AssrtCoreEReq as = (AssrtCoreEReq) o;
 		return super.equals(o)  // Does canEquals
 				//&& this.annot.equals(as.annot)
 				&& this.stateexprs.equals(as.stateexprs);
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
-		return o instanceof AssrtCoreERequest;
+		return o instanceof AssrtCoreEReq;
 	}
 }

@@ -49,7 +49,7 @@ public class LDo extends Do<Local> implements LSimpleSessionNode
 	{
 		LProtoName fullname = getTargetProtoDeclFullName(modc);
 		return jobc.getModule(fullname.getPrefix())
-				.getLProtocolDeclChild(fullname.getSimpleName());
+				.getLProtoDeclChild(fullname.getSimpleName());
 	}
 	
 	@Override

@@ -11,9 +11,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.scribble.core.model.endpoint.actions.EAction;
+import org.scribble.core.type.kind.PayElemKind;
+import org.scribble.core.type.name.PayElemType;
+import org.scribble.core.type.name.RecVar;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAction;
-import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReceive;
+import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreERecv;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpEAction;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpEReceive;
@@ -29,11 +34,6 @@ import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.type.name.AssrtPayloadElemType;
-import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.type.Payload;
-import org.scribble.type.kind.PayloadTypeKind;
-import org.scribble.type.name.PayloadElemType;
-import org.scribble.type.name.RecVar;
 
 public class AssrtStpEState extends AssrtEState
 {
@@ -64,7 +64,7 @@ public class AssrtStpEState extends AssrtEState
 			AssrtEState orig = m1.get(curr.id);
 			for (EAction a : orig.getActions())
 			{
-				AssrtEState osucc = orig.getSuccessor(a);
+				AssrtEState osucc = orig.getDetSucc(a);
 				AssrtStpEState succ;
 				if (m2.containsKey(osucc.id))
 				{
@@ -76,14 +76,15 @@ public class AssrtStpEState extends AssrtEState
 					m1.put(succ.id, osucc);
 					m2.put(osucc.id, succ);
 				}
-				curr.addEdge((EAction) foobar(ef, kv.get(curr.id), (AssrtCoreEAction) a), succ);
+				curr.addEdge(
+						(EAction) foobar(ef, kv.get(curr.id), (AssrtCoreEAction) a), succ);
 				if (!todo.contains(succ) && !seen.contains(succ))
 				{
 					todo.add(succ);
 				}
 
-				List<PayloadElemType<? extends PayloadTypeKind>> elems = a.payload.elems;
-				for (PayloadElemType<?> pet : elems)
+				List<PayElemType<? extends PayElemKind>> elems = a.payload.elems;
+				for (PayElemType<?> pet : elems)
 				{
 					if (pet instanceof AssrtPayloadElemType<?>)
 					{
@@ -113,16 +114,17 @@ public class AssrtStpEState extends AssrtEState
 		return tmp;
 	}
 	
-	private static AssrtStpEAction foobar(AssrtCoreEModelFactory ef, List<AssrtDataTypeVar> vs, AssrtCoreEAction a)
+	private static AssrtStpEAction foobar(AssrtCoreEModelFactory ef,
+			List<AssrtDataTypeVar> vs, AssrtCoreEAction a)
 	{
 		if (a instanceof AssrtCoreESend)
 		{
 			AssrtCoreESend es = (AssrtCoreESend) a;
 			return (AssrtStpESend) barfoo(ef, vs, (EAction) es);
 		}
-		else if (a instanceof AssrtCoreEReceive)
+		else if (a instanceof AssrtCoreERecv)
 		{
-			AssrtCoreEReceive er = (AssrtCoreEReceive) a;
+			AssrtCoreERecv er = (AssrtCoreERecv) a;
 			return (AssrtStpEReceive) barfoo(ef, vs, (EAction) er);
 		}
 		else
@@ -131,7 +133,8 @@ public class AssrtStpEState extends AssrtEState
 		}
 	}
 
-	private static AssrtStpEAction barfoo(AssrtCoreEModelFactory ef, List<AssrtDataTypeVar> vs, EAction ea)
+	private static AssrtStpEAction barfoo(AssrtCoreEModelFactory ef,
+			List<AssrtDataTypeVar> vs, EAction ea)
 	{
 			AssrtBoolFormula A = ((AssrtCoreEAction) ea).getAssertion();
 			Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma = new HashMap<>();
@@ -143,8 +146,8 @@ public class AssrtStpEState extends AssrtEState
 			A = A.getCnf();
 			List<AssrtBoolFormula> cs = AssrtBinBoolFormula.getCnfClauses(A);
 			
-			List<PayloadElemType<?>> tmp = new LinkedList<>();
-			for (PayloadElemType<?> pet : ea.payload.elems)
+			List<PayElemType<?>> tmp = new LinkedList<>();
+			for (PayElemType<?> pet : ea.payload.elems)
 			{
 				boolean constructive = false;
 				if (pet instanceof AssrtPayloadElemType<?>)
@@ -187,7 +190,8 @@ public class AssrtStpEState extends AssrtEState
 					}
 					else
 					{
-						A = cs.stream().reduce((f1, f2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f1, f2)).get();
+					A = cs.stream().reduce((f1, f2) -> AssrtFormulaFactory
+							.AssrtBinBool(AssrtBinBoolFormula.Op.And, f1, f2)).get();
 					}
 				}
 				else

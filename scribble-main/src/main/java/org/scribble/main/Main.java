@@ -56,7 +56,8 @@ public class Main
 	public final ModuleName main;
 	public final Map<CoreArgs, Boolean> args;
 
-	private final ScribAntlrWrapper antlr;
+	protected final ScribAntlrWrapper antlr = newAntlr();
+
 	//private final ResourceLocator locator;  // Path -> Resource
 	private final ScribModuleLoader loader;  // ModuleName -> Pair<Resource, Module>
 
@@ -87,8 +88,6 @@ public class Main
 	private Main(Pair<ResourceLocator, String> hack, Path mainpath,
 			Map<CoreArgs, Boolean> args) throws ScribException, ScribParserException
 	{
-		this.antlr = newAntlr();
-
 		// Set this.loader and load main
 		String inline = hack.right;
 		ResourceLocator locator = hack.left;
@@ -118,13 +117,14 @@ public class Main
 		loadAllModuleImports(main);
 	}
 	
-	// A Scribble extension should override newAntlr/Job as appropriate
+	// A Scribble extension should override newAntlr/AstFactory/DelFactory/Job as appropriate
 	protected ScribAntlrWrapper newAntlr()
 	{
 		DelFactory df = newDelFactory();
 		return new ScribAntlrWrapper(df);
 	}
 	
+	// A Scribble extension should override newAntlr/AstFactory/DelFactory/Job as appropriate
 	// N.B. not used by antlr generated parser itself (cf. ScribTreeAdaptor, takes source tokens and sets dels manually)
 	// Here (cf. Job) because it takes antlr for token creation (and lives in scribble-parser)
 	protected AstFactory newAstFactory(ScribAntlrWrapper antlr)
@@ -132,26 +132,27 @@ public class Main
 		return new AstFactoryImpl(antlr);
 	}
 	
+	// A Scribble extension should override newAntlr/AstFactory/DelFactory/Job as appropriate
 	// Here (cf. Job) because df used by this.antlr and this.af (and lives in scribble-parser)
 	protected DelFactory newDelFactory()
 	{
 		return new DelFactoryImpl();
 	}
-	
-	// For a Scribble extension, override newJob(parsed, args, mainFullname, AstFactory)
-	public final Job newJob() throws ScribException
-	{
-		AstFactory af = newAstFactory(this.antlr);  
-		return newJob(getParsedModules(), this.args, this.main, af, this.antlr.df);
-	}
 
-	// A Scribble extension should override newAntlr/Job as appropriate
+	// A Scribble extension should override newAntlr/AstFactory/DelFactory/Job as appropriate
 	protected Job newJob(Map<ModuleName, Module> parsed,
 			Map<CoreArgs, Boolean> args, ModuleName mainFullname, AstFactory af,
 			DelFactory df) throws ScribException
 	{
 				// Was previously made inside Job, but AstFactoryImpl now lives in scribble-parser, to access ScribbleParser constants
 		return new Job(mainFullname, args, parsed, af, df);
+	}
+	
+	// A Scribble extension should override newJob(Map<ModuleName, Module>, Map<CoreArgs, Boolean>, ModuleName, AstFactory, DelFactory)
+	public final Job newJob() throws ScribException
+	{
+		AstFactory af = newAstFactory(this.antlr);  
+		return newJob(getParsedModules(), this.args, this.main, af, this.antlr.df);
 	}
 	
 	// Pre: main Module loaded by this.loader

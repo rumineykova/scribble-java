@@ -11,10 +11,10 @@ public abstract class AssrtCoreChoice<C extends AssrtCoreType, K extends Protoco
 {
 	public final Role role;  // FIXME: RoleNode?  Cf. AssrtCoreAction.op/pay
 	public final AssrtCoreActionKind<K> kind;
-	public final Map<AssrtCoreMessage, C> cases;
+	public final Map<AssrtCoreMsg, C> cases;
 	
 	// Pre: cases.size() > 1
-	public AssrtCoreChoice(Role role, AssrtCoreActionKind<K> kind, Map<AssrtCoreMessage, C> cases)
+	public AssrtCoreChoice(Role role, AssrtCoreActionKind<K> kind, Map<AssrtCoreMsg, C> cases)
 	{
 		this.role = role;
 		this.kind = kind;

@@ -159,7 +159,7 @@ public abstract class MState
 
 	// Variant with implicit run-time check on determinism
 	// (Pre: actions are deterministic)
-	public S getDetSuccessor(A a)
+	public S getDetSucc(A a)
 	{
 		Set<A> as = new HashSet<>(this.actions);
 		if (as.size() != this.actions.size())

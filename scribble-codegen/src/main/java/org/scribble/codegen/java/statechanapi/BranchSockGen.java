@@ -157,7 +157,7 @@ public class BranchSockGen extends ScribSockGen
 			{
 				handleif += ", ";
 			}
-			EState succ = this.curr.getDetSuccessor(a);
+			EState succ = this.curr.getDetSucc(a);
 			if (succ.isTerminal())
 			{
 				handleif += ScribSockGen.GENERATED_ENDSOCKET_NAME;
@@ -263,7 +263,7 @@ public class BranchSockGen extends ScribSockGen
 		first = true;
 		for (EAction a : this.curr.getDetActions())
 		{
-			EState succ = this.curr.getDetSuccessor(a);
+			EState succ = this.curr.getDetSucc(a);
 			if (first)
 			{
 				first = false;
@@ -350,7 +350,7 @@ public class BranchSockGen extends ScribSockGen
 		first = true;
 		for (EAction a : this.curr.getDetActions())
 		{
-			EState succ = this.curr.getDetSuccessor(a);
+			EState succ = this.curr.getDetSucc(a);
 			if (first)
 			{
 				first = false;

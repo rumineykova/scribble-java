@@ -1,17 +1,18 @@
 package org.scribble.ext.assrt.model.global.actions;
 
+import org.scribble.core.model.global.actions.SSend;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.model.global.actions.SSend;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
 public class AssrtSSend extends SSend implements AssrtSAction
 {
-	//public final AssrtAssertion assertion;  // Cf., e.g., AGMessageTransfer
+	//public final AssrtAssertion assertion;  // Cf., e.g., AGMsgTransfer
 	public final AssrtBoolFormula ass;  // Not null (cf. AssrtESend)
 
-	public AssrtSSend(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtSSend(Role subj, Role obj, MsgId<?> mid, Payload payload,
+			AssrtBoolFormula bf)
 	{
 		super(subj, obj, mid, payload);
 		this.ass = bf;
@@ -56,7 +57,7 @@ public class AssrtSSend extends SSend implements AssrtSAction
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtSSend;
 	}

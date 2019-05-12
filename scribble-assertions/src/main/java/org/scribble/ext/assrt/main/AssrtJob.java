@@ -118,7 +118,7 @@ public class AssrtJob extends org.scribble.job.Job
 			{
 				JobContext jc = getContext();
 				return Z3Wrapper.checkSat(this,
-						(GProtoDecl) jc.getMainModule().getGProtocolDeclChild(simpname),
+						(GProtoDecl) jc.getMainModule().getGProtoDeclChild(simpname),
 						fs);
 			}
 			case NONE:

@@ -1,16 +1,15 @@
 package org.scribble.ext.assrt.model.endpoint.action;
 
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.model.endpoint.actions.ESend;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.model.global.AssrtSModelFactory;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.model.endpoint.EModelFactory;
-import org.scribble.model.endpoint.actions.ESend;
-import org.scribble.model.global.SModelFactory;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
 // FIXME: treating assertion as String -- assertion now has equals/hashCode
 public class AssrtESend extends ESend implements AssrtEAction
@@ -18,9 +17,10 @@ public class AssrtESend extends ESend implements AssrtEAction
 	//public final AssrtAssertion assertion;  // Cf., e.g., ALSend
 	public final AssrtBoolFormula ass;  // Not null -- empty set to True by parsing
 
-	public AssrtESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula ass)
+	public AssrtESend(ModelFactory mf, Role peer, MsgId<?> mid, Payload payload,
+			AssrtBoolFormula ass)
 	{
-		super(ef, peer, mid, payload);
+		super(mf, peer, mid, payload);
 		this.ass = ass;
 	}
 	
@@ -33,20 +33,23 @@ public class AssrtESend extends ESend implements AssrtEAction
 	// HACK: replace assertion by True
 	public AssrtESend toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
 	{
-		return ((AssrtEModelFactory) this.ef).newAssrtESend(this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE);
+		return ((AssrtEModelFactory) this.mf.local).newAssrtESend(this.peer, this.mid,
+				this.payload, AssrtTrueFormula.TRUE);
 	}
 
 	@Override
-	public AssrtEReceive toDual(Role self)
+	public AssrtERecv toDual(Role self)
 	{
 		//return super.toDual(self);  // FIXME: assertion? -- currently ignoring assertions for model building -- no: cannot ignore now, need assertions on actions to check history sensitivity
-		return ((AssrtEModelFactory) this.ef).newAssrtEReceive(self, this.mid, this.payload, this.ass);
+		return ((AssrtEModelFactory) this.mf.local).newAssrtEReceive(self, this.mid,
+				this.payload, this.ass);
 	}
 
 	@Override
-	public AssrtSSend toGlobal(SModelFactory sf, Role self)
+	public AssrtSSend toGlobal(Role self)
 	{
-		return ((AssrtSModelFactory) sf).newAssrtSSend(self, this.peer, this.mid, this.payload, this.ass);
+		return ((AssrtSModelFactory) this.mf.global).newAssrtSSend(self, this.peer,
+				this.mid, this.payload, this.ass);
 	}
 	
 	@Override
@@ -81,7 +84,7 @@ public class AssrtESend extends ESend implements AssrtEAction
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtESend;
 	}

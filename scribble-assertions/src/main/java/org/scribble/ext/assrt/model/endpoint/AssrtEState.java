@@ -16,17 +16,18 @@ package org.scribble.ext.assrt.model.endpoint;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+import org.scribble.core.model.MState;
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.model.endpoint.EModelFactory;
+import org.scribble.core.model.endpoint.EState;
+import org.scribble.core.model.endpoint.actions.EAction;
+import org.scribble.core.type.name.RecVar;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
-import org.scribble.model.MState;
-import org.scribble.model.endpoint.EModelFactory;
-import org.scribble.model.endpoint.EState;
-import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.type.name.RecVar;
 
 public class AssrtEState extends EState
 {
@@ -46,9 +47,9 @@ public class AssrtEState extends EState
 	}
 	
 	@Override
-	protected AssrtEState cloneNode(EModelFactory ef, Set<RecVar> labs)
+	protected AssrtEState cloneNode(ModelFactory mf, Set<RecVar> labs)
 	{
-		return ((AssrtEModelFactory) ef).newAssrtEState(labs, this.statevars,
+		return ((AssrtEModelFactory) mf).newAssrtEState(labs, this.statevars,
 				this.ass);
 	}
 	
@@ -90,9 +91,9 @@ public class AssrtEState extends EState
 	}
 	
 	@Override
-	public AssrtEState getSuccessor(EAction a)
+	public AssrtEState getDetSucc(EAction a)
 	{
-		return (AssrtEState) super.getSuccessor(a);
+		return (AssrtEState) super.getDetSucc(a);
 	}
 	
 	@Override

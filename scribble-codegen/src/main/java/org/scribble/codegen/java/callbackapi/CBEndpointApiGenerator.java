@@ -195,7 +195,7 @@ public class CBEndpointApiGenerator
 						/*+ ((s.getSuccessor(a).id == s.id)
 								? "this"
 								: ((s.getSuccessor(a).getStateKind() == EStateKind.TERMINAL) ? "End" : this.proto.getSimpleName() + "_" + this.self + "_" + s.getSuccessor(a).id) + ".id")*/
-						+ "\"" + ((s.getDetSuccessor(a).getStateKind() == EStateKind.TERMINAL) ? "End" : this.proto.getSimpleName() + "_" + this.self + "_" + s.getDetSuccessor(a).id) + "\""
+						+ "\"" + ((s.getDetSucc(a).getStateKind() == EStateKind.TERMINAL) ? "End" : this.proto.getSimpleName() + "_" + this.self + "_" + s.getDetSucc(a).id) + "\""
 						+ ");\n";
 			}
 			stateClass += "}\n";

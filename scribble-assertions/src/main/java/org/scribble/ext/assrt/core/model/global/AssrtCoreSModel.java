@@ -8,14 +8,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.cli.AssrtCommandLine;
+import org.scribble.core.model.endpoint.actions.ESend;
+import org.scribble.core.type.name.GProtoName;
+import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.main.Job;
-import org.scribble.model.endpoint.actions.ESend;
-import org.scribble.type.name.GProtocolName;
-import org.scribble.type.name.Role;
+import org.scribble.job.Job;
 
 // 1-bounded LTS
 // Factor out with SGraph/SModel?
@@ -31,24 +30,16 @@ public class AssrtCoreSModel
 
 	protected AssrtCoreSModel(Map<Role, AssrtEState> E0, AssrtCoreSState init, Map<Integer, AssrtCoreSState> allStates)
 	{
-		AssrtCommandLine.time(null, 95);
-
 		this.E0 = Collections.unmodifiableMap(E0);
 		this.init = init;
 		this.allStates = Collections.unmodifiableMap(allStates);
 
-		AssrtCommandLine.time(null, 96);
-
 		this.reach = getReachabilityMap();
-		AssrtCommandLine.time(null, 97);
 		this.termSets = findTerminalSets();
-		AssrtCommandLine.time(null, 98);
 	}
 	
-	public AssrtCoreSafetyErrors getSafetyErrors(Job job, GProtocolName simpname)  // Maybe refactor simpname (root proto) into the (AssrtCore)Job
+	public AssrtCoreSafetyErrors getSafetyErrors(Job job, GProtoName simpname)  // Maybe refactor simpname (root proto) into the (AssrtCore)Job
 	{
-		AssrtCommandLine.time(null, 10);
-		
 		AssrtJob j = (AssrtJob) job;
 		
 		Collection<AssrtCoreSState> all = this.allStates.values();
@@ -62,12 +53,8 @@ public class AssrtCoreSModel
 		Set<AssrtCoreSState> disconns = Collections.emptySet();  // TODO
 				//this.allStates.values().stream().filter(AssrtCoreSState::isDisconnectedError).collect(Collectors.toSet());
 
-		AssrtCommandLine.time(null, 11);
-
 		Set<AssrtCoreSState> unknownVars = all.stream()
 				.filter(s -> s.isUnknownDataTypeVarError(job, simpname)).collect(Collectors.toSet());
-
-		AssrtCommandLine.time(null, 12);
 
 		Set<AssrtCoreSState> asserts = null;  
 		Set<AssrtCoreSState> unsats = null;   
@@ -113,8 +100,6 @@ public class AssrtCoreSModel
 		
 		/*Set<AssrtCoreSState> portOpens = this.allStates.values().stream().filter(AssrtCoreSState::isPortOpenError).collect(Collectors.toSet());
 		Set<AssrtCoreSState> portOwners = this.allStates.values().stream().filter(AssrtCoreSState::isPortOwnershipError).collect(Collectors.toSet());*/
-
-		AssrtCommandLine.time(null, 13);
 
 		return new AssrtCoreSafetyErrors(recepts, orphans, unfins, conns, unconns, syncs, disconns,
 				unknownVars, asserts, unsats, recasserts);
@@ -164,7 +149,8 @@ public class AssrtCoreSModel
 						ESend es = s1.getQ().get(r1).get(r2);
 
 						if (es != null && !(es instanceof AssrtCoreEBot)  // FIXME: hasMessage?
-								&& ts.stream().allMatch(i -> es.equals(this.allStates.get(i).getQ().get(r1).get(r2))))
+								&& ts.stream().allMatch(i -> es
+										.equals(this.allStates.get(i).getQ().get(r1).get(r2))))
 						{
 							Set<Set<AssrtCoreSState>> set = eventualReception.get(es);
 							if (set == null)
@@ -172,7 +158,8 @@ public class AssrtCoreSModel
 								set = new HashSet<Set<AssrtCoreSState>>();
 								eventualReception.put(es,  set);
 							}
-							set.add(ts.stream().map(i -> this.allStates.get(i)).collect(Collectors.toSet()));
+							set.add(ts.stream().map(i -> this.allStates.get(i))
+									.collect(Collectors.toSet()));
 						}
 					}
 				}
@@ -226,7 +213,7 @@ public class AssrtCoreSModel
 				return true;
 			}
 		}*/
-		for (AssrtCoreSState succ : s.getAllSuccessors())
+		for (AssrtCoreSState succ : s.getSuccs())
 		{
 			Set<AssrtCoreSState> tmp = new HashSet<>(seen);
 			tmp.add(s);
@@ -414,7 +401,7 @@ public class AssrtCoreSModel
 
 		for (Integer s1id : idToIndex.keySet())
 		{
-			for (AssrtCoreSState s2 : this.allStates.get(s1id).getAllSuccessors())
+			for (AssrtCoreSState s2 : this.allStates.get(s1id).getSuccs())
 			{
 				reach[idToIndex.get(s1id)][idToIndex.get(s2.id)] = true;
 			}

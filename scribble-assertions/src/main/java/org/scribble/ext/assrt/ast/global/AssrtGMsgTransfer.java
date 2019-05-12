@@ -4,34 +4,34 @@ import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactory;
-import org.scribble.ast.MessageNode;
 import org.scribble.ast.MessageTransfer;
-import org.scribble.ast.global.GMessageTransfer;
+import org.scribble.ast.MsgNode;
+import org.scribble.ast.global.GMsgTransfer;
 import org.scribble.ast.local.LInteractionSeq;
-import org.scribble.ast.local.LNode;
 import org.scribble.ast.local.LSend;
 import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.core.lang.local.LNode;
+import org.scribble.core.type.kind.Global;
+import org.scribble.core.type.name.Role;
 import org.scribble.del.ScribDel;
 import org.scribble.ext.assrt.ast.AssrtActionAssertNode;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.main.ScribbleException;
-import org.scribble.type.kind.Global;
-import org.scribble.type.name.Role;
 import org.scribble.util.ScribUtil;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtGMessageTransfer extends GMessageTransfer implements AssrtActionAssertNode
+public class AssrtGMsgTransfer extends GMsgTransfer implements AssrtActionAssertNode
 {
 	public final AssrtAssertion ass;  // null if not specified -- should be the "true" formula in principle, but not syntactically
 			// Duplicated in, e.g., ALSend -- could factour out to in Del, but need to consider immutable pattern
 
-	public AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	public AssrtGMsgTransfer(CommonTree source, RoleNode src, MsgNode msg, List<RoleNode> dests)
 	{
 		this(source, src, msg, dests, null);
 	}
 
-	public AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion ass)
+	public AssrtGMsgTransfer(CommonTree source, RoleNode src, MsgNode msg, List<RoleNode> dests, AssrtAssertion ass)
 	{
 		super(source, src, msg, dests);
 		this.ass = ass;
@@ -54,32 +54,32 @@ public class AssrtGMessageTransfer extends GMessageTransfer implements AssrtActi
 	}
 
 	@Override
-	protected AssrtGMessageTransfer copy()
+	protected AssrtGMsgTransfer copy()
 	{
-		return new AssrtGMessageTransfer(this.source, this.src, this.msg, getDestinations(), this.ass);  // null ass fine
+		return new AssrtGMsgTransfer(this.source, this.src, this.msg, getDestinations(), this.ass);  // null ass fine
 	}
 	
 	@Override
-	public AssrtGMessageTransfer clone(AstFactory af)
+	public AssrtGMsgTransfer clone(AstFactory af)
 	{
 		RoleNode src = this.src.clone(af);
-		MessageNode msg = this.msg.clone(af);
+		MsgNode msg = this.msg.clone(af);
 		List<RoleNode> dests = ScribUtil.cloneList(af, getDestinations());
 		AssrtAssertion ass = (this.ass == null) ? null : this.ass.clone(af);
 		return ((AssrtAstFactory) af).AssrtGMessageTransfer(this.source, src, msg, dests, ass);
 	}
 
 	@Override
-	public AssrtGMessageTransfer reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests)
+	public AssrtGMsgTransfer reconstruct(RoleNode src, MsgNode msg, List<RoleNode> dests)
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 
-	public AssrtGMessageTransfer reconstruct(RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion ass)
+	public AssrtGMsgTransfer reconstruct(RoleNode src, MsgNode msg, List<RoleNode> dests, AssrtAssertion ass)
 	{
 		ScribDel del = del();
-		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(this.source, src, msg, dests, ass);
-		gmt = (AssrtGMessageTransfer) gmt.del(del);
+		AssrtGMsgTransfer gmt = new AssrtGMsgTransfer(this.source, src, msg, dests, ass);
+		gmt = (AssrtGMsgTransfer) gmt.del(del);
 		return gmt;
 	}
 
@@ -87,7 +87,7 @@ public class AssrtGMessageTransfer extends GMessageTransfer implements AssrtActi
 	public MessageTransfer<Global> visitChildren(AstVisitor nv) throws ScribbleException
 	{
 		RoleNode src = (RoleNode) visitChild(this.src, nv);
-		MessageNode msg = (MessageNode) visitChild(this.msg, nv);
+		MsgNode msg = (MsgNode) visitChild(this.msg, nv);
 		List<RoleNode> dests = visitChildListWithClassEqualityCheck(this, this.dests, nv);
 		AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
 		return reconstruct(src, msg, dests, ass);

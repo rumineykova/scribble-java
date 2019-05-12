@@ -14,11 +14,26 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
-import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAccept;
+import org.scribble.core.model.MPrettyState;
+import org.scribble.core.model.MState;
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.model.endpoint.EState;
+import org.scribble.core.model.endpoint.EStateKind;
+import org.scribble.core.model.endpoint.actions.EAction;
+import org.scribble.core.model.endpoint.actions.ERecv;
+import org.scribble.core.model.global.actions.SAction;
+import org.scribble.core.type.kind.Global;
+import org.scribble.core.type.name.GProtoName;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Op;
+import org.scribble.core.type.name.PayElemType;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtoDeclTranslator;
+import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAcc;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAction;
-import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReceive;
-import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreERequest;
+import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreERecv;
+import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReq;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
 import org.scribble.ext.assrt.main.AssrtJob;
@@ -35,23 +50,7 @@ import org.scribble.ext.assrt.type.formula.AssrtUnintPredicateFormula;
 import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.util.Z3Wrapper;
-import org.scribble.main.Job;
-import org.scribble.model.MPrettyState;
-import org.scribble.model.MState;
-import org.scribble.model.endpoint.EModelFactory;
-import org.scribble.model.endpoint.EState;
-import org.scribble.model.endpoint.EStateKind;
-import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.model.endpoint.actions.EReceive;
-import org.scribble.model.global.SModelFactory;
-import org.scribble.model.global.actions.SAction;
-import org.scribble.type.Payload;
-import org.scribble.type.kind.Global;
-import org.scribble.type.name.GProtocolName;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Op;
-import org.scribble.type.name.PayloadElemType;
-import org.scribble.type.name.Role;
+import org.scribble.job.Job;
 
 			
 //.. do we really need receive-exists?  i.e., "local" vs. "global" TS? -- is global TS really justified/used? -- local TS vs coherence?
@@ -74,7 +73,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	
 	// In hash/equals -- cf. SState.config
 	private final Map<Role, AssrtEState> P;          
-	private final Map<Role, Map<Role, AssrtCoreEMessage>> Q;  // null value means connected and empty -- dest -> src -> msg
+	private final Map<Role, Map<Role, AssrtCoreEMsg>> Q;  // null value means connected and empty -- dest -> src -> msg
 	private final Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R;  
 	
 	private final Map<Role, Set<AssrtBoolFormula>> Rass;
@@ -93,7 +92,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	// Pre: non-aliased "ownership" of all Map contents
-	protected AssrtCoreSState(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMessage>> Q,
+	protected AssrtCoreSState(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMsg>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
 			Map<Role, Set<AssrtBoolFormula>> Rass,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBoolFormula>> F,
@@ -120,14 +119,14 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			EState s = e.getValue();
 			EStateKind k = s.getStateKind();
-			if (k != EStateKind.UNARY_INPUT && k != EStateKind.POLY_INPUT)
+			if (k != EStateKind.UNARY_RECEIVE && k != EStateKind.POLY_RECIEVE)
 			{
 				return false;
 			}
 			Role dest = e.getKey();
 			List<EAction> as = s.getActions();
 			Role src = as.get(0).peer;
-			return hasMessage(dest, src) && 
+			return hasMsg(dest, src) && 
 					//!as.contains(this.Q.get(dest).get(src).toDual(src));
 					as.stream()
 						.map(a -> ((AssrtCoreESend) a.toDual(dest)).toTrueAssertion())
@@ -147,15 +146,15 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			return
 						 isInactive(s, E0.get(r1).id)
 					&& (this.P.keySet().stream().anyMatch(r2 -> 
-								 hasMessage(r1, r2)
+								 hasMsg(r1, r2)
 							 
 							// FIXME: factor out as "pending request reception error"? -- actually, already checked as synchronisation error?
 							|| (  isPendingRequest(r2, r1)  // N.B. pending request *to* inactive r1 
 									 
 								 // Otherwise all initial request messages considered as bad
 								 && s.getActions().stream()
-										 .map(a -> ((AssrtCoreERequest) a.toDual(r1)).toTrueAssertion())
-										 .noneMatch(a -> a.equals(((AssrtCoreEPendingRequest) this.Q.get(r1).get(r2)).getMessage().toTrueAssertion()))  
+										 .map(a -> ((AssrtCoreEReq) a.toDual(r1)).toTrueAssertion())
+										 .noneMatch(a -> a.equals(((AssrtCoreEPendingRequest) this.Q.get(r1).get(r2)).getMsg().toTrueAssertion()))  
 											 
 								 )
 						 ));  
@@ -216,16 +215,16 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			Role src = as.get(0).peer;
 			return isPendingRequest(src, dest)
 					&& !as.contains(
-								 ((AssrtCoreEPendingRequest) this.Q.get(dest).get(src)).getMessage()
+								 ((AssrtCoreEPendingRequest) this.Q.get(dest).get(src)).getMsg()
 								.toTrueAssertion().toDual(src)
 							);
 		});
 	}
 	
-	public boolean isUnknownDataTypeVarError(Job job, GProtocolName simpname)
+	public boolean isUnknownDataTypeVarError(Job job, GProtoName simpname)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
-				e.getValue().getAllActions().stream().anyMatch(a -> 
+				e.getValue().getActions().stream().anyMatch(a -> 
 				{
 					if (a.isSend() || a.isRequest())
 					{
@@ -246,8 +245,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 						known.addAll(this.R.get(src).keySet());
 
-						Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
-								.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
+					Set<String> rs = job.getContext().getMainModule()
+							.getGProtoDeclChild(simpname).getHeaderChild()
+							.getRoleDeclListChild().getRoles().stream().map(Object::toString)
+							.collect(Collectors.toSet());
 						return ((AssrtCoreEAction) a).getAssertion().getIntVars().stream()
 								.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars
 								.anyMatch(v -> !known.contains(v));
@@ -261,7 +262,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}));
 	}
 	
-	public Set<AssrtBoolFormula> getAssertionProgressChecks(Job job, GProtocolName simpname)
+	public Set<AssrtBoolFormula> getAssertionProgressChecks(Job job, GProtoName simpname)
 	{
 		return this.P.entrySet().stream().map(e ->  // anyMatch is on the endpoints (not actions)
 			getAssertionProgressCheck(job, simpname, e.getKey(), e.getValue())
@@ -270,10 +271,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	// formula: isAssertionProgressSatisfied (i.e., true = OK)
 	// return null for True formula
-	//private Optional<AssrtBoolFormula> getAssertionProgressCheck(Job job, GProtocolName simpname, Role src, AssrtEState s)
-	private AssrtBoolFormula getAssertionProgressCheck(Job job, GProtocolName simpname, Role src, AssrtEState s)
+	//private Optional<AssrtBoolFormula> getAssertionProgressCheck(Job job, GProtoName simpname, Role src, AssrtEState s)
+	private AssrtBoolFormula getAssertionProgressCheck(Job job, GProtoName simpname, Role src, AssrtEState s)
 	{
-			List<EAction> as = s.getAllActions(); // N.B. getAllActions includes non-fireable
+			List<EAction> as = s.getActions(); // N.B. getActions includes non-fireable
 			if (as.isEmpty() || as.stream().noneMatch(a -> a.isSend() || a.isRequest())) 
 			{
 				//return Optional.empty();
@@ -294,7 +295,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					AssrtBoolFormula AA = null;// = ass;
 					for (EAction a : as)
 					{
-						if (!(a instanceof AssrtCoreESend) && !(a instanceof AssrtCoreERequest))
+						if (!(a instanceof AssrtCoreESend) && !(a instanceof AssrtCoreEReq))
 						{
 							throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
 						}
@@ -347,8 +348,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					
 					AssrtBoolFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, lhs, AA);
 
-						Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
-								.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
+		Set<String> rs = job.getContext().getMainModule()
+				.getGProtoDeclChild(simpname).getHeaderChild().getRoleDeclListChild()
+				.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
 					Set<AssrtDataTypeVar> free = impli.getIntVars().stream()
 							.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
 							.collect(Collectors.toSet());
@@ -360,13 +362,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 								impli);
 					}
 					
-					//job.debugPrintln("\n[assrt-core] Checking assertion progress for " + src + " at " + s + "(" + this.id + "):");
+					//job.verbosePrintln("\n[assrt-core] Checking assertion progress for " + src + " at " + s + "(" + this.id + "):");
 					//String str = impli.toSmt2Formula();
-					//job.debugPrintln("  raw      = " + str);
+					//job.verbosePrintln("  raw      = " + str);
 
 					AssrtBoolFormula squashed = impli.squash();
 
-					//job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
+					//job.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
 
 					//return Optional.of(squashed);
 					return squashed;
@@ -384,7 +386,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 	
 	// i.e., output state has a "well-asserted" action
-	public boolean isAssertionProgressError(Job job, GProtocolName simpname)  // FIXME: not actually a "progress" error
+	public boolean isAssertionProgressError(Job job, GProtoName simpname)  // FIXME: not actually a "progress" error
 			//throws ScribbleException
 	{
 		/*return new StreamExceptionCaller<Boolean, ScribbleException>()
@@ -395,31 +397,35 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return this.P.entrySet().stream().anyMatch(e ->  // anyMatch is on the endpoints (not actions)
 		{
 			//Optional<AssrtBoolFormula> f = getAssertionProgressCheck(job, simpname, e.getKey(), e.getValue());
-			AssrtBoolFormula f = getAssertionProgressCheck(job, simpname, e.getKey(), e.getValue());
-			//if (!f.isPresent())
+				AssrtBoolFormula f = getAssertionProgressCheck(job, simpname,
+						e.getKey(), e.getValue());
+				//if (!f.isPresent())
 			if (f.equals(AssrtTrueFormula.TRUE))
 			{
 				return false;
 			}
 
-			job.debugPrintln("\n[assrt-core] Checking assertion progress for " + e.getKey() + " at " + e.getValue() + "(" + this.id + "):");
-			job.debugPrintln("  squashed = " + f.toSmt2Formula());
+				job.verbosePrintln("\n[assrt-core] Checking assertion progress for "
+						+ e.getKey() + " at " + e.getValue() + "(" + this.id + "):");
+				job.verbosePrintln("  squashed = " + f.toSmt2Formula());
 
 			return !((AssrtJob) job).checkSat(simpname, Stream.of(f).collect(Collectors.toSet()));
 		}
 		);
 	}
 	
-	public Set<AssrtBoolFormula> getSatisfiableChecks(Job job, GProtocolName simpname)
+	public Set<AssrtBoolFormula> getSatisfiableChecks(Job job, GProtoName simpname)
 	{
 		return this.P.entrySet().stream().flatMap(e ->  // anyMatch is on the endpoints (not actions)
-				e.getValue().getActions().stream().map(a -> getSatisfiableCheck(job, simpname, e.getKey(), (AssrtCoreEAction) a))
+		e.getValue().getActions().stream().map(a -> getSatisfiableCheck(job,
+				simpname, e.getKey(), (AssrtCoreEAction) a))
 		).collect(Collectors.toSet());
 	}
 
 	// formula: isSatisfiable (i.e., true = OK)
 	// return null for True formula
-	private AssrtBoolFormula getSatisfiableCheck(Job job, GProtocolName simpname, Role src, AssrtCoreEAction a)
+	private AssrtBoolFormula getSatisfiableCheck(Job job, GProtoName simpname,
+			Role src, AssrtCoreEAction a)
 	{
 		AssrtBoolFormula ass = a.getAssertion();
 		if (ass.equals(AssrtTrueFormula.TRUE))  // OK to skip? i.e., no need to check existing F (impli LHS) is true?
@@ -431,16 +437,17 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		Set<AssrtIntVarFormula> varsA = new HashSet<>();
 		/*AssrtIntVarFormula vvv = AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString());
 		varsA.add(vvv); // Adding even if var not used*/
-		((EAction) a).payload.elems.forEach(x -> varsA.add(AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) x).var.toString())));
+		((EAction) a).payload.elems.forEach(x -> varsA.add(AssrtFormulaFactory
+				.AssrtIntVar(((AssrtAnnotDataType) x).var.toString())));
 				// N.B. includes the case for recursion cycles where var is "already" in F
 		if (!varsA.isEmpty()) // FIXME: currently never empty
 		{
 			AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
 		}
 		
-		AssrtBoolFormula tocheck = this.F.get(src).stream().reduce(
-				AA,
-				(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
+		AssrtBoolFormula tocheck = this.F.get(src).stream().reduce(AA,
+				(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And,
+						b1, b2));
 		
 		Map<AssrtDataTypeVar, AssrtArithFormula> statevars = this.R.get(src);
 		if (!statevars.isEmpty())
@@ -451,21 +458,26 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 								x.getValue()))
 					.reduce(
 						//(AssrtBoolFormula) AssrtTrueFormula.TRUE,
-						(e1, e2) -> (AssrtBoolFormula) AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, e1, e2)
+							(e1, e2) -> (AssrtBoolFormula) AssrtFormulaFactory
+									.AssrtBinBool(AssrtBinBoolFormula.Op.And, e1, e2)
 					).get();
 			//RR = ((AssrtBinBoolFormula) RR).getRight();  // if only one term, RR will be the BCF
-			tocheck = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, tocheck, RR);
+			tocheck = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And,
+					tocheck, RR);
 		}
-		AssrtBoolFormula RARA = this.Rass.get(src).stream().reduce(AssrtTrueFormula.TRUE, 
-				(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
+		AssrtBoolFormula RARA = this.Rass.get(src).stream()
+				.reduce(AssrtTrueFormula.TRUE, (b1, b2) -> AssrtFormulaFactory
+						.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2));
 		if (!RARA.equals(AssrtTrueFormula.TRUE))
 		{
-			tocheck = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, tocheck, RARA);
+			tocheck = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And,
+					tocheck, RARA);
 		}
 		// Include RR and RARA, to check lhs is sat for assrt-prog (o/w false => any)
 
-		Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
-					.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
+		Set<String> rs = job.getContext().getMainModule()
+				.getGProtoDeclChild(simpname).getHeaderChild().getRoleDeclListChild()
+				.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
 		Set<AssrtDataTypeVar> free = tocheck.getIntVars().stream()
 				.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
 				.collect(Collectors.toSet());
@@ -477,22 +489,22 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					tocheck);
 		}
 		
-		//job.debugPrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "):");
-		//job.debugPrintln("  formula  = " + tocheck.toSmt2Formula());
+		//job.verbosePrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "):");
+		//job.verbosePrintln("  formula  = " + tocheck.toSmt2Formula());
 
 		AssrtBoolFormula squashed = tocheck.squash();
 
-		//job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
+		//job.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
 
 		return squashed;
 }
 
 	// i.e., state has an action that is not satisfiable (deadcode)
-	public boolean isUnsatisfiableError(Job job, GProtocolName simpname)
+	public boolean isUnsatisfiableError(Job job, GProtoName simpname)
 	{
 		return this.P.entrySet().stream().anyMatch(e ->
 		{
-			List<EAction> as = e.getValue().getAllActions(); // N.B. getAllActions includes non-fireable
+			List<EAction> as = e.getValue().getActions(); // N.B. getActions includes non-fireable
 			if (as.size() <= 1)  
 					// Only doing on non-unary choices -- for unary, assrt-prog implies sat
 					// Note: this means "downstream" unsat errors for unary-choice continuations will not be caught (i.e., false => false for assrt-prog)
@@ -501,7 +513,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			}
 			return as.stream().anyMatch(a -> a.isSend() || a.isRequest()) && as.stream().anyMatch(a ->
 			{
-				if (a instanceof AssrtCoreESend || a instanceof AssrtCoreERequest)  // FIXME: factor out with isAssertionProgressError
+				if (a instanceof AssrtCoreESend || a instanceof AssrtCoreEReq)  // FIXME: factor out with isAssertionProgressError
 				{
 					AssrtBoolFormula f = getSatisfiableCheck(job, simpname, e.getKey(), (AssrtCoreEAction) a);
 					if (f.equals(AssrtTrueFormula.TRUE))  // OK to skip? i.e., no need to check existing F (impli LHS) is true?
@@ -509,16 +521,16 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						return false; 
 					}
 
-					job.debugPrintln("\n[assrt-core] Checking satisfiability for " + e.getKey() + " at " + e.getValue() + "(" + this.id + "):");
-					job.debugPrintln("  formula  = " + f.toSmt2Formula());
+					job.verbosePrintln("\n[assrt-core] Checking satisfiability for " + e.getKey() + " at " + e.getValue() + "(" + this.id + "):");
+					job.verbosePrintln("  formula  = " + f.toSmt2Formula());
 
 					AssrtBoolFormula squashed = f.squash();
 
-					job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
+					job.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
 
 					return !((AssrtJob) job).checkSat(simpname, Stream.of(squashed).collect(Collectors.toSet()));
 				}
-				else if (a instanceof AssrtCoreERequest)
+				else if (a instanceof AssrtCoreEReq)
 				{
 					return false; // TODO: request
 				}
@@ -534,7 +546,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		});
 	}
 
-	public Set<AssrtBoolFormula> getRecursionAssertionChecks(Job job, GProtocolName simpname, AssrtCoreSState init)
+	public Set<AssrtBoolFormula> getRecursionAssertionChecks(Job job, GProtoName simpname, AssrtCoreSState init)
 	{
 		if (this.id == init.id)
 		{
@@ -552,7 +564,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	// formula: isNotRecursionAssertionSatisfied (i.e., true = OK)
 	// return null for True formula
-	private AssrtBoolFormula getInitRecursionAssertionCheck(Job job, GProtocolName simpname, Role self, AssrtEState curr)
+	private AssrtBoolFormula getInitRecursionAssertionCheck(Job job, GProtoName simpname, Role self, AssrtEState curr)
 	{
 		//if (this.id == init.id)  // Otherwise initial assertions not checked, since no incoming action (cf. below)
 		{
@@ -573,8 +585,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 				AssrtBoolFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, initRR, initRass);
 
-				Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
-						.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
+				Set<String> rs = job.getContext().getMainModule()
+						.getGProtoDeclChild(simpname).getHeaderChild()
+						.getRoleDeclListChild().getRoles().stream().map(Object::toString)
+						.collect(Collectors.toSet());
 				Set<AssrtDataTypeVar> free = impli.getIntVars().stream()
 						.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
 						.collect(Collectors.toSet());
@@ -586,13 +600,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							impli);
 				}
 				
-				//job.debugPrintln("\n[assrt-core] Checking initial recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
+				//job.verbosePrintln("\n[assrt-core] Checking initial recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
 				//String str = impli.toSmt2Formula();
-				//job.debugPrintln("  raw      = " + str);
+				//job.verbosePrintln("  raw      = " + str);
 
 				AssrtBoolFormula squashed = impli.squash();
 
-				//job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
+				//job.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
 
 				return squashed;
 			}
@@ -601,7 +615,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	// formula: isNotRecursionAssertionSatisfied (i.e., true = OK)
 	// return null for True formula
-	private AssrtBoolFormula getNonInitRecursionAssertionCheck(Job job, GProtocolName simpname, Role self, AssrtEState curr, EAction a)
+	private AssrtBoolFormula getNonInitRecursionAssertionCheck(Job job, GProtoName simpname, Role self, AssrtEState curr, EAction a)
 	{
 		if(a.isSend() || a.isRequest())
 		{
@@ -609,7 +623,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 		else if (a.isReceive() || a.isAccept())
 		{
-			if (!hasMessage(self, a.peer) && !isPendingRequest(a.peer, self))
+			if (!hasMsg(self, a.peer) && !isPendingRequest(a.peer, self))
 			{
 				return AssrtTrueFormula.TRUE;
 			}
@@ -619,7 +633,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			throw new RuntimeException("[assrt] Shouldn't get in here: ");
 		}
 		
-		AssrtEState succ = curr.getSuccessor(a);
+		AssrtEState succ = curr.getDetSucc(a);
 		AssrtCoreEAction b = (AssrtCoreEAction) a;
 		List<AssrtArithFormula> exprs = b.getStateExprs();
 		/*if (exprs.isEmpty() && old.isEmpty())  // cf. updateKFR cases
@@ -640,8 +654,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						x.getValue()))
 				.reduce(
 					//(AssrtBoolFormula) AssrtTrueFormula.TRUE,
-					(e1, e2) -> (AssrtBoolFormula) AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, e1, e2)
-			).get();
+							(e1, e2) -> (AssrtBoolFormula) AssrtFormulaFactory
+									.AssrtBinBool(AssrtBinBoolFormula.Op.And, e1, e2)
+				).get();
 			//RR = ((AssrtBinBoolFormula) RR).getRight();  // if only one term, RR will be the BCF
 			lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs, RR);
 		}
@@ -658,7 +673,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		
 		if (!ass.equals(AssrtTrueFormula.TRUE))
 		{
-			lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs, ass);
+			lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs,
+					ass);
 		}
 			
 		if (exprs.isEmpty())  // "forwards" rec enter -- cf. updateKFR
@@ -671,7 +687,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
 								AssrtFormulaFactory.AssrtIntVar(vv.getKey().toString()),
 								vv.getValue()))  // do-statevar expr args for "forwards" rec already inlined into rec-statevars
-						.reduce((b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)).get();
+						.reduce((b1, b2) -> AssrtFormulaFactory
+								.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2))
+						.get();
 				lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs, reduced); 
 			}
 			
@@ -682,10 +700,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			}
 
 			// FIXME: factor out with below
-			AssrtBoolFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, lhs, rhs);
+			AssrtBoolFormula impli = AssrtFormulaFactory
+					.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, lhs, rhs);
 
-			Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
-					.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
+			Set<String> rs = job.getContext().getMainModule()
+					.getGProtoDeclChild(simpname).getHeaderChild().getRoleDeclListChild()
+					.getRoles().stream().map(Object::toString)
+					.collect(Collectors.toSet());
 			Set<AssrtDataTypeVar> free = impli.getIntVars().stream()
 					.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
 					.collect(Collectors.toSet());
@@ -697,13 +718,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						impli);
 			}
 			
-			//job.debugPrintln("\n[assrt-core] Checking recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
+			//job.verbosePrintln("\n[assrt-core] Checking recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
 			//String str = impli.toSmt2Formula();
-			//job.debugPrintln("  raw      = " + str);
+			//job.verbosePrintln("  raw      = " + str);
 
 			AssrtBoolFormula squashed = impli.squash();
 
-			//job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
+			//job.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
 
 			return squashed;
 		}
@@ -712,7 +733,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			AssrtBoolFormula ass2 = succ.getAssertion();
 			if (!ass2.equals(AssrtTrueFormula.TRUE))
 			{
-				lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs, ass2);
+				lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, lhs,
+						ass2);
 			}
 
 			AssrtBoolFormula rhs = this.Rass.get(self).stream().reduce(AssrtTrueFormula.TRUE,   // Can use this.Rass because recursing, should already have all the terms to check -- CHECKME: should it be *all* the terms so far? yes, because treating recursion assertions as invariants?
@@ -725,14 +747,16 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			}
 
 			List<AssrtDataTypeVar> old = new LinkedList<>(succ.getStateVars().keySet());  // FIXME statevar ordering w.r.t. exprs
-			List<AssrtIntVarFormula> fresh = old.stream().map(v -> makeFreshIntVar(v)).collect(Collectors.toList());
+			List<AssrtIntVarFormula> fresh = old.stream().map(v -> makeFreshIntVar(v))
+					.collect(Collectors.toList());
 
 			//List<AssrtDataTypeVar> rara = new LinkedList<>(RARA.getIntVars());
 			
 			Iterator<AssrtIntVarFormula> i_fresh = fresh.iterator();
 			for (AssrtDataTypeVar v : old)
 			{
-				rhs = rhs.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()), i_fresh.next());
+				rhs = rhs.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()),
+						i_fresh.next());
 			}
 			
 			Iterator<AssrtArithFormula> i_exprs = exprs.iterator();
@@ -742,16 +766,23 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
 								AssrtFormulaFactory.AssrtIntVar(i_fresh2.next().toString()),
 								i_exprs.next()))
-					.reduce((b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2)).get();
-			rhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, rhs, reduce);
+					.reduce((b1, b2) -> AssrtFormulaFactory
+							.AssrtBinBool(AssrtBinBoolFormula.Op.And, b1, b2))
+					.get();
+			rhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, rhs,
+					reduce);
 			rhs = AssrtFormulaFactory.AssrtExistsFormula(
-					fresh.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList()),
+					fresh.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
+							.collect(Collectors.toList()),
 					rhs);
 
-			AssrtBoolFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, lhs, rhs);
+			AssrtBoolFormula impli = AssrtFormulaFactory
+					.AssrtBinBool(AssrtBinBoolFormula.Op.Imply, lhs, rhs);
 
-			Set<String> rs = job.getContext().getMainModule().getProtocolDecl(simpname).header.roledecls
-					.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
+			Set<String> rs = job.getContext().getMainModule()
+					.getGProtoDeclChild(simpname).getHeaderChild().getRoleDeclListChild()
+					.getRoles().stream().map(Object::toString)
+					.collect(Collectors.toSet());
 			Set<AssrtDataTypeVar> free = impli.getIntVars().stream()
 					.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
 					.collect(Collectors.toSet());
@@ -763,19 +794,20 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						impli);
 			}
 			
-			//job.debugPrintln("\n[assrt-core] Checking recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
+			//job.verbosePrintln("\n[assrt-core] Checking recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
 			//String str = impli.toSmt2Formula();
-			//job.debugPrintln("  raw      = " + str);
+			//job.verbosePrintln("  raw      = " + str);
 
 			AssrtBoolFormula squashed = impli.squash();
 
-			//job.debugPrintln("  squashed = " + squashed.toSmt2Formula());
+			//job.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
 
 			return squashed;
 		}
 	}
 	
-	public boolean isRecursionAssertionError(Job job, GProtocolName simpname, AssrtCoreSState init)
+	public boolean isRecursionAssertionError(Job job, GProtoName simpname,
+			AssrtCoreSState init)
 	{
 		if (this.id == init.id)  // Otherwise initial assertions not checked, since no incoming action (cf. below)
 		{
@@ -783,18 +815,20 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			{
 				Role self = e.getKey();
 				AssrtEState curr = e.getValue();
-				AssrtBoolFormula f = getInitRecursionAssertionCheck(job, simpname, self, curr);
+					AssrtBoolFormula f = getInitRecursionAssertionCheck(job, simpname,
+							self, curr);
 					
-				job.debugPrintln("\n[assrt-core] Checking initial recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
+				job.verbosePrintln("\n[assrt-core] Checking initial recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
 				//String str = impli.toSmt2Formula();
-				//job.debugPrintln("  raw      = " + str);
+				//job.verbosePrintln("  raw      = " + str);
 
 				//AssrtBoolFormula squashed = impli.squash();
 
-				job.debugPrintln("  squashed = " + f.toSmt2Formula());
+				job.verbosePrintln("  squashed = " + f.toSmt2Formula());
 
-				return !((AssrtJob) job).checkSat(simpname, Stream.of(f).collect(Collectors.toSet()));
-			});
+					return !((AssrtJob) job).checkSat(simpname,
+							Stream.of(f).collect(Collectors.toSet()));
+				});
 		}
 		else
 		{
@@ -802,20 +836,23 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			{
 				Role self = e.getKey();
 				AssrtEState curr = e.getValue();
-				return curr.getAllActions().stream().anyMatch(a ->
+				return curr.getActions().stream().anyMatch(a ->
 				{
 					AssrtBoolFormula f = getNonInitRecursionAssertionCheck(job, simpname, self, curr, a);
 						
-					job.debugPrintln("\n[assrt-core] Checking recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
-					//String str = impli.toSmt2Formula();
-					//job.debugPrintln("  raw      = " + str);
+							job.verbosePrintln(
+									"\n[assrt-core] Checking recursion assertion for " + self
+											+ " at " + curr + "(" + this.id + "):");
+							//String str = impli.toSmt2Formula();
+					//job.verbosePrintln("  raw      = " + str);
 
 					//AssrtBoolFormula squashed = impli.squash();
 
-					job.debugPrintln("  squashed = " + f.toSmt2Formula());
+					job.verbosePrintln("  squashed = " + f.toSmt2Formula());
 
-					return !((AssrtJob) job).checkSat(simpname, Stream.of(f).collect(Collectors.toSet()));
-				});
+							return !((AssrtJob) job).checkSat(simpname,
+									Stream.of(f).collect(Collectors.toSet()));
+						});
 			});
 		}
 	}
@@ -838,17 +875,17 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}
 				else if (a.isReceive())
 				{
-					AssrtCoreEReceive er = (AssrtCoreEReceive) a;
+					AssrtCoreERecv er = (AssrtCoreERecv) a;
 					getReceiveFireable(res, self, er);
 				}
 				else if (a.isRequest())
 				{
-					AssrtCoreERequest ec = (AssrtCoreERequest) a;  // FIXME: core
+					AssrtCoreEReq ec = (AssrtCoreEReq) a;  // FIXME: core
 					getRequestFireable(res, self, ec);
 				}
 				else if (a.isAccept())
 				{
-					AssrtCoreEAccept ea = (AssrtCoreEAccept) a;  // FIXME: core
+					AssrtCoreEAcc ea = (AssrtCoreEAcc) a;  // FIXME: core
 					getAcceptFireable(res, self, ea);
 				}
 				/*else if (a.isDisconnect())
@@ -865,9 +902,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return res;
 	}
 
-	private void getSendFireable(Map<Role, List<EAction>> res, Role self, AssrtCoreESend es)
+	private void getSendFireable(Map<Role, List<EAction>> res, Role self,
+			AssrtCoreESend es)
 	{
-		if (hasPendingRequest(self) || !isInputQueueEstablished(self, es.peer) || hasMessage(es.peer, self))
+		if (hasPendingRequest(self) || !isInputQueueEstablished(self, es.peer)
+				|| hasMsg(es.peer, self))
 		{
 			return;
 		}
@@ -884,7 +923,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		boolean ok = true;
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 				es.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>)::iterator)*/
-		for (PayloadElemType<?> pt : es.payload.elems)  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
+		for (PayElemType<?> pt : es.payload.elems)  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
 		{
 			if (pt instanceof AssrtAnnotDataType)
 			{
@@ -902,23 +941,26 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 	}
 
-	private void getReceiveFireable(Map<Role, List<EAction>> res, Role self, EReceive er)
+	private void getReceiveFireable(Map<Role, List<EAction>> res, Role self,
+			ERecv er)
 	{
-		if (hasPendingRequest(self) || !hasMessage(self, er.peer))
+		if (hasPendingRequest(self) || !hasMsg(self, er.peer))
 		{
 			return;
 		}
 
 		AssrtCoreESend m = this.Q.get(self).get(er.peer);
 		//if (er.toDual(self).equals(m))  //&& !(m instanceof F17EBot)
-		if (((AssrtCoreESend) er.toDual(self)).toTrueAssertion().equals(m.toTrueAssertion()))  
+		if (((AssrtCoreESend) er.toDual(self)).toTrueAssertion()
+				.equals(m.toTrueAssertion()))
 				// HACK FIXME: check assertion implication (not just syntactic equals) -- cf. AssrtSConfig::fire
 		{
 			res.get(self).add(er);
 		}
 	}
 
-	private void getRequestFireable(Map<Role, List<EAction>> res, Role self, AssrtCoreERequest es)
+	private void getRequestFireable(Map<Role, List<EAction>> res, Role self,
+			AssrtCoreEReq es)
 	{
 		if (hasPendingRequest(self) ||
 				   // not ( Q(r, r') = Q(r', r) = \bot ) -- i.e., either of them are not \bot
@@ -931,7 +973,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		
 		// FIXME: factor out with send?
 		boolean ok = true;
-		for (PayloadElemType<?> pt : es.payload.elems)  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
+		for (PayElemType<?> pt : es.payload.elems)  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
 		{
 			if (pt instanceof AssrtAnnotDataType)
 			{
@@ -950,16 +992,16 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	// Based on getReceiveFireable
-	private void getAcceptFireable(Map<Role, List<EAction>> res, Role self, AssrtCoreEAccept ea)
+	private void getAcceptFireable(Map<Role, List<EAction>> res, Role self, AssrtCoreEAcc ea)
 	{
 		if (hasPendingRequest(self) || !isPendingRequest(ea.peer, self))
 		{
 			return;
 		}
 
-		AssrtCoreERequest ec = ((AssrtCoreEPendingRequest) this.Q.get(self).get(ea.peer)).getMessage();
+		AssrtCoreEReq ec = ((AssrtCoreEPendingRequest) this.Q.get(self).get(ea.peer)).getMsg();
 		//if (ea.toDual(self).equals(ec))
-		if (((AssrtCoreERequest) ea.toDual(self)).toTrueAssertion().equals(ec.toTrueAssertion()))  
+		if (((AssrtCoreEReq) ea.toDual(self)).toTrueAssertion().equals(ec.toTrueAssertion()))  
 				// HACK FIXME: check assertion implication (not just syntactic equals) -- cf. getReceiveFireable
 		{
 			res.get(self).add(ea);
@@ -979,7 +1021,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	public AssrtCoreSState fire(Role self, EAction a)  // Deterministic
 	{
 		Map<Role, AssrtEState> P = new HashMap<>(this.P);
-		Map<Role, Map<Role, AssrtCoreEMessage>> Q = AssrtCoreSState.copyQ(this.Q);
+		Map<Role, Map<Role, AssrtCoreEMsg>> Q = AssrtCoreSState.copyQ(this.Q);
 		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = AssrtCoreSState.copyR(this.R);
 
 		//R.get(self).putAll(succ.getAnnotVars());  // Should "overwrite" previous var values -- no, do later (and from action info, not state)
@@ -991,7 +1033,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename = AssrtCoreSState.copyRename(this.rename);
 
-		AssrtEState succ = P.get(self).getSuccessor(a);
+		AssrtEState succ = P.get(self).getDetSucc(a);
 
 		if (a.isSend())
 		{
@@ -999,15 +1041,15 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 		else if (a.isReceive())
 		{
-			fireReceive(P, Q, R, Rass, K, F, rename, self, (AssrtCoreEReceive) a, succ);
+			fireReceive(P, Q, R, Rass, K, F, rename, self, (AssrtCoreERecv) a, succ);
 		}
 		else if (a.isRequest())
 		{
-			fireRequest(P, Q, R, Rass, K, F, rename, self, (AssrtCoreERequest) a, succ);  // FIXME: core
+			fireRequest(P, Q, R, Rass, K, F, rename, self, (AssrtCoreEReq) a, succ);  // FIXME: core
 		}
 		else if (a.isAccept())
 		{
-			fireAccept(P, Q, R, Rass, K, F, rename, self, (AssrtCoreEAccept) a, succ);  // FIXME: core
+			fireAccept(P, Q, R, Rass, K, F, rename, self, (AssrtCoreEAcc) a, succ);  // FIXME: core
 		}
 		/*else if (a.isDisconnect())
 		{
@@ -1029,7 +1071,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 
 	// Update (in place) P, Q, R, K and F
-	private static void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMessage>> Q,
+	private static void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMsg>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
 			Map<Role, Set<AssrtBoolFormula>> Rass,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBoolFormula>> F,
@@ -1044,21 +1086,21 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 		//Q.get(es.peer).put(self, es.toTrueAssertion());  // HACK FIXME: cf. AssrtSConfig::fire
 		//Q.get(es.peer).put(self, es);  // Now doing toTrueAssertion on message at receive side
-		Q.get(es.peer).put(self, new AssrtCoreEMessage(es.getEModelFactory(), es.peer, es.mid, es.payload, es.ass, 
+		Q.get(es.peer).put(self, new AssrtCoreEMsg(es.getModelFactory(), es.peer, es.mid, es.payload, es.ass, 
 				//es.annot,
 				es.stateexprs,
 				rename.get(self)));  // Now doing toTrueAssertion on message at receive side
 	}
 
-	private static void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMessage>> Q,
+	private static void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMsg>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R, 
 			Map<Role, Set<AssrtBoolFormula>> Rass,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBoolFormula>> F,   // FIXME: manage F with receive assertions?
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
-			Role self, AssrtCoreEReceive er, AssrtEState succ)
+			Role self, AssrtCoreERecv er, AssrtEState succ)
 	{
 		P.put(self, succ);
-		AssrtCoreEMessage m = Q.get(self).put(er.peer, null);  // null is \epsilon
+		AssrtCoreEMsg m = Q.get(self).put(er.peer, null);  // null is \epsilon
 		
 		//inputUpdateK(K,  self, er);
 		inputUpdateKF(R, Rass, K, F, rename, self, er, m, succ, m.shadow);
@@ -1067,12 +1109,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		//updateR(R, self, er);
 	}
 
-	private static void fireRequest(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMessage>> Q,
+	private static void fireRequest(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMsg>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
 			Map<Role, Set<AssrtBoolFormula>> Rass,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBoolFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
-			Role self, AssrtCoreERequest er, AssrtEState succ)
+			Role self, AssrtCoreEReq er, AssrtEState succ)
 	{
 		P.put(self, succ);
 
@@ -1083,17 +1125,17 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	// FIXME: R
-	private static void fireAccept(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMessage>> Q,
+	private static void fireAccept(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMsg>> Q,
 			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R,
 			Map<Role, Set<AssrtBoolFormula>> Rass,
 			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBoolFormula>> F, 
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
-			Role self, AssrtCoreEAccept ea, AssrtEState succ)
+			Role self, AssrtCoreEAcc ea, AssrtEState succ)
 	{
 		P.put(self, succ);
-		//AssrtCoreERequest m = ((AssrtCoreEPendingRequest) Q.get(ea.peer).put(self, null)).getMessage();
+		//AssrtCoreERequest m = ((AssrtCoreEPendingRequest) Q.get(ea.peer).put(self, null)).getMsg();
 		AssrtCoreEPendingRequest pr = (AssrtCoreEPendingRequest) Q.get(self).put(ea.peer, null);
-		AssrtCoreERequest m = pr.getMessage();
+		AssrtCoreEReq m = pr.getMsg();
 		//Q.get(self).put(ea.peer, null);
 		Q.get(ea.peer).put(self, null);
 
@@ -1108,7 +1150,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
-		for (PayloadElemType<?> pt : ((EAction) a).payload.elems)
+		for (PayElemType<?> pt : ((EAction) a).payload.elems)
 		{
 			if (pt instanceof AssrtAnnotDataType)
 			{
@@ -1134,7 +1176,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			else
 			{
 				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);  
-						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtocolDeclTranslator.parsePayload) -- no other pay elems allowed
+						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtoDeclTranslator.parsePayload) -- no other pay elems allowed
 			}
 		}
 	}
@@ -1150,7 +1192,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		/*for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
 					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
-		for (PayloadElemType<?> pt : ((EAction) a).payload.elems)
+		for (PayElemType<?> pt : ((EAction) a).payload.elems)
 		{
 			if (pt instanceof AssrtAnnotDataType)
 			{
@@ -1165,7 +1207,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				// But would it be more consistent to update R?
 				
 
-				//Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow = ((AssrtCoreEMessage) m).shadow;
+				//Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow = ((AssrtCoreEMsg) m).shadow;
 				Set<Entry<AssrtIntVarFormula, AssrtIntVarFormula>> ren = rename.get(self).entrySet();
 				Set<AssrtBoolFormula> hh = F.get(self);
 				for (Entry<AssrtIntVarFormula, AssrtIntVarFormula> e : shadow.entrySet().stream().filter(e -> !ren.contains(e)).collect(Collectors.toList()))
@@ -1194,7 +1236,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			else
 			{
 				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);  
-						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtocolDeclTranslator.parsePayload) -- no other pay elems allowed
+						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtoDeclTranslator.parsePayload) -- no other pay elems allowed
 			}
 		}
 	}
@@ -1433,7 +1475,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	// Doesn't include pending requests, checks isInputQueueEstablished
-	private boolean hasMessage(Role self, Role peer)
+	private boolean hasMsg(Role self, Role peer)
 	{
 		return isInputQueueEstablished(self, peer)  // input queue is established (not \bot and not <a>)
 				&& this.Q.get(self).get(peer) != null;  // input queue is not empty
@@ -1443,8 +1485,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	// i.e. "fully" established, not "pending" -- semantics relies on all action firing being guarded on !hasPendingConnect
 	private boolean isInputQueueEstablished(Role dest, Role src)  // N.B. is more like the "input buffer" at r1 for r2 -- not the actual "connection from r1 to r2"
 	{
-		AssrtCoreEMessage m = this.Q.get(dest).get(src);
-		return !(m instanceof AssrtCoreEBot) && !(m instanceof AssrtCoreEPendingRequest);
+		AssrtCoreEMsg m = this.Q.get(dest).get(src);
+		return !(m instanceof AssrtCoreEBot)
+				&& !(m instanceof AssrtCoreEPendingRequest);
 		//return es != null && es.equals(AssrtCoreEBot.ASSSRTCORE_BOT);  // Would be same as above
 	}
 
@@ -1452,7 +1495,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	private boolean isPendingRequest(Role req, Role acc)  // FIXME: for open/port annotations
 	{
 		//return (this.ports.get(r1).get(r2) != null) || (this.ports.get(r2).get(r1) != null);
-		AssrtCoreEMessage m = this.Q.get(acc).get(req);  // N.B. reverse direction to isConnected
+		AssrtCoreEMsg m = this.Q.get(acc).get(req);  // N.B. reverse direction to isConnected
 		return m instanceof AssrtCoreEPendingRequest;
 	}
 
@@ -1466,7 +1509,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return this.P;
 	}
 	
-	public Map<Role, Map<Role, AssrtCoreEMessage>> getQ()
+	public Map<Role, Map<Role, AssrtCoreEMsg>> getQ()
 	{
 		return this.Q;
 	}
@@ -1534,9 +1577,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			return false;
 		}
 		AssrtCoreSState them = (AssrtCoreSState) o;
-		return them.canEquals(this) && this.P.equals(them.P) && this.Q.equals(them.Q) && this.R.equals(them.R)
-				&& this.Rass.equals(them.Rass)
-				&& this.K.equals(them.K) && this.F.equals(them.F);
+		return them.canEquals(this) && this.P.equals(them.P)
+				&& this.Q.equals(them.Q) && this.R.equals(them.R)
+				&& this.Rass.equals(them.Rass) && this.K.equals(them.K)
+				&& this.F.equals(them.F);
 	}
 
 	@Override
@@ -1553,20 +1597,21 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	
 	private static boolean isInactive(EState s, int init)
 	{
-		return s.isTerminal() || (s.id == init && s.getStateKind() == EStateKind.ACCEPT);
+		return s.isTerminal()
+				|| (s.id == init && s.getStateKind() == EStateKind.ACCEPT);
 				// s.isTerminal means non-empty actions (i.e., edges) -- i.e., non-end (cf., fireable)
 	}
 	
 
 	// FIXME: factor out into separate classes
 	
-	private static Map<Role, Map<Role, AssrtCoreEMessage>> makeQ(Set<Role> rs, boolean explicit)
+	private static Map<Role, Map<Role, AssrtCoreEMsg>> makeQ(Set<Role> rs, boolean explicit)
 	{
-		AssrtCoreEMessage init = explicit ? AssrtCoreEBot.ASSSRTCORE_BOT : null;
-		Map<Role, Map<Role, AssrtCoreEMessage>> res = new HashMap<>();
+		AssrtCoreEMsg init = explicit ? AssrtCoreEBot.ASSSRTCORE_BOT : null;
+		Map<Role, Map<Role, AssrtCoreEMsg>> res = new HashMap<>();
 		for (Role r1 : rs)
 		{
-			HashMap<Role, AssrtCoreEMessage> tmp = new HashMap<>();
+			HashMap<Role, AssrtCoreEMsg> tmp = new HashMap<>();
 			for (Role r2 : rs)
 			{
 				if (!r2.equals(r1))
@@ -1578,10 +1623,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		}
 		return res;
 	}
-	
-	private static Map<Role, Map<Role, AssrtCoreEMessage>> copyQ(Map<Role, Map<Role, AssrtCoreEMessage>> Q)
+
+	private static Map<Role, Map<Role, AssrtCoreEMsg>> copyQ(
+			Map<Role, Map<Role, AssrtCoreEMsg>> Q)
 	{
-		Map<Role, Map<Role, AssrtCoreEMessage>> copy = new HashMap<>();
+		Map<Role, Map<Role, AssrtCoreEMsg>> copy = new HashMap<>();
 		for (Role r : Q.keySet())
 		{
 			copy.put(r, new HashMap<>(Q.get(r)));
@@ -1594,12 +1640,15 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return rs.stream().collect(Collectors.toMap(r -> r, r -> new HashSet<>()));
 	}
 
-	private static Map<Role, Set<AssrtDataTypeVar>> copyK(Map<Role, Set<AssrtDataTypeVar>> K)
+	private static Map<Role, Set<AssrtDataTypeVar>> copyK(
+			Map<Role, Set<AssrtDataTypeVar>> K)
 	{
-		return K.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
+		return K.entrySet().stream().collect(
+				Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
 	}
-	
-	private static void putK(Map<Role, Set<AssrtDataTypeVar>> K, Role r, AssrtDataTypeVar v)
+
+	private static void putK(Map<Role, Set<AssrtDataTypeVar>> K, Role r,
+			AssrtDataTypeVar v)
 	{
 		Set<AssrtDataTypeVar> tmp = K.get(r);
 		/*if (tmp == null)  // No: makeK already made all Sets -- cf. makeQ, and no putQ
@@ -1611,7 +1660,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	//private static Map<Role, Set<AssrtBoolFormula>> makeF(Set<Role> rs)
-	private static Map<Role, Set<AssrtBoolFormula>> makeF(Map<Role, AssrtEState> P)
+	private static Map<Role, Set<AssrtBoolFormula>> makeF(
+			Map<Role, AssrtEState> P)
 	{
 		//return rs.stream().collect(Collectors.toMap(r -> r, r -> new HashSet<>()));
 		return P.entrySet().stream().collect(Collectors.toMap(
@@ -1626,22 +1676,25 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		));
 	}
 
-	private static Map<Role, Set<AssrtBoolFormula>> copyF(Map<Role, Set<AssrtBoolFormula>> F)
+	private static Map<Role, Set<AssrtBoolFormula>> copyF(
+			Map<Role, Set<AssrtBoolFormula>> F)
 	{
-		return F.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
+		return F.entrySet().stream().collect(
+				Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
 	}
 
-	private static void appendF(Map<Role, Set<AssrtBoolFormula>> F, Role r, AssrtBoolFormula f)
+	private static void appendF(Map<Role, Set<AssrtBoolFormula>> F, Role r,
+			AssrtBoolFormula f)
 	{
 		F.get(r).add(f);
 	}
 
-	private static Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> makeR(Map<Role, AssrtEState> P)
+	private static Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> makeR(
+			Map<Role, AssrtEState> P)
 	{
-		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.entrySet().stream().collect(Collectors.toMap(
-				Entry::getKey,
-				e -> new HashMap<>(e.getValue().getStateVars())
-		));
+		Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.entrySet()
+				.stream().collect(Collectors.toMap(Entry::getKey,
+						e -> new HashMap<>(e.getValue().getStateVars())));
 		/*Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.keySet().stream().collect(Collectors.toMap(r -> r, r ->
 				Stream.of(false).collect(Collectors.toMap(
 						x -> AssrtCoreESend.DUMMY_VAR,
@@ -1649,10 +1702,12 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			));*/
 		return R;
 	}
-	
-	private static Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> copyR(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R)
+
+	private static Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> copyR(
+			Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R)
 	{
-		return R.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> new HashMap<>(e.getValue())));
+		return R.entrySet().stream().collect(
+				Collectors.toMap(Entry::getKey, e -> new HashMap<>(e.getValue())));
 	}
 	
 	private static Map<Role, Set<AssrtBoolFormula>> makeRass(Map<Role, AssrtEState> P)
@@ -1671,15 +1726,25 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				}
 		));
 	}
-	
-	private static Map<Role, Set<AssrtBoolFormula>> copyRass(Map<Role, Set<AssrtBoolFormula>> Rass)
+
+	private static Map<Role, Set<AssrtBoolFormula>> copyRass(
+			Map<Role, Set<AssrtBoolFormula>> Rass)
 	{
-		return Rass.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
+		return Rass.entrySet().stream().collect(
+				Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
 	}
-	
-	private static Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> copyRename(Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
+
+	private static Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> copyRename(
+			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
 	{
-		return rename.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> new HashMap<>(e.getValue())));
+		return rename.entrySet().stream().collect(
+				Collectors.toMap(Entry::getKey, e -> new HashMap<>(e.getValue())));
+	}
+
+	@Override
+	public Set<AssrtCoreSState> getReachableStates()
+	{
+		return getReachableStatesAux(this);
 	}
 	
 	/*private static void putR(Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R, Role r, AssrtDataTypeVar annot, AssrtArithFormula expr)
@@ -1699,31 +1764,31 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 
 // Enqueued message
-class AssrtCoreEMessage extends AssrtCoreESend
+class AssrtCoreEMsg extends AssrtCoreESend
 {
 	public final Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow;  // N.B. not in equals/hash
 	
-	/*public AssrtCoreEMessage(EModelFactory ef, AssrtCoreESend es)
+	/*public AssrtCoreEMsg(EModelFactory ef, AssrtCoreESend es)
 	{
 		this(ef, es.peer, es.mid, es.payload, es.ass, es.annot, es.expr);
 	}*/
 
-	public AssrtCoreEMessage(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload,
+	public AssrtCoreEMsg(ModelFactory mf, Role peer, MsgId<?> mid, Payload payload,
 			AssrtBoolFormula ass, //AssrtDataTypeVar annot, AssrtArithFormula expr
 			List<AssrtArithFormula> stateexprs)
 	{
-		this(ef, peer, mid, payload, ass, 
+		this(mf, peer, mid, payload, ass, 
 				//annot, expr,
 				stateexprs,
 				Collections.emptyMap());
 	}
 
-	public AssrtCoreEMessage(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload,
+	public AssrtCoreEMsg(ModelFactory mf, Role peer, MsgId<?> mid, Payload payload,
 			AssrtBoolFormula ass, //AssrtDataTypeVar annot, AssrtArithFormula expr,
 			List<AssrtArithFormula> stateexprs,
 			Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow)
 	{
-		super(ef, peer, mid, payload, ass, //annot,
+		super(mf, peer, mid, payload, ass, //annot,
 				stateexprs);
 		this.shadow = Collections.unmodifiableMap(shadow);
 	}
@@ -1750,7 +1815,7 @@ class AssrtCoreEMessage extends AssrtCoreESend
 		{
 			return true;
 		}
-		if (!(obj instanceof AssrtCoreEMessage))
+		if (!(obj instanceof AssrtCoreEMsg))
 		{
 			return false;
 		}
@@ -1758,18 +1823,20 @@ class AssrtCoreEMessage extends AssrtCoreESend
 	}
 	
 	@Override
-	public boolean canEqual(Object o)  // FIXME: rename canEquals
+	public boolean canEquals(Object o)  // FIXME: rename canEquals
 	{
-		return o instanceof AssrtCoreEMessage;
+		return o instanceof AssrtCoreEMsg;
 	}
 }
 
 // \bot
-class AssrtCoreEBot extends AssrtCoreEMessage
+class AssrtCoreEBot extends AssrtCoreEMsg
 {
 	// N.B. must be initialised *before* ASSSRTCORE_BOT
 	private static final Payload ASSRTCORE_EMPTY_PAYLOAD =
-			new Payload(Arrays.asList(new AssrtAnnotDataType(new AssrtDataTypeVar("_BOT"), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE)));
+			new Payload(
+					Arrays.asList(new AssrtAnnotDataType(new AssrtDataTypeVar("_BOT"),
+							AssrtCoreGProtoDeclTranslator.UNIT_DATATYPE)));
 			// Cf. Payload.EMPTY_PAYLOAD
 
 	public static final AssrtCoreEBot ASSSRTCORE_BOT = new AssrtCoreEBot();
@@ -1777,7 +1844,7 @@ class AssrtCoreEBot extends AssrtCoreEMessage
 	//public AssrtCoreEBot(EModelFactory ef)
 	private AssrtCoreEBot()
 	{
-		super(null, Role.EMPTY_ROLE, Op.EMPTY_OPERATOR, ASSRTCORE_EMPTY_PAYLOAD, AssrtTrueFormula.TRUE,  // null ef OK?
+		super(null, Role.EMPTY_ROLE, Op.EMPTY_OP, ASSRTCORE_EMPTY_PAYLOAD, AssrtTrueFormula.TRUE,  // null ef OK?
 				//AssrtCoreEAction.DUMMY_VAR, AssrtIntValFormula.ZERO);
 				Collections.emptyList());
 	}
@@ -1789,13 +1856,13 @@ class AssrtCoreEBot extends AssrtCoreEMessage
 	}
 	
 	@Override
-	public AssrtCoreEReceive toDual(Role self)
+	public AssrtCoreERecv toDual(Role self)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 
 	@Override
-	public AssrtCoreSSend toGlobal(SModelFactory sf, Role self)
+	public AssrtCoreSSend toGlobal(Role self)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
@@ -1829,23 +1896,26 @@ class AssrtCoreEBot extends AssrtCoreEMessage
 	}
 	
 	@Override
-	public boolean canEqual(Object o)  // FIXME: rename canEquals
+	public boolean canEquals(Object o)  // FIXME: rename canEquals
 	{
 		return o instanceof AssrtCoreEBot;
 	}
 }
 
 // <a>
-class AssrtCoreEPendingRequest extends AssrtCoreEMessage  // Q stores ESends (not EConnect)
+class AssrtCoreEPendingRequest extends AssrtCoreEMsg  // Q stores ESends (not EConnect)
 {
 	public static final Payload ASSRTCORE_EMPTY_PAYLOAD =
-			new Payload(Arrays.asList(new AssrtAnnotDataType(new AssrtDataTypeVar("_BOT"), AssrtCoreGProtocolDeclTranslator.UNIT_DATATYPE)));
+			new Payload(
+					Arrays.asList(new AssrtAnnotDataType(new AssrtDataTypeVar("_BOT"),
+							AssrtCoreGProtoDeclTranslator.UNIT_DATATYPE)));
 			// Cf. Payload.EMPTY_PAYLOAD
 	
-	private final AssrtCoreERequest msg;  // Not included in equals/hashCode
+	private final AssrtCoreEReq msg;  // Not included in equals/hashCode
 
-	//public AssrtCoreEPendingConnection(AssrtEModelFactory ef, Role r, MessageId<?> op, Payload pay, AssrtBoolFormula ass)
-	public AssrtCoreEPendingRequest(AssrtCoreERequest msg, Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow)
+	//public AssrtCoreEPendingConnection(AssrtEModelFactory ef, Role r, MsgId<?> op, Payload pay, AssrtBoolFormula ass)
+	public AssrtCoreEPendingRequest(AssrtCoreEReq msg,
+			Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow)
 	{
 		super(null, msg.peer, msg.mid, msg.payload, msg.ass,  // HACK: null ef OK?  cannot access es.ef
 				//AssrtCoreEAction.DUMMY_VAR, AssrtIntValFormula.ZERO,
@@ -1854,7 +1924,7 @@ class AssrtCoreEPendingRequest extends AssrtCoreEMessage  // Q stores ESends (no
 		this.msg = msg;
 	}
 	
-	public AssrtCoreERequest getMessage()
+	public AssrtCoreEReq getMsg()
 	{
 		return this.msg;
 	}
@@ -1866,13 +1936,13 @@ class AssrtCoreEPendingRequest extends AssrtCoreEMessage  // Q stores ESends (no
 	}
 	
 	@Override
-	public AssrtCoreEReceive toDual(Role self)
+	public AssrtCoreERecv toDual(Role self)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 
 	@Override
-	public AssrtCoreSSend toGlobal(SModelFactory sf, Role self)
+	public AssrtCoreSSend toGlobal(Role self)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
@@ -1906,7 +1976,7 @@ class AssrtCoreEPendingRequest extends AssrtCoreEMessage  // Q stores ESends (no
 	}
 	
 	@Override
-	public boolean canEqual(Object o)  // FIXME: rename canEquals
+	public boolean canEquals(Object o)  // FIXME: rename canEquals
 	{
 		return o instanceof AssrtCoreEPendingRequest;
 	}

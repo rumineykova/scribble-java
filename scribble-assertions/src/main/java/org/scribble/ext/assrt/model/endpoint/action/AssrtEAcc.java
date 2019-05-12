@@ -1,24 +1,24 @@
 package org.scribble.ext.assrt.model.endpoint.action;
 
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.model.endpoint.actions.EAcc;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.model.global.AssrtSModelFactory;
-import org.scribble.ext.assrt.model.global.actions.AssrtSAccept;
+import org.scribble.ext.assrt.model.global.actions.AssrtSAcc;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.model.endpoint.EModelFactory;
-import org.scribble.model.endpoint.actions.EAccept;
-import org.scribble.model.global.SModelFactory;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
 // Duplicated from AssrtEreceive
-public class AssrtEAccept extends EAccept implements AssrtEAction
+public class AssrtEAcc extends EAcc implements AssrtEAction
 {
 	public final AssrtBoolFormula ass;  // Not null -- empty set to True by parsing
 
-	public AssrtEAccept(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtEAcc(ModelFactory mf, Role peer, MsgId<?> mid, Payload payload,
+			AssrtBoolFormula bf)
 	{
-		super(ef, peer, mid, payload);
+		super(mf, peer, mid, payload);
 		this.ass = bf;
 	}
 	
@@ -28,17 +28,19 @@ public class AssrtEAccept extends EAccept implements AssrtEAction
 		return this.ass;
 	}
 	
-	// FIXME: syntactic equality as "construtive" duality for assertion actions? -- cf. p50 Def D.3 A implies B
+	// CHECKME: syntactic equality as "constructive" duality for assertion actions? -- cf. p50 Def D.3 A implies B
 	@Override
-	public AssrtERequest toDual(Role self)
+	public AssrtEReq toDual(Role self)
 	{
-		return ((AssrtEModelFactory) this.ef).newAssrtERequest(self, this.mid, this.payload, this.ass);
+		return ((AssrtEModelFactory) this.mf).newAssrtERequest(self, this.mid,
+				this.payload, this.ass);
 	}
 
 	@Override
-	public AssrtSAccept toGlobal(SModelFactory sf, Role self)
+	public AssrtSAcc toGlobal(Role self)
 	{
-		return ((AssrtSModelFactory) sf).newAssrtSAccept(self, this.peer, this.mid, this.payload, this.ass);
+		return ((AssrtSModelFactory) this.mf).newAssrtSAccept(self, this.peer,
+				this.mid, this.payload, this.ass);
 	}
 	
 	@Override
@@ -63,18 +65,18 @@ public class AssrtEAccept extends EAccept implements AssrtEAction
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtEAccept))
+		if (!(o instanceof AssrtEAcc))
 		{
 			return false;
 		}
-		AssrtEAccept as = (AssrtEAccept) o;
+		AssrtEAcc as = (AssrtEAcc) o;
 		return super.equals(o)  // Does canEquals
 				&& this.ass.toString().equals(as.ass.toString());  // FIXME: treating as String (cf. AssrtESend)
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
-		return o instanceof AssrtEAccept;
+		return o instanceof AssrtEAcc;
 	}
 }

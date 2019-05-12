@@ -5,27 +5,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
 import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
-import org.scribble.model.endpoint.EModelFactory;
-import org.scribble.model.global.SModelFactory;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
 public class AssrtStpESend extends AssrtCoreESend implements AssrtStpEAction
 {
 	public final Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma;
 	public final AssrtBoolFormula A;  // aliases this.ass
 
-	public AssrtStpESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, 
-		Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma, AssrtBoolFormula A)
+	public AssrtStpESend(ModelFactory mf, Role peer, MsgId<?> mid,
+			Payload payload, Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma,
+			AssrtBoolFormula A)
 	{
-		super(ef, peer, mid, payload, A, Collections.emptyList());
+		super(mf, peer, mid, payload, A, Collections.emptyList());
 		this.sigma = Collections.unmodifiableMap(sigma);
 		this.A = A;
 	}
@@ -49,7 +49,7 @@ public class AssrtStpESend extends AssrtCoreESend implements AssrtStpEAction
 	}
 
 	@Override
-	public AssrtCoreSSend toGlobal(SModelFactory sf, Role self)
+	public AssrtCoreSSend toGlobal(Role self)
 	{
 		throw new RuntimeException("Shouldn't get in here: " + this);
 	}
@@ -64,8 +64,12 @@ public class AssrtStpESend extends AssrtCoreESend implements AssrtStpEAction
 	@Override
 	public String toString()
 	{
-		return this.obj + getCommSymbol() + this.mid + this.payload + "@\"" + this.A + "\""
-				+ (this.sigma.isEmpty() ? "" : "{" + this.sigma.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.joining("")) + "}");
+		return this.obj + getCommSymbol() + this.mid + this.payload + "@\"" + this.A
+				+ "\""
+				+ (this.sigma.isEmpty() ? ""
+						: "{" + this.sigma.entrySet().stream()
+								.map(e -> e.getKey() + ":" + e.getValue())
+								.collect(Collectors.joining("")) + "}");
 	}
 	
 	@Override
@@ -95,7 +99,7 @@ public class AssrtStpESend extends AssrtCoreESend implements AssrtStpEAction
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtStpESend;
 	}

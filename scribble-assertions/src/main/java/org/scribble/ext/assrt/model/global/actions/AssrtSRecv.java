@@ -1,17 +1,18 @@
 package org.scribble.ext.assrt.model.global.actions;
 
+import org.scribble.core.model.global.actions.SRecv;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.model.global.actions.SReceive;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
-public class AssrtSReceive extends SReceive implements AssrtSAction
+public class AssrtSRecv extends SRecv implements AssrtSAction
 {
-	//public final AssrtAssertion assertion;  // Cf., e.g., AGMessageTransfer
-	public final AssrtBoolFormula ass;  // Cf., e.g., AGMessageTransfer  // Not null (cf. AssrtEReceive)
+	//public final AssrtAssertion assertion;  // Cf., e.g., AGMsgTransfer
+	public final AssrtBoolFormula ass;  // Cf., e.g., AGMsgTransfer  // Not null (cf. AssrtEReceive)
 
-	public AssrtSReceive(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtSRecv(Role subj, Role obj, MsgId<?> mid, Payload payload,
+			AssrtBoolFormula bf)
 	{
 		super(subj, obj, mid, payload);
 		this.ass = bf;
@@ -46,18 +47,18 @@ public class AssrtSReceive extends SReceive implements AssrtSAction
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtSReceive))
+		if (!(o instanceof AssrtSRecv))
 		{
 			return false;
 		}
-		AssrtSReceive as = (AssrtSReceive) o;
+		AssrtSRecv as = (AssrtSRecv) o;
 		return super.equals(o)  // Does canEqual
 				&& this.ass.toString().equals(as.ass.toString());  // FIXME: treating as String (cf. AssrtEReceive)
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
-		return o instanceof AssrtSReceive;
+		return o instanceof AssrtSRecv;
 	}
 }
