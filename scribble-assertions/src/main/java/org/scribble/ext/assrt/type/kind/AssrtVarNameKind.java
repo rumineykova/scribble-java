@@ -1,10 +1,10 @@
 package org.scribble.ext.assrt.type.kind;
 
-import org.scribble.type.kind.AbstractKind;
-import org.scribble.type.kind.DataTypeKind;
-import org.scribble.type.kind.PayloadTypeKind;
+import org.scribble.core.type.kind.AbstractKind;
+import org.scribble.core.type.kind.DataKind;
+import org.scribble.core.type.kind.PayElemKind;
 
-public class AssrtVarNameKind extends AbstractKind implements PayloadTypeKind
+public class AssrtVarNameKind extends AbstractKind implements PayElemKind
 {
 	public static final AssrtVarNameKind KIND = new AssrtVarNameKind();
 	
@@ -26,11 +26,11 @@ public class AssrtVarNameKind extends AbstractKind implements PayloadTypeKind
 		{
 			return true;
 		}
-		if (!(o instanceof DataTypeKind))
+		if (!(o instanceof DataKind))
 		{
 			return false;
 		}
-		return ((DataTypeKind) o).canEqual(this);
+		return ((DataKind) o).canEqual(this);
 	}
 	
 	@Override

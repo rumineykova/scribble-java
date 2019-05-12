@@ -1,10 +1,11 @@
 package org.scribble.ext.assrt.type.name;
 
-import org.scribble.type.kind.PayloadTypeKind;
-import org.scribble.type.name.PayloadElemType;
+import org.scribble.core.type.kind.PayElemKind;
+import org.scribble.core.type.name.PayElemType;
 
 
-public interface AssrtPayloadElemType<K extends PayloadTypeKind> extends PayloadElemType<K>
+public interface AssrtPayloadElemType<K extends PayElemKind>
+		extends PayElemType<K>
 {
 
 	default boolean isAnnotVarDecl()

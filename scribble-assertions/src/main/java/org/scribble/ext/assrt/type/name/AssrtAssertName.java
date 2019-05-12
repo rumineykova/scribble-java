@@ -1,8 +1,8 @@
 package org.scribble.ext.assrt.type.name;
 
+import org.scribble.core.type.name.MemberName;
+import org.scribble.core.type.name.ModuleName;
 import org.scribble.ext.assrt.type.kind.AssrtAssertKind;
-import org.scribble.type.name.MemberName;
-import org.scribble.type.name.ModuleName;
 
 
 public class AssrtAssertName extends MemberName<AssrtAssertKind>
@@ -47,11 +47,11 @@ public class AssrtAssertName extends MemberName<AssrtAssertKind>
 		{
 			return false;
 		}
-		AssrtAssertName n = (AssrtAssertName) o;
-		return n.canEqual(this) && super.equals(o);
+		return super.equals(o);  // Checks canEqualss
 	}
 	
-	public boolean canEqual(Object o)
+	@Override
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtAssertName;
 	}

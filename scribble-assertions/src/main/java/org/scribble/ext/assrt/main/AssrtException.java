@@ -1,10 +1,10 @@
 package org.scribble.ext.assrt.main;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.main.ScribbleException;
+import org.scribble.util.ScribException;
 
 //public class AssrtException extends Exception
-public class AssrtException extends ScribbleException
+public class AssrtException extends ScribException
 {
 
 	/**

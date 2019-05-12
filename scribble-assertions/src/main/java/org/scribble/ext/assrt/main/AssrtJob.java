@@ -49,14 +49,7 @@ public class AssrtJob extends org.scribble.job.Job
 	@Override
 	protected VisitorFactory newVisitorFactory()
 	{
-		runVisitorPassOnAllModules(ModuleContextBuilder.class);
-
 		runVisitorPassOnAllModules(AssrtNameDisambiguator.class);  // FIXME: factor out overriding pattern?
-
-		if (!this.noValidation)
-		{
-			runVisitorPassOnAllModules(AssrtAnnotationChecker.class);
-		}
 
 		return new VisitorFactoryImpl();
 	}
@@ -97,7 +90,25 @@ public class AssrtJob extends org.scribble.job.Job
 				imeds, tf);
 	}
 
+	@Override
+	public void runPasses() throws ScribException
+	{
+		super.runPasses();
 
+		if (!this.noValidation)
+		{
+			runVisitorPassOnAllModules(AssrtAnnotationChecker.class);
+		}
+
+	}
+
+
+	
+	
+	
+	
+	
+	
 	// N.B. currently only used by assrt-core
 	public boolean checkSat(GProtoName simpname, Set<AssrtBoolFormula> fs)  // Maybe record simpname as field (for core)
 	{

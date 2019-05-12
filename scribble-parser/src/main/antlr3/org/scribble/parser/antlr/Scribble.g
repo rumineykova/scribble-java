@@ -316,10 +316,6 @@ recvarname: t=ID -> ID<RecVarNode>[$t] ;
 rolename: t=ID -> ID<RoleNode>[$t] ;
 sigparamname: t=ID -> ID<SigParamNode>[$t] ;
 
-/*//annotationname: simplename ;
-//parametername: simplename ;
-assrt_paramname: t=ID -> ID<AssrtParamNode>[$t] ;*/
-
 
 /**
  * Section 3.2.1 Package, Module and Module Member Names

@@ -1,7 +1,7 @@
 package org.scribble.ext.assrt.type.name;
 
+import org.scribble.core.type.name.AbstractName;
 import org.scribble.ext.assrt.type.kind.AssrtSortKind;
-import org.scribble.type.name.AbstractName;
 
 public class AssrtSort extends AbstractName<AssrtSortKind>  // Cf. Op   // integrate with PayloadElemType?  cf., grammar (sorts are same identifiers as types)
 {
@@ -30,11 +30,11 @@ public class AssrtSort extends AbstractName<AssrtSortKind>  // Cf. Op   // integ
 		{
 			return false;
 		}
-		AssrtSort n = (AssrtSort) o;
-		return n.canEqual(this) && super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 	
-	public boolean canEqual(Object o)
+	@Override
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtSort;
 	}

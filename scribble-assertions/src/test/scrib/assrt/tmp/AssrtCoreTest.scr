@@ -76,7 +76,9 @@
 
 // merging TODO
 // - rename "new" factory methods? (easily confused with new expr)  centralise?
-// - coreconfig flags set
+// - coreconfig flags Map->Set
+// - rename AssrtCore to Core -- implement "strict" mode via translator?
+// - refactor exceptions to main packages
 
 
 

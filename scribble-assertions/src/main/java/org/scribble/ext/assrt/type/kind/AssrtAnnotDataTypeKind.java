@@ -1,13 +1,14 @@
 package org.scribble.ext.assrt.type.kind;
 
-import org.scribble.type.kind.AbstractKind;
-import org.scribble.type.kind.PayloadTypeKind;
+import org.scribble.core.type.kind.AbstractKind;
+import org.scribble.core.type.kind.PayElemKind;
 
 //public class AssrtAnnotPayloadElemKind extends AbstractKind implements PayloadTypeKind
 public class AssrtAnnotDataTypeKind extends AbstractKind //extends DataTypeKind  // No: extending DataTypeKind doesn't mean anything for these Kind objects themselves
-			implements PayloadTypeKind 
+			implements PayElemKind
 {
-	public static final AssrtAnnotDataTypeKind KIND = new AssrtAnnotDataTypeKind();
+	public static final AssrtAnnotDataTypeKind KIND 
+			= new AssrtAnnotDataTypeKind();
 	
 	protected AssrtAnnotDataTypeKind()
 	{

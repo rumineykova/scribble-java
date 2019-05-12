@@ -1,18 +1,19 @@
 package org.scribble.ext.assrt.type.name;
 
+import org.scribble.core.type.name.DataName;
 import org.scribble.ext.assrt.type.kind.AssrtAnnotDataTypeKind;
-import org.scribble.type.name.DataType;
 
-// In name package like GDelegationType -- FIXME: maybe refactor (both) out of name, and (Assrt)PayloadType
-public class AssrtAnnotDataType implements AssrtPayloadElemType<AssrtAnnotDataTypeKind>
+// Cf. GDelegType, in name package -- CHECKME: maybe refactor (both) out of name, and (Assrt)PayloadType
+public class AssrtAnnotDataType
+		implements AssrtPayloadElemType<AssrtAnnotDataTypeKind>
 {
 	public final AssrtDataTypeVar var;
-	public final DataType data;  // FIXME: generalise?
+	public final DataName data;  // CHECKME: generalise?
 	
-	public AssrtAnnotDataType(AssrtDataTypeVar varName, DataType dataType)
+	public AssrtAnnotDataType(AssrtDataTypeVar varName, DataName data)
 	{
 		this.var = varName; 
-		this.data = dataType; 
+		this.data = data; 
 	}
 
 	@Override
@@ -38,11 +39,12 @@ public class AssrtAnnotDataType implements AssrtPayloadElemType<AssrtAnnotDataTy
 		{
 			return false;
 		}
-		AssrtAnnotDataType n = (AssrtAnnotDataType) o;
-		return n.canEqual(this) && n.var.equals(this.var) && n.data.equals(this.data);
+		AssrtAnnotDataType them = (AssrtAnnotDataType) o;
+		return them.canEquals(this) && them.var.equals(this.var)
+				&& them.data.equals(this.data);
 	}
 	
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtAnnotDataType;
 	}

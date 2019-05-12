@@ -1,7 +1,7 @@
 package org.scribble.ext.assrt.type.kind;
 
-import org.scribble.type.kind.AbstractKind;
-import org.scribble.type.kind.ModuleMemberKind;
+import org.scribble.core.type.kind.AbstractKind;
+import org.scribble.core.type.kind.ModuleMemberKind;
 
 public class AssrtAssertKind extends AbstractKind implements ModuleMemberKind
 {

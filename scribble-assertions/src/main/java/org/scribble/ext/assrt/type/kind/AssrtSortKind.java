@@ -1,7 +1,7 @@
 package org.scribble.ext.assrt.type.kind;
 
-import org.scribble.type.kind.AbstractKind;
-import org.scribble.type.kind.DataTypeKind;
+import org.scribble.core.type.kind.AbstractKind;
+import org.scribble.core.type.kind.DataKind;
 
 public class AssrtSortKind extends AbstractKind
 {
@@ -25,11 +25,11 @@ public class AssrtSortKind extends AbstractKind
 		{
 			return true;
 		}
-		if (!(o instanceof DataTypeKind))
+		if (!(o instanceof DataKind))
 		{
 			return false;
 		}
-		return ((DataTypeKind) o).canEqual(this);
+		return ((DataKind) o).canEqual(this);
 	}
 	
 	@Override

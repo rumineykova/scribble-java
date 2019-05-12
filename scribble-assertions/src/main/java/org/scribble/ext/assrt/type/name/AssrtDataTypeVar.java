@@ -1,7 +1,7 @@
 package org.scribble.ext.assrt.type.name;
 
+import org.scribble.core.type.name.AbstractName;
 import org.scribble.ext.assrt.type.kind.AssrtVarNameKind;
-import org.scribble.type.name.AbstractName;
 
 public class AssrtDataTypeVar extends AbstractName<AssrtVarNameKind> implements AssrtPayloadElemType<AssrtVarNameKind>
 {
@@ -23,11 +23,11 @@ public class AssrtDataTypeVar extends AbstractName<AssrtVarNameKind> implements 
 		{
 			return false;
 		}
-		AssrtDataTypeVar n = (AssrtDataTypeVar) o;
-		return n.canEqual(this) && super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 	
-	public boolean canEqual(Object o)
+	@Override
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtDataTypeVar;
 	}

@@ -73,10 +73,10 @@ public class GDelegType implements PayElemType<Local>, Serializable
 			return false;
 		}
 		GDelegType them = (GDelegType) o;
-		return them.canEqual(this) && this.proto.equals(them.proto) && this.role.equals(them.role);
+		return them.canEquals(this) && this.proto.equals(them.proto) && this.role.equals(them.role);
 	}
 	
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof GDelegType;
 	}

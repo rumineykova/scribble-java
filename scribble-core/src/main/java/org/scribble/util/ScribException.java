@@ -15,6 +15,7 @@ package org.scribble.util;
 
 import org.antlr.runtime.tree.CommonTree;
 
+// CHECKME: relocate scrib exceptions to scribble-core org.scribble.main?  cf. ScribRuntimeException
 public class ScribException extends AntlrSourceException
 {
 	/**
