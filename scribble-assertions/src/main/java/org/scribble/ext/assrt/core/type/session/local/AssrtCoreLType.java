@@ -1,10 +1,10 @@
 package org.scribble.ext.assrt.core.type.session.local;
 
 import org.scribble.core.type.kind.Local;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreType;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSType;
 
 
-public interface AssrtCoreLType extends AssrtCoreType<Local>
+public interface AssrtCoreLType extends AssrtCoreSType<Local>
 {
 	
 }

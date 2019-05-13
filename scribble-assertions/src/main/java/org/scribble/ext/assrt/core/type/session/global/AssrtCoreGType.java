@@ -8,11 +8,11 @@ import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreType;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSType;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
 
 
-public interface AssrtCoreGType extends AssrtCoreType<Global>
+public interface AssrtCoreGType extends AssrtCoreSType<Global>
 {
 	
 	// CHECKME: refactor as visitors?

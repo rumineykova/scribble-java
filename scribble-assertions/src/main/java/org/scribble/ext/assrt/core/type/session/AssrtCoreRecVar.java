@@ -11,7 +11,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
 
 
 public abstract class AssrtCoreRecVar<K extends ProtoKind>
-		extends AssrtCoreTypeBase<K>
+		extends AssrtCoreSTypeBase<K>
 {
 	public final RecVar recvar;
 	public final List<AssrtArithFormula> annotexprs;

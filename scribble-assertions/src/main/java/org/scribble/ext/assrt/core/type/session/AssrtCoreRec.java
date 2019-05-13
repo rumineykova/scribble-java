@@ -11,8 +11,8 @@ import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 
 public abstract class AssrtCoreRec<K extends ProtoKind, 
-			B extends AssrtCoreType<K>>  // Without Seq complication, take kinded Type directly
-		extends AssrtCoreTypeBase<K>
+			B extends AssrtCoreSType<K>>  // Without Seq complication, take kinded Type directly
+		extends AssrtCoreSTypeBase<K>
 {
 	public final RecVar recvar;  // FIXME: RecVarNode?  (Cf. AssrtCoreAction.op/pay)
 	public final LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars;  // Int  // Non-null

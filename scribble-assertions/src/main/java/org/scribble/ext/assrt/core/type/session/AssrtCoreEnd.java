@@ -3,7 +3,7 @@ package org.scribble.ext.assrt.core.type.session;
 import org.scribble.core.type.kind.ProtoKind;
 
 public abstract class AssrtCoreEnd<K extends ProtoKind>
-		extends AssrtCoreTypeBase<K>
+		extends AssrtCoreSTypeBase<K>
 {
 	public AssrtCoreEnd()
 	{

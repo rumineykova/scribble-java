@@ -9,8 +9,8 @@ import org.scribble.core.type.kind.ProtoKind;
 import org.scribble.core.type.name.Role;
 
 public abstract class AssrtCoreChoice<K extends ProtoKind, 
-			B extends AssrtCoreType<K>>  // Without Seq complication, take kinded Type directly
-		extends AssrtCoreTypeBase<K>
+			B extends AssrtCoreSType<K>>  // Without Seq complication, take kinded Type directly
+		extends AssrtCoreSTypeBase<K>
 {
 	public final Role role;
 	public final AssrtCoreActionKind<K> kind;
