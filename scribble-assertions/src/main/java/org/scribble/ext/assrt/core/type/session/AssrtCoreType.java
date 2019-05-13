@@ -1,8 +1,9 @@
 package org.scribble.ext.assrt.core.type.session;
 
+import org.scribble.core.type.kind.ProtoKind;
+import org.scribble.core.type.session.SType;
 
-// ast here means "core syntax" of session types -- it does not link the actual Scribble source (cf. base ast classes)
-public interface AssrtCoreType
+public interface AssrtCoreType<K extends ProtoKind> extends SType<K, NoSeq<K>>
 {
-	boolean canEquals(Object o);
+
 }

@@ -7,6 +7,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.antlr.runtime.tree.CommonTree;
+import org.scribble.core.type.kind.Global;
+import org.scribble.core.type.name.RecVar;
+import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBinBoolFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
@@ -23,18 +27,18 @@ import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLChoice;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
-import org.scribble.type.kind.Global;
-import org.scribble.type.name.RecVar;
-import org.scribble.type.name.Role;
 
-public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> implements AssrtCoreGType
+public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
+		implements AssrtCoreGType
 {
 	public final Role src;   // Singleton -- no disconnect for now
 	public final Role dest;  // this.dest == super.role
 
-	public AssrtCoreGChoice(Role src, AssrtCoreGActionKind kind, Role dest, Map<AssrtCoreMsg, AssrtCoreGType> cases)
+	protected AssrtCoreGChoice(CommonTree source, Role src,
+			AssrtCoreGActionKind kind, Role dest,
+			Map<AssrtCoreMsg, AssrtCoreGType> cases)
 	{
-		super(dest, kind, cases);
+		super(source, dest, kind, cases);
 		this.src = src;
 		this.dest = dest;
 	}
@@ -42,19 +46,23 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> im
 	@Override
 	public List<AssrtAnnotDataType> collectAnnotDataTypeVarDecls()
 	{
-		List<AssrtAnnotDataType> res = this.cases.keySet().stream().flatMap(a -> a.pays.stream()).collect(Collectors.toList());
-		this.cases.keySet().forEach(a -> res.addAll(this.cases.get(a).collectAnnotDataTypeVarDecls()));
+		List<AssrtAnnotDataType> res = this.cases.keySet().stream()
+				.flatMap(a -> a.pay.stream()).collect(Collectors.toList());
+		this.cases.keySet().forEach(
+				a -> res.addAll(this.cases.get(a).collectAnnotDataTypeVarDecls()));
 		return res;
 	}
 
 	@Override
-	public AssrtCoreLType project(AssrtCoreAstFactory af, Role r, AssrtBoolFormula f) throws AssrtCoreSyntaxException
+	public AssrtCoreLType project(AssrtCoreAstFactory af, Role r,
+			AssrtBoolFormula f) throws AssrtCoreSyntaxException
 	{
 		Map<AssrtCoreMsg, AssrtCoreLType> projs = new HashMap<>();
 		for (Entry<AssrtCoreMsg, AssrtCoreGType> e : this.cases.entrySet())
 		{
 			AssrtCoreMsg a = e.getKey();
-			AssrtBoolFormula fproj = AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f, a.ass);
+			AssrtBoolFormula fproj = AssrtFormulaFactory
+					.AssrtBinBool(AssrtBinBoolFormula.Op.And, f, a.ass);
 
 			if (this.dest.equals(r))  // Projecting receiver side
 			{
@@ -73,7 +81,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> im
 						// HACK FIXME: currently also hacking all "message-carried assertions" to True, i.e., AssrtCoreState::fireSend/Request -- cf. AssrtSConfig::fire
 						// AssrtCoreState::getReceive/AcceptFireable currently use syntactic equality of assertions
 
-				a = af.AssrtCoreAction(a.op, a.pays, fproj);
+				a = af.AssrtCoreAction(a.op, a.pay, fproj);
 			}
 
 			projs.put(a, e.getValue().project(af, r, fproj));
@@ -85,25 +93,34 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> im
 		if (this.src.equals(r) || this.dest.equals(r))
 		{
 			Role role = this.src.equals(r) ? this.dest : this.src;
-			return af.AssrtCoreLChoice(role, getKind().project(this.src, r), projs);
+			return af.local.AssrtCoreLChoice(null, role,
+					getKind().project(this.src, r), projs);
 		}
 
 		// "Merge"
 		if (projs.values().stream().anyMatch(v -> (v instanceof AssrtCoreLRecVar)))
 		{
-			if (projs.values().stream().anyMatch(v -> !(v instanceof AssrtCoreLRecVar)))
+			if (projs.values().stream()
+					.anyMatch(v -> !(v instanceof AssrtCoreLRecVar)))
 			{
-				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": cannot merge unguarded rec vars.");
+				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n"
+						+ this + "\n onto " + r + ": cannot merge unguarded rec vars.");
 			}
 
-			Set<RecVar> rvs = projs.values().stream().map(v -> ((AssrtCoreLRecVar) v).recvar).collect(Collectors.toSet());
-			Set<List<AssrtArithFormula>> fs = projs.values().stream().map(v -> ((AssrtCoreLRecVar) v).annotexprs).collect(Collectors.toSet());  // FIXME? syntactic equality of exprs
+			Set<RecVar> rvs = projs.values().stream()
+					.map(v -> ((AssrtCoreLRecVar) v).recvar).collect(Collectors.toSet());
+			Set<List<AssrtArithFormula>> fs = projs.values().stream()
+					.map(v -> ((AssrtCoreLRecVar) v).annotexprs)
+					.collect(Collectors.toSet());
+					// CHECKME? syntactic equality of exprs
 			if (rvs.size() > 1 || fs.size() > 1)
 			{
-				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed unguarded rec vars: " + rvs);
+				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n"
+						+ this + "\n onto " + r + ": mixed unguarded rec vars: " + rvs);
 			}
 
-			return af.AssrtCoreLRecVar(rvs.iterator().next(), fs.iterator().next());
+			return af.local.AssrtCoreLRecVar(null, rvs.iterator().next(),
+					fs.iterator().next());
 		}
 		
 		List<AssrtCoreLType> filtered = projs.values().stream()
@@ -122,23 +139,30 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> im
 					filtered.iterator().next();  // RecVar disallowed above
 		}
 		
-		List<AssrtCoreLChoice> choices = filtered.stream().map(v -> (AssrtCoreLChoice) v).collect(Collectors.toList());
+		List<AssrtCoreLChoice> choices = filtered.stream()
+				.map(v -> (AssrtCoreLChoice) v).collect(Collectors.toList());
 	
-		Set<Role> roles = choices.stream().map(v -> v.role).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
+		Set<Role> roles = choices.stream().map(v -> v.role)
+				.collect(Collectors.toSet());
+				// Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
 		if (roles.size() > 1)
 		{
-			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed peer roles: " + roles);
+			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this
+					+ "\n onto " + r + ": mixed peer roles: " + roles);
 		}
-		Set<AssrtCoreActionKind<?>> kinds = choices.stream().map(v -> v.kind).collect(Collectors.toSet());  // Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
+		Set<AssrtCoreActionKind<?>> kinds = choices.stream().map(v -> v.kind)
+				.collect(Collectors.toSet());
+				// Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
 		if (kinds.size() > 1)
 		{
-			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": mixed action kinds: " + kinds);
+			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this
+					+ "\n onto " + r + ": mixed action kinds: " + kinds);
 		}
 		
 		Map<AssrtCoreMsg, AssrtCoreLType> merged = new HashMap<>();
 		choices.forEach(v ->
 		{
-			if (!v.kind.equals(AssrtCoreLActionKind.RECEIVE))
+			if (!v.kind.equals(AssrtCoreLActionKind.RECV))
 			{
 				throw new RuntimeException("[assrt-core] Shouldn't get here: " + v);  // By role-enabling?
 			}
@@ -148,19 +172,28 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> im
 				AssrtCoreLType b = e.getValue();
 				if (merged.containsKey(k)) //&& !b.equals(merged.get(k))) // TODO
 				{
-					throw new RuntimeException("[assrt-core] Cannot project \n" + this + "\n onto " + r + ": cannot merge: " + b + " and " + merged.get(k));
-				}
+							throw new RuntimeException(
+									"[assrt-core] Cannot project \n" + this + "\n onto " + r
+											+ ": cannot merge: " + b + " and " + merged.get(k));
+						}
 				merged.put(k, b);
 			});
 		});
 		
-		return af.AssrtCoreLChoice(roles.iterator().next(), AssrtCoreLActionKind.RECEIVE, merged);
+		return af.local.AssrtCoreLChoice(null, roles.iterator().next(),
+				AssrtCoreLActionKind.RECV, merged);
 	}
 	
 	@Override
 	public AssrtCoreGActionKind getKind()
 	{
 		return (AssrtCoreGActionKind) this.kind;
+	}
+
+	@Override
+	public String toString()
+	{
+		return this.src.toString() + this.kind + this.dest + casesToString();  // toString needed?
 	}
 	
 	@Override
@@ -183,18 +216,13 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<AssrtCoreGType, Global> im
 		{
 			return false;
 		}
-		return super.equals(obj) && this.src.equals(((AssrtCoreGChoice) obj).src);  // Does canEquals
+		return super.equals(obj)  // Checks canEquals
+				&& this.src.equals(((AssrtCoreGChoice) obj).src);  
 	}
 	
 	@Override
 	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtCoreGChoice;
-	}
-
-	@Override
-	public String toString()
-	{
-		return this.src.toString() + this.kind + this.dest + casesToString();  // toString needed?
 	}
 }

@@ -1,9 +1,9 @@
 package org.scribble.ext.assrt.core.type.session.global;
 
+import org.scribble.core.type.kind.Global;
+import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLActionKind;
-import org.scribble.type.kind.Global;
-import org.scribble.type.name.Role;
 
 public enum AssrtCoreGActionKind implements AssrtCoreActionKind<Global>
 {
@@ -27,8 +27,10 @@ public enum AssrtCoreGActionKind implements AssrtCoreActionKind<Global>
 	{
 		return 
 				this == AssrtCoreGActionKind.MESSAGE
-						? (src.equals(subj) ? AssrtCoreLActionKind.SEND : AssrtCoreLActionKind.RECEIVE)
-						: (src.equals(subj) ? AssrtCoreLActionKind.REQUEST : AssrtCoreLActionKind.ACCEPT)
+				? (src.equals(subj) 
+						? AssrtCoreLActionKind.SEND : AssrtCoreLActionKind.RECV)
+				: (src.equals(subj) 
+						? AssrtCoreLActionKind.REQ : AssrtCoreLActionKind.ACC)
 				;
 	}
 }

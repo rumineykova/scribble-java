@@ -23,6 +23,7 @@ import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLActionKind;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLChoice;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLRec;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
 import org.scribble.ext.assrt.main.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
@@ -30,14 +31,12 @@ import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 
 public class AssrtCoreEGraphBuilder
 {
-	private final AssrtJob job;
 	private final AssrtCore core;
 	private final AssrtEGraphBuilderUtil util;  // Not using any features for unguarded choice/recursion/continue (recursion manually tracked here)
 
 	
 	public AssrtCoreEGraphBuilder(AssrtJob job)
 	{
-		this.job = job;
 		this.core = (AssrtCore) job.getCore();
 		this.util = (AssrtEGraphBuilderUtil) this.core.config.mf.local
 				.EGraphBuilderUtil();
@@ -90,7 +89,7 @@ public class AssrtCoreEGraphBuilder
 		}
 		else if (cont instanceof AssrtCoreRecVar)
 		{
-			AssrtCoreRecVar crv = (AssrtCoreRecVar) cont;
+			AssrtCoreLRecVar crv = (AssrtCoreLRecVar) cont;
 			AssrtEState s = recs.get(crv.recvar);
 
 			//AssrtArithFormula expr = crv.annotexprs;
@@ -103,7 +102,8 @@ public class AssrtCoreEGraphBuilder
 		}
 		else
 		{
-			AssrtEState s = (AssrtEState) ((AssrtCoreEModelFactory) this.util.ef).EState(Collections.emptySet());  
+			AssrtEState s = (AssrtEState) ((AssrtCoreEModelFactory) this.util.mf)
+					.EState(Collections.emptySet());
 					// FIXME: call Assrt directly? -- no "vars" here though (intermediate sequence states), only on rec states
 
 			this.util.addEdge(s1, toEAction(r, k, a), s);
@@ -121,41 +121,41 @@ public class AssrtCoreEGraphBuilder
 			//AssrtDataTypeVar annot, AssrtArithFormula expr)
 			List<AssrtArithFormula> annotexprs)
 	{
-		AssrtCoreEModelFactory ef = (AssrtCoreEModelFactory) this.util.ef;  // FIXME: factor out
+		AssrtCoreEModelFactory ef = (AssrtCoreEModelFactory) this.util.mf;  // FIXME: factor out
 		if (k.equals(AssrtCoreLActionKind.SEND))
 		{
 			return ef.newAssrtCoreESend(r, a.op, 
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pays.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 
 		}
-		else if (k.equals(AssrtCoreLActionKind.RECEIVE))
+		else if (k.equals(AssrtCoreLActionKind.RECV))
 		{
 			//return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
 			return ef.newAssrtCoreEReceive(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pays.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 
 			// FIXME: local receive assertions -- why needed exactly?  should WF imply receive assertion always true?
 
 		}
-		else if (k.equals(AssrtCoreLActionKind.REQUEST))
+		else if (k.equals(AssrtCoreLActionKind.REQ))
 		{
 			return ef.newAssrtCoreERequest(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pays.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 		}
-		else if (k.equals(AssrtCoreLActionKind.ACCEPT))
+		else if (k.equals(AssrtCoreLActionKind.ACC))
 		{
 			return ef.newAssrtCoreEAccept(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pays.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 		}

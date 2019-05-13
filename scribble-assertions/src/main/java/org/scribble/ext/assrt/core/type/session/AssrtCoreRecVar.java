@@ -4,20 +4,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.antlr.runtime.tree.CommonTree;
+import org.scribble.core.type.kind.ProtoKind;
+import org.scribble.core.type.name.RecVar;
 import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.type.name.RecVar;
 
 
-public abstract class AssrtCoreRecVar implements AssrtCoreType
+public abstract class AssrtCoreRecVar<K extends ProtoKind>
+		extends AssrtCoreTypeBase<K>
 {
 	public final RecVar recvar;
-
-	//public final AssrtArithFormula expr;
 	public final List<AssrtArithFormula> annotexprs;
 	
-	//public AssrtCoreRecVar(RecVar var, AssrtArithFormula expr)
-	public AssrtCoreRecVar(RecVar var, List<AssrtArithFormula> annotexprs)
+	protected AssrtCoreRecVar(CommonTree source, RecVar var,
+			List<AssrtArithFormula> annotexprs)
 	{
+		super(source);
 		this.recvar = var;
 		this.annotexprs = Collections.unmodifiableList(annotexprs);
 	}
@@ -25,23 +27,22 @@ public abstract class AssrtCoreRecVar implements AssrtCoreType
 	@Override 
 	public String toString()
 	{
-		return this.recvar.toString()
-				+ "<" + this.annotexprs.stream().map(e -> e.toString()).collect(Collectors.joining(", ")) + ">";
+		return this.recvar.toString() + "<" + this.annotexprs.stream()
+				.map(e -> e.toString()).collect(Collectors.joining(", ")) + ">";
 	}
 	
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(Object o)
 	{
-		if (!(obj instanceof AssrtCoreRecVar))
+		if (!(o instanceof AssrtCoreRecVar))
 		{
 			return false;
 		}
-		AssrtCoreRecVar them = (AssrtCoreRecVar) obj;
-		return them.canEquals(this) && this.recvar.equals(them.recvar) && this.annotexprs.equals(them.annotexprs);
+		AssrtCoreRecVar<?> them = (AssrtCoreRecVar<?>) o;
+		return super.equals(o) // Checks canEquals -- implicitly checks kind
+				&& this.recvar.equals(them.recvar)
+				&& this.annotexprs.equals(them.annotexprs);
 	}
-	
-	@Override
-	public abstract boolean canEquals(Object o);
 
 	@Override
 	public int hashCode()

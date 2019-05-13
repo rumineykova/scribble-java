@@ -1,8 +1,15 @@
 package org.scribble.ext.assrt.core.type.session;
 
+import org.scribble.core.type.kind.ProtoKind;
 
-public abstract class AssrtCoreEnd implements AssrtCoreType
+public abstract class AssrtCoreEnd<K extends ProtoKind>
+		extends AssrtCoreTypeBase<K>
 {
+	public AssrtCoreEnd()
+	{
+		super(null);
+	}
+
 	@Override 
 	public String toString()
 	{
@@ -10,16 +17,14 @@ public abstract class AssrtCoreEnd implements AssrtCoreType
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(Object o)
 	{
-		if (!(obj instanceof AssrtCoreEnd))
+		if (!(o instanceof AssrtCoreEnd))
 		{
 			return false;
 		}
-		return ((AssrtCoreEnd) obj).canEquals(this);
+		return super.equals(o);  // Checks canEquals
 	}
-
-	public abstract boolean canEquals(Object o);
 
 	@Override
 	public int hashCode()

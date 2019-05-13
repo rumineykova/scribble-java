@@ -1,9 +1,10 @@
 package org.scribble.ext.assrt.core.type.session.local;
 
+import org.scribble.core.type.kind.Local;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreEnd;
 
 
-public class AssrtCoreLEnd extends AssrtCoreEnd implements AssrtCoreLType
+public class AssrtCoreLEnd extends AssrtCoreEnd<Local> implements AssrtCoreLType
 {
 	public static final AssrtCoreLEnd END = new AssrtCoreLEnd();
 	
@@ -19,7 +20,7 @@ public class AssrtCoreLEnd extends AssrtCoreEnd implements AssrtCoreLType
 		{
 			return false;
 		}
-		return super.equals(obj);  // Does canEquals
+		return super.equals(obj);  // Checks canEquals
 	}
 	
 	@Override

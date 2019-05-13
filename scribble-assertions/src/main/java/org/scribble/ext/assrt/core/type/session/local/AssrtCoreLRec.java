@@ -2,22 +2,22 @@ package org.scribble.ext.assrt.core.type.session.local;
 
 import java.util.LinkedHashMap;
 
+import org.antlr.runtime.tree.CommonTree;
+import org.scribble.core.type.kind.Local;
+import org.scribble.core.type.name.RecVar;
 import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRec;
-import org.scribble.type.name.RecVar;
 
-public class AssrtCoreLRec extends AssrtCoreRec<AssrtCoreLType> implements AssrtCoreLType
+public class AssrtCoreLRec extends AssrtCoreRec<Local, AssrtCoreLType>
+		implements AssrtCoreLType
 {
-	public AssrtCoreLRec(RecVar recvar, //AssrtDataTypeVar annot, AssrtArithFormula init,
+	protected AssrtCoreLRec(CommonTree source, RecVar recvar,
 			LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars,
-			AssrtCoreLType body,
-			AssrtBoolFormula ass)
+			AssrtCoreLType body, AssrtBoolFormula ass)
 	{
-		//super(recvar, annot, init, body);
-		super(recvar, annotvars, body,
-				ass);
+		super(source, recvar, annotvars, body, ass);
 	}
 
 	@Override

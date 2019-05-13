@@ -3,19 +3,21 @@ package org.scribble.ext.assrt.core.type.session.global;
 import java.util.Collections;
 import java.util.List;
 
+import org.scribble.core.type.kind.Global;
+import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreAstFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreEnd;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
-import org.scribble.type.name.Role;
 
 
-public class AssrtCoreGEnd extends AssrtCoreEnd implements AssrtCoreGType
+public class AssrtCoreGEnd extends AssrtCoreEnd<Global>
+		implements AssrtCoreGType
 {
 	public static final AssrtCoreGEnd END = new AssrtCoreGEnd();
 	
-	private AssrtCoreGEnd()
+	protected AssrtCoreGEnd()
 	{
 		
 	}
@@ -27,9 +29,10 @@ public class AssrtCoreGEnd extends AssrtCoreEnd implements AssrtCoreGType
 	}
 
 	@Override
-	public AssrtCoreLEnd project(AssrtCoreAstFactory af, Role r, AssrtBoolFormula f)
+	public AssrtCoreLEnd project(AssrtCoreAstFactory af, Role r,
+			AssrtBoolFormula f)
 	{
-		return af.AssrtCoreLEnd();
+		return af.local.AssrtCoreLEnd();
 	}
 	
 	@Override
@@ -39,7 +42,7 @@ public class AssrtCoreGEnd extends AssrtCoreEnd implements AssrtCoreGType
 		{
 			return false;
 		}
-		return super.equals(obj);  // Does canEquals
+		return super.equals(obj);  // Checks canEquals
 	}
 	
 	@Override
