@@ -57,11 +57,11 @@ public class AssrtIntVarNameNode extends SimpleNameNode<AssrtVarNameKind> implem
 		{
 			return false;
 		}
-		return ((AssrtIntVarNameNode) o).canEqual(this) && super.equals(o);
+		return ((AssrtIntVarNameNode) o).canEquals(this) && super.equals(o);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtIntVarNameNode;
 	}

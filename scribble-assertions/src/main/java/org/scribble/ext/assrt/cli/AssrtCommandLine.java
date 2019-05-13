@@ -71,6 +71,8 @@ public class AssrtCommandLine extends CommandLine
 		List<Path> impaths = parseImportPaths();
 		ResourceLocator locator = new DirectoryResourceLocator(impaths);
 		Path mainpath = parseMainPath();
+		
+		// FIXME: if no -assrt, then just do super.newMain
 			
 		Solver solver = this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_NATIVE_Z3)
 				? AssrtJob.Solver.NATIVE_Z3
