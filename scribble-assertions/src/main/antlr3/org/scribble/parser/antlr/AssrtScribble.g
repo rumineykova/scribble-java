@@ -204,6 +204,8 @@ tokens
   import org.scribble.ast.name.simple.RecVarNode;
   import org.scribble.ast.name.simple.RoleNode;
   import org.scribble.ast.name.simple.SigParamNode;
+
+  import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 }
 
 
@@ -339,7 +341,7 @@ rolename: t=ID -> ID<RoleNode>[$t] ;
 sigparamname: t=ID -> ID<SigParamNode>[$t] ;
 
 // Assrt
-assrt_varname: t=ID -> ID<AssrtVarNameNode>[$t] ;
+assrt_varname: t=ID -> ID<AssrtIntVarNameNode>[$t] ;  // N.B. Int
 
 
 /**
@@ -419,7 +421,7 @@ sigdecl:
 
 // Assrt
 assert_fundecl:
-	ASSERT_KW IDENTIFIER unintfunarglist simplepayloadtypename '=' EXTIDENTIFIER ';'
+	ASSERT_KW ID unintfunarglist simpledataname '=' EXTID ';'
 ;
 
 unintfunarglist:
@@ -429,9 +431,9 @@ unintfunarglist:
 ;
 
 unintfunarg:
-	assrt_varname ':' simplepayloadtypename
+	assrt_varname ':' simpledataname
 -> 
-	^(ASSRT_UNINTFUNARG assrt_varname simplepayloadtypename)
+	^(ASSRT_UNINTFUNARG assrt_varname simpledataname)
 ;
 
 
@@ -502,10 +504,10 @@ gprotoheader:
 
 // Assrt
 |
-	GLOBAL_KW PROTOCOL_KW simpleprotocolname roledecllist '@' EXTIDENTIFIER
+	GLOBAL_KW PROTOCOL_KW simplegprotoname roledecls '@' EXTID
 ->
-	^(ASSRT_GLOBALPROTOCOLHEADER[$t] simpleprotocolname ^(PARAMETERDECLLIST) 
-			roledecllist {AssertionsParser.parseStateVarDeclList($EXTIDENTIFIER.text)}) 
+	^(ASSRT_GLOBALPROTOCOLHEADER[$t] simplegprotoname ^(PARAMDECL_LIST) 
+			roledecls {AssertionsParser.parseStateVarDeclList($EXTID.text)}) 
 			// use ".tree" for Tree instead of text String
 ;
 // Following same pattern as globalmessagetransfer: explicitly invoke AssertionsParser, and extra assertion element only for new category
@@ -513,10 +515,12 @@ gprotoheader:
 // TODO: paramdecls and annot
 
 roledecls: 
-	t='(' roledecl (',' roledecl)* ')' -> ^(ROLEDECL_LIST[$t] roledecl+) ;
+	t='(' roledecl (',' roledecl)* ')' -> ^(ROLEDECL_LIST[$t] roledecl+)
+;
 
 roledecl:
-	t=ROLE_KW rolename -> ^(ROLEDECL[$t] rolename) ;
+	t=ROLE_KW rolename -> ^(ROLEDECL[$t] rolename)
+;
 
 paramdecls:
 	-> ^(PARAMDECL_LIST)
@@ -534,7 +538,8 @@ dataparamdecl:
 ;
 
 sigparamdecl:  
-	t=SIG_KW sigparamname -> ^(SIGPARAMDECL[$t] sigparamname) ;
+	t=SIG_KW sigparamname -> ^(SIGPARAMDECL[$t] sigparamname)
+;
 
 
 /**
@@ -558,15 +563,15 @@ gseq:
 ginteraction:
 	// Simple session node: directed interaction
 	gconnect | gmsgtransfer
-
+|
 	// Simple session node: basic interaction
-	| gwrap | gdisconnect 
-
-	// Simple session node (other)
-	| gcontinue | gdo 
-
+	gwrap | gdisconnect 
+|
+	// Simple session node: other
+	gcontinue | gdo 
+|
 	// Compound session node
-	| gchoice | grecursion
+	gchoice | grecursion
 ; 
 
 
@@ -585,9 +590,9 @@ gmsgtransfer:
 
 // Assrt -- above: return base GLOBALMESSAGETRANSFER (i.e., no ASSRT_EMPTY_ASSERTION) -- rely on AssrtAntlrToScribParser to use AssrtAstFactory to create AssrtGMessageTransfer with empty assertion
 | 
-	message FROM_KW rolename TO_KW rolename (',' rolename )* ';' '@' EXTIDENTIFIER
+	message FROM_KW rolename TO_KW rolename (',' rolename )* ';' '@' EXTID
 ->
-	^(ASSRT_GLOBALMESSAGETRANSFER {AssertionsParser.parseAssertion($EXTIDENTIFIER.text)} 
+	^(ASSRT_GLOBALMESSAGETRANSFER {AssertionsParser.parseAssertion($EXTID.text)} 
 			message rolename rolename+)
 			// N.B. calling a separate parser this way loses line/char number information
 ;
@@ -606,33 +611,20 @@ gconnect:
 // Assrt
 |
 	//ASSRT_EXPR message CONNECT_KW rolename TO_KW rolename ';'
-	message CONNECT_KW rolename TO_KW rolename ';' '@' EXTIDENTIFIER
+	message CONNECT_KW rolename TO_KW rolename ';' '@' EXTID
 ->
-	^(ASSRT_GLOBALCONNECT {AssertionsParser.parseAssertion($EXTIDENTIFIER.text)} 
+	^(ASSRT_GLOBALCONNECT {AssertionsParser.parseAssertion($EXTID.text)} 
 			rolename rolename message)
-|
 ;
 /*
+|
 	//ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
-	t=CONNECT_KW rolename TO_KW rolename ';' '@' EXTIDENTIFIER
+	t=CONNECT_KW rolename TO_KW rolename ';' '@' EXTID
 ->
-	^(ASSRT_GLOBALCONNECT[$t] {AssertionsParser.parseAssertion($EXTIDENTIFIER.text)} 
+	^(ASSRT_GLOBALCONNECT[$t] {AssertionsParser.parseAssertion($EXTID.text)} 
 			rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 ;
 */
-
-globaldisconnect:
-	DISCONNECT_KW rolename AND_KW rolename ';'
-->
-	^(GLOBALDISCONNECT rolename rolename )
-;
-
-globalwrap:
-	//message CONNECT_KW rolename TO_KW rolename
-	WRAP_KW rolename TO_KW rolename ';'
-->
-	^(GLOBALWRAP rolename rolename)
-;
 
 gdisconnect:
 	t=DISCONNECT_KW rolename AND_KW rolename ';'
@@ -683,13 +675,13 @@ gdo:
 
 // Assrt
 |
-	DO_KW protocolname roleinstantiationlist ';' '@' EXTIDENTIFIER
+	DO_KW simplegprotoname roleargs ';' '@' EXTID
 ->
-	^(ASSRT_GLOBALDO protocolname ^(ARGUMENTINSTANTIATIONLIST) 
-			roleinstantiationlist 
-			{AssertionsParser.parseStateVarArgList($EXTIDENTIFIER.text)})
+	^(ASSRT_GLOBALDO simplegprotoname ^(NONROLEARG_LIST) 
+			roleargs 
+			{AssertionsParser.parseStateVarArgList($EXTID.text)})
 ;
-// TODO: arguments + annot
+// TODO: non-role args, annot
 
 roleargs:
 	t='(' rolearg (',' rolearg)* ')' -> ^(ROLEARG_LIST[$t] rolearg+)

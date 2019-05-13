@@ -452,10 +452,12 @@ gprotoheader:
 ;
 
 roledecls: 
-	t='(' roledecl (',' roledecl)* ')' -> ^(ROLEDECL_LIST[$t] roledecl+) ;
+	t='(' roledecl (',' roledecl)* ')' -> ^(ROLEDECL_LIST[$t] roledecl+)
+;
 
 roledecl:
-	t=ROLE_KW rolename -> ^(ROLEDECL[$t] rolename) ;
+	t=ROLE_KW rolename -> ^(ROLEDECL[$t] rolename)
+;
 
 paramdecls:
 	-> ^(PARAMDECL_LIST)
@@ -473,7 +475,8 @@ dataparamdecl:
 ;
 
 sigparamdecl:  
-	t=SIG_KW sigparamname -> ^(SIGPARAMDECL[$t] sigparamname) ;
+	t=SIG_KW sigparamname -> ^(SIGPARAMDECL[$t] sigparamname)
+;
 
 
 /**
@@ -494,18 +497,19 @@ gseq:
 	ginteraction* -> ^(GINTERSEQ ginteraction*)
 ;
 
+
 ginteraction:
 	// Simple session node: directed interaction
 	gconnect | gmsgtransfer
-
+|
 	// Simple session node: basic interaction
-	| gwrap | gdisconnect 
-
-	// Simple session node (other)
-	| gcontinue | gdo 
-
+	gwrap | gdisconnect 
+|
+	// Simple session node: other
+	gcontinue | gdo 
+|
 	// Compound session node
-	| gchoice | grecursion
+	gchoice | grecursion
 ; 
 
 
