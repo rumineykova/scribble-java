@@ -23,8 +23,6 @@ import java.util.stream.Collectors;
 import org.antlr.runtime.Token;
 import org.scribble.ast.global.GProtoDecl;
 import org.scribble.ast.local.LProtoDecl;
-import org.scribble.core.type.kind.Kind;
-import org.scribble.core.type.kind.ProtoKind;
 import org.scribble.core.type.name.DataName;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.LProtoName;
@@ -76,7 +74,7 @@ public class Module extends ScribNodeBase
 	}
 
 	// Not requiring T extends ModuleMember, ImportDecl is not a ModuleMember
-	private <T> List<T> getMemberChildren(
+	protected <T> List<T> getMemberChildren(
 			Predicate<ScribNode> instanceOf, Function<ScribNode, T> cast)
 	{
 		List<T> res = new LinkedList<>();
@@ -165,14 +163,14 @@ public class Module extends ScribNodeBase
 	
 	public List<GProtoDecl> getGProtoDeclChildren()
 	{
-		return getProtoDeclChildren().stream().filter(x -> x.isGlobal())
+		return getProtoDeclChildren().stream().filter(ProtoDecl::isGlobal)
 				.map(x -> (GProtoDecl) x).collect(Collectors.toList());
 						// Less efficient, but smaller code
 	}
 	
 	public List<LProtoDecl> getLProtoDeclChildren()
 	{
-		return getProtoDeclChildren().stream().filter(x -> x.isLocal())
+		return getProtoDeclChildren().stream().filter(ProtoDecl::isLocal)
 				.map(x -> (LProtoDecl) x).collect(Collectors.toList());
 						// Less efficient, but smaller code
 	}
@@ -222,20 +220,14 @@ public class Module extends ScribNodeBase
 	@Override
 	public String toString()
 	{
-		String s = getModuleDeclChild().toString();
-		for (ImportDecl<? extends Kind> id : getImportDeclChildren())
-		{
-			s += "\n" + id;
-		}
-		for (NonProtoDecl<? extends Kind> dtd : getNonProtoDeclChildren())
-		{
-			s += "\n" + dtd;
-		}
-		for (ProtoDecl<? extends ProtoKind> pd : getProtoDeclChildren())
-		{
-			s += "\n" + pd;
-		}
-		return s;
+		// CHECKME: just do on getChildren instead ?
+		return getModuleDeclChild().toString()
+				+ getImportDeclChildren().stream().map(x -> "\n" + x)
+						.collect(Collectors.joining(""))
+				+ getNonProtoDeclChildren().stream().map(x -> "\n" + x)
+						.collect(Collectors.joining(""))
+				+ getProtoDeclChildren().stream().map(x -> "\n" + x)
+						.collect(Collectors.joining(""));
 	}
 }
 

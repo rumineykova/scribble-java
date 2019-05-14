@@ -66,7 +66,7 @@ public abstract class NonProtoDecl<K extends NonProtoKind>
 			ExtIdNode extName, ExtIdNode extSource)
 	{
 		// Cf. above getters and Scribble.g children order
-		addChild(name);
+		super.addScribChildren(name);
 		addChild(schema);
 		addChild(extName);
 		addChild(extSource);

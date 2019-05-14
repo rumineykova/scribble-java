@@ -2,33 +2,33 @@ package org.scribble.ext.assrt.ast;
 
 import java.util.List;
 
-import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.Token;
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.ImportDecl;
-import org.scribble.ast.MessageNode;
 import org.scribble.ast.ModuleDecl;
-import org.scribble.ast.DataOrSigDeclNode;
+import org.scribble.ast.MsgNode;
+import org.scribble.ast.NonProtoDecl;
 import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.NonRoleParamDeclList;
-import org.scribble.ast.ProtocolDecl;
+import org.scribble.ast.ProtoDecl;
 import org.scribble.ast.RoleArgList;
 import org.scribble.ast.RoleDeclList;
-import org.scribble.ast.global.GProtocolBlock;
-import org.scribble.ast.local.LProtocolBlock;
+import org.scribble.ast.global.GProtoBlock;
+import org.scribble.ast.local.LProtoBlock;
 import org.scribble.ast.name.qualified.DataTypeNode;
-import org.scribble.ast.name.qualified.GProtocolNameNode;
-import org.scribble.ast.name.qualified.LProtocolNameNode;
+import org.scribble.ast.name.qualified.GProtoNameNode;
+import org.scribble.ast.name.qualified.LProtoNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
 import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
-import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
+import org.scribble.ext.assrt.ast.global.AssrtGProtoHeader;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.ext.assrt.ast.local.AssrtLDo;
-import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
+import org.scribble.ext.assrt.ast.local.AssrtLProtoHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLRequest;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
@@ -43,40 +43,52 @@ import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 public interface AssrtAstFactory extends AstFactory
 {
 	// FIXME: should not be an AssrtAssertion -- should be just an (integer) var decl expr (which is not a bool expr)
-	AssrtGProtocolHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass);
+	AssrtGProtoHeader AssrtGProtoHeader(Token t, GProtoNameNode name,
+			RoleDeclList roledecls, NonRoleParamDeclList paramdecls, // AssrtAssertion ass);
 			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
 			AssrtAssertion ass);
 
-	AssrtGMsgTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion);
-	AssrtGConnect AssrtGConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion assertion);
-	AssrtGRecursion AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, //AssrtAssertion ass);
+	AssrtGMsgTransfer AssrtGMsgTransfer(Token t, RoleNode src, MsgNode msg,
+			List<RoleNode> dests, AssrtAssertion assertion);
+
+	AssrtGConnect AssrtGConnect(Token t, RoleNode src, MsgNode msg, RoleNode dest,
+			AssrtAssertion assertion);
+	AssrtGRecursion AssrtGRecursion(Token t, RecVarNode recvar, GProtoBlock block, //AssrtAssertion ass);
 			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
 			AssrtAssertion ass);
-	AssrtGContinue AssrtGContinue(CommonTree source, RecVarNode recvar, //AssrtArithExpr annot);
+	AssrtGContinue AssrtGContinue(Token t, RecVarNode recvar, //AssrtArithExpr annot);
 			List<AssrtArithExpr> annotexprs);
-	AssrtGDo AssrtGDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto, //AssrtArithExpr annot);
+	AssrtGDo AssrtGDo(Token t, RoleArgList roleinstans, NonRoleArgList arginstans, GProtoNameNode proto, //AssrtArithExpr annot);
 			List<AssrtArithExpr> annotexprs);
 
-	AssrtAnnotDataTypeElem AssrtAnnotDataTypeElem(CommonTree source, AssrtIntVarNameNode varName, DataTypeNode dataType);
+	AssrtAnnotDataElem AssrtAnnotDataTypeElem(Token t,
+			AssrtIntVarNameNode varName, DataTypeNode dataType);
 
-	AssrtLProtocolHeader AssrtLProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass);
+	AssrtLProtoHeader AssrtLProtoHeader(Token t, LProtoNameNode name,
+			RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass);
 			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
 			AssrtAssertion ass);
 
-	AssrtLSend AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion);
-	AssrtLRequest AssrtLConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion assertion);
-	AssrtLRecursion AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtocolBlock block, //AssrtAssertion ass);
+	AssrtLSend AssrtLSend(Token t, RoleNode src, MsgNode msg,
+			List<RoleNode> dests, AssrtAssertion assertion);
+	AssrtLRequest AssrtLConnect(Token t, RoleNode src, MsgNode msg, RoleNode dest,
+			AssrtAssertion assertion);
+	AssrtLRecursion AssrtLRecursion(Token t, RecVarNode recvar, LProtoBlock block, //AssrtAssertion ass);
 			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
 			AssrtAssertion ass);
-	AssrtLContinue AssrtLContinue(CommonTree source, RecVarNode recvar, //AssrtArithExpr annot);
+	AssrtLContinue AssrtLContinue(Token t, RecVarNode recvar, //AssrtArithExpr annot);
 			List<AssrtArithExpr> annotexprs);
-	AssrtLDo AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto, //AssrtArithExpr annot);
+	AssrtLDo AssrtLDo(Token t, RoleArgList roleinstans, NonRoleArgList arginstans, LProtoNameNode proto, //AssrtArithExpr annot);
 			List<AssrtArithExpr> annotexprs);
 
-	AssrtAssertion AssrtAssertion(CommonTree source, AssrtBoolFormula f);
-	AssrtArithExpr AssrtArithAnnotation(CommonTree source, AssrtArithFormula expr);
+	AssrtAssertion AssrtAssertion(Token t, AssrtBoolFormula f);
+	AssrtArithExpr AssrtArithAnnotation(Token t, AssrtArithFormula expr);
 
-	AssrtModule AssrtModule(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<DataOrSigDeclNode<?>> data,
-			List<ProtocolDecl<?>> protos, List<AssrtAssertDecl> asserts);
-	AssrtAssertDecl AssrtAssertDecl(CommonTree source, AssrtAssertNameNode name, List<AssrtSortNode> params, AssrtSortNode ret, AssrtSmtFormula<?> expr);
+	AssrtModule AssrtModule(Token t, ModuleDecl mdecl,
+			List<? extends ImportDecl<?>> imports,
+			List<? extends NonProtoDecl<?>> nonprotos,
+			List<? extends ProtoDecl<?>> protos, List<AssrtAssertDecl> asserts);
+
+	AssrtAssertDecl AssrtAssertDecl(Token t, AssrtAssertNameNode name,
+			List<AssrtSortNode> params, AssrtSortNode ret, AssrtSmtFormula<?> expr);
 }

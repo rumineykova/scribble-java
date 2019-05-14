@@ -33,7 +33,7 @@ import org.scribble.core.type.name.PayElemType;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
 import org.scribble.del.global.GProtoDefDel;
-import org.scribble.ext.assrt.ast.AssrtAnnotDataTypeElem;
+import org.scribble.ext.assrt.ast.AssrtAnnotDataElem;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
@@ -357,7 +357,7 @@ public class AssrtCoreGProtoDeclTranslator
 		List<AssrtAnnotDataType> res = new LinkedList<>();
 		for (PayElem<?> pe : msn.getPayloadListChild().getElementChildren())
 		{
-			if (!(pe instanceof AssrtAnnotDataTypeElem) && !(pe instanceof UnaryPayElem<?>))
+			if (!(pe instanceof AssrtAnnotDataElem) && !(pe instanceof UnaryPayElem<?>))
 			{
 				// Already ruled out by parsing?  e.g., GDelegationElem
 				throw new AssrtCoreSyntaxException("[assrt-core] Payload element not supported: " + pe);
@@ -367,9 +367,9 @@ public class AssrtCoreGProtoDeclTranslator
 				throw new AssrtCoreSyntaxException("[assrt-core] Payload element not supported: " + pe);
 			}*/
 			
-			if (pe instanceof AssrtAnnotDataTypeElem)
+			if (pe instanceof AssrtAnnotDataElem)
 			{
-				AssrtAnnotDataType adt = ((AssrtAnnotDataTypeElem) pe).toPayloadType();
+				AssrtAnnotDataType adt = ((AssrtAnnotDataElem) pe).toPayloadType();
 				String type = adt.data.toString();
 				if (!type.equals("int") && !type.endsWith(".int"))  // HACK FIXME (currently "int" for F#)
 				{

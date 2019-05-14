@@ -60,7 +60,7 @@ public abstract class ProtoHeader<K extends ProtoKind>
 			RoleDeclList rs)
 	{
 		// Cf. above getters and Scribble.g children order
-		addChild(name);
+		super.addScribChildren(name);
 		addChild(ps);
 		addChild(rs);
 	}

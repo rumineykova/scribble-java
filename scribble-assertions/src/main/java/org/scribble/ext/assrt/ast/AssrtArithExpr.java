@@ -1,51 +1,42 @@
 package org.scribble.ext.assrt.ast;
 
-import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactory;
-import org.scribble.ast.ScribNode;
+import org.antlr.runtime.Token;
 import org.scribble.ast.ScribNodeBase;
-import org.scribble.del.ScribDel;
+import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.main.ScribbleException;
-import org.scribble.visit.AstVisitor;
+import org.scribble.ext.assrt.del.AssrtDelFactory;
 
 // Based on AssrtAssertion
 public class AssrtArithExpr extends ScribNodeBase implements AssrtFormulaNode
 {	
 	private AssrtArithFormula expr;
 
-	public AssrtArithExpr(CommonTree source, AssrtArithFormula expr)
+	// ScribTreeAdaptor#create constructor
+	public AssrtArithExpr(Token t, AssrtArithFormula expr)
 	{
-		super(source);
-		this.expr = expr; 
-	}
-	
-	@Override
-	protected AssrtArithExpr copy()
-	{
-		return new AssrtArithExpr(this.source, this.expr);
-	}
-	
-	@Override
-	public AssrtArithExpr clone(AstFactory af)
-	{
-		return (AssrtArithExpr) ((AssrtAstFactory) af).AssrtArithAnnotation(this.source, this.expr);  // expr is immutable
+		super(t);
+		this.expr = expr;
 	}
 
-	protected AssrtArithExpr reconstruct(AssrtArithFormula f)
+	// Tree#dupNode constructor
+	protected AssrtArithExpr(AssrtArithExpr node)
 	{
-		ScribDel del = del();
-		AssrtArithExpr an = new AssrtArithExpr(this.source, f);
-		an = (AssrtArithExpr) an.del(del);
-		return an;
-	}
-
-	@Override
-	public ScribNode visitChildren(AstVisitor nv) throws ScribbleException
-	{
-		return reconstruct(this.expr);  // formula cannot be visited (not a ScribNode)
+		super(node);
+		this.expr = node.expr;
 	}
 	
+	@Override
+	public AssrtArithExpr dupNode()
+	{
+		return new AssrtArithExpr(this);
+	}
+	
+	@Override
+	public void decorateDel(DelFactory df)
+	{
+		((AssrtDelFactory) df).AssrtArithExpr(this);
+	}
+
 	@Override
 	public AssrtArithFormula getFormula()
 	{
@@ -58,3 +49,23 @@ public class AssrtArithExpr extends ScribNodeBase implements AssrtFormulaNode
 		return this.expr.toString();  
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+/*
+	private AssrtArithFormula expr;
+
+	public AssrtArithExpr(CommonTree source, AssrtArithFormula expr)
+	{
+		super(source);
+		this.expr = expr; 
+	}
+*/

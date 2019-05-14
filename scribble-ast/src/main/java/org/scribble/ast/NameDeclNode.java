@@ -50,6 +50,14 @@ public abstract class NameDeclNode<K extends Kind> extends ScribNodeBase
 	// (Gets overridden anyway for return type)
 	public abstract NameNode<K> getNameNodeChild();
 
+	// "add", not "set"
+	public void addScribChildren(NameNode<K> name)
+	{
+		// Cf. above getters and Scribble.g children order
+		addChild(name);
+	}
+
+
 	// Return: *simple* name (cf. ModuleDecl)
 	// Concrete subclasses should use getNameNode, toName (simple name) and cast
 	// (Gets overridden anyway for return type)

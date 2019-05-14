@@ -55,7 +55,7 @@ public class AssrtModuleDel extends ModuleDel
 		{
 			Set<AssrtAssertName> dups = npdnames.stream().filter(n -> npdnames.stream().filter(m -> m.equals(n)).count() > 1).collect(Collectors.toSet());
 			AssrtAssertName first = dups.iterator().next();
-			throw new ScribbleException(mod.getAssertDecl(first).getSource(), "Duplicate assert decls: " + first);
+			throw new ScribbleException(mod.getAssertDeclChild(first).getSource(), "Duplicate assert decls: " + first);
 		}
 		
 		return mod;

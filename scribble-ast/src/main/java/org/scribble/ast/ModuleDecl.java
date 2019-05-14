@@ -42,13 +42,6 @@ public class ModuleDecl extends NameDeclNode<ModuleKind>
 		return (ModuleNameNode) getRawNameNodeChild();
 	}
 
-	// "add", not "set"
-	public void addScribChildren(ModuleNameNode name)
-	{
-		// Cf. above getters and Scribble.g children order
-		addChild(name);
-	}
-
 	// Cf. CommonTree#dupNode
 	@Override
 	public ModuleDecl dupNode()
