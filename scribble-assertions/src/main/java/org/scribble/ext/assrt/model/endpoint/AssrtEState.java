@@ -18,7 +18,6 @@ import java.util.Set;
 
 import org.scribble.core.model.MState;
 import org.scribble.core.model.ModelFactory;
-import org.scribble.core.model.endpoint.EModelFactory;
 import org.scribble.core.model.endpoint.EState;
 import org.scribble.core.model.endpoint.actions.EAction;
 import org.scribble.core.type.name.RecVar;

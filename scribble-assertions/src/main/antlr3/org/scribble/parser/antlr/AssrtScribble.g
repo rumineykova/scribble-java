@@ -587,8 +587,10 @@ gmsgtransfer:
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 ->
 	^(GMSGTRANSFER message rolename+)
+	// Return base GLOBALMESSAGETRANSFER (i.e., no ASSRT_EMPTY_ASSERTION)
+	// Rely on AssrtAntlrToScribParser to use AssrtAstFactory to create AssrtGMsgTransfer with empty assertion -- CHECKME: create empty/true assertion here (and "deprecate" the base methods?)
 
-// Assrt -- above: return base GLOBALMESSAGETRANSFER (i.e., no ASSRT_EMPTY_ASSERTION) -- rely on AssrtAntlrToScribParser to use AssrtAstFactory to create AssrtGMessageTransfer with empty assertion
+// Assrt
 | 
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';' '@' EXTID
 ->
