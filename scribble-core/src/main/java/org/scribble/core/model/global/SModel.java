@@ -25,7 +25,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.scribble.core.job.Core;
-import org.scribble.core.job.CoreArgs;
 import org.scribble.core.model.endpoint.actions.ESend;
 import org.scribble.core.type.name.Role;
 import org.scribble.util.Pair;
@@ -52,7 +51,7 @@ public class SModel
 		SortedMap<Integer, SStateErrors> sErrs = getSafetyErrors();
 		Map<Set<SState>, Pair<Set<Role>, Map<Role, Set<ESend>>>> pErrors
 				= Collections.emptyMap();
-		if (!core.config.args.get(CoreArgs.NO_PROGRESS))
+		if (!core.config.args.NO_PROGRESS)
 		{
 			 pErrors = getProgressErrors();
 		}
@@ -189,7 +188,7 @@ public class SModel
 	
 	protected String termSetToString(Set<SState> termset)
 	{
-		return this.core.config.args.get(CoreArgs.VERBOSE)
+		return this.core.config.args.VERBOSE
 				? termset.stream().map(x -> x.toString())
 						.collect(Collectors.joining(","))
 				: termset.stream().map(x -> Integer.toString(x.id))

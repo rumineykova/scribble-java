@@ -13,9 +13,6 @@
  */
 package org.scribble.job;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.scribble.ast.AstFactory;
 import org.scribble.core.job.CoreArgs;
 import org.scribble.core.type.name.ModuleName;
@@ -28,7 +25,7 @@ public class JobConfig
 {
 	public final ModuleName main;  // Full name
 
-	public final Map<CoreArgs, Boolean> args;  // CHECKME: Set<CoreArgs> ?
+	public final CoreArgs args;  // CHECKME: JobArgs ?
 
 	public final AstFactory af;
 	public final DelFactory df;
@@ -36,11 +33,11 @@ public class JobConfig
 	public final STypeFactory tf;
 	
 	// N.B. MainContext is in a different non-visible (by Maven) package
-	protected JobConfig(ModuleName mainFullname, Map<CoreArgs, Boolean> args,
+	protected JobConfig(ModuleName mainFullname, CoreArgs args,
 			AstFactory af, DelFactory df, VisitorFactory vf, STypeFactory tf)
 	{
 		this.main = mainFullname;
-		this.args = Collections.unmodifiableMap(args);
+		this.args = args;
 		this.af = af;
 		this.df = df;
 		this.vf = vf;

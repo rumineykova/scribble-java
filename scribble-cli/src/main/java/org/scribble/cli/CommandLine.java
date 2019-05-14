@@ -20,8 +20,10 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -32,6 +34,7 @@ import org.scribble.codegen.java.JEndpointApiGenerator;
 import org.scribble.codegen.java.callbackapi.CBEndpointApiGenerator3;
 import org.scribble.core.job.CoreArgs;
 import org.scribble.core.job.CoreContext;
+import org.scribble.core.job.CoreFlags;
 import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.model.global.SGraph;
 import org.scribble.core.type.kind.Local;
@@ -101,7 +104,7 @@ public class CommandLine
 	// A Scribble extension should override newCLFlags/CLArgParser/Main/CoreArgs as appropriate
 	protected Main newMain() throws ScribParserException, ScribException
 	{
-		Map<CoreArgs, Boolean> args = Collections.unmodifiableMap(newCoreArgs());
+		CoreArgs args = newCoreArgs();
 		/*if (hasFlag(CLFlags.INLINE_MAIN_MOD_FLAG))
 		{
 			String inline = getUniqueFlagArgs(CLFlags.INLINE_MAIN_MOD_FLAG)[0];
@@ -118,20 +121,23 @@ public class CommandLine
 	}
 	
 	// A Scribble extension should override newCLFlags/CLArgParser/Main/CoreArgs as appropriate
-	protected Map<CoreArgs, Boolean> newCoreArgs()
+	protected CoreArgs newCoreArgs()
 	{
-		Map<CoreArgs, Boolean> args = new HashMap<>();
-		args.put(CoreArgs.VERBOSE, hasFlag(CLFlags.VERBOSE_FLAG));
-		args.put(CoreArgs.OLD_WF, hasFlag(CLFlags.OLD_WF_FLAG));
-		args.put(CoreArgs.NO_PROGRESS, hasFlag(CLFlags.NO_PROGRESS_FLAG));
-		args.put(CoreArgs.MIN_EFSM, hasFlag(CLFlags.LTSCONVERT_MIN_FLAG));
-		args.put(CoreArgs.FAIR, hasFlag(CLFlags.FAIR_FLAG));
-		args.put(CoreArgs.NO_LCHOICE_SUBJ_CHECK,
-				hasFlag(CLFlags.NO_LOCAL_CHOICE_SUBJECT_CHECK_FLAG));
-		args.put(CoreArgs.NO_ACC_CORRELATION_CHECK,
-				hasFlag(CLFlags.NO_ACCEPT_CORRELATION_CHECK_FLAG));
-		args.put(CoreArgs.NO_VALIDATION, hasFlag(CLFlags.NO_VALIDATION_FLAG));
-		return args;
+		Set<CoreFlags> flags = new HashSet<>();
+		Map<String, CoreFlags> tmp = new HashMap<>();
+		tmp.put(CLFlags.VERBOSE_FLAG, CoreFlags.VERBOSE);
+		tmp.put(CLFlags.FAIR_FLAG, CoreFlags.FAIR);
+		// TODO: -spin
+		tmp.put(CLFlags.NO_VALIDATION_FLAG, CoreFlags.NO_VALIDATION);
+		tmp.put(CLFlags.NO_PROGRESS_FLAG, CoreFlags.NO_PROGRESS);
+		tmp.put(CLFlags.LTSCONVERT_MIN_FLAG, CoreFlags.MIN_EFSM);
+		tmp.put(CLFlags.OLD_WF_FLAG, CoreFlags.OLD_WF);
+		tmp.put(CLFlags.NO_LOCAL_CHOICE_SUBJECT_CHECK_FLAG,
+				CoreFlags.NO_LCHOICE_SUBJ_CHECK);
+		tmp.put(CLFlags.NO_ACCEPT_CORRELATION_CHECK_FLAG,
+				CoreFlags.NO_ACC_CORRELATION_CHECK);
+		tmp.keySet().forEach(x -> { if (hasFlag(x)) { flags.add(tmp.get(x)); } } );
+		return new CoreArgs(flags);
 	}
 	
 	protected boolean hasFlag(String flag)

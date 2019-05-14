@@ -22,7 +22,6 @@ import org.scribble.codegen.java.ApiGen;
 import org.scribble.codegen.java.sessionapi.SessionApiGenerator;
 import org.scribble.codegen.java.util.ClassBuilder;
 import org.scribble.codegen.java.util.TypeBuilder;
-import org.scribble.core.job.CoreArgs;
 import org.scribble.core.job.CoreContext;
 import org.scribble.core.model.endpoint.EState;
 import org.scribble.core.model.endpoint.actions.EAction;
@@ -66,7 +65,7 @@ public class StateChannelApiGenerator extends ApiGen
 		this.lpn = InlinedProjector.getFullProjectionName(fullname, self);
 		//this.init = job.getContext().getEndpointGraph(fullname, self).init;
 		CoreContext corec = this.core.getContext();
-		this.init = this.job.config.args.get(CoreArgs.MIN_EFSM)
+		this.init = this.job.config.args.MIN_EFSM
 				? corec.getMinimisedEGraph(fullname, self).init
 				: corec.getEGraph(fullname, self).init;
 		

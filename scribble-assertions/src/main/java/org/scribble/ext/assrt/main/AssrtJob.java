@@ -8,7 +8,7 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.Module;
 import org.scribble.ast.global.GProtoDecl;
 import org.scribble.core.job.Core;
-import org.scribble.core.job.CoreArgs;
+import org.scribble.core.job.CoreFlags;
 import org.scribble.core.lang.global.GProtocol;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.ModuleName;
@@ -37,7 +37,7 @@ public class AssrtJob extends org.scribble.job.Job
 	public final Solver solver; //= Solver.NATIVE_Z3;
 	public final boolean batching;
 
-	public AssrtJob(ModuleName mainFullname, Map<CoreArgs, Boolean> args,
+	public AssrtJob(ModuleName mainFullname, Map<CoreFlags, Boolean> args,
 			Map<ModuleName, Module> parsed, AstFactory af, DelFactory df,
 			Solver solver, boolean batching) throws ScribException
 	{
@@ -66,7 +66,7 @@ public class AssrtJob extends org.scribble.job.Job
 	// A Scribble extension should override newJobConfig/Context/Core as appropriate
 	@Override
 	protected JobConfig newJobConfig(ModuleName mainFullname,
-			Map<CoreArgs, Boolean> args, AstFactory af, DelFactory df,
+			Map<CoreFlags, Boolean> args, AstFactory af, DelFactory df,
 			VisitorFactory vf, STypeFactory tf)
 	{
 		return new JobConfig(mainFullname, args, af, df, vf, tf);
@@ -82,7 +82,7 @@ public class AssrtJob extends org.scribble.job.Job
 	
 	// A Scribble extension should override newJobConfig/Context/Core as appropriate
 	@Override
-	protected Core newCore(ModuleName mainFullname, Map<CoreArgs, Boolean> args,
+	protected Core newCore(ModuleName mainFullname, Map<CoreFlags, Boolean> args,
 			//Map<ModuleName, ModuleContext> modcs, 
 			Set<GProtocol> imeds, STypeFactory tf)
 	{

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.antlr.runtime.CommonToken;
+import org.antlr.runtime.Parser;
 import org.antlr.runtime.Token;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GConnect;
@@ -80,7 +81,7 @@ import org.scribble.parser.antlr.ScribbleParser;
 public class AstFactoryImpl implements AstFactory
 {
 	// Purely for the convenience of newToken(Token, type), parser instance used to access token int constants
-	protected final ScribbleParser parser;
+	protected final Parser parser;
 	protected final Map<Integer, String> tokens;
 
 	protected final DelFactory df;
@@ -89,9 +90,8 @@ public class AstFactoryImpl implements AstFactory
 	{
 		try
 		{
-			Class<ScribbleParser> parserC = 
-					org.scribble.parser.antlr.ScribbleParser.class;
-			this.parser = antlr.newScribbleParser(null);
+			this.parser = antlr.newScribbleParser(null);  // null CommonTokenStream seems OK for here
+			Class<? extends Parser> parserC = this.parser.getClass();
 			Map<Integer, String> tokens = new HashMap<>();
 			for (String t : ScribbleParser.tokenNames)
 			{

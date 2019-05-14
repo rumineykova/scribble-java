@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.Module;
-import org.scribble.core.job.CoreArgs;
+import org.scribble.core.job.CoreFlags;
 import org.scribble.core.type.name.ModuleName;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtAstFactoryImpl;
@@ -23,7 +23,7 @@ public class AssrtMain extends Main
 
 	// Load main module from file system
 	public AssrtMain(ResourceLocator locator, Path mainpath,
-			Map<CoreArgs, Boolean> args) throws ScribException, ScribParserException
+			Map<CoreFlags, Boolean> args) throws ScribException, ScribParserException
 	{
 		super(locator, mainpath, args);
 	}
@@ -42,7 +42,7 @@ public class AssrtMain extends Main
 
 	@Override
 	public AssrtJob newJob(Map<ModuleName, Module> parsed,
-			Map<CoreArgs, Boolean> args, ModuleName mainFullname, AstFactory af,
+			Map<CoreFlags, Boolean> args, ModuleName mainFullname, AstFactory af,
 			DelFactory df)
 	{
 		return new AssrtJob(parsed, args, mainFullname, af, df);

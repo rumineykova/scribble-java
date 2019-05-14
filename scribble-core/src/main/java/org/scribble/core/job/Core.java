@@ -56,7 +56,7 @@ public class Core
 
 	private final CoreContext context;  // Mutable (Visitor passes replace modules)
 	
-	public Core(ModuleName mainFullname, Map<CoreArgs, Boolean> args,
+	public Core(ModuleName mainFullname, CoreArgs args,
 			//Map<ModuleName, ModuleContext> modcs, 
 			Set<GProtocol> imeds, STypeFactory tf)
 	{
@@ -81,7 +81,7 @@ public class Core
 
 	// A Scribble extension should override newCoreConfig/Context/etc as appropriate
 	protected CoreConfig newCoreConfig(ModuleName mainFullname,
-			Map<CoreArgs, Boolean> args, STypeFactory tf)
+			CoreArgs args, STypeFactory tf)
 	{
 		STypeVisitorFactory vf = newSTypeVisitorFactory();
 		ModelFactory mf = newModelFactory();
@@ -317,7 +317,7 @@ public class Core
 			}
 		}
 				
-		if (!this.config.args.get(CoreArgs.FAIR))
+		if (!this.config.args.FAIR)
 		{
 			verbosePrintPass(
 					"Building \"unfair\" EFSMs for all projected inlineds...");
@@ -364,7 +364,7 @@ public class Core
 				continue;
 			}
 			validateByScribble(fullname, true);
-			if (!this.config.args.get(CoreArgs.FAIR))
+			if (!this.config.args.FAIR)
 			{
 				//verbosePrintPass("Validating by Scribble with \"unfair\" output choices: " + fullname);
 				validateByScribble(fullname, false);  // TODO: only need to check progress, not "full" validation
@@ -378,7 +378,7 @@ public class Core
 		SGraph graph = fair
 				? this.context.getSGraph(fullname)
 				: this.context.getUnfairSGraph(fullname);
-		if (this.config.args.containsKey(CoreArgs.VERBOSE))
+		if (this.config.args.VERBOSE)
 		{
 			String dot = graph.init.toDot();
 			String[] lines = dot.split("\\R");
@@ -436,7 +436,7 @@ public class Core
 	
 	public boolean isVerbose()
 	{
-		return this.config.args.get(CoreArgs.VERBOSE);
+		return this.config.args.VERBOSE;
 	}
 	
 	public void verbosePrintln(String s)

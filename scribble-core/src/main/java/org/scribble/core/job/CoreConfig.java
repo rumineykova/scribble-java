@@ -13,9 +13,6 @@
  */
 package org.scribble.core.job;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.scribble.core.model.ModelFactory;
 import org.scribble.core.type.name.ModuleName;
 import org.scribble.core.type.session.STypeFactory;
@@ -25,18 +22,18 @@ import org.scribble.core.visit.STypeVisitorFactory;
 public class CoreConfig
 {
 	public final ModuleName main;  // Full name   // CHECKME: refactor as a CoreArg?
-	public final Map<CoreArgs, Boolean> args;  // TODO: Rename flags and make Set
+	public final CoreArgs args;  // TODO: Rename flags and make Set
 
 	public final STypeFactory tf;
 	public final STypeVisitorFactory vf;
 	public final ModelFactory mf;
 	
 	// N.B. MainContext is in a different non-visible (by Maven) package
-	public CoreConfig(ModuleName main, Map<CoreArgs, Boolean> args,
+	public CoreConfig(ModuleName main, CoreArgs args,
 			STypeFactory tf, STypeVisitorFactory vf, ModelFactory mf)
 	{
 		this.main = main;
-		this.args = Collections.unmodifiableMap(args);
+		this.args = args;
 		this.tf = tf;
 		this.vf = vf;
 		this.mf = mf;

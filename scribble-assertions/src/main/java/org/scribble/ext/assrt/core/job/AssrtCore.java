@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.scribble.core.job.Core;
-import org.scribble.core.job.CoreArgs;
+import org.scribble.core.job.CoreFlags;
 import org.scribble.core.job.CoreConfig;
 import org.scribble.core.job.CoreContext;
 import org.scribble.core.lang.global.GProtocol;
@@ -38,7 +38,7 @@ import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactoryImpl;
 // A "compiler job" front-end that supports operations comprising visitor passes over the AST and/or local/global models
 public class AssrtCore extends Core
 {
-	public AssrtCore(ModuleName mainFullname, Map<CoreArgs, Boolean> args,
+	public AssrtCore(ModuleName mainFullname, Map<CoreFlags, Boolean> args,
 			Set<GProtocol> imeds, STypeFactory tf)
 	{
 		super(mainFullname, args, imeds, tf);
@@ -64,7 +64,7 @@ public class AssrtCore extends Core
 	// A Scribble extension should override newCoreConfig/Context/etc as appropriate
 	@Override
 	protected CoreConfig newCoreConfig(ModuleName mainFullname,
-			Map<CoreArgs, Boolean> args, STypeFactory tf)
+			Map<CoreFlags, Boolean> args, STypeFactory tf)
 	{
 		STypeVisitorFactory vf = newSTypeVisitorFactory();
 		ModelFactory mf = newModelFactory();

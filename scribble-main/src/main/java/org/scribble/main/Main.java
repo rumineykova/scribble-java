@@ -14,7 +14,6 @@
 package org.scribble.main;
 
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -54,7 +53,7 @@ import org.scribble.util.ScribParserException;
 public class Main
 {
 	public final ModuleName main;
-	public final Map<CoreArgs, Boolean> args;
+	public final CoreArgs args;
 
 	protected final ScribAntlrWrapper antlr = newAntlr(newDelFactory());
 
@@ -70,14 +69,14 @@ public class Main
 	// Load other modules via locator -- CHECKME: a bit inconsistent w.r.t. main?
 	// TODO: make Path abstract as e.g. URI -- locator is abstract but Path is coupled to concrete DirectoryResourceLocator
 	public Main(ResourceLocator locator, Path mainpath,
-			Map<CoreArgs, Boolean> args) throws ScribException, ScribParserException
+			CoreArgs args) throws ScribException, ScribParserException
 	{
 		this(new Pair<>(locator, null), mainpath, args);
 	}
 
 	// Load an inline module arg -- module imports not allowed (currently no ResourceLocator)
 	@Deprecated
-	public Main(String inline, Map<CoreArgs, Boolean> args)
+	public Main(String inline, CoreArgs args)
 			throws ScribException, ScribParserException
 	{
 		this(new Pair<>(null, inline), null, args);
@@ -85,8 +84,8 @@ public class Main
 
 	// Pre: hack.left == null xor hack.right == null
 	// Hack to "unify" the constructors (to satisfy final field init more conveniently)
-	private Main(Pair<ResourceLocator, String> hack, Path mainpath,
-			Map<CoreArgs, Boolean> args) throws ScribException, ScribParserException
+	private Main(Pair<ResourceLocator, String> hack, Path mainpath, CoreArgs args)
+			throws ScribException, ScribParserException
 	{
 		// Set this.loader and load main
 		String inline = hack.right;
@@ -113,7 +112,7 @@ public class Main
 		}*/
 
 		this.main = main.right.getFullModuleName();
-		this.args = Collections.unmodifiableMap(args);
+		this.args = args;
 		loadAllModuleImports(main);
 	}
 	
@@ -139,9 +138,9 @@ public class Main
 	}
 
 	// A Scribble extension should override newAntlr/AstFactory/DelFactory/Job as appropriate
-	protected Job newJob(Map<ModuleName, Module> parsed,
-			Map<CoreArgs, Boolean> args, ModuleName mainFullname, AstFactory af,
-			DelFactory df) throws ScribException
+	protected Job newJob(Map<ModuleName, Module> parsed, CoreArgs args,
+			ModuleName mainFullname, AstFactory af, DelFactory df)
+			throws ScribException
 	{
 				// Was previously made inside Job, but AstFactoryImpl now lives in scribble-parser, to access ScribbleParser constants
 		return new Job(mainFullname, args, parsed, af, df);

@@ -70,7 +70,7 @@ public class Job
 	
 	private Core core;
 
-	public Job(ModuleName mainFullname, Map<CoreArgs, Boolean> args,
+	public Job(ModuleName mainFullname, CoreArgs args,
 			Map<ModuleName, Module> parsed, AstFactory af, DelFactory df)
 			throws ScribException
 	{
@@ -97,7 +97,7 @@ public class Job
 
 	// A Scribble extension should override newJobConfig/Context/Core as appropriate
 	protected JobConfig newJobConfig(ModuleName mainFullname,
-			Map<CoreArgs, Boolean> args, AstFactory af, DelFactory df,
+			CoreArgs args, AstFactory af, DelFactory df,
 			VisitorFactory vf, STypeFactory tf)
 	{
 		return new JobConfig(mainFullname, args, af, df, vf, tf);
@@ -111,7 +111,7 @@ public class Job
 	}
 	
 	// A Scribble extension should override newJobConfig/Context/Core as appropriate
-	protected Core newCore(ModuleName mainFullname, Map<CoreArgs, Boolean> args,
+	protected Core newCore(ModuleName mainFullname, CoreArgs args,
 			//Map<ModuleName, ModuleContext> modcs, 
 			Set<GProtocol> imeds, STypeFactory tf)
 	{
@@ -272,7 +272,7 @@ public class Job
 	
 	public boolean isVerbose()
 	{
-		return this.config.args.get(CoreArgs.VERBOSE);
+		return this.config.args.VERBOSE;
 	}
 	
 	public void verbosePrintln(String s)
