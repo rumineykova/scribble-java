@@ -1,4 +1,4 @@
-package org.scribble.ext.assrt.parser.scribble;
+package org.scribble.ext.assrt.parser;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -27,5 +27,11 @@ public class AssrtScribAntlrWrapper extends ScribAntlrWrapper
 	public Parser newScribbleParser(CommonTokenStream ts)
 	{
 		return new AssrtScribbleParser(ts);
+	}
+
+	@Override
+	protected AssrtScribTreeAdaptor newAdaptor(DelFactory df)
+	{
+		return new AssrtScribTreeAdaptor(df);
 	}
 }

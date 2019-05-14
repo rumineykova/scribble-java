@@ -115,7 +115,8 @@ public class AssrtCommandLine extends CommandLine
 	
 	
 	@Override
-	protected void runValidationTasks(Job job) throws AssrtCoreSyntaxException, AntlrSourceException, ScribParserException, CommandLineException
+	protected void runValidationTasks(Job job) throws AssrtCoreSyntaxException,
+			AntlrSourceException, ScribParserException, CommandLineException
 	{
 		if (this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE))  // assrt-*core* mode
 		{
@@ -128,7 +129,9 @@ public class AssrtCommandLine extends CommandLine
 		}
 	}
 
-	private void doAssrtCoreValidationTasks(AssrtJob j) throws AssrtCoreSyntaxException, ScribException, ScribParserException, CommandLineException
+	private void doAssrtCoreValidationTasks(AssrtJob j)
+			throws AssrtCoreSyntaxException, ScribException, ScribParserException,
+			CommandLineException
 	{
 		/*if (this.args.containsKey(CLArgFlag.PROJECT))  // HACK
 			// modules/f17/src/test/scrib/demo/fase17/AppD.scr in [default] mode bug --- projection/EFSM not properly formed if this if is commented ????
@@ -165,7 +168,9 @@ public class AssrtCommandLine extends CommandLine
 	}
 
 	// Pre: assrtPreContextBuilding(job)
-	private void assrtCoreParseAndCheckWF(AssrtJob job) throws AssrtCoreSyntaxException, ScribException, ScribParserException, CommandLineException
+	private void assrtCoreParseAndCheckWF(AssrtJob job)
+			throws AssrtCoreSyntaxException, ScribException, ScribParserException,
+			CommandLineException
 	{
 		Module main = job.getContext().getMainModule();
 		for (GProtoDecl gpd : main.getGlobalProtocolDecls())
@@ -178,7 +183,9 @@ public class AssrtCommandLine extends CommandLine
 	}
 
 	// Pre: assrtPreContextBuilding(job)
-	private void assrtCoreParseAndCheckWF(AssrtJob job, GProtoName simpname) throws AssrtCoreSyntaxException, ScribException, ScribParserException, CommandLineException
+	private void assrtCoreParseAndCheckWF(AssrtJob job, GProtoName simpname)
+			throws AssrtCoreSyntaxException, ScribException, ScribParserException,
+			CommandLineException
 	{
 		Module main = job.getContext().getMainModule();
 		if (!main.hasProtocolDecl(simpname))
@@ -197,13 +204,18 @@ public class AssrtCommandLine extends CommandLine
 		
 		job.verbosePrintln("\n[assrt-core] Translated:\n  " + gt);
 		
-		List<AssrtDataTypeVar> adts = gt.collectAnnotDataTypeVarDecls().stream().map(v -> v.var).collect(Collectors.toList());
-		job.verbosePrintln("\n[assrt-core] Collected data type annotation var decls: " + adts);
-		Set<AssrtDataTypeVar> dups = adts.stream().filter(i -> Collections.frequency(adts, i) > 1)
-				.collect(Collectors.toSet());	
+		List<AssrtDataTypeVar> adts = gt.collectAnnotDataTypeVarDecls().stream()
+				.map(v -> v.var).collect(Collectors.toList());
+		job.verbosePrintln(
+				"\n[assrt-core] Collected data type annotation var decls: " + adts);
+		Set<AssrtDataTypeVar> dups = adts.stream()
+				.filter(i -> Collections.frequency(adts, i) > 1)
+				.collect(Collectors.toSet());
 		if (dups.size() > 0)
 		{
-			throw new AssrtCoreSyntaxException("[assrt-core] Repeat data type annotation variable declarations not allowed: " + dups);
+			throw new AssrtCoreSyntaxException(
+					"[assrt-core] Repeat data type annotation variable declarations not allowed: "
+							+ dups);
 		}
 
 		for (Role r : gpd.header.roledecls.getRoles())

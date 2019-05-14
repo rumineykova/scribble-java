@@ -26,7 +26,7 @@ import org.scribble.util.ScribException;
 public abstract class SimpleAstVisitor<T>
 {
 	public final Job job;
-	public final ModuleName root;  // Root module, full name -- used to get ModuleContext
+	public final ModuleName root;  // Root module, full name -- used to get root ModuleContext
 
 	public SimpleAstVisitor(Job job, ModuleName rootFullname)
 	{

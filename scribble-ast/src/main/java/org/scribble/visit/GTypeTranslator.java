@@ -24,7 +24,7 @@ public class GTypeTranslator extends SimpleAstVisitorNoThrows<GNode>
 {
 	public final STypeFactory tf;
 
-	public GTypeTranslator(Job job, ModuleName rootFullname, STypeFactory tf)
+	protected GTypeTranslator(Job job, ModuleName rootFullname, STypeFactory tf)
 	{
 		super(job, rootFullname);
 		this.tf = tf;

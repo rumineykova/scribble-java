@@ -42,19 +42,26 @@ public class ScribAntlrWrapper
 		this.df = df;
 	}
 	
-	// Scribble extensions should override newScribbleLexer/Parser as appropriate
+	// A Scribble extension should override newScribbleLexer/Parser/Adaptor as appropriate
 	// A fresh Lexer/Parser is needed by each call to parse 
-	public Lexer newScribbleLexer(ANTLRStringStream ss)
+	protected Lexer newScribbleLexer(ANTLRStringStream ss)
 	{
 		return new ScribbleLexer(ss);
 	}
 
-	// Scribble extensions should override newScribbleLexer/Parser as appropriate
+	// A Scribble extension should override newScribbleLexer/Parser/Adaptor as appropriate
 	// ScribbleParser: a Parser that has a top-level "module" method
 	// (And has "setTreeAdaptor")
+	// public for AstFactory Token convenience
 	public Parser newScribbleParser(CommonTokenStream ts)
 	{
 		return new ScribbleParser(ts);
+	}
+	
+	// A Scribble extension should override newScribbleLexer/Parser/Adaptor as appropriate
+	protected ScribTreeAdaptor newAdaptor(DelFactory df)
+	{
+		return new ScribTreeAdaptor(df);
 	}
 
 	// Parse InputStream (from a Resource) into a Module -- N.B. not del decorated (yet)
@@ -82,7 +89,7 @@ public class ScribAntlrWrapper
 			
 			// FIXME: use reflection, no convenient way to make an interface with module method
 			
-			p.setTreeAdaptor(new ScribTreeAdaptor(this.df));
+			p.setTreeAdaptor(newAdaptor(this.df));
 			return (Module) p.module().getTree();
 					// Cast, because no convenient way to expose an interface for all (Scribble)Parsers with top-level "module" method?
 		}

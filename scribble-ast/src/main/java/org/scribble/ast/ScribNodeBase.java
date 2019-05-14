@@ -137,6 +137,7 @@ public abstract class ScribNodeBase extends CommonTree implements ScribNode
 	}
 	
 	// Decorate with a fresh del (cf. reconstruct: dupNode, setDel)
+	// Implement by delegating to df
 	public abstract void decorateDel(DelFactory df);
 	
 	// Defensive
