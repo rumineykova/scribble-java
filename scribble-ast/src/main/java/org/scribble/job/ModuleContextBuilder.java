@@ -28,6 +28,7 @@ import org.scribble.core.type.name.DataName;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.ModuleName;
 import org.scribble.core.type.name.SigName;
+import org.scribble.util.ScribException;
 // TODO: rename and refactor -- also factor out newModuleContextBuilder in Lang
 public class ModuleContextBuilder
 {
@@ -52,7 +53,7 @@ public class ModuleContextBuilder
 	
 	public ModuleContext build(
 			Map<ModuleName, Module> parsed,  // From MainContext (N.B., in a different non-visible package)
-			Module root)
+			Module root) throws ScribException
 	{
 		this.root = root;
 		this.deps = new ScribNames();
@@ -140,6 +141,7 @@ public class ModuleContextBuilder
 	// Adds "local" imports by alias or full name
 	// Adds "local" members by simple names
 	private void addVisible(Map<ModuleName, Module> parsed, Module root)
+			throws ScribException
 	{
 		// Unlike for deps, visible is not done transitively
 		for (ImportDecl<?> id : root.getImportDeclChildren())
@@ -152,8 +154,10 @@ public class ModuleContextBuilder
 						// getVisibleName doesn't use fullname
 				if (this.visible.modules.containsKey(visname))
 				{
-					throw new RuntimeException(//id.getSource(),
-							"Duplicate visible module name: " + visname);  // TODO: ScribException here, or check elsewhere -- where are nonprotodecls and protodecls checked?
+					throw new ScribException(//id.getSource(),
+							"Duplicate visible module name: " + visname);  
+							// TODO: refactor: ScribException here is annoying for constructor sig, check this elsewhere? (RuntimeException not an option, this is a Scribble check)
+							// CHECKME: where are duplicate nonprotodecls and protodecls checked?
 				}
 				Module imported = parsed.get(fullname);  // TODO: Can get from MainContext instead of JobContext?
 				addModule(this.visible, imported, visname);  

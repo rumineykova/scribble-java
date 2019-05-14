@@ -72,6 +72,7 @@ public class Job
 
 	public Job(ModuleName mainFullname, CoreArgs args,
 			Map<ModuleName, Module> parsed, AstFactory af, DelFactory df)
+			throws ScribException
 	{
 		// CHECKME(?): main modname comes from the inlined mod decl -- check for issues if this clashes with an existing file system resource
 		VisitorFactory vf = newVisitorFactory();
@@ -103,8 +104,8 @@ public class Job
 	}
 
 	// A Scribble extension should override newJobConfig/Context/Core as appropriate
-	protected JobContext newJobContext(Job job,
-			Map<ModuleName, Module> parsed)
+	protected JobContext newJobContext(Job job, Map<ModuleName, Module> parsed)
+			throws ScribException
 	{
 		return new JobContext(this, parsed);
 	}

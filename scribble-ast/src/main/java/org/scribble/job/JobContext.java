@@ -24,6 +24,7 @@ import org.scribble.ast.global.GProtoDecl;
 import org.scribble.core.lang.context.ModuleContext;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.ModuleName;
+import org.scribble.util.ScribException;
 
 // Global "static" context information for a Job -- single instance per Job, should not be shared between Jobs
 // Mutable: projections, graphs, etc are added mutably later -- replaceModule also mutable setter -- "users" get this from the Job and expect to setter mutate "in place"
@@ -45,6 +46,7 @@ public class JobContext
 			// CHECKME: constant?  depends on adding projections?
 	
 	protected JobContext(Job job, Map<ModuleName, Module> parsed)
+			throws ScribException  // ScribException currently only for dup vis name check (ModuleContextBuilder) -- CHECKME: refactor?
 	{
 		this.job = job;
 		this.parsed = new HashMap<ModuleName, Module>(parsed);
@@ -53,7 +55,7 @@ public class JobContext
 
 	// Currently assuming ModuleContexts are constant, and considering parsed Modules only (i.e., not generated) -- CHECKME
 	protected Map<ModuleName, ModuleContext> buildModuleContexts(
-			Map<ModuleName, Module> parsed)
+			Map<ModuleName, Module> parsed) throws ScribException
 	{
 		// CHECKME: how does this relate to the ModuleContextBuilder pass?
 		// Job.modcs seems unused?  Lang.modcs is used though, by old AST visitors -- basically old ModuleContextVisitor is redundant?
