@@ -18,17 +18,16 @@ import java.util.Map;
 import org.scribble.ast.DataDecl;
 import org.scribble.ast.ImportDecl;
 import org.scribble.ast.ImportModule;
-import org.scribble.ast.SigDecl;
 import org.scribble.ast.Module;
 import org.scribble.ast.NonProtoDecl;
+import org.scribble.ast.SigDecl;
 import org.scribble.ast.global.GProtoDecl;
 import org.scribble.core.lang.context.ModuleContext;
 import org.scribble.core.lang.context.ScribNames;
 import org.scribble.core.type.name.DataName;
 import org.scribble.core.type.name.GProtoName;
-import org.scribble.core.type.name.SigName;
 import org.scribble.core.type.name.ModuleName;
-import org.scribble.util.ScribException;
+import org.scribble.core.type.name.SigName;
 // TODO: rename and refactor -- also factor out newModuleContextBuilder in Lang
 public class ModuleContextBuilder
 {
@@ -53,7 +52,7 @@ public class ModuleContextBuilder
 	
 	public ModuleContext build(
 			Map<ModuleName, Module> parsed,  // From MainContext (N.B., in a different non-visible package)
-			Module root) throws ScribException
+			Module root)
 	{
 		this.root = root;
 		this.deps = new ScribNames();
@@ -82,7 +81,7 @@ public class ModuleContextBuilder
 	// Register mod under name modname, modname could be the full module name or an import alias
 	// Adds member names qualified by mod
 	private static void addModule(ScribNames names, Module mod,
-			ModuleName modname) throws ScribException
+			ModuleName modname)
 	{
 		names.modules.put(modname, mod.getFullModuleName());
 		for (NonProtoDecl<?> npd : mod.getNonProtoDeclChildren())
@@ -110,7 +109,6 @@ public class ModuleContextBuilder
 	
 	// Could move to ImportModule but would need a defensive copy setter, or cache info in builder and create on leave
 	private void addImportDependencies(Map<ModuleName, Module> parsed, Module mod)
-			throws ScribException
 	{
 		for (ImportDecl<?> id : mod.getImportDeclChildren())
 		{
@@ -142,7 +140,6 @@ public class ModuleContextBuilder
 	// Adds "local" imports by alias or full name
 	// Adds "local" members by simple names
 	private void addVisible(Map<ModuleName, Module> parsed, Module root)
-			throws ScribException
 	{
 		// Unlike for deps, visible is not done transitively
 		for (ImportDecl<?> id : root.getImportDeclChildren())
@@ -155,12 +152,11 @@ public class ModuleContextBuilder
 						// getVisibleName doesn't use fullname
 				if (this.visible.modules.containsKey(visname))
 				{
-					throw new ScribException(id.getSource(),
-							"Duplicate visible module name: " + visname);
+					throw new RuntimeException(//id.getSource(),
+							"Duplicate visible module name: " + visname);  // TODO: ScribException here, or check elsewhere -- where are nonprotodecls and protodecls checked?
 				}
 				Module imported = parsed.get(fullname);  // TODO: Can get from MainContext instead of JobContext?
 				addModule(this.visible, imported, visname);  
-				
 			}
 			else
 			{

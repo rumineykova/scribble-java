@@ -10,14 +10,14 @@ import java.util.stream.Collectors;
 
 import org.scribble.ast.Module;
 import org.scribble.ast.global.GProtoDecl;
-import org.scribble.cli.CLFlags;
 import org.scribble.cli.CommandLine;
 import org.scribble.cli.CommandLineException;
-import org.scribble.core.job.CoreArgs;
+import org.scribble.core.job.CoreFlags;
 import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
+import org.scribble.ext.assrt.core.job.AssrtCoreArgs;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEGraphBuilder;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModel;
@@ -67,31 +67,25 @@ public class AssrtCommandLine extends CommandLine
 	@Override
 	protected Main newMain() throws ScribParserException, ScribException
 	{
-		Map<CoreArgs, Boolean> args = Collections.unmodifiableMap(newCoreArgs());
+		AssrtCoreArgs args = newCoreArgs();
 		List<Path> impaths = parseImportPaths();
 		ResourceLocator locator = new DirectoryResourceLocator(impaths);
 		Path mainpath = parseMainPath();
 		
 		// FIXME: if no -assrt, then just do super.newMain
 			
-		Solver solver = this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_NATIVE_Z3)
-				? AssrtJob.Solver.NATIVE_Z3
-				: AssrtJob.Solver.JAVA_SMT_Z3;  // Default for base assrt -- though base assrt doesn't actually check the solver flag
-			
-			return new AssrtMain(locator, mainpath, args, solver);
-		}
+		return new AssrtMain(locator, mainpath, args);
 	}
 
 	@Override
-	protected Map<AssrtCoreArgs, Boolean> newCoreArgs()  // FIXME: Set
+	protected AssrtCoreArgs newCoreArgs()
 	{
-		Map<CoreArgs, Boolean> args = super.newCoreArgs();
-
-		args.put(CoreArgs.VERBOSE, hasFlag(CLFlags.VERBOSE_FLAG));
-
-		boolean assrtBatching = this.assrtCoreArgs.containsKey(AssrtCoreCLFlags.ASSRT_CORE_BATCHING);
-
-		return args;
+		Set<CoreFlags> flags = parseCoreFlags();
+		Solver solver = hasFlag(AssrtCoreCLFlags.ASSRT_CORE_NATIVE_Z3_FLAG)
+				? AssrtJob.Solver.NATIVE_Z3
+				: AssrtJob.Solver.NONE;  // FIXME: 
+		boolean z3Batching = hasFlag(AssrtCoreCLFlags.ASSRT_CORE_BATCHING_FLAG);
+		return new AssrtCoreArgs(flags, solver, z3Batching);
 	}
 
 	

@@ -22,11 +22,10 @@ import org.scribble.core.type.kind.SigKind;
 import org.scribble.core.type.name.DataName;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.LProtoName;
-import org.scribble.core.type.name.SigName;
 import org.scribble.core.type.name.ModuleName;
 import org.scribble.core.type.name.Name;
 import org.scribble.core.type.name.ProtoName;
-import org.scribble.util.ScribException;
+import org.scribble.core.type.name.SigName;
 
 // Context information specific to each module as a root (wrt. to visitor passes)
 // CHECKME: currently unused within core -- refactor out to lang package?
@@ -47,7 +46,6 @@ public class ModuleContext
 	// Made by ModuleContextBuilder
 	// ModuleContext is the root context
 	public ModuleContext(ModuleName root, ScribNames deps, ScribNames visible)
-			throws ScribException
 	{
 		this.root = root;
 		this.deps = deps;

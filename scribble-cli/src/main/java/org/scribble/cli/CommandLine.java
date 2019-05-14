@@ -123,6 +123,11 @@ public class CommandLine
 	// A Scribble extension should override newCLFlags/CLArgParser/Main/CoreArgs as appropriate
 	protected CoreArgs newCoreArgs()
 	{
+		return new CoreArgs(parseCoreFlags());
+	}
+	
+	protected Set<CoreFlags> parseCoreFlags()
+	{
 		Set<CoreFlags> flags = new HashSet<>();
 		Map<String, CoreFlags> tmp = new HashMap<>();
 		tmp.put(CLFlags.VERBOSE_FLAG, CoreFlags.VERBOSE);
@@ -137,7 +142,7 @@ public class CommandLine
 		tmp.put(CLFlags.NO_ACCEPT_CORRELATION_CHECK_FLAG,
 				CoreFlags.NO_ACC_CORRELATION_CHECK);
 		tmp.keySet().forEach(x -> { if (hasFlag(x)) { flags.add(tmp.get(x)); } } );
-		return new CoreArgs(flags);
+		return flags;
 	}
 	
 	protected boolean hasFlag(String flag)
