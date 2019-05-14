@@ -46,7 +46,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtUnintPredicateFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGProtoDeclTranslator;
-import org.scribble.ext.assrt.main.AssrtJob;
+import org.scribble.ext.assrt.job.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAction;
 import org.scribble.ext.assrt.util.Z3Wrapper;

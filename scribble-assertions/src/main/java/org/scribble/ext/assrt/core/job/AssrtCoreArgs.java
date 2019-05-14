@@ -4,7 +4,7 @@ import java.util.Set;
 
 import org.scribble.core.job.CoreArgs;
 import org.scribble.core.job.CoreFlags;
-import org.scribble.ext.assrt.main.AssrtJob.Solver;
+import org.scribble.ext.assrt.job.AssrtJob.Solver;
 
 public class AssrtCoreArgs extends CoreArgs
 {

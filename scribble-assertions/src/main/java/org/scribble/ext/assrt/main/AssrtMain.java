@@ -10,6 +10,7 @@ import org.scribble.core.type.name.ModuleName;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtAstFactoryImpl;
 import org.scribble.ext.assrt.core.job.AssrtCoreArgs;
+import org.scribble.ext.assrt.job.AssrtJob;
 import org.scribble.ext.assrt.parser.AssrtScribAntlrWrapper;
 import org.scribble.main.Main;
 import org.scribble.main.resource.locator.ResourceLocator;

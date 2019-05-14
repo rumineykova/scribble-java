@@ -12,7 +12,7 @@ import org.scribble.core.model.endpoint.actions.ESend;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.main.AssrtJob;
+import org.scribble.ext.assrt.job.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.job.Job;
 

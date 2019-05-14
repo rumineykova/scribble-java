@@ -18,7 +18,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtQuantifiedIntVarsFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtUnintPredicateFormula;
-import org.scribble.ext.assrt.main.AssrtJob;
+import org.scribble.ext.assrt.job.AssrtJob;
 import org.scribble.util.ScribException;
 import org.scribble.util.ScribUtil;
 

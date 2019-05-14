@@ -1,4 +1,4 @@
-package org.scribble.ext.assrt.main;
+package org.scribble.ext.assrt.job;
 
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +33,7 @@ public class AssrtJob extends org.scribble.job.Job
 
 	public AssrtJob(ModuleName mainFullname, AssrtCoreArgs args,
 			Map<ModuleName, Module> parsed, AstFactory af, DelFactory df)
+			throws ScribException  // Currently only for dup vis name check (ModuleContextBuilder)
 	{
 		super(mainFullname, args, parsed, af, df);
 	}
