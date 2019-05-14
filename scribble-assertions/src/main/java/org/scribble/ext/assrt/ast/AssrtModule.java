@@ -10,6 +10,7 @@ import org.scribble.ast.Module;
 import org.scribble.ast.ModuleDecl;
 import org.scribble.ast.NonProtoDecl;
 import org.scribble.ast.ProtoDecl;
+import org.scribble.ast.ScribNode;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.core.type.name.AssrtAssertName;
@@ -94,14 +95,15 @@ public class AssrtModule extends Module
 	// Cf., e.g., getNonProtoDeclChild 
 	public AssrtAssertDecl getAssertDeclChild(AssrtAssertName simpname)
 	{
-		Optional<AssrtAssertDecl> res = getAssertDeclChildren().stream()
-				.filter(x -> x.getDeclName().equals(simpname))
-				.findFirst();  // No duplication check, rely on WF (or currently ModuleContext building?)
+		Optional<? extends ScribNode> res = getChildren().stream()
+				.filter(x -> (x instanceof AssrtAssertDecl)
+						&& ((AssrtAssertDecl) x).getDeclName().equals(simpname))
+				.findFirst();  // No duplication check, rely on WF (or currently ModuleContextBuilder?)
 		if (!res.isPresent())
 		{
-			throw new RuntimeException("Assert decl not found: " + simpname);
+			throw new RuntimeException("Assertion decl not found: " + simpname);
 		}
-		return res.get();
+		return (AssrtAssertDecl) res.get();
 	}
 
 	@Override

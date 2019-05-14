@@ -148,17 +148,19 @@ public class Module extends ScribNodeBase
 		return (SigDecl) getNonProtoDeclChild(simpname, NonProtoDecl::isSigDecl);
 	}
 
+	// CHECKME: refactor like hasProtoDeclChild ?
 	private NonProtoDecl<?> getNonProtoDeclChild(MemberName<?> simpname,
 			Predicate<NonProtoDecl<?>> f)
 	{
-		Optional<NonProtoDecl<?>> res = getNonProtoDeclChildren().stream()
-				.filter(x -> f.test(x) && x.getDeclName().equals(simpname))
-				.findFirst();  // No duplication check, rely on WF
+		Optional<? extends ScribNode> res = getChildren().stream()
+				.filter(x -> (x instanceof NonProtoDecl) && f.test((NonProtoDecl<?>) x)
+						&& ((NonProtoDecl<?>) x).getDeclName().equals(simpname))
+				.findFirst();  // No duplication check, rely on WF (or currently ModuleContextBuilder?)
 		if (!res.isPresent())
 		{
-			throw new RuntimeException("Data decl not found: " + simpname);
+			throw new RuntimeException("Non proto decl not found: " + simpname);
 		}
-		return res.get();
+		return (NonProtoDecl<?>) res.get();
 	}
 	
 	public List<GProtoDecl> getGProtoDeclChildren()
@@ -209,7 +211,7 @@ public class Module extends ScribNodeBase
 	{
 		return getProtoDeclChildren().stream()
 				.filter(x -> f.test(x) && x.getHeaderChild().getDeclName().equals(simpname))
-				.findFirst();  // No duplication check, rely on WF
+				.findFirst();  // No duplication check, rely on WF (or currently ModuleContextBuilder?)
 	}
 
 	public ModuleName getFullModuleName()
