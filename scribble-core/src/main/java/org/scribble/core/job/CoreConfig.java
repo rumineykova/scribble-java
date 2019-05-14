@@ -29,7 +29,7 @@ public class CoreConfig
 	public final ModelFactory mf;
 	
 	// N.B. MainContext is in a different non-visible (by Maven) package
-	public CoreConfig(ModuleName main, CoreArgs args,
+	protected CoreConfig(ModuleName main, CoreArgs args,
 			STypeFactory tf, STypeVisitorFactory vf, ModelFactory mf)
 	{
 		this.main = main;

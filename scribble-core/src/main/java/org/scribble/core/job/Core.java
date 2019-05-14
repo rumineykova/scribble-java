@@ -86,7 +86,6 @@ public class Core
 		STypeVisitorFactory vf = newSTypeVisitorFactory();
 		ModelFactory mf = newModelFactory();
 		return new CoreConfig(mainFullname, args, tf, vf, mf); 
-				// CHECKME: combine E/SModelFactory?
 	}
 
 	// A Scribble extension should override newCoreConfig/Context/etc as appropriate

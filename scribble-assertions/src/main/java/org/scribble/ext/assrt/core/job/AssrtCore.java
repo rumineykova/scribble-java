@@ -13,13 +13,11 @@
  */
 package org.scribble.ext.assrt.core.job;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
 import org.scribble.core.job.Core;
-import org.scribble.core.job.CoreFlags;
-import org.scribble.core.job.CoreConfig;
+import org.scribble.core.job.CoreArgs;
 import org.scribble.core.job.CoreContext;
 import org.scribble.core.lang.global.GProtocol;
 import org.scribble.core.model.ModelFactory;
@@ -38,8 +36,8 @@ import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactoryImpl;
 // A "compiler job" front-end that supports operations comprising visitor passes over the AST and/or local/global models
 public class AssrtCore extends Core
 {
-	public AssrtCore(ModuleName mainFullname, Map<CoreFlags, Boolean> args,
-			Set<GProtocol> imeds, STypeFactory tf)
+	public AssrtCore(ModuleName mainFullname, CoreArgs args, Set<GProtocol> imeds,
+			STypeFactory tf)
 	{
 		super(mainFullname, args, imeds, tf);
 	}
@@ -61,16 +59,15 @@ public class AssrtCore extends Core
 				(Function<ModelFactory, SModelFactory>) AssrtCoreSModelFactoryImpl::new);
 	}
 
-	// A Scribble extension should override newCoreConfig/Context/etc as appropriate
+	/*// A Scribble extension should override newCoreConfig/Context/etc as appropriate
 	@Override
 	protected CoreConfig newCoreConfig(ModuleName mainFullname,
-			Map<CoreFlags, Boolean> args, STypeFactory tf)
+			CoreArgs args, STypeFactory tf)
 	{
 		STypeVisitorFactory vf = newSTypeVisitorFactory();
 		ModelFactory mf = newModelFactory();
 		return new CoreConfig(mainFullname, args, tf, vf, mf); 
-				// CHECKME: combine E/SModelFactory?
-	}
+	}*/
 
 	// A Scribble extension should override newCoreConfig/Context/etc as appropriate
 	@Override
