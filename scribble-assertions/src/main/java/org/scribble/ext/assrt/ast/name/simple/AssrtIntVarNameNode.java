@@ -14,7 +14,8 @@ import org.scribble.type.Arg;
 import org.scribble.type.kind.NonRoleArgKind;
 
 // N.B. used both directly as a PayloadElemNameNode, and for the annotation in AssrtAnnotDataTypeElem -- also used for statevars
-public class AssrtIntVarNameNode extends SimpleNameNode<AssrtVarNameKind> implements PayloadElemNameNode<AssrtVarNameKind>, AssrtFormulaNode
+public class AssrtIntVarNameNode extends SimpleNameNode<AssrtVarNameKind>
+		implements PayloadElemNameNode<AssrtVarNameKind>, AssrtFormulaNode
 {
 	public AssrtIntVarNameNode(CommonTree source, String identifier)
 	{

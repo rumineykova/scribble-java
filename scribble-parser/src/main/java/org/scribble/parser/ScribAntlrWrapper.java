@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.Lexer;
+import org.antlr.runtime.Parser;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonErrorNode;
 import org.antlr.runtime.tree.CommonTree;
@@ -51,7 +52,7 @@ public class ScribAntlrWrapper
 	// Scribble extensions should override newScribbleLexer/Parser as appropriate
 	// ScribbleParser: a Parser that has a top-level "module" method
 	// (And has "setTreeAdaptor")
-	public ScribbleParser newScribbleParser(CommonTokenStream ts)
+	public Parser newScribbleParser(CommonTokenStream ts)
 	{
 		return new ScribbleParser(ts);
 	}
@@ -77,7 +78,10 @@ public class ScribAntlrWrapper
 	{
 		try
 		{
-			ScribbleParser p = newScribbleParser(ts);
+			ScribbleParser p = (ScribbleParser) newScribbleParser(ts);
+			
+			// FIXME: use reflection, no convenient way to make an interface with module method
+			
 			p.setTreeAdaptor(new ScribTreeAdaptor(this.df));
 			return (Module) p.module().getTree();
 					// Cast, because no convenient way to expose an interface for all (Scribble)Parsers with top-level "module" method?

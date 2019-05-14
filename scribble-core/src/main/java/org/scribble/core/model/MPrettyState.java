@@ -39,17 +39,18 @@ public abstract class MPrettyState
 		return s + "]";
 	}
 	
-	// Move up to MState?
+	// CHECKME: refactor to Graph?
 	@Override
 	public final String toDot()
 	{
 		StringBuilder b = new StringBuilder();
 		b.append("digraph G {\n"); // rankdir=LR;\n
 		b.append("compound = true;\n");
-		b.append(toStateDot() + "\n");
+		b.append(toStateDot());  
+		b.append("\n");
 		Set<S> ss = getReachableStates();
 		ss.remove(this);  // Avoids generic cast of alternative, ss.add((S) this) -- or else do Set<MPrettyState<L, A, S, K>>
-		ss.forEach(x -> b.append(x.toStateDot() + "\n"));
+		ss.forEach(x -> { b.append(x.toStateDot()); b.append("\n"); });
 		b.append("}");
 		return b.toString();
 	}

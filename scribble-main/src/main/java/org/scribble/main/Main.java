@@ -56,7 +56,7 @@ public class Main
 	public final ModuleName main;
 	public final Map<CoreArgs, Boolean> args;
 
-	protected final ScribAntlrWrapper antlr = newAntlr();
+	protected final ScribAntlrWrapper antlr = newAntlr(newDelFactory());
 
 	//private final ResourceLocator locator;  // Path -> Resource
 	private final ScribModuleLoader loader;  // ModuleName -> Pair<Resource, Module>
@@ -118,9 +118,8 @@ public class Main
 	}
 	
 	// A Scribble extension should override newAntlr/AstFactory/DelFactory/Job as appropriate
-	protected ScribAntlrWrapper newAntlr()
+	protected ScribAntlrWrapper newAntlr(DelFactory df)
 	{
-		DelFactory df = newDelFactory();
 		return new ScribAntlrWrapper(df);
 	}
 	

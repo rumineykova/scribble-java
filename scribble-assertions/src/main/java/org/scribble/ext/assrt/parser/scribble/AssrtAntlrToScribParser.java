@@ -14,7 +14,8 @@ import org.scribble.parser.scribble.AntlrToScribParser;
 import org.scribble.parser.scribble.ScribbleAntlrConstants;
 import org.scribble.util.ScribParserException;
 
-public class AssrtAntlrToScribParser extends AntlrToScribParser
+@Deprecated
+public class AssrtAntlrToScribParser //extends AntlrToScribParser
 {
 	// FIXME: refactor constants following ScribbleAntlrConstants/AntlrToScribParserUtil? -- cannot extend existing node type enum though
 	public static final String ASSRT_ANNOTPAYLOADELEM_NODE_TYPE = "ASSRT_ANNOTPAYLOADELEM";
@@ -31,7 +32,7 @@ public class AssrtAntlrToScribParser extends AntlrToScribParser
 
 	}
 
-	@Override
+	//@Override
 	public ScribNode parse(CommonTree ct, AstFactory af) throws ScribParserException
 	{
 		AntlrToScribParser.checkForAntlrErrors(ct);

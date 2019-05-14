@@ -9,7 +9,7 @@ import org.scribble.core.job.CoreArgs;
 import org.scribble.core.type.name.ModuleName;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtAstFactoryImpl;
-import org.scribble.ext.assrt.parser.scribble.AssrtScribbleAntlrWrapper;
+import org.scribble.ext.assrt.parser.scribble.AssrtScribAntlrWrapper;
 import org.scribble.main.Main;
 import org.scribble.main.resource.locator.ResourceLocator;
 import org.scribble.parser.ScribAntlrWrapper;
@@ -29,9 +29,9 @@ public class AssrtMain extends Main
 	}
 
 	@Override
-	protected ScribAntlrWrapper newAntlr()
+	protected ScribAntlrWrapper newAntlr(DelFactory df)
 	{
-		return new AssrtScribbleAntlrWrapper();
+		return new AssrtScribAntlrWrapper(df);
 	}
 	
 	@Override

@@ -38,8 +38,8 @@ public class AssrtJob extends org.scribble.job.Job
 	public final boolean batching;
 
 	public AssrtJob(ModuleName mainFullname, Map<CoreArgs, Boolean> args,
-			Map<ModuleName, Module> parsed, AstFactory af, DelFactory df, Solver solver, boolean batching)
-			throws ScribException
+			Map<ModuleName, Module> parsed, AstFactory af, DelFactory df,
+			Solver solver, boolean batching) throws ScribException
 	{
 		super(mainFullname, args, parsed, af, df);
 		this.solver = solver;
