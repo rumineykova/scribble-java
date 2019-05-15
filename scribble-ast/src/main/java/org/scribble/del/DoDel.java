@@ -21,7 +21,7 @@ import org.scribble.ast.Do;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.name.qualified.ProtoNameNode;
 import org.scribble.ast.name.simple.IdNode;
-import org.scribble.core.lang.context.ModuleContext;
+import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.kind.ProtoKind;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.ProtoName;

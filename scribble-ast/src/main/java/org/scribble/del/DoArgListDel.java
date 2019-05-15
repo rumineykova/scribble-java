@@ -22,7 +22,7 @@ import org.scribble.ast.ParamDeclList;
 import org.scribble.ast.Module;
 import org.scribble.ast.ProtoDecl;
 import org.scribble.ast.ScribNode;
-import org.scribble.core.lang.context.ModuleContext;
+import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.name.ProtoName;
 import org.scribble.job.JobContext;
 import org.scribble.util.ScribException;

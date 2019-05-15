@@ -15,7 +15,7 @@ package org.scribble.visit;
 
 import org.scribble.ast.Module;
 import org.scribble.ast.ScribNode;
-import org.scribble.core.lang.context.ModuleContext;
+import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.name.ModuleName;
 import org.scribble.job.Job;
 import org.scribble.util.ScribException;
@@ -25,7 +25,7 @@ import org.scribble.util.ScribException;
 // Looking up the "entered" Module context is otherwise inconvenient
 public abstract class ModuleContextVisitor extends AstVisitor
 {
-	private ModuleContext mcon;  // The "current" module context, gathered on entry -- different than the front-end "main" module 
+	private ModuleContext modc;  // The "current" module context, gathered on entry -- different than the front-end "main" module 
 
 	public ModuleContextVisitor(Job job)
 	{
@@ -46,12 +46,12 @@ public abstract class ModuleContextVisitor extends AstVisitor
 
 	public ModuleContext getModuleContext()
 	{
-		return this.mcon;
+		return this.modc;
 	}
 	
 	// Factor out -- e.g. some Visitors want to root on ProtocolDecl, not Module
-	protected void setModuleContext(ModuleContext mcontext)
+	protected void setModuleContext(ModuleContext modc)
 	{
-		this.mcon = mcontext;
+		this.modc = modc;
 	}
 }

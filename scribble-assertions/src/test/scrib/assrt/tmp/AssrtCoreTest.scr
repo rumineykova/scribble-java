@@ -85,6 +85,9 @@
 // - fix new parser reflection in tree adaptor (no common interface for "module" top-level method)
 // - check super.addScribChildren
 
+// later:
+// - refactor modulecontext building, move dup vis name checks out (drop scribexception)
+
 
 
 

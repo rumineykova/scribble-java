@@ -23,7 +23,7 @@ import org.scribble.ast.global.GDelegPayElem;
 import org.scribble.ast.name.qualified.GProtoNameNode;
 import org.scribble.ast.name.simple.IdNode;
 import org.scribble.ast.name.simple.RoleNode;
-import org.scribble.core.lang.context.ModuleContext;
+import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.Role;

@@ -1,16 +1,17 @@
-package org.scribble.ext.assrt.ast.context;
+package org.scribble.ext.assrt.job;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.scribble.core.lang.context.ScribNames;
+import org.scribble.core.job.ScribNames;
 import org.scribble.ext.assrt.core.type.name.AssrtAssertName;
 
 // Mutable
 public class AssrtScribNames extends ScribNames
 {
 	// names -> fully qualified names
-	protected final Map<AssrtAssertName, AssrtAssertName> asserts = new HashMap<>();
+	protected final Map<AssrtAssertName, AssrtAssertName> asserts 
+			= new HashMap<>();
 	
 	@Override
 	public String toString()

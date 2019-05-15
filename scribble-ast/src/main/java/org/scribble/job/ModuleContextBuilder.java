@@ -22,14 +22,15 @@ import org.scribble.ast.Module;
 import org.scribble.ast.NonProtoDecl;
 import org.scribble.ast.SigDecl;
 import org.scribble.ast.global.GProtoDecl;
-import org.scribble.core.lang.context.ModuleContext;
-import org.scribble.core.lang.context.ScribNames;
+import org.scribble.core.job.ModuleContext;
+import org.scribble.core.job.ScribNames;
 import org.scribble.core.type.name.DataName;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.ModuleName;
 import org.scribble.core.type.name.SigName;
 import org.scribble.util.ScribException;
-// TODO: rename and refactor -- also factor out newModuleContextBuilder in Lang
+
+// TODO: rename and refactor
 public class ModuleContextBuilder
 {
 	protected Module root;  // full name  // The root Module for this ModuleContext (cf. the "main" root module from CLI)

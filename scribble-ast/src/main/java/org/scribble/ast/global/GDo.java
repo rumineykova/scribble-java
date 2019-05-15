@@ -16,7 +16,7 @@ package org.scribble.ast.global;
 import org.antlr.runtime.Token;
 import org.scribble.ast.Do;
 import org.scribble.ast.name.qualified.GProtoNameNode;
-import org.scribble.core.lang.context.ModuleContext;
+import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.del.DelFactory;

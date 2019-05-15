@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.scribble.core.lang.context;
+package org.scribble.core.job;
 
 import java.util.Map;
 
@@ -28,7 +28,7 @@ import org.scribble.core.type.name.ProtoName;
 import org.scribble.core.type.name.SigName;
 
 // Context information specific to each module as a root (wrt. to visitor passes)
-// CHECKME: currently unused within core -- refactor out to lang package?
+// CHECKME: not currently used in core -- refactor out to scribble-ast job?
 public class ModuleContext
 {
 	public final ModuleName root;  // full name  // The root Module for this ModuleContext -- cf. separate to the "main" module

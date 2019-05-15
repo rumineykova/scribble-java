@@ -14,9 +14,9 @@ import org.scribble.del.ModuleDel;
 import org.scribble.ext.assrt.ast.AssrtAssertDecl;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.AssrtModule;
-import org.scribble.ext.assrt.ast.context.AssrtModuleContext;
-import org.scribble.ext.assrt.ast.context.AssrtScribNames;
 import org.scribble.ext.assrt.core.type.name.AssrtAssertName;
+import org.scribble.ext.assrt.job.AssrtModuleContext;
+import org.scribble.ext.assrt.job.AssrtScribNames;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.Role;
@@ -39,7 +39,7 @@ public class AssrtModuleDel extends ModuleDel
 	}
 
 	@Override
-	public void enterModuleContextBuilding(ScribNode parent, ScribNode child, ModuleContextBuilder builder) throws ScribbleException
+	public void enterModuleContextBuilding(ScribNode parent, ScribNode child, AssrtModuleContextBuilder builder) throws ScribbleException
 	{
 		builder.setModuleContext(new AssrtModuleContext(builder.job.getContext(), (Module) child, new AssrtScribNames(), new AssrtScribNames()));
 	}

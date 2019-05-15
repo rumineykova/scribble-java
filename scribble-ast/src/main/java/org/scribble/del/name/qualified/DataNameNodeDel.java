@@ -18,7 +18,7 @@ import org.scribble.ast.DataDecl;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.name.qualified.DataNameNode;
 import org.scribble.ast.name.simple.IdNode;
-import org.scribble.core.lang.context.ModuleContext;
+import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.name.DataName;
 import org.scribble.del.ScribDelBase;
 import org.scribble.util.ScribException;

@@ -16,7 +16,7 @@ package org.scribble.ast.local;
 import org.antlr.runtime.Token;
 import org.scribble.ast.Do;
 import org.scribble.ast.name.qualified.LProtoNameNode;
-import org.scribble.core.lang.context.ModuleContext;
+import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.kind.Local;
 import org.scribble.core.type.name.LProtoName;
 import org.scribble.del.DelFactory;

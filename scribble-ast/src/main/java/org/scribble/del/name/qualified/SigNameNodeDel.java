@@ -18,7 +18,7 @@ import org.scribble.ast.SigDecl;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.name.qualified.SigNameNode;
 import org.scribble.ast.name.simple.IdNode;
-import org.scribble.core.lang.context.ModuleContext;
+import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.name.SigName;
 import org.scribble.del.ScribDelBase;
 import org.scribble.util.ScribException;

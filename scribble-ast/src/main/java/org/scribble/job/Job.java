@@ -80,6 +80,12 @@ public class Job
 		this.config = newJobConfig(mainFullname, args, af, df, vf, tf);
 		this.context = newJobContext(this, parsed);  // Single instance per Job, should not be shared between Jobs
 	}
+	
+	// A Scribble extension should override as appropriate
+	protected ModuleContextBuilder newModuleContextBuilder()
+	{
+		return new ModuleContextBuilder();
+	}
 
 	// A Scribble extension should override newVisitorFactory/STypeFactory as appropriate
 	protected VisitorFactory newVisitorFactory()

@@ -17,7 +17,7 @@ import java.util.Iterator;
 
 import org.antlr.runtime.Token;
 import org.scribble.ast.name.qualified.ProtoNameNode;
-import org.scribble.core.lang.context.ModuleContext;
+import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.kind.ProtoKind;
 import org.scribble.core.type.name.ProtoName;
 import org.scribble.core.type.name.Role;

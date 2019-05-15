@@ -14,7 +14,7 @@
 package org.scribble.visit;
 
 import org.scribble.ast.ScribNode;
-import org.scribble.core.lang.context.ModuleContext;
+import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.name.ModuleName;
 import org.scribble.job.Job;
 import org.scribble.util.ScribException;

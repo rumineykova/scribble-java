@@ -21,7 +21,7 @@ import org.scribble.ast.PayElem;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.ast.name.simple.IdNode;
-import org.scribble.core.lang.context.ModuleContext;
+import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.kind.DataKind;
 import org.scribble.core.type.kind.NonRoleParamKind;
 import org.scribble.core.type.name.AmbigName;

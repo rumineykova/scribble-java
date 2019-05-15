@@ -21,7 +21,7 @@ import java.util.Set;
 
 import org.scribble.ast.Module;
 import org.scribble.ast.global.GProtoDecl;
-import org.scribble.core.lang.context.ModuleContext;
+import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.ModuleName;
 import org.scribble.util.ScribException;
@@ -61,7 +61,7 @@ public class JobContext
 		// Job.modcs seems unused?  Lang.modcs is used though, by old AST visitors -- basically old ModuleContextVisitor is redundant?
 		// Job.modcs could be used, but disamb already done by Lang
 		// Lang/Job modcs should be moved to config/context though
-		ModuleContextBuilder b = new ModuleContextBuilder();  // TODO: factor out newModuleContextBuilder
+		ModuleContextBuilder b = this.job.newModuleContextBuilder();
 		Map<ModuleName, ModuleContext> modcs = new HashMap<>();
 		for (ModuleName fullname : parsed.keySet())
 		{

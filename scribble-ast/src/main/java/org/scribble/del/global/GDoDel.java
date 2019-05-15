@@ -17,7 +17,7 @@ import java.util.List;
 
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GDo;
-import org.scribble.core.lang.context.ModuleContext;
+import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.kind.NonRoleParamKind;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.Role;
