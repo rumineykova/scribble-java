@@ -1,54 +1,77 @@
 package org.scribble.ext.assrt.ast.name.simple;
 
-import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactory;
-import org.scribble.ast.ScribNodeBase;
-import org.scribble.ast.name.PayloadElemNameNode;
+import org.antlr.runtime.Token;
+import org.scribble.ast.name.PayElemNameNode;
 import org.scribble.ast.name.simple.SimpleNameNode;
+import org.scribble.core.type.kind.NonRoleArgKind;
+import org.scribble.core.type.session.Arg;
+import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtFormulaNode;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.kind.AssrtVarNameKind;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
-import org.scribble.type.Arg;
-import org.scribble.type.kind.NonRoleArgKind;
+import org.scribble.ext.assrt.del.AssrtDelFactory;
 
 // N.B. used both directly as a PayloadElemNameNode, and for the annotation in AssrtAnnotDataTypeElem -- also used for statevars
 public class AssrtIntVarNameNode extends SimpleNameNode<AssrtVarNameKind>
-		implements PayloadElemNameNode<AssrtVarNameKind>, AssrtFormulaNode
+		implements PayElemNameNode<AssrtVarNameKind>, AssrtFormulaNode
 {
-	public AssrtIntVarNameNode(CommonTree source, String identifier)
+	// ScribTreeAdaptor#create constructor
+	public AssrtIntVarNameNode(Token t)
 	{
-		super(source, identifier);
+		super(t);
 	}
 
-	@Override
-	protected ScribNodeBase copy()
+	// Tree#dupNode constructor
+	protected AssrtIntVarNameNode(AssrtIntVarNameNode node)
 	{
-		return new AssrtIntVarNameNode(this.source, getIdentifier());
+		super(node);
 	}
-
+	
 	@Override
-	public AssrtIntVarNameNode clone(AstFactory af)
+	public AssrtIntVarNameNode dupNode()
 	{
-		return (AssrtIntVarNameNode) af.SimpleNameNode(this.source, AssrtVarNameKind.KIND, getIdentifier());
+		return new AssrtIntVarNameNode(this);
+	}
+	
+	@Override
+	public void decorateDel(DelFactory df)
+	{
+		((AssrtDelFactory) df).AssrtIntVarNameNode(this);
 	}
 	
 	@Override
 	public AssrtIntVarFormula getFormula()
 	{
-		return AssrtFormulaFactory.AssrtIntVar(getIdentifier());
+		return AssrtFormulaFactory.AssrtIntVar(getText());
 	}
 
 	@Override
 	public AssrtDataTypeVar toName()
 	{
-		//return new AssrtDataTypeVar(getIdentifier());
 		return getFormula().toName();
+	}
+
+	@Override
+	public Arg<? extends NonRoleArgKind> toArg()
+	{
+		throw new RuntimeException(
+				"[assrt] TODO: var name node as do-arg: " + this);
+				// CHECKME TODO?
+	}
+
+	@Override
+	public AssrtDataTypeVar toPayloadType()
+	{
+		return toName();  
+				// CHECKME: Shouldn't this be the type (i.e., int), not the var name? -- cf. toName
+				// However, toPayloadType is "kinded" the same way as "toName", so have to return AssrtDataTypeVar (not an int DataType)
+				// But maybe should be this way, for later toolchain stages, e.g., API generation (for these "dependent" types)
 	}
 	
 	@Override
-	public boolean equals(Object o)  // FIXME: is equals/hashCode needed for these Nodes?
+	public boolean equals(Object o)  // CHECKME: is equals/hashCode needed for these Nodes?
 	{
 		if (this == o)
 		{
@@ -58,7 +81,7 @@ public class AssrtIntVarNameNode extends SimpleNameNode<AssrtVarNameKind>
 		{
 			return false;
 		}
-		return ((AssrtIntVarNameNode) o).canEquals(this) && super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override
@@ -74,19 +97,15 @@ public class AssrtIntVarNameNode extends SimpleNameNode<AssrtVarNameKind>
 		hash = 31 * super.hashCode();
 		return hash;
 	}
-
-	@Override
-	public Arg<? extends NonRoleArgKind> toArg()
-	{
-		throw new RuntimeException("[assrt] TODO: var name node as do-arg: " + this);  // TODO?
-	}
-
-	@Override
-	public AssrtDataTypeVar toPayloadType()
-	{
-		return toName();  
-				// FIXME: Shouldn't this be the type (i.e., int), not the var name? -- cf. toName
-				// however, toPayloadType is "kinded" the same way as "toName", so have to return AssrtDataTypeVar (not an int DataType)
-				// but maybe should be this way, for later toolchain stages, e.g., API generation (for these "dependent" types)
-	}
 }
+
+
+
+
+
+/*
+	public AssrtIntVarNameNode(CommonTree source, String identifier)
+	{
+		super(source, identifier);
+	}
+*/

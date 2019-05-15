@@ -76,7 +76,7 @@ public class OpNode extends SimpleNameNode<OpKind>
 		{
 			return false;
 		}
-		return super.equals(o);  // Does canEqual
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override

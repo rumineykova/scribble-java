@@ -87,7 +87,7 @@ public class DataNameNode extends MemberNameNode<DataKind>
 		{
 			return false;
 		}
-		return ((DataNameNode) o).canEquals(this) && super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override

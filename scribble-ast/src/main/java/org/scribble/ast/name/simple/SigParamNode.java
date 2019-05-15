@@ -91,7 +91,7 @@ public class SigParamNode extends NonRoleParamNode<SigKind>
 		{
 			return false;
 		}
-		return super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override

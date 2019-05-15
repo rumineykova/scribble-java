@@ -56,7 +56,7 @@ public abstract class NonRoleParamNode<K extends NonRoleParamKind> extends
 			return false;
 		}
 		NonRoleParamNode<? extends NonRoleParamKind> them = (NonRoleParamNode<?>) o;
-		return super.equals(o)  // Does canEqual
+		return super.equals(o)  // Checks canEquals
 				&& this.kind.equals(them.kind);
 	}
 	

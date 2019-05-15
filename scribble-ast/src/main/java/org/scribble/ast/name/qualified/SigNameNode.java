@@ -84,7 +84,7 @@ public class SigNameNode extends MemberNameNode<SigKind>
 		{
 			return false;
 		}
-		return ((SigNameNode) o).canEquals(this) && super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 
 	@Override

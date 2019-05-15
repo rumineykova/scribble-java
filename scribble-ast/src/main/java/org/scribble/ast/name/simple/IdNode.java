@@ -80,7 +80,7 @@ public class IdNode extends SimpleNameNode<IdKind>
 		{
 			return false;
 		}
-		return ((IdNode) o).canEquals(this) && super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override

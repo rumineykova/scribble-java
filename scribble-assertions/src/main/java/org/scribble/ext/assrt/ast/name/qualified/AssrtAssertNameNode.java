@@ -1,28 +1,38 @@
 package org.scribble.ext.assrt.ast.name.qualified;
 
-import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactory;
+import org.antlr.runtime.Token;
 import org.scribble.ast.name.qualified.MemberNameNode;
+import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.core.type.kind.AssrtAssertKind;
 import org.scribble.ext.assrt.core.type.name.AssrtAssertName;
 
-public class AssrtAssertNameNode extends MemberNameNode<AssrtAssertKind>  // Duplicated From DataTypeNode
+// Duplicated From DataNameNode
+@Deprecated  // Currently unused
+public class AssrtAssertNameNode extends MemberNameNode<AssrtAssertKind>
 {
-	public AssrtAssertNameNode(CommonTree source, String... elems)
+	// ScribTreeAdaptor#create constructor
+	public AssrtAssertNameNode(Token t)
 	{
-		super(source, elems);
+		super(t);
 	}
 
-	@Override
-	protected AssrtAssertNameNode copy()
+	// Tree#dupNode constructor
+	protected AssrtAssertNameNode(AssrtAssertNameNode node)
 	{
-		return new AssrtAssertNameNode(this.source, this.elems);
+		super(node);
 	}
 	
 	@Override
-	public AssrtAssertNameNode clone(AstFactory af)
+	public AssrtAssertNameNode dupNode()
 	{
-		return (AssrtAssertNameNode) af.QualifiedNameNode(this.source, AssrtAssertKind.KIND, this.elems);
+		return new AssrtAssertNameNode(this);
+	}
+
+	@Override
+	public void decorateDel(DelFactory df)
+	{
+		//((AssrtDelFactory) df).AssrtAssertNameNode(this);
+		throw new RuntimeException("[TODO] : " + this);
 	}
 
 	@Override
@@ -45,11 +55,11 @@ public class AssrtAssertNameNode extends MemberNameNode<AssrtAssertKind>  // Dup
 		{
 			return false;
 		}
-		return ((AssrtAssertNameNode) o).canEqual(this) && super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtAssertNameNode;
 	}
@@ -58,7 +68,25 @@ public class AssrtAssertNameNode extends MemberNameNode<AssrtAssertKind>  // Dup
 	public int hashCode()
 	{
 		int hash = 7621;
-		hash = 31 * hash + this.elems.hashCode();
+		hash = 31 * hash + super.hashCode();
 		return hash;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+	public AssrtAssertNameNode(CommonTree source, String... elems)
+	{
+		super(source, elems);
+	}
+*/

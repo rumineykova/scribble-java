@@ -65,7 +65,7 @@ public class RoleNode extends SimpleNameNode<RoleKind> implements DoArgNode
 		{
 			return false;
 		}
-		return ((RoleNode) o).canEquals(this) && super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override

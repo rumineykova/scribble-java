@@ -62,7 +62,7 @@ public class RecVarNode extends SimpleNameNode<RecVarKind>
 		{
 			return false;
 		}
-		return super.equals(o);  // Does canEqual
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override

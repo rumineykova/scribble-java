@@ -79,7 +79,7 @@ public class LProtoNameNode extends ProtoNameNode<Local>
 		{
 			return false;
 		}
-		return super.equals(o);  // Does canEqual
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override

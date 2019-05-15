@@ -92,7 +92,7 @@ public class DataParamNode extends NonRoleParamNode<DataKind>
 		{
 			return false;
 		}
-		return super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override

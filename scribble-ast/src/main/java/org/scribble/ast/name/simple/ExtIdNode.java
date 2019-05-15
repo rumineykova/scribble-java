@@ -48,7 +48,7 @@ public class ExtIdNode extends IdNode  // CHECKME: e.g., toName gives Id
 		{
 			return false;
 		}
-		return ((ExtIdNode) o).canEquals(this) && super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override

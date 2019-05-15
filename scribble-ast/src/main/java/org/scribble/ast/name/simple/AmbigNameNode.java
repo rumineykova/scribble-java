@@ -92,7 +92,7 @@ public class AmbigNameNode extends SimpleNameNode<AmbigKind>
 		{
 			return false;
 		}
-		return ((AmbigNameNode) o).canEquals(this) && super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override

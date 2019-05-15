@@ -64,7 +64,7 @@ public class GProtoNameNode extends ProtoNameNode<Global>
 		{
 			return false;
 		}
-		return ((GProtoNameNode) o).canEquals(this) && super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override

@@ -29,21 +29,37 @@ import org.scribble.ext.assrt.ast.local.AssrtLDo;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLRequest;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
+import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 
 
 public interface AssrtDelFactory extends DelFactory
 {
+	// Names
+	void AssrtIntVarNameNode(AssrtIntVarNameNode n);  // Default del
+
+
+	// General and globals
+	void AssrtAssertion(AssrtAssertion n);
+	void AssrtArithExpr(AssrtArithExpr n);
+
+	void AssrtModule(AssrtModule n);
+
+	void AssrtAssertDecl(AssrtAssertDecl n);
+
 	void AssrtGProtoHeader(AssrtGProtoHeader n);
 
 	void AssrtGMsgTransfer(AssrtGMsgTransfer n);
-
 	void AssrtGConnect(AssrtGConnect n);
-	void AssrtGRecursion(AssrtGRecursion n);
+
 	void AssrtGContinue(AssrtGContinue n);
 	void AssrtGDo(AssrtGDo n);
 
+	void AssrtGRecursion(AssrtGRecursion n);
+
 	void AssrtAnnotDataElem(AssrtAnnotDataElem n);
 
+
+	// Locals
 	void AssrtLProtoHeader(AssrtLProtoHeader n);
 
 	void AssrtLSend(AssrtLSend n);
@@ -51,13 +67,6 @@ public interface AssrtDelFactory extends DelFactory
 	void AssrtLRecursion(AssrtLRecursion n);
 	void AssrtLContinue(AssrtLContinue n);
 	void AssrtLDo(AssrtLDo n);
-
-	void AssrtAssertion(AssrtAssertion n);
-	void AssrtArithExpr(AssrtArithExpr n);
-
-	void AssrtModule(AssrtModule n);
-
-	void AssrtAssertDecl(AssrtAssertDecl n);
 }
 	
 	

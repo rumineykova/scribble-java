@@ -1,36 +1,42 @@
 package org.scribble.ext.assrt.ast.name.simple;
 
-import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactory;
-import org.scribble.ast.ScribNodeBase;
+import org.antlr.runtime.Token;
 import org.scribble.ast.name.simple.SimpleNameNode;
+import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.core.type.kind.AssrtSortKind;
 import org.scribble.ext.assrt.core.type.name.AssrtSort;
 
-public class AssrtSortNode extends SimpleNameNode<AssrtSortKind> //implements PayloadElemNameNode<AssrtVarNameKind>, AssrtFormulaNode
+@Deprecated  // Currently unused
+public class AssrtSortNode extends SimpleNameNode<AssrtSortKind>
 {
-	public AssrtSortNode(CommonTree source, String identifier)
+	public AssrtSortNode(int ttype, Token t)
 	{
-		super(source, identifier);
+		super(t);
 	}
 
-	@Override
-	protected ScribNodeBase copy()
+	// Tree#dupNode constructor
+	protected AssrtSortNode(AssrtSortNode node)
 	{
-		return new AssrtSortNode(this.source, getIdentifier());
+		super(node);
 	}
-
+	
 	@Override
-	public AssrtSortNode clone(AstFactory af)
+	public AssrtSortNode dupNode()
 	{
-		return (AssrtSortNode) af.SimpleNameNode(this.source, AssrtSortKind.KIND, getIdentifier());
+		return new AssrtSortNode(this);
+	}
+	
+	@Override
+	public void decorateDel(DelFactory df)
+	{
+		//((AssrtDelFactory) df).AssrtSortNode(this);
+		throw new RuntimeException("[TODO] : " + this);
 	}
 
 	@Override
 	public AssrtSort toName()
 	{
-		String id = getIdentifier();
-		return new AssrtSort(id);
+		return new AssrtSort(getText());
 	}
 	
 	@Override
@@ -44,11 +50,11 @@ public class AssrtSortNode extends SimpleNameNode<AssrtSortKind> //implements Pa
 		{
 			return false;
 		}
-		return ((AssrtSortNode) o).canEqual(this) && super.equals(o);
+		return super.equals(o);  // Checks canEquals
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtSortNode;
 	}
@@ -61,3 +67,22 @@ public class AssrtSortNode extends SimpleNameNode<AssrtSortKind> //implements Pa
 		return hash;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+	public AssrtSortNode(CommonTree source, String identifier)
+	{
+		super(source, identifier);
+	}
+*/
