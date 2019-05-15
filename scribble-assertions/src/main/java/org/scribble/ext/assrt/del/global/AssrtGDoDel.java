@@ -1,4 +1,4 @@
-package org.scribble.ext.assrt.ast.global;
+package org.scribble.ext.assrt.del.global;
 
 import java.util.List;
 
@@ -16,6 +16,10 @@ import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDelBase;
 import org.scribble.del.global.GDoDel;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
+import org.scribble.ext.assrt.ast.global.AssrtGContinue;
+import org.scribble.ext.assrt.ast.global.AssrtGDo;
+import org.scribble.ext.assrt.ast.global.AssrtGProtoHeader;
+import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.SubprotocolSig;
@@ -43,7 +47,7 @@ public class AssrtGDoDel extends GDoDel
 
 		//return doo.reconstruct(doo.roles, doo.args, pnn);
 		return doo.reconstruct(doo.roles, doo.args, pnn, //doo.annot);
-				doo.annotexprs);
+				doo.exprs);
 	}
 
 	// Only called if cycle
@@ -56,7 +60,7 @@ public class AssrtGDoDel extends GDoDel
 		//GContinue inlined = builder.job.af.GContinue(blame, recvar);
 		//AssrtArithExpr annot = ((AssrtGDo) child).annot;
 		AssrtGDo gdo = (AssrtGDo) child;
-		AssrtGContinue inlined = ((AssrtAstFactory) builder.job.af).AssrtGContinue(blame, recvar, gdo.annotexprs);
+		AssrtGContinue inlined = ((AssrtAstFactory) builder.job.af).AssrtGContinue(blame, recvar, gdo.exprs);
 
 		builder.pushEnv(builder.popEnv().setTranslation(inlined));
 		return child;
@@ -78,7 +82,7 @@ public class AssrtGDoDel extends GDoDel
 			AssrtGDo gdo = (AssrtGDo) child;
 			GProtocolDecl gpd = gdo.getTargetProtocolDecl(dinlr.job.getContext(), dinlr.getModuleContext());
 			
-			AssrtGProtocolHeader hdr = (AssrtGProtocolHeader) gpd.getHeader();
+			AssrtGProtoHeader hdr = (AssrtGProtoHeader) gpd.getHeader();
 			AssrtGRecursion inlined;
 			//if (hdr.ass == null)
 			if (hdr.annotvars.isEmpty()
@@ -89,7 +93,7 @@ public class AssrtGDoDel extends GDoDel
 			else
 			{
 				List<AssrtIntVarNameNode> annotvars = hdr.annotvars;
-				inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, gb, annotvars, gdo.annotexprs,
+				inlined = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, gb, annotvars, gdo.exprs,
 						hdr.ass);
 			}
 
@@ -137,7 +141,7 @@ public class AssrtGDoDel extends GDoDel
 
 			//projection = gd.project(proj.job.af, self, target);
 			ld = gd.project(proj.job.af, self, target, //gd.annot);
-					gd.annotexprs);
+					gd.exprs);
 			
 			// FIXME: do guarded recursive subprotocol checking (i.e. role is used during chain) in reachability checking? -- required role-usage makes local choice subject inference easier, but is restrictive (e.g. proto(A, B, C) { choice at A {A->B.do Proto(A,B,C)} or {A->B.B->C} }))
 		}

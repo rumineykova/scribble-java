@@ -15,7 +15,7 @@ import org.scribble.ast.local.LProtocolDecl;
 import org.scribble.ast.local.LProtocolHeader;
 import org.scribble.del.local.LProtocolDeclDel;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
-import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
+import org.scribble.ext.assrt.ast.local.AssrtLProtoHeader;
 import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
@@ -51,7 +51,7 @@ public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionD
 				occs.contains(rd.getDeclName())).collect(Collectors.toList());
 		RoleDeclList rdl = fixer.job.af.RoleDeclList(lpd.header.roledecls.getSource(), rds);
 		
-		AssrtLProtocolHeader tmp = (AssrtLProtocolHeader) lpd.getHeader();  // FIXME: make a LProtocolHeaderDel and factor out there? (would be less code duplication here)
+		AssrtLProtoHeader tmp = (AssrtLProtoHeader) lpd.getHeader();  // FIXME: make a LProtocolHeaderDel and factor out there? (would be less code duplication here)
 		LProtocolHeader hdr = tmp.reconstruct(tmp.getNameNode(), rdl, tmp.paramdecls, //tmp.ass);
 				tmp.annotvars, tmp.annotexprs,
 				tmp.ass);
@@ -68,7 +68,7 @@ public class AssrtLProjectionDeclDel extends org.scribble.del.local.LProjectionD
 	{
 		//LProtocolDecl lpd = (LProtocolDecl) child;
 		LProjectionDecl lpd = (LProjectionDecl) child;
-		AssrtLProtocolHeader hdr = (AssrtLProtocolHeader) lpd.header;
+		AssrtLProtoHeader hdr = (AssrtLProtoHeader) lpd.header;
 		
 		LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars = new LinkedHashMap<>();
 		//if (hdr.ass != null)

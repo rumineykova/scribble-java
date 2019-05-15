@@ -8,15 +8,17 @@ import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 
 public interface AssrtStateVarDeclAnnotNode
 {
-	List<AssrtIntVarNameNode> getAnnotVars();
-	List<AssrtArithExpr> getAnnotExprs();
-	AssrtAssertion getAssertion();
+	AssrtAssertion getAssertionChild();
+	List<AssrtIntVarNameNode> getAnnotVarChildren();
+	List<AssrtArithExpr> getAnnotExprChildren();
 
 	default String annotToString()
 	{
-		Iterator<AssrtArithExpr> exprs = getAnnotExprs().iterator();
-		AssrtAssertion ass = getAssertion();
-		return " @(\"" + getAnnotVars().stream().map(v -> v + " := " + exprs.next()).collect(Collectors.joining(", ")) +  ")\" "
-				+ ((ass == null) ? "" : ass);
+		Iterator<AssrtArithExpr> exprs = getAnnotExprChildren().iterator();
+		AssrtAssertion ass = getAssertionChild();
+		return " @(\""
+				+ getAnnotVarChildren().stream().map(v -> v + " := " + exprs.next())
+						.collect(Collectors.joining(", "))
+				+ ")\" " + ((ass == null) ? "" : ass);
 	}
 }

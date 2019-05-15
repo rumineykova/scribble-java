@@ -21,6 +21,7 @@ import org.scribble.util.Constants;
 import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
 
+@Deprecated
 public class AssrtAssertDecl extends NameDeclNode<AssrtAssertKind>
 		implements ModuleMember
 {
@@ -93,8 +94,8 @@ public class AssrtAssertDecl extends NameDeclNode<AssrtAssertKind>
 			List<AssrtSortNode> params, AssrtSortNode ret, AssrtSmtFormula<?> expr)
 	{
 		AssrtAssertDecl dup = dupNode();
-		dup.expr = expr;
 		dup.addScribChildren((AssrtAssertNameNode) name, ret, params);
+		dup.expr = expr;
 		dup.setDel(del());  // No copy
 		return dup;
 	}

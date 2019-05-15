@@ -24,7 +24,7 @@ import org.scribble.del.local.LProtocolDeclDel;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.ext.assrt.ast.local.AssrtLDo;
-import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
+import org.scribble.ext.assrt.ast.local.AssrtLProtoHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.main.JobContext;
@@ -88,7 +88,7 @@ public class AssrtLDoDel extends LDoDel
 			AssrtLDo ldo = (AssrtLDo) child;
 			LProtocolDecl lpd = ldo.getTargetProtocolDecl(dinlr.job.getContext(), dinlr.getModuleContext());
 			//AssrtBinCompFormula bcf = (AssrtBinCompFormula) ((AssrtLProtocolHeader) lpd.getHeader()).ass.getFormula();  // FIXME: bcf
-			AssrtLProtocolHeader hdr =(AssrtLProtocolHeader) lpd.getHeader();
+			AssrtLProtoHeader hdr =(AssrtLProtoHeader) lpd.getHeader();
 			List<AssrtIntVarNameNode> annotvars = hdr.annotvars;
 			AssrtLRecursion inlined = ((AssrtAstFactory) dinlr.job.af).AssrtLRecursion(blame, recvar, gb, annotvars, ldo.annotexprs,
 					hdr.ass);

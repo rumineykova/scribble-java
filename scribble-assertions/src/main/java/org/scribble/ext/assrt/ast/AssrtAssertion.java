@@ -1,30 +1,30 @@
 package org.scribble.ext.assrt.ast;
 
 import org.antlr.runtime.Token;
-import org.scribble.ast.ScribNode;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
-import org.scribble.util.ScribException;
-import org.scribble.visit.AstVisitor;
 
 // In general, should be an action "annotation" -- but currently only used for boolean assertions
 // This is the "actual syntax" node (has source) -- cf. formula, does (and should) not record source (e.g., affects equals/hash)
 public class AssrtAssertion extends ScribNodeBase implements AssrtFormulaNode
 {	
-	protected AssrtBoolFormula formula;  // Non public, because non final for reconstruct
+	//protected   // Non public, because non final for reconstruct
+	public final AssrtBoolFormula formula;
 
 	// ScribTreeAdaptor#create constructor
-	public AssrtAssertion(Token t)
+	public AssrtAssertion(Token t, AssrtBoolFormula formula)
 	{
 		super(t);
+		this.formula = formula;
 	}
 
 	// Tree#dupNode constructor
 	protected AssrtAssertion(AssrtAssertion node)
 	{
 		super(node);
+		this.formula = node.formula;
 	}
 	
 	@Override
@@ -37,20 +37,6 @@ public class AssrtAssertion extends ScribNodeBase implements AssrtFormulaNode
 	public void decorateDel(DelFactory df)
 	{
 		((AssrtDelFactory) df).AssrtAssertion(this);
-	}
-	
-	protected AssrtAssertion reconstruct(AssrtBoolFormula f)
-	{
-		AssrtAssertion dup = dupNode();
-		dup.formula = f;
-		dup.setDel(del());  // No copy
-		return dup;
-	}
-
-	@Override
-	public ScribNode visitChildren(AstVisitor nv) throws ScribException
-	{
-		return reconstruct(this.formula);  // formula cannot be visited (not a ScribNode)
 	}
 	
 	@Override
@@ -80,4 +66,18 @@ public class AssrtAssertion extends ScribNodeBase implements AssrtFormulaNode
 		super(source);
 		this.formula = formula; 
 	}
+	
+	/*protected AssrtAssertion reconstruct(AssrtBoolFormula f)
+	{
+		AssrtAssertion dup = dupNode();
+		dup.formula = f;
+		dup.setDel(del());  // No copy
+		return dup;
+	}
+
+	@Override
+	public ScribNode visitChildren(AstVisitor nv) throws ScribException
+	{
+		return reconstruct(this.formula);  // formula cannot be visited (not a ScribNode)
+	}*/
 //*/

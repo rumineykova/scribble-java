@@ -90,7 +90,7 @@ public class AssrtLDo extends LDo implements AssrtStateVarArgAnnotNode
 	}
 	
 	@Override
-	public List<AssrtArithExpr> getAnnotExprs()
+	public List<AssrtArithExpr> getAnnotExprChildren()
 	{
 		return this.annotexprs;
 	}

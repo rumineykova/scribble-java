@@ -9,7 +9,7 @@ import org.scribble.ext.assrt.del.AssrtDelFactory;
 // Based on AssrtAssertion
 public class AssrtArithExpr extends ScribNodeBase implements AssrtFormulaNode
 {	
-	private AssrtArithFormula expr;
+	public final AssrtArithFormula expr;
 
 	// ScribTreeAdaptor#create constructor
 	public AssrtArithExpr(Token t, AssrtArithFormula expr)

@@ -13,7 +13,7 @@ import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.ScribDelBase;
 import org.scribble.del.local.LProtocolDefDel;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
+import org.scribble.ext.assrt.ast.local.AssrtLProtoHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.SubprotocolSig;
@@ -51,7 +51,7 @@ public class AssrtLProtocolDefDel extends LProtocolDefDel
 
 		//LRecursion rec = inl.job.af.LRecursion(blame, recvar, block);
 		LProjectionDecl lpd = (LProjectionDecl) parent;  // FIXME: factor out interface for annot LProtocolDecl and LProjectionDecl?
-		AssrtLProtocolHeader hdr = (AssrtLProtocolHeader) lpd.getHeader();
+		AssrtLProtoHeader hdr = (AssrtLProtoHeader) lpd.getHeader();
 		AssrtLRecursion rec = ((AssrtAstFactory) dinlr.job.af).AssrtLRecursion(blame, recvar, block, //ass);  // FIXME: factor out better?
 				hdr.annotvars, hdr.annotexprs,
 				hdr.ass);

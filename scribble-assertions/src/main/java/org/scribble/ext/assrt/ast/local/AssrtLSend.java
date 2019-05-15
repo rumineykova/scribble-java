@@ -76,7 +76,7 @@ public class AssrtLSend extends LSend implements AssrtActionAssertNode
 	}
 
 	@Override
-	public AssrtAssertion getAssertion()
+	public AssrtAssertion getAssertionChild()
 	{
 		return this.ass;
 	}

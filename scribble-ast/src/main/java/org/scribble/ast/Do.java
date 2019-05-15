@@ -80,13 +80,13 @@ public abstract class Do<K extends ProtoKind>
 	}
 
 	@Override
-	public Do<K> visitChildren(AstVisitor nv) throws ScribException
+	public Do<K> visitChildren(AstVisitor v) throws ScribException
 	{
-		RoleArgList ril = (RoleArgList) visitChild(getRoleListChild(), nv);
-		NonRoleArgList al = (NonRoleArgList) visitChild(getNonRoleListChild(), nv);
+		RoleArgList rs = (RoleArgList) visitChild(getRoleListChild(), v);
+		NonRoleArgList as = (NonRoleArgList) visitChild(getNonRoleListChild(), v);
 		ProtoNameNode<K> proto = visitChildWithClassEqualityCheck(this,
-				getProtocolNameNode(), nv);
-		return reconstruct(proto, al, ril);
+				getProtocolNameNode(), v);
+		return reconstruct(proto, as, rs);
 	}
 
 	// FIXME: mcontext now redundant because NameDisambiguator converts all targets to full names -- NO: currently disamb doesn't

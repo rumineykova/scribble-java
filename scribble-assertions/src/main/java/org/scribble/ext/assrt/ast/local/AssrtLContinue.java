@@ -108,7 +108,7 @@ public class AssrtLContinue extends LContinue implements AssrtStateVarArgAnnotNo
 	}
 	
 	@Override
-	public List<AssrtArithExpr> getAnnotExprs()
+	public List<AssrtArithExpr> getAnnotExprChildren()
 	{
 		return this.annotexprs;
 	}

@@ -36,15 +36,14 @@ import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
-import org.scribble.ext.assrt.ast.global.AssrtGDoDel;
 import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
-import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
+import org.scribble.ext.assrt.ast.global.AssrtGProtoHeader;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.ext.assrt.ast.local.AssrtLDo;
-import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
+import org.scribble.ext.assrt.ast.local.AssrtLProtoHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
-import org.scribble.ext.assrt.ast.local.AssrtLRequest;
+import org.scribble.ext.assrt.ast.local.AssrtLReq;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.qualified.AssrtAssertNameNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
@@ -58,6 +57,7 @@ import org.scribble.ext.assrt.del.AssrtModuleDel;
 import org.scribble.ext.assrt.del.global.AssrtGChoiceDel;
 import org.scribble.ext.assrt.del.global.AssrtGConnectDel;
 import org.scribble.ext.assrt.del.global.AssrtGContinueDel;
+import org.scribble.ext.assrt.del.global.AssrtGDoDel;
 import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtocolDeclDel;
@@ -204,10 +204,10 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	// Easier to make all global as Assrt nodes, to avoid cast checks in, e.g., AssrtGProtocolDeclDel::leaveProjection (for GProtocolHeader), and so all projections will be Assrt kinds only
 
 	@Override
-	public AssrtGProtocolHeader GProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
+	public AssrtGProtoHeader GProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
 	{
 		// Alternative is to make parsing return all as AssrtGProtocolHeader directly
-		AssrtGProtocolHeader gpb = new AssrtGProtocolHeader(source, name, roledecls, paramdecls);
+		AssrtGProtoHeader gpb = new AssrtGProtoHeader(source, name, roledecls, paramdecls);
 		gpb = del(gpb, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
 		return gpb;
 	}
@@ -260,11 +260,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	 */
 
 	@Override
-	public AssrtGProtocolHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
+	public AssrtGProtoHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
 			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
 			AssrtAssertion ass)
 	{
-		AssrtGProtocolHeader gpb = new AssrtGProtocolHeader(source, name, roledecls, paramdecls, //ass);
+		AssrtGProtoHeader gpb = new AssrtGProtoHeader(source, name, roledecls, paramdecls, //ass);
 				annotvars, annotexprs,
 				ass);
 		gpb = del(gpb, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
@@ -320,11 +320,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtLProtocolHeader AssrtLProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
+	public AssrtLProtoHeader AssrtLProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
 			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
 			AssrtAssertion ass)
 	{
-		AssrtLProtocolHeader lph = new AssrtLProtocolHeader(source, name, roledecls, paramdecls, //ass);
+		AssrtLProtoHeader lph = new AssrtLProtoHeader(source, name, roledecls, paramdecls, //ass);
 				annotvars, annotexprs,
 				ass);
 		lph = del(lph, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
@@ -340,9 +340,9 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtLRequest AssrtLConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion ass)
+	public AssrtLReq AssrtLConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion ass)
 	{
-		AssrtLRequest ls = new AssrtLRequest(source, src, msg, dest, ass);
+		AssrtLReq ls = new AssrtLReq(source, src, msg, dest, ass);
 		ls = del(ls, new AssrtLRequestDel());
 		return ls;
 	}

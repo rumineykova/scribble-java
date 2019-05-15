@@ -15,17 +15,17 @@ import org.scribble.main.ScribbleException;
 import org.scribble.type.kind.Local;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtLRequest extends LRequest implements AssrtActionAssertNode
+public class AssrtLReq extends LReq implements AssrtActionAssertNode
 {
 	public final AssrtAssertion ass;  // null if none specified syntactically  
 			// Duplicated from AssrtLSend
 
-	public AssrtLRequest(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest)
+	public AssrtLReq(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest)
 	{
 		this(source, src, msg, dest, null);
 	}
 
-	public AssrtLRequest(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion ass)
+	public AssrtLReq(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion ass)
 	{
 		super(source, src, msg, dest);
 		this.ass = ass;
@@ -34,11 +34,11 @@ public class AssrtLRequest extends LRequest implements AssrtActionAssertNode
 	@Override
 	protected ScribNodeBase copy()
 	{
-		return new AssrtLRequest(this.source, this.src, this.msg, this.dest, this.ass);  // null ass fine
+		return new AssrtLReq(this.source, this.src, this.msg, this.dest, this.ass);  // null ass fine
 	}
 	
 	@Override
-	public AssrtLRequest clone(AstFactory af)
+	public AssrtLReq clone(AstFactory af)
 	{
 		RoleNode src = this.src.clone(af);
 		MessageNode msg = this.msg.clone(af);
@@ -48,16 +48,16 @@ public class AssrtLRequest extends LRequest implements AssrtActionAssertNode
 	}
 
 	@Override
-	public AssrtLRequest reconstruct(RoleNode src, MessageNode msg, RoleNode dest)
+	public AssrtLReq reconstruct(RoleNode src, MessageNode msg, RoleNode dest)
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
 	
-	public AssrtLRequest reconstruct(RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion ass)
+	public AssrtLReq reconstruct(RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion ass)
 	{
 		ScribDel del = del();
-		AssrtLRequest ls = new AssrtLRequest(this.source, src, msg, dest, ass);  // FIXME: assertion
-		ls = (AssrtLRequest) ls.del(del);
+		AssrtLReq ls = new AssrtLReq(this.source, src, msg, dest, ass);  // FIXME: assertion
+		ls = (AssrtLReq) ls.del(del);
 		return ls;
 	}
 
@@ -72,7 +72,7 @@ public class AssrtLRequest extends LRequest implements AssrtActionAssertNode
 	}
 
 	@Override
-	public AssrtAssertion getAssertion()
+	public AssrtAssertion getAssertionChild()
 	{
 		return this.ass;
 	}

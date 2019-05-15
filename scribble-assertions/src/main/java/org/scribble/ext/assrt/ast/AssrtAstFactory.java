@@ -15,7 +15,7 @@ import org.scribble.ast.RoleArgList;
 import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.global.GProtoBlock;
 import org.scribble.ast.local.LProtoBlock;
-import org.scribble.ast.name.qualified.DataTypeNode;
+import org.scribble.ast.name.qualified.DataNameNode;
 import org.scribble.ast.name.qualified.GProtoNameNode;
 import org.scribble.ast.name.qualified.LProtoNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
@@ -30,7 +30,7 @@ import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.ext.assrt.ast.local.AssrtLDo;
 import org.scribble.ext.assrt.ast.local.AssrtLProtoHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
-import org.scribble.ext.assrt.ast.local.AssrtLRequest;
+import org.scribble.ext.assrt.ast.local.AssrtLReq;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.qualified.AssrtAssertNameNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
@@ -62,7 +62,7 @@ public interface AssrtAstFactory extends AstFactory
 			List<AssrtArithExpr> annotexprs);
 
 	AssrtAnnotDataElem AssrtAnnotDataTypeElem(Token t,
-			AssrtIntVarNameNode varName, DataTypeNode dataType);
+			AssrtIntVarNameNode varName, DataNameNode data);
 
 	AssrtLProtoHeader AssrtLProtoHeader(Token t, LProtoNameNode name,
 			RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass);
@@ -71,7 +71,7 @@ public interface AssrtAstFactory extends AstFactory
 
 	AssrtLSend AssrtLSend(Token t, RoleNode src, MsgNode msg,
 			List<RoleNode> dests, AssrtAssertion assertion);
-	AssrtLRequest AssrtLConnect(Token t, RoleNode src, MsgNode msg, RoleNode dest,
+	AssrtLReq AssrtLConnect(Token t, RoleNode src, MsgNode msg, RoleNode dest,
 			AssrtAssertion assertion);
 	AssrtLRecursion AssrtLRecursion(Token t, RecVarNode recvar, LProtoBlock block, //AssrtAssertion ass);
 			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,

@@ -21,7 +21,7 @@ import org.scribble.ext.assrt.ast.AssrtAnnotDataElem;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
 import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
-import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
+import org.scribble.ext.assrt.ast.global.AssrtGProtoHeader;
 import org.scribble.parser.ScribTreeAdaptor;
 import org.scribble.parser.antlr.AssrtScribbleParser;
 
@@ -49,7 +49,7 @@ public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 
 			case AssrtScribbleParser.ASSRT_ANNOTPAYLOADELEM: n = new AssrtAnnotDataElem(t); break;
 			
-			case AssrtScribbleParser.ASSRT_GLOBALPROTOCOLHEADER: return new AssrtGProtocolHeader(t);
+			case AssrtScribbleParser.ASSRT_GLOBALPROTOCOLHEADER: return new AssrtGProtoHeader(t);
 			case AssrtScribbleParser.ASSRT_GLOBALMESSAGETRANSFER: return new AssrtGMsgTransfer(t);
 			case AssrtScribbleParser.ASSRT_GLOBALCONNECT: return new AssrtGConnect(t);
 			case AssrtScribbleParser.ASSRT_GLOBALDO: return new AssrtGDo(t);

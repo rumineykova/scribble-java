@@ -116,26 +116,26 @@ public class Module extends ScribNodeBase
 	
 	// Set args as children on a dup of this -- children *not* cloned
 	protected Module reconstruct(ModuleDecl moddecl, List<ImportDecl<?>> imports,
-			List<NonProtoDecl<?>> data, List<ProtoDecl<?>> protos)
+			List<NonProtoDecl<?>> nonprotos, List<ProtoDecl<?>> protos)
 	{
 		Module dup = dupNode();
-		dup.addScribChildren(moddecl, imports, data, protos);
+		dup.addScribChildren(moddecl, imports, nonprotos, protos);
 		dup.setDel(del());  // No copy
 		return dup;
 	}
 	
 	@Override
-	public Module visitChildren(AstVisitor nv) throws ScribException
+	public Module visitChildren(AstVisitor v) throws ScribException
 	{
-		ModuleDecl moddecl = (ModuleDecl) visitChild(getModuleDeclChild(), nv);
+		ModuleDecl moddecl = (ModuleDecl) visitChild(getModuleDeclChild(), v);
 		// class equality check probably too restrictive -- FIXME: remove class checks
 		List<ImportDecl<?>> imports = ScribNodeBase
-				.visitChildListWithClassEqualityCheck(this, getImportDeclChildren(), nv);
-		List<NonProtoDecl<?>> data = ScribNodeBase
-				.visitChildListWithClassEqualityCheck(this, getNonProtoDeclChildren(), nv);
+				.visitChildListWithClassEqualityCheck(this, getImportDeclChildren(), v);
+		List<NonProtoDecl<?>> nonprotos = ScribNodeBase
+				.visitChildListWithClassEqualityCheck(this, getNonProtoDeclChildren(), v);
 		List<ProtoDecl<?>> protos = ScribNodeBase
-				.visitChildListWithClassEqualityCheck(this, getProtoDeclChildren(), nv);
-		return reconstruct(moddecl, imports, data, protos);
+				.visitChildListWithClassEqualityCheck(this, getProtoDeclChildren(), v);
+		return reconstruct(moddecl, imports, nonprotos, protos);
 	}
 
 	public DataDecl getTypeDeclChild(DataName simpname)

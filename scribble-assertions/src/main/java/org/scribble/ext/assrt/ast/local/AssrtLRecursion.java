@@ -129,19 +129,19 @@ public class AssrtLRecursion extends LRecursion implements AssrtStateVarDeclAnno
 	}
 	
 	@Override
-	public List<AssrtIntVarNameNode> getAnnotVars()
+	public List<AssrtIntVarNameNode> getAnnotVarChildren()
 	{
 		return this.annotvars;
 	}
 
 	@Override
-	public List<AssrtArithExpr> getAnnotExprs()
+	public List<AssrtArithExpr> getAnnotExprChildren()
 	{
 		return this.annotexprs;
 	}
 
 	@Override
-	public AssrtAssertion getAssertion()
+	public AssrtAssertion getAssertionChild()
 	{
 		return this.ass;
 	}

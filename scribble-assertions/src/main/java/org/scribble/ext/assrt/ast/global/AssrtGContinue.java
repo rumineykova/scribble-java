@@ -1,35 +1,125 @@
 package org.scribble.ext.assrt.ast.global;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactory;
+import org.antlr.runtime.Token;
+import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GContinue;
-import org.scribble.ast.local.LContinue;
 import org.scribble.ast.name.simple.RecVarNode;
-import org.scribble.del.ScribDel;
+import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtArithExpr;
-import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.AssrtStateVarArgAnnotNode;
-import org.scribble.ext.assrt.ast.local.AssrtLContinue;
-import org.scribble.main.ScribbleException;
-import org.scribble.type.kind.RecVarKind;
-import org.scribble.type.name.Role;
+import org.scribble.ext.assrt.del.AssrtDelFactory;
+import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtGContinue extends GContinue implements AssrtStateVarArgAnnotNode
+public class AssrtGContinue extends GContinue
+		implements AssrtStateVarArgAnnotNode
 {
+	//public static final int RECVAR_CHILD_INDEX = 0;
+	public static final int EXPR_CHILDREN_START_INDEX = 1;
+
+	// ScribTreeAdaptor#create constructor
+	public AssrtGContinue(Token t)
+	{
+		super(t);
+	}
+
+	// Tree#dupNode constructor
+	protected AssrtGContinue(AssrtGContinue node)
+	{
+		super(node);
+	}
+	
+	@Override
+	public List<AssrtArithExpr> getAnnotExprChildren()
+	{
+		List<? extends ScribNode> cs = getChildren();
+		return cs.subList(EXPR_CHILDREN_START_INDEX, cs.size()).stream()
+				.map(x -> (AssrtArithExpr) x).collect(Collectors.toList());
+	}
+	
+	@Override
+	public void addScribChildren(RecVarNode rv)
+	{
+		throw new RuntimeException(
+				"[assrt] Deprecated for " + getClass() + ":\n\t" + this);
+	}
+
+	// "add", not "set"
+	public void addScribChildren(RecVarNode rv, List<AssrtArithExpr> exprs)
+	{
+		// Cf. above getters and Scribble.g children order
+		addChild(rv);
+		addChildren(exprs);
+	}
+
+	@Override
+	public AssrtGContinue dupNode()
+	{
+		return new AssrtGContinue(this);
+	}
+
+	@Override
+	public void decorateDel(DelFactory df)
+	{
+		((AssrtDelFactory) df).AssrtGContinue(this);
+	}
+
+	@Override
+	public AssrtGContinue reconstruct(RecVarNode rv)
+	{
+		throw new RuntimeException(
+				"[assrt] Deprecated for " + getClass() + ":\n\t" + this);
+	}
+
+	public AssrtGContinue reconstruct(RecVarNode rv, List<AssrtArithExpr> exprs)
+	{
+		AssrtGContinue dup = dupNode();
+		dup.addScribChildren(rv, exprs);
+		dup.setDel(del());  // No copy
+		return dup;
+	}
+
+	@Override
+	public GContinue visitChildren(AstVisitor v) throws ScribException
+	{
+		RecVarNode recvar = (RecVarNode) visitChild(getRecVarChild(), v);
+		//AssrtArithExpr annot = (this.annot == null) ? null : (AssrtArithExpr) visitChild(this.annot, nv);  // FIXME: visit child with cast
+
+		List<AssrtArithExpr> exprs = visitChildListWithClassEqualityCheck(this,
+				getAnnotExprChildren(), v);
+
+		return reconstruct(recvar, //annot);
+				exprs);
+	}
+
+	@Override
+	public String toString()
+	{
+		return super.toString() + annotToString();
+	}
+}
+
+
+
+
+
+
+
+
+
+
+/*
 	public final List<AssrtArithExpr> annotexprs;  // cf. AssrtGDo
 
 	public AssrtGContinue(CommonTree source, RecVarNode recvar)
 	{
-		this(source, recvar, //null);
-				Collections.emptyList());
+		this(source, recvar, Collections.emptyList());
 	}
 
-	public AssrtGContinue(CommonTree source, RecVarNode recvar, //AssrtArithExpr annot)
+	public AssrtGContinue(CommonTree source, RecVarNode recvar,
 			List<AssrtArithExpr> annotexprs)
 	{
 		super(source, recvar);
@@ -51,63 +141,4 @@ public class AssrtGContinue extends GContinue implements AssrtStateVarArgAnnotNo
 				annotexprs);
 		return projection;
 	}
-
-	@Override
-	protected AssrtGContinue copy()
-	{
-		return new AssrtGContinue(this.source, this.recvar, //this.annot);
-				this.annotexprs);
-	}
-	
-	@Override
-	public AssrtGContinue clone(AstFactory af)
-	{
-		RecVarNode rv = this.recvar.clone(af);
-		//AssrtArithExpr annot = (this.annot == null) ? null : this.annot.clone(af);
-
-		List<AssrtArithExpr> annotexprs = this.annotexprs.stream().map(e -> e.clone(af)).collect(Collectors.toList());
-
-		return ((AssrtAstFactory) af).AssrtGContinue(this.source, rv, //annot);
-				annotexprs);
-	}
-
-	@Override
-	public AssrtGContinue reconstruct(RecVarNode recvar)
-	{
-		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
-	}
-
-	public AssrtGContinue reconstruct(RecVarNode recvar, //AssrtArithExpr annot)
-			List<AssrtArithExpr> annotexprs)
-	{
-		ScribDel del = del();
-		AssrtGContinue gc = new AssrtGContinue(this.source, recvar, //annot);
-				annotexprs);
-		gc = (AssrtGContinue) gc.del(del);
-		return gc;
-	}
-
-	@Override
-	public GContinue visitChildren(AstVisitor nv) throws ScribbleException
-	{
-		RecVarNode recvar = (RecVarNode) visitChild(this.recvar, nv);
-		//AssrtArithExpr annot = (this.annot == null) ? null : (AssrtArithExpr) visitChild(this.annot, nv);  // FIXME: visit child with cast
-
-		List<AssrtArithExpr> annotexprs = visitChildListWithClassEqualityCheck(this, this.annotexprs, nv);
-
-		return reconstruct(recvar, //annot);
-				annotexprs);
-	}
-	
-	@Override
-	public List<AssrtArithExpr> getAnnotExprs()
-	{
-		return this.annotexprs;
-	}
-
-	@Override
-	public String toString()
-	{
-		return super.toString() + annotToString();
-	}
-}
+*/

@@ -16,7 +16,7 @@ import org.scribble.del.ScribDelBase;
 import org.scribble.del.global.GProtocolDeclDel;
 import org.scribble.del.global.GProtocolDefDel;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
+import org.scribble.ext.assrt.ast.global.AssrtGProtoHeader;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
@@ -60,7 +60,7 @@ public class AssrtGProtocolDefDel extends GProtocolDefDel implements AssrtScribD
 		RecVarNode recvar = (RecVarNode) af.SimpleNameNode(blame, RecVarKind.KIND, dinlr.getSubprotocolRecVar(subsig).toString());
 
 		//GRecursion rec = inl.job.af.GRecursion(blame, recvar, block);
-		AssrtGProtocolHeader hdr = (AssrtGProtocolHeader) ((GProtocolDecl) parent).getHeader();
+		AssrtGProtoHeader hdr = (AssrtGProtoHeader) ((GProtocolDecl) parent).getHeader();
 		AssrtGRecursion rec = ((AssrtAstFactory) dinlr.job.af).AssrtGRecursion(blame, recvar, block, //ass);
 				hdr.annotvars, hdr.annotexprs,
 				hdr.ass);
@@ -80,7 +80,7 @@ public class AssrtGProtocolDefDel extends GProtocolDefDel implements AssrtScribD
 	{
 		AssrtScribDel.super.enterAnnotCheck(parent, child, checker);  // Unnecessary
 		
-		AssrtGProtocolHeader hdr = (AssrtGProtocolHeader) ((GProtocolDecl) parent).getHeader();
+		AssrtGProtoHeader hdr = (AssrtGProtoHeader) ((GProtocolDecl) parent).getHeader();
 		//if (hdr.ass == null)
 		if (hdr.annotvars.isEmpty())
 		{
@@ -92,7 +92,7 @@ public class AssrtGProtocolDefDel extends GProtocolDefDel implements AssrtScribD
 
 		//AssrtBinCompFormula vid
 		Map<AssrtDataTypeVar, AssrtArithFormula> vid
-				= ((AssrtGProtocolHeader) hdr).getAnnotDataTypeVarDecls();  // Int var initialised-decl expr
+				= ((AssrtGProtoHeader) hdr).getAnnotDataTypeVarDecls();  // Int var initialised-decl expr
 		/*RoleCollector coll = new RoleCollector(checker.job, checker.getModuleContext());  // Would need to do for general recs
 		((GProtocolDecl) parent).getDef().accept(coll);
 		Set<Role> names = coll.getNames();*/
@@ -140,7 +140,7 @@ public class AssrtGProtocolDefDel extends GProtocolDefDel implements AssrtScribD
 	@Override
 	public ScribNode leaveAnnotCheck(ScribNode parent, ScribNode child,  AssrtAnnotationChecker checker, ScribNode visited) throws ScribbleException
 	{
-		AssrtGProtocolHeader hdr = (AssrtGProtocolHeader) ((GProtocolDecl) parent).getHeader();
+		AssrtGProtoHeader hdr = (AssrtGProtoHeader) ((GProtocolDecl) parent).getHeader();
 		//return (hdr.ass == null)  // FIXME -- cf. enterAnnotCheck
 		return (hdr.annotvars.isEmpty())
 				? AssrtScribDel.super.leaveAnnotCheck(parent, child, checker, visited)

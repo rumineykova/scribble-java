@@ -77,13 +77,13 @@ public abstract class ProtoHeader<K extends ProtoKind>
 	}
 	
 	@Override
-	public ProtoHeader<K> visitChildren(AstVisitor nv) throws ScribException
+	public ProtoHeader<K> visitChildren(AstVisitor v) throws ScribException
 	{
 		/*ProtocolNameNode<K> nameNodeChild = (ProtocolNameNode<K>) visitChild(
-				getNameNodeChild(), nv);*/  // Don't really need to visit, and can avoid generic cast
-		RoleDeclList rdl = (RoleDeclList) visitChild(getRoleDeclListChild(), nv);
+				getNameNodeChild(), v);*/  // Don't really need to visit, and can avoid generic cast
+		RoleDeclList rdl = (RoleDeclList) visitChild(getRoleDeclListChild(), v);
 		NonRoleParamDeclList pdl = (NonRoleParamDeclList) 
-				visitChild(getParamDeclListChild(), nv);
+				visitChild(getParamDeclListChild(), v);
 		return reconstruct(getNameNodeChild(), pdl, rdl);
 	}
 
