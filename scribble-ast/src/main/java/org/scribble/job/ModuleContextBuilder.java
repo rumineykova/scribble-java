@@ -32,17 +32,17 @@ import org.scribble.util.ScribException;
 // TODO: rename and refactor -- also factor out newModuleContextBuilder in Lang
 public class ModuleContextBuilder
 {
-	private Module root;  // full name  // The root Module for this ModuleContext (cf. the "main" root module from CLI)
+	protected Module root;  // full name  // The root Module for this ModuleContext (cf. the "main" root module from CLI)
 
   // All transitive name dependencies of this module: all names fully qualified
 	// The ScribNames maps are basically just used as sets (identity map)
 	// Cf. ProtocolDeclContext protocol dependencies from protocoldecl as root
-	private ScribNames deps;// = new ScribNames();
+	protected ScribNames deps;// = new ScribNames();
 
 	// The modules and member names that are visible from this Module -- mapped to "cannonical" (fully qualified) names
 	// visible names -> fully qualified names
   // Directly visible names from this module
-	private ScribNames visible;// = new ScribNames();
+	protected ScribNames visible;// = new ScribNames();
 
 	// Made by ModuleContextBuilder
 	// ModuleContext is the root context
@@ -81,8 +81,7 @@ public class ModuleContextBuilder
 
 	// Register mod under name modname, modname could be the full module name or an import alias
 	// Adds member names qualified by mod
-	private static void addModule(ScribNames names, Module mod,
-			ModuleName modname)
+	protected void addModule(ScribNames names, Module mod, ModuleName modname)
 	{
 		names.modules.put(modname, mod.getFullModuleName());
 		for (NonProtoDecl<?> npd : mod.getNonProtoDeclChildren())
@@ -109,7 +108,7 @@ public class ModuleContextBuilder
 	}
 	
 	// Could move to ImportModule but would need a defensive copy setter, or cache info in builder and create on leave
-	private void addImportDependencies(Map<ModuleName, Module> parsed, Module mod)
+	protected void addImportDependencies(Map<ModuleName, Module> parsed, Module mod)
 	{
 		for (ImportDecl<?> id : mod.getImportDeclChildren())
 		{
@@ -140,7 +139,7 @@ public class ModuleContextBuilder
 
 	// Adds "local" imports by alias or full name
 	// Adds "local" members by simple names
-	private void addVisible(Map<ModuleName, Module> parsed, Module root)
+	protected void addVisible(Map<ModuleName, Module> parsed, Module root)
 			throws ScribException
 	{
 		// Unlike for deps, visible is not done transitively

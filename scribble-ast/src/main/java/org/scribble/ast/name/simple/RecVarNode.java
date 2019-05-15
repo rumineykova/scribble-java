@@ -21,7 +21,7 @@ import org.scribble.del.DelFactory;
 public class RecVarNode extends SimpleNameNode<RecVarKind>
 {
 	// Scribble.g, IDENTIFIER<...Node>[$IDENTIFIER]
-	// N.B. ttype (an "imaginary node" type) is discarded, t is a ScribbleParser.ID token type
+	// Constructor sig for ANTLR "node token" option, generally ttype == t.getType(), where t is a ScribbleParser.ID token type
 	public RecVarNode(int ttype, Token t)
 	{
 		super(t);

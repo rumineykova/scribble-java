@@ -155,7 +155,8 @@ public class ScribTreeAdaptor extends CommonTreeAdaptor
 			case ScribbleParser.GRECURSION: n = new GRecursion(t); break;
 
 			// Special cases
-			case ScribbleParser.EMPTY_OP: n = new OpNode(t); break;  // From Scribble.g, token (t) text is OpNode.EMPTY_OP_TOKEN_TEXT*/
+			case ScribbleParser.EMPTY_OP: n = new OpNode(ScribbleParser.EMPTY_OP, t); break;  
+					// From Scribble.g, token (t) text is OpNode.EMPTY_OP_TOKEN_TEXT*/
 
 			default:
 			{

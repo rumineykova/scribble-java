@@ -23,7 +23,7 @@ public class SigParamNode extends NonRoleParamNode<SigKind>
 		implements MsgNode
 {
 	// Scribble.g, IDENTIFIER<...Node>[$IDENTIFIER]
-	// N.B. ttype (an "imaginary node" type) is discarded, t is a ScribbleParser.ID token type
+	// Constructor sig for ANTLR "node token" option, generally ttype == t.getType(), where t is a ScribbleParser.ID token type
 	public SigParamNode(int ttype, Token t)
 	{
 		super(t, SigKind.KIND);

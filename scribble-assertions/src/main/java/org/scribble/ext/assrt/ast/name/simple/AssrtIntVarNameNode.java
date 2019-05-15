@@ -18,7 +18,8 @@ public class AssrtIntVarNameNode extends SimpleNameNode<AssrtVarNameKind>
 		implements PayElemNameNode<AssrtVarNameKind>, AssrtFormulaNode
 {
 	// ScribTreeAdaptor#create constructor
-	public AssrtIntVarNameNode(Token t)
+	// Constructor sig for ANTLR "node token" option, generally ttype == t.getType(), where t is a ScribbleParser.ID token type
+	public AssrtIntVarNameNode(int ttype, Token t)
 	{
 		super(t);
 	}

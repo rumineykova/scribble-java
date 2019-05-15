@@ -30,7 +30,7 @@ public class AmbigNameNode extends SimpleNameNode<AmbigKind>
 		implements MsgNode, PayElemNameNode<DataKind>  // FIXME: currently hardcoded to DataTypeKind for payload elems ?
 {
 	// Scribble.g, IDENTIFIER<...Node>[$IDENTIFIER]
-	// N.B. ttype (an "imaginary node" type) is discarded, t is a ScribbleParser.ID token type
+	// Constructor sig for ANTLR "node token" option, generally ttype == t.getType(), where t is a ScribbleParser.ID token type
 	public AmbigNameNode(int ttype, Token t)
 	{
 		super(t);

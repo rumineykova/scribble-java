@@ -36,12 +36,12 @@ public class ModuleContext
   // All transitive name dependencies of this module: all names fully qualified
 	// The ScribNames maps are basically just used as sets (identity map)
 	// Cf. ProtocolDeclContext protocol dependencies from protocoldecl as root
-	private final ScribNames deps;
+	protected final ScribNames deps;
 
 	// The modules and member names that are visible from this Module -- mapped to "cannonical" (fully qualified) names
 	// visible names -> fully qualified names
   // Directly visible names from this module
-	private final ScribNames visible;
+	protected final ScribNames visible;
 
 	// Made by ModuleContextBuilder
 	// ModuleContext is the root context

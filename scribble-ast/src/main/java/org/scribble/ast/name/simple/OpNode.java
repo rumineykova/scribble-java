@@ -24,16 +24,12 @@ public class OpNode extends SimpleNameNode<OpKind>
 	// Determine by token text -- cannot use token type int in core, value is a ScribbleParser constant
 	public static final String EMPTY_OP_TOKEN_TEXT = "__EMPTY_OP";  // Cf. Scribble.g
 
-	public OpNode(Token t)
-	{
-		super(t);
-	}
-
 	// Scribble.g, IDENTIFIER<...Node>[$IDENTIFIER]
-	// ttype is just ScribblParser.IDENTIFIER, t is the IDENTIFIER token
+	// Constructor sig for ANTLR "node token" option, generally ttype == t.getType(), where t is a ScribbleParser.ID token type
+	// Here, ttype/t may also be special case ScribbleParser.EMPTY_OP
 	public OpNode(int ttype, Token t)
 	{
-		this(t);
+		super(t);
 	}
 
 	// Tree#dupNode constructor

@@ -33,15 +33,6 @@ public class ScribNames
 	public final Map<SigName, SigName> sigs = new HashMap<>();
 	public final Map<GProtoName, GProtoName> globals = new HashMap<>();
 	public final Map<LProtoName, LProtoName> locals = new HashMap<>();
-	
-	@Override
-	public String toString()
-	{
-		return "(modules="
-				+ this.modules + ", types=" + this.data + ", sigs=" + this.sigs
-				+ ", globals=" + this.globals + ", locals=" + this.locals
-				+ ")";
-	}
 
 	public boolean isVisibleProtocolDeclName(ProtoName<?> visname)
 	{
@@ -52,5 +43,14 @@ public class ScribNames
 	public boolean isVisibleDataType(DataName visname)
 	{
 		return this.data.containsKey(visname);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "(modules="
+				+ this.modules + ", types=" + this.data + ", sigs=" + this.sigs
+				+ ", globals=" + this.globals + ", locals=" + this.locals
+				+ ")";
 	}
 }

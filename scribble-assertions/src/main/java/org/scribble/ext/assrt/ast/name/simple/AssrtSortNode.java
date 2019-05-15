@@ -9,6 +9,7 @@ import org.scribble.ext.assrt.core.type.name.AssrtSort;
 @Deprecated  // Currently unused
 public class AssrtSortNode extends SimpleNameNode<AssrtSortKind>
 {
+	// Constructor sig for ANTLR "node token" option, generally ttype == t.getType(), where t is a ScribbleParser.ID token type
 	public AssrtSortNode(int ttype, Token t)
 	{
 		super(t);
