@@ -19,11 +19,11 @@ import java.util.stream.Collectors;
 
 import org.scribble.ast.Do;
 import org.scribble.ast.ScribNode;
+import org.scribble.ast.name.qualified.GProtoNameNode;
 import org.scribble.ast.name.qualified.ProtoNameNode;
 import org.scribble.ast.name.simple.IdNode;
 import org.scribble.core.job.ModuleContext;
 import org.scribble.core.type.kind.ProtoKind;
-import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.ProtoName;
 import org.scribble.util.ScribException;
 import org.scribble.visit.NameDisambiguator;
@@ -41,9 +41,9 @@ public abstract class DoDel extends SimpleSessionNodeDel
 	{
 		ModuleContext mc = disamb.getModuleContext();
 		Do<?> doo = (Do<?>) child;
-		ProtoNameNode<?> proto = doo.getProtocolNameNode();
+		ProtoNameNode<?> proto = doo.getProtocolNameChild();
 		ProtoName<?> simpname = proto.toName();
-		if (!mc.isVisibleProtocolDeclName(simpname))  // CHECKME: do on entry here, before visiting DoArgListDel
+		if (!mc.isProtoNameVisible(simpname))  // CHECKME: do on entry here, before visiting DoArgListDel
 		{
 			throw new ScribException(proto.getSource(),
 					"Protocol decl not visible: " + simpname);
@@ -63,32 +63,30 @@ public abstract class DoDel extends SimpleSessionNodeDel
 	private <K extends ProtoKind> ScribNode leaveDisambiguationAux(
 			Do<K> visited, NameDisambiguator disamb) throws ScribException
 	{
-		ProtoNameNode<K> proto = visited.getProtocolNameNode();
+		ProtoNameNode<K> proto = visited.getProtocolNameChild();
 
 		// CHECKME: do full name expansion in disamb?  or leave to imed translation? -- FIXME: sort out full name expansion between here and GDoDel.translate
-		ProtoNameNode<K> n = makeProtoNameNode(disamb, proto);
+		ProtoNameNode<K> n = disambProtoNameNode(disamb, proto);
 		
 		// Didn't keep original namenode del -- ?
 		return visited.reconstruct(n,
 				visited.getNonRoleListChild(), visited.getRoleListChild());
 	}
 	
-	private <K extends ProtoKind> ProtoNameNode<K> makeProtoNameNode(
+	protected <K extends ProtoKind> ProtoNameNode<K> disambProtoNameNode(
 			NameDisambiguator disamb, ProtoNameNode<K> proto)
 	{
 		ModuleContext modc = disamb.getModuleContext();
 		ProtoName<K> fullname = modc
-				.getVisibleProtocolDeclFullName(proto.toName());
-		if (fullname instanceof GProtoName)
-		{
-			List<IdNode> elems = Arrays.asList(fullname.getElements()).stream()
-					.map(x -> disamb.job.config.af.IdNode(null, x))
-					.collect(Collectors.toList());
-			@SuppressWarnings("unchecked") // FIXME
-			ProtoNameNode<K> cast = (ProtoNameNode<K>) disamb.job.config.af
-					.GProtoNameNode(proto.token, elems);
-			return cast;
-		}
-		throw new RuntimeException("[TODO] " + fullname.getKind() + ": " + fullname);
+				.getVisProtoFullName(proto.toName());
+		List<IdNode> elems = Arrays.asList(fullname.getElements()).stream()
+				.map(x -> disamb.job.config.af.IdNode(null, x))
+				.collect(Collectors.toList());
+		@SuppressWarnings("unchecked")
+		ProtoNameNode<K> cast = (ProtoNameNode<K>) ((proto instanceof GProtoNameNode)
+				? disamb.job.config.af.GProtoNameNode(proto.token, elems)
+				: disamb.job.config.af.LProtoNameNode(proto.token, elems));
+				// N.B. not keeping original namenode *del*
+		return cast;
 	}
 }

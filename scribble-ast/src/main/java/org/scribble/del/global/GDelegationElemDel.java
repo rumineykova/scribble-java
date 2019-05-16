@@ -50,7 +50,7 @@ public class GDelegationElemDel extends ScribDelBase
 		System.out.println("aaa: " + proto);
 		
 		GProtoName gpn = proto.toName();
-		if (!mc.isVisibleProtocolDeclName(gpn))
+		if (!mc.isProtoNameVisible(gpn))
 		{
 			throw new ScribException(proto.getSource(),
 					"Protocol decl not visible: " + gpn);
@@ -65,7 +65,7 @@ public class GDelegationElemDel extends ScribDelBase
 		ModuleContext mc = disamb.getModuleContext();
 		GProtoNameNode proto = deleg.getProtocolChild();
 		GProtoName fullname = (GProtoName) mc
-				.getVisibleProtocolDeclFullName(proto.toName());
+				.getVisProtoFullName(proto.toName());
 		RoleNode r = deleg.getRoleChild();
 
 		Role rn = r.toName();

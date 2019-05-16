@@ -24,7 +24,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtLogFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.core.type.name.AssrtPayloadElemType;
+import org.scribble.ext.assrt.core.type.name.AssrtPayElemType;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtERecv;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
@@ -127,9 +127,9 @@ public class AssrtSConfig extends SConfig
 			{
 				for (PayElemType<? extends PayElemKind> elem : a.payload.elems)
 				{
-					if (elem instanceof AssrtPayloadElemType<?>) // FIXME?
+					if (elem instanceof AssrtPayElemType<?>) // FIXME?
 					{
-						AssrtPayloadElemType<?> apt = (AssrtPayloadElemType<?>) elem;
+						AssrtPayElemType<?> apt = (AssrtPayElemType<?>) elem;
 						if (apt.isAnnotVarDecl() || apt.isAnnotVarName())
 						{
 							String varName;
@@ -198,7 +198,7 @@ public class AssrtSConfig extends SConfig
 					AssrtBoolFormula assertion = send.ass;
 					
 					Set<String> newVarNames = send.payload.elems.stream()
-							.filter(v -> (v instanceof AssrtPayloadElemType<?>) && ((AssrtPayloadElemType<?>) v).isAnnotVarDecl())  // FIXME?
+							.filter(v -> (v instanceof AssrtPayElemType<?>) && ((AssrtPayElemType<?>) v).isAnnotVarDecl())  // FIXME?
 							.map(v -> ((AssrtAnnotDataType) v).var.toString())
 							.collect(Collectors.toSet()); 
 					

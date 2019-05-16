@@ -54,14 +54,14 @@ import org.scribble.ext.assrt.ast.name.simple.AssrtSortNode;
 import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
-import org.scribble.ext.assrt.core.type.kind.AssrtVarNameKind;
+import org.scribble.ext.assrt.core.type.kind.AssrtIntVarNameKind;
 import org.scribble.ext.assrt.del.AssrtAnnotDataTypeElemDel;
 import org.scribble.ext.assrt.del.AssrtModuleDel;
 import org.scribble.ext.assrt.del.global.AssrtGChoiceDel;
 import org.scribble.ext.assrt.del.global.AssrtGConnectDel;
 import org.scribble.ext.assrt.del.global.AssrtGContinueDel;
 import org.scribble.ext.assrt.del.global.AssrtGDoDel;
-import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
+import org.scribble.ext.assrt.del.global.AssrtGMsgTransferDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtoBlockDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtoDeclDel;
 import org.scribble.ext.assrt.del.global.AssrtGProtoDefDel;
@@ -218,7 +218,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	public AssrtGMsgTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
 	{
 		AssrtGMsgTransfer gmt = new AssrtGMsgTransfer(source, src, msg, dests);
-		gmt = del(gmt, new AssrtGMessageTransferDel());
+		gmt = del(gmt, new AssrtGMsgTransferDel());
 		return gmt;
 	}
 
@@ -275,7 +275,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	public AssrtGMsgTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
 	{
 		AssrtGMsgTransfer gmt = new AssrtGMsgTransfer(source, src, msg, dests, assertion);
-		gmt = del(gmt, new AssrtGMessageTransferDel());
+		gmt = del(gmt, new AssrtGMsgTransferDel());
 		return gmt;
 	}
 
@@ -391,7 +391,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	@Override
 	public <K extends Kind> NameNode<K> SimpleNameNode(CommonTree source, K kind, String identifier)
 	{
-		if (kind.equals(AssrtVarNameKind.KIND))
+		if (kind.equals(AssrtIntVarNameKind.KIND))
 		{
 			NameNode<? extends Kind> snn = new AssrtIntVarNameNode(source, identifier);
 			snn = del(snn, createDefaultDelegate()); 

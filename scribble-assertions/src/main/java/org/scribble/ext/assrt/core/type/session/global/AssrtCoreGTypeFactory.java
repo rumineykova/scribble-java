@@ -13,9 +13,9 @@ import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
 
 
-public class AssrtCoreGAstFactory
+public class AssrtCoreGTypeFactory
 {
-	public AssrtCoreGAstFactory()
+	public AssrtCoreGTypeFactory()
 	{
 		
 	}

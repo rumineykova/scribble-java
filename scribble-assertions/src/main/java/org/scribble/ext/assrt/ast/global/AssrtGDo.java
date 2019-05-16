@@ -96,7 +96,7 @@ public class AssrtGDo extends GDo implements AssrtStateVarArgAnnotNode
 	public AssrtGDo visitChildren(AstVisitor v) throws ScribException
 	{
 		GProtoNameNode proto = visitChildWithClassEqualityCheck(this,
-				getProtocolNameNode(), v);
+				getProtocolNameChild(), v);
 		RoleArgList rs = (RoleArgList) visitChild(getRoleListChild(), v);
 		NonRoleArgList as = (NonRoleArgList) visitChild(getNonRoleListChild(), v);
 		List<AssrtArithExpr> exprs = visitChildListWithClassEqualityCheck(this,

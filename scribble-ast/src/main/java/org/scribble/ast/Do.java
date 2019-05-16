@@ -45,7 +45,7 @@ public abstract class Do<K extends ProtoKind>
 		super(node);
 	}
 	
-	public abstract ProtoNameNode<K> getProtocolNameNode();
+	public abstract ProtoNameNode<K> getProtocolNameChild();
 
 	public NonRoleArgList getNonRoleListChild()
 	{
@@ -85,7 +85,7 @@ public abstract class Do<K extends ProtoKind>
 		RoleArgList rs = (RoleArgList) visitChild(getRoleListChild(), v);
 		NonRoleArgList as = (NonRoleArgList) visitChild(getNonRoleListChild(), v);
 		ProtoNameNode<K> proto = visitChildWithClassEqualityCheck(this,
-				getProtocolNameNode(), v);
+				getProtocolNameChild(), v);
 		return reconstruct(proto, as, rs);
 	}
 
@@ -95,7 +95,7 @@ public abstract class Do<K extends ProtoKind>
 	public ProtoName<K> getTargetProtoDeclFullName(ModuleContext mcontext)
 	{
 		//return mcontext.checkProtocolDeclDependencyFullName(this.proto.toName());
-		return getProtocolNameNode().toName();  // Pre: use after name disambiguation (maybe drop FullName suffix)
+		return getProtocolNameChild().toName();  // Pre: use after name disambiguation (maybe drop FullName suffix)
 	}
 	
 	// CHECKME: mcontext redundant, because redundant for getTargetProtocolDeclFullName
@@ -124,7 +124,7 @@ public abstract class Do<K extends ProtoKind>
 	public String toString()
 	{
 		String s = Constants.DO_KW + " ";
-		return s + getProtocolNameNode() + getNonRoleListChild() + getRoleListChild()
+		return s + getProtocolNameChild() + getNonRoleListChild() + getRoleListChild()
 				+ ";";
 	}
 }

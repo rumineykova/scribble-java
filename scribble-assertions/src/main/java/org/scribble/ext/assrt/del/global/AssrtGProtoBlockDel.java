@@ -1,9 +1,10 @@
 package org.scribble.ext.assrt.del.global;
 
-import org.scribble.del.global.GProtocolBlockDel;
+import org.scribble.del.global.GProtoBlockDel;
 import org.scribble.ext.assrt.del.AssrtICompoundInteractionDel;
 
-public class AssrtGProtocolBlockDel extends GProtocolBlockDel implements AssrtICompoundInteractionDel
+public class AssrtGProtoBlockDel extends GProtoBlockDel
+		implements AssrtICompoundInteractionDel
 {
 	
 	/*// Cf. GProtocolBlockDel.project?

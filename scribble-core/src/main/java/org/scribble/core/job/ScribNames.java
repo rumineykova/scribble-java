@@ -27,22 +27,17 @@ import org.scribble.core.type.name.ProtoName;
 // TODO: rename better
 public class ScribNames
 {
-	// names -> fully qualified names
+	// (visible) names -> fully qualified names
 	public final Map<ModuleName, ModuleName> modules = new HashMap<>();
 	public final Map<DataName, DataName> data = new HashMap<>();
 	public final Map<SigName, SigName> sigs = new HashMap<>();
 	public final Map<GProtoName, GProtoName> globals = new HashMap<>();
 	public final Map<LProtoName, LProtoName> locals = new HashMap<>();
 
-	public boolean isVisibleProtocolDeclName(ProtoName<?> visname)
+	public boolean isVisibleProtoName(ProtoName<?> visname)
 	{
 		return this.globals.containsKey(visname)
 				|| this.locals.containsKey(visname);
-	}
-
-	public boolean isVisibleDataType(DataName visname)
-	{
-		return this.data.containsKey(visname);
 	}
 	
 	@Override
@@ -54,3 +49,14 @@ public class ScribNames
 				+ ")";
 	}
 }
+
+
+
+
+
+/*
+	public boolean isVisibleDataName(DataName visname)
+	{
+		return this.data.containsKey(visname);
+	}
+*/

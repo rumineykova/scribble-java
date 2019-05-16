@@ -9,13 +9,13 @@ import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtFormulaNode;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
-import org.scribble.ext.assrt.core.type.kind.AssrtVarNameKind;
+import org.scribble.ext.assrt.core.type.kind.AssrtIntVarNameKind;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 
 // N.B. used both directly as a PayloadElemNameNode, and for the annotation in AssrtAnnotDataTypeElem -- also used for statevars
-public class AssrtIntVarNameNode extends SimpleNameNode<AssrtVarNameKind>
-		implements PayElemNameNode<AssrtVarNameKind>, AssrtFormulaNode
+public class AssrtIntVarNameNode extends SimpleNameNode<AssrtIntVarNameKind>
+		implements PayElemNameNode<AssrtIntVarNameKind>, AssrtFormulaNode
 {
 	// ScribTreeAdaptor#create constructor
 	// Constructor sig for ANTLR "node token" option, generally ttype == t.getType(), where t is a ScribbleParser.ID token type

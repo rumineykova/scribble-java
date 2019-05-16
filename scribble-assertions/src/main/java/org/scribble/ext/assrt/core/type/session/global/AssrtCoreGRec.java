@@ -12,7 +12,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreAstFactory;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRec;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
@@ -41,7 +41,7 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public AssrtCoreLType project(AssrtCoreAstFactory af, Role r,
+	public AssrtCoreLType project(AssrtCoreSTypeFactory af, Role r,
 			AssrtBoolFormula f) throws AssrtCoreSyntaxException
 	{
 		AssrtCoreLType proj = this.body.project(af, r, f);

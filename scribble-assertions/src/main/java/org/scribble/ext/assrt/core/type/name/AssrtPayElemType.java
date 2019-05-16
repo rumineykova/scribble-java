@@ -4,7 +4,7 @@ import org.scribble.core.type.kind.PayElemKind;
 import org.scribble.core.type.name.PayElemType;
 
 
-public interface AssrtPayloadElemType<K extends PayElemKind>
+public interface AssrtPayElemType<K extends PayElemKind>
 		extends PayElemType<K>
 {
 

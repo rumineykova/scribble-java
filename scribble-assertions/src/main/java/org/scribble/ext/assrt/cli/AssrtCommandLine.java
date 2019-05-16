@@ -26,7 +26,7 @@ import org.scribble.ext.assrt.core.model.global.AssrtCoreSafetyErrors;
 import org.scribble.ext.assrt.core.model.stp.AssrtStpEState;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreAstFactory;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGType;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
@@ -194,7 +194,7 @@ public class AssrtCommandLine extends CommandLine
 		}
 		this.gpd = (GProtoDecl) main.getProtocolDecl(simpname);
 
-		AssrtCoreAstFactory af = new AssrtCoreAstFactory();
+		AssrtCoreSTypeFactory af = new AssrtCoreSTypeFactory();
 		AssrtCoreGType gt = new AssrtCoreGProtocolDeclTranslator(job, af).translate(this.gpd);
 		
 		/*..HERE FIXME: need to add global assrt rec/continue and fix global inlining -- below steps use only the inlined *global*

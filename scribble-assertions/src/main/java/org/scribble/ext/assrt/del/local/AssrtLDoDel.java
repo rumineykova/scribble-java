@@ -46,7 +46,7 @@ public class AssrtLDoDel extends LDoDel
 	{
 		AssrtLDo doo = (AssrtLDo) visited;
 		ModuleContext mc = disamb.getModuleContext();
-		LProtocolName fullname = (LProtocolName) mc.getVisibleProtocolDeclFullName(doo.getProtocolNameNode().toName());
+		LProtocolName fullname = (LProtocolName) mc.getVisProtoFullName(doo.getProtocolNameChild().toName());
 		LProtocolNameNode pnn = (LProtocolNameNode)
 				disamb.job.af.QualifiedNameNode(doo.proto.getSource(), fullname.getKind(), fullname.getElements()); 
 						// Didn't keep original namenode del
@@ -122,7 +122,7 @@ public class AssrtLDoDel extends LDoDel
 		RoleArgList roles = ld.roles.reconstruct(ras);
 
 		//return super.leaveProjectedRoleDeclFixing(parent, child, fixer, ld.reconstruct(roles, ld.args, ld.getProtocolNameNode()));
-		return ld.reconstruct(roles, ld.args, ld.getProtocolNameNode(), //ld.annot);
+		return ld.reconstruct(roles, ld.args, ld.getProtocolNameChild(), //ld.annot);
 				ld.annotexprs);	
 	}
 }

@@ -48,7 +48,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreActionKind;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreAstFactory;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
 import org.scribble.job.Job;
@@ -59,7 +59,7 @@ public class AssrtCoreGProtoDeclTranslator
 	public static final DataName UNIT_DATATYPE = new DataName("_Unit");  // TODO
 	
 	private final Job job;
-	private final AssrtCoreAstFactory af;
+	private final AssrtCoreSTypeFactory af;
 	
 	private static int varCounter = 1;
 	private static int recCounter = 1;
@@ -76,7 +76,7 @@ public class AssrtCoreGProtoDeclTranslator
 	
 	//private static DataType UNIT_TYPE;
 
-	public AssrtCoreGProtoDeclTranslator(Job job, AssrtCoreAstFactory af)
+	public AssrtCoreGProtoDeclTranslator(Job job, AssrtCoreSTypeFactory af)
 	{
 		this.job = job;
 		this.af = af;

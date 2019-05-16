@@ -1,15 +1,15 @@
 package org.scribble.ext.assrt.core.type.name;
 
 import org.scribble.core.type.name.AbstractName;
-import org.scribble.ext.assrt.core.type.kind.AssrtVarNameKind;
+import org.scribble.ext.assrt.core.type.kind.AssrtIntVarNameKind;
 
-public class AssrtDataTypeVar extends AbstractName<AssrtVarNameKind> implements AssrtPayloadElemType<AssrtVarNameKind>
+public class AssrtDataTypeVar extends AbstractName<AssrtIntVarNameKind> implements AssrtPayElemType<AssrtIntVarNameKind>
 {
 	private static final long serialVersionUID = 1L;
 
 	public AssrtDataTypeVar(String simplename)
 	{
-		super(AssrtVarNameKind.KIND, simplename);
+		super(AssrtIntVarNameKind.KIND, simplename);
 	}
 
 	@Override

@@ -44,12 +44,12 @@ public class DataNameNodeDel extends ScribDelBase
 		ModuleContext mc = disamb.getModuleContext();
 		DataNameNode dtn = (DataNameNode) visited;
 		DataName dt = dtn.toName();
-		if (!mc.isVisibleDataType(dt))
+		if (!mc.isDataNameVisible(dt))
 		{
 			throw new ScribException(dtn.getSource(),
 					"Data type not visible: " + dt);
 		}
-		DataName fullname = mc.getVisibleDataTypeFullName(dt);
+		DataName fullname = mc.getVisDataFullName(dt);
 		/*return (DataTypeNode) disamb.job.config.af.QualifiedNameNode(
 				dtn.getSource(), DataTypeKind.KIND, fullname.getElements());*/
 		DataNameNode res = new DataNameNode(dtn.token);

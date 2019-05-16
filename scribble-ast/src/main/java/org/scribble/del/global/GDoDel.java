@@ -35,15 +35,15 @@ public class GDoDel extends DoDel implements GSimpleSessionNodeDel
 		GDo source = (GDo) n;
 
 		// Resolve full name -- CHECKME: factor out? cf., NameDisambiguator, DoDel::enter/leaveDisambiguation
-		GProtoName proto = source.getProtocolNameNode().toName();
+		GProtoName proto = source.getProtocolNameChild().toName();
 		ModuleContext modc = t.getModuleContext();
-		if (!modc.isVisibleProtocolDeclName(proto))  // CHECKME: should be already checked by NameDisamb?
+		if (!modc.isProtoNameVisible(proto))  // CHECKME: should be already checked by NameDisamb?
 		{
 			throw new RuntimeScribException(source,
 					"Protocol decl not visible: " + proto);
 		}
 		GProtoName fullname = (GProtoName) modc  // FIXME: sort out full name expansion between here and DoDel.leaveDisambiguation
-				.getVisibleProtocolDeclFullName(proto);
+				.getVisProtoFullName(proto);
 		List<Role> roles = source.getRoleListChild().getRoles();
 		List<Arg<? extends NonRoleParamKind>> params = source.getNonRoleListChild()
 				.getParamKindArgs();		

@@ -13,7 +13,7 @@ import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
 
 // A "name pair", perhaps similar to GDelegationElem -- factor out?
-// This is an "Elem" -- "Elems" are the elements of PayloadElemList, while PayloadElemNameNode (like DataTypeNode) are the values (an attribute) of the elems
+// This is an "Elem" -- "Elems" are the elements of PayElemList, while PayElemNameNode (like DataNameNode) are the values (an attribute) of the elems
 // FIXME: currently only allowed to be "int" (cf. AssrtIntVarNameNode) -- check this explicitly
 public class AssrtAnnotDataElem extends ScribNodeBase
 		implements PayElem<DataKind>, AssrtActionVarDeclAnnotNode

@@ -32,7 +32,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.core.type.name.AssrtPayloadElemType;
+import org.scribble.ext.assrt.core.type.name.AssrtPayElemType;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 
 public class AssrtStpEState extends AssrtEState
@@ -86,9 +86,9 @@ public class AssrtStpEState extends AssrtEState
 				List<PayElemType<? extends PayElemKind>> elems = a.payload.elems;
 				for (PayElemType<?> pet : elems)
 				{
-					if (pet instanceof AssrtPayloadElemType<?>)
+					if (pet instanceof AssrtPayElemType<?>)
 					{
-						AssrtPayloadElemType<?> apet = (AssrtPayloadElemType<?>) pet;
+						AssrtPayElemType<?> apet = (AssrtPayElemType<?>) pet;
 						if (apet.isAnnotVarDecl())
 						{
 							AssrtAnnotDataType adt = (AssrtAnnotDataType) apet;
@@ -150,7 +150,7 @@ public class AssrtStpEState extends AssrtEState
 			for (PayElemType<?> pet : ea.payload.elems)
 			{
 				boolean constructive = false;
-				if (pet instanceof AssrtPayloadElemType<?>)
+				if (pet instanceof AssrtPayElemType<?>)
 				{
 					// AssrtPayloadElemType<?> apet = (AssrtPayloadElemType<?>) pet;
 

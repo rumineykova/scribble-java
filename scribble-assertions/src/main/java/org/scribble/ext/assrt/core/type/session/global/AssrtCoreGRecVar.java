@@ -10,7 +10,7 @@ import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreAstFactory;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRecVar;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLRecVar;
 
@@ -31,7 +31,7 @@ public class AssrtCoreGRecVar extends AssrtCoreRecVar<Global>
 	}
 
 	@Override
-	public AssrtCoreLRecVar project(AssrtCoreAstFactory af, Role r,
+	public AssrtCoreLRecVar project(AssrtCoreSTypeFactory af, Role r,
 			AssrtBoolFormula f)
 	{
 		return af.local.AssrtCoreLRecVar(null, this.recvar, this.annotexprs);

@@ -67,47 +67,42 @@ public class ModuleContext
 	public <K extends ProtoKind> ProtoName<K> checkProtocolDeclDependencyFullName(
 			ProtoName<K> proto)
 	{
-		return getProtocolDeclFullName(this.deps, proto);
+		return getProtoFullName(this.deps, proto);
 	}
 
-	public boolean isDataTypeVisible(DataName typename)
+	public boolean isDataNameVisible(DataName data)
 	{
-		return this.visible.data.keySet().contains(typename);
+		return this.visible.data.containsKey(data);
 	}
 
-	public boolean isMessageSigNameVisible(Name<? extends SigKind> signame)
+	public boolean isSigNameVisible(Name<? extends SigKind> sig)
 	{
-		return this.visible.sigs.containsKey(signame);
+		return this.visible.sigs.containsKey(sig);
 	}
 	
-	public DataName getVisibleDataTypeFullName(DataName visname)
+	public <K extends ProtoKind> boolean isProtoNameVisible(
+			ProtoName<K> proto)
 	{
-		return getFullName(this.visible.data, visname);
+		return this.visible.isVisibleProtoName(proto);
 	}
 	
-	public boolean isVisibleDataType(DataName visname)
+	public DataName getVisDataFullName(DataName data)
 	{
-		return this.visible.isVisibleDataType(visname);
+		return getFullName(this.visible.data, data);
 	}
 
-	public SigName getVisibleMessageSigNameFullName(SigName visname)
+	public SigName getVisSigNameFullName(SigName sig)
 	{
-		return getFullName(this.visible.sigs, visname);
+		return getFullName(this.visible.sigs, sig);
 	}
 	
-	public <K extends ProtoKind> ProtoName<K> getVisibleProtocolDeclFullName(
-			ProtoName<K> visname)
+	public <K extends ProtoKind> ProtoName<K> getVisProtoFullName(
+			ProtoName<K> proto)
 	{
-		return getProtocolDeclFullName(this.visible, visname);
-	}
-	
-	public <K extends ProtoKind> boolean isVisibleProtocolDeclName(
-			ProtoName<K> visname)
-	{
-		return this.visible.isVisibleProtocolDeclName(visname);
+		return getProtoFullName(this.visible, proto);
 	}
 
-	public static <K extends ProtoKind> ProtoName<K> getProtocolDeclFullName(
+	public static <K extends ProtoKind> ProtoName<K> getProtoFullName(
 			ScribNames names, ProtoName<K> proto)
 	{
 		ProtoName<? extends ProtoKind> pn = (proto.getKind()
@@ -120,14 +115,14 @@ public class ModuleContext
 	}
 
 	private static <T extends Name<K>, K extends Kind> T getFullName(
-			Map<T, T> map, T visname)
+			Map<T, T> map, T name)
 	{
-		if (!map.containsKey(visname))
+		if (!map.containsKey(name))
 		{
 			// FIXME: runtime exception bad -- make a guard method
-			throw new RuntimeException("Unknown name: " + visname);
+			throw new RuntimeException("Unknown name: " + name);
 		}
-		return map.get(visname);
+		return map.get(name);
 	}
 
 	@Override 

@@ -73,6 +73,7 @@ import org.scribble.core.type.kind.PayElemKind;
 // Currently, used only in relatively niche places (since ANTLR now constructs all parsed nodes "directly")
 public interface AstFactory
 {
+	// Names
 	IdNode IdNode(Token t, String text);
 	ExtIdNode ExtIdNode(Token t, String text);
 
@@ -89,6 +90,8 @@ public interface AstFactory
 	ModuleNameNode ModuleNameNode(Token t, List<IdNode> elems);
 	SigNameNode SigNameNode(Token t, List<IdNode> elems);
 	
+
+	// General and globals
 	Module Module(Token t, ModuleDecl mdecl,
 			List<? extends ImportDecl<?>> imports,
 			List<? extends NonProtoDecl<?>> nonprotos,
@@ -146,6 +149,8 @@ public interface AstFactory
 	GChoice GChoice(Token t, RoleNode subj, List<GProtoBlock> blocks);
 	GRecursion GRecursion(Token t, RecVarNode rv, GProtoBlock block);
 
+
+	// Locals
 	/*LProtoDecl LProtoDecl(Token t, ProtoModList mods,
 			LProtoHeader header, LProtoDef def);  // Not currently used -- local protos not yet parsed, only projected*/
 

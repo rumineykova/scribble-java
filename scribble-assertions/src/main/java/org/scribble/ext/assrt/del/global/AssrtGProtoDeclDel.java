@@ -13,39 +13,35 @@
  */
 package org.scribble.ext.assrt.del.global;
 
-import java.util.Map;
-import java.util.Set;
+import org.scribble.del.global.GProtoDeclDel;
 
-import org.scribble.ast.Module;
-import org.scribble.ast.NonRoleParamDeclList;
-import org.scribble.ast.RoleDeclList;
-import org.scribble.ast.ScribNode;
-import org.scribble.ast.global.GProtocolDecl;
-import org.scribble.ast.local.LProtocolDecl;
-import org.scribble.ast.local.LProtocolDef;
-import org.scribble.ast.name.qualified.LProtocolNameNode;
-import org.scribble.del.ModuleDel;
-import org.scribble.del.global.GProtocolDeclDel;
-import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.global.AssrtGProtoHeader;
-import org.scribble.ext.assrt.ast.local.AssrtLProtoHeader;
-import org.scribble.main.ScribbleException;
-import org.scribble.type.name.GProtocolName;
-import org.scribble.type.name.Role;
-import org.scribble.visit.context.Projector;
-import org.scribble.visit.context.env.ProjectionEnv;
-
-public class AssrtGProtocolDeclDel extends GProtocolDeclDel
+public class AssrtGProtoDeclDel extends GProtoDeclDel
 {
-	public AssrtGProtocolDeclDel()
+	public AssrtGProtoDeclDel()
 	{
 
 	}
+}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 	@Override
-	protected AssrtGProtocolDeclDel copy()
+	protected AssrtGProtoDeclDel copy()
 	{
-		return new AssrtGProtocolDeclDel();
+		return new AssrtGProtoDeclDel();
 	}
 
 	// Duplicated from super
@@ -72,10 +68,9 @@ public class AssrtGProtocolDeclDel extends GProtocolDeclDel
 		LProtocolDef def = (LProtocolDef) ((ProjectionEnv) gpd.def.del().env()).getProjection();
 		LProtocolDecl lpd = gpd.project(af, root, self, hdr, def);  // FIXME: is root (always) the correct module? (wrt. LProjectionDeclDel?)
 		
-		Map<GProtocolName, Set<Role>> deps = ((AssrtGProtocolDeclDel) gpd.del()).getGlobalProtocolDependencies(self);
+		Map<GProtocolName, Set<Role>> deps = ((AssrtGProtoDeclDel) gpd.del()).getGlobalProtocolDependencies(self);
 		Module projected = ((ModuleDel) root.del()).createModuleForProjection(proj, root, gpd, lpd, deps);
 		proj.addProjection(gpd.getFullMemberName(root), self, projected);
 		return gpd;
 	}
-}
-
+//*/

@@ -5,17 +5,17 @@ import java.util.List;
 import org.scribble.core.type.name.Op;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGAstFactory;
-import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLAstFactory;
+import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGTypeFactory;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLTypeFactory;
 
 
-public class AssrtCoreAstFactory
+public class AssrtCoreSTypeFactory
 {
-	public final AssrtCoreGAstFactory global;
-	public final AssrtCoreLAstFactory local;
+	public final AssrtCoreGTypeFactory global;
+	public final AssrtCoreLTypeFactory local;
 	
-	public AssrtCoreAstFactory(AssrtCoreGAstFactory global,
-			AssrtCoreLAstFactory local)
+	public AssrtCoreSTypeFactory(AssrtCoreGTypeFactory global,
+			AssrtCoreLTypeFactory local)
 	{
 		this.global = global;
 		this.local = local;

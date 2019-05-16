@@ -7,7 +7,7 @@ import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreAstFactory;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreEnd;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
 
@@ -29,7 +29,7 @@ public class AssrtCoreGEnd extends AssrtCoreEnd<Global>
 	}
 
 	@Override
-	public AssrtCoreLEnd project(AssrtCoreAstFactory af, Role r,
+	public AssrtCoreLEnd project(AssrtCoreSTypeFactory af, Role r,
 			AssrtBoolFormula f)
 	{
 		return af.local.AssrtCoreLEnd();

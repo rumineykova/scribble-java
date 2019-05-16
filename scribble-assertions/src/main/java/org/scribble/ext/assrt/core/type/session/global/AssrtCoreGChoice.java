@@ -18,7 +18,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreActionKind;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreAstFactory;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreChoice;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
@@ -54,7 +54,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public AssrtCoreLType project(AssrtCoreAstFactory af, Role r,
+	public AssrtCoreLType project(AssrtCoreSTypeFactory af, Role r,
 			AssrtBoolFormula f) throws AssrtCoreSyntaxException
 	{
 		Map<AssrtCoreMsg, AssrtCoreLType> projs = new HashMap<>();

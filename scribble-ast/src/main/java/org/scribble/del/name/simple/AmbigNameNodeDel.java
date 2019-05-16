@@ -46,7 +46,7 @@ public class AmbigNameNodeDel extends ScribDelBase
 		AmbigName name = a.toName();
 		// By well-formedness (checked later), payload type and parameter names are distinct
 		// CHECKME: are conflicts checked elsewhere? -- ?
-		if (modc.isDataTypeVisible(name.toDataName()))
+		if (modc.isDataNameVisible(name.toDataName()))
 		{
 			// CHECKME HACK: MsgTransfer assumes MessageNode (cast in visitChildren), so this needs to be caught here  
 			// CHECKME: any other similar cases?
@@ -60,7 +60,7 @@ public class AmbigNameNodeDel extends ScribDelBase
 					.collect(Collectors.toList());
 			return disamb.job.config.af.DataNameNode(a.token, elems);
 		}
-		else if (modc.isMessageSigNameVisible(name.toSigName()))
+		else if (modc.isSigNameVisible(name.toSigName()))
 		{
 			if (parent instanceof PayElem) // FIXME HACK
 			{
