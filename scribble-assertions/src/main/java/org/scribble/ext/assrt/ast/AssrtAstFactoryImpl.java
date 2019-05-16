@@ -10,29 +10,32 @@ import org.scribble.ast.MessageNode;
 import org.scribble.ast.ModuleDecl;
 import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.NonRoleParamDeclList;
-import org.scribble.ast.ProtocolDecl;
+import org.scribble.ast.ProtoDecl;
 import org.scribble.ast.RoleArgList;
 import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GInteractionSeq;
-import org.scribble.ast.global.GProtocolBlock;
-import org.scribble.ast.global.GProtocolDecl;
-import org.scribble.ast.global.GProtocolDef;
-import org.scribble.ast.global.GProtocolHeader;
+import org.scribble.ast.global.GProtoBlock;
+import org.scribble.ast.global.GProtoDecl;
+import org.scribble.ast.global.GProtoDef;
+import org.scribble.ast.global.GProtoHeader;
 import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.local.LInteractionSeq;
 import org.scribble.ast.local.LProjectionDecl;
-import org.scribble.ast.local.LProtocolBlock;
-import org.scribble.ast.local.LProtocolDef;
-import org.scribble.ast.local.LProtocolHeader;
+import org.scribble.ast.local.LProtoBlock;
+import org.scribble.ast.local.LProtoDef;
+import org.scribble.ast.local.LProtoHeader;
 import org.scribble.ast.local.LReceive;
 import org.scribble.ast.name.NameNode;
 import org.scribble.ast.name.qualified.DataTypeNode;
-import org.scribble.ast.name.qualified.GProtocolNameNode;
-import org.scribble.ast.name.qualified.LProtocolNameNode;
+import org.scribble.ast.name.qualified.GProtoNameNode;
+import org.scribble.ast.name.qualified.LProtoNameNode;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.core.type.kind.Kind;
+import org.scribble.core.type.name.GProtoName;
+import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
@@ -59,23 +62,20 @@ import org.scribble.ext.assrt.del.global.AssrtGConnectDel;
 import org.scribble.ext.assrt.del.global.AssrtGContinueDel;
 import org.scribble.ext.assrt.del.global.AssrtGDoDel;
 import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
-import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
-import org.scribble.ext.assrt.del.global.AssrtGProtocolDeclDel;
-import org.scribble.ext.assrt.del.global.AssrtGProtocolDefDel;
+import org.scribble.ext.assrt.del.global.AssrtGProtoBlockDel;
+import org.scribble.ext.assrt.del.global.AssrtGProtoDeclDel;
+import org.scribble.ext.assrt.del.global.AssrtGProtoDefDel;
 import org.scribble.ext.assrt.del.global.AssrtGRecursionDel;
 import org.scribble.ext.assrt.del.local.AssrtLContinueDel;
 import org.scribble.ext.assrt.del.local.AssrtLDoDel;
 import org.scribble.ext.assrt.del.local.AssrtLProjectionDeclDel;
-import org.scribble.ext.assrt.del.local.AssrtLProtocolBlockDel;
-import org.scribble.ext.assrt.del.local.AssrtLProtocolDefDel;
+import org.scribble.ext.assrt.del.local.AssrtLProtoBlockDel;
+import org.scribble.ext.assrt.del.local.AssrtLProtoDefDel;
 import org.scribble.ext.assrt.del.local.AssrtLReceiveDel;
 import org.scribble.ext.assrt.del.local.AssrtLRecursionDel;
 import org.scribble.ext.assrt.del.local.AssrtLRequestDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
-import org.scribble.type.kind.Kind;
-import org.scribble.type.name.GProtocolName;
-import org.scribble.type.name.Role;
 
 
 // FIXME: separate modified-del-only from new categories
@@ -87,31 +87,31 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	 */
 
 	@Override
-	public GProtocolDecl GProtocolDecl(CommonTree source, List<GProtocolDecl.Modifiers> mods, GProtocolHeader header, GProtocolDef def)
+	public GProtoDecl GProtoDecl(CommonTree source, List<GProtoDecl.Modifiers> mods, GProtoHeader header, GProtoDef def)
 	{
-		GProtocolDecl gpd = new GProtocolDecl(source, mods, header, def);
-		gpd = del(gpd, new AssrtGProtocolDeclDel());
+		GProtoDecl gpd = new GProtoDecl(source, mods, header, def);
+		gpd = del(gpd, new AssrtGProtoDeclDel());
 		return gpd;
 	}
 
 	@Override
-	public GProtocolDef GProtocolDef(CommonTree source, GProtocolBlock block)
+	public GProtoDef GProtoDef(CommonTree source, GProtoBlock block)
 	{
-		GProtocolDef gpd = new GProtocolDef(source, block);
-		gpd = del(gpd, new AssrtGProtocolDefDel());  // Uses header annot to do AssrtAnnotationChecker Def enter/exit
+		GProtoDef gpd = new GProtoDef(source, block);
+		gpd = del(gpd, new AssrtGProtoDefDel());  // Uses header annot to do AssrtAnnotationChecker Def enter/exit
 		return gpd;
 	}
 	
 	@Override
-	public GProtocolBlock GProtocolBlock(CommonTree source, GInteractionSeq seq)
+	public GProtoBlock GProtoBlock(CommonTree source, GInteractionSeq seq)
 	{
-		GProtocolBlock gpb = new GProtocolBlock(source, seq);
-		gpb = del(gpb, new AssrtGProtocolBlockDel());
+		GProtoBlock gpb = new GProtoBlock(source, seq);
+		gpb = del(gpb, new AssrtGProtoBlockDel());
 		return gpb;
 	}
 
 	@Override
-	public GChoice GChoice(CommonTree source, RoleNode subj, List<GProtocolBlock> blocks)
+	public GChoice GChoice(CommonTree source, RoleNode subj, List<GProtoBlock> blocks)
 	{
 		GChoice gc = new GChoice(source, subj, blocks);
 		gc = del(gc, new AssrtGChoiceDel());
@@ -119,7 +119,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	/*@Override
-	public GRecursion GRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block)
+	public GRecursion GRecursion(CommonTree source, RecVarNode recvar, GProtoBlock block)
 	{
 		GRecursion gr = new GRecursion(source, recvar, block);
 		gr = del(gr, new AssrtGRecursionDel());
@@ -135,7 +135,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public LProjectionDecl LProjectionDecl(CommonTree source, List<ProtocolDecl.Modifiers> mods, GProtocolName fullname, Role self, LProtocolHeader header, LProtocolDef def)
+	public LProjectionDecl LProjectionDecl(CommonTree source, List<ProtoDecl.Modifiers> mods, GProtoName fullname, Role self, LProtoHeader header, LProtoDef def)
 	{
 		LProjectionDecl lpd = new LProjectionDecl(source, mods, header, def);
 		lpd = del(lpd, new AssrtLProjectionDeclDel(fullname, self));
@@ -143,10 +143,10 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public LProtocolDef LProtocolDef(CommonTree source, LProtocolBlock block)
+	public LProtoDef LProtoDef(CommonTree source, LProtoBlock block)
 	{
-		LProtocolDef lpd = new LProtocolDef(source, block);
-		lpd = del(lpd, new AssrtLProtocolDefDel());
+		LProtoDef lpd = new LProtoDef(source, block);
+		lpd = del(lpd, new AssrtLProtoDefDel());
 		return lpd;
 	}
 
@@ -160,10 +160,10 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public LProtocolBlock LProtocolBlock(CommonTree source, LInteractionSeq seq)
+	public LProtoBlock LProtoBlock(CommonTree source, LInteractionSeq seq)
 	{
-		LProtocolBlock lpb = new LProtocolBlock(source, seq);
-		lpb = del(lpb, new AssrtLProtocolBlockDel());
+		LProtoBlock lpb = new LProtoBlock(source, seq);
+		lpb = del(lpb, new AssrtLProtoBlockDel());
 		return lpb;
 	}
 
@@ -193,7 +193,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	
 	@Override
 	public AssrtModule Module(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<DataOrSigDeclNode<?>> data,
-			List<ProtocolDecl<?>> protos)
+			List<ProtoDecl<?>> protos)
 	{
 		AssrtModule mod = new AssrtModule(source, moddecl, imports, data, protos);
 		mod = del(mod, new AssrtModuleDel());
@@ -201,18 +201,18 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	// Still used by parsing for empty annotation/assertion nodes -- but we return an Assrt node
-	// Easier to make all global as Assrt nodes, to avoid cast checks in, e.g., AssrtGProtocolDeclDel::leaveProjection (for GProtocolHeader), and so all projections will be Assrt kinds only
+	// Easier to make all global as Assrt nodes, to avoid cast checks in, e.g., AssrtGProtoDeclDel::leaveProjection (for GProtoHeader), and so all projections will be Assrt kinds only
 
 	@Override
-	public AssrtGProtoHeader GProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
+	public AssrtGProtoHeader GProtoHeader(CommonTree source, GProtoNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
 	{
-		// Alternative is to make parsing return all as AssrtGProtocolHeader directly
+		// Alternative is to make parsing return all as AssrtGProtoHeader directly
 		AssrtGProtoHeader gpb = new AssrtGProtoHeader(source, name, roledecls, paramdecls);
 		gpb = del(gpb, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
 		return gpb;
 	}
 
-	// Same pattern as for GProtocolHeader
+	// Same pattern as for GProtoHeader
 	// Non-annotated message transfers still created as AssrtGMessageTransfer -- null assertion, but AssrtGMessageTransferDel is still needed (why?)
 	@Override
 	public AssrtGMsgTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
@@ -231,7 +231,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 	
 	@Override
-	public GRecursion GRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block)
+	public GRecursion GRecursion(CommonTree source, RecVarNode recvar, GProtoBlock block)
 	{
 		AssrtGRecursion gr = new AssrtGRecursion(source, recvar, block);
 		gr = del(gr, new AssrtGRecursionDel());
@@ -247,7 +247,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtGDo GDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto)
+	public AssrtGDo GDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtoNameNode proto)
 	{
 		AssrtGDo gd = new AssrtGDo(source, roleinstans, arginstans, proto);
 		gd = del(gd, new AssrtGDoDel());
@@ -260,7 +260,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	 */
 
 	@Override
-	public AssrtGProtoHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
+	public AssrtGProtoHeader AssrtGProtoHeader(CommonTree source, GProtoNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
 			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
 			AssrtAssertion ass)
 	{
@@ -288,7 +288,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtGRecursion AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, //AssrtAssertion ass)
+	public AssrtGRecursion AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtoBlock block, //AssrtAssertion ass)
 			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
 			AssrtAssertion ass)
 	{
@@ -310,7 +310,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtGDo AssrtGDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto, //AssrtArithExpr annot)
+	public AssrtGDo AssrtGDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtoNameNode proto, //AssrtArithExpr annot)
 			List<AssrtArithExpr> annotexprs)
 	{
 		AssrtGDo gd = new AssrtGDo(source, roleinstans, arginstans, proto, //annot);
@@ -320,7 +320,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtLProtoHeader AssrtLProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
+	public AssrtLProtoHeader AssrtLProtoHeader(CommonTree source, LProtoNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
 			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
 			AssrtAssertion ass)
 	{
@@ -348,7 +348,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtLRecursion AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtocolBlock block, //AssrtAssertion ass)
+	public AssrtLRecursion AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtoBlock block, //AssrtAssertion ass)
 			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
 			AssrtAssertion ass)
 	{
@@ -370,7 +370,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	}
 
 	@Override
-	public AssrtLDo AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto, //AssrtArithExpr annot)
+	public AssrtLDo AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtoNameNode proto, //AssrtArithExpr annot)
 			List<AssrtArithExpr> annotexprs)
 	{
 		AssrtLDo gd = new AssrtLDo(source, roleinstans, arginstans, proto, //annot);
@@ -422,7 +422,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 
 	@Override
 	public AssrtModule AssrtModule(CommonTree source, ModuleDecl moddecl, List<ImportDecl<?>> imports, List<DataOrSigDeclNode<?>> data,
-			List<ProtocolDecl<?>> protos, List<AssrtAssertDecl> asserts)
+			List<ProtoDecl<?>> protos, List<AssrtAssertDecl> asserts)
 	{
 		AssrtModule mod = new AssrtModule(source, moddecl, imports, data, protos, asserts);
 		mod = del(mod, new AssrtModuleDel());

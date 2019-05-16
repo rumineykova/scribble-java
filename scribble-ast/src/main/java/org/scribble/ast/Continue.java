@@ -60,10 +60,10 @@ public abstract class Continue<K extends ProtoKind>
 	}
 
 	@Override
-	public Continue<K> visitChildren(AstVisitor nv) throws ScribException
+	public Continue<K> visitChildren(AstVisitor v) throws ScribException
 	{
-		RecVarNode recvar = (RecVarNode) visitChild(getRecVarChild(), nv);
-		return reconstruct(recvar);
+		RecVarNode rv = (RecVarNode) visitChild(getRecVarChild(), v);
+		return reconstruct(rv);
 	}
 
 	@Override

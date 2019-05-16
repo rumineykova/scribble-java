@@ -1,22 +1,134 @@
 package org.scribble.ext.assrt.ast.local;
 
-import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactory;
-import org.scribble.ast.ConnectionAction;
-import org.scribble.ast.MessageNode;
-import org.scribble.ast.ScribNodeBase;
-import org.scribble.ast.local.LRequest;
+import java.util.Arrays;
+import java.util.List;
+
+import org.antlr.runtime.Token;
+import org.scribble.ast.MsgNode;
+import org.scribble.ast.local.LReq;
 import org.scribble.ast.name.simple.RoleNode;
-import org.scribble.del.ScribDel;
+import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtActionAssertNode;
 import org.scribble.ext.assrt.ast.AssrtAssertion;
-import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.main.ScribbleException;
-import org.scribble.type.kind.Local;
+import org.scribble.ext.assrt.del.AssrtDelFactory;
+import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
 
 public class AssrtLReq extends LReq implements AssrtActionAssertNode
 {
+	public static final int DST_CHILD_INDEX = 2;
+	public static final int ASS_CHILD_INDEX = 3;  // May be null (means "true")
+
+	// ScribTreeAdaptor#create constructor
+	public AssrtLReq(Token t)
+	{
+		super(t);
+	}
+
+	// Tree#dupNode constructor
+	public AssrtLReq(AssrtLReq node)
+	{
+		super(node);
+	}
+
+	public RoleNode getDestinationChild()
+	{
+		return (RoleNode) getChild(DST_CHILD_INDEX);
+	}
+
+	@Override
+	public List<RoleNode> getDestinationChildren()
+	{
+		return Arrays.asList(getDestinationChild());
+	}
+
+	// N.B. may be null
+	@Override
+	public AssrtAssertion getAssertionChild()
+	{
+		return (AssrtAssertion) getChild(ASS_CHILD_INDEX);  // CHECKME: OK to getChild if null?
+	}
+
+	@Override
+	public void addScribChildren(MsgNode msg, RoleNode src, List<RoleNode> dsts)
+	{
+		throw new RuntimeException(
+				"[assert] Deprecated for " + getClass() + ":\n\t" + this);
+	}
+
+	// "add", not "set"
+	public void addScribChildren(MsgNode msg, RoleNode src, RoleNode dst,
+			AssrtAssertion ass)
+	{
+		// Cf. above getters and Scribble.g children order
+		addChild(msg);
+		addChild(src);
+		addChild(dst);
+		addChild(ass);
+	}
+	
+	@Override
+	public AssrtLReq dupNode()
+	{
+		return new AssrtLReq(this);
+	}
+	
+	@Override
+	public void decorateDel(DelFactory df)
+	{
+		((AssrtDelFactory) df).AssrtLReq(this);
+	}
+
+	@Override
+	public AssrtLReq reconstruct(MsgNode msg, RoleNode src,
+			List<RoleNode> dsts)
+	{
+		throw new RuntimeException(
+				"[assert] Deprecated for " + getClass() + ":\n\t" + this);
+	}
+
+	public AssrtLReq reconstruct(RoleNode src, MsgNode msg, RoleNode dst,
+			AssrtAssertion ass)
+	{
+		AssrtLReq dup = dupNode();
+		// Same order as getter indices
+		dup.addScribChildren(msg, src, dst, ass);
+		dup.setDel(del());  // No copy
+		return dup;
+	}
+
+	@Override
+	public AssrtLReq visitChildren(AstVisitor v)
+			throws ScribException
+	{
+		//DirectedInteraction<Global> sup = super.visitChildren(v);  // No: base reconstruct "deprecated" to runtime exception
+		MsgNode msg = (MsgNode) visitChild(getMessageNodeChild(), v);
+		RoleNode src = (RoleNode) visitChild(getSourceChild(), v);
+		RoleNode dst = (RoleNode) visitChild(getDestinationChild(), v);
+		AssrtAssertion tmp = getAssertionChild();
+		AssrtAssertion ass = (tmp == null) 
+				? null
+				: (AssrtAssertion) visitChild(tmp, v);
+		return reconstruct(src, msg, dst, ass);
+	}
+
+	@Override
+	public String toString()
+	{
+		return super.toString() + " " + getAssertionChild();
+	}
+}
+
+
+
+
+
+
+
+
+
+
+/*
 	public final AssrtAssertion ass;  // null if none specified syntactically  
 			// Duplicated from AssrtLSend
 
@@ -30,56 +142,4 @@ public class AssrtLReq extends LReq implements AssrtActionAssertNode
 		super(source, src, msg, dest);
 		this.ass = ass;
 	}
-
-	@Override
-	protected ScribNodeBase copy()
-	{
-		return new AssrtLReq(this.source, this.src, this.msg, this.dest, this.ass);  // null ass fine
-	}
-	
-	@Override
-	public AssrtLReq clone(AstFactory af)
-	{
-		RoleNode src = this.src.clone(af);
-		MessageNode msg = this.msg.clone(af);
-		RoleNode dest = this.dest.clone(af);
-		AssrtAssertion ass = (this.ass == null) ? null : this.ass.clone(af);
-		return ((AssrtAstFactory) af).AssrtLConnect(this.source, src, msg, dest, ass);
-	}
-
-	@Override
-	public AssrtLReq reconstruct(RoleNode src, MessageNode msg, RoleNode dest)
-	{
-		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
-	}
-	
-	public AssrtLReq reconstruct(RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion ass)
-	{
-		ScribDel del = del();
-		AssrtLReq ls = new AssrtLReq(this.source, src, msg, dest, ass);  // FIXME: assertion
-		ls = (AssrtLReq) ls.del(del);
-		return ls;
-	}
-
-	@Override
-	public ConnectionAction<Local> visitChildren(AstVisitor nv) throws ScribbleException
-	{
-		RoleNode src = (RoleNode) visitChild(this.src, nv);
-		MessageNode msg = (MessageNode) visitChild(this.msg, nv);
-		RoleNode dest = (RoleNode) visitChild(this.dest, nv);
-		AssrtAssertion ass = (this.ass == null) ? null : (AssrtAssertion) visitChild(this.ass, nv);
-		return reconstruct(src, msg, dest, ass);
-	}
-
-	@Override
-	public AssrtAssertion getAssertionChild()
-	{
-		return this.ass;
-	}
-
-	@Override
-	public String toString()
-	{
-		return super.toString() + " @" + this.ass + ";";
-	}
-}
+*/

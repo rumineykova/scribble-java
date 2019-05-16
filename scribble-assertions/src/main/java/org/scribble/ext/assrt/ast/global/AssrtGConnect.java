@@ -16,6 +16,7 @@ import org.scribble.visit.AstVisitor;
 
 public class AssrtGConnect extends GConnect implements AssrtActionAssertNode
 {
+	// CHECKME: not that "safe" as an "override" pattern (original constants still avail)
 	public static final int DST_CHILD_INDEX = 2;
 	public static final int ASS_CHILD_INDEX = 3;  // May be null (means "true")
 

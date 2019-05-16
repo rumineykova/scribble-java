@@ -38,13 +38,13 @@ public abstract class ConnectAction<K extends ProtoKind>
 	// TODO: refactor
 	public RoleNode getDestinationChild()
 	{
-		List<RoleNode> dests = getDestinationChildren();
-		if (dests.size() != 1)
+		List<RoleNode> dsts = getDestinationChildren();
+		if (dsts.size() != 1)
 		{
 			throw new RuntimeException("Shouldn't get in here: " + this);  
 					// CHECKME: don't use common src/dst pattern between global/local?
 		}
-		return dests.get(0);
+		return dsts.get(0);
 	}
 	
 	// CHECKME: currently only used for toString, because current syntax allows "connect" with no explicit message ?

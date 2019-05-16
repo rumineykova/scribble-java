@@ -506,8 +506,8 @@ gprotoheader:
 |
 	GLOBAL_KW PROTOCOL_KW simplegprotoname roledecls '@' EXTID
 ->
-	^(ASSRT_GLOBALPROTOCOLHEADER[$t] simplegprotoname ^(PARAMDECL_LIST) 
-			roledecls {AssertionsParser.parseStateVarDeclList($EXTID.text)}) 
+	^(ASSRT_GLOBALPROTOCOLHEADER[$t] simplegprotoname ^(PARAMDECL_LIST) roledecls
+			{AssertionsParser.parseStateVarDeclList($EXTID.text)}) 
 			// use ".tree" for Tree instead of text String
 ;
 // Following same pattern as globalmessagetransfer: explicitly invoke AssertionsParser, and extra assertion element only for new category
@@ -562,7 +562,7 @@ gseq:
 
 ginteraction:
 	// Simple session node: directed interaction
-	gconnect | gmsgtransfer
+	gconnect | gmsgtransfer //| assrt_gmsgtransfer  // TODO: generally refactor, e.g., make all msgtransfer into assrt_msgtransfer here
 |
 	// Simple session node: basic interaction
 	gwrap | gdisconnect 
@@ -586,16 +586,17 @@ message:
 gmsgtransfer:
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 ->
-	^(GMSGTRANSFER message rolename+)
+	^(GMSGTRANSFER message rolename rolename+)
 	// Return base GLOBALMESSAGETRANSFER (i.e., no ASSRT_EMPTY_ASSERTION)
 	// Rely on AssrtAntlrToScribParser to use AssrtAstFactory to create AssrtGMsgTransfer with empty assertion -- CHECKME: create empty/true assertion here (and "deprecate" the base methods?)
 
 // Assrt
 | 
-	message FROM_KW rolename TO_KW rolename (',' rolename )* ';' '@' EXTID
+	//message FROM_KW rolename TO_KW rolename (',' rolename )* ';' '@' EXTID
+	message FROM_KW rolename TO_KW rolename ';' '@' EXTID
 ->
-	^(ASSRT_GLOBALMESSAGETRANSFER {AssertionsParser.parseAssertion($EXTID.text)} 
-			message rolename rolename+)
+	^(ASSRT_GLOBALMESSAGETRANSFER message rolename rolename 
+			{AssertionsParser.parseAssertion($EXTID.text)})
 			// N.B. calling a separate parser this way loses line/char number information
 ;
 // TODO: multisend

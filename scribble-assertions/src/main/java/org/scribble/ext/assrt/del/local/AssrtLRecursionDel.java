@@ -83,11 +83,11 @@ public class AssrtLRecursionDel extends LRecursionDel
 			AssrtBinCompFormula bcf = (AssrtBinCompFormula) ass.getFormula();
 			vars.put(((AssrtIntVarFormula) bcf.left).toName(), bcf.right);
 		}*/
-		Iterator<AssrtArithExpr> exprs = lr.annotexprs.iterator();
+		Iterator<AssrtArithExpr> exprs = lr.axprs.iterator();
 		/*Map<AssrtDataTypeVar, AssrtArithFormula> vars
 				= lr.annotvars.stream().collect(Collectors.toMap(v -> v.getFormula().toName(), v -> exprs.next().getFormula()));*/
 		LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars = new LinkedHashMap<>();
-		for (AssrtIntVarNameNode vv : lr.annotvars)
+		for (AssrtIntVarNameNode vv : lr.avars)
 		{
 			vars.put(vv.getFormula().toName(), exprs.next().getFormula());
 		}

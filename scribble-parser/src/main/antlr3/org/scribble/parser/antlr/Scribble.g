@@ -524,7 +524,7 @@ message:
 gmsgtransfer:
 	message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
 ->
-	^(GMSGTRANSFER message rolename+)
+	^(GMSGTRANSFER message rolename rolename+)
 ;
 // TODO: multisend
 

@@ -27,6 +27,7 @@ import org.scribble.ext.assrt.ast.global.AssrtGProtoHeader;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.ext.assrt.ast.local.AssrtLDo;
+import org.scribble.ext.assrt.ast.local.AssrtLProtoHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLReq;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
@@ -64,7 +65,7 @@ public interface AssrtDelFactory extends DelFactory
 	void AssrtLProtoHeader(AssrtLProtoHeader n);
 
 	void AssrtLSend(AssrtLSend n);
-	void AssrtLConnect(AssrtLReq n);
+	void AssrtLReq(AssrtLReq n);
 	void AssrtLRecursion(AssrtLRecursion n);
 	void AssrtLContinue(AssrtLContinue n);
 	void AssrtLDo(AssrtLDo n);

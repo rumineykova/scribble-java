@@ -19,7 +19,8 @@ import org.scribble.visit.AstVisitor;
 public class AssrtGMsgTransfer extends GMsgTransfer
 		implements AssrtActionAssertNode
 {
-	public static final int DST_CHILD_INDEX = 2;  // CHECKME: not that "safe" as an "override" pattern (original constants still avail)
+	// CHECKME: not that "safe" as an "override" pattern (original constants still avail)
+	public static final int DST_CHILD_INDEX = 2;
 	public static final int ASS_CHILD_INDEX = 3;  // May be null (means "true")
 
 	// ScribTreeAdaptor#create constructor

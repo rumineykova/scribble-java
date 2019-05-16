@@ -14,6 +14,7 @@ import org.scribble.ext.assrt.del.AssrtDelFactory;
 import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
 
+@Deprecated
 public class AssrtGContinue extends GContinue
 		implements AssrtStateVarArgAnnotNode
 {
@@ -48,11 +49,11 @@ public class AssrtGContinue extends GContinue
 	}
 
 	// "add", not "set"
-	public void addScribChildren(RecVarNode rv, List<AssrtArithExpr> exprs)
+	public void addScribChildren(RecVarNode rv, List<AssrtArithExpr> aexprs)
 	{
 		// Cf. above getters and Scribble.g children order
 		addChild(rv);
-		addChildren(exprs);
+		addChildren(aexprs);
 	}
 
 	@Override
@@ -74,10 +75,10 @@ public class AssrtGContinue extends GContinue
 				"[assrt] Deprecated for " + getClass() + ":\n\t" + this);
 	}
 
-	public AssrtGContinue reconstruct(RecVarNode rv, List<AssrtArithExpr> exprs)
+	public AssrtGContinue reconstruct(RecVarNode rv, List<AssrtArithExpr> aexprs)
 	{
 		AssrtGContinue dup = dupNode();
-		dup.addScribChildren(rv, exprs);
+		dup.addScribChildren(rv, aexprs);
 		dup.setDel(del());  // No copy
 		return dup;
 	}
@@ -85,14 +86,10 @@ public class AssrtGContinue extends GContinue
 	@Override
 	public GContinue visitChildren(AstVisitor v) throws ScribException
 	{
-		RecVarNode recvar = (RecVarNode) visitChild(getRecVarChild(), v);
-		//AssrtArithExpr annot = (this.annot == null) ? null : (AssrtArithExpr) visitChild(this.annot, nv);  // FIXME: visit child with cast
-
-		List<AssrtArithExpr> exprs = visitChildListWithClassEqualityCheck(this,
+		RecVarNode rv = (RecVarNode) visitChild(getRecVarChild(), v);
+		List<AssrtArithExpr> aexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);
-
-		return reconstruct(recvar, //annot);
-				exprs);
+		return reconstruct(rv, aexprs);
 	}
 
 	@Override

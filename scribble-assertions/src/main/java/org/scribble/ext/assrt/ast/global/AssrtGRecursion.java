@@ -26,6 +26,7 @@ public class AssrtGRecursion extends GRecursion
 		implements AssrtStateVarDeclAnnotNode
 {
 	//public static final int BODY_CHILD_INDEX = 1;
+	// FIXME: no: Assertions.g gives back a subtree containing all
 	public static final int ASSERT_CHILD_INDEX = 2;  // May be null (means "true")
 	public static final int ANNOT_CHILDREN_START_INDEX = 3;
 
@@ -76,14 +77,14 @@ public class AssrtGRecursion extends GRecursion
 
 	// "add", not "set"
 	public void addScribChildren(RecVarNode rv, ProtoBlock<Global> block,
-			AssrtAssertion assrt, List<AssrtIntVarNameNode> annotvars,
-			List<AssrtArithExpr> annotexprs)
+			AssrtAssertion assrt, List<AssrtIntVarNameNode> avars,
+			List<AssrtArithExpr> aexprs)
 	{
 		// Cf. above getters and Scribble.g children order
 		super.addScribChildren(rv, block);
 		addChild(assrt);
-		addChildren(annotvars);
-		addChildren(annotexprs);
+		addChildren(avars);
+		addChildren(aexprs);
 	}
 	
 	@Override
@@ -108,10 +109,10 @@ public class AssrtGRecursion extends GRecursion
 
 	public AssrtGRecursion reconstruct(RecVarNode recvar,
 			ProtoBlock<Global> block, AssrtAssertion ass,
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
+			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs)
 	{
 		AssrtGRecursion dup = dupNode();
-		dup.addScribChildren(recvar, block, ass, annotvars, annotexprs);
+		dup.addScribChildren(recvar, block, ass, avars, aexprs);
 		dup.setDel(del());  // No copy
 		return dup;
 	}
@@ -126,11 +127,11 @@ public class AssrtGRecursion extends GRecursion
 		AssrtAssertion ass = (tmp == null) 
 				? null
 				: (AssrtAssertion) visitChild(tmp, v);
-		List<AssrtIntVarNameNode> annotvars = visitChildListWithClassEqualityCheck(
+		List<AssrtIntVarNameNode> avars = visitChildListWithClassEqualityCheck(
 				this, getAnnotVarChildren(), v);
-		List<AssrtArithExpr> annotexprs = visitChildListWithClassEqualityCheck(this,
+		List<AssrtArithExpr> aexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);
-		return reconstruct(recvar, block, ass, annotvars, annotexprs);
+		return reconstruct(recvar, block, ass, avars, aexprs);
 	}
 
 	@Override

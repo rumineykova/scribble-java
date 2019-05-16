@@ -27,6 +27,7 @@ public class AssrtGProtoHeader extends GProtoHeader
 		implements AssrtStateVarDeclAnnotNode
 {
 	//public static final int ROLEDECLLIST_CHILD = 2;
+	// FIXME: no: Assertions.g gives back a subtree containing all
 	public static final int ASSERT_CHILD_INDEX = 3;  // May be null (means "true")
 	public static final int ANNOT_CHILDREN_START_INDEX = 4;
 
@@ -120,10 +121,10 @@ public class AssrtGProtoHeader extends GProtoHeader
 
 	public AssrtGProtoHeader reconstruct(ProtoNameNode<Global> name,
 			NonRoleParamDeclList ps, RoleDeclList rs, AssrtAssertion ass,
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
+			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs)
 	{
 		AssrtGProtoHeader dup = dupNode();
-		dup.addScribChildren(name, ps, rs, ass, annotvars, annotexprs);
+		dup.addScribChildren(name, ps, rs, ass, avars, aexprs);
 		dup.setDel(del());  // No copy
 		return dup;
 	}
@@ -136,15 +137,15 @@ public class AssrtGProtoHeader extends GProtoHeader
 		RoleDeclList rs = (RoleDeclList) visitChild(getRoleDeclListChild(), v);
 		NonRoleParamDeclList ps = (NonRoleParamDeclList) 
 				visitChild(getParamDeclListChild(), v);
-		List<AssrtIntVarNameNode> annotvars = visitChildListWithClassEqualityCheck(
+		List<AssrtIntVarNameNode> avars = visitChildListWithClassEqualityCheck(
 				this, getAnnotVarChildren(), v);
-		List<AssrtArithExpr> annotexprs = visitChildListWithClassEqualityCheck(this,
+		List<AssrtArithExpr> aexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);
 		AssrtAssertion tmp = getAssertionChild();
 		AssrtAssertion ass = (tmp == null) 
 				? null
 				: (AssrtAssertion) visitChild(tmp, v);
-		return reconstruct(getNameNodeChild(), ps, rs, ass, annotvars, annotexprs);
+		return reconstruct(getNameNodeChild(), ps, rs, ass, avars, aexprs);
 	}
 	
 	@Override
