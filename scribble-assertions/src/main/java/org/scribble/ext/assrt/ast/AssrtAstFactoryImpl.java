@@ -71,7 +71,7 @@ import org.scribble.ext.assrt.del.local.AssrtLDoDel;
 import org.scribble.ext.assrt.del.local.AssrtLProjectionDeclDel;
 import org.scribble.ext.assrt.del.local.AssrtLProtoBlockDel;
 import org.scribble.ext.assrt.del.local.AssrtLProtoDefDel;
-import org.scribble.ext.assrt.del.local.AssrtLReceiveDel;
+import org.scribble.ext.assrt.del.local.AssrtLRecvDel;
 import org.scribble.ext.assrt.del.local.AssrtLRecursionDel;
 import org.scribble.ext.assrt.del.local.AssrtLRequestDel;
 import org.scribble.ext.assrt.del.local.AssrtLSendDel;
@@ -155,7 +155,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFacto
 	public LReceive LReceive(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
 	{
 		LReceive ls = new LReceive(source, src, msg, dests);  // FIXME: AssrtLReceive with assertion?
-		ls = del(ls, new AssrtLReceiveDel());
+		ls = del(ls, new AssrtLRecvDel());
 		return ls;
 	}
 

@@ -95,7 +95,7 @@ public class AssrtLDo extends LDo implements AssrtStateVarArgAnnotNode
 	public AssrtLDo visitChildren(AstVisitor v) throws ScribException
 	{
 		LProtoNameNode proto = visitChildWithClassEqualityCheck(this,
-				getProtocolNameChild(), v);
+				getProtoNameChild(), v);
 		RoleArgList rs = (RoleArgList) visitChild(getRoleListChild(), v);
 		NonRoleArgList as = (NonRoleArgList) visitChild(getNonRoleListChild(), v);
 		List<AssrtArithExpr> exprs = visitChildListWithClassEqualityCheck(this,

@@ -11,20 +11,20 @@ import org.scribble.ext.assrt.del.AssrtDelFactory;
 public class AssrtAssertion extends ScribNodeBase implements AssrtFormulaNode
 {	
 	//protected   // Non public, because non final for reconstruct
-	public final AssrtBoolFormula formula;
+	public final AssrtBoolFormula bexpr;
 
 	// ScribTreeAdaptor#create constructor
-	public AssrtAssertion(Token t, AssrtBoolFormula formula)
+	public AssrtAssertion(Token t, AssrtBoolFormula bexpr)
 	{
 		super(t);
-		this.formula = formula;
+		this.bexpr = bexpr;
 	}
 
 	// Tree#dupNode constructor
 	protected AssrtAssertion(AssrtAssertion node)
 	{
 		super(node);
-		this.formula = node.formula;
+		this.bexpr = node.bexpr;
 	}
 	
 	@Override
@@ -42,13 +42,13 @@ public class AssrtAssertion extends ScribNodeBase implements AssrtFormulaNode
 	@Override
 	public AssrtBoolFormula getFormula()
 	{
-		return this.formula;
+		return this.bexpr;
 	}
 	
 	@Override
 	public String toString()
 	{
-		return "@" + this.formula.toString() + ";";  
+		return "@" + this.bexpr.toString() + ";";  
 	}
 }
 

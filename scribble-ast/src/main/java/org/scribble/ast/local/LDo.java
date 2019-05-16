@@ -38,13 +38,13 @@ public class LDo extends Do<Local> implements LSimpleSessionNode
 	}
 
 	@Override
-	public LProtoNameNode getProtocolNameChild()
+	public LProtoNameNode getProtoNameChild()
 	{
 		return (LProtoNameNode) getChild(Do.NAME_CHILD_INDEX);
 	}
 
 	@Override
-	public LProtoDecl getTargetProtocolDecl(JobContext jobc,
+	public LProtoDecl getTargetProtoDecl(JobContext jobc,
 			ModuleContext modc)
 	{
 		LProtoName fullname = getTargetProtoDeclFullName(modc);

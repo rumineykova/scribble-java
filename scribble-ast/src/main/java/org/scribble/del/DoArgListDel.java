@@ -60,7 +60,7 @@ public abstract class DoArgListDel extends ScribDelBase
 		ModuleContext mc = disamb.getModuleContext();
 		JobContext jc = disamb.job.getContext();
 		Do<?> doo = (Do<?>) parent;
-		ProtoName<?> pn = doo.getProtocolNameChild().toName();
+		ProtoName<?> pn = doo.getProtoNameChild().toName();
 		/*if (!mc.isVisibleProtocolDeclName(simpname))  // FIXME: should be checked somewhere else?  earlier (do-entry?) -- done
 		{
 			throw new ScribbleException("Protocol decl not visible: " + simpname);

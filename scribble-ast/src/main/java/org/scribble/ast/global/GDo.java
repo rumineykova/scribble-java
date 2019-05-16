@@ -37,13 +37,13 @@ public class GDo extends Do<Global> implements GSimpleSessionNode
 	}
 
 	@Override
-	public GProtoNameNode getProtocolNameChild()
+	public GProtoNameNode getProtoNameChild()
 	{
 		return (GProtoNameNode) getChild(Do.NAME_CHILD_INDEX);
 	}
 
 	@Override
-	public GProtoDecl getTargetProtocolDecl(JobContext jobc,
+	public GProtoDecl getTargetProtoDecl(JobContext jobc,
 			ModuleContext modc)
 	{
 		GProtoName fullname = getTargetProtoDeclFullName(modc);

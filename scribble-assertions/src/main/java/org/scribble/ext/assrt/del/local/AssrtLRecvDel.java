@@ -1,23 +1,27 @@
 package org.scribble.ext.assrt.del.local;
 
-import java.util.List;
+import org.scribble.del.local.LRecvDel;
 
-import org.scribble.ast.MessageSigNode;
-import org.scribble.ast.ScribNode;
-import org.scribble.ast.local.LReceive;
-import org.scribble.ast.name.simple.RoleNode;
-import org.scribble.del.local.LReceiveDel;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
-import org.scribble.main.ScribbleException;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
-import org.scribble.visit.context.EGraphBuilder;
-
-public class AssrtLReceiveDel extends LReceiveDel
+public class AssrtLRecvDel extends LRecvDel
 {
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 	@Override
 	public ScribNode leaveEGraphBuilding(ScribNode parent, ScribNode child, EGraphBuilder builder, ScribNode visited) throws ScribbleException
 	{
@@ -44,4 +48,4 @@ public class AssrtLReceiveDel extends LReceiveDel
 		// CHECKME: OK to ignore super?
 		return visited;
 	}
-}
+*/

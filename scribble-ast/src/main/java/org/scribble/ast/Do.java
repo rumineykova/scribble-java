@@ -45,7 +45,7 @@ public abstract class Do<K extends ProtoKind>
 		super(node);
 	}
 	
-	public abstract ProtoNameNode<K> getProtocolNameChild();
+	public abstract ProtoNameNode<K> getProtoNameChild();
 
 	public NonRoleArgList getNonRoleListChild()
 	{
@@ -85,7 +85,7 @@ public abstract class Do<K extends ProtoKind>
 		RoleArgList rs = (RoleArgList) visitChild(getRoleListChild(), v);
 		NonRoleArgList as = (NonRoleArgList) visitChild(getNonRoleListChild(), v);
 		ProtoNameNode<K> proto = visitChildWithClassEqualityCheck(this,
-				getProtocolNameChild(), v);
+				getProtoNameChild(), v);
 		return reconstruct(proto, as, rs);
 	}
 
@@ -95,18 +95,18 @@ public abstract class Do<K extends ProtoKind>
 	public ProtoName<K> getTargetProtoDeclFullName(ModuleContext mcontext)
 	{
 		//return mcontext.checkProtocolDeclDependencyFullName(this.proto.toName());
-		return getProtocolNameChild().toName();  // Pre: use after name disambiguation (maybe drop FullName suffix)
+		return getProtoNameChild().toName();  // Pre: use after name disambiguation (maybe drop FullName suffix)
 	}
 	
 	// CHECKME: mcontext redundant, because redundant for getTargetProtocolDeclFullName
-	public abstract ProtoDecl<K> getTargetProtocolDecl(JobContext jcontext,
+	public abstract ProtoDecl<K> getTargetProtoDecl(JobContext jcontext,
 			ModuleContext mcontext);
 	
 	public Role getTargetRoleParameter(JobContext jcontext,
 			ModuleContext mcontext, Role role)
 	{
 		Iterator<Role> args = getRoleListChild().getRoles().iterator();
-		Iterator<Role> params = getTargetProtocolDecl(jcontext, mcontext)
+		Iterator<Role> params = getTargetProtoDecl(jcontext, mcontext)
 				.getHeaderChild().getRoleDeclListChild().getRoles().iterator();
 		while (args.hasNext())
 		{
@@ -124,7 +124,7 @@ public abstract class Do<K extends ProtoKind>
 	public String toString()
 	{
 		String s = Constants.DO_KW + " ";
-		return s + getProtocolNameChild() + getNonRoleListChild() + getRoleListChild()
+		return s + getProtoNameChild() + getNonRoleListChild() + getRoleListChild()
 				+ ";";
 	}
 }

@@ -47,57 +47,56 @@ public interface AssrtAstFactory extends AstFactory
 
 
 	// General and globals
-	AssrtAssertion AssrtAssertion(Token t, AssrtBoolFormula f);
-	AssrtArithExpr AssrtArithAnnotation(Token t, AssrtArithFormula expr);
+	AssrtAssertion AssrtAssertion(Token t, AssrtBoolFormula bexpr);  // Bool expr
+	AssrtArithExpr AssrtArithAnnotation(Token t, AssrtArithFormula aexpr);  // Int expr
 
-	AssrtModule AssrtModule(Token t, ModuleDecl mdecl,
+	AssrtModule AssrtModule(Token t, ModuleDecl modd,
 			List<? extends ImportDecl<?>> imports,
 			List<? extends NonProtoDecl<?>> nonprotos,
 			List<? extends ProtoDecl<?>> protos, List<AssrtAssertDecl> asserts);
 
 	// FIXME: should not be an AssrtAssertion -- should be just an (integer) var decl expr (which is not a bool expr)
 	AssrtGProtoHeader AssrtGProtoHeader(Token t, GProtoNameNode name,
-			RoleDeclList roledecls, NonRoleParamDeclList paramdecls, // AssrtAssertion ass);
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
-			AssrtAssertion ass);
+			RoleDeclList rs, NonRoleParamDeclList ps, 
+			List<AssrtIntVarNameNode> avars,
+			List<AssrtArithExpr> aexprs, AssrtAssertion ass);  // FIXME: not how parsed
 
 	AssrtAssertDecl AssrtAssertDecl(Token t, AssrtAssertNameNode name,
-			List<AssrtSortNode> params, AssrtSortNode ret, AssrtSmtFormula<?> expr);
+			List<AssrtSortNode> ps, AssrtSortNode ret, AssrtSmtFormula<?> f);
 
-	AssrtGMsgTransfer AssrtGMsgTransfer(Token t, RoleNode src, MsgNode msg,
-			List<RoleNode> dests, AssrtAssertion assertion);
-	AssrtGConnect AssrtGConnect(Token t, RoleNode src, MsgNode msg, RoleNode dest,
-			AssrtAssertion assertion);
+	AssrtGMsgTransfer AssrtGMsgTransfer(Token t, MsgNode msg, RoleNode src,
+			List<RoleNode> dsts, AssrtAssertion assertion);
+	AssrtGConnect AssrtGConnect(Token t, RoleNode src, MsgNode msg, RoleNode dst,
+			AssrtAssertion ass);
 
-	AssrtGContinue AssrtGContinue(Token t, RecVarNode recvar, //AssrtArithExpr annot);
-			List<AssrtArithExpr> annotexprs);
-	AssrtGDo AssrtGDo(Token t, RoleArgList roleinstans, NonRoleArgList arginstans, GProtoNameNode proto, //AssrtArithExpr annot);
-			List<AssrtArithExpr> annotexprs);
+	AssrtGContinue AssrtGContinue(Token t, RecVarNode rv,
+			List<AssrtArithExpr> aexprs);
+	AssrtGDo AssrtGDo(Token t, RoleArgList rs, NonRoleArgList as,
+			GProtoNameNode proto, List<AssrtArithExpr> aexprs);
 
-	AssrtGRecursion AssrtGRecursion(Token t, RecVarNode recvar, GProtoBlock block, //AssrtAssertion ass);
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
+	AssrtGRecursion AssrtGRecursion(Token t, RecVarNode rv, GProtoBlock block,
+			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
 			AssrtAssertion ass);
 
 	AssrtAnnotDataElem AssrtAnnotDataTypeElem(Token t,
-			AssrtIntVarNameNode varName, DataNameNode data);
+			AssrtIntVarNameNode var, DataNameNode data);
 
 	// Locals
 	AssrtLProtoHeader AssrtLProtoHeader(Token t, LProtoNameNode name,
-			RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass);
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
-			AssrtAssertion ass);
+			RoleDeclList rs, NonRoleParamDeclList ps,
+			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
+			AssrtAssertion ass);  // FIXME: not how parsed
 
-	AssrtLSend AssrtLSend(Token t, RoleNode src, MsgNode msg,
-			List<RoleNode> dests, AssrtAssertion assertion);
-	AssrtLReq AssrtLConnect(Token t, RoleNode src, MsgNode msg, RoleNode dest,
+	AssrtLSend AssrtLSend(Token t, MsgNode msg, RoleNode src,
+			List<RoleNode> dsts, AssrtAssertion ass);
+	AssrtLReq AssrtLConnect(Token t, RoleNode src, MsgNode msg, RoleNode dst,
 			AssrtAssertion assertion);
 
-	AssrtLContinue AssrtLContinue(Token t, RecVarNode recvar, //AssrtArithExpr annot);
-			List<AssrtArithExpr> annotexprs);
-	AssrtLDo AssrtLDo(Token t, RoleArgList roleinstans, NonRoleArgList arginstans, LProtoNameNode proto, //AssrtArithExpr annot);
-			List<AssrtArithExpr> annotexprs);
+	AssrtLContinue AssrtLContinue(Token t, RecVarNode rv, List<AssrtArithExpr> aexprs);
+	AssrtLDo AssrtLDo(Token t, RoleArgList rs, NonRoleArgList as,
+			LProtoNameNode proto, List<AssrtArithExpr> aexprs);
 
-	AssrtLRecursion AssrtLRecursion(Token t, RecVarNode recvar, LProtoBlock block, //AssrtAssertion ass);
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
+	AssrtLRecursion AssrtLRecursion(Token t, RecVarNode rv, LProtoBlock block,
+			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
 			AssrtAssertion ass);
 }

@@ -18,7 +18,7 @@ public class AssrtGDoDel extends GDoDel
 	{
 		AssrtGDo doo = (AssrtGDo) visited;
 		ProtoNameNode<Global> proto = disambProtoNameNode(disamb,
-				doo.getProtocolNameChild());  // Doesn't keep the original namenode del
+				doo.getProtoNameChild());  // Doesn't keep the original namenode del
 		return doo.reconstruct(proto, doo.getRoleListChild(),
 				doo.getNonRoleListChild(), doo.getAnnotExprChildren());
 	}

@@ -35,7 +35,7 @@ public class GDoDel extends DoDel implements GSimpleSessionNodeDel
 		GDo source = (GDo) n;
 
 		// Resolve full name -- CHECKME: factor out? cf., NameDisambiguator, DoDel::enter/leaveDisambiguation
-		GProtoName proto = source.getProtocolNameChild().toName();
+		GProtoName proto = source.getProtoNameChild().toName();
 		ModuleContext modc = t.getModuleContext();
 		if (!modc.isProtoNameVisible(proto))  // CHECKME: should be already checked by NameDisamb?
 		{

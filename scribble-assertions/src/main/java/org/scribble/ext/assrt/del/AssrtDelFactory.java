@@ -41,8 +41,8 @@ public interface AssrtDelFactory extends DelFactory
 
 
 	// General and globals
-	void AssrtAssertion(AssrtAssertion n);
-	void AssrtArithExpr(AssrtArithExpr n);
+	void AssrtAssertion(AssrtAssertion n);  // Bool expr
+	void AssrtArithExpr(AssrtArithExpr n);  // Int expr
 
 	void AssrtModule(AssrtModule n);
 

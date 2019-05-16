@@ -41,7 +41,7 @@ public abstract class DoDel extends SimpleSessionNodeDel
 	{
 		ModuleContext mc = disamb.getModuleContext();
 		Do<?> doo = (Do<?>) child;
-		ProtoNameNode<?> proto = doo.getProtocolNameChild();
+		ProtoNameNode<?> proto = doo.getProtoNameChild();
 		ProtoName<?> simpname = proto.toName();
 		if (!mc.isProtoNameVisible(simpname))  // CHECKME: do on entry here, before visiting DoArgListDel
 		{
@@ -63,7 +63,7 @@ public abstract class DoDel extends SimpleSessionNodeDel
 	private <K extends ProtoKind> ScribNode leaveDisambiguationAux(
 			Do<K> visited, NameDisambiguator disamb) throws ScribException
 	{
-		ProtoNameNode<K> proto = visited.getProtocolNameChild();
+		ProtoNameNode<K> proto = visited.getProtoNameChild();
 
 		// CHECKME: do full name expansion in disamb?  or leave to imed translation? -- FIXME: sort out full name expansion between here and GDoDel.translate
 		ProtoNameNode<K> n = disambProtoNameNode(disamb, proto);
