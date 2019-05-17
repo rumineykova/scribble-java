@@ -132,9 +132,9 @@ public interface AstFactory
 			PayElemNameNode<K> name);
 	GDelegPayElem GDelegPayElem(Token t, GProtoNameNode name, RoleNode r);
 
-	GMsgTransfer GMsgTransfer(Token t, RoleNode src, MsgNode msg,
+	GMsgTransfer GMsgTransfer(Token t, MsgNode msg, RoleNode src,
 			List<RoleNode> dsts);
-	GConnect GConnect(Token t, RoleNode src, MsgNode msg, RoleNode dst);
+	GConnect GConnect(Token t, MsgNode msg, RoleNode src, RoleNode dst);
 	GDisconnect GDisconnect(Token t, RoleNode left, RoleNode right);
 	GWrap GWrap(Token t, RoleNode client, RoleNode server);
 
@@ -167,13 +167,13 @@ public interface AstFactory
 	LInteractionSeq LInteractionSeq(Token t, List<LSessionNode> elems);
 
 	// Following take "self" param in case of parsed Token (not actually supported yet)
-	LSend LSend(Token t, RoleNode self, MsgNode msg, RoleNode dst);
-	LRecv LRecv(Token t, RoleNode src, MsgNode msg, RoleNode self);
-	LAcc LAcc(Token t, RoleNode src, MsgNode msg, RoleNode self);
-	LReq LReq(Token t, RoleNode self, MsgNode msg, RoleNode dst);
+	LSend LSend(Token t, MsgNode msg, RoleNode self, RoleNode dst);
+	LRecv LRecv(Token t, MsgNode msg, RoleNode src, RoleNode self);
+	LAcc LAcc(Token t, MsgNode msg, RoleNode src, RoleNode self);
+	LReq LReq(Token t, MsgNode msg, RoleNode self, RoleNode dst);
 	LDisconnect LDisconnect(Token t, RoleNode self, RoleNode peer); 
-	LClientWrap LClientWrap(Token t, RoleNode client, RoleNode server);
-	LServerWrap LServerWrap(Token t, RoleNode client, RoleNode server);
+	LClientWrap LClientWrap(Token t, RoleNode self, RoleNode server);
+	LServerWrap LServerWrap(Token t, RoleNode client, RoleNode self);
 
 	LContinue LContinue(Token t, RecVarNode rv); 
 	LDo LDo(Token t, LProtoNameNode proto, NonRoleArgList as, RoleArgList rs);

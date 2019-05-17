@@ -181,28 +181,28 @@ public class LProjectionTranslator
 	{
 		RoleNode dst = this.af.RoleNode(null, t.dst.toString());
 		MsgNode msg = translate(t.msg);
-		return this.af.LSend(null, SELF_NODE, msg, dst);  // Ignoring t.src, but it's "self"
+		return this.af.LSend(null, msg, SELF_NODE, dst);  // Ignoring t.src, but it's "self"
 	}
 
 	protected org.scribble.ast.local.LRecv translate(LRecv t)
 	{
 		RoleNode src = this.af.RoleNode(null, t.src.toString());
 		MsgNode msg = translate(t.msg);
-		return this.af.LRecv(null, src, msg, SELF_NODE);  // Ignoring t.src, but it's "self"
+		return this.af.LRecv(null, msg, src, SELF_NODE);  // Ignoring t.src, but it's "self"
 	}
 
 	protected org.scribble.ast.local.LAcc translate(LAcc t)
 	{
 		RoleNode src = this.af.RoleNode(null, t.src.toString());
 		MsgNode msg = translate(t.msg);
-		return this.af.LAcc(null, src, msg, SELF_NODE);  // Ignoring t.src, but it's "self"
+		return this.af.LAcc(null, msg, src, SELF_NODE);  // Ignoring t.src, but it's "self"
 	}
 
 	protected org.scribble.ast.local.LReq translate(LReq t)
 	{
 		RoleNode dst = this.af.RoleNode(null, t.dst.toString());
 		MsgNode msg = translate(t.msg);
-		return this.af.LReq(null, SELF_NODE, msg, dst);  // Ignoring t.src, but it's "self"
+		return this.af.LReq(null, msg, SELF_NODE, dst);  // Ignoring t.src, but it's "self"
 	}
 
 	protected org.scribble.ast.local.LDisconnect translate(LDisconnect t)

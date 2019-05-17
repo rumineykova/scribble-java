@@ -523,7 +523,7 @@ public class AstFactoryImpl implements AstFactory
 	}
 
 	@Override
-	public GMsgTransfer GMsgTransfer(Token t, RoleNode src, MsgNode msg,
+	public GMsgTransfer GMsgTransfer(Token t, MsgNode msg, RoleNode src,
 			List<RoleNode> dsts)
 	{
 		t = newToken(t, ScribbleParser.GMSGTRANSFER);
@@ -534,7 +534,7 @@ public class AstFactoryImpl implements AstFactory
 	}
 
 	@Override
-	public GConnect GConnect(Token t, RoleNode src, MsgNode msg, RoleNode dst)
+	public GConnect GConnect(Token t, MsgNode msg, RoleNode src, RoleNode dst)
 	{
 		t = newToken(t, ScribbleParser.GCONNECT);
 		GConnect n = new GConnect(t);
@@ -707,7 +707,7 @@ public class AstFactoryImpl implements AstFactory
 	}
 
 	@Override
-	public LSend LSend(Token t, RoleNode self, MsgNode msg, RoleNode dst)
+	public LSend LSend(Token t, MsgNode msg, RoleNode self, RoleNode dst)
 	{
 		t = newToken(t, ScribbleParser.LSEND);
 		LSend n = new LSend(t);
@@ -717,7 +717,7 @@ public class AstFactoryImpl implements AstFactory
 	}
 
 	@Override
-	public LRecv LRecv(Token t, RoleNode src, MsgNode msg, RoleNode self)
+	public LRecv LRecv(Token t, MsgNode msg, RoleNode src, RoleNode self)
 	{
 		t = newToken(t, ScribbleParser.LRECV);
 		LRecv n = new LRecv(t);
@@ -727,7 +727,7 @@ public class AstFactoryImpl implements AstFactory
 	}
 
 	@Override
-	public LAcc LAcc(Token t, RoleNode src, MsgNode msg, RoleNode self)
+	public LAcc LAcc(Token t, MsgNode msg, RoleNode src, RoleNode self)
 	{
 		t = newToken(t, ScribbleParser.LACC);
 		LAcc n = new LAcc(t);
@@ -737,7 +737,7 @@ public class AstFactoryImpl implements AstFactory
 	}
 
 	@Override
-	public LReq LReq(Token t, RoleNode self, MsgNode msg, RoleNode dst)
+	public LReq LReq(Token t, MsgNode msg, RoleNode self, RoleNode dst)
 	{
 		t = newToken(t, ScribbleParser.LREQ);
 		LReq n = new LReq(t);
@@ -757,21 +757,21 @@ public class AstFactoryImpl implements AstFactory
 	}
 
 	@Override
-	public LClientWrap LClientWrap(Token t, RoleNode client, RoleNode server)
+	public LClientWrap LClientWrap(Token t, RoleNode self, RoleNode peer)
 	{
 		t = newToken(t, ScribbleParser.LCLIENTWRAP);
 		LClientWrap n = new LClientWrap(t);
-		n.addScribChildren(client, server);
+		n.addScribChildren(self, peer);
 		n.decorateDel(this.df);
 		return n;
 	}
 
 	@Override
-	public LServerWrap LServerWrap(Token t, RoleNode client, RoleNode server)
+	public LServerWrap LServerWrap(Token t, RoleNode peer, RoleNode self)
 	{
 		t = newToken(t, ScribbleParser.LSERVERWRAP);
 		LServerWrap n = new LServerWrap(t);
-		n.addScribChildren(client, server);
+		n.addScribChildren(peer, self);
 		n.decorateDel(this.df);
 		return n;
 	}
