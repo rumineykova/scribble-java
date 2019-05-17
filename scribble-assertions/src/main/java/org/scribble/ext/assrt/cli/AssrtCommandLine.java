@@ -1,41 +1,16 @@
 package org.scribble.ext.assrt.cli;
 
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.scribble.ast.Module;
-import org.scribble.ast.global.GProtoDecl;
 import org.scribble.cli.CommandLine;
 import org.scribble.cli.CommandLineException;
 import org.scribble.core.job.CoreFlags;
-import org.scribble.core.model.endpoint.EGraph;
-import org.scribble.core.type.name.GProtoName;
-import org.scribble.core.type.name.Role;
-import org.scribble.ext.assrt.core.ast.global.AssrtCoreGProtocolDeclTranslator;
 import org.scribble.ext.assrt.core.job.AssrtCoreArgs;
-import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEGraphBuilder;
-import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
-import org.scribble.ext.assrt.core.model.global.AssrtCoreSModel;
-import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelBuilder;
-import org.scribble.ext.assrt.core.model.global.AssrtCoreSafetyErrors;
-import org.scribble.ext.assrt.core.model.stp.AssrtStpEState;
-import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
-import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGType;
-import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
 import org.scribble.ext.assrt.job.AssrtJob;
 import org.scribble.ext.assrt.job.AssrtJob.Solver;
-import org.scribble.ext.assrt.main.AssrtException;
 import org.scribble.ext.assrt.main.AssrtMain;
-import org.scribble.ext.assrt.model.endpoint.AssrtEState;
-import org.scribble.job.Job;
 import org.scribble.main.Main;
 import org.scribble.main.resource.locator.DirectoryResourceLocator;
 import org.scribble.main.resource.locator.ResourceLocator;
@@ -114,6 +89,7 @@ public class AssrtCommandLine extends CommandLine
 	
 	// TODO: refactor into AssrtCore as needed
 	
+/*
 	@Override
 	protected void runValidationTasks(Job job) throws AssrtCoreSyntaxException,
 			AntlrSourceException, ScribParserException, CommandLineException
@@ -133,11 +109,11 @@ public class AssrtCommandLine extends CommandLine
 			throws AssrtCoreSyntaxException, ScribException, ScribParserException,
 			CommandLineException
 	{
-		/*if (this.args.containsKey(CLArgFlag.PROJECT))  // HACK
-			// modules/f17/src/test/scrib/demo/fase17/AppD.scr in [default] mode bug --- projection/EFSM not properly formed if this if is commented ????
-		{
-
-		}*/
+//		if (this.args.containsKey(CLArgFlag.PROJECT))  // HACK
+//			// modules/f17/src/test/scrib/demo/fase17/AppD.scr in [default] mode bug --- projection/EFSM not properly formed if this if is commented ????
+//		{
+//
+//		}
 
 		assrtCorePreContextBuilding(j);
 
@@ -197,10 +173,10 @@ public class AssrtCommandLine extends CommandLine
 		AssrtCoreSTypeFactory af = new AssrtCoreSTypeFactory();
 		AssrtCoreGType gt = new AssrtCoreGProtocolDeclTranslator(job, af).translate(this.gpd);
 		
-		/*..HERE FIXME: need to add global assrt rec/continue and fix global inlining -- below steps use only the inlined *global*
-		CHECKME: base assrt "works" because projected local proto decl does keep the assertion, and inlining of local, which does handle the assertions (AssrtLProjectionDeclDel), is done from the "base" protocol decl(s) -- i.e., not from the inlined global (CHECKME?)
-		(in base, inlining of global is only for global level (syntactic) checks -- model checking is done from the separately inlined locals -- inlined global is also for "extensions" like this one and f17)
-		-- does inlining->projection give the same as "base projection"->inlining?*/
+//		..HERE FIXME: need to add global assrt rec/continue and fix global inlining -- below steps use only the inlined *global*
+//		CHECKME: base assrt "works" because projected local proto decl does keep the assertion, and inlining of local, which does handle the assertions (AssrtLProjectionDeclDel), is done from the "base" protocol decl(s) -- i.e., not from the inlined global (CHECKME?)
+//		(in base, inlining of global is only for global level (syntactic) checks -- model checking is done from the separately inlined locals -- inlined global is also for "extensions" like this one and f17)
+//		-- does inlining->projection give the same as "base projection"->inlining?
 		
 		job.verbosePrintln("\n[assrt-core] Translated:\n  " + gt);
 		
@@ -239,21 +215,21 @@ public class AssrtCommandLine extends CommandLine
 				
 		assrtCoreValidate(job, simpname, gpd.isExplicitModifier());//, this.E0);  // TODO
 
-		/*if (!job.fair)
-		{
-			Map<Role, EState> U0 = new HashMap<>();
-			for (Role r : E0.keySet())
-			{
-				EState u = E0.get(r).unfairTransform();
-				U0.put(r, u);
-
-				job.verbosePrintln
-				//System.out.println
-						("\n[assrt-core] Unfair transform for " + r + ":\n" + u.toDot());
-			}
-			
-			//validate(job, gpd.isExplicitModifier(), U0, true);  //TODO
-		}*/
+//		if (!job.fair)
+//		{
+//			Map<Role, EState> U0 = new HashMap<>();
+//			for (Role r : E0.keySet())
+//			{
+//				EState u = E0.get(r).unfairTransform();
+//				U0.put(r, u);
+//
+//				job.verbosePrintln
+//				//System.out.println
+//						("\n[assrt-core] Unfair transform for " + r + ":\n" + u.toDot());
+//			}
+//			
+//			//validate(job, gpd.isExplicitModifier(), U0, true);  //TODO
+//		}
 		
 		//((AssrtJob) job).runF17ProjectionPasses();  // projections not built on demand; cf. models
 
@@ -358,34 +334,35 @@ public class AssrtCommandLine extends CommandLine
 			}
 		}
 		
-		/*F17ProgressErrors perrs = m.getProgressErrors();
-		if (perrs.satisfiesProgress())
-		{
-			job.verbosePrintln
-			//System.out.println
-					("\n[f17] " + ((unfair.length == 0) ? "Fair protocol" : "Protocol") + " satisfies progress.");
-		}
-		else
-		{
-
-			// FIXME: refactor eventual reception as 1-bounded stable check
-			Set<F17SState> staberrs = m.getStableErrors();
-			if (perrs.eventualReception.isEmpty())
-			{
-				if (!staberrs.isEmpty())
-				{
-					throw new RuntimeException("[f17] 1-stable check failure: " + staberrs);
-				}
-			}
-			else
-			{
-				if (staberrs.isEmpty())
-				{
-					throw new RuntimeException("[f17] 1-stable check failure: " + perrs);
-				}
-			}
-			
-			throw new F17Exception("\n[f17] " + ((unfair.length == 0) ? "Fair protocol" : "Protocol") + " violates progress.\n" + perrs);
-		}*/
+//		F17ProgressErrors perrs = m.getProgressErrors();
+//		if (perrs.satisfiesProgress())
+//		{
+//			job.verbosePrintln
+//			//System.out.println
+//					("\n[f17] " + ((unfair.length == 0) ? "Fair protocol" : "Protocol") + " satisfies progress.");
+//		}
+//		else
+//		{
+//
+//			// FIXME: refactor eventual reception as 1-bounded stable check
+//			Set<F17SState> staberrs = m.getStableErrors();
+//			if (perrs.eventualReception.isEmpty())
+//			{
+//				if (!staberrs.isEmpty())
+//				{
+//					throw new RuntimeException("[f17] 1-stable check failure: " + staberrs);
+//				}
+//			}
+//			else
+//			{
+//				if (staberrs.isEmpty())
+//				{
+//					throw new RuntimeException("[f17] 1-stable check failure: " + perrs);
+//				}
+//			}
+//			
+//			throw new F17Exception("\n[f17] " + ((unfair.length == 0) ? "Fair protocol" : "Protocol") + " violates progress.\n" + perrs);
+//		}
 	}
+	*/
 }

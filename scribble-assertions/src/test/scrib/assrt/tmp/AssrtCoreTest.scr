@@ -89,9 +89,12 @@
 // - check overrides, return super types where better
 // - Actually @deprecate runtimeexception overrides? e.g, reconstruct
 
+...HERE refactor parser mixed new ast types with old token types -- refactor new ast types to fully subsume old ones
+
 // later:
 // - refactor modulecontext building, move dup vis name checks out (drop scribexception)
 // - try var type inference
+// - refactor namedisamb functionality
 
 
 

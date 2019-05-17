@@ -12,7 +12,7 @@ import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrIntVal;
 import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrIntVar;
 import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrNegExpr;
 import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrUnFun;
-import org.scribble.parser.scribble.AntlrToScribParser;
+import org.scribble.parser.ScribAntlrWrapper;
 
 // Embedded by AssrtAntlrToScribParser
 public class AssrtAntlrToFormulaParser
@@ -38,7 +38,7 @@ public class AssrtAntlrToFormulaParser
 	// Does not parse ROOT directly -- AssrtAntlr[...] methods extract the children
 	public AssrtSmtFormula<?> parse(CommonTree ct) //throws AssertionsParseException
 	{
-		AntlrToScribParser.checkForAntlrErrors(ct);
+		ScribAntlrWrapper.checkForAntlrErrors(ct);
 		
 		AssrtAntlrNodeType type = AssrtAntlrToFormulaParserUtil.getAntlrNodeType(ct);
 		switch (type)

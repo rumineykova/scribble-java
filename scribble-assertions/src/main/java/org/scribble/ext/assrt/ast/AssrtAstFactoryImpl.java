@@ -185,10 +185,11 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	@Override
 	public AssrtArithExpr AssrtArithAnnotation(Token t, AssrtArithFormula aexpr)
 	{
-		t = newToken(t, ...);
+		/*t = newToken(t, ...);
 		AssrtArithExpr n = new AssrtArithExpr(t, aexpr);
 		n.decorateDel(this.df);
-		return n;
+		return n;*/
+		throw new RuntimeException("[TODO] " + t);
 	}
 
 	@Override

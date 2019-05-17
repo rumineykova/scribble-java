@@ -1,56 +1,11 @@
-package org.scribble.ext.assrt.core.type.session.global;
+package org.scribble.ext.assrt.visit;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.scribble.ast.MsgNode;
-import org.scribble.ast.PayElem;
-import org.scribble.ast.SigLitNode;
-import org.scribble.ast.UnaryPayElem;
-import org.scribble.ast.global.GChoice;
-import org.scribble.ast.global.GConnect;
-import org.scribble.ast.global.GContinue;
-import org.scribble.ast.global.GInteractionNode;
-import org.scribble.ast.global.GProtoBlock;
 import org.scribble.ast.global.GProtoDecl;
-import org.scribble.ast.global.GProtoDef;
-import org.scribble.ast.global.GSessionNode;
-import org.scribble.ast.global.GSimpleSessionNode;
-import org.scribble.ast.name.simple.RecVarNode;
-import org.scribble.ast.name.simple.RoleNode;
-import org.scribble.core.type.kind.Global;
-import org.scribble.core.type.kind.RecVarKind;
 import org.scribble.core.type.name.DataName;
-import org.scribble.core.type.name.Op;
-import org.scribble.core.type.name.PayElemType;
-import org.scribble.core.type.name.RecVar;
-import org.scribble.core.type.name.Role;
-import org.scribble.del.global.GProtoDefDel;
-import org.scribble.ext.assrt.ast.AssrtAnnotDataElem;
-import org.scribble.ext.assrt.ast.AssrtArithExpr;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
-import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.global.AssrtGConnect;
-import org.scribble.ext.assrt.ast.global.AssrtGContinue;
-import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
-import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
-import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
+import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGType;
 import org.scribble.job.Job;
 
 // Cf. GTypeTranslator
@@ -81,20 +36,23 @@ public class AssrtCoreGProtoDeclTranslator
 		this.job = job;
 		this.af = af;
 		
-		/*if (F17GProtoDeclTranslator.UNIT_TYPE == null)
-		{
-			F17GProtoDeclTranslator.UNIT_TYPE = new DataType("_UNIT");
-		}*/
+//		if (F17GProtoDeclTranslator.UNIT_TYPE == null)
+//		{
+//			F17GProtoDeclTranslator.UNIT_TYPE = new DataType("_UNIT");
+//		}
 	}
 
-	public AssrtCoreGType translate(GProtoDecl gpd) throws AssrtCoreSyntaxException
+	public AssrtCoreGType translate(GProtoDecl gpd)
+			throws AssrtCoreSyntaxException
 	{
-		GProtoDef inlined = ((GProtoDefDel) gpd.def.del()).getInlinedProtocolDef();
+		throw new RuntimeException("[TODO] :\n" + gpd);
+		/*GProtoDef inlined = ((GProtoDefDel) gpd.def.del()).getInlinedProtoDef();
 		return parseSeq(
 				inlined.getBlockChild().getInteractSeqChild().getInteractionChildren(),
-				new HashMap<>(), false, false);
+				new HashMap<>(), false, false);*/
 	}
 
+	/*
 	// List<GInteractionNode> because subList is useful for parsing the continuation
 	private AssrtCoreGType parseSeq(List<GSessionNode> is, Map<RecVar, RecVar> rvs,
 			boolean checkChoiceGuard, boolean checkRecGuard) throws AssrtCoreSyntaxException
@@ -115,14 +73,14 @@ public class AssrtCoreGProtoDeclTranslator
 			{
 				return parseAssrtGConnect(is, rvs, (AssrtGConnect) first);
 			}
-			/*else if (first instanceof GDisconnect)
-			{
-				F17GDisconnect gdc = parseGDisconnect((GDisconnect) first);
-				AssrtCoreGType cont = parseSeq(jc, mc, is.subList(1, is.size()), false, false);
-				Map<AssrtCoreGAction, AssrtCoreGType> cases = new HashMap<>();
-				cases.put(gdc, cont);
-				return this.factory.GChoice(cases);
-			}*/
+//			else if (first instanceof GDisconnect)
+//			{
+//				F17GDisconnect gdc = parseGDisconnect((GDisconnect) first);
+//				AssrtCoreGType cont = parseSeq(jc, mc, is.subList(1, is.size()), false, false);
+//				Map<AssrtCoreGAction, AssrtCoreGType> cases = new HashMap<>();
+//				cases.put(gdc, cont);
+//				return this.factory.GChoice(cases);
+//			}
 			else
 			{
 				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + first);
@@ -230,8 +188,8 @@ public class AssrtCoreGProtoDeclTranslator
 		//return this.af.AssrtCoreGRec(recvar, annot, init, body);
 		//return this.af.AssrtCoreGRec(recvar, Stream.of(annot).collect(Collectors.toMap(a -> a, a -> init)), body);
 		Iterator<AssrtArithExpr> exprs = gr.annotexprs.iterator();
-		/*Map<AssrtDataTypeVar, AssrtArithFormula> vars
-				= gr.annotvars.stream().collect(Collectors.toMap(v -> v.getFormula().toName(), v -> exprs.next().getFormula()));*/
+//		Map<AssrtDataTypeVar, AssrtArithFormula> vars
+//				= gr.annotvars.stream().collect(Collectors.toMap(v -> v.getFormula().toName(), v -> exprs.next().getFormula()));
 		LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars = new LinkedHashMap<>();
 		for (AssrtIntVarNameNode vv : gr.annotvars)
 		{
@@ -341,17 +299,17 @@ public class AssrtCoreGProtoDeclTranslator
 		SigLitNode msn = ((SigLitNode) mn);
 		if (msn.getPayloadListChild().getElementChildren().isEmpty())
 		{
-			/*DataTypeNode dtn = (DataTypeNode) ((AssrtAstFactory) this.job.af).QualifiedNameNode(null, DataTypeKind.KIND, "_Unit");
-			AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
-			return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, dtn);  // null source OK?*/
+//			DataTypeNode dtn = (DataTypeNode) ((AssrtAstFactory) this.job.af).QualifiedNameNode(null, DataTypeKind.KIND, "_Unit");
+//			AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
+//			return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, dtn);  // null source OK?
 
 			return Stream.of(new AssrtAnnotDataType(makeFreshDataTypeVar(), AssrtCoreGProtoDeclTranslator.UNIT_DATATYPE))
 					.collect(Collectors.toList());  // FIXME: make empty list
 		}
-		/*else if (msn.payloads.getElements().size() > 1)
-		{
-			throw new AssrtCoreSyntaxException(msn.getSource(), "[assrt-core] Payload with more than one element not supported: " + mn);
-		}*/
+//		else if (msn.payloads.getElements().size() > 1)
+//		{
+//			throw new AssrtCoreSyntaxException(msn.getSource(), "[assrt-core] Payload with more than one element not supported: " + mn);
+//		}
 
 		//PayloadElem<?> pe = msn.payloads.getElements().get(0);
 		List<AssrtAnnotDataType> res = new LinkedList<>();
@@ -362,10 +320,10 @@ public class AssrtCoreGProtoDeclTranslator
 				// Already ruled out by parsing?  e.g., GDelegationElem
 				throw new AssrtCoreSyntaxException("[assrt-core] Payload element not supported: " + pe);
 			}
-			/*else if (pe instanceof LDelegationElem)  // No: only created by projection, won't be parsed
-			{
-				throw new AssrtCoreSyntaxException("[assrt-core] Payload element not supported: " + pe);
-			}*/
+//			else if (pe instanceof LDelegationElem)  // No: only created by projection, won't be parsed
+//			{
+//				throw new AssrtCoreSyntaxException("[assrt-core] Payload element not supported: " + pe);
+//			}
 			
 			if (pe instanceof AssrtAnnotDataElem)
 			{
@@ -448,4 +406,5 @@ public class AssrtCoreGProtoDeclTranslator
 	{
 		return rn.toName();
 	}
+	*/
 }
