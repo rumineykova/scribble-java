@@ -53,13 +53,13 @@ public class AssrtLDo extends LDo implements AssrtStateVarArgAnnotNode
 
 	// "add", not "set"
 	public void addScribChildren(ProtoNameNode<Local> proto, NonRoleArgList as,
-			RoleArgList rs, List<AssrtArithExpr> exprs)
+			RoleArgList rs, List<AssrtArithExpr> aexprs)
 	{
 		// Cf. above getters and Scribble.g children order
 		addChild(proto);  // Order re. getter indices
 		addChild(as);
 		addChild(rs);
-		addChildren(exprs);
+		addChildren(aexprs);
 	}
 	
 	@Override
@@ -83,10 +83,10 @@ public class AssrtLDo extends LDo implements AssrtStateVarArgAnnotNode
 	}
 
 	public AssrtLDo reconstruct(ProtoNameNode<Local> proto, RoleArgList rs,
-			NonRoleArgList as, List<AssrtArithExpr> exprs)
+			NonRoleArgList as, List<AssrtArithExpr> aexprs)
 	{
 		AssrtLDo dup = dupNode();
-		dup.addScribChildren(proto, as, rs, exprs);
+		dup.addScribChildren(proto, as, rs, aexprs);
 		dup.setDel(del());  // No copy
 		return dup;
 	}
@@ -98,9 +98,9 @@ public class AssrtLDo extends LDo implements AssrtStateVarArgAnnotNode
 				getProtoNameChild(), v);
 		RoleArgList rs = (RoleArgList) visitChild(getRoleListChild(), v);
 		NonRoleArgList as = (NonRoleArgList) visitChild(getNonRoleListChild(), v);
-		List<AssrtArithExpr> exprs = visitChildListWithClassEqualityCheck(this,
+		List<AssrtArithExpr> aexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);
-		return reconstruct(proto, rs, as, exprs);
+		return reconstruct(proto, rs, as, aexprs);
 	}
 
 	@Override

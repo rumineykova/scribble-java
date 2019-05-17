@@ -30,7 +30,7 @@ public class AssrtAntlrGConnect
 		// FIXME: factor out of AssrtAntlrGMessageTransfer
 		AssrtAssertion ass = AssrtAntlrGMessageTransfer.parseAssertion(((AssrtAntlrToScribParser) parser).ap, getAssertionChild(ct), af);
 
-		return ((AssrtAstFactory) af).AssrtGConnect(ct, src, msg, dest, ass);
+		return ((AssrtAstFactory) af).AssrtGConnect(ct, msg, src, dest, ass);
 	}
 
 	// Originals re-defined to use new indices -- FIXME: better pattern

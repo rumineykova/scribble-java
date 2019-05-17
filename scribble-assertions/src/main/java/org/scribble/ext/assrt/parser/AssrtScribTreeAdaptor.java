@@ -46,7 +46,8 @@ public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 		switch (t.getType())
 		{
 			/**
-			 *  Returning new node classes in place of existing
+			 *  Create ext node type in place of base
+			 *  Parser returns a base token type, we create an ext node type but keep the base token
 			 */
 
 			// TODO: integrate with ASSRT variants below?  maybe by un-deprecating reconstructs to make base children configs valid
@@ -65,10 +66,11 @@ public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 			
 
 			/**
-			 *  Explicitly creating new Assrt nodes
+			 *  Creating explicitly new ext (Assrt) node types
+			 *  Parser returns an ext token type, we create the corresponding ext node type
 			 */
 			
-			// Simple names "constructed directly" by parser, e.g., t=ID -> ID<...Node>[$t] -- N.B. DelDecorator pass needed for them (CHECKME: also do those here instead? to deprecate DelDecorator)
+			// Simple names "constructed directly" by parser, cf. assrt_varname: t=ID -> ID<AssrtIntVarNameNode>[$t] ;
 
 			// Compound names 
 

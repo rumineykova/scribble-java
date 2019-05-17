@@ -13,15 +13,9 @@
  */
 package org.scribble.ext.assrt.del;
 
-import org.scribble.ast.Module;
-import org.scribble.ast.global.GChoice;
+import org.scribble.ast.global.GConnect;
+import org.scribble.ast.global.GDo;
 import org.scribble.ast.global.GMsgTransfer;
-import org.scribble.ast.global.GProtoBlock;
-import org.scribble.ast.global.GProtoDecl;
-import org.scribble.ast.global.GProtoDef;
-import org.scribble.ast.local.LProjectionDecl;
-import org.scribble.ast.local.LProtoBlock;
-import org.scribble.ast.local.LProtoDef;
 import org.scribble.ast.local.LRecv;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.del.DelFactoryImpl;
@@ -43,19 +37,17 @@ import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
 import org.scribble.ext.assrt.ast.local.AssrtLReq;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
-import org.scribble.ext.assrt.del.global.AssrtGChoiceDel;
 import org.scribble.ext.assrt.del.global.AssrtGConnectDel;
 import org.scribble.ext.assrt.del.global.AssrtGContinueDel;
 import org.scribble.ext.assrt.del.global.AssrtGDoDel;
 import org.scribble.ext.assrt.del.global.AssrtGMsgTransferDel;
-import org.scribble.ext.assrt.del.global.AssrtGProtoBlockDel;
-import org.scribble.ext.assrt.del.global.AssrtGProtoDeclDel;
-import org.scribble.ext.assrt.del.global.AssrtGProtoDefDel;
 import org.scribble.ext.assrt.del.global.AssrtGRecursionDel;
-import org.scribble.ext.assrt.del.local.AssrtLProjectionDeclDel;
-import org.scribble.ext.assrt.del.local.AssrtLProtoBlockDel;
-import org.scribble.ext.assrt.del.local.AssrtLProtoDefDel;
+import org.scribble.ext.assrt.del.local.AssrtLContinueDel;
+import org.scribble.ext.assrt.del.local.AssrtLDoDel;
+import org.scribble.ext.assrt.del.local.AssrtLRecursionDel;
 import org.scribble.ext.assrt.del.local.AssrtLRecvDel;
+import org.scribble.ext.assrt.del.local.AssrtLReqDel;
+import org.scribble.ext.assrt.del.local.AssrtLSendDel;
 import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
 
 
@@ -251,11 +243,35 @@ public class AssrtDelFactoryImpl extends DelFactoryImpl implements AssrtDelFacto
 		setDel(n, createDefaultDel());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
 	}
 
-	void AssrtLSend(AssrtLSend n);
-	void AssrtLReq(AssrtLReq n);
-	void AssrtLRecursion(AssrtLRecursion n);
-	void AssrtLContinue(AssrtLContinue n);
-	void AssrtLDo(AssrtLDo n);
+	@Override
+	public void AssrtLSend(AssrtLSend n)
+	{
+		setDel(n, new AssrtLSendDel());
+	}
+
+	@Override
+	public void AssrtLReq(AssrtLReq n)
+	{
+		setDel(n, new AssrtLReqDel());
+	}
+
+	@Override
+	public void AssrtLContinue(AssrtLContinue n)
+	{
+		setDel(n, new AssrtLContinueDel());
+	}
+
+	@Override
+	public void AssrtLDo(AssrtLDo n)
+	{
+		setDel(n, new AssrtLDoDel());
+	}
+
+	@Override
+	public void AssrtLRecursion(AssrtLRecursion n)
+	{
+		setDel(n, new AssrtLRecursionDel());
+	}
 }
 	
 	

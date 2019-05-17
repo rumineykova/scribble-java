@@ -69,7 +69,7 @@ public interface AssrtAstFactory extends AstFactory
 
 	AssrtGMsgTransfer AssrtGMsgTransfer(Token t, MsgNode msg, RoleNode src,
 			List<RoleNode> dsts, AssrtAssertion ass);
-	AssrtGConnect AssrtGConnect(Token t, RoleNode src, MsgNode msg, RoleNode dst,
+	AssrtGConnect AssrtGConnect(Token t, MsgNode msg, RoleNode src, RoleNode dst,
 			AssrtAssertion ass);
 
 	@Deprecated  // Not currently parsed (or used)
@@ -89,15 +89,17 @@ public interface AssrtAstFactory extends AstFactory
 			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
 			AssrtAssertion ass);  // FIXME: not actually how parsed
 
-	AssrtLSend AssrtLSend(Token t, MsgNode msg, RoleNode src,
+	AssrtLSend AssrtLSend(Token t, MsgNode msg, RoleNode self,
 			List<RoleNode> dsts, AssrtAssertion ass);
-	AssrtLReq AssrtLConnect(Token t, RoleNode src, MsgNode msg, RoleNode dst,
-			AssrtAssertion assertion);
+	AssrtLReq AssrtLReq(Token t, MsgNode msg, RoleNode self, RoleNode dst,
+			AssrtAssertion ass);
 
+	@Deprecated
 	AssrtLContinue AssrtLContinue(Token t, RecVarNode rv, List<AssrtArithExpr> aexprs);
 	AssrtLDo AssrtLDo(Token t, RoleArgList rs, NonRoleArgList as,
 			LProtoNameNode proto, List<AssrtArithExpr> aexprs);
 
+	@Deprecated
 	AssrtLRecursion AssrtLRecursion(Token t, RecVarNode rv, LProtoBlock block,
 			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
 			AssrtAssertion ass);  // FIXME: not actually how parsed

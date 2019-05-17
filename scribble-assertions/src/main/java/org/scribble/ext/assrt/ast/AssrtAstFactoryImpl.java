@@ -4,11 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.antlr.runtime.Token;
-import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.AstFactoryImpl;
 import org.scribble.ast.ImportDecl;
-import org.scribble.ast.MessageNode;
-import org.scribble.ast.Module;
 import org.scribble.ast.ModuleDecl;
 import org.scribble.ast.MsgNode;
 import org.scribble.ast.NonProtoDecl;
@@ -42,11 +39,7 @@ import org.scribble.ext.assrt.ast.name.simple.AssrtSortNode;
 import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
-import org.scribble.ext.assrt.del.local.AssrtLContinueDel;
-import org.scribble.ext.assrt.del.local.AssrtLDoDel;
-import org.scribble.ext.assrt.del.local.AssrtLRecursionDel;
-import org.scribble.ext.assrt.del.local.AssrtLRequestDel;
-import org.scribble.ext.assrt.del.local.AssrtLSendDel;
+import org.scribble.parser.ScribAntlrWrapper;
 import org.scribble.parser.antlr.AssrtScribbleParser;
 
 
@@ -56,8 +49,14 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 		implements AssrtAstFactory
 {
 	
+	public AssrtAstFactoryImpl(ScribAntlrWrapper antlr)
+	{
+		super(antlr);
+	}
+
 	/**
-	 *  Returning new node classes in place of existing -- with base token types
+	 *  Create ext node type in place of base
+	 *  Parser returns a base token type, we create an ext node type but keep the base token
 	 */
 	
 	/*@Override
@@ -89,7 +88,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	// Same pattern as for GProtoHeader
 	// Non-annotated message transfers still created as AssrtGMessageTransfer -- null assertion, but AssrtGMessageTransferDel is still needed (why?)
 	@Override
-	public AssrtGMsgTransfer GMsgTransfer(Token t, RoleNode src, MsgNode msg,
+	public AssrtGMsgTransfer GMsgTransfer(Token t, MsgNode msg, RoleNode src,
 			List<RoleNode> dsts)
 	{
 		t = newToken(t, AssrtScribbleParser.GMSGTRANSFER);
@@ -100,7 +99,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	}
 
 	@Override 
-	public AssrtGConnect GConnect(Token t, RoleNode src, MsgNode msg, RoleNode dst)  // Cf. AssrtAstFactoryImpl::GMsgTransfer
+	public AssrtGConnect GConnect(Token t, MsgNode msg, RoleNode src, RoleNode dst)  // Cf. AssrtAstFactoryImpl::GMsgTransfer
 	{
 		t = newToken(t, AssrtScribbleParser.GCONNECT);
 		AssrtGConnect n = new AssrtGConnect(t);
@@ -186,7 +185,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	@Override
 	public AssrtArithExpr AssrtArithAnnotation(Token t, AssrtArithFormula aexpr)
 	{
-		t = newToken(t, AssrtScribbleParser.ASSRT_);
+		t = newToken(t, ...);
 		AssrtArithExpr n = new AssrtArithExpr(t, aexpr);
 		n.decorateDel(this.df);
 		return n;
@@ -245,7 +244,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	}
 
 	@Override
-	public AssrtGConnect AssrtGConnect(Token t, RoleNode src, MsgNode msg,
+	public AssrtGConnect AssrtGConnect(Token t, MsgNode msg, RoleNode src,
 			RoleNode dst, AssrtAssertion ass)
 	{
 		t = newToken(t, AssrtScribbleParser.ASSRT_GLOBALCONNECT);
@@ -283,7 +282,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 			GProtoBlock block, AssrtAssertion ass, List<AssrtIntVarNameNode> avars,
 			List<AssrtArithExpr> aexprs)  // FIXME: not actually how parsed
 	{
-		/*t = newToken(t, AssrtScribbleParser.GRECURSION);
+		/*t = newToken(t, ...);
 		AssrtGRecursion n = new AssrtGRecursion(t);
 		n.addScribChildren(rv, block, ass, avars, aexprs);
 		n.decorateDel(this.df);
@@ -305,51 +304,65 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	}
 
 	@Override
-	public AssrtLSend AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
+	public AssrtLSend AssrtLSend(Token t, MsgNode msg, RoleNode self,
+			List<RoleNode> dsts, AssrtAssertion ass)
 	{
-		AssrtLSend ls = new AssrtLSend(source, src, msg, dests, assertion);
-		ls = del(ls, new AssrtLSendDel());
-		return ls;
+		t = newToken(t, AssrtScribbleParser.ASSRT_LOCALSEND);
+		AssrtLSend n = new AssrtLSend(t);
+		if (dsts.size() > 1)
+		{
+			throw new RuntimeException(
+					"[TODO] Multiple dest roles for " + getClass() + ":\n\t" + dsts);
+		}
+		n.addScribChildren(msg, self, Arrays.asList(dsts.get(0)));
+		n.decorateDel(this.df);
+		return n;
 	}
 
 	@Override
-	public AssrtLReq AssrtLConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion ass)
+	public AssrtLReq AssrtLReq(Token t, MsgNode msg, RoleNode self, RoleNode dst,
+			AssrtAssertion ass)
 	{
-		AssrtLReq ls = new AssrtLReq(source, src, msg, dest, ass);
-		ls = del(ls, new AssrtLRequestDel());
-		return ls;
+		t = newToken(t, AssrtScribbleParser.ASSRT_LOCALREQ);
+		AssrtLReq n = new AssrtLReq(t);
+		n.addScribChildren(msg, self, Arrays.asList(dst));
+		n.decorateDel(this.df);
+		return n;
 	}
 
 	@Override
-	public AssrtLRecursion AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtoBlock block, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
+	public AssrtLContinue AssrtLContinue(Token t, RecVarNode rv,
+			List<AssrtArithExpr> aexprs)
+	{
+		/*t = newToken(t, ...);
+		AssrtGContinue n = new AssrtGContinue(t);
+		n.addScribChildren(rv, aexprs);
+		n.decorateDel(this.df);
+		return n;*/
+		throw new RuntimeException("[TODO] : " + t);
+	}
+
+	@Override
+	public AssrtLDo AssrtLDo(Token t, RoleArgList rs, NonRoleArgList as,
+			LProtoNameNode proto, List<AssrtArithExpr> aexprs)
+	{
+		t = newToken(t, AssrtScribbleParser.ASSRT_LOCALDO);
+		AssrtLDo n = new AssrtLDo(t);
+		n.addScribChildren(proto, as, rs, aexprs);
+		n.decorateDel(this.df);
+		return n;
+	}
+
+	@Override
+	public AssrtLRecursion AssrtLRecursion(Token t, RecVarNode rv, LProtoBlock block,
+			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
 			AssrtAssertion ass)  // FIXME: not actually how parsed
 	{
-		AssrtLRecursion lr = new AssrtLRecursion(source, recvar, block, //ass);
-				annotvars, annotexprs,
-				ass);
-		lr = del(lr, new AssrtLRecursionDel());
-		return lr;
+		/*t = newToken(t, ...);
+		AssrtLRecursion n = new AssrtLRecursion(t);
+		n.addScribChildren(rv, block, ass, avars, aexprs);
+		n.decorateDel(this.df);
+		return n;*/
+		throw new RuntimeException("[TODO] : " + t);
 	}
-
-	@Override
-	public AssrtLContinue AssrtLContinue(CommonTree source, RecVarNode recvar, //AssrtArithExpr annot)
-			List<AssrtArithExpr> annotexprs)
-	{
-		AssrtLContinue lc = new AssrtLContinue(source, recvar, //annot);
-				annotexprs);
-		lc = del(lc, new AssrtLContinueDel());
-		return lc;
-	}
-
-	@Override
-	public AssrtLDo AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtoNameNode proto, //AssrtArithExpr annot)
-			List<AssrtArithExpr> annotexprs)
-	{
-		AssrtLDo gd = new AssrtLDo(source, roleinstans, arginstans, proto, //annot);
-				annotexprs);
-		gd = del(gd, new AssrtLDoDel());
-		return gd;
-	}
-
 }
