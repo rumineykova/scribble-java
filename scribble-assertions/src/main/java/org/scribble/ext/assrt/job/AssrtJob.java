@@ -20,13 +20,13 @@ import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.job.AssrtCoreArgs;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.util.Z3Wrapper;
-import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
+import org.scribble.ext.assrt.visit.AssrtVisitorFactoryImpl;
+import org.scribble.job.Job;
 import org.scribble.job.JobContext;
 import org.scribble.util.ScribException;
 import org.scribble.visit.VisitorFactory;
-import org.scribble.visit.VisitorFactoryImpl;
 
-public class AssrtJob extends org.scribble.job.Job
+public class AssrtJob extends Job
 {
 	// N.B. currently only used by assrt-core
 	public enum Solver { NATIVE_Z3, NONE }
@@ -41,9 +41,7 @@ public class AssrtJob extends org.scribble.job.Job
 	@Override
 	protected VisitorFactory newVisitorFactory()
 	{
-		runVisitorPassOnAllModules(AssrtNameDisambiguator.class);  // FIXME: factor out overriding pattern?
-
-		return new VisitorFactoryImpl();
+		return new AssrtVisitorFactoryImpl();
 	}
 	
 	// A Scribble extension should override newVisitorFactory/STypeFactory as appropriate
@@ -82,12 +80,12 @@ public class AssrtJob extends org.scribble.job.Job
 	@Override
 	public void runPasses() throws ScribException
 	{
-		super.runPasses();
+		super.runPasses();  // Includes AssrtNameDisambiguator
 
-		if (!this.config.args.NO_VALIDATION)
+		/*if (!this.config.args.NO_VALIDATION)
 		{
 			runVisitorPassOnAllModules(AssrtAnnotationChecker.class);
-		}
+		}*/
 	}
 
 

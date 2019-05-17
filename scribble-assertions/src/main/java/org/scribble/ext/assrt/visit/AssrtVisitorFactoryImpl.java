@@ -39,11 +39,11 @@ public class AssrtVisitorFactoryImpl extends VisitorFactoryImpl
 	{
 		return new DelDecorator(job);
 	}
+	*/
 
 	@Override
-	public NameDisambiguator NameDisambiguator(Job job)
+	public AssrtNameDisambiguator NameDisambiguator(Job job)
 	{
-		return new NameDisambiguator(job);
+		return new AssrtNameDisambiguator(job);
 	}
-	//*/
 }

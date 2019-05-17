@@ -9,13 +9,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
-import org.scribble.type.name.Role;
-import org.scribble.visit.env.Env;
 
 // FIXME: check and refactor syntactic checks with AssrtNameDisambiguator
-public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
+public class AssrtAnnotationEnv //extends Env<AssrtAnnotationEnv>
 {
 	// "May" analysis -- context merge takes the union
 	private Map<Role, Set<AssrtAnnotDataType>> decls;  // Var declaration binding  // Role is the src role of the transfer -- not important?
@@ -48,26 +47,26 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 		return tmp != null && tmp.stream().anyMatch(v -> v.equals(avn));
 	}
 
-	@Override
+	//@Override
 	public AssrtAnnotationEnv copy()
 	{
 		return new AssrtAnnotationEnv(new HashMap<>(this.decls), new HashMap<>(this.vars));
 	}
 
-	@Override
+	//@Override
 	public AssrtAnnotationEnv enterContext()
 	{
 		return copy();
 	}
 
-	@Override
+	//@Override
 	public AssrtAnnotationEnv mergeContext(AssrtAnnotationEnv child)
 	{
 		return mergeContexts(Arrays.asList(child));
 	}
 	
   // Cf. WFChoiceEnv merge pattern -- unlike WFChoiceEnv, no env "clearing" on choice enter -- child envs are originally direct copies of parent, so can merge for updated parent directly from children (cf. "running" merge parameterised on original parent)
-	@Override
+	//@Override
 	public AssrtAnnotationEnv mergeContexts(List<AssrtAnnotationEnv> children)
 	{
 		AssrtAnnotationEnv copy = copy();

@@ -31,6 +31,7 @@ import org.scribble.core.visit.global.GTypeVisitorFactoryImpl;
 import org.scribble.core.visit.local.LTypeVisitorFactoryImpl;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactoryImpl;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactoryImpl;
+import org.scribble.util.ScribException;
 
 
 // A "compiler job" front-end that supports operations comprising visitor passes over the AST and/or local/global models
@@ -74,6 +75,15 @@ public class AssrtCore extends Core
 	protected CoreContext newCoreContext(Set<GProtocol> imeds)
 	{
 		return super.newCoreContext(imeds);
+	}
+
+	@Override
+	public void runPasses() throws ScribException
+	{
+		
+		// TODO: override passes for Assrt as needed
+		
+		super.runPasses();
 	}
 }
 

@@ -1,4 +1,4 @@
-package org.scribble.ext.assrt.visit.wf;
+package org.scribble.ext.assrt.visit;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -5,7 +5,7 @@ import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.core.type.name.AmbigName;
 import org.scribble.del.name.simple.AmbigNameNodeDel;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.visit.wf.AssrtNameDisambiguator;
+import org.scribble.ext.assrt.visit.AssrtNameDisambiguator;
 import org.scribble.util.ScribException;
 import org.scribble.visit.NameDisambiguator;
 

@@ -112,7 +112,7 @@ public class AssrtCommandLine extends CommandLine
 	
 	
 	
-	
+	// TODO: refactor into AssrtCore as needed
 	
 	@Override
 	protected void runValidationTasks(Job job) throws AssrtCoreSyntaxException,

@@ -39,12 +39,13 @@ public class AssrtMain extends Main
 	@Override
 	protected AstFactory newAstFactory(ScribAntlrWrapper antlr)
 	{
-		return new AssrtAstFactoryImpl();
+		return new AssrtAstFactoryImpl(antlr);
 	}
 
 	@Override
 	public AssrtJob newJob(Map<ModuleName, Module> parsed, CoreArgs args,
 			ModuleName mainFullname, AstFactory af, DelFactory df)
+			throws ScribException
 	{
 		return new AssrtJob(mainFullname, (AssrtCoreArgs) args, parsed, af, df);
 	}
