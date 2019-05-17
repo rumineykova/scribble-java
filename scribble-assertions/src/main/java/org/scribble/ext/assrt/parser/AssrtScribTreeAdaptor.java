@@ -20,11 +20,9 @@ import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtAnnotDataElem;
 import org.scribble.ext.assrt.ast.AssrtModule;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
-import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
 import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGProtoHeader;
-import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
 import org.scribble.parser.ScribTreeAdaptor;
 import org.scribble.parser.antlr.AssrtScribbleParser;
 
@@ -43,6 +41,10 @@ public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 		// Switching on ScribbleParser int type constants -- generated from Scribble.g tokens
 		// Previously: String tname = t.getText(); -- by convention of Scribble.g, type constant name given as node text, e.g., module: ... -> ^(MODULE ...)
 		ScribNodeBase n;
+		System.out.println("aaa1: " + t.getType() + " ,, " + t.getText());
+		
+		HERE super call doesn't work, constants different
+		
 		switch (t.getType())
 		{
 			/**
@@ -88,6 +90,7 @@ public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 
 			default:
 			{
+				System.out.println("aaa2: " + t.getText());
 				n = (ScribNodeBase) super.create(t);  // Assigning "n", but direct return should be the same?  ast decoration pattern should be delegating back to the same df as below 
 			}
 		}

@@ -89,7 +89,7 @@ public class AstFactoryImpl implements AstFactory
 	
 	public AstFactoryImpl(ScribAntlrWrapper antlr)
 	{
-		// FIXME: refactor to ScribbleParser, and move ast/deflfactoryimpl out of parser
+		// FIXME: refactor to ScribbleParser, and move ast/delfactoryimpl out of parser
 		try
 		{
 			this.parser = antlr.newScribbleParser(null);  // null CommonTokenStream seems OK for here
