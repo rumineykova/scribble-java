@@ -101,12 +101,6 @@
 
 
 
-module assrt.tmp.AssrtCoreTest;
-
-
-type <dotnet> "System.UInt32" from "..." as int;
-type <dotnet> "System.String" from "..." as str;
-
 /*
 - model checking: uniform validation for integrating different MPST features
 - assertions only "reduce" behaviours? true-only assertions
@@ -123,6 +117,11 @@ type <dotnet> "System.String" from "..." as str;
 --- very conserative -- restore "precision" by recursion assertions as "loop invariants"
 - so model checked errors: unknownvar (HS), assert-prog (TS?), sat (TS?), recursion-assert
 */
+module assrt.tmp.AssrtCoreTest;
+
+
+//type <dotnet> "System.UInt32" from "..." as int;
+//type <dotnet> "System.String" from "..." as str;
 
 
 //*

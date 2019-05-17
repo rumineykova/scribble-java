@@ -15,6 +15,8 @@ package org.scribble.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +24,7 @@ import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.Lexer;
 import org.antlr.runtime.Parser;
-import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.ParserRuleReturnScope;
 import org.antlr.runtime.tree.CommonErrorNode;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.Module;
@@ -83,19 +85,26 @@ public class ScribAntlrWrapper
 	protected Module runScribbleParser(CommonTokenStream ts)
 			throws ScribParserException
 	{
+		Parser p = newScribbleParser(ts);
 		try
 		{
-			ScribbleParser p = (ScribbleParser) newScribbleParser(ts);
-			
-			// FIXME: use reflection, no convenient way to make an interface with module method
-			
-			p.setTreeAdaptor(newAdaptor(this.df));
-			return (Module) p.module().getTree();
-					// Cast, because no convenient way to expose an interface for all (Scribble)Parsers with top-level "module" method?
+			ScribTreeAdaptor adptr = newAdaptor(this.df);
+			Method setTreeAdaptor = p.getClass().getMethod("setTreeAdaptor",
+					Class.forName("org.antlr.runtime.tree.TreeAdaptor"));
+			setTreeAdaptor.invoke(p, adptr);
+			Method module = p.getClass().getMethod("module");
+			return (Module) ((ParserRuleReturnScope) module.invoke(p)).getTree();
+				// Reflection, because no convenient way to expose an interface for all (Scribble)Parsers with top-level "module" method?
 		}
-		catch (RecognitionException e)
+		/*catch (RecognitionException e)
 		{
 			throw new ScribParserException(e);
+		}*/
+		catch (NoSuchMethodException | SecurityException | ClassNotFoundException
+				| IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e)
+		{
+			throw new RuntimeException(e);
 		}
 	}
 
