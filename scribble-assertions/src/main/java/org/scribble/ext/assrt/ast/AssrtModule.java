@@ -39,16 +39,16 @@ public class AssrtModule extends Module
 	}
 
 	// "add", not "set"
-	public void addScribChildren(ModuleDecl moddecl,
+	public void addScribChildren(ModuleDecl modd,
 			List<? extends ImportDecl<?>> imports,
-			List<? extends NonProtoDecl<?>> data, List<? extends ProtoDecl<?>> protos,
-			List<AssrtAssertDecl> asserts)
+			List<? extends NonProtoDecl<?>> nonprotos,
+			List<? extends ProtoDecl<?>> protos, List<AssrtAssertDecl> asserts)
 	{
 		// Cf. above getters and Scribble.g children order
-		//super.addScribChildren(moddecl, imports, data, protos);  // No: need asserts before protos
-		addChild(moddecl);
+		//super.addScribChildren(modd, imports, data, protos);  // No: need asserts before protos
+		addChild(modd);
 		addChildren(imports);
-		addChildren(data);
+		addChildren(nonprotos);
 		addChildren(asserts);
 		addChildren(protos);
 	}
@@ -66,18 +66,18 @@ public class AssrtModule extends Module
 	}
 	
 	@Override
-	protected Module reconstruct(ModuleDecl moddecl, List<ImportDecl<?>> imports,
+	protected Module reconstruct(ModuleDecl modd, List<ImportDecl<?>> imports,
 			List<NonProtoDecl<?>> nonprotos, List<ProtoDecl<?>> protos)
 	{
 		throw new RuntimeException(
 				"[assert] Deprecated for " + getClass() + ": " + this);
 	}
 
-	protected AssrtModule reconstruct(ModuleDecl moddecl, List<ImportDecl<?>> imports,
+	protected AssrtModule reconstruct(ModuleDecl modd, List<ImportDecl<?>> imports,
 			List<NonProtoDecl<?>> nonprotos, List<ProtoDecl<?>> protos, List<AssrtAssertDecl> asserts)
 	{
 		AssrtModule dup = dupNode();
-		dup.addScribChildren(moddecl, imports, nonprotos, protos, asserts);
+		dup.addScribChildren(modd, imports, nonprotos, protos, asserts);
 		dup.setDel(del());  // No copy
 		return dup;
 	}
@@ -86,7 +86,7 @@ public class AssrtModule extends Module
 	public AssrtModule visitChildren(AstVisitor v) throws ScribException
 	{
 		//Module sup = super.visitChildren(v);  // No: base reconstruct "deprecated" (run-time exception)
-		ModuleDecl moddecl = (ModuleDecl) visitChild(getModuleDeclChild(), v);
+		ModuleDecl modd = (ModuleDecl) visitChild(getModuleDeclChild(), v);
 		List<ImportDecl<?>> imports = ScribNodeBase
 				.visitChildListWithClassEqualityCheck(this, getImportDeclChildren(), v);
 		List<NonProtoDecl<?>> nonprotos = ScribNodeBase
@@ -95,7 +95,7 @@ public class AssrtModule extends Module
 				.visitChildListWithClassEqualityCheck(this, getProtoDeclChildren(), v);
 		List<AssrtAssertDecl> asserts = ScribNodeBase
 				.visitChildListWithClassEqualityCheck(this, getAssertDeclChildren(), v);
-		return reconstruct(moddecl, imports, nonprotos, protos, asserts);
+		return reconstruct(modd, imports, nonprotos, protos, asserts);
 	}
 
 	// Cf., e.g., getNonProtoDeclChild 

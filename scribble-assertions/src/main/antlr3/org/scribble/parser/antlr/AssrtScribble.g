@@ -167,6 +167,11 @@ tokens
 	ASSRT_ASSERT = 'ASSRT_ASSERT';
 	ASSRT_UNINTFUNARGLIST = 'ASSRT_UNINTFUNARGLIST';
 	ASSRT_UNINTFUNARG = 'ASSRT_UNINTFUNARG';
+
+	ASSRT_LOCALPROTOCOLHEADER = 'ASSRT_LOCALPROTOCOLHEADER';
+	ASSRT_LOCALSEND = 'ASSRT_LOCALSEND';
+	ASSRT_LOCALREQ = 'ASSRT_LOCALREQ';
+	ASSRT_LOCALDO = 'ASSRT_LOCALDO';
 }
 
 
@@ -368,10 +373,10 @@ simplesigname: t=ID -> ^(SIG_NAME[$t] ID) ;
 // "References to tokens with rewrite not found on left of -> are imaginary tokens."
 // Inlined moduledecl to make token label work
 module:
-	t=MODULE_KW modulename ';' importmodule* nonprotodecl* assert_fundecl*  // Assrt
+	t=MODULE_KW modulename ';' importmodule* nonprotodecl* assert_fundecl*  // Assrt  
 	protodecl* EOF
 ->
-	^(MODULE[$t] ^(MODULEDECL[$t] modulename) importmodule* nonprotodecl* 
+	^(MODULE[$t] ^(MODULEDECL[$t] modulename) importmodule* nonprotodecl*   // CHECKME: ASSRT_MODULE?  token/class discrepancy
 			assert_fundecl* protodecl*)
 ;
 // moduledecl: MODULE_KW<ModuleDecl>^ modulename ';'  
@@ -422,6 +427,8 @@ sigdecl:
 // Assrt
 assert_fundecl:
 	ASSERT_KW ID unintfunarglist simpledataname '=' EXTID ';'
+/*->
+	^(...)  // TODO*/
 ;
 
 unintfunarglist:

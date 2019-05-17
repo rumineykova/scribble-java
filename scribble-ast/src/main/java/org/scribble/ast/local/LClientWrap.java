@@ -39,13 +39,13 @@ public class LClientWrap extends LWrapAction
 	@Override
 	public RoleNode getSelfChild()
 	{
-		return getSourceChild();
+		return getClientChild();
 	}
 
 	@Override
 	public RoleNode getPeerChild()
 	{
-		return getDestinationChild();  // Multi-connect/req not supported
+		return getServerChild();  // Multi-connect/req not supported
 	}
 	
 	@Override
@@ -61,26 +61,26 @@ public class LClientWrap extends LWrapAction
 	}
 
 	// TODO: factor out a base
-	public LClientWrap reconstruct(RoleNode client, RoleNode server)
+	public LClientWrap reconstruct(RoleNode self, RoleNode peer)
 	{
 		LClientWrap n = dupNode();
-		n.addScribChildren(client, server);
+		n.addScribChildren(self, peer);
 		n.setDel(del());  // No copy
 		return n;
 	}
 
 	// TODO: factor out a base
 	@Override
-	public LClientWrap visitChildren(AstVisitor nv) throws ScribException
+	public LClientWrap visitChildren(AstVisitor v) throws ScribException
 	{
-		RoleNode src = (RoleNode) visitChild(getClientChild(), nv);
-		RoleNode dest = (RoleNode) visitChild(getClientChild(), nv);
-		return reconstruct(src, dest);
+		RoleNode self = (RoleNode) visitChild(getSelfChild(), v);
+		RoleNode peer = (RoleNode) visitChild(getPeerChild(), v);
+		return reconstruct(self, peer);
 	}
 
 	@Override
 	public String toString()
 	{
-		return Constants.CLIENTWRAP_KW + getServerChild() + ";";
+		return Constants.CLIENTWRAP_KW + getPeerChild() + ";";
 	}
 }

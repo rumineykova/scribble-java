@@ -87,9 +87,11 @@
 // - make uniform orig/new assrt node parsing/astfactory
 // - consider del's over ast subclassing for ext's like assrt -- alternatively, extend base's, and subclass for G/L (instead of extending G/L)
 // - check overrides, return super types where better
+// - Actually @deprecate runtimeexception overrides? e.g, reconstruct
 
 // later:
 // - refactor modulecontext building, move dup vis name checks out (drop scribexception)
+// - try var type inference
 
 
 

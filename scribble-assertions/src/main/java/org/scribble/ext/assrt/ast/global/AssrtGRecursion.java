@@ -22,6 +22,7 @@ import org.scribble.visit.AstVisitor;
 
 
 // N.B. non-empty ass currently only supported via proto def inlining -- no direct syntax for rec-with-annot yet
+@Deprecated
 public class AssrtGRecursion extends GRecursion
 		implements AssrtStateVarDeclAnnotNode
 {
@@ -77,12 +78,12 @@ public class AssrtGRecursion extends GRecursion
 
 	// "add", not "set"
 	public void addScribChildren(RecVarNode rv, ProtoBlock<Global> block,
-			AssrtAssertion assrt, List<AssrtIntVarNameNode> avars,
+			AssrtAssertion ass, List<AssrtIntVarNameNode> avars,
 			List<AssrtArithExpr> aexprs)
 	{
 		// Cf. above getters and Scribble.g children order
 		super.addScribChildren(rv, block);
-		addChild(assrt);
+		addChild(ass);
 		addChildren(avars);
 		addChildren(aexprs);
 	}

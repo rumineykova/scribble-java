@@ -78,6 +78,7 @@ import org.scribble.parser.ScribAntlrWrapper;
 import org.scribble.parser.antlr.ScribbleParser;
 
 
+// Token/class correspondence should match that of ScribTreeAdaptor.create Token cases (except SimpleNameNodes)
 public class AstFactoryImpl implements AstFactory
 {
 	// Purely for the convenience of newToken(Token, type), parser instance used to access token int constants
@@ -88,6 +89,7 @@ public class AstFactoryImpl implements AstFactory
 	
 	public AstFactoryImpl(ScribAntlrWrapper antlr)
 	{
+		// FIXME: refactor to ScribbleParser, and move ast/deflfactoryimpl out of parser
 		try
 		{
 			this.parser = antlr.newScribbleParser(null);  // null CommonTokenStream seems OK for here

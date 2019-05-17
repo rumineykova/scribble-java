@@ -34,7 +34,7 @@ public class AssrtAntlrGDo
 		
 		CommonTree annotTree = AssrtAntlrGProtocolHeader.getAssrtStateVarDeclListChild(root);
 		List<AssrtArithExpr> annotexprs = parseAssrtStateVarArgList(((AssrtAntlrToScribParser) parser).ap, annotTree, (AssrtAstFactory) af);
-		return ((AssrtAstFactory) af).AssrtGDo(root, ril, al, pnn, //annot);
+		return ((AssrtAstFactory) af).AssrtGDo(root, pnn, al, ril, //annot);
 				annotexprs);
 	}
 	

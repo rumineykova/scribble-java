@@ -63,8 +63,7 @@ import org.scribble.ast.name.simple.OpNode;
 import org.scribble.del.DelFactory;
 import org.scribble.parser.antlr.ScribbleParser;
 
-// CHECKME: do del setting directly here (or use af?), instead of DelDecorator
-// get/setType don't seem to be really used
+// CHECKME: get/setType don't seem to be really used
 public class ScribTreeAdaptor extends CommonTreeAdaptor
 {
 	protected final DelFactory df;  // N.B. not af -- here, create nodes "manually" (with del setting) to preserve original tokens
@@ -82,6 +81,7 @@ public class ScribTreeAdaptor extends CommonTreeAdaptor
 	}
 
 	// Create a Tree (ScribNode) from a Token
+	// N.B. not using AstFactory, construction here is pre adding children (and also here directly record parsed Token, not recreate)
 	@Override
 	public ScribNode create(Token t)
 	{

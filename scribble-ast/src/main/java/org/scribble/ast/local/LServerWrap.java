@@ -40,13 +40,13 @@ public class LServerWrap extends LWrapAction
 	@Override
 	public RoleNode getSelfChild()
 	{
-		return getDestinationChild();  // CHECKME: don't use common src/dst pattern between global/local?
+		return getServerChild();  // CHECKME: don't use common src/dst pattern between global/local?
 	}
 
 	@Override
 	public RoleNode getPeerChild()
 	{
-		return getSourceChild();
+		return getClientChild();
 	}
 	
 	@Override
@@ -62,26 +62,26 @@ public class LServerWrap extends LWrapAction
 	}
 
 	// TODO: factor out a base
-	public LServerWrap reconstruct(RoleNode client, RoleNode server)
+	public LServerWrap reconstruct(RoleNode peer, RoleNode self)
 	{
 		LServerWrap n = dupNode();
-		n.addScribChildren(client, server);
+		n.addScribChildren(peer, self);
 		n.setDel(del());  // No copy
 		return n;
 	}
 
 	// TODO: factor out a base
 	@Override
-	public LServerWrap visitChildren(AstVisitor nv) throws ScribException
+	public LServerWrap visitChildren(AstVisitor v) throws ScribException
 	{
-		RoleNode src = (RoleNode) visitChild(getClientChild(), nv);
-		RoleNode dest = (RoleNode) visitChild(getServerChild(), nv);
-		return reconstruct(src, dest);
+		RoleNode peer = (RoleNode) visitChild(getPeerChild(), v);
+		RoleNode self = (RoleNode) visitChild(getSelfChild(), v);
+		return reconstruct(peer, self);
 	}
 
 	@Override
 	public String toString()
 	{
-		return Constants.SERVERWRAP_KW + " " + getClientChild() + ";";
+		return Constants.SERVERWRAP_KW + " " + getPeerChild() + ";";
 	}
 }

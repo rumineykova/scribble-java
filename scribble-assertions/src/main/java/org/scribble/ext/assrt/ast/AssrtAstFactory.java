@@ -58,34 +58,36 @@ public interface AssrtAstFactory extends AstFactory
 	// FIXME: should not be an AssrtAssertion -- should be just an (integer) var decl expr (which is not a bool expr)
 	AssrtGProtoHeader AssrtGProtoHeader(Token t, GProtoNameNode name,
 			RoleDeclList rs, NonRoleParamDeclList ps, 
-			List<AssrtIntVarNameNode> avars,
-			List<AssrtArithExpr> aexprs, AssrtAssertion ass);  // FIXME: not how parsed
+			AssrtAssertion ass, List<AssrtIntVarNameNode> avars,
+			List<AssrtArithExpr> aexprs);  // FIXME: not actually how parsed
 
 	AssrtAssertDecl AssrtAssertDecl(Token t, AssrtAssertNameNode name,
-			List<AssrtSortNode> ps, AssrtSortNode ret, AssrtSmtFormula<?> f);
-
-	AssrtGMsgTransfer AssrtGMsgTransfer(Token t, MsgNode msg, RoleNode src,
-			List<RoleNode> dsts, AssrtAssertion assertion);
-	AssrtGConnect AssrtGConnect(Token t, RoleNode src, MsgNode msg, RoleNode dst,
-			AssrtAssertion ass);
-
-	AssrtGContinue AssrtGContinue(Token t, RecVarNode rv,
-			List<AssrtArithExpr> aexprs);
-	AssrtGDo AssrtGDo(Token t, RoleArgList rs, NonRoleArgList as,
-			GProtoNameNode proto, List<AssrtArithExpr> aexprs);
-
-	AssrtGRecursion AssrtGRecursion(Token t, RecVarNode rv, GProtoBlock block,
-			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
-			AssrtAssertion ass);
+			List<AssrtSortNode> ps, AssrtSortNode ret, AssrtSmtFormula<?> expr);
 
 	AssrtAnnotDataElem AssrtAnnotDataTypeElem(Token t,
 			AssrtIntVarNameNode var, DataNameNode data);
+
+	AssrtGMsgTransfer AssrtGMsgTransfer(Token t, MsgNode msg, RoleNode src,
+			List<RoleNode> dsts, AssrtAssertion ass);
+	AssrtGConnect AssrtGConnect(Token t, RoleNode src, MsgNode msg, RoleNode dst,
+			AssrtAssertion ass);
+
+	@Deprecated  // Not currently parsed (or used)
+	AssrtGContinue AssrtGContinue(Token t, RecVarNode rv,
+			List<AssrtArithExpr> aexprs);
+	AssrtGDo AssrtGDo(Token t, GProtoNameNode proto, NonRoleArgList as,
+			RoleArgList rs, List<AssrtArithExpr> aexprs);
+
+	@Deprecated  // Not currently parsed (or used)
+	AssrtGRecursion AssrtGRecursion(Token t, RecVarNode rv, GProtoBlock block,
+			AssrtAssertion ass, List<AssrtIntVarNameNode> avars,
+			List<AssrtArithExpr> aexprs);  // FIXME: not actually how parsed
 
 	// Locals
 	AssrtLProtoHeader AssrtLProtoHeader(Token t, LProtoNameNode name,
 			RoleDeclList rs, NonRoleParamDeclList ps,
 			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
-			AssrtAssertion ass);  // FIXME: not how parsed
+			AssrtAssertion ass);  // FIXME: not actually how parsed
 
 	AssrtLSend AssrtLSend(Token t, MsgNode msg, RoleNode src,
 			List<RoleNode> dsts, AssrtAssertion ass);
@@ -98,5 +100,5 @@ public interface AssrtAstFactory extends AstFactory
 
 	AssrtLRecursion AssrtLRecursion(Token t, RecVarNode rv, LProtoBlock block,
 			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
-			AssrtAssertion ass);
+			AssrtAssertion ass);  // FIXME: not actually how parsed
 }
