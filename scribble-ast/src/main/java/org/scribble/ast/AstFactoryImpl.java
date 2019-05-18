@@ -74,6 +74,7 @@ import org.scribble.parser.ScribAntlrTokens;
 
 
 // Token/class correspondence should match that of ScribTreeAdaptor.create Token cases (except SimpleNameNodes)
+// CHECKME: factor out token text constants?
 public class AstFactoryImpl implements AstFactory
 {
 	// Purely for the convenience of newToken(Token, type), parser instance used to access token int constants
@@ -96,12 +97,13 @@ public class AstFactoryImpl implements AstFactory
 
 	protected CommonToken newIdToken(Token old, String text)
 	{
+		int type = this.tokens.getType("ID");
 		if (old == null)
 		{
-			return new CommonToken(this.tokens.getType("ID"), text);
+			return new CommonToken(type, text);
 		}
 		CommonToken t = new CommonToken(old);  // Type and text set below, but "inherit" some other additional info
-		t.setType(this.tokens.getType("ID"));
+		t.setType(type);
 		t.setText(text);
 		return t;
 	}
