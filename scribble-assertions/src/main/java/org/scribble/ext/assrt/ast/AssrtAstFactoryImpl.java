@@ -21,6 +21,7 @@ import org.scribble.ast.name.qualified.GProtoNameNode;
 import org.scribble.ast.name.qualified.LProtoNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
@@ -39,8 +40,7 @@ import org.scribble.ext.assrt.ast.name.simple.AssrtSortNode;
 import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
-import org.scribble.parser.ScribAntlrWrapper;
-import org.scribble.parser.antlr.AssrtScribbleParser;
+import org.scribble.parser.ScribAntlrTokens;
 
 
 // CHECKME: separate modified-del-only from new categories -- now: unify original and ext classes?  e.g., GMsgTransfer, AssrtGMsgTransfer
@@ -49,9 +49,10 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 		implements AssrtAstFactory
 {
 	
-	public AssrtAstFactoryImpl(ScribAntlrWrapper antlr)
+	public AssrtAstFactoryImpl(ScribAntlrTokens tokens,
+			DelFactory df)
 	{
-		super(antlr);
+		super(tokens, df);
 	}
 
 	/**
@@ -78,7 +79,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	public AssrtGProtoHeader GProtocolHeader(Token t, GProtoNameNode name,
 			RoleDeclList rs, NonRoleParamDeclList ps)
 	{
-		t = newToken(t, AssrtScribbleParser.GPROTOHEADER);
+		t = newToken(t, this.tokens.getType("GPROTOHEADER"));
 		AssrtGProtoHeader n = new AssrtGProtoHeader(t);
 		n.addScribChildren(name, ps, rs);
 		n.decorateDel(this.df);  // Default, annots handled directly by AssrtAnnotationChecker Def enter/exit
@@ -91,7 +92,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	public AssrtGMsgTransfer GMsgTransfer(Token t, MsgNode msg, RoleNode src,
 			List<RoleNode> dsts)
 	{
-		t = newToken(t, AssrtScribbleParser.GMSGTRANSFER);
+		t = newToken(t, this.tokens.getType("GMSGTRANSFER"));
 		AssrtGMsgTransfer n = new AssrtGMsgTransfer(t);
 		n.addScribChildren(msg, src, dsts);
 		n.decorateDel(this.df);
@@ -101,7 +102,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	@Override 
 	public AssrtGConnect GConnect(Token t, MsgNode msg, RoleNode src, RoleNode dst)  // Cf. AssrtAstFactoryImpl::GMsgTransfer
 	{
-		t = newToken(t, AssrtScribbleParser.GCONNECT);
+		t = newToken(t, this.tokens.getType("GCONNECT"));
 		AssrtGConnect n = new AssrtGConnect(t);
 		n.addScribChildren(msg, src, Arrays.asList(dst));
 		n.decorateDel(this.df);
@@ -111,7 +112,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	/*@Override
 	public AssrtGContinue GContinue(Token t, RecVarNode rv)
 	{
-		t = newToken(t, AssrtScribbleParser.GCONTINUE);
+		t = newToken(t, this.tokens.getType("GCONTINUE"));
 		AssrtGContinue n = new AssrtGContinue(t);
 		n.addScribChildren(rv);
 		n.decorateDel(this.df);
@@ -122,7 +123,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	public AssrtGDo GDo(Token t, GProtoNameNode proto, NonRoleArgList as,
 			RoleArgList rs)
 	{
-		t = newToken(t, AssrtScribbleParser.GDO);
+		t = newToken(t, this.tokens.getType("GDO"));
 		AssrtGDo n = new AssrtGDo(t);
 		n.addScribChildren(proto, as, rs);
 		n.decorateDel(this.df);
@@ -132,7 +133,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	/*@Override
 	public AssrtGRecursion GRecursion(Token t, RecVarNode rv, GProtoBlock block)
 	{
-		t = newToken(t, AssrtScribbleParser.GRECURSION);
+		t = newToken(t, this.tokens.getType("GRECURSION"));
 		AssrtGRecursion n = new AssrtGRecursion(t);
 		n.addScribChildren(rv, block);
 		n.decorateDel(this.df);
@@ -148,9 +149,9 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	@Override
 	public AssrtIntVarNameNode AssrtIntVarNameNode(Token t, String text)
 	{
-		int ttype = AssrtScribbleParser.ID;
+		int type = this.tokens.getType("ID");
 		t = newIdToken(t, text);
-		AssrtIntVarNameNode n = new AssrtIntVarNameNode(ttype, t);  // Cf. Scribble.g, ID<...Node>[$ID]
+		AssrtIntVarNameNode n = new AssrtIntVarNameNode(type, t);  // Cf. Scribble.g, ID<...Node>[$ID]
 		n.decorateDel(this.df);
 		return n;
 	}
@@ -161,7 +162,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 			List<? extends NonProtoDecl<?>> nonprotos,
 			List<? extends ProtoDecl<?>> protos, List<AssrtAssertDecl> asserts)
 	{
-		t = newToken(t, AssrtScribbleParser.MODULE);
+		t = newToken(t, this.tokens.getType("MODULE"));
 		AssrtModule n = new AssrtModule(t);
 		n.addScribChildren(modd, imports, nonprotos, protos, asserts);
 		n.decorateDel(this.df);
@@ -176,7 +177,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	@Override
 	public AssrtAssertion AssrtAssertion(Token t, AssrtBoolFormula bexpr)
 	{
-		t = newToken(t, AssrtScribbleParser.ASSRT_ASSERT);
+		t = newToken(t, this.tokens.getType("ASSRT_ASSERT"));
 		AssrtAssertion n = new AssrtAssertion(t, bexpr);
 		n.decorateDel(this.df);
 		return n;
@@ -196,7 +197,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	public AssrtAssertDecl AssrtAssertDecl(Token t, AssrtAssertNameNode name,
 			List<AssrtSortNode> ps, AssrtSortNode ret, AssrtSmtFormula<?> expr)
 	{
-		/*t = newToken(t, AssrtScribbleParser....);
+		/*t = newToken(t, ...);
 		AssrtAssertDecl n = new AssrtAssertDecl(t, expr);
 		n.decorateDel(this.df);
 		return n;*/
@@ -209,7 +210,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 			AssrtAssertion ass, List<AssrtIntVarNameNode> avars,
 			List<AssrtArithExpr> aexprs)  // FIXME: not actually how parsed
 	{
-		t = newToken(t, AssrtScribbleParser.ASSRT_GLOBALPROTOCOLHEADER);
+		t = newToken(t, this.tokens.getType("ASSRT_GLOBALPROTOCOLHEADER"));
 		AssrtGProtoHeader n = new AssrtGProtoHeader(t);
 		n.addScribChildren(name, ps, rs, ass, avars, aexprs);
 		n.decorateDel(this.df);
@@ -221,7 +222,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	public AssrtAnnotDataElem AssrtAnnotDataTypeElem(Token t,
 			AssrtIntVarNameNode var, DataNameNode data)
 	{
-		t = newToken(t, AssrtScribbleParser.ASSRT_ANNOTPAYLOADELEM);
+		t = newToken(t, this.tokens.getType("ASSRT_ANNOTPAYLOADELEM"));
 		AssrtAnnotDataElem n = new AssrtAnnotDataElem(t);
 		n.addScribChildren(var, data);
 		n.decorateDel(this.df);
@@ -232,7 +233,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	public AssrtGMsgTransfer AssrtGMsgTransfer(Token t, MsgNode msg, RoleNode src,
 			List<RoleNode> dsts, AssrtAssertion ass)
 	{
-		t = newToken(t, AssrtScribbleParser.ASSRT_GLOBALMESSAGETRANSFER);
+		t = newToken(t, this.tokens.getType("ASSRT_GLOBALMESSAGETRANSFER"));
 		AssrtGMsgTransfer n = new AssrtGMsgTransfer(t);
 		if (dsts.size() > 1)
 		{
@@ -248,7 +249,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	public AssrtGConnect AssrtGConnect(Token t, MsgNode msg, RoleNode src,
 			RoleNode dst, AssrtAssertion ass)
 	{
-		t = newToken(t, AssrtScribbleParser.ASSRT_GLOBALCONNECT);
+		t = newToken(t, this.tokens.getType("ASSRT_GLOBALCONNECT"));
 		AssrtGConnect n = new AssrtGConnect(t);
 		n.addScribChildren(msg, src, dst, ass);
 		n.decorateDel(this.df);
@@ -271,7 +272,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	public AssrtGDo AssrtGDo(Token t, GProtoNameNode proto, NonRoleArgList as,
 			RoleArgList rs, List<AssrtArithExpr> aexprs)
 	{
-		t = newToken(t, AssrtScribbleParser.ASSRT_GLOBALDO);
+		t = newToken(t, this.tokens.getType("ASSRT_GLOBALDO"));
 		AssrtGDo n = new AssrtGDo(t);
 		n.addScribChildren(proto, as, rs, aexprs);
 		n.decorateDel(this.df);
@@ -297,7 +298,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
 			AssrtAssertion ass)  // FIXME: not actually how parsed
 	{
-		t = newToken(t, AssrtScribbleParser.ASSRT_LOCALPROTOCOLHEADER);
+		t = newToken(t, this.tokens.getType("ASSRT_LOCALPROTOCOLHEADER"));
 		AssrtLProtoHeader n = new AssrtLProtoHeader(t);
 		n.addScribChildren(name, ps, rs, ass, avars, aexprs);
 		n.decorateDel(this.df);
@@ -308,7 +309,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	public AssrtLSend AssrtLSend(Token t, MsgNode msg, RoleNode self,
 			List<RoleNode> dsts, AssrtAssertion ass)
 	{
-		t = newToken(t, AssrtScribbleParser.ASSRT_LOCALSEND);
+		t = newToken(t, this.tokens.getType("ASSRT_LOCALSEND"));
 		AssrtLSend n = new AssrtLSend(t);
 		if (dsts.size() > 1)
 		{
@@ -324,7 +325,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	public AssrtLReq AssrtLReq(Token t, MsgNode msg, RoleNode self, RoleNode dst,
 			AssrtAssertion ass)
 	{
-		t = newToken(t, AssrtScribbleParser.ASSRT_LOCALREQ);
+		t = newToken(t, this.tokens.getType("ASSRT_LOCALREQ"));
 		AssrtLReq n = new AssrtLReq(t);
 		n.addScribChildren(msg, self, Arrays.asList(dst));
 		n.decorateDel(this.df);
@@ -347,7 +348,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	public AssrtLDo AssrtLDo(Token t, RoleArgList rs, NonRoleArgList as,
 			LProtoNameNode proto, List<AssrtArithExpr> aexprs)
 	{
-		t = newToken(t, AssrtScribbleParser.ASSRT_LOCALDO);
+		t = newToken(t, this.tokens.getType("ASSRT_LOCALDO"));
 		AssrtLDo n = new AssrtLDo(t);
 		n.addScribChildren(proto, as, rs, aexprs);
 		n.decorateDel(this.df);

@@ -39,7 +39,7 @@ public class AssrtMain extends Main
 	@Override
 	protected AstFactory newAstFactory(ScribAntlrWrapper antlr)
 	{
-		return new AssrtAstFactoryImpl(antlr);
+		return new AssrtAstFactoryImpl(antlr.tokens, antlr.df);
 	}
 
 	@Override

@@ -23,14 +23,14 @@ import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
 import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGProtoHeader;
+import org.scribble.parser.ScribAntlrTokens;
 import org.scribble.parser.ScribTreeAdaptor;
-import org.scribble.parser.antlr.AssrtScribbleParser;
 
 public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 {
-	public AssrtScribTreeAdaptor(DelFactory df)
+	public AssrtScribTreeAdaptor(ScribAntlrTokens tokens, DelFactory df)
 	{
-		super(df);
+		super(tokens, df);
 	}
 
 	// Create a Tree (ScribNode) from a Token
@@ -38,14 +38,10 @@ public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 	@Override
 	public ScribNode create(Token t)
 	{
-		// Switching on ScribbleParser int type constants -- generated from Scribble.g tokens
-		// Previously: String tname = t.getText(); -- by convention of Scribble.g, type constant name given as node text, e.g., module: ... -> ^(MODULE ...)
+		// Switching on ScribbleParser "imaginary" token names -- generated from Scribble.g tokens
+		// Previously, switched on t.getType(), but arbitrary int constant generation breaks extensibility (e.g., super.create(t))
 		ScribNodeBase n;
-		System.out.println("aaa1: " + t.getType() + " ,, " + t.getText());
-		
-		HERE super call doesn't work, constants different
-		
-		switch (t.getType())
+		switch (t.getText())
 		{
 			/**
 			 *  Create ext node type in place of base
@@ -54,15 +50,15 @@ public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 
 			// TODO: integrate with ASSRT variants below?  maybe by un-deprecating reconstructs to make base children configs valid
 
-			case AssrtScribbleParser.MODULE: n = new AssrtModule(t); break;
+			case "MODULE": n = new AssrtModule(t); break;
 
-			case AssrtScribbleParser.GPROTOHEADER: n = new AssrtGProtoHeader(t); break;  
+			case "GPROTOHEADER": n = new AssrtGProtoHeader(t); break;  
 
-			case AssrtScribbleParser.GMSGTRANSFER: n = new AssrtGMsgTransfer(t); break;
-			case AssrtScribbleParser.GCONNECT: n = new AssrtGConnect(t); break;
+			case "GMSGTRANSFER": n = new AssrtGMsgTransfer(t); break;
+			case "GCONNECT": n = new AssrtGConnect(t); break;
 
 			//case AssrtScribbleParser.GCONTINUE: n = new AssrtGContinue(t); break;
-			case AssrtScribbleParser.GDO: n = new AssrtGDo(t); break;
+			case "GDO": n = new AssrtGDo(t); break;
 
 			//case AssrtScribbleParser.GRECURSION: n = new AssrtGRecursion(t); break;
 			
@@ -77,20 +73,19 @@ public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 			// Compound names 
 
 			// Non-name (i.e., general) AST nodes
-			case AssrtScribbleParser.ASSERT_KW: throw new RuntimeException("[TODO] : " + t);
+			case "ASSERT_KW": throw new RuntimeException("[TODO] : " + t);
 
-			case AssrtScribbleParser.ASSRT_GLOBALPROTOCOLHEADER: n = new AssrtGProtoHeader(t); break;
+			case "ASSRT_GLOBALPROTOCOLHEADER": n = new AssrtGProtoHeader(t); break;
 
-			case AssrtScribbleParser.ASSRT_ANNOTPAYLOADELEM: n = new AssrtAnnotDataElem(t); break;
+			case "ASSRT_ANNOTPAYLOADELEM": n = new AssrtAnnotDataElem(t); break;
 
-			case AssrtScribbleParser.ASSRT_GLOBALMESSAGETRANSFER: n = new AssrtGMsgTransfer(t); break;
-			case AssrtScribbleParser.ASSRT_GLOBALCONNECT: n = new AssrtGConnect(t); break;
+			case "ASSRT_GLOBALMESSAGETRANSFER": n = new AssrtGMsgTransfer(t); break;
+			case "ASSRT_GLOBALCONNECT": n = new AssrtGConnect(t); break;
 			
-			case AssrtScribbleParser.ASSRT_GLOBALDO: n = new AssrtGDo(t); break;
+			case "ASSRT_GLOBALDO": n = new AssrtGDo(t); break;
 
 			default:
 			{
-				System.out.println("aaa2: " + t.getText());
 				n = (ScribNodeBase) super.create(t);  // Assigning "n", but direct return should be the same?  ast decoration pattern should be delegating back to the same df as below 
 			}
 		}

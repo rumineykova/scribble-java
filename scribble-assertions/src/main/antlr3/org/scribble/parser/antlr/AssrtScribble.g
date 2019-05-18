@@ -353,17 +353,17 @@ assrt_varname: t=ID -> ID<AssrtIntVarNameNode>[$t] ;  // N.B. Int
  * Section 3.2.1 Package, Module and Module Member Names
  */
 // May be compound or simple
-gprotoname: t=ID ('.' ID)* -> ^(GPROTO_NAME[$t] ID+) ;
-modulename: t=ID ('.' ID)* -> ^(MODULE_NAME[$t] ID+) ;
+gprotoname: t=ID ('.' ID)* -> ^(GPROTO_NAME ID+) ;
+modulename: t=ID ('.' ID)* -> ^(MODULE_NAME ID+) ;
 
 // Compound only (cf., e.g., gprotoname; cf. simpledataname)
-qualifieddataname: t=ID '.' ID ('.' ID)* -> ^(DATA_NAME[$t] ID+) ;
+qualifieddataname: t=ID '.' ID ('.' ID)* -> ^(DATA_NAME ID+) ;
 
 // Cf. primitive names, above
-simpledataname: t=ID -> ^(DATA_NAME[$t] ID) ;
-simplegprotoname: t=ID -> ^(GPROTO_NAME[$t] ID) ;
-simplemodulename: t=ID -> ^(MODULE_NAME[$t] ID) ;
-simplesigname: t=ID -> ^(SIG_NAME[$t] ID) ;
+simpledataname: t=ID -> ^(DATA_NAME ID) ;
+simplegprotoname: t=ID -> ^(GPROTO_NAME ID) ;
+simplemodulename: t=ID -> ^(MODULE_NAME ID) ;
+simplesigname: t=ID -> ^(SIG_NAME ID) ;
 
 
 /**
@@ -376,7 +376,7 @@ module:
 	t=MODULE_KW modulename ';' importmodule* nonprotodecl* assert_fundecl*  // Assrt  
 	protodecl* EOF
 ->
-	^(MODULE[$t] ^(MODULEDECL[$t] modulename) importmodule* nonprotodecl*   // CHECKME: ASSRT_MODULE?  token/class discrepancy
+	^(MODULE ^(MODULEDECL modulename) importmodule* nonprotodecl*   // CHECKME: ASSRT_MODULE?  token/class discrepancy
 			assert_fundecl* protodecl*)
 ;
 // moduledecl: MODULE_KW<ModuleDecl>^ modulename ';'  
@@ -389,7 +389,7 @@ module:
 importmodule:
 	t=IMPORT_KW modulename (AS_KW alias=simplemodulename)? ';'
 ->
-	^(IMPORTMODULE[$t] modulename $alias?)
+	^(IMPORTMODULE modulename $alias?)
 ;
 
 
@@ -405,14 +405,14 @@ datadecl:
 	extSource=EXTID AS_KW alias=simpledataname ';'
 ->
 	// alias first to be uniform with other NameDeclNode (getRawNameNodeChild)
-	^(DATADECL[$t] $alias $schema $extName $extSource)
+	^(DATADECL $alias $schema $extName $extSource)
 |
 	// CHECKME: duplicated above, because t=(TYPE_KW | DATA_KW) *sometimes* causes null token NPEs... 
 	t=DATA_KW '<' schema=ID '>' extName=EXTID FROM_KW
 	extSource=EXTID AS_KW alias=simpledataname ';'
 ->
 	// alias first to be uniform with other NameDeclNode (getRawNameNodeChild)
-	^(DATADECL[$t] $alias $schema $extName $extSource)
+	^(DATADECL $alias $schema $extName $extSource)
 ;
 
 sigdecl:
@@ -420,7 +420,7 @@ sigdecl:
 	alias=simplesigname ';'
 ->
 	// alias first to be uniform with other NameDeclNode (getRawNameNodeChild)
-	^(SIGDECL[$t] $alias $schema $extName $extSource)
+	^(SIGDECL $alias $schema $extName $extSource)
 ;
 
 
@@ -450,7 +450,7 @@ unintfunarg:
 siglit:
 	opname '(' payelems ')' -> ^(SIG_LIT opname payelems)
 ;
-// CHECKME: how to apply [$t] in such situations?
+// CHECKME: how to apply  in such situations?
 
 payelems:
 	-> ^(PAYELEM_LIST)
@@ -498,22 +498,22 @@ gprotodecl:
 // "aux" must come before "explicit"
 protomods:
                        -> ^(PROTOMOD_LIST)
-| t=AUX_KW             -> ^(PROTOMOD_LIST[$t] AUX_KW)
-| t=AUX_KW EXPLICIT_KW -> ^(PROTOMOD_LIST[$t] AUX_KW EXPLICIT_KW)
-| t=EXPLICIT_KW        -> ^(PROTOMOD_LIST[$t] EXPLICIT_KW)
+| t=AUX_KW             -> ^(PROTOMOD_LIST AUX_KW)
+| t=AUX_KW EXPLICIT_KW -> ^(PROTOMOD_LIST AUX_KW EXPLICIT_KW)
+| t=EXPLICIT_KW        -> ^(PROTOMOD_LIST EXPLICIT_KW)
 ;
 
 // N.B. intermed translation uses full proto name
 gprotoheader:
 	t=GLOBAL_KW PROTOCOL_KW simplegprotoname paramdecls roledecls
 ->
-	^(GPROTOHEADER[$t] simplegprotoname paramdecls roledecls)
+	^(GPROTOHEADER simplegprotoname paramdecls roledecls)
 
 // Assrt
 |
 	GLOBAL_KW PROTOCOL_KW simplegprotoname roledecls '@' EXTID
 ->
-	^(ASSRT_GLOBALPROTOCOLHEADER[$t] simplegprotoname ^(PARAMDECL_LIST) roledecls
+	^(ASSRT_GLOBALPROTOCOLHEADER simplegprotoname ^(PARAMDECL_LIST) roledecls
 			{AssertionsParser.parseStateVarDeclList($EXTID.text)}) 
 			// use ".tree" for Tree instead of text String
 ;
@@ -522,30 +522,30 @@ gprotoheader:
 // TODO: paramdecls and annot
 
 roledecls: 
-	t='(' roledecl (',' roledecl)* ')' -> ^(ROLEDECL_LIST[$t] roledecl+)
+	t='(' roledecl (',' roledecl)* ')' -> ^(ROLEDECL_LIST roledecl+)
 ;
 
 roledecl:
-	t=ROLE_KW rolename -> ^(ROLEDECL[$t] rolename)
+	t=ROLE_KW rolename -> ^(ROLEDECL rolename)
 ;
 
 paramdecls:
 	-> ^(PARAMDECL_LIST)
 |
-	t='<' (paramdecl (',' paramdecl)*)? '>' -> ^(PARAMDECL_LIST[$t] paramdecl*)
+	t='<' (paramdecl (',' paramdecl)*)? '>' -> ^(PARAMDECL_LIST paramdecl*)
 ;
 
 paramdecl: dataparamdecl | sigparamdecl ;
 
 dataparamdecl: 
-	t=TYPE_KW dataparamname -> ^(DATAPARAMDECL[$t] dataparamname)
+	t=TYPE_KW dataparamname -> ^(DATAPARAMDECL dataparamname)
 |
-	t=DATA_KW dataparamname -> ^(DATAPARAMDECL[$t] dataparamname)
+	t=DATA_KW dataparamname -> ^(DATAPARAMDECL dataparamname)
 			// TODO: refactor -- cf. datadecl
 ;
 
 sigparamdecl:  
-	t=SIG_KW sigparamname -> ^(SIGPARAMDECL[$t] sigparamname)
+	t=SIG_KW sigparamname -> ^(SIGPARAMDECL sigparamname)
 ;
 
 
@@ -560,7 +560,7 @@ gprotodef:
  * Section 3.7.3 Global Interaction Blocks and Sequences
  */
 gprotoblock:
-	t='{' gseq '}' -> ^(GPROTOBLOCK[$t] gseq)
+	t='{' gseq '}' -> ^(GPROTOBLOCK gseq)
 ;
 
 gseq:
@@ -615,7 +615,7 @@ gconnect:
 |
 	t=CONNECT_KW rolename TO_KW rolename ';'
 ->
-	^(GCONNECT[$t] ^(SIG_LIT ^(EMPTY_OP) ^(PAYELEM_LIST)) rolename rolename)
+	^(GCONNECT ^(SIG_LIT ^(EMPTY_OP) ^(PAYELEM_LIST)) rolename rolename)
       // CHECKME: deprecate? i.e., require "()" as for message transfers?  i.e., simply delete this rule?
 
 // Assrt
@@ -631,7 +631,7 @@ gconnect:
 	//ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
 	t=CONNECT_KW rolename TO_KW rolename ';' '@' EXTID
 ->
-	^(ASSRT_GLOBALCONNECT[$t] {AssertionsParser.parseAssertion($EXTID.text)} 
+	^(ASSRT_GLOBALCONNECT {AssertionsParser.parseAssertion($EXTID.text)} 
 			rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 ;
 */
@@ -639,13 +639,13 @@ gconnect:
 gdisconnect:
 	t=DISCONNECT_KW rolename AND_KW rolename ';'
 ->
-	^(GDCONN[$t] rolename rolename)
+	^(GDCONN rolename rolename)
 ;
 
 gwrap:
 	t=WRAP_KW rolename TO_KW rolename ';'
 ->
-	^(GWRAP[$t] rolename rolename)
+	^(GWRAP rolename rolename)
 ;
 
 
@@ -655,7 +655,7 @@ gwrap:
 gchoice:
 	t=CHOICE_KW AT_KW rolename gprotoblock (OR_KW gprotoblock)*
 ->
-	^(GCHOICE[$t] rolename gprotoblock+)
+	^(GCHOICE rolename gprotoblock+)
 ;
 
 
@@ -665,13 +665,13 @@ gchoice:
 grecursion:
 	t=REC_KW recvarname gprotoblock
 ->
-	^(GRECURSION[$t] recvarname gprotoblock)
+	^(GRECURSION recvarname gprotoblock)
 ;
 
 gcontinue:
 	t=CONTINUE_KW recvarname ';'
 ->
-	^(GCONTINUE[$t] recvarname)
+	^(GCONTINUE recvarname)
 ;
 
 
@@ -694,7 +694,7 @@ gdo:
 // TODO: non-role args, annot
 
 roleargs:
-	t='(' rolearg (',' rolearg)* ')' -> ^(ROLEARG_LIST[$t] rolearg+)
+	t='(' rolearg (',' rolearg)* ')' -> ^(ROLEARG_LIST rolearg+)
 ;
 
 rolearg:
@@ -703,7 +703,7 @@ rolearg:
 nonroleargs:
 	-> ^(NONROLEARG_LIST)
 |
-	t='<' (nonrolearg (',' nonrolearg)*)? '>' -> ^(NONROLEARG_LIST[$t] nonrolearg*)
+	t='<' (nonrolearg (',' nonrolearg)*)? '>' -> ^(NONROLEARG_LIST nonrolearg*)
 ;
 
 // Grammatically same as message, but qualifiedname case may also be a payload type

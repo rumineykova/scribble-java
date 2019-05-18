@@ -66,23 +66,13 @@ import org.scribble.parser.antlr.ScribbleParser;
 // CHECKME: get/setType don't seem to be really used
 public class ScribTreeAdaptor extends CommonTreeAdaptor
 {
+	public final ScribAntlrTokens tokens;
 	protected final DelFactory df;  // N.B. not af -- here, create nodes "manually" (with del setting) to preserve original tokens
 
-	public ScribTreeAdaptor(DelFactory df)
+	public ScribTreeAdaptor(ScribAntlrTokens tokens, DelFactory df)
 	{
+		this.tokens = tokens;
 		this.df = df;
-	}
-	
-	// A Scribble extension should override getId/ExtIdType
-	protected int getIdType()
-	{
-		return ScribbleParser.ID;
-	}
-
-	// A Scribble extension should override getId/ExtIdType
-	protected int getExtIdType()
-	{
-		return ScribbleParser.EXTID;
 	}
 	
 	// Generated parser seems to use nil to create "blank" nodes and then "fill them in"
@@ -98,13 +88,13 @@ public class ScribTreeAdaptor extends CommonTreeAdaptor
 	public ScribNode create(Token t)
 	{
 		int type = t.getType();  // For ID/EXTID, getText is the "value" of the node (not a "type label", as for others)
-		if (type == getIdType())
+		if (type == this.tokens.getType("ID"))  // CHECKME: factor out?
 		{
 			IdNode n = new IdNode(t);
 			n.decorateDel(this.df);
 			return n;
 		}
-		else if (type == getExtIdType())
+		else if (type == this.tokens.getType("EXTID"))
 		{
 			t = new CommonToken(t);
 			String text = t.getText();
@@ -116,6 +106,7 @@ public class ScribTreeAdaptor extends CommonTreeAdaptor
 
 		// Switching on ScribbleParser "imaginary" token names -- generated from Scribble.g tokens
 		// Previously, switched on t.getType(), but arbitrary int constant generation breaks extensibility (e.g., super.create(t))
+		// CHECKME: factor out token text names?  Cf. AstFactoryImpl
 		ScribNodeBase n;
 		switch (t.getText())  // Cf. Scribble.g "imaginary" tokens
 		{

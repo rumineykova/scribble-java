@@ -9,7 +9,6 @@ import org.scribble.parser.ScribAntlrTokens;
 import org.scribble.parser.ScribAntlrWrapper;
 import org.scribble.parser.antlr.AssrtScribbleLexer;
 import org.scribble.parser.antlr.AssrtScribbleParser;
-import org.scribble.parser.antlr.ScribbleParser;
 
 public class AssrtScribAntlrWrapper extends ScribAntlrWrapper
 {
@@ -19,9 +18,9 @@ public class AssrtScribAntlrWrapper extends ScribAntlrWrapper
 	}
 
 	@Override
-	protected ScribAntlrTokens newScribbleTokens(Parser p)
+	protected String[] getTokenNames()
 	{
-		return new ScribAntlrTokens((AssrtScribbleParser) p, ScribbleParser.tokenNames);
+		return AssrtScribbleParser.tokenNames;
 	}
 	
 	@Override
@@ -37,8 +36,9 @@ public class AssrtScribAntlrWrapper extends ScribAntlrWrapper
 	}
 
 	@Override
-	protected AssrtScribTreeAdaptor newAdaptor(DelFactory df)
+	protected AssrtScribTreeAdaptor newAdaptor(ScribAntlrTokens tokens,
+			DelFactory df)
 	{
-		return new AssrtScribTreeAdaptor(df);
+		return new AssrtScribTreeAdaptor(tokens, df);
 	}
 }
