@@ -10,6 +10,7 @@ import org.scribble.core.type.name.ModuleName;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtAstFactoryImpl;
 import org.scribble.ext.assrt.core.job.AssrtCoreArgs;
+import org.scribble.ext.assrt.del.AssrtDelFactoryImpl;
 import org.scribble.ext.assrt.job.AssrtJob;
 import org.scribble.ext.assrt.parser.AssrtScribAntlrWrapper;
 import org.scribble.main.Main;
@@ -40,6 +41,12 @@ public class AssrtMain extends Main
 	protected AstFactory newAstFactory(ScribAntlrWrapper antlr)
 	{
 		return new AssrtAstFactoryImpl(antlr.tokens, antlr.df);
+	}
+	
+	@Override
+	protected DelFactory newDelFactory()
+	{
+		return new AssrtDelFactoryImpl();
 	}
 
 	@Override
