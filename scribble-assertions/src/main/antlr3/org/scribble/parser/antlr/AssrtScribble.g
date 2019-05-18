@@ -70,89 +70,91 @@ tokens
    */
 
   // Special cases
-  EMPTY_OP = '__EMPTY_OP';
+  EMPTY_OP;
 
 	// Simple names "constructed directly", e.g., t=ID -> ID<...Node>[$t] 
 
 	// Compound names
-  GPROTO_NAME = 'GPROTO_NAME';  // Parse specifically as GProto, for ScribTreeAdaptor.create
-  LPROTO_NAME = 'LPROTO_NAME';
-  MODULE_NAME = 'MODULE_NAME';
-  DATA_NAME = 'DATA_NAME';   // N.B. distinct from DATAPARAM_NAME
-  SIG_NAME = 'SIG_NAME';   // N.B. distinct from SIGPARAM_NAME
+  GPROTO_NAME;  // Parse specifically as GProto, for ScribTreeAdaptor.create
+  LPROTO_NAME;
+  MODULE_NAME;
+  DATA_NAME;   // N.B. distinct from DATAPARAM_NAME
+  SIG_NAME;   // N.B. distinct from SIGPARAM_NAME
 
 	// Sig literals
-  SIG_LIT = 'SIG_LIT';
-  PAYELEM_LIST = 'PAYELEM_LIST';
-  UNARY_PAYELEM = 'UNARY_PAYELEM';
-  GDELEG_PAYELEM = 'GDELEG_PAYELEM';
+  SIG_LIT;
+  PAYELEM_LIST;
+  UNARY_PAYELEM;
+  GDELEG_PAYELEM;
 
 	// Scribble "language" nodes, i.e., the nodes that are not "session nodes" (see below)
-  MODULE = 'MODULE';
-  MODULEDECL = 'MODULEDECL';
-  IMPORTMODULE = 'IMPORTMODULE';
+  MODULE;
+  MODULEDECL;
+  IMPORTMODULE;
 
-  DATADECL = 'DATADECL';
-  SIGDECL = 'SIGDECL';
-  GPROTODECL = 'GPROTODECL';
-  PROTOMOD_LIST = 'PROTOMOD_LIST';
+  DATADECL;
+  SIGDECL;
+  GPROTODECL;
+  PROTOMOD_LIST;
 
-  GPROTOHEADER = 'GPROTOHEADER';
-  ROLEDECL_LIST = 'ROLEDECL_LIST';
-  ROLEDECL = 'ROLEDECL';
-  PARAMDECL_LIST = 'PARAMDECL_LIST';
-  DATAPARAMDECL = 'DATAPARAMDECL';
-  SIGPARAMDECL = 'SIGPARAMDECL';
+  GPROTOHEADER;
+  ROLEDECL_LIST;
+  ROLEDECL;
+  PARAMDECL_LIST;
+  DATAPARAMDECL;
+  SIGPARAMDECL;
   
-  GPROTODEF = 'GPROTODEF';
-  GPROTOBLOCK = 'GPROTOBLOCK';
+  GPROTODEF;
+  GPROTOBLOCK;
   
  	// Scribble "session nodes" -- cf. org.scribble.core.type.session vs. org.scribble.core.lang
-  GINTERSEQ = 'GINTERSEQ';
+  GINTERSEQ;
 
-  GMSGTRANSFER = 'GMSGTRANSFER';
-  GCONNECT = 'GCONNECT';
-  GDCONN = 'GDCONN';  // TODO: rename GDISCONN
-  GWRAP = 'GWRAP';
+  GMSGTRANSFER;
+  GCONNECT;
+  GDCONN;  // TODO: rename GDISCONN
+  GWRAP;
 
-  GCONTINUE = 'GCONTINUE';
-  GDO = 'GDO';
+  GCONTINUE;
+  GDO;
 
-  ROLEARG_LIST = 'ROLEARG_LIST';  // Cf. ROLEDECL
-  ROLEARG = 'ROLEARG';
-  NONROLEARG_LIST = 'NONROLEARG_LIST';  // Cf. ...PARAMDECL
-  NONROLEARG = 'NONROLEARG';
+  ROLEARG_LIST;  // Cf. ROLEDECL
+  ROLEARG;
+  NONROLEARG_LIST;  // Cf. ...PARAMDECL
+  NONROLEARG;
 
-  GCHOICE = 'GCHOICE';
-  GRECURSION = 'GRECURSION';
+  GCHOICE;
+  GRECURSION;
 
   // Locals: currently not directly parsed, but needed for, e.g., projection
-  LPROTODECL = 'LPROTODECL';
+  LPROTODECL;
 
-  LPROTOHEADER = 'LPROTOHEADER';
-  LSELFROLEDECL = 'LSELFROLEDECL';
+  LPROTOHEADER;
+  LSELFROLEDECL;
   
-  LPROTODEF = 'LPROTODEF';
-  LPROTOBLOCK = 'LPROTOBLOCK';
+  LPROTODEF;
+  LPROTOBLOCK;
   
-  LINTERSEQ = 'LINTERSEQ';
+  LINTERSEQ;
 
-  LSEND = 'LSEND';
-  LRECV = 'LRECV';
-  LACC = 'LACC';
-  LREQ = 'LREQ';
-  LDCONN = 'LDCONN';
-  LCLIENTWRAP = 'LCLIENTWRAP';
-  LSERVERWRAP = 'LSERVERWRAP';
+  LSEND;
+  LRECV;
+  LACC;
+  LREQ;
+  LDCONN;
+  LCLIENTWRAP;
+  LSERVERWRAP;
 
-  LCONTINUE = 'LCONTINUE';
-  LDO = 'LDO';
+  LCONTINUE;
+  LDO;
 
-  LCHOICE = 'LCHOICE';
-  LRECURSION = 'LRECURSION';
+  LCHOICE;
+  LRECURSION;
 
 
-  // Assrt
+  /**
+   * Assrt
+   */
 
 	// "Node type" constants -- but not parsed "directly" by AntlrToScribParser
 	ASSRT_ANNOTPAYLOADELEM; 
