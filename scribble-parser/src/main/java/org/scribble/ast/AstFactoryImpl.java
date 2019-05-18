@@ -14,13 +14,10 @@
 package org.scribble.ast;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.antlr.runtime.CommonToken;
-import org.antlr.runtime.Parser;
 import org.antlr.runtime.Token;
 import org.scribble.ast.global.GChoice;
 import org.scribble.ast.global.GConnect;
@@ -74,7 +71,6 @@ import org.scribble.core.type.kind.PayElemKind;
 import org.scribble.del.DefaultDel;
 import org.scribble.del.DelFactory;
 import org.scribble.del.ScribDel;
-import org.scribble.parser.ScribAntlrWrapper;
 import org.scribble.parser.antlr.ScribbleParser;
 
 
@@ -82,35 +78,18 @@ import org.scribble.parser.antlr.ScribbleParser;
 public class AstFactoryImpl implements AstFactory
 {
 	// Purely for the convenience of newToken(Token, type), parser instance used to access token int constants
-	protected final Parser parser;
-	protected final Map<Integer, String> tokens;
+	//protected final Parser parser;
+	private final Map<Integer, String> tokens;
 
 	protected final DelFactory df;
 	
-	public AstFactoryImpl(ScribAntlrWrapper antlr)
+	public AstFactoryImpl(//ScribAntlrWrapper antlr)
+			Map<Integer, String> tokens, DelFactory df)
 	{
-		// FIXME: refactor to ScribbleParser, and move ast/delfactoryimpl out of parser
-		try
-		{
-			this.parser = antlr.newScribbleParser(null);  // null CommonTokenStream seems OK for here
-			Class<? extends Parser> parserC = this.parser.getClass();
-			Map<Integer, String> tokens = new HashMap<>();
-			for (String t : ScribbleParser.tokenNames)
-			{
-				char c = t.charAt(0);
-				if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
-				{
-					tokens.put(parserC.getField(t).getInt(this.parser), t);
-				}
-			}
-			this.tokens = Collections.unmodifiableMap(tokens);
-			this.df = antlr.df;
-		}
-		catch (IllegalArgumentException | IllegalAccessException
-				| NoSuchFieldException | SecurityException e)
-		{
-			throw new RuntimeException(e);
-		}
+		/*this.tokens = antlr.tokens1;
+		this.df = antlr.df;*/
+		this.tokens = tokens;
+		this.df = df;
 	}
 	
 	// type comes from the int constants in ScribbleParser, which come from the tokens in Scribble.g

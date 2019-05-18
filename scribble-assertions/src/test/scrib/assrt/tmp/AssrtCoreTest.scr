@@ -88,6 +88,7 @@
 // - consider del's over ast subclassing for ext's like assrt -- alternatively, extend base's, and subclass for G/L (instead of extending G/L)
 // - check overrides, return super types where better
 // - Actually @deprecate runtimeexception overrides? e.g, reconstruct
+// - refactor astfactoryimpl token constants to parser (and refactor ast/delfactoryimpl to scribble-ast)
 
 //...HERE refactor parser mixed new ast types with old token types -- refactor new ast types to fully subsume old ones
 
@@ -95,7 +96,6 @@
 // - refactor modulecontext building, move dup vis name checks out (drop scribexception)
 // - try var type inference
 // - refactor namedisamb functionality
-
 
 
 
@@ -117,6 +117,7 @@
 --- very conserative -- restore "precision" by recursion assertions as "loop invariants"
 - so model checked errors: unknownvar (HS), assert-prog (TS?), sat (TS?), recursion-assert
 */
+
 module assrt.tmp.AssrtCoreTest;
 
 
