@@ -43,14 +43,15 @@ public class ScribAntlrWrapper
 	
 	public ScribAntlrWrapper(DelFactory df)
 	{
-		this.tokens = newScribbleTokens(newScribbleParser(null));
+		this.tokens = new ScribAntlrTokens(newScribbleParser(null),
+				getTokenNames());
 		this.df = df;
 	}
 	
-	// A Scribble extension should override: cast p to (e.g.) ScribbleParser and pass ScribbleParser.tokenNames
-	protected ScribAntlrTokens newScribbleTokens(Parser p)
+	// A Scribble extension should override as appropriate
+	protected String[] getTokenNames()
 	{
-		return new ScribAntlrTokens((ScribbleParser) p, ScribbleParser.tokenNames);
+		return ScribbleParser.tokenNames;
 	}
 	
 	// A Scribble extension should override newScribbleLexer/Parser/Adaptor as appropriate

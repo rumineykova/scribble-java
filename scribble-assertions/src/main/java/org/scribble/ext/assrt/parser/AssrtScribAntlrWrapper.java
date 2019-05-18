@@ -5,16 +5,23 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.Lexer;
 import org.antlr.runtime.Parser;
 import org.scribble.del.DelFactory;
+import org.scribble.parser.ScribAntlrTokens;
 import org.scribble.parser.ScribAntlrWrapper;
 import org.scribble.parser.antlr.AssrtScribbleLexer;
 import org.scribble.parser.antlr.AssrtScribbleParser;
+import org.scribble.parser.antlr.ScribbleParser;
 
 public class AssrtScribAntlrWrapper extends ScribAntlrWrapper
 {
-	
 	public AssrtScribAntlrWrapper(DelFactory df)
 	{
 		super(df);
+	}
+
+	@Override
+	protected ScribAntlrTokens newScribbleTokens(Parser p)
+	{
+		return new ScribAntlrTokens((AssrtScribbleParser) p, ScribbleParser.tokenNames);
 	}
 	
 	@Override
