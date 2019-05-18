@@ -127,7 +127,7 @@ public class Main
 	// Here (cf. Job) because it takes antlr for token creation (and lives in scribble-parser)
 	protected AstFactory newAstFactory(ScribAntlrWrapper antlr)
 	{
-		return new AstFactoryImpl(antlr.tokens1, antlr.df);
+		return new AstFactoryImpl(antlr.tokens, antlr.df);
 	}
 	
 	// A Scribble extension should override newAntlr/AstFactory/DelFactory/Job as appropriate

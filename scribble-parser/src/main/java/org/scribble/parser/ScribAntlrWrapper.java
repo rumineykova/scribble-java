@@ -17,10 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.ANTLRStringStream;
@@ -41,38 +38,19 @@ import org.scribble.util.ScribParserException;
 public class ScribAntlrWrapper
 {
 	public final DelFactory df;  // Will be shared with af and Job (by Main)
-
-	public final Map<Integer, String> tokens1;
-	public final Map<String, Integer> tokens2;
+	
+	public final ScribAntlrTokens tokens;
 	
 	public ScribAntlrWrapper(DelFactory df)
 	{
+		this.tokens = newScribbleTokens(newScribbleParser(null));
 		this.df = df;
-
-		try
-		{
-			Parser p = newScribbleParser(null);  // null CommonTokenStream seems OK for here
-			Class<? extends Parser> parserC = p.getClass();
-			Map<Integer, String> tokens1 = new HashMap<>();
-			Map<String, Integer> tokens2 = new HashMap<>();
-			for (String t : ScribbleParser.tokenNames)
-			{
-				char c = t.charAt(0);
-				if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
-				{
-					int i = parserC.getField(t).getInt(p);
-					tokens1.put(i, t);
-					tokens2.put(t, i);
-				}
-			}
-			this.tokens1 = Collections.unmodifiableMap(tokens1);
-			this.tokens2 = Collections.unmodifiableMap(tokens2);
-		}
-		catch (IllegalArgumentException | IllegalAccessException
-				| NoSuchFieldException | SecurityException e)
-		{
-			throw new RuntimeException(e);
-		}
+	}
+	
+	// A Scribble extension should override: cast p to (e.g.) ScribbleParser and pass ScribbleParser.tokenNames
+	protected ScribAntlrTokens newScribbleTokens(Parser p)
+	{
+		return new ScribAntlrTokens((ScribbleParser) p, ScribbleParser.tokenNames);
 	}
 	
 	// A Scribble extension should override newScribbleLexer/Parser/Adaptor as appropriate
@@ -125,7 +103,7 @@ public class ScribAntlrWrapper
 			setTreeAdaptor.invoke(p, adptr);
 			Method module = p.getClass().getMethod("module");
 			return (Module) ((ParserRuleReturnScope) module.invoke(p)).getTree();
-				// Reflection, because no convenient way to expose an interface for all (Scribble)Parsers with top-level "module" method?
+				// Reflection, because no convenient way to expose an interface with top-level "module" method for all (Scribble)Parsers?
 		}
 		/*catch (RecognitionException e)
 		{
