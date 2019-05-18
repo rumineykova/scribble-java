@@ -97,8 +97,8 @@ public class ScribTreeAdaptor extends CommonTreeAdaptor
 	@Override
 	public ScribNode create(Token t)
 	{
-		int type = t.getType();
-		if (type == getIdType())  // getText is the "value" of the node (not a "type label")
+		int type = t.getType();  // For ID/EXTID, getText is the "value" of the node (not a "type label", as for others)
+		if (type == getIdType())
 		{
 			IdNode n = new IdNode(t);
 			n.decorateDel(this.df);
@@ -108,16 +108,16 @@ public class ScribTreeAdaptor extends CommonTreeAdaptor
 		{
 			t = new CommonToken(t);
 			String text = t.getText();
-			t.setText(text.substring(1, text.length()-1));  // N.B. remove surrounding quotes "..."
+			t.setText(text.substring(1, text.length()-1));  // N.B. dropping the enclosing quotes "..."
 			ExtIdNode n = new ExtIdNode(t);
 			n.decorateDel(this.df);
 			return n;
 		}
 
-		// Switching on ScribbleParser int type constants -- generated from Scribble.g tokens
-		// Previously: String tname = t.getText(); -- by convention of Scribble.g, type constant name given as node text, e.g., module: ... -> ^(MODULE ...)
+		// Switching on ScribbleParser "imaginary" token names -- generated from Scribble.g tokens
+		// Previously, switched on t.getType(), but arbitrary int constant generation breaks extensibility (e.g., super.create(t))
 		ScribNodeBase n;
-		switch (t.getText())  // Cf. Scribble.g "imaginary" token types
+		switch (t.getText())  // Cf. Scribble.g "imaginary" tokens
 		{
 			// Simple names "constructed directly" by parser, e.g., t=ID -> ID<...Node>[$t] -- N.B. DelDecorator pass needed for them (CHECKME: also do those here instead? to deprecate DelDecorator)
 
@@ -181,7 +181,7 @@ public class ScribTreeAdaptor extends CommonTreeAdaptor
 
 			default:
 			{
-				throw new RuntimeException("[TODO] Unknown token type (cf. ScribbleParser): " + t);
+				throw new RuntimeException("[TODO] Unknown token: " + t);
 			}
 		}
 		n.decorateDel(this.df);
