@@ -162,9 +162,9 @@ public class AstFactoryImpl implements AstFactory
 	@Override
 	public AmbigNameNode AmbigNameNode(Token t, String text)
 	{
-		int ttype = ScribbleParser.ID;
+		int type = ScribbleParser.ID;
 		t = newIdToken(t, text);
-		AmbigNameNode n = new AmbigNameNode(ttype, t);  // Cf. Scribble.g, ID<...Node>[$ID]
+		AmbigNameNode n = new AmbigNameNode(type, t);  // Cf. Scribble.g, ID<...Node>[$ID]
 		n.decorateDel(this.df);
 		return n;
 	}
@@ -172,9 +172,9 @@ public class AstFactoryImpl implements AstFactory
 	@Override
 	public DataParamNode DataParamNode(Token t, String text)
 	{
-		int ttype = ScribbleParser.ID;  // N.B. cf. ScribbleParser.DATA_NAME
+		int type = ScribbleParser.ID;  // N.B. cf. ScribbleParser.DATA_NAME
 		t = newIdToken(t, text);
-		DataParamNode n = new DataParamNode(ttype, t);  // Cf. Scribble.g, ID<...Node>[$ID]
+		DataParamNode n = new DataParamNode(type, t);  // Cf. Scribble.g, ID<...Node>[$ID]
 		n.decorateDel(this.df);
 		return n;
 	}
@@ -182,9 +182,9 @@ public class AstFactoryImpl implements AstFactory
 	@Override
 	public OpNode OpNode(Token t, String text)
 	{
-		int ttype = ScribbleParser.ID;
+		int type = ScribbleParser.ID;
 		t = newIdToken(t, text);
-		OpNode n = new OpNode(ttype, t);  // Cf. Scribble.g, ID<...Node>[$ID]
+		OpNode n = new OpNode(type, t);  // Cf. Scribble.g, ID<...Node>[$ID]
 		n.decorateDel(this.df);
 		return n;
 	}
@@ -192,9 +192,9 @@ public class AstFactoryImpl implements AstFactory
 	@Override
 	public RecVarNode RecVarNode(Token t, String text)
 	{
-		int ttype = ScribbleParser.ID;
+		int type = ScribbleParser.ID;
 		t = newIdToken(t, text);
-		RecVarNode n = new RecVarNode(ttype, t);  // Cf. Scribble.g, ID<...Node>[$ID]
+		RecVarNode n = new RecVarNode(type, t);  // Cf. Scribble.g, ID<...Node>[$ID]
 		n.decorateDel(this.df);
 		return n;
 	}
@@ -202,9 +202,9 @@ public class AstFactoryImpl implements AstFactory
 	@Override
 	public RoleNode RoleNode(Token t, String text)
 	{
-		int ttype = ScribbleParser.ID;
+		int type = ScribbleParser.ID;
 		t = newIdToken(t, text);
-		RoleNode n = new RoleNode(ttype, t);  // Cf. Scribble.g, ID<...Node>[$ID]
+		RoleNode n = new RoleNode(type, t);  // Cf. Scribble.g, ID<...Node>[$ID]
 		n.decorateDel(this.df);
 		return n;
 	}
@@ -212,9 +212,9 @@ public class AstFactoryImpl implements AstFactory
 	@Override
 	public SigParamNode SigParamNode(Token t, String text)
 	{
-		int ttype = ScribbleParser.ID;  // N.B. cf. ScribbleParser.SIG_NAME
+		int type = ScribbleParser.ID;  // N.B. cf. ScribbleParser.SIG_NAME
 		t = newIdToken(t, text);
-		SigParamNode n = new SigParamNode(ttype, t);  // Cf. Scribble.g, ID<...Node>[$ID]
+		SigParamNode n = new SigParamNode(type, t);  // Cf. Scribble.g, ID<...Node>[$ID]
 		n.decorateDel(this.df);
 		return n;
 	}
