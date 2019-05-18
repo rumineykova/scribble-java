@@ -90,15 +90,15 @@ public class Module extends ScribNodeBase
 	}
 
 	// "add", not "set"
-	public void addScribChildren(ModuleDecl moddecl,
-			List<? extends ImportDecl<?>> imports,
-			List<? extends NonProtoDecl<?>> data, List<? extends ProtoDecl<?>> protos)
+	public void addScribChildren(ModuleDecl modd,
+			List<? extends ImportDecl<?>> impds,
+			List<? extends NonProtoDecl<?>> nprods, List<? extends ProtoDecl<?>> prods)
 	{
 		// Cf. above getters and Scribble.g children order
-		addChild(moddecl);
-		addChildren(imports);
-		addChildren(data);
-		addChildren(protos);
+		addChild(modd);
+		addChildren(impds);
+		addChildren(nprods);
+		addChildren(prods);
 	}
 
 	// Cf. CommonTree#dupNode
@@ -115,11 +115,11 @@ public class Module extends ScribNodeBase
 	}
 	
 	// Set args as children on a dup of this -- children *not* cloned
-	protected Module reconstruct(ModuleDecl moddecl, List<ImportDecl<?>> imports,
-			List<NonProtoDecl<?>> nonprotos, List<ProtoDecl<?>> protos)
+	protected Module reconstruct(ModuleDecl modd, List<ImportDecl<?>> imps,
+			List<NonProtoDecl<?>> nprods, List<ProtoDecl<?>> prods)
 	{
 		Module dup = dupNode();
-		dup.addScribChildren(moddecl, imports, nonprotos, protos);
+		dup.addScribChildren(modd, imps, nprods, prods);
 		dup.setDel(del());  // No copy
 		return dup;
 	}
@@ -127,15 +127,15 @@ public class Module extends ScribNodeBase
 	@Override
 	public Module visitChildren(AstVisitor v) throws ScribException
 	{
-		ModuleDecl moddecl = (ModuleDecl) visitChild(getModuleDeclChild(), v);
+		ModuleDecl modd = (ModuleDecl) visitChild(getModuleDeclChild(), v);
 		// class equality check probably too restrictive -- FIXME: remove class checks
-		List<ImportDecl<?>> imports = ScribNodeBase
+		List<ImportDecl<?>> impds = ScribNodeBase
 				.visitChildListWithClassEqualityCheck(this, getImportDeclChildren(), v);
-		List<NonProtoDecl<?>> nonprotos = ScribNodeBase
+		List<NonProtoDecl<?>> nprods = ScribNodeBase
 				.visitChildListWithClassEqualityCheck(this, getNonProtoDeclChildren(), v);
-		List<ProtoDecl<?>> protos = ScribNodeBase
+		List<ProtoDecl<?>> prods = ScribNodeBase
 				.visitChildListWithClassEqualityCheck(this, getProtoDeclChildren(), v);
-		return reconstruct(moddecl, imports, nonprotos, protos);
+		return reconstruct(modd, impds, nprods, prods);
 	}
 
 	public DataDecl getTypeDeclChild(DataName simpname)

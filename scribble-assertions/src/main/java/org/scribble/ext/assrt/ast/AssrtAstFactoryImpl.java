@@ -164,7 +164,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	{
 		t = newToken(t, this.tokens.getType("MODULE"));
 		AssrtModule n = new AssrtModule(t);
-		n.addScribChildren(modd, imports, nonprotos, protos, asserts);
+		n.addScribChildren(modd, imports, nonprotos, asserts, protos);
 		n.decorateDel(this.df);
 		return n;
 	}
