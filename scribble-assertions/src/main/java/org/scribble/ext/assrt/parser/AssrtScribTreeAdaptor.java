@@ -50,9 +50,9 @@ public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 
 			// TODO: integrate with ASSRT variants below?  maybe by un-deprecating reconstructs to make base children configs valid
 
-			case "MODULE": n = new AssrtModule(t); break;
-
-			case "GPROTOHEADER": n = new AssrtGProtoHeader(t); break;  
+			case "MODULE":
+			case "GPROTOHEADER": 
+				throw new RuntimeException("Deprecated \"" + t.getText() + "\": " + t);  
 
 			case "GMSGTRANSFER": n = new AssrtGMsgTransfer(t); break;
 			case "GCONNECT": n = new AssrtGConnect(t); break;
@@ -73,9 +73,11 @@ public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 			// Compound names 
 
 			// Non-name (i.e., general) AST nodes
+			case "ASSRT_MODULE": n = new AssrtModule(t); break;
+
 			case "ASSERT_KW": throw new RuntimeException("[TODO] : " + t);
 
-			case "ASSRT_GLOBALPROTOCOLHEADER": n = new AssrtGProtoHeader(t); break;
+			case "ASSRT_GPROTOHEADER": n = new AssrtGProtoHeader(t); break;
 
 			case "ASSRT_ANNOTPAYLOADELEM": n = new AssrtAnnotDataElem(t); break;
 

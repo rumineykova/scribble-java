@@ -152,16 +152,18 @@ tokens
   LRECURSION;
 
 
-  /**
+  /*
    * Assrt
    */
+  
+  ASSRT_MODULE;
 
 	// "Node type" constants -- but not parsed "directly" by AntlrToScribParser
 	ASSRT_ANNOTPAYLOADELEM; 
 
 	// Parsed "directly" by AntlrToScribParser
   // Empty assertions first parsed as original (not Assert) categories -- later translated to null assertion Assrts via AssrtAntlrToScribParser
-	ASSRT_GLOBALPROTOCOLHEADER;
+	ASSRT_GPROTOHEADER;
 
 	ASSRT_GLOBALMESSAGETRANSFER;
 	ASSRT_GLOBALCONNECT;
@@ -378,11 +380,11 @@ simplesigname: t=ID -> ^(SIG_NAME ID) ;
  */
 // "References to tokens with rewrite not found on left of -> are imaginary tokens."
 // Inlined moduledecl to make token label work
-module:
+module:  // Must be "module" (cf. "assrt_module")
 	t=MODULE_KW modulename ';' importmodule* nonprotodecl* assert_fundecl*  // Assrt  
 	protodecl* EOF
 ->
-	^(MODULE ^(MODULEDECL modulename) importmodule* nonprotodecl*   // CHECKME: ASSRT_MODULE?  token/class discrepancy
+	^(ASSRT_MODULE ^(MODULEDECL modulename) importmodule* nonprotodecl*
 			assert_fundecl* protodecl*)
 ;
 // moduledecl: MODULE_KW<ModuleDecl>^ modulename ';'  
@@ -498,7 +500,7 @@ protodecl:
 gprotodecl:
 	protomods gprotoheader gprotodef
 ->
-	^(GPROTODECL protomods gprotoheader gprotodef)
+	^(GPROTODECL protomods assrt_gprotoheader gprotodef)
 ;
   
 // "aux" must come before "explicit"
@@ -510,20 +512,20 @@ protomods:
 ;
 
 // N.B. intermed translation uses full proto name
-gprotoheader:
+assrt_gprotoheader:
 	t=GLOBAL_KW PROTOCOL_KW simplegprotoname paramdecls roledecls
 ->
-	^(GPROTOHEADER simplegprotoname paramdecls roledecls)
+	^(ASSRT_GPROTOHEADER simplegprotoname paramdecls roledecls)
 
 // Assrt
 |
 	GLOBAL_KW PROTOCOL_KW simplegprotoname roledecls '@' EXTID
 ->
-	^(ASSRT_GLOBALPROTOCOLHEADER simplegprotoname ^(PARAMDECL_LIST) roledecls
+	^(ASSRT_GPROTOHEADER simplegprotoname ^(PARAMDECL_LIST) roledecls
 			{AssertionsParser.parseStateVarDeclList($EXTID.text)}) 
 			// use ".tree" for Tree instead of text String
 ;
-// Following same pattern as globalmessagetransfer: explicitly invoke AssertionsParser, and extra assertion element only for new category
+// Following same pattern as gmsgtransfer: explicitly invoke AssertionsParser, and extra assertion element only for new category
 // -- later translation by AssrtAntlrToScribParser converts original nodes to empty-assertion new nodes
 // TODO: paramdecls and annot
 

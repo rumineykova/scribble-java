@@ -280,12 +280,12 @@ public class AstFactoryImpl implements AstFactory
 	 */
 	
 	@Override
-	public Module Module(Token t, ModuleDecl moddecl, List<? extends ImportDecl<?>> imports,
-			List<? extends NonProtoDecl<?>> data, List<? extends ProtoDecl<?>> protos)
+	public Module Module(Token t, ModuleDecl modd, List<? extends ImportDecl<?>> impds,
+			List<? extends NonProtoDecl<?>> nprods, List<? extends ProtoDecl<?>> prods)
 	{
 		t = newToken(t, this.tokens.getType("MODULE"));
 		Module n = new Module(t);
-		n.addScribChildren(moddecl, imports, data, protos);
+		n.addScribChildren(modd, impds, nprods, prods);
 		n.decorateDel(this.df);
 		return n;
 	}

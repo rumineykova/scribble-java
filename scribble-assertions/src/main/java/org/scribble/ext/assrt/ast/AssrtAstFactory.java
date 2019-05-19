@@ -51,9 +51,9 @@ public interface AssrtAstFactory extends AstFactory
 	AssrtArithExpr AssrtArithAnnotation(Token t, AssrtArithFormula aexpr);  // Int expr
 
 	AssrtModule AssrtModule(Token t, ModuleDecl modd,
-			List<? extends ImportDecl<?>> imports,
-			List<? extends NonProtoDecl<?>> nonprotos,
-			List<? extends ProtoDecl<?>> protos, List<AssrtAssertDecl> asserts);
+			List<? extends ImportDecl<?>> impds,
+			List<? extends NonProtoDecl<?>> nprods,
+			List<AssrtAssertDecl> assds, List<? extends ProtoDecl<?>> prods);
 
 	// FIXME: should not be an AssrtAssertion -- should be just an (integer) var decl expr (which is not a bool expr)
 	AssrtGProtoHeader AssrtGProtoHeader(Token t, GProtoNameNode name,

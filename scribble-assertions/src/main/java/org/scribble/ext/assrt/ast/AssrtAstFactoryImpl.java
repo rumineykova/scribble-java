@@ -74,7 +74,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	// Still used by parsing for empty annotation/assertion nodes -- but we return an Assrt node
 	// Easier to make all global as Assrt nodes, to avoid cast checks in, e.g., AssrtGProtoDeclDel::leaveProjection (for GProtoHeader), and so all projections will be Assrt kinds only
 
-	// Alternative is to make parsing return all as AssrtGProtoHeader directly
+	/*// Alternative is to make parsing return all as AssrtGProtoHeader directly
 	@Override
 	public AssrtGProtoHeader GProtocolHeader(Token t, GProtoNameNode name,
 			RoleDeclList rs, NonRoleParamDeclList ps)
@@ -84,7 +84,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 		n.addScribChildren(name, ps, rs);
 		n.decorateDel(this.df);  // Default, annots handled directly by AssrtAnnotationChecker Def enter/exit
 		return n;
-	}
+	}*/
 
 	// Same pattern as for GProtoHeader
 	// Non-annotated message transfers still created as AssrtGMessageTransfer -- null assertion, but AssrtGMessageTransferDel is still needed (why?)
@@ -156,23 +156,23 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 		return n;
 	}
 
-	@Override
-	public AssrtModule AssrtModule(Token t, ModuleDecl modd,
-			List<? extends ImportDecl<?>> imports,
-			List<? extends NonProtoDecl<?>> nonprotos,
-			List<? extends ProtoDecl<?>> protos, List<AssrtAssertDecl> asserts)
-	{
-		t = newToken(t, this.tokens.getType("MODULE"));
-		AssrtModule n = new AssrtModule(t);
-		n.addScribChildren(modd, imports, nonprotos, asserts, protos);
-		n.decorateDel(this.df);
-		return n;
-	}
-
 
 	/**
 	 *  Explicitly creating new Assrt nodes -- new Token types
 	 */
+
+	@Override
+	public AssrtModule AssrtModule(Token t, ModuleDecl modd,
+			List<? extends ImportDecl<?>> impds,
+			List<? extends NonProtoDecl<?>> nprods,
+			List<AssrtAssertDecl> assds, List<? extends ProtoDecl<?>> prods)
+	{
+		t = newToken(t, this.tokens.getType("MODULE"));
+		AssrtModule n = new AssrtModule(t);
+		n.addScribChildren(modd, impds, nprods, assds, prods);
+		n.decorateDel(this.df);
+		return n;
+	}
 
 	@Override
 	public AssrtAssertion AssrtAssertion(Token t, AssrtBoolFormula bexpr)

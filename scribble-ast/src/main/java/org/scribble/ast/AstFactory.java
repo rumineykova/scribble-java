@@ -92,10 +92,10 @@ public interface AstFactory
 	
 
 	// General and globals
-	Module Module(Token t, ModuleDecl mdecl,
-			List<? extends ImportDecl<?>> imports,
-			List<? extends NonProtoDecl<?>> nonprotos,
-			List<? extends ProtoDecl<?>> protos);
+	Module Module(Token t, ModuleDecl modd,
+			List<? extends ImportDecl<?>> impds,
+			List<? extends NonProtoDecl<?>> nprods,
+			List<? extends ProtoDecl<?>> prods);
 
 	ModuleDecl ModuleDecl(Token t, ModuleNameNode fullname);
 	ImportModule ImportModule(Token t, ModuleNameNode modname,

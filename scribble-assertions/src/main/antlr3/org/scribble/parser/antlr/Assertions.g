@@ -5,7 +5,7 @@
 //$ mv scribble-assertions/target/generated-sources/antlr3/org/scribble/parser/antlr/Assertions.tokens scribble-assertions/target/generated-sources/antlr3/
 
 
-grammar Assertions;
+grammar Assertions;  // TODO: rename AssrtExt(Id)
 
 options
 {
@@ -32,27 +32,30 @@ tokens
 	 */
 	//EMPTY_LIST = 'EMPTY_LIST';
 	
-	ROOT = 'ROOT'; 
+	// TODO: rename EXT_...
+	ROOT; 
 	
-	BOOLEXPR  = 'BOOLEXPR'; 
-	COMPEXPR  = 'COMPEXPR'; 
-	ARITHEXPR = 'ARITHEXPR'; 
-	NEGEXPR   = 'NEGEXPR';
+	BOOLEXPR; 
+	COMPEXPR; 
+	ARITHEXPR; 
+	NEGEXPR;
 	
-	UNFUN        = 'UNFUN';
-	UNFUNARGLIST = 'UNFUNARGLIST';
+	UNFUN;
+	UNFUNARGLIST;
 
-	INTVAR = 'INTVAR'; 
-	INTVAL = 'INTVAL'; 
-	NEGINTVAL = 'NEGINTVAL'; 
+	INTVAR; 
+	INTVAL; 
+	NEGINTVAL; 
 
-	TRUE  = 'TRUE';
-	FALSE = 'FALSE';
+	TRUE;
+	FALSE;
 	
-	ASSRT_STATEVARDECLLIST          = 'ASSRT_STATEVARDECLLIST';
-	ASSRT_STATEVARDECL              = 'ASSRT_STATEVARDECL';
-	ASSRT_STATEVARDECLLISTASSERTION = 'ASSRT_STATEVARDECLLISTASSERTION';
-	ASSRT_STATEVARARGLIST           = 'ASSRT_STATEVARARGLIST';
+	ASSRT_STATEVARDECLLIST;
+	ASSRT_STATEVARDECL;
+	ASSRT_STATEVARDECLLISTASSERTION;
+	ASSRT_STATEVARARGLIST;
+	
+	ASSRT_EMPTYASS
 }
 
 @parser::header
@@ -90,11 +93,13 @@ tokens
 		return (CommonTree) parser.arith_expr().getTree();
 	}
 
-	public static CommonTree parseStateVarDeclList(String source) throws RecognitionException
+	public static CommonTree parseStateVarDeclList(String source) 
+			throws RecognitionException
 	{
 		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
-		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
+		AssertionsParser parser = new AssertionsParser(
+				new CommonTokenStream(lexer));
 		return (CommonTree) parser.statevardecllist().getTree();
 	}
 
@@ -149,16 +154,16 @@ num:
 ; 
 
 	
-// statevars
+// statevars -- TODO: refactor to AssrtScribble.g
 	
 statevardecllist:
-	'(' statevardecl (',' statevardecl)* ')' (bool_expr)?
+	'(' statevardecl (',' statevardecl)* ')'
 ->
-	^(ASSRT_STATEVARDECLLIST ^(ASSRT_STATEVARDECLLISTASSERTION bool_expr?) statevardecl+)
+	^(ASSRT_STATEVARDECLLIST ^(ASSRT_EMPTYASS) statevardecl+)
 |
-	bool_expr
+	('(' statevardecl (',' statevardecl)* ')')? bool_expr
 ->
-	^(ASSRT_STATEVARDECLLIST ^(ASSRT_STATEVARDECLLISTASSERTION bool_expr))
+	^(ASSRT_STATEVARDECLLIST ^(ASSRT_STATEVARDECLLISTASSERTION bool_expr) statevardecl+?)
 ;
 	
 statevardecl:

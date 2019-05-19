@@ -1,11 +1,11 @@
 package org.scribble.ext.assrt.ast.global;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.antlr.runtime.Token;
+import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.Tree;
 import org.scribble.ast.ProtoBlock;
-import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GProtoBlock;
 import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.name.simple.RecVarNode;
@@ -27,9 +27,11 @@ public class AssrtGRecursion extends GRecursion
 		implements AssrtStateVarDeclAnnotNode
 {
 	//public static final int BODY_CHILD_INDEX = 1;
-	// FIXME: no: Assertions.g gives back a subtree containing all
-	public static final int ASSERT_CHILD_INDEX = 2;  // May be null (means "true")
-	public static final int ANNOT_CHILDREN_START_INDEX = 3;
+	public static final int ASSRT_EXT_CHILD_INDEX = 3;  // null if no @-annotation
+
+	// N.B. EXTID-parsed children of ASSRT_CHILD_INDEX subtree (i.e., grandchildren of this) -- cf. Assertions.g
+	public static final int EXT_ASSERT_CHILD_INDEX = 0;  // null if not specified (means "true", but not written syntactically)
+	public static final int EXT_STATEVAR_CHILDREN_START_INDEX = 1;
 
 	// ScribTreeAdaptor#create constructor
 	public AssrtGRecursion(Token t)
@@ -45,29 +47,45 @@ public class AssrtGRecursion extends GRecursion
 
 	// Following duplicated from AssrtGProtoHeader
 
+	@Override
+	public CommonTree getExtChild()
+	{
+		return (CommonTree) getChild(ASSRT_EXT_CHILD_INDEX);
+	}
+
 	// N.B. null if not specified -- currently duplicated from AssrtGMessageTransfer
 	@Override
 	public AssrtAssertion getAssertionChild()
 	{
-		return (AssrtAssertion) getChild(ASSERT_CHILD_INDEX);
+		CommonTree ext = getExtChild();
+		if (ext == null)
+		{
+			return null;
+		}
+		Tree n = ext.getChild(EXT_ASSERT_CHILD_INDEX);
+		return (n.getText().equals("ASSRT_EMPTYASS"))  // TODO: factor out constant
+				? null
+				: (AssrtAssertion) n;
 	}
 	
 	@Override
 	public List<AssrtIntVarNameNode> getAnnotVarChildren()
 	{
-		List<? extends ScribNode> cs = getChildren();
+		/*List<? extends ScribNode> cs = getChildren();
 		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
 				.filter(x -> x instanceof AssrtIntVarNameNode)
-				.map(x -> (AssrtIntVarNameNode) x).collect(Collectors.toList());
+				.map(x -> (AssrtIntVarNameNode) x).collect(Collectors.toList());*/
+		throw new RuntimeException("[TODO] : ");
 	}
 
 	@Override
 	public List<AssrtArithExpr> getAnnotExprChildren()
 	{
-		List<? extends ScribNode> cs = getChildren();
+		/*List<? extends ScribNode> cs = getChildren();
 		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
 				.filter(x -> x instanceof AssrtArithExpr)
-				.map(x -> (AssrtArithExpr) x).collect(Collectors.toList());
+				.map(x -> (AssrtArithExpr) x).collect(Collectors.toList());*/
+		throw new RuntimeException("[TODO] : ");
 	}
 
 	@Override
