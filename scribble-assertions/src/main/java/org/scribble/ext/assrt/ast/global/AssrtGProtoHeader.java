@@ -30,11 +30,11 @@ public class AssrtGProtoHeader extends GProtoHeader
 		implements AssrtStateVarDeclAnnotNode
 {
 	//public static final int ROLEDECLLIST_CHILD = 2;
-	public static final int ASSRT_EXT_CHILD_INDEX = 3;  // null if no @-annotation
+	public static final int ASSRT_ANNOT_CHILD_INDEX = 3;  // null if no @-annotation
 
 	// N.B. EXTID-parsed children of ASSRT_CHILD_INDEX subtree (i.e., grandchildren of this) -- cf. Assertions.g
-	public static final int EXT_ASSERT_CHILD_INDEX = 0;  // null if not specified (means "true", but not written syntactically)
-	public static final int EXT_STATEVAR_CHILDREN_START_INDEX = 1;
+	public static final int ANNOT_ASSERT_CHILD_INDEX = 0;  // null if not specified (means "true", but not written syntactically)
+	public static final int ANNOT_STATEVAR_CHILDREN_START_INDEX = 1;
 
 	// ScribTreeAdaptor#create constructor
 	public AssrtGProtoHeader(Token t)
@@ -51,7 +51,7 @@ public class AssrtGProtoHeader extends GProtoHeader
 	// CHECKME: define restrictions directly in ANTLR grammar, and make a separate AST class for protocol header var init-decl annotations
 	// Pre: ass != null
 	//public AssrtBinCompFormula getAnnotDataTypeVarInitDecl()  // Cf. AssrtAnnotDataTypeElem (no "initializer")
-	public Map<AssrtDataTypeVar, AssrtArithFormula> getAnnotDataTypeVarDecls()  // Cf. AssrtAnnotDataTypeElem (no "initializer")
+	public Map<AssrtDataTypeVar, AssrtArithFormula> getAnnotDataVarDecls()  // Cf. AssrtAnnotDataTypeElem (no "initializer")
 	{
 		//return (this.ass == null) ? null : (AssrtBinCompFormula) this.ass.getFormula();
 		//return (AssrtBinCompFormula) this.ass.getFormula();
@@ -61,21 +61,21 @@ public class AssrtGProtoHeader extends GProtoHeader
 	}
 
 	@Override
-	public CommonTree getExtChild()
+	public CommonTree getAnnotChild()
 	{
-		return (CommonTree) getChild(ASSRT_EXT_CHILD_INDEX);
+		return (CommonTree) getChild(ASSRT_ANNOT_CHILD_INDEX);
 	}
 
 	// N.B. null if not specified -- currently duplicated from AssrtGMessageTransfer
 	@Override
-	public AssrtAssertion getAssertionChild()
+	public AssrtAssertion getAnnotAssertChild()
 	{
-		CommonTree ext = getExtChild();
+		CommonTree ext = getAnnotChild();
 		if (ext == null)
 		{
 			return null;
 		}
-		Tree n = ext.getChild(EXT_ASSERT_CHILD_INDEX);
+		Tree n = ext.getChild(ANNOT_ASSERT_CHILD_INDEX);
 		return (n.getText().equals("ASSRT_EMPTYASS"))  // TODO: factor out constant
 				? null
 				: (AssrtAssertion) n;
@@ -163,7 +163,7 @@ public class AssrtGProtoHeader extends GProtoHeader
 				this, getAnnotVarChildren(), v);
 		List<AssrtArithExpr> aexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);
-		AssrtAssertion tmp = getAssertionChild();
+		AssrtAssertion tmp = getAnnotAssertChild();
 		AssrtAssertion ass = (tmp == null) 
 				? null
 				: (AssrtAssertion) visitChild(tmp, v);

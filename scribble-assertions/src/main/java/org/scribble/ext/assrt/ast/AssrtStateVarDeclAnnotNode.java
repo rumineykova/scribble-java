@@ -10,20 +10,20 @@ import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 // ProtoHeader or Recursion
 public interface AssrtStateVarDeclAnnotNode
 {
-	CommonTree getExtChild();
-	AssrtAssertion getAssertionChild();
+	CommonTree getAnnotChild();
+	AssrtAssertion getAnnotAssertChild();
 	List<AssrtIntVarNameNode> getAnnotVarChildren();
 	List<AssrtArithExpr> getAnnotExprChildren();
 
 	default String annotToString()
 	{
-		CommonTree ext = getExtChild();
+		CommonTree ext = getAnnotChild();
 		if (ext == null)
 		{
 			return "";
 		}
 		Iterator<AssrtArithExpr> exprs = getAnnotExprChildren().iterator();
-		AssrtAssertion ass = getAssertionChild();
+		AssrtAssertion ass = getAnnotAssertChild();
 		return " @(\""
 				+ getAnnotVarChildren().stream().map(v -> v + " := " + exprs.next())
 						.collect(Collectors.joining(", "))

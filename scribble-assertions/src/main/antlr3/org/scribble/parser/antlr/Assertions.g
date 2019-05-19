@@ -5,7 +5,7 @@
 //$ mv scribble-assertions/target/generated-sources/antlr3/org/scribble/parser/antlr/Assertions.tokens scribble-assertions/target/generated-sources/antlr3/
 
 
-grammar Assertions;  // TODO: rename AssrtExt(Id)
+grammar Assertions;  // TODO: rename AssrtExt(Id), or AssrtAnnotation
 
 options
 {
@@ -32,7 +32,7 @@ tokens
 	 */
 	//EMPTY_LIST = 'EMPTY_LIST';
 	
-	// TODO: rename EXT_...
+	// TODO: rename EXT_... (or ANNOT_...)
 	ROOT; 
 	
 	BOOLEXPR; 

@@ -44,7 +44,7 @@ public class AssrtLRecursion extends LRecursion
 
 	// N.B. null if not specified -- currently duplicated from AssrtGMessageTransfer
 	@Override
-	public AssrtAssertion getAssertionChild()
+	public AssrtAssertion getAnnotAssertChild()
 	{
 		return (AssrtAssertion) getChild(ASSERT_CHILD_INDEX);
 	}
@@ -121,7 +121,7 @@ public class AssrtLRecursion extends LRecursion
 		RecVarNode recvar = (RecVarNode) visitChild(getRecVarChild(), v);
 		LProtoBlock block = visitChildWithClassEqualityCheck(this, getBlockChild(),
 				v);
-		AssrtAssertion tmp = getAssertionChild();
+		AssrtAssertion tmp = getAnnotAssertChild();
 		AssrtAssertion ass = (tmp == null) 
 				? null
 				: (AssrtAssertion) visitChild(tmp, v);

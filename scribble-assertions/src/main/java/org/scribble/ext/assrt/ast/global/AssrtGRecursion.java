@@ -48,16 +48,16 @@ public class AssrtGRecursion extends GRecursion
 	// Following duplicated from AssrtGProtoHeader
 
 	@Override
-	public CommonTree getExtChild()
+	public CommonTree getAnnotChild()
 	{
 		return (CommonTree) getChild(ASSRT_EXT_CHILD_INDEX);
 	}
 
 	// N.B. null if not specified -- currently duplicated from AssrtGMessageTransfer
 	@Override
-	public AssrtAssertion getAssertionChild()
+	public AssrtAssertion getAnnotAssertChild()
 	{
-		CommonTree ext = getExtChild();
+		CommonTree ext = getAnnotChild();
 		if (ext == null)
 		{
 			return null;
@@ -142,7 +142,7 @@ public class AssrtGRecursion extends GRecursion
 		RecVarNode recvar = (RecVarNode) visitChild(getRecVarChild(), v);
 		GProtoBlock block = visitChildWithClassEqualityCheck(this, getBlockChild(),
 				v);
-		AssrtAssertion tmp = getAssertionChild();
+		AssrtAssertion tmp = getAnnotAssertChild();
 		AssrtAssertion ass = (tmp == null) 
 				? null
 				: (AssrtAssertion) visitChild(tmp, v);

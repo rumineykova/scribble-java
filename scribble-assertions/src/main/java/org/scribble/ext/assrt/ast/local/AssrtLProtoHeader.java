@@ -58,7 +58,7 @@ public class AssrtLProtoHeader extends LProtoHeader
 
 	// N.B. null if not specified -- currently duplicated from AssrtGMessageTransfer
 	@Override
-	public AssrtAssertion getAssertionChild()
+	public AssrtAssertion getAnnotAssertChild()
 	{
 		return (AssrtAssertion) getChild(ASSERT_CHILD_INDEX);
 	}
@@ -142,7 +142,7 @@ public class AssrtLProtoHeader extends LProtoHeader
 				this, getAnnotVarChildren(), v);
 		List<AssrtArithExpr> aexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);
-		AssrtAssertion tmp = getAssertionChild();
+		AssrtAssertion tmp = getAnnotAssertChild();
 		AssrtAssertion ass = (tmp == null) 
 				? null
 				: (AssrtAssertion) visitChild(tmp, v);
