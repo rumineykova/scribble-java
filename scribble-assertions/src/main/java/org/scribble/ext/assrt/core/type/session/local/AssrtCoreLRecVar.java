@@ -5,7 +5,7 @@ import java.util.List;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.type.kind.Local;
 import org.scribble.core.type.name.RecVar;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRecVar;
 
 	
@@ -13,7 +13,7 @@ public class AssrtCoreLRecVar extends AssrtCoreRecVar<Local>
 		implements AssrtCoreLType
 {
 	protected AssrtCoreLRecVar(CommonTree source, RecVar var,
-			List<AssrtArithFormula> annotexprs)
+			List<AssrtAFormula> annotexprs)
 	{
 		super(source, var, annotexprs);
 	}

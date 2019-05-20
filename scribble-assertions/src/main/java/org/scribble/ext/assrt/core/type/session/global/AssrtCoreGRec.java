@@ -8,8 +8,8 @@ import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.DataName;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
@@ -23,8 +23,8 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 		implements AssrtCoreGType
 {
 	protected AssrtCoreGRec(CommonTree source, RecVar recvar,
-			LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars,
-			AssrtCoreGType body, AssrtBoolFormula ass)
+			LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> annotvars,
+			AssrtCoreGType body, AssrtBFormula ass)
 	{
 		super(source, recvar, annotvars, body, ass);
 	}
@@ -42,7 +42,7 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 
 	@Override
 	public AssrtCoreLType project(AssrtCoreSTypeFactory af, Role r,
-			AssrtBoolFormula f) throws AssrtCoreSyntaxException
+			AssrtBFormula f) throws AssrtCoreSyntaxException
 	{
 		AssrtCoreLType proj = this.body.project(af, r, f);
 		return (proj instanceof AssrtCoreLRecVar) 

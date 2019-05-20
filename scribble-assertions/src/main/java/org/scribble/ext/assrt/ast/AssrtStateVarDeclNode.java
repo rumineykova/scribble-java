@@ -8,12 +8,12 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 
 // ProtoHeader or Recursion
-public interface AssrtStateVarDeclAnnotNode
+public interface AssrtStateVarDeclNode
 {
 	CommonTree getAnnotChild();
-	AssrtAssertion getAnnotAssertChild();
+	AssrtBExprNode getAnnotAssertChild();
 	List<AssrtIntVarNameNode> getAnnotVarChildren();
-	List<AssrtArithExpr> getAnnotExprChildren();
+	List<AssrtAExprNode> getAnnotExprChildren();
 
 	default String annotToString()
 	{
@@ -22,8 +22,8 @@ public interface AssrtStateVarDeclAnnotNode
 		{
 			return "";
 		}
-		Iterator<AssrtArithExpr> exprs = getAnnotExprChildren().iterator();
-		AssrtAssertion ass = getAnnotAssertChild();
+		Iterator<AssrtAExprNode> exprs = getAnnotExprChildren().iterator();
+		AssrtBExprNode ass = getAnnotAssertChild();
 		return " @(\""
 				+ getAnnotVarChildren().stream().map(v -> v + " := " + exprs.next())
 						.collect(Collectors.joining(", "))

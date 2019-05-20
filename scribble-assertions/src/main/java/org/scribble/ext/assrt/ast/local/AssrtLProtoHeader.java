@@ -1,8 +1,6 @@
 package org.scribble.ext.assrt.ast.local;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.Token;
@@ -13,19 +11,17 @@ import org.scribble.ast.local.LProtoHeader;
 import org.scribble.ast.name.qualified.ProtoNameNode;
 import org.scribble.core.type.kind.Local;
 import org.scribble.del.DelFactory;
-import org.scribble.ext.assrt.ast.AssrtArithExpr;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
-import org.scribble.ext.assrt.ast.AssrtStateVarDeclAnnotNode;
+import org.scribble.ext.assrt.ast.AssrtAExprNode;
+import org.scribble.ext.assrt.ast.AssrtBExprNode;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
 
 // Based on AssrtGProtocolHeader
 public class AssrtLProtoHeader extends LProtoHeader
-		implements AssrtStateVarDeclAnnotNode
+		implements AssrtStateVarDeclNode
 {
 	//public static final int ROLEDECLLIST_CHILD = 2;
 	// FIXME: no: Assertions.g gives back a subtree containing all
@@ -43,24 +39,12 @@ public class AssrtLProtoHeader extends LProtoHeader
 	{
 		super(node);
 	}
-	
-	// CHECKME: define restrictions directly in ANTLR grammar, and make a separate AST class for protocol header var init-decl annotations
-	// Pre: ass != null
-	//public AssrtBinCompFormula getAnnotDataTypeVarInitDecl()  // Cf. AssrtAnnotDataTypeElem (no "initializer")
-	public Map<AssrtDataTypeVar, AssrtArithFormula> getAnnotDataTypeVarDecls()  // Cf. AssrtAnnotDataTypeElem (no "initializer")
-	{
-		//return (this.ass == null) ? null : (AssrtBinCompFormula) this.ass.getFormula();
-		//return (AssrtBinCompFormula) this.ass.getFormula();
-		Iterator<AssrtArithExpr> exprs = getAnnotExprChildren().iterator();
-		return getAnnotVarChildren().stream().collect(
-				Collectors.toMap(v -> v.toName(), v -> exprs.next().getFormula()));
-	}
 
 	// N.B. null if not specified -- currently duplicated from AssrtGMessageTransfer
 	@Override
-	public AssrtAssertion getAnnotAssertChild()
+	public AssrtBExprNode getAnnotAssertChild()
 	{
-		return (AssrtAssertion) getChild(ASSERT_CHILD_INDEX);
+		return (AssrtBExprNode) getChild(ASSERT_CHILD_INDEX);
 	}
 	
 	@Override
@@ -73,12 +57,12 @@ public class AssrtLProtoHeader extends LProtoHeader
 	}
 
 	@Override
-	public List<AssrtArithExpr> getAnnotExprChildren()
+	public List<AssrtAExprNode> getAnnotExprChildren()
 	{
 		List<? extends ScribNode> cs = getChildren();
 		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
-				.filter(x -> x instanceof AssrtArithExpr)
-				.map(x -> (AssrtArithExpr) x).collect(Collectors.toList());
+				.filter(x -> x instanceof AssrtAExprNode)
+				.map(x -> (AssrtAExprNode) x).collect(Collectors.toList());
 	}
 
 	@Override
@@ -90,8 +74,8 @@ public class AssrtLProtoHeader extends LProtoHeader
 
 	// "add", not "set"
 	public void addScribChildren(ProtoNameNode<Local> name,
-			NonRoleParamDeclList ps, RoleDeclList rs, AssrtAssertion assrt,
-			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs)
+			NonRoleParamDeclList ps, RoleDeclList rs, AssrtBExprNode assrt,
+			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs)
 	{
 		// Cf. above getters and Scribble.g children order
 		super.addScribChildren(name, ps, rs);
@@ -121,8 +105,8 @@ public class AssrtLProtoHeader extends LProtoHeader
 	}
 
 	public AssrtLProtoHeader reconstruct(ProtoNameNode<Local> name,
-			NonRoleParamDeclList ps, RoleDeclList rs, AssrtAssertion ass,
-			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs)
+			NonRoleParamDeclList ps, RoleDeclList rs, AssrtBExprNode ass,
+			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs)
 	{
 		AssrtLProtoHeader dup = dupNode();
 		dup.addScribChildren(name, ps, rs, ass, avars, aexprs);
@@ -140,12 +124,12 @@ public class AssrtLProtoHeader extends LProtoHeader
 				visitChild(getParamDeclListChild(), v);
 		List<AssrtIntVarNameNode> annotvars = visitChildListWithClassEqualityCheck(
 				this, getAnnotVarChildren(), v);
-		List<AssrtArithExpr> aexprs = visitChildListWithClassEqualityCheck(this,
+		List<AssrtAExprNode> aexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);
-		AssrtAssertion tmp = getAnnotAssertChild();
-		AssrtAssertion ass = (tmp == null) 
+		AssrtBExprNode tmp = getAnnotAssertChild();
+		AssrtBExprNode ass = (tmp == null) 
 				? null
-				: (AssrtAssertion) visitChild(tmp, v);
+				: (AssrtBExprNode) visitChild(tmp, v);
 		return reconstruct(getNameNodeChild(), ps, rs, ass, annotvars, aexprs);
 	}
 	
@@ -193,6 +177,18 @@ public class AssrtLProtoHeader extends LProtoHeader
 		this.annotvars = Collections.unmodifiableList(annotvars);
 		this.annotexprs = Collections.unmodifiableList(annotexprs);
 		this.ass = ass;
+	}
+	
+	// CHECKME: define restrictions directly in ANTLR grammar, and make a separate AST class for protocol header var init-decl annotations
+	// Pre: ass != null
+	//public AssrtBinCompFormula getAnnotDataTypeVarInitDecl()  // Cf. AssrtAnnotDataTypeElem (no "initializer")
+	public Map<AssrtDataTypeVar, AssrtArithFormula> getAnnotDataTypeVarDecls()  // Cf. AssrtAnnotDataTypeElem (no "initializer")
+	{
+		//return (this.ass == null) ? null : (AssrtBinCompFormula) this.ass.getFormula();
+		//return (AssrtBinCompFormula) this.ass.getFormula();
+		Iterator<AssrtArithExprNode> exprs = getAnnotExprChildren().iterator();
+		return getAnnotVarChildren().stream().collect(
+				Collectors.toMap(v -> v.toName(), v -> exprs.next().getFormula()));
 	}
 //*/
 	

@@ -7,17 +7,17 @@ import java.util.stream.Collectors;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.type.kind.ProtoKind;
 import org.scribble.core.type.name.RecVar;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 
 
 public abstract class AssrtCoreRecVar<K extends ProtoKind>
 		extends AssrtCoreSTypeBase<K>
 {
 	public final RecVar recvar;
-	public final List<AssrtArithFormula> annotexprs;
+	public final List<AssrtAFormula> annotexprs;
 	
 	protected AssrtCoreRecVar(CommonTree source, RecVar var,
-			List<AssrtArithFormula> annotexprs)
+			List<AssrtAFormula> annotexprs)
 	{
 		super(source);
 		this.recvar = var;

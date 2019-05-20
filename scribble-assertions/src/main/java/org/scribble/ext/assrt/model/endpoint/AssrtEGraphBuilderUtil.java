@@ -4,8 +4,8 @@ import java.util.LinkedHashMap;
 
 import org.scribble.core.model.ModelFactory;
 import org.scribble.core.model.endpoint.EGraphBuilderUtil;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 
 // Helper class for EGraphBuilder -- can access the protected setters of EState (via superclass helper methods)
@@ -18,8 +18,8 @@ public class AssrtEGraphBuilderUtil extends EGraphBuilderUtil
 	}
 	
 	public void addStateVars(AssrtEState s,
-			LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars,
-			AssrtBoolFormula ass)
+			LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> vars,
+			AssrtBFormula ass)
 	{
 		//((AssrtEState) this.entry).addAnnotVars(vars);
 		s.addStateVars(vars, ass);

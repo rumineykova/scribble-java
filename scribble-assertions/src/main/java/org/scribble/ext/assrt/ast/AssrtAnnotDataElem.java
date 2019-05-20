@@ -16,7 +16,7 @@ import org.scribble.visit.AstVisitor;
 // This is an "Elem" -- "Elems" are the elements of PayElemList, while PayElemNameNode (like DataNameNode) are the values (an attribute) of the elems
 // FIXME: currently only allowed to be "int" (cf. AssrtIntVarNameNode) -- check this explicitly
 public class AssrtAnnotDataElem extends ScribNodeBase
-		implements PayElem<DataKind>, AssrtActionVarDeclAnnotNode
+		implements PayElem<DataKind>, AssrtActionVarDeclNode
 {
 	public static final int VAR_CHILD_INDEX = 0;
 	public static final int DATA_CHILD_INDEX = 1;

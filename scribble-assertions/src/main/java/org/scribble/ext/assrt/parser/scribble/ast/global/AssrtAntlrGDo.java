@@ -9,10 +9,10 @@ import org.scribble.ast.AstFactory;
 import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.RoleArgList;
 import org.scribble.ast.name.qualified.GProtocolNameNode;
-import org.scribble.ext.assrt.ast.AssrtArithExpr;
+import org.scribble.ext.assrt.ast.AssrtAExprNode;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
 import org.scribble.ext.assrt.parser.scribble.AssrtAntlrToScribParser;
 import org.scribble.parser.scribble.AntlrToScribParser;
@@ -33,24 +33,24 @@ public class AssrtAntlrGDo
 		GProtocolNameNode pnn = AntlrQualifiedName.toGProtocolNameNode(AntlrGDo.getProtocolNameChild(root), af);
 		
 		CommonTree annotTree = AssrtAntlrGProtocolHeader.getAssrtStateVarDeclListChild(root);
-		List<AssrtArithExpr> annotexprs = parseAssrtStateVarArgList(((AssrtAntlrToScribParser) parser).ap, annotTree, (AssrtAstFactory) af);
+		List<AssrtAExprNode> annotexprs = parseAssrtStateVarArgList(((AssrtAntlrToScribParser) parser).ap, annotTree, (AssrtAstFactory) af);
 		return ((AssrtAstFactory) af).AssrtGDo(root, pnn, al, ril, //annot);
 				annotexprs);
 	}
 	
-	private static List<AssrtArithExpr> parseAssrtStateVarArgList(AssrtAntlrToFormulaParser ap, CommonTree assTree, AssrtAstFactory af)
+	private static List<AssrtAExprNode> parseAssrtStateVarArgList(AssrtAntlrToFormulaParser ap, CommonTree assTree, AssrtAstFactory af)
 	{
 		return ((Stream<?>) assTree.getChildren().stream())  // Stream of arith_expr
 				.map(c -> parseArithAnnotation(ap, (CommonTree) c, af)).collect(Collectors.toList());
 	}
 
-	public static AssrtArithExpr parseArithAnnotation(AssrtAntlrToFormulaParser ap, CommonTree annotTree, AssrtAstFactory af)
+	public static AssrtAExprNode parseArithAnnotation(AssrtAntlrToFormulaParser ap, CommonTree annotTree, AssrtAstFactory af)
 	{
 		AntlrToScribParser.checkForAntlrErrors(annotTree);  // Check ct root
 
 		CommonTree tmp = //(CommonTree) annotTree.getChild(0);  // Formula node to parse  // FIXME: factor out?
 				annotTree;
-		AssrtArithFormula f = (AssrtArithFormula) ap.parse(tmp);  // By AssrtAssertions.g
+		AssrtAFormula f = (AssrtAFormula) ap.parse(tmp);  // By AssrtAssertions.g
 		return af.AssrtArithAnnotation(annotTree, f);
 	}
 

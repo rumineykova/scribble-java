@@ -10,7 +10,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtLogFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.sosy_lab.common.ShutdownManager;
@@ -87,7 +87,7 @@ public class JavaSmtWrapper
 		return instance;
 	}
 	
-	public AssrtLogFormula addFormula(AssrtBoolFormula f1, AssrtBoolFormula f2) //throws AssertionParseException
+	public AssrtLogFormula addFormula(AssrtBFormula f1, AssrtBFormula f2) //throws AssertionParseException
 	{
 		BooleanFormula formula = this.bfm.and( f1.getJavaSmtFormula(), f2.getJavaSmtFormula());
 		Set<AssrtDataTypeVar> vars = new HashSet<>(f1.getIntVars()); 
@@ -95,7 +95,7 @@ public class JavaSmtWrapper
 		return new AssrtLogFormula(formula, vars);
 	}
 	
-	public Boolean isSat(AssrtBoolFormula assertionFormula, AssrtLogFormula context)
+	public Boolean isSat(AssrtBFormula assertionFormula, AssrtLogFormula context)
 	{
 		return isSat(buildFormula(assertionFormula, context));
 	}
@@ -143,7 +143,7 @@ public class JavaSmtWrapper
 		return  !isUnsat;
 	}
 
-	private BooleanFormula buildFormula(AssrtBoolFormula assertionFormula, AssrtLogFormula context) //throws AssertionParseException
+	private BooleanFormula buildFormula(AssrtBFormula assertionFormula, AssrtLogFormula context) //throws AssertionParseException
 	{
 		BooleanFormula currFormula;
 		currFormula = (BooleanFormula) assertionFormula.getJavaSmtFormula();

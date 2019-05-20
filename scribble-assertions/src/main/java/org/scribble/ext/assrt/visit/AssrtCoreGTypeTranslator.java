@@ -13,12 +13,63 @@
  */
 package org.scribble.ext.assrt.visit;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.scribble.ast.MsgNode;
+import org.scribble.ast.PayElem;
 import org.scribble.ast.ScribNode;
+import org.scribble.ast.SigLitNode;
+import org.scribble.ast.UnaryPayElem;
+import org.scribble.ast.global.GChoice;
+import org.scribble.ast.global.GConnect;
+import org.scribble.ast.global.GContinue;
+import org.scribble.ast.global.GProtoBlock;
+import org.scribble.ast.global.GProtoDecl;
+import org.scribble.ast.global.GProtoDef;
+import org.scribble.ast.global.GSessionNode;
+import org.scribble.ast.global.GSimpleSessionNode;
+import org.scribble.ast.name.simple.RecVarNode;
+import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.core.lang.global.GNode;
+import org.scribble.core.type.kind.Global;
+import org.scribble.core.type.kind.RecVarKind;
 import org.scribble.core.type.name.DataName;
 import org.scribble.core.type.name.ModuleName;
+import org.scribble.core.type.name.Op;
+import org.scribble.core.type.name.PayElemType;
+import org.scribble.core.type.name.RecVar;
+import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.STypeFactory;
+import org.scribble.ext.assrt.ast.AssrtAnnotDataElem;
+import org.scribble.ext.assrt.ast.AssrtAExprNode;
+import org.scribble.ext.assrt.ast.AssrtBExprNode;
+import org.scribble.ext.assrt.ast.AssrtAstFactory;
+import org.scribble.ext.assrt.ast.global.AssrtGConnect;
+import org.scribble.ext.assrt.ast.global.AssrtGContinue;
+import org.scribble.ext.assrt.ast.global.AssrtGDo;
+import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
+import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
+import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreActionKind;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
+import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGActionKind;
+import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGChoice;
+import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGType;
 import org.scribble.job.Job;
 import org.scribble.visit.GTypeTranslator;
 
@@ -29,10 +80,13 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 	private static int varCounter = 1;
 	private static int recCounter = 1;
 	
+	public final AssrtCoreSTypeFactory tf;  // Shadows super
+	
 	//private static DataType UNIT_TYPE;
 	protected AssrtCoreGTypeTranslator(Job job, ModuleName rootFullname, STypeFactory tf)
 	{
 		super(job, rootFullname, tf);
+		this.tf = (AssrtCoreSTypeFactory) tf;
 	}
 
 	@Override
@@ -42,24 +96,22 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		throw new RuntimeException("[TODO] :\n" + n);
 	}
 
-	/*public AssrtCoreGType translate(GProtoDecl gpd)
+	public AssrtCoreGType translate(GProtoDecl glod)
 			throws AssrtCoreSyntaxException
 	{
-		throw new RuntimeException("[TODO] :\n" + gpd);
-//		GProtoDef inlined = ((GProtoDefDel) gpd.def.del()).getInlinedProtoDef();
-//		return parseSeq(
-//				inlined.getBlockChild().getInteractSeqChild().getInteractionChildren(),
-//				new HashMap<>(), false, false);
+		GProtoDef inlined = glod.getDefChild();
+		return parseSeq(
+				inlined.getBlockChild().getInteractSeqChild().getInteractionChildren(),
+				new HashMap<>(), false, false);
 	}
 
-	/*
-	// List<GInteractionNode> because subList is useful for parsing the continuation
+	// List<GSessionNode> because subList is useful for parsing the continuation
 	private AssrtCoreGType parseSeq(List<GSessionNode> is, Map<RecVar, RecVar> rvs,
 			boolean checkChoiceGuard, boolean checkRecGuard) throws AssrtCoreSyntaxException
 	{
 		if (is.isEmpty())
 		{
-			return this.af.AssrtCoreGEnd();
+			return this.tf.global.AssrtCoreGEnd();
 		}
 
 		GSessionNode first = is.get(0);
@@ -69,21 +121,25 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 			{
 				return parseAssrtGMsgTransfer(is, rvs, (AssrtGMsgTransfer) first);
 			}
-			else if (first instanceof AssrtGConnect)
+			/*else if (first instanceof AssrtGConnect)
 			{
 				return parseAssrtGConnect(is, rvs, (AssrtGConnect) first);
+			}*/
+			/*else if (first instanceof GDisconnect)
+			{
+				F17GDisconnect gdc = parseGDisconnect((GDisconnect) first);
+				AssrtCoreGType cont = parseSeq(jc, mc, is.subList(1, is.size()), false, false);
+				Map<AssrtCoreGAction, AssrtCoreGType> cases = new HashMap<>();
+				cases.put(gdc, cont);
+				return this.factory.GChoice(cases);
+			}*/
+			else if (first instanceof AssrtGDo)  // Inlining done later on AssrtCoreGType
+			{
+				throw new RuntimeException("[TODO] :\n" + first);
 			}
-//			else if (first instanceof GDisconnect)
-//			{
-//				F17GDisconnect gdc = parseGDisconnect((GDisconnect) first);
-//				AssrtCoreGType cont = parseSeq(jc, mc, is.subList(1, is.size()), false, false);
-//				Map<AssrtCoreGAction, AssrtCoreGType> cases = new HashMap<>();
-//				cases.put(gdc, cont);
-//				return this.factory.GChoice(cases);
-//			}
 			else
 			{
-				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + first);
+				throw new RuntimeException("[assrt-core] [TODO] :\n" + first);
 			}
 		}
 		else
@@ -101,14 +157,14 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 			{
 				return parseGChoice(rvs, checkRecGuard, (GChoice) first);
 			}
-			else if (first instanceof AssrtGRecursion)
+			/*else if (first instanceof AssrtGRecursion)
 			{
 				return parseAssrtGRecursion(rvs, checkChoiceGuard, (AssrtGRecursion) first);
 			}
 			else if (first instanceof GContinue)
 			{
 				return parseAssrtGContinue(rvs, checkRecGuard, (AssrtGContinue) first);
-			}
+			}*/
 			else
 			{
 				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + first);
@@ -117,22 +173,22 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 	}
 
 	private AssrtCoreGType parseGChoice(Map<RecVar, RecVar> rvs,
-			boolean checkRecGuard, GChoice gc) throws AssrtCoreSyntaxException
+			boolean checkRecGuard, GChoice n) throws AssrtCoreSyntaxException
 	{
 		List<AssrtCoreGType> children = new LinkedList<>();
-		for (GProtoBlock b : gc.getBlockChildren())
+		for (GProtoBlock b : n.getBlockChildren())
 		{
 			children.add(parseSeq(b.getInteractSeqChild().getInteractionChildren(),
 					rvs, true, checkRecGuard));  // Check cases are guarded
 		}
 
 		Role src = null;
-		Role dest = null;
-		AssrtCoreActionKind<Global> kind = null;  // FIXME: generic parameter
+		Role dst = null;
+		AssrtCoreActionKind<Global> kind = null;  // CHECKME: generic parameter ?
 		Map<AssrtCoreMsg, AssrtCoreGType> cases = new HashMap<>();
 		for (AssrtCoreGType c : children)
 		{
-			// Because all cases should be action guards (unary choices)
+			// Cases must be "action-guarded" (unary choices), as already parsed successfully
 			if (!(c instanceof AssrtCoreGChoice))
 			{
 				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + c);
@@ -147,15 +203,17 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 			{
 				kind = tmp.kind;
 				src = tmp.src;
-				dest = tmp.dest;
+				dst = tmp.dst;
 			}
 			else if (!kind.equals(tmp.kind))
 			{
-				throw new AssrtCoreSyntaxException(gc.getSource(), "[assrt-core] Mixed-action choices not supported: " + gc);
+				throw new AssrtCoreSyntaxException(n.getSource(),
+						"[assrt-core] Mixed-action choices not supported:\n" + n);
 			}
-			else if (!src.equals(tmp.src) || !dest.equals(tmp.dest))
+			else if (!src.equals(tmp.src) || !dst.equals(tmp.dst))
 			{
-				throw new AssrtCoreSyntaxException(gc.getSource(), "[assrt-core] Non-directed choice not supported: " + gc);
+				throw new AssrtCoreSyntaxException(n.getSource(),
+						"[assrt-core] Non-directed choice not supported:\n" + n);
 			}
 			
 			// "Flatten" nested choices (already checked they are guarded) -- Scribble choice subjects ignored
@@ -164,16 +222,18 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 				AssrtCoreMsg k = e.getKey();
 				if (cases.keySet().stream().anyMatch(x -> x.op.equals(k.op)))
 				{
-					throw new AssrtCoreSyntaxException(gc.getSource(), "[assrt-core] Non-deterministic actions not supported: " + k.op);
+					throw new AssrtCoreSyntaxException(n.getSource(),
+							"[assrt-core] Non-deterministic actions not supported: " + k.op);
 				}
 				cases.put(k, e.getValue());
 			}
 		}
 		
-		return this.af.AssrtCoreGChoice(src, (AssrtCoreGActionKind) kind, dest, cases);
+		return this.tf.global.AssrtCoreGChoice(n, src, (AssrtCoreGActionKind) kind,
+				dst, cases);
 	}
 
-	private AssrtCoreGType parseAssrtGRecursion(Map<RecVar, RecVar> rvs,
+	/*private AssrtCoreGType parseAssrtGRecursion(Map<RecVar, RecVar> rvs,
 			boolean checkChoiceGuard, AssrtGRecursion gr) throws AssrtCoreSyntaxException
 	{
 		RecVar recvar = gr.getRecVarChild().toName();
@@ -213,16 +273,18 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		}
 		List<AssrtArithFormula> exprs = gc.annotexprs.stream().map(e -> e.getFormula()).collect(Collectors.toList());
 		return this.af.AssrtCoreGRecVar(recvar, exprs);
-	}
+	}*/
 
 	// Parses message interactions as unary choices
-	private AssrtCoreGChoice parseAssrtGMsgTransfer(List<GSessionNode> is, Map<RecVar, RecVar> rvs, AssrtGMsgTransfer gmt) throws AssrtCoreSyntaxException 
+	private AssrtCoreGChoice parseAssrtGMsgTransfer(List<GSessionNode> is,
+			Map<RecVar, RecVar> rvs, AssrtGMsgTransfer gmt)
+			throws AssrtCoreSyntaxException
 	{
 		Op op = parseOp(gmt);
 		//AssrtAnnotDataType pay = parsePayload(gmt);
 		List<AssrtAnnotDataType> pays = parsePayload(gmt);
-		AssrtAssertion ass = parseAssertion(gmt);
-		AssrtCoreMsg a = this.af.AssrtCoreAction(op, pays, ass.getFormula());
+		AssrtBExprNode ass = parseAssertion(gmt);
+		AssrtCoreMsg a = this.tf.AssrtCoreAction(op, pays, ass.getFormula());
 		Role src = parseSourceRole(gmt);
 		Role dest = parseDestinationRole(gmt);
 		AssrtCoreGActionKind kind = AssrtCoreGActionKind.MESSAGE;
@@ -231,7 +293,8 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 
 	// Duplicated from parseGMsgTransfer (MsgTransfer and ConnectionAction have no common base
 	
-	private AssrtCoreGChoice parseAssrtGConnect(List<GInteractionNode> is, Map<RecVar, RecVar> rvs, AssrtGConnect gc) throws AssrtCoreSyntaxException 
+	/*private AssrtCoreGChoice parseAssrtGConnect(List<GSimpleSessionNode> is,
+			Map<RecVar, RecVar> rvs, AssrtGConnect gc) throws AssrtCoreSyntaxException
 	{
 		Op op = parseOp(gc);
 		//AssrtAnnotDataType pay = parsePayload(gc);
@@ -242,7 +305,7 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		Role dest = parseDestinationRole(gc);
 		AssrtCoreGActionKind kind = AssrtCoreGActionKind.CONNECT;
 		return parseGSimpleInteractionNode(is, rvs, src, a, dest, kind);
-	}
+	}*/
 
 	private AssrtCoreGChoice parseGSimpleInteractionNode(
 			List<GSessionNode> is, Map<RecVar, RecVar> rvs, 
@@ -356,18 +419,18 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		return res;
 	}
 
-	private AssrtAssertion parseAssertion(AssrtGMsgTransfer gmt)
+	private AssrtBExprNode parseAssertion(AssrtGMsgTransfer gmt)
 	{
 		return parseAssertion(gmt.ass);
 	}
 
-	private AssrtAssertion parseAssertion(AssrtGConnect gc)
+	private AssrtBExprNode parseAssertion(AssrtGConnect gc)
 	{
 		return parseAssertion(gc.ass);
 	}
 
 	// Empty assertions generated as True
-	private AssrtAssertion parseAssertion(AssrtAssertion ass)
+	private AssrtBExprNode parseAssertion(AssrtBExprNode ass)
 	{
 		return (ass == null) ? ((AssrtAstFactory) this.job.af).AssrtAssertion(null, AssrtTrueFormula.TRUE) : ass;
 			// FIXME: singleton constant
@@ -406,7 +469,6 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 	{
 		return rn.toName();
 	}
-	*/
 	
 	private static AssrtDataTypeVar makeFreshDataTypeVar()
 	{

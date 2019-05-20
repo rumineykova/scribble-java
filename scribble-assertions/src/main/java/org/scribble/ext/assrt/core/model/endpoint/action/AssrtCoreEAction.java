@@ -3,7 +3,7 @@ package org.scribble.ext.assrt.core.model.endpoint.action;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAction;
 
 public interface AssrtCoreEAction extends AssrtEAction
@@ -12,11 +12,11 @@ public interface AssrtCoreEAction extends AssrtEAction
 
 	/*AssrtDataTypeVar getAnnotVar();
 	AssrtArithFormula getArithExpr();*/
-	List<AssrtArithFormula> getStateExprs();  // Cf. AssrtStateVarArgAnnotNode::getAnnotExprs
+	List<AssrtAFormula> getStateExprs();  // Cf. AssrtStateVarArgAnnotNode::getAnnotExprs
 	
 	default String stateExprsToString()
 	{
-		List<AssrtArithFormula> exprs = getStateExprs();
+		List<AssrtAFormula> exprs = getStateExprs();
 		return exprs.isEmpty() 
 				? "" 
 				: ("<" + exprs.stream().map(Object::toString)

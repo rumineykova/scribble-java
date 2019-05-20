@@ -10,7 +10,7 @@ import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 // Binary comparison
-public class AssrtBinCompFormula extends AssrtBoolFormula implements AssrtBinFormula<IntegerFormula>
+public class AssrtBinCompFormula extends AssrtBFormula implements AssrtBinFormula<IntegerFormula>
 {
 	public enum Op
 	{
@@ -36,10 +36,10 @@ public class AssrtBinCompFormula extends AssrtBoolFormula implements AssrtBinFor
 	}
 
 	public final Op op; 
-	public final AssrtArithFormula left; 
-	public final AssrtArithFormula right; 
+	public final AssrtAFormula left; 
+	public final AssrtAFormula right; 
 	
-	protected AssrtBinCompFormula(Op op, AssrtArithFormula left, AssrtArithFormula right)
+	protected AssrtBinCompFormula(Op op, AssrtAFormula left, AssrtAFormula right)
 	{
 		this.left = left; 
 		this.right = right; 
@@ -59,26 +59,26 @@ public class AssrtBinCompFormula extends AssrtBoolFormula implements AssrtBinFor
 	}
 
 	@Override
-	public AssrtBoolFormula getCnf()
+	public AssrtBFormula getCnf()
 	{
 		return this;
 	}
 
 	@Override
-	public boolean isNF(AssrtBinBoolFormula.Op op)
+	public boolean isNF(AssrtBinBFormula.Op op)
 	{
 		return true;
 	}
 
 	@Override
-	public boolean hasOp(AssrtBinBoolFormula.Op op)
+	public boolean hasOp(AssrtBinBFormula.Op op)
 	{
 		return false;
 	}
 
 	@Override
 	//public AssrtBinCompFormula squash()
-	public AssrtBoolFormula squash()  // For True
+	public AssrtBFormula squash()  // For True
 	{
 		if (this.op.equals(AssrtBinCompFormula.Op.Eq)
 				&& (this.left instanceof AssrtIntVarFormula) && this.left.toString().startsWith("_dum"))  // FIXME
@@ -141,13 +141,13 @@ public class AssrtBinCompFormula extends AssrtBoolFormula implements AssrtBinFor
 	}
 
 	@Override
-	public AssrtArithFormula getLeft()
+	public AssrtAFormula getLeft()
 	{
 		return this.left;
 	}
 
 	@Override
-	public AssrtArithFormula getRight()
+	public AssrtAFormula getRight()
 	{
 		return this.right;
 	}

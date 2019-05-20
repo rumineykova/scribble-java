@@ -1,10 +1,7 @@
 package org.scribble.ext.assrt.ast.global;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.antlr.runtime.Token;
 import org.antlr.runtime.tree.CommonTree;
@@ -16,18 +13,16 @@ import org.scribble.ast.global.GProtoHeader;
 import org.scribble.ast.name.qualified.ProtoNameNode;
 import org.scribble.core.type.kind.Global;
 import org.scribble.del.DelFactory;
-import org.scribble.ext.assrt.ast.AssrtArithExpr;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
-import org.scribble.ext.assrt.ast.AssrtStateVarDeclAnnotNode;
+import org.scribble.ext.assrt.ast.AssrtAExprNode;
+import org.scribble.ext.assrt.ast.AssrtBExprNode;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
 
 public class AssrtGProtoHeader extends GProtoHeader
-		implements AssrtStateVarDeclAnnotNode
+		implements AssrtStateVarDeclNode
 {
 	//public static final int ROLEDECLLIST_CHILD = 2;
 	public static final int ASSRT_ANNOT_CHILD_INDEX = 3;  // null if no @-annotation
@@ -47,18 +42,6 @@ public class AssrtGProtoHeader extends GProtoHeader
 	{
 		super(node);
 	}
-	
-	// CHECKME: define restrictions directly in ANTLR grammar, and make a separate AST class for protocol header var init-decl annotations
-	// Pre: ass != null
-	//public AssrtBinCompFormula getAnnotDataTypeVarInitDecl()  // Cf. AssrtAnnotDataTypeElem (no "initializer")
-	public Map<AssrtDataTypeVar, AssrtArithFormula> getAnnotDataVarDecls()  // Cf. AssrtAnnotDataTypeElem (no "initializer")
-	{
-		//return (this.ass == null) ? null : (AssrtBinCompFormula) this.ass.getFormula();
-		//return (AssrtBinCompFormula) this.ass.getFormula();
-		Iterator<AssrtArithExpr> exprs = getAnnotExprChildren().iterator();
-		return getAnnotVarChildren().stream().collect(
-				Collectors.toMap(v -> v.toName(), v -> exprs.next().getFormula()));
-	}
 
 	@Override
 	public CommonTree getAnnotChild()
@@ -68,7 +51,7 @@ public class AssrtGProtoHeader extends GProtoHeader
 
 	// N.B. null if not specified -- currently duplicated from AssrtGMessageTransfer
 	@Override
-	public AssrtAssertion getAnnotAssertChild()
+	public AssrtBExprNode getAnnotAssertChild()
 	{
 		CommonTree ext = getAnnotChild();
 		if (ext == null)
@@ -78,7 +61,7 @@ public class AssrtGProtoHeader extends GProtoHeader
 		Tree n = ext.getChild(ANNOT_ASSERT_CHILD_INDEX);
 		return (n.getText().equals("ASSRT_EMPTYASS"))  // TODO: factor out constant
 				? null
-				: (AssrtAssertion) n;
+				: (AssrtBExprNode) n;
 	}
 	
 	@Override
@@ -92,7 +75,7 @@ public class AssrtGProtoHeader extends GProtoHeader
 	}
 
 	@Override
-	public List<AssrtArithExpr> getAnnotExprChildren()
+	public List<AssrtAExprNode> getAnnotExprChildren()
 	{
 		/*List<? extends ScribNode> cs = getChildren();
 		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
@@ -110,8 +93,8 @@ public class AssrtGProtoHeader extends GProtoHeader
 
 	// "add", not "set"
 	public void addScribChildren(ProtoNameNode<Global> name,
-			NonRoleParamDeclList ps, RoleDeclList rs, AssrtAssertion assrt,
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs)
+			NonRoleParamDeclList ps, RoleDeclList rs, AssrtBExprNode assrt,
+			List<AssrtIntVarNameNode> annotvars, List<AssrtAExprNode> annotexprs)
 	{
 		// Cf. above getters and Scribble.g children order
 		super.addScribChildren(name, ps, rs);
@@ -141,8 +124,8 @@ public class AssrtGProtoHeader extends GProtoHeader
 	}*/
 
 	public AssrtGProtoHeader reconstruct(ProtoNameNode<Global> name,
-			NonRoleParamDeclList ps, RoleDeclList rs, AssrtAssertion ass,
-			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs)
+			NonRoleParamDeclList ps, RoleDeclList rs, AssrtBExprNode ass,
+			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs)
 	{
 		AssrtGProtoHeader dup = dupNode();
 		dup.addScribChildren(name, ps, rs, ass, avars, aexprs);
@@ -161,12 +144,12 @@ public class AssrtGProtoHeader extends GProtoHeader
 		ProtoHeader<Global> sup = super.visitChildren(v);
 		List<AssrtIntVarNameNode> avars = visitChildListWithClassEqualityCheck(
 				this, getAnnotVarChildren(), v);
-		List<AssrtArithExpr> aexprs = visitChildListWithClassEqualityCheck(this,
+		List<AssrtAExprNode> aexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);
-		AssrtAssertion tmp = getAnnotAssertChild();
-		AssrtAssertion ass = (tmp == null) 
+		AssrtBExprNode tmp = getAnnotAssertChild();
+		AssrtBExprNode ass = (tmp == null) 
 				? null
-				: (AssrtAssertion) visitChild(tmp, v);
+				: (AssrtBExprNode) visitChild(tmp, v);
 		return reconstruct(sup.getNameNodeChild(), sup.getParamDeclListChild(),
 				sup.getRoleDeclListChild(), ass, avars, aexprs);
 	}
@@ -214,6 +197,18 @@ public class AssrtGProtoHeader extends GProtoHeader
 		this.annotvars = Collections.unmodifiableList(annotvars);
 		this.annotexprs = Collections.unmodifiableList(annotexprs);
 		this.ass = ass;
+	}
+	
+	// CHECKME: define restrictions directly in ANTLR grammar, and make a separate AST class for protocol header var init-decl annotations
+	// Pre: ass != null
+	//public AssrtBinCompFormula getAnnotDataTypeVarInitDecl()  // Cf. AssrtAnnotDataTypeElem (no "initializer")
+	public Map<AssrtDataTypeVar, AssrtArithFormula> getAnnotDataVarDecls()  // Cf. AssrtAnnotDataTypeElem (no "initializer")
+	{
+		//return (this.ass == null) ? null : (AssrtBinCompFormula) this.ass.getFormula();
+		//return (AssrtBinCompFormula) this.ass.getFormula();
+		Iterator<AssrtArithExprNode> exprs = getAnnotExprChildren().iterator();
+		return getAnnotVarChildren().stream().collect(
+				Collectors.toMap(v -> v.toName(), v -> exprs.next().getFormula()));
 	}
 
 	// project method pattern is similar to reconstruct

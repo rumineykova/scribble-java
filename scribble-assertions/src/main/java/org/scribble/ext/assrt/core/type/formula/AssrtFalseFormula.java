@@ -7,7 +7,7 @@ import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
-public class AssrtFalseFormula extends AssrtBoolFormula
+public class AssrtFalseFormula extends AssrtBFormula
 {
 	public static final AssrtFalseFormula FALSE = new AssrtFalseFormula();
 	
@@ -17,25 +17,25 @@ public class AssrtFalseFormula extends AssrtBoolFormula
 	}
 
 	@Override
-	public AssrtBoolFormula getCnf()
+	public AssrtBFormula getCnf()
 	{
 		return this;
 	}
 
 	@Override
-	public boolean isNF(AssrtBinBoolFormula.Op op)
+	public boolean isNF(AssrtBinBFormula.Op op)
 	{
 		return true;
 	}
 
 	@Override
-	public boolean hasOp(AssrtBinBoolFormula.Op op)
+	public boolean hasOp(AssrtBinBFormula.Op op)
 	{
 		return false;
 	}
 	
 	@Override
-	public AssrtBoolFormula squash()
+	public AssrtBFormula squash()
 	{
 		return this;
 	}

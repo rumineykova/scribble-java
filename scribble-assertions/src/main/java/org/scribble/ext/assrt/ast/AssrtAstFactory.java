@@ -35,8 +35,8 @@ import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.qualified.AssrtAssertNameNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtSortNode;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 
 
@@ -47,8 +47,8 @@ public interface AssrtAstFactory extends AstFactory
 
 
 	// General and globals
-	AssrtAssertion AssrtAssertion(Token t, AssrtBoolFormula bexpr);  // Bool expr
-	AssrtArithExpr AssrtArithAnnotation(Token t, AssrtArithFormula aexpr);  // Int expr
+	AssrtBExprNode AssrtAssertion(Token t, AssrtBFormula bexpr);  // Bool expr
+	AssrtAExprNode AssrtArithAnnotation(Token t, AssrtAFormula aexpr);  // Int expr
 
 	AssrtModule AssrtModule(Token t, ModuleDecl modd,
 			List<? extends ImportDecl<?>> impds,
@@ -58,8 +58,8 @@ public interface AssrtAstFactory extends AstFactory
 	// FIXME: should not be an AssrtAssertion -- should be just an (integer) var decl expr (which is not a bool expr)
 	AssrtGProtoHeader AssrtGProtoHeader(Token t, GProtoNameNode name,
 			RoleDeclList rs, NonRoleParamDeclList ps, 
-			AssrtAssertion ass, List<AssrtIntVarNameNode> avars,
-			List<AssrtArithExpr> aexprs);  // FIXME: not actually how parsed
+			AssrtBExprNode ass, List<AssrtIntVarNameNode> avars,
+			List<AssrtAExprNode> aexprs);  // FIXME: not actually how parsed
 
 	AssrtAssertDecl AssrtAssertDecl(Token t, AssrtAssertNameNode name,
 			List<AssrtSortNode> ps, AssrtSortNode ret, AssrtSmtFormula<?> expr);
@@ -68,39 +68,39 @@ public interface AssrtAstFactory extends AstFactory
 			AssrtIntVarNameNode var, DataNameNode data);
 
 	AssrtGMsgTransfer AssrtGMsgTransfer(Token t, MsgNode msg, RoleNode src,
-			List<RoleNode> dsts, AssrtAssertion ass);
+			List<RoleNode> dsts, AssrtBExprNode ass);
 	AssrtGConnect AssrtGConnect(Token t, MsgNode msg, RoleNode src, RoleNode dst,
-			AssrtAssertion ass);
+			AssrtBExprNode ass);
 
 	@Deprecated  // Not currently parsed (or used)
 	AssrtGContinue AssrtGContinue(Token t, RecVarNode rv,
-			List<AssrtArithExpr> aexprs);
+			List<AssrtAExprNode> aexprs);
 	AssrtGDo AssrtGDo(Token t, GProtoNameNode proto, NonRoleArgList as,
-			RoleArgList rs, List<AssrtArithExpr> aexprs);
+			RoleArgList rs, List<AssrtAExprNode> aexprs);
 
 	@Deprecated  // Not currently parsed (or used)
 	AssrtGRecursion AssrtGRecursion(Token t, RecVarNode rv, GProtoBlock block,
-			AssrtAssertion ass, List<AssrtIntVarNameNode> avars,
-			List<AssrtArithExpr> aexprs);  // FIXME: not actually how parsed
+			AssrtBExprNode ass, List<AssrtIntVarNameNode> avars,
+			List<AssrtAExprNode> aexprs);  // FIXME: not actually how parsed
 
 	// Locals
 	AssrtLProtoHeader AssrtLProtoHeader(Token t, LProtoNameNode name,
 			RoleDeclList rs, NonRoleParamDeclList ps,
-			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
-			AssrtAssertion ass);  // FIXME: not actually how parsed
+			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs,
+			AssrtBExprNode ass);  // FIXME: not actually how parsed
 
 	AssrtLSend AssrtLSend(Token t, MsgNode msg, RoleNode self,
-			List<RoleNode> dsts, AssrtAssertion ass);
+			List<RoleNode> dsts, AssrtBExprNode ass);
 	AssrtLReq AssrtLReq(Token t, MsgNode msg, RoleNode self, RoleNode dst,
-			AssrtAssertion ass);
+			AssrtBExprNode ass);
 
 	@Deprecated
-	AssrtLContinue AssrtLContinue(Token t, RecVarNode rv, List<AssrtArithExpr> aexprs);
+	AssrtLContinue AssrtLContinue(Token t, RecVarNode rv, List<AssrtAExprNode> aexprs);
 	AssrtLDo AssrtLDo(Token t, RoleArgList rs, NonRoleArgList as,
-			LProtoNameNode proto, List<AssrtArithExpr> aexprs);
+			LProtoNameNode proto, List<AssrtAExprNode> aexprs);
 
 	@Deprecated
 	AssrtLRecursion AssrtLRecursion(Token t, RecVarNode rv, LProtoBlock block,
-			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
-			AssrtAssertion ass);  // FIXME: not actually how parsed
+			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs,
+			AssrtBExprNode ass);  // FIXME: not actually how parsed
 }

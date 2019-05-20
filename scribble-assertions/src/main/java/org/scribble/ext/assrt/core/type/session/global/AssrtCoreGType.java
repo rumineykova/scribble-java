@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.Role;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
@@ -17,7 +17,7 @@ public interface AssrtCoreGType extends AssrtCoreSType<Global>
 	
 	// CHECKME: refactor as visitors?
 
-	AssrtCoreLType project(AssrtCoreSTypeFactory af, Role subj, AssrtBoolFormula f)
+	AssrtCoreLType project(AssrtCoreSTypeFactory af, Role subj, AssrtBFormula f)
 			throws AssrtCoreSyntaxException;  // N.B. checking "mergability"
 	
 	List<AssrtAnnotDataType> collectAnnotDataTypeVarDecls();  // Currently only the vars are needed (not the data types)

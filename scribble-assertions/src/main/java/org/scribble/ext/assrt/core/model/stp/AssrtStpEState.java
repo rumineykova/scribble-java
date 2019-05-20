@@ -23,9 +23,9 @@ import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpEAction;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpEReceive;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpESend;
-import org.scribble.ext.assrt.core.type.formula.AssrtBinBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
@@ -136,7 +136,7 @@ public class AssrtStpEState extends AssrtEState
 	private static AssrtStpEAction barfoo(AssrtCoreEModelFactory ef,
 			List<AssrtDataTypeVar> vs, EAction ea)
 	{
-			AssrtBoolFormula A = ((AssrtCoreEAction) ea).getAssertion();
+			AssrtBFormula A = ((AssrtCoreEAction) ea).getAssertion();
 			Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma = new HashMap<>();
 			
 			/*... add known vars to AssrtStpEState (but don't use in hash) -- or just collect them alongside the build-traversal
@@ -144,7 +144,7 @@ public class AssrtStpEState extends AssrtEState
 			...  // fill sigma, update A*/
 					
 			A = A.getCnf();
-			List<AssrtBoolFormula> cs = AssrtBinBoolFormula.getCnfClauses(A);
+			List<AssrtBFormula> cs = AssrtBinBFormula.getCnfClauses(A);
 			
 			List<PayElemType<?>> tmp = new LinkedList<>();
 			for (PayElemType<?> pet : ea.payload.elems)
@@ -154,7 +154,7 @@ public class AssrtStpEState extends AssrtEState
 				{
 					// AssrtPayloadElemType<?> apet = (AssrtPayloadElemType<?>) pet;
 
-					for (AssrtBoolFormula c : cs)
+					for (AssrtBFormula c : cs)
 					{
 						if (!(c instanceof AssrtBinCompFormula))
 						{
@@ -191,7 +191,7 @@ public class AssrtStpEState extends AssrtEState
 					else
 					{
 					A = cs.stream().reduce((f1, f2) -> AssrtFormulaFactory
-							.AssrtBinBool(AssrtBinBoolFormula.Op.And, f1, f2)).get();
+							.AssrtBinBool(AssrtBinBFormula.Op.And, f1, f2)).get();
 					}
 				}
 				else

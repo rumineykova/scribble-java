@@ -89,11 +89,13 @@
 // - consider del's over ast subclassing for ext's like assrt -- alternatively, extend base's, and subclass for G/L (instead of extending G/L)
 // - check genereal overrides, return super types where better -- @deprecate runtimeexception overrides? e.g, reconstruct
 // - check Assrt NameDisamb/checkAnnot passes
+// - rename Assertions.g related stuff with Annot prefix
 
 // later:
 // - refactor modulecontext building, move dup vis name checks out (drop scribexception)
 // - try var type inference
 // - refactor namedisamb functionality
+// - annot var lin modifier?  etc?
 
 
 

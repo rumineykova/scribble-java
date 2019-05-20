@@ -21,23 +21,23 @@ import org.scribble.core.model.ModelFactory;
 import org.scribble.core.model.endpoint.EState;
 import org.scribble.core.model.endpoint.actions.EAction;
 import org.scribble.core.type.name.RecVar;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBinBoolFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 
 public class AssrtEState extends EState
 {
-	private final LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> statevars; // Note: even with syntactic single var per rec, nested recs can lead to mulitple vars per state
+	private final LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> statevars; // Note: even with syntactic single var per rec, nested recs can lead to mulitple vars per state
 	
 	private //final
-			AssrtBoolFormula ass;  // FIXME: make Set -- and eliminate placeholder True from various, use empty set instead
+			AssrtBFormula ass;  // FIXME: make Set -- and eliminate placeholder True from various, use empty set instead
 
 	// FIXME: make AssrtIntTypeVar?
-	protected AssrtEState(Set<RecVar> labs, LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars,
-			AssrtBoolFormula ass)  // FIXME: currently syntactically restricted to one annot var
+	protected AssrtEState(Set<RecVar> labs, LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> vars,
+			AssrtBFormula ass)  // FIXME: currently syntactically restricted to one annot var
 	{
 		super(labs);
 		//this.vars = Collections.unmodifiableMap(vars);
@@ -52,25 +52,25 @@ public class AssrtEState extends EState
 				this.ass);
 	}
 	
-	public LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> getStateVars()
+	public LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> getStateVars()
 	{
 		return this.statevars;
 	}
 	
-	public AssrtBoolFormula getAssertion()
+	public AssrtBFormula getAssertion()
 	{
 		return this.ass;
 	}
 
 	// For public access, do via AssrtEGraphBuilderUtil
-	protected final void addStateVars(LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars,
-			AssrtBoolFormula ass)
+	protected final void addStateVars(LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> vars,
+			AssrtBFormula ass)
 	{
 		this.statevars.putAll(vars);  // FIXME: ordering w.r.t. nested recs (i.e., multiple calls to here)
 		
 		this.ass = (this.ass.equals(AssrtTrueFormula.TRUE))
 				? ass
-				: AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, this.ass, ass);  // FIXME: make Set
+				: AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, this.ass, ass);  // FIXME: make Set
 	}
 
 	@Override

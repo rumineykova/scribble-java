@@ -7,13 +7,13 @@ import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 
-public abstract class AssrtQuantifiedIntVarsFormula extends AssrtBoolFormula
+public abstract class AssrtQuantifiedIntVarsFormula extends AssrtBFormula
 {
 	public final List<AssrtIntVarFormula> vars;
-	public final AssrtBoolFormula expr;
+	public final AssrtBFormula expr;
 
 	// Pre: vars non empty
-	protected AssrtQuantifiedIntVarsFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
+	protected AssrtQuantifiedIntVarsFormula(List<AssrtIntVarFormula> vars, AssrtBFormula expr)
 	{
 		this.vars = Collections.unmodifiableList(vars);
 		this.expr = expr;

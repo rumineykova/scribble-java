@@ -9,7 +9,7 @@ import org.scribble.ast.global.GConnect;
 import org.scribble.ast.name.simple.RoleNode;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtActionAssertNode;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
+import org.scribble.ext.assrt.ast.AssrtBExprNode;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
@@ -45,9 +45,9 @@ public class AssrtGConnect extends GConnect implements AssrtActionAssertNode
 
 	// N.B. may be null
 	@Override
-	public AssrtAssertion getAssertionChild()
+	public AssrtBExprNode getAssertionChild()
 	{
-		return (AssrtAssertion) getChild(ASS_CHILD_INDEX);  // CHECKME: OK to getChild if null?
+		return (AssrtBExprNode) getChild(ASS_CHILD_INDEX);  // CHECKME: OK to getChild if null?
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class AssrtGConnect extends GConnect implements AssrtActionAssertNode
 
 	// "add", not "set"
 	public void addScribChildren(MsgNode msg, RoleNode src, RoleNode dst,
-			AssrtAssertion ass)
+			AssrtBExprNode ass)
 	{
 		// Cf. above getters and Scribble.g children order
 		addChild(msg);
@@ -89,7 +89,7 @@ public class AssrtGConnect extends GConnect implements AssrtActionAssertNode
 	}
 
 	public AssrtGConnect reconstruct(RoleNode src, MsgNode msg, RoleNode dst,
-			AssrtAssertion ass)
+			AssrtBExprNode ass)
 	{
 		AssrtGConnect dup = dupNode();
 		// Same order as getter indices
@@ -106,10 +106,10 @@ public class AssrtGConnect extends GConnect implements AssrtActionAssertNode
 		MsgNode msg = (MsgNode) visitChild(getMessageNodeChild(), v);
 		RoleNode src = (RoleNode) visitChild(getSourceChild(), v);
 		RoleNode dst = (RoleNode) visitChild(getDestinationChild(), v);
-		AssrtAssertion tmp = getAssertionChild();
-		AssrtAssertion ass = (tmp == null) 
+		AssrtBExprNode tmp = getAssertionChild();
+		AssrtBExprNode ass = (tmp == null) 
 				? null
-				: (AssrtAssertion) visitChild(tmp, v);
+				: (AssrtBExprNode) visitChild(tmp, v);
 		return reconstruct(src, msg, dst, ass);
 	}
 

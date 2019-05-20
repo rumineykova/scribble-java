@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.type.kind.ProtoKind;
 import org.scribble.core.type.name.RecVar;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 
 public abstract class AssrtCoreRec<K extends ProtoKind, 
@@ -15,13 +15,13 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 		extends AssrtCoreSTypeBase<K>
 {
 	public final RecVar recvar;  // FIXME: RecVarNode?  (Cf. AssrtCoreAction.op/pay)
-	public final LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars;  // Int  // Non-null
+	public final LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> annotvars;  // Int  // Non-null
 	public final B body;
-	public final AssrtBoolFormula ass;
+	public final AssrtBFormula ass;
 	
 	protected AssrtCoreRec(CommonTree source, RecVar recvar,
-			LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars, B body,
-			AssrtBoolFormula ass)
+			LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> annotvars, B body,
+			AssrtBFormula ass)
 	{
 		super(source);
 		this.recvar = recvar;

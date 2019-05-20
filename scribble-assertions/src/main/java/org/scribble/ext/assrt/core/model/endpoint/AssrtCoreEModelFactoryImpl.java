@@ -16,8 +16,8 @@ import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
 import org.scribble.ext.assrt.core.model.stp.AssrtStpEState;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpEReceive;
 import org.scribble.ext.assrt.core.model.stp.action.AssrtStpESend;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactoryImpl;
@@ -33,28 +33,28 @@ public class AssrtCoreEModelFactoryImpl extends AssrtEModelFactoryImpl
 
 	@Override
 	public AssrtCoreESend newAssrtCoreESend(Role peer, MsgId<?> mid,
-			Payload payload, AssrtBoolFormula bf, List<AssrtArithFormula> stateexprs)
+			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs)
 	{
 		return new AssrtCoreESend(this.mf, peer, mid, payload, bf, stateexprs);
 	}
 
 	@Override
 	public AssrtCoreERecv newAssrtCoreEReceive(Role peer, MsgId<?> mid,
-			Payload payload, AssrtBoolFormula bf, List<AssrtArithFormula> stateexprs)
+			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs)
 	{
 		return new AssrtCoreERecv(this.mf, peer, mid, payload, bf, stateexprs);
 	}
 
 	@Override
 	public AssrtCoreEReq newAssrtCoreERequest(Role peer, MsgId<?> mid,
-			Payload payload, AssrtBoolFormula bf, List<AssrtArithFormula> stateexprs)
+			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs)
 	{
 		return new AssrtCoreEReq(this.mf, peer, mid, payload, bf, stateexprs);
 	}
 
 	@Override
 	public AssrtCoreEAcc newAssrtCoreEAccept(Role peer, MsgId<?> mid,
-			Payload payload, AssrtBoolFormula bf, List<AssrtArithFormula> stateexprs)
+			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs)
 	{
 		return new AssrtCoreEAcc(this.mf, peer, mid, payload, bf, stateexprs);
 	}
@@ -68,14 +68,14 @@ public class AssrtCoreEModelFactoryImpl extends AssrtEModelFactoryImpl
 
 	@Override
 	public AssrtStpESend newAssrtStpESend(Role peer, MsgId<?> mid, Payload payload,
-			Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma, AssrtBoolFormula A)
+			Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma, AssrtBFormula A)
 	{
 		return new AssrtStpESend(this.mf, peer, mid, payload, sigma, A);
 	}
 
 	@Override
 	public AssrtStpEReceive newAssrtStpEReceive(Role peer, MsgId<?> mid, Payload payload,
-			Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma, AssrtBoolFormula A)
+			Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma, AssrtBFormula A)
 	{
 		return new AssrtStpEReceive(this.mf, peer, mid, payload, sigma, A);
 	}

@@ -10,7 +10,7 @@ import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 
 // Binary arithmetic
-public class AssrtBinArithFormula extends AssrtArithFormula implements AssrtBinFormula<IntegerFormula>
+public class AssrtBinAFormula extends AssrtAFormula implements AssrtBinFormula<IntegerFormula>
 {
 	public enum Op
 	{
@@ -34,10 +34,10 @@ public class AssrtBinArithFormula extends AssrtArithFormula implements AssrtBinF
 	public final Op op;
 	/*public final AssrtSmtFormula left;
 	public final AssrtSmtFormula right;*/
-	public final AssrtArithFormula left;
-	public final AssrtArithFormula right;
+	public final AssrtAFormula left;
+	public final AssrtAFormula right;
 
-	protected AssrtBinArithFormula(Op op, AssrtArithFormula left, AssrtArithFormula right)
+	protected AssrtBinAFormula(Op op, AssrtAFormula left, AssrtAFormula right)
 	{
 		this.left = left;
 		this.right = right;
@@ -45,13 +45,13 @@ public class AssrtBinArithFormula extends AssrtArithFormula implements AssrtBinF
 	}
 	
 	@Override
-	public AssrtBinArithFormula squash()
+	public AssrtBinAFormula squash()
 	{
 		return AssrtFormulaFactory.AssrtBinArith(this.op, this.left.squash(), this.right.squash());
 	}
 
 	@Override
-	public AssrtBinArithFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	public AssrtBinAFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
 		return AssrtFormulaFactory.AssrtBinArith(this.op, this.left.subs(old, neu), this.right.subs(old, neu));
 	}
@@ -101,13 +101,13 @@ public class AssrtBinArithFormula extends AssrtArithFormula implements AssrtBinF
 	}
 
 	@Override
-	public AssrtArithFormula getLeft()
+	public AssrtAFormula getLeft()
 	{
 		return this.left;
 	}
 
 	@Override
-	public AssrtArithFormula getRight()
+	public AssrtAFormula getRight()
 	{
 		return this.right;
 	}
@@ -125,11 +125,11 @@ public class AssrtBinArithFormula extends AssrtArithFormula implements AssrtBinF
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtBinArithFormula))
+		if (!(o instanceof AssrtBinAFormula))
 		{
 			return false;
 		}
-		AssrtBinArithFormula f = (AssrtBinArithFormula) o;
+		AssrtBinAFormula f = (AssrtBinAFormula) o;
 		return super.equals(this)  // Does canEqual
 				&& this.op.equals(f.op) && this.left.equals(f.left) && this.right.equals(f.right);  
 						// Storing left/right as a Set could give commutativity in equals, but not associativity
@@ -139,7 +139,7 @@ public class AssrtBinArithFormula extends AssrtArithFormula implements AssrtBinF
 	@Override
 	protected boolean canEqual(Object o)
 	{
-		return o instanceof AssrtBinArithFormula;
+		return o instanceof AssrtBinAFormula;
 	}
 
 	@Override

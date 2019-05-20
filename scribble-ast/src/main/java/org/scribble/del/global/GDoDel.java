@@ -37,7 +37,7 @@ public class GDoDel extends DoDel implements GSimpleSessionNodeDel
 		// Resolve full name -- CHECKME: factor out? cf., NameDisambiguator, DoDel::enter/leaveDisambiguation
 		GProtoName proto = source.getProtoNameChild().toName();
 		ModuleContext modc = t.getModuleContext();
-		if (!modc.isProtoNameVisible(proto))  // CHECKME: should be already checked by NameDisamb?
+		if (!modc.isProtoNameVisible(proto))  // CHECKME: should be already checked by NameDisamb?  (throw ScribException there)
 		{
 			throw new RuntimeScribException(source,
 					"Protocol decl not visible: " + proto);

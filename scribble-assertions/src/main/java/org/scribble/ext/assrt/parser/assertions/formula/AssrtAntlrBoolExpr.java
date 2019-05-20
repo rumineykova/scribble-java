@@ -1,8 +1,8 @@
 package org.scribble.ext.assrt.parser.assertions.formula;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.core.type.formula.AssrtBinBoolFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
@@ -22,9 +22,9 @@ public class AssrtAntlrBoolExpr
 		{
 			return left;
 		}
-		AssrtBinBoolFormula.Op op = parseOp(getOpChild(root)); 
-		AssrtBoolFormula right = (AssrtBoolFormula) parser.parse(getRightChild(root));  // FIXME: throw ScribbleParserException for unexpected types
-		return AssrtFormulaFactory.AssrtBinBool(op, (AssrtBoolFormula) left, right); 
+		AssrtBinBFormula.Op op = parseOp(getOpChild(root)); 
+		AssrtBFormula right = (AssrtBFormula) parser.parse(getRightChild(root));  // FIXME: throw ScribbleParserException for unexpected types
+		return AssrtFormulaFactory.AssrtBinBool(op, (AssrtBFormula) left, right); 
 		
 	}
 	
@@ -43,12 +43,12 @@ public class AssrtAntlrBoolExpr
 		return (CommonTree) root.getChild(CHILD_RIGHT_FORMULA_INDEX);
 	}
 
-	private static AssrtBinBoolFormula.Op parseOp(CommonTree op) 
+	private static AssrtBinBFormula.Op parseOp(CommonTree op) 
 	{
 		switch (op.getText()) 
 		{
-			case "&&": return AssrtBinBoolFormula.Op.And;
-			case "||": return AssrtBinBoolFormula.Op.Or;
+			case "&&": return AssrtBinBFormula.Op.And;
+			case "||": return AssrtBinBFormula.Op.Or;
 			default:  throw new RuntimeException("[assrt] Shouldn't get in here: " + op.getText());  // Due to AssrtAssertions.g
 		}
 	}

@@ -5,10 +5,11 @@ import java.util.Set;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.sosy_lab.java_smt.api.Formula;
 
+// FIXME: rename AnnotFormula
 // FIXME: equals/hashCode? -- e.g., for AssrtESend/Receive? -- already done?
 		// FIXME: still treated as String in some places, e.g., AssrtESend
 // Formula is a "top-level" base class, cf. (Abstract)Name 
-public abstract class AssrtSmtFormula<F extends Formula>
+public abstract class AssrtSmtFormula<F extends Formula>  // FIXME: drop java_smt Formula
 {
 	protected F formula;   // "Cached" translation to JavaSMT API -- apart from AssrtLogFormula, which is just a wrapper for JavaSMT 
 			// Mostly not used for equals/hashCode -- except for AssrtLogFormula (and has to be used via toString)

@@ -11,9 +11,9 @@ import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.core.type.kind.Global;
 import org.scribble.del.DelFactory;
-import org.scribble.ext.assrt.ast.AssrtArithExpr;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
-import org.scribble.ext.assrt.ast.AssrtStateVarDeclAnnotNode;
+import org.scribble.ext.assrt.ast.AssrtAExprNode;
+import org.scribble.ext.assrt.ast.AssrtBExprNode;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 import org.scribble.util.Constants;
@@ -24,7 +24,7 @@ import org.scribble.visit.AstVisitor;
 // N.B. non-empty ass currently only supported via proto def inlining -- no direct syntax for rec-with-annot yet
 @Deprecated
 public class AssrtGRecursion extends GRecursion
-		implements AssrtStateVarDeclAnnotNode
+		implements AssrtStateVarDeclNode
 {
 	//public static final int BODY_CHILD_INDEX = 1;
 	public static final int ASSRT_EXT_CHILD_INDEX = 3;  // null if no @-annotation
@@ -55,7 +55,7 @@ public class AssrtGRecursion extends GRecursion
 
 	// N.B. null if not specified -- currently duplicated from AssrtGMessageTransfer
 	@Override
-	public AssrtAssertion getAnnotAssertChild()
+	public AssrtBExprNode getAnnotAssertChild()
 	{
 		CommonTree ext = getAnnotChild();
 		if (ext == null)
@@ -65,7 +65,7 @@ public class AssrtGRecursion extends GRecursion
 		Tree n = ext.getChild(EXT_ASSERT_CHILD_INDEX);
 		return (n.getText().equals("ASSRT_EMPTYASS"))  // TODO: factor out constant
 				? null
-				: (AssrtAssertion) n;
+				: (AssrtBExprNode) n;
 	}
 	
 	@Override
@@ -79,7 +79,7 @@ public class AssrtGRecursion extends GRecursion
 	}
 
 	@Override
-	public List<AssrtArithExpr> getAnnotExprChildren()
+	public List<AssrtAExprNode> getAnnotExprChildren()
 	{
 		/*List<? extends ScribNode> cs = getChildren();
 		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
@@ -96,8 +96,8 @@ public class AssrtGRecursion extends GRecursion
 
 	// "add", not "set"
 	public void addScribChildren(RecVarNode rv, ProtoBlock<Global> block,
-			AssrtAssertion ass, List<AssrtIntVarNameNode> avars,
-			List<AssrtArithExpr> aexprs)
+			AssrtBExprNode ass, List<AssrtIntVarNameNode> avars,
+			List<AssrtAExprNode> aexprs)
 	{
 		// Cf. above getters and Scribble.g children order
 		super.addScribChildren(rv, block);
@@ -127,8 +127,8 @@ public class AssrtGRecursion extends GRecursion
 	}
 
 	public AssrtGRecursion reconstruct(RecVarNode recvar,
-			ProtoBlock<Global> block, AssrtAssertion ass,
-			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs)
+			ProtoBlock<Global> block, AssrtBExprNode ass,
+			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs)
 	{
 		AssrtGRecursion dup = dupNode();
 		dup.addScribChildren(recvar, block, ass, avars, aexprs);
@@ -142,13 +142,13 @@ public class AssrtGRecursion extends GRecursion
 		RecVarNode recvar = (RecVarNode) visitChild(getRecVarChild(), v);
 		GProtoBlock block = visitChildWithClassEqualityCheck(this, getBlockChild(),
 				v);
-		AssrtAssertion tmp = getAnnotAssertChild();
-		AssrtAssertion ass = (tmp == null) 
+		AssrtBExprNode tmp = getAnnotAssertChild();
+		AssrtBExprNode ass = (tmp == null) 
 				? null
-				: (AssrtAssertion) visitChild(tmp, v);
+				: (AssrtBExprNode) visitChild(tmp, v);
 		List<AssrtIntVarNameNode> avars = visitChildListWithClassEqualityCheck(
 				this, getAnnotVarChildren(), v);
-		List<AssrtArithExpr> aexprs = visitChildListWithClassEqualityCheck(this,
+		List<AssrtAExprNode> aexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);
 		return reconstruct(recvar, block, ass, avars, aexprs);
 	}

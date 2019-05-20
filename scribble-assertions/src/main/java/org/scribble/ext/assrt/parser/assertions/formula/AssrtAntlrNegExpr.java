@@ -1,7 +1,7 @@
 package org.scribble.ext.assrt.parser.assertions.formula;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
@@ -13,7 +13,7 @@ public class AssrtAntlrNegExpr
 	
 	public static AssrtSmtFormula<?> parseNegExpr(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
 	{	
-		AssrtBoolFormula child = (AssrtBoolFormula) parser.parse(getChild(root)); 
+		AssrtBFormula child = (AssrtBFormula) parser.parse(getChild(root)); 
 		return AssrtFormulaFactory.AssrtNeg(child); 
 	}
 	

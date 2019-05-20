@@ -6,7 +6,7 @@ import org.scribble.ast.name.simple.SimpleNameNode;
 import org.scribble.core.type.kind.NonRoleArgKind;
 import org.scribble.core.type.session.Arg;
 import org.scribble.del.DelFactory;
-import org.scribble.ext.assrt.ast.AssrtFormulaNode;
+import org.scribble.ext.assrt.ast.AssrtExprNode;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.kind.AssrtIntVarNameKind;
@@ -15,7 +15,7 @@ import org.scribble.ext.assrt.del.AssrtDelFactory;
 
 // N.B. used both directly as a PayloadElemNameNode, and for the annotation in AssrtAnnotDataTypeElem -- also used for statevars
 public class AssrtIntVarNameNode extends SimpleNameNode<AssrtIntVarNameKind>
-		implements PayElemNameNode<AssrtIntVarNameKind>, AssrtFormulaNode
+		implements PayElemNameNode<AssrtIntVarNameKind>, AssrtExprNode
 {
 	// ScribTreeAdaptor#create constructor
 	// Constructor sig for ANTLR "node token" option, generally ttype == t.getType(), where t is a ScribbleParser.ID token type

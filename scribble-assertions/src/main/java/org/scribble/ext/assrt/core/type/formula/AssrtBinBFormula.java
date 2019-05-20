@@ -12,7 +12,7 @@ import org.sosy_lab.java_smt.api.BooleanFormulaManager;
 
 // Binary boolean
 // Top-level formula of assertions
-public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFormula<BooleanFormula>
+public class AssrtBinBFormula extends AssrtBFormula implements AssrtBinFormula<BooleanFormula>
 {
 	public enum Op
 	{
@@ -34,11 +34,11 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 	}
 		
 	public final Op op; 
-	public final AssrtBoolFormula left; 
-	public final AssrtBoolFormula right; 
+	public final AssrtBFormula left; 
+	public final AssrtBFormula right; 
 	//BooleanFormula formula;   // FIXME
 	
-	protected AssrtBinBoolFormula(Op op, AssrtBoolFormula left, AssrtBoolFormula right)
+	protected AssrtBinBFormula(Op op, AssrtBFormula left, AssrtBFormula right)
 	{
 		this.left = left; 
 		this.right = right; 
@@ -56,14 +56,14 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 	}
 
 	@Override
-	public AssrtBoolFormula getCnf()
+	public AssrtBFormula getCnf()
 	{
 		switch (this.op)
 		{
 			case And:
 			{
-				AssrtBoolFormula l = this.left.getCnf();
-				AssrtBoolFormula r = this.right.getCnf();
+				AssrtBFormula l = this.left.getCnf();
+				AssrtBFormula r = this.right.getCnf();
 				return AssrtFormulaFactory.AssrtBinBool(Op.And, l, r);
 			}
 			case Imply:
@@ -74,16 +74,16 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 			{
 				if (this.left.hasOp(Op.And))
 				{
-					List<AssrtBoolFormula> fs = getCnfClauses(this.left.getCnf());
-					AssrtBinBoolFormula res = fs.stream().map(f -> AssrtFormulaFactory.AssrtBinBool(Op.Or, f, this.right))
-							.reduce((f1, f2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f1, f2)).get();
+					List<AssrtBFormula> fs = getCnfClauses(this.left.getCnf());
+					AssrtBinBFormula res = fs.stream().map(f -> AssrtFormulaFactory.AssrtBinBool(Op.Or, f, this.right))
+							.reduce((f1, f2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, f1, f2)).get();
 					return res.getCnf();
 				}
 				else if (this.right.hasOp(Op.And))  // FIXME: factor out with above
 				{
-					List<AssrtBoolFormula> fs = getCnfClauses(this.right.getCnf());
-					AssrtBinBoolFormula res = fs.stream().map(f -> AssrtFormulaFactory.AssrtBinBool(Op.Or, this.left, f))
-							.reduce((f1, f2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, f1, f2)).get();
+					List<AssrtBFormula> fs = getCnfClauses(this.right.getCnf());
+					AssrtBinBFormula res = fs.stream().map(f -> AssrtFormulaFactory.AssrtBinBool(Op.Or, this.left, f))
+							.reduce((f1, f2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, f1, f2)).get();
 					return res.getCnf();
 				}
 				else
@@ -99,7 +99,7 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 	}
 	
 	//public boolean isDisjunction()
-	public boolean isNF(AssrtBinBoolFormula.Op top)
+	public boolean isNF(AssrtBinBFormula.Op top)
 	{
 		if (this.op == top)
 		{
@@ -112,7 +112,7 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 	}
 
 	@Override
-	public boolean hasOp(AssrtBinBoolFormula.Op op)
+	public boolean hasOp(AssrtBinBFormula.Op op)
 	{
 		return (this.op == op) || this.left.hasOp(op) || this.right.hasOp(op);
 	}
@@ -146,10 +146,10 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 	}*/
 	
 	@Override
-	public AssrtBoolFormula squash()
+	public AssrtBFormula squash()
 	{
-		AssrtBoolFormula left = this.left.squash();
-		AssrtBoolFormula right = this.right.squash();
+		AssrtBFormula left = this.left.squash();
+		AssrtBFormula right = this.right.squash();
 		switch (this.op)
 		{
 			case And:
@@ -205,7 +205,7 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 	}
 
 	@Override
-	public AssrtBinBoolFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	public AssrtBinBFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
 		return AssrtFormulaFactory.AssrtBinBool(this.op, this.left.subs(old, neu), this.right.subs(old, neu));
 	}
@@ -252,13 +252,13 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 	}
 
 	@Override
-	public AssrtBoolFormula getLeft()
+	public AssrtBFormula getLeft()
 	{
 		return this.left;
 	}
 
 	@Override
-	public AssrtBoolFormula getRight()
+	public AssrtBFormula getRight()
 	{
 		return this.right;
 	}
@@ -276,11 +276,11 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtBinBoolFormula))
+		if (!(o instanceof AssrtBinBFormula))
 		{
 			return false;
 		}
-		AssrtBinBoolFormula f = (AssrtBinBoolFormula) o;
+		AssrtBinBFormula f = (AssrtBinBFormula) o;
 		return super.equals(this)  // Does canEqual
 				&& this.op.equals(f.op) && this.left.equals(f.left) && this.right.equals(f.right);  
 						// Storing left/right as a Set could give commutativity in equals, but not associativity
@@ -290,7 +290,7 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 	@Override
 	protected boolean canEqual(Object o)
 	{
-		return o instanceof AssrtBinBoolFormula;
+		return o instanceof AssrtBinBFormula;
 	}
 
 	@Override
@@ -304,12 +304,12 @@ public class AssrtBinBoolFormula extends AssrtBoolFormula implements AssrtBinFor
 		return hash;
 	}
 
-	public static List<AssrtBoolFormula> getCnfClauses(AssrtBoolFormula f)
+	public static List<AssrtBFormula> getCnfClauses(AssrtBFormula f)
 	{
-		List<AssrtBoolFormula> fs = new LinkedList<>();
-		while (f instanceof AssrtBinBoolFormula)
+		List<AssrtBFormula> fs = new LinkedList<>();
+		while (f instanceof AssrtBinBFormula)
 		{
-			AssrtBinBoolFormula c = (AssrtBinBoolFormula) f;
+			AssrtBinBFormula c = (AssrtBinBFormula) f;
 			if (c.op != Op.And)
 			{
 				break;

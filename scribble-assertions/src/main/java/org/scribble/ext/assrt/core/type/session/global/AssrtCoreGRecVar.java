@@ -7,8 +7,8 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRecVar;
@@ -19,7 +19,7 @@ public class AssrtCoreGRecVar extends AssrtCoreRecVar<Global>
 		implements AssrtCoreGType
 {
 	protected AssrtCoreGRecVar(CommonTree source, RecVar var,
-			List<AssrtArithFormula> annotexprs)
+			List<AssrtAFormula> annotexprs)
 	{
 		super(source, var, annotexprs);
 	}
@@ -32,7 +32,7 @@ public class AssrtCoreGRecVar extends AssrtCoreRecVar<Global>
 
 	@Override
 	public AssrtCoreLRecVar project(AssrtCoreSTypeFactory af, Role r,
-			AssrtBoolFormula f)
+			AssrtBFormula f)
 	{
 		return af.local.AssrtCoreLRecVar(null, this.recvar, this.annotexprs);
 	}

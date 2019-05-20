@@ -3,9 +3,9 @@ package org.scribble.ext.assrt.ast;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public interface AssrtStateVarArgAnnotNode
+public interface AssrtStateVarArgNode
 {
-	List<AssrtArithExpr> getAnnotExprChildren();
+	List<AssrtAExprNode> getAnnotExprChildren();
 
 	default String annotToString()
 	{

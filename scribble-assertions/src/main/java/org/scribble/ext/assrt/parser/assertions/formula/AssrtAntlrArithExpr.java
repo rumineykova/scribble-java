@@ -1,8 +1,8 @@
 package org.scribble.ext.assrt.parser.assertions.formula;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBinArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
@@ -22,9 +22,9 @@ public class AssrtAntlrArithExpr
 		{
 			return left;
 		}
-		AssrtBinArithFormula.Op op = parseOp(getOpChild(root)); 
-		AssrtArithFormula right = (AssrtArithFormula) parser.parse(getRightChild(root));
-		return AssrtFormulaFactory.AssrtBinArith(op, (AssrtArithFormula) left, right); 
+		AssrtBinAFormula.Op op = parseOp(getOpChild(root)); 
+		AssrtAFormula right = (AssrtAFormula) parser.parse(getRightChild(root));
+		return AssrtFormulaFactory.AssrtBinArith(op, (AssrtAFormula) left, right); 
 	}
 	
 	public static CommonTree getOpChild(CommonTree root)
@@ -42,13 +42,13 @@ public class AssrtAntlrArithExpr
 		return (CommonTree) root.getChild(CHILD_RIGHT_FORMULA_INDEX);
 	}
 
-	private static AssrtBinArithFormula.Op parseOp(CommonTree op) 
+	private static AssrtBinAFormula.Op parseOp(CommonTree op) 
 	{
 		switch (op.getText()) 
 		{
-			case "+": return AssrtBinArithFormula.Op.Add;
-			case "-": return AssrtBinArithFormula.Op.Subt;
-			case "*": return AssrtBinArithFormula.Op.Mult;
+			case "+": return AssrtBinAFormula.Op.Add;
+			case "-": return AssrtBinAFormula.Op.Subt;
+			case "*": return AssrtBinAFormula.Op.Mult;
 			default:  throw new RuntimeException("[assrt] Shouldn't get in here: " + op.getText());  // Due to AssrtAssertions.g
 		}
 	}

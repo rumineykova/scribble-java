@@ -37,8 +37,8 @@ import org.scribble.ext.assrt.ast.local.AssrtLSend;
 import org.scribble.ext.assrt.ast.name.qualified.AssrtAssertNameNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtSortNode;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.parser.ScribAntlrTokens;
 
@@ -175,16 +175,16 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	}
 
 	@Override
-	public AssrtAssertion AssrtAssertion(Token t, AssrtBoolFormula bexpr)
+	public AssrtBExprNode AssrtAssertion(Token t, AssrtBFormula bexpr)
 	{
 		t = newToken(t, this.tokens.getType("ASSRT_ASSERT"));
-		AssrtAssertion n = new AssrtAssertion(t, bexpr);
+		AssrtBExprNode n = new AssrtBExprNode(t, bexpr);
 		n.decorateDel(this.df);
 		return n;
 	}
 
 	@Override
-	public AssrtArithExpr AssrtArithAnnotation(Token t, AssrtArithFormula aexpr)
+	public AssrtAExprNode AssrtArithAnnotation(Token t, AssrtAFormula aexpr)
 	{
 		/*t = newToken(t, ...);
 		AssrtArithExpr n = new AssrtArithExpr(t, aexpr);
@@ -207,8 +207,8 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	@Override
 	public AssrtGProtoHeader AssrtGProtoHeader(Token t, GProtoNameNode name,
 			RoleDeclList rs, NonRoleParamDeclList ps, 
-			AssrtAssertion ass, List<AssrtIntVarNameNode> avars,
-			List<AssrtArithExpr> aexprs)  // FIXME: not actually how parsed
+			AssrtBExprNode ass, List<AssrtIntVarNameNode> avars,
+			List<AssrtAExprNode> aexprs)  // FIXME: not actually how parsed
 	{
 		t = newToken(t, this.tokens.getType("ASSRT_GLOBALPROTOCOLHEADER"));
 		AssrtGProtoHeader n = new AssrtGProtoHeader(t);
@@ -231,7 +231,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 
 	@Override
 	public AssrtGMsgTransfer AssrtGMsgTransfer(Token t, MsgNode msg, RoleNode src,
-			List<RoleNode> dsts, AssrtAssertion ass)
+			List<RoleNode> dsts, AssrtBExprNode ass)
 	{
 		t = newToken(t, this.tokens.getType("ASSRT_GLOBALMESSAGETRANSFER"));
 		AssrtGMsgTransfer n = new AssrtGMsgTransfer(t);
@@ -247,7 +247,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 
 	@Override
 	public AssrtGConnect AssrtGConnect(Token t, MsgNode msg, RoleNode src,
-			RoleNode dst, AssrtAssertion ass)
+			RoleNode dst, AssrtBExprNode ass)
 	{
 		t = newToken(t, this.tokens.getType("ASSRT_GLOBALCONNECT"));
 		AssrtGConnect n = new AssrtGConnect(t);
@@ -258,7 +258,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 
 	@Override
 	public AssrtGContinue AssrtGContinue(Token t, RecVarNode rv,
-			List<AssrtArithExpr> aexprs)
+			List<AssrtAExprNode> aexprs)
 	{
 		/*t = newToken(t, ...);
 		AssrtGContinue n = new AssrtGContinue(t);
@@ -270,7 +270,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 
 	@Override
 	public AssrtGDo AssrtGDo(Token t, GProtoNameNode proto, NonRoleArgList as,
-			RoleArgList rs, List<AssrtArithExpr> aexprs)
+			RoleArgList rs, List<AssrtAExprNode> aexprs)
 	{
 		t = newToken(t, this.tokens.getType("ASSRT_GLOBALDO"));
 		AssrtGDo n = new AssrtGDo(t);
@@ -281,8 +281,8 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 
 	@Override
 	public AssrtGRecursion AssrtGRecursion(Token t, RecVarNode rv,
-			GProtoBlock block, AssrtAssertion ass, List<AssrtIntVarNameNode> avars,
-			List<AssrtArithExpr> aexprs)  // FIXME: not actually how parsed
+			GProtoBlock block, AssrtBExprNode ass, List<AssrtIntVarNameNode> avars,
+			List<AssrtAExprNode> aexprs)  // FIXME: not actually how parsed
 	{
 		/*t = newToken(t, ...);
 		AssrtGRecursion n = new AssrtGRecursion(t);
@@ -295,8 +295,8 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	@Override
 	public AssrtLProtoHeader AssrtLProtoHeader(Token t, LProtoNameNode name,
 			RoleDeclList rs, NonRoleParamDeclList ps,
-			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
-			AssrtAssertion ass)  // FIXME: not actually how parsed
+			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs,
+			AssrtBExprNode ass)  // FIXME: not actually how parsed
 	{
 		t = newToken(t, this.tokens.getType("ASSRT_LOCALPROTOCOLHEADER"));
 		AssrtLProtoHeader n = new AssrtLProtoHeader(t);
@@ -307,7 +307,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 
 	@Override
 	public AssrtLSend AssrtLSend(Token t, MsgNode msg, RoleNode self,
-			List<RoleNode> dsts, AssrtAssertion ass)
+			List<RoleNode> dsts, AssrtBExprNode ass)
 	{
 		t = newToken(t, this.tokens.getType("ASSRT_LOCALSEND"));
 		AssrtLSend n = new AssrtLSend(t);
@@ -323,7 +323,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 
 	@Override
 	public AssrtLReq AssrtLReq(Token t, MsgNode msg, RoleNode self, RoleNode dst,
-			AssrtAssertion ass)
+			AssrtBExprNode ass)
 	{
 		t = newToken(t, this.tokens.getType("ASSRT_LOCALREQ"));
 		AssrtLReq n = new AssrtLReq(t);
@@ -334,7 +334,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 
 	@Override
 	public AssrtLContinue AssrtLContinue(Token t, RecVarNode rv,
-			List<AssrtArithExpr> aexprs)
+			List<AssrtAExprNode> aexprs)
 	{
 		/*t = newToken(t, ...);
 		AssrtGContinue n = new AssrtGContinue(t);
@@ -346,7 +346,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 
 	@Override
 	public AssrtLDo AssrtLDo(Token t, RoleArgList rs, NonRoleArgList as,
-			LProtoNameNode proto, List<AssrtArithExpr> aexprs)
+			LProtoNameNode proto, List<AssrtAExprNode> aexprs)
 	{
 		t = newToken(t, this.tokens.getType("ASSRT_LOCALDO"));
 		AssrtLDo n = new AssrtLDo(t);
@@ -357,8 +357,8 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 
 	@Override
 	public AssrtLRecursion AssrtLRecursion(Token t, RecVarNode rv, LProtoBlock block,
-			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs,
-			AssrtAssertion ass)  // FIXME: not actually how parsed
+			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs,
+			AssrtBExprNode ass)  // FIXME: not actually how parsed
 	{
 		/*t = newToken(t, ...);
 		AssrtLRecursion n = new AssrtLRecursion(t);

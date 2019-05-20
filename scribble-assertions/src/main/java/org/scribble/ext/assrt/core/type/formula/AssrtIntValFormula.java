@@ -9,9 +9,9 @@ import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 // Integer literal
-public class AssrtIntValFormula extends AssrtArithFormula
+public class AssrtIntValFormula extends AssrtAFormula
 {
-	public static final AssrtArithFormula ZERO = AssrtFormulaFactory.AssrtIntVal(0); 
+	public static final AssrtAFormula ZERO = AssrtFormulaFactory.AssrtIntVal(0); 
 
 	public final int val;
 

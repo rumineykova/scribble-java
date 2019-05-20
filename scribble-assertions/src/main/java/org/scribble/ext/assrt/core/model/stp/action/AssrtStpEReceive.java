@@ -11,19 +11,19 @@ import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreERecv;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSRecv;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 
 public class AssrtStpEReceive extends AssrtCoreERecv implements AssrtStpEAction
 {
 	public final Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma;
-	public final AssrtBoolFormula A;  // aliases this.ass
+	public final AssrtBFormula A;  // aliases this.ass
 	
 	public AssrtStpEReceive(ModelFactory mf, Role peer, MsgId<?> mid,
 			Payload payload, Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma,
-			AssrtBoolFormula A)
+			AssrtBFormula A)
 	{
 		super(mf, peer, mid, payload, A, Collections.emptyList());
 		this.sigma = Collections.unmodifiableMap(sigma);
@@ -49,7 +49,7 @@ public class AssrtStpEReceive extends AssrtCoreERecv implements AssrtStpEAction
 	}
 
 	@Override
-	public List<AssrtArithFormula> getStateExprs()
+	public List<AssrtAFormula> getStateExprs()
 	{
 		throw new RuntimeException("Shouldn't get in here: " + this);
 	}

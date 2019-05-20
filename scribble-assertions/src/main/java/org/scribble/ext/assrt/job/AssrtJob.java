@@ -18,7 +18,7 @@ import org.scribble.core.type.session.local.LTypeFactoryImpl;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.job.AssrtCoreArgs;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.scribble.ext.assrt.visit.AssrtVisitorFactoryImpl;
 import org.scribble.job.Job;
@@ -96,7 +96,7 @@ public class AssrtJob extends Job
 	
 	
 	// N.B. currently only used by assrt-core
-	public boolean checkSat(GProtoName simpname, Set<AssrtBoolFormula> fs)  // Maybe record simpname as field (for core)
+	public boolean checkSat(GProtoName simpname, Set<AssrtBFormula> fs)  // Maybe record simpname as field (for core)
 	{
 		Solver solver = ((AssrtCoreArgs) this.config.args).solver;
 		switch (solver)

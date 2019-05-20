@@ -13,13 +13,13 @@ import org.scribble.ast.name.qualified.LProtoNameNode;
 import org.scribble.ast.name.qualified.ProtoNameNode;
 import org.scribble.core.type.kind.Local;
 import org.scribble.del.DelFactory;
-import org.scribble.ext.assrt.ast.AssrtArithExpr;
-import org.scribble.ext.assrt.ast.AssrtStateVarArgAnnotNode;
+import org.scribble.ext.assrt.ast.AssrtAExprNode;
+import org.scribble.ext.assrt.ast.AssrtStateVarArgNode;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtLDo extends LDo implements AssrtStateVarArgAnnotNode
+public class AssrtLDo extends LDo implements AssrtStateVarArgNode
 {
 	public static final int EXPR_CHILDREN_START_INDEX = 3;
 
@@ -36,10 +36,10 @@ public class AssrtLDo extends LDo implements AssrtStateVarArgAnnotNode
 	}
 
 	@Override
-	public List<AssrtArithExpr> getAnnotExprChildren()
+	public List<AssrtAExprNode> getAnnotExprChildren()
 	{
 		List<? extends ScribNode> cs = getChildren();
-		return cs.subList(3, cs.size()).stream().map(x -> (AssrtArithExpr) x)
+		return cs.subList(3, cs.size()).stream().map(x -> (AssrtAExprNode) x)
 				.collect(Collectors.toList());
 	}
 	
@@ -53,7 +53,7 @@ public class AssrtLDo extends LDo implements AssrtStateVarArgAnnotNode
 
 	// "add", not "set"
 	public void addScribChildren(ProtoNameNode<Local> proto, NonRoleArgList as,
-			RoleArgList rs, List<AssrtArithExpr> aexprs)
+			RoleArgList rs, List<AssrtAExprNode> aexprs)
 	{
 		// Cf. above getters and Scribble.g children order
 		addChild(proto);  // Order re. getter indices
@@ -83,7 +83,7 @@ public class AssrtLDo extends LDo implements AssrtStateVarArgAnnotNode
 	}
 
 	public AssrtLDo reconstruct(ProtoNameNode<Local> proto, RoleArgList rs,
-			NonRoleArgList as, List<AssrtArithExpr> aexprs)
+			NonRoleArgList as, List<AssrtAExprNode> aexprs)
 	{
 		AssrtLDo dup = dupNode();
 		dup.addScribChildren(proto, as, rs, aexprs);
@@ -98,7 +98,7 @@ public class AssrtLDo extends LDo implements AssrtStateVarArgAnnotNode
 				getProtoNameChild(), v);
 		RoleArgList rs = (RoleArgList) visitChild(getRoleListChild(), v);
 		NonRoleArgList as = (NonRoleArgList) visitChild(getNonRoleListChild(), v);
-		List<AssrtArithExpr> aexprs = visitChildListWithClassEqualityCheck(this,
+		List<AssrtAExprNode> aexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);
 		return reconstruct(proto, rs, as, aexprs);
 	}

@@ -4,22 +4,22 @@ import org.scribble.core.model.global.actions.SRecv;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 
 public class AssrtSRecv extends SRecv implements AssrtSAction
 {
 	//public final AssrtAssertion assertion;  // Cf., e.g., AGMsgTransfer
-	public final AssrtBoolFormula ass;  // Cf., e.g., AGMsgTransfer  // Not null (cf. AssrtEReceive)
+	public final AssrtBFormula ass;  // Cf., e.g., AGMsgTransfer  // Not null (cf. AssrtEReceive)
 
 	public AssrtSRecv(Role subj, Role obj, MsgId<?> mid, Payload payload,
-			AssrtBoolFormula bf)
+			AssrtBFormula bf)
 	{
 		super(subj, obj, mid, payload);
 		this.ass = bf;
 	}
 
 	@Override
-	public AssrtBoolFormula getAssertion()
+	public AssrtBFormula getAssertion()
 	{
 		return this.ass;
 	}

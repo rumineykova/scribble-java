@@ -11,9 +11,9 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBinBoolFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
@@ -31,8 +31,8 @@ import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
 public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 		implements AssrtCoreGType
 {
-	public final Role src;   // Singleton -- no disconnect for now
-	public final Role dest;  // this.dest == super.role
+	public final Role src;  // Singleton -- no disconnect for now
+	public final Role dst;  // this.dest == super.role
 
 	protected AssrtCoreGChoice(CommonTree source, Role src,
 			AssrtCoreGActionKind kind, Role dest,
@@ -40,7 +40,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 	{
 		super(source, dest, kind, cases);
 		this.src = src;
-		this.dest = dest;
+		this.dst = dest;
 	}
 
 	@Override
@@ -55,16 +55,16 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 
 	@Override
 	public AssrtCoreLType project(AssrtCoreSTypeFactory af, Role r,
-			AssrtBoolFormula f) throws AssrtCoreSyntaxException
+			AssrtBFormula f) throws AssrtCoreSyntaxException
 	{
 		Map<AssrtCoreMsg, AssrtCoreLType> projs = new HashMap<>();
 		for (Entry<AssrtCoreMsg, AssrtCoreGType> e : this.cases.entrySet())
 		{
 			AssrtCoreMsg a = e.getKey();
-			AssrtBoolFormula fproj = AssrtFormulaFactory
-					.AssrtBinBool(AssrtBinBoolFormula.Op.And, f, a.ass);
+			AssrtBFormula fproj = AssrtFormulaFactory
+					.AssrtBinBool(AssrtBinBFormula.Op.And, f, a.ass);
 
-			if (this.dest.equals(r))  // Projecting receiver side
+			if (this.dst.equals(r))  // Projecting receiver side
 			{
 				/*Set<AssrtDataTypeVar> vs = fproj.getVars();
 						// FIXME: converting Set to List
@@ -90,9 +90,9 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 		}
 		
 		// "Simple" cases
-		if (this.src.equals(r) || this.dest.equals(r))
+		if (this.src.equals(r) || this.dst.equals(r))
 		{
-			Role role = this.src.equals(r) ? this.dest : this.src;
+			Role role = this.src.equals(r) ? this.dst : this.src;
 			return af.local.AssrtCoreLChoice(null, role,
 					getKind().project(this.src, r), projs);
 		}
@@ -109,7 +109,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 
 			Set<RecVar> rvs = projs.values().stream()
 					.map(v -> ((AssrtCoreLRecVar) v).recvar).collect(Collectors.toSet());
-			Set<List<AssrtArithFormula>> fs = projs.values().stream()
+			Set<List<AssrtAFormula>> fs = projs.values().stream()
 					.map(v -> ((AssrtCoreLRecVar) v).annotexprs)
 					.collect(Collectors.toSet());
 					// CHECKME? syntactic equality of exprs
@@ -193,7 +193,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 	@Override
 	public String toString()
 	{
-		return this.src.toString() + this.kind + this.dest + casesToString();  // toString needed?
+		return this.src.toString() + this.kind + this.dst + casesToString();  // toString needed?
 	}
 	
 	@Override

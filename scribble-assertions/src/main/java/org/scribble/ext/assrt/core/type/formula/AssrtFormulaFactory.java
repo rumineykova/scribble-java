@@ -11,27 +11,27 @@ public class AssrtFormulaFactory
 		return null;
 	}*/
 	
-	public static AssrtBinBoolFormula AssrtBinBool(AssrtBinBoolFormula.Op op, AssrtBoolFormula left, AssrtBoolFormula right)
+	public static AssrtBinBFormula AssrtBinBool(AssrtBinBFormula.Op op, AssrtBFormula left, AssrtBFormula right)
 	{
-		return new AssrtBinBoolFormula(op, left, right); 
+		return new AssrtBinBFormula(op, left, right); 
 	}
 
-	public static AssrtBinCompFormula AssrtBinComp(AssrtBinCompFormula.Op op, AssrtArithFormula left, AssrtArithFormula right)
+	public static AssrtBinCompFormula AssrtBinComp(AssrtBinCompFormula.Op op, AssrtAFormula left, AssrtAFormula right)
 	{
 		return new AssrtBinCompFormula(op, left, right); 
 	}
 	
-	public static AssrtBinArithFormula AssrtBinArith(AssrtBinArithFormula.Op  op, AssrtArithFormula left, AssrtArithFormula right)
+	public static AssrtBinAFormula AssrtBinArith(AssrtBinAFormula.Op  op, AssrtAFormula left, AssrtAFormula right)
 	{
-		return new AssrtBinArithFormula(op, left, right); 
+		return new AssrtBinAFormula(op, left, right); 
 	}
 	
-	public static AssrtNegFormula AssrtNeg(AssrtBoolFormula expr)
+	public static AssrtNegFormula AssrtNeg(AssrtBFormula expr)
 	{
 		return new AssrtNegFormula(expr); 
 	}
 
-	public static AssrtUnintPredicateFormula AssrtUnPredicate(String name, List<AssrtArithFormula> args)
+	public static AssrtUnintPredicateFormula AssrtUnPredicate(String name, List<AssrtAFormula> args)
 	{
 		return new AssrtUnintPredicateFormula(name, args);
 	}
@@ -61,12 +61,12 @@ public class AssrtFormulaFactory
 
 	// Not (currently) parsed
 	
-	public static AssrtExistsIntVarsFormula AssrtExistsFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
+	public static AssrtExistsIntVarsFormula AssrtExistsFormula(List<AssrtIntVarFormula> vars, AssrtBFormula expr)
 	{
 		return new AssrtExistsIntVarsFormula(vars, expr); 
 	}
 
-	public static AssrtForallIntVarsFormula AssrtForallFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
+	public static AssrtForallIntVarsFormula AssrtForallFormula(List<AssrtIntVarFormula> vars, AssrtBFormula expr)
 	{
 		return new AssrtForallIntVarsFormula(vars, expr); 
 	}

@@ -26,6 +26,7 @@ import org.scribble.core.lang.SubprotoSig;
 import org.scribble.core.type.kind.ProtoKind;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.session.Continue;
+import org.scribble.core.type.session.Do;
 import org.scribble.core.type.session.Recursion;
 import org.scribble.core.type.session.SType;
 import org.scribble.core.type.session.Seq;
@@ -55,6 +56,10 @@ public abstract class STypeInliner<K extends ProtoKind, B extends Seq<K, B>>
 		RecVar rv = getInlinedRecVar(n.recvar);
 		return n.reconstruct(n.getSource(), rv);
 	}
+
+	// Override in subclasses to create concrete G/L Continue/Recursion
+	@Override
+	public abstract SType<K, B> visitDo(Do<K, B> n);
 
 	@Override
 	public SType<K, B> visitRecursion(Recursion<K, B> n)

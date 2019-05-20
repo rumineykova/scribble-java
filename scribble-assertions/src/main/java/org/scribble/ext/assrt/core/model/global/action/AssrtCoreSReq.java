@@ -5,8 +5,8 @@ import java.util.List;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.model.global.actions.AssrtSReq;
 
 public class AssrtCoreSReq extends AssrtSReq implements AssrtCoreSAction
@@ -15,10 +15,10 @@ public class AssrtCoreSReq extends AssrtSReq implements AssrtCoreSAction
 	/*public final AssrtDataTypeVar annot;  // Not null (by AssrtCoreGProtocolTranslator)
 	public final AssrtArithFormula expr;*/
 
-	public final List<AssrtArithFormula> stateexprs;
+	public final List<AssrtAFormula> stateexprs;
 
 	public AssrtCoreSReq(Role subj, Role obj, MsgId<?> mid, Payload payload,
-			AssrtBoolFormula bf, List<AssrtArithFormula> stateexprs)
+			AssrtBFormula bf, List<AssrtAFormula> stateexprs)
 	{
 		super(subj, obj, mid, payload, bf);
 		//this.annot = annot;
@@ -26,7 +26,7 @@ public class AssrtCoreSReq extends AssrtSReq implements AssrtCoreSAction
 	}
 
 	@Override
-	public List<AssrtArithFormula> getStateExprs()
+	public List<AssrtAFormula> getStateExprs()
 	{
 		return this.stateexprs;
 	}

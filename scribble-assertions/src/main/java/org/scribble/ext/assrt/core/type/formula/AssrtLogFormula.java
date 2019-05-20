@@ -8,7 +8,7 @@ import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
-public class AssrtLogFormula extends AssrtBoolFormula
+public class AssrtLogFormula extends AssrtBFormula
 {
 	public final Set<AssrtDataTypeVar> vars; 
 	
@@ -20,25 +20,25 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	}
 
 	@Override
-	public AssrtBoolFormula getCnf()
+	public AssrtBFormula getCnf()
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 
 	@Override
-	public boolean isNF(AssrtBinBoolFormula.Op op)
+	public boolean isNF(AssrtBinBFormula.Op op)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 
 	@Override
-	public boolean hasOp(AssrtBinBoolFormula.Op op)
+	public boolean hasOp(AssrtBinBFormula.Op op)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 
 	@Override
-	public AssrtBoolFormula squash()
+	public AssrtBFormula squash()
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
 	}
@@ -68,7 +68,7 @@ public class AssrtLogFormula extends AssrtBoolFormula
 	}
 	
 	//public AssrtLogFormula addFormula(AssrtSmtFormula newFormula) throws AssertionParseException
-	public AssrtLogFormula addFormula(AssrtBoolFormula newFormula) //throws AssertionParseException
+	public AssrtLogFormula addFormula(AssrtBFormula newFormula) //throws AssertionParseException
 	{		
 		return this.formula == null
 				? new AssrtLogFormula(newFormula.formula, newFormula.getIntVars())

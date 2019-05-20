@@ -11,31 +11,31 @@ import org.sosy_lab.java_smt.api.BooleanFormula;
 
 
 // Make abstract, and use subclasses for specific functions? e.g., for ports
-public class AssrtUnintPredicateFormula extends AssrtBoolFormula implements AssrtUnintFunFormula<BooleanFormula>
+public class AssrtUnintPredicateFormula extends AssrtBFormula implements AssrtUnintFunFormula<BooleanFormula>
 {
 	public final String name;
-	public final List<AssrtArithFormula> args;
+	public final List<AssrtAFormula> args;
 
-	protected AssrtUnintPredicateFormula(String name, List<AssrtArithFormula> args)
+	protected AssrtUnintPredicateFormula(String name, List<AssrtAFormula> args)
 	{
 		this.name = name;
 		this.args = Collections.unmodifiableList(args);
 	}
 
 	@Override
-	public AssrtBoolFormula getCnf()
+	public AssrtBFormula getCnf()
 	{
 		return this;
 	}
 
 	@Override
-	public boolean isNF(AssrtBinBoolFormula.Op op)
+	public boolean isNF(AssrtBinBFormula.Op op)
 	{
 		return true;
 	}
 
 	@Override
-	public boolean hasOp(AssrtBinBoolFormula.Op op)
+	public boolean hasOp(AssrtBinBFormula.Op op)
 	{
 		return false;
 	}
@@ -53,13 +53,13 @@ public class AssrtUnintPredicateFormula extends AssrtBoolFormula implements Assr
 	}
 
 	@Override
-	public AssrtBoolFormula squash()
+	public AssrtBFormula squash()
 	{
 		return this;
 	}
 
 	@Override
-	public AssrtBoolFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	public AssrtBFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
 		return new AssrtUnintPredicateFormula(this.name, 
 				this.args.stream().map(a -> a.subs(old, neu)).collect(Collectors.toList()));

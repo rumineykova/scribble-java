@@ -10,7 +10,7 @@ import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
 
 // Variable occurrence
 // FIXME: currently also used for roles -- probably need to parse as "ambig" and disamb later
-public class AssrtIntVarFormula extends AssrtArithFormula
+public class AssrtIntVarFormula extends AssrtAFormula
 {
 	public final String name; 
 

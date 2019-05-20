@@ -5,7 +5,7 @@ import org.scribble.core.model.endpoint.actions.ESend;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.model.endpoint.AssrtEModelFactory;
 import org.scribble.ext.assrt.model.global.AssrtSModelFactory;
@@ -15,17 +15,17 @@ import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 public class AssrtESend extends ESend implements AssrtEAction
 {
 	//public final AssrtAssertion assertion;  // Cf., e.g., ALSend
-	public final AssrtBoolFormula ass;  // Not null -- empty set to True by parsing
+	public final AssrtBFormula ass;  // Not null -- empty set to True by parsing
 
 	public AssrtESend(ModelFactory mf, Role peer, MsgId<?> mid, Payload payload,
-			AssrtBoolFormula ass)
+			AssrtBFormula ass)
 	{
 		super(mf, peer, mid, payload);
 		this.ass = ass;
 	}
 	
 	@Override
-	public AssrtBoolFormula getAssertion()
+	public AssrtBFormula getAssertion()
 	{
 		return this.ass;
 	}

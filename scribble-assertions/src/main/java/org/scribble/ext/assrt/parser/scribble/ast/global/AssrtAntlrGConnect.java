@@ -4,7 +4,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ast.MessageNode;
 import org.scribble.ast.global.GConnect;
 import org.scribble.ast.name.simple.RoleNode;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
+import org.scribble.ext.assrt.ast.AssrtBExprNode;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.parser.scribble.AssrtAntlrToScribParser;
 import org.scribble.parser.scribble.AntlrToScribParser;
@@ -28,7 +28,7 @@ public class AssrtAntlrGConnect
 		RoleNode dest = AntlrSimpleName.toRoleNode(getDestinationChild(ct), af);
 
 		// FIXME: factor out of AssrtAntlrGMessageTransfer
-		AssrtAssertion ass = AssrtAntlrGMessageTransfer.parseAssertion(((AssrtAntlrToScribParser) parser).ap, getAssertionChild(ct), af);
+		AssrtBExprNode ass = AssrtAntlrGMessageTransfer.parseAssertion(((AssrtAntlrToScribParser) parser).ap, getAssertionChild(ct), af);
 
 		return ((AssrtAstFactory) af).AssrtGConnect(ct, msg, src, dest, ass);
 	}

@@ -5,8 +5,8 @@ import java.util.LinkedHashMap;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.type.kind.Local;
 import org.scribble.core.type.name.RecVar;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRec;
 
@@ -14,8 +14,8 @@ public class AssrtCoreLRec extends AssrtCoreRec<Local, AssrtCoreLType>
 		implements AssrtCoreLType
 {
 	protected AssrtCoreLRec(CommonTree source, RecVar recvar,
-			LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> annotvars,
-			AssrtCoreLType body, AssrtBoolFormula ass)
+			LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> annotvars,
+			AssrtCoreLType body, AssrtBFormula ass)
 	{
 		super(source, recvar, annotvars, body, ass);
 	}

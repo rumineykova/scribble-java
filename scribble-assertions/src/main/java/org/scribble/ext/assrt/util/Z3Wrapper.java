@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 import org.scribble.ast.global.GProtoDecl;
 import org.scribble.ext.assrt.core.type.formula.AssrtBinFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtQuantifiedIntVarsFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
@@ -28,7 +28,7 @@ public class Z3Wrapper
 
 	// Based on CommandLine::runDot, JobContext::runAut, etc
 	public static boolean checkSat(AssrtJob job, GProtoDecl gpd,
-			Set<AssrtBoolFormula> fs)  //throws ScribbleException
+			Set<AssrtBFormula> fs)  //throws ScribbleException
 	{
 		fs = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
 				.collect(Collectors.toSet());
@@ -87,7 +87,7 @@ public class Z3Wrapper
 	}
 	
 	// fs shouldn't be empty (but OK)
-	private static String toSmt2(AssrtJob job, GProtoDecl gpd, Set<AssrtBoolFormula> fs)
+	private static String toSmt2(AssrtJob job, GProtoDecl gpd, Set<AssrtBFormula> fs)
 	{
 		String smt2 = "";
 		List<String> rs = gpd.getHeaderChild().getRoleDeclListChild().getRoles()

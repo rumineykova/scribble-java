@@ -8,7 +8,7 @@ import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
 // FIXME: declare singleton constant
-public class AssrtTrueFormula extends AssrtBoolFormula
+public class AssrtTrueFormula extends AssrtBFormula
 {
 	public static final AssrtTrueFormula TRUE = new AssrtTrueFormula();
 	
@@ -18,25 +18,25 @@ public class AssrtTrueFormula extends AssrtBoolFormula
 	}
 
 	@Override
-	public AssrtBoolFormula getCnf()
+	public AssrtBFormula getCnf()
 	{
 		return this;
 	}
 
 	@Override
-	public boolean isNF(AssrtBinBoolFormula.Op op)
+	public boolean isNF(AssrtBinBFormula.Op op)
 	{
 		return true;
 	}
 
 	@Override
-	public boolean hasOp(AssrtBinBoolFormula.Op op)
+	public boolean hasOp(AssrtBinBFormula.Op op)
 	{
 		return false;
 	}
 
 	@Override
-	public AssrtBoolFormula squash()
+	public AssrtBFormula squash()
 	{
 		return this;
 	}

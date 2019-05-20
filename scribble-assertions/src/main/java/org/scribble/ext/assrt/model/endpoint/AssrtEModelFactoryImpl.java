@@ -14,8 +14,8 @@ import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAcc;
@@ -75,33 +75,33 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl
 
 	@Override
 	public AssrtEState newAssrtEState(Set<RecVar> labs,
-			LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars,  // CHECKME: AssrtIntVar?
-			AssrtBoolFormula ass)
+			LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> vars,  // CHECKME: AssrtIntVar?
+			AssrtBFormula ass)
 	{
 		return new AssrtEState(labs, vars, ass);
 	}
 
 	@Override
 	//public AssrtESend newAssrtESend(Role peer, MsgId<?> mid, Payload payload, AssrtAssertion assertion)
-	public AssrtESend newAssrtESend(Role peer, MsgId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtESend newAssrtESend(Role peer, MsgId<?> mid, Payload payload, AssrtBFormula bf)
 	{
 		return new AssrtESend(this.mf, peer, mid, payload, bf);
 	}
 
 	@Override
-	public AssrtERecv newAssrtEReceive(Role peer, MsgId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtERecv newAssrtEReceive(Role peer, MsgId<?> mid, Payload payload, AssrtBFormula bf)
 	{
 		return new AssrtERecv(this.mf, peer, mid, payload, bf);
 	}
 
 	@Override
-	public AssrtEReq newAssrtERequest(Role peer, MsgId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtEReq newAssrtERequest(Role peer, MsgId<?> mid, Payload payload, AssrtBFormula bf)
 	{
 		return new AssrtEReq(this.mf, peer, mid, payload, bf);
 	}
 
 	@Override
-	public AssrtEAcc newAssrtEAccept(Role peer, MsgId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtEAcc newAssrtEAccept(Role peer, MsgId<?> mid, Payload payload, AssrtBFormula bf)
 	{
 		return new AssrtEAcc(this.mf, peer, mid, payload, bf);
 	}

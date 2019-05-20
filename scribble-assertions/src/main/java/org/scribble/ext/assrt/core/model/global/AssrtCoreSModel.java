@@ -12,7 +12,7 @@ import org.scribble.core.model.endpoint.actions.ESend;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.job.AssrtCoreArgs;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.job.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.job.Job;
@@ -77,7 +77,7 @@ public class AssrtCoreSModel
 		if (args.z3Batching)
 		{
 			// Check for all errors in a single pass -- any errors can be categorised later
-			Set<AssrtBoolFormula> fs = new HashSet<>();
+			Set<AssrtBFormula> fs = new HashSet<>();
 			fs.addAll(all.stream()
 					.flatMap(s -> s.getAssertionProgressChecks(job, simpname).stream())
 					.collect(Collectors.toSet()));

@@ -11,9 +11,9 @@ import org.scribble.ast.local.LRecursion;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.core.type.kind.Local;
 import org.scribble.del.DelFactory;
-import org.scribble.ext.assrt.ast.AssrtArithExpr;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
-import org.scribble.ext.assrt.ast.AssrtStateVarDeclAnnotNode;
+import org.scribble.ext.assrt.ast.AssrtAExprNode;
+import org.scribble.ext.assrt.ast.AssrtBExprNode;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 import org.scribble.util.Constants;
@@ -21,7 +21,7 @@ import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
 
 public class AssrtLRecursion extends LRecursion
-		implements AssrtStateVarDeclAnnotNode
+		implements AssrtStateVarDeclNode
 {
 	//public static final int BODY_CHILD_INDEX = 1;
 	// FIXME: no: Assertions.g gives back a subtree containing all
@@ -44,9 +44,9 @@ public class AssrtLRecursion extends LRecursion
 
 	// N.B. null if not specified -- currently duplicated from AssrtGMessageTransfer
 	@Override
-	public AssrtAssertion getAnnotAssertChild()
+	public AssrtBExprNode getAnnotAssertChild()
 	{
-		return (AssrtAssertion) getChild(ASSERT_CHILD_INDEX);
+		return (AssrtBExprNode) getChild(ASSERT_CHILD_INDEX);
 	}
 	
 	@Override
@@ -59,12 +59,12 @@ public class AssrtLRecursion extends LRecursion
 	}
 
 	@Override
-	public List<AssrtArithExpr> getAnnotExprChildren()
+	public List<AssrtAExprNode> getAnnotExprChildren()
 	{
 		List<? extends ScribNode> cs = getChildren();
 		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
-				.filter(x -> x instanceof AssrtArithExpr)
-				.map(x -> (AssrtArithExpr) x).collect(Collectors.toList());
+				.filter(x -> x instanceof AssrtAExprNode)
+				.map(x -> (AssrtAExprNode) x).collect(Collectors.toList());
 	}
 
 	@Override
@@ -75,8 +75,8 @@ public class AssrtLRecursion extends LRecursion
 
 	// "add", not "set"
 	public void addScribChildren(RecVarNode rv, ProtoBlock<Local> block,
-			AssrtAssertion assrt, List<AssrtIntVarNameNode> avars,
-			List<AssrtArithExpr> aexprs)
+			AssrtBExprNode assrt, List<AssrtIntVarNameNode> avars,
+			List<AssrtAExprNode> aexprs)
 	{
 		// Cf. above getters and Scribble.g children order
 		super.addScribChildren(rv, block);
@@ -106,8 +106,8 @@ public class AssrtLRecursion extends LRecursion
 	}
 
 	public AssrtLRecursion reconstruct(RecVarNode recvar,
-			ProtoBlock<Local> block, AssrtAssertion ass,
-			List<AssrtIntVarNameNode> avars, List<AssrtArithExpr> aexprs)
+			ProtoBlock<Local> block, AssrtBExprNode ass,
+			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs)
 	{
 		AssrtLRecursion dup = dupNode();
 		dup.addScribChildren(recvar, block, ass, avars, aexprs);
@@ -121,13 +121,13 @@ public class AssrtLRecursion extends LRecursion
 		RecVarNode recvar = (RecVarNode) visitChild(getRecVarChild(), v);
 		LProtoBlock block = visitChildWithClassEqualityCheck(this, getBlockChild(),
 				v);
-		AssrtAssertion tmp = getAnnotAssertChild();
-		AssrtAssertion ass = (tmp == null) 
+		AssrtBExprNode tmp = getAnnotAssertChild();
+		AssrtBExprNode ass = (tmp == null) 
 				? null
-				: (AssrtAssertion) visitChild(tmp, v);
+				: (AssrtBExprNode) visitChild(tmp, v);
 		List<AssrtIntVarNameNode> avars = visitChildListWithClassEqualityCheck(
 				this, getAnnotVarChildren(), v);
-		List<AssrtArithExpr> aexprs = visitChildListWithClassEqualityCheck(this,
+		List<AssrtAExprNode> aexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);
 		return reconstruct(recvar, block, ass, avars, aexprs);
 	}

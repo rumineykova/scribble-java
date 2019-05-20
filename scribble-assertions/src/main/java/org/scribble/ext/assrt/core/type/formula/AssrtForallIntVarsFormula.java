@@ -11,35 +11,35 @@ import org.sosy_lab.java_smt.api.QuantifiedFormulaManager;
 public class AssrtForallIntVarsFormula extends AssrtQuantifiedIntVarsFormula
 {
 	// Pre: vars non empty
-	protected AssrtForallIntVarsFormula(List<AssrtIntVarFormula> vars, AssrtBoolFormula expr)
+	protected AssrtForallIntVarsFormula(List<AssrtIntVarFormula> vars, AssrtBFormula expr)
 	{
 		super(vars, expr);
 	}
 
 	@Override
-	public AssrtBoolFormula getCnf()
+	public AssrtBFormula getCnf()
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 
 	@Override
-	public boolean isNF(AssrtBinBoolFormula.Op op)
+	public boolean isNF(AssrtBinBFormula.Op op)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 
 	@Override
-	public boolean hasOp(AssrtBinBoolFormula.Op op)
+	public boolean hasOp(AssrtBinBFormula.Op op)
 	{
 		throw new RuntimeException("[assrt-core] Shouldn't get in here: " + this);
 	}
 	
 	@Override
-	public AssrtBoolFormula squash()
+	public AssrtBFormula squash()
 	{
 		List<AssrtIntVarFormula> vars
 				= this.vars.stream().filter(v -> !v.toString().startsWith("_dum")).collect(Collectors.toList());  // FIXME
-		AssrtBoolFormula expr = this.expr.squash();
+		AssrtBFormula expr = this.expr.squash();
 		return (vars.isEmpty()) ? expr : AssrtFormulaFactory.AssrtForallFormula(vars, expr);
 	}
 

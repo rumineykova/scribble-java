@@ -20,9 +20,9 @@ import org.scribble.ast.local.LRecv;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.del.DelFactoryImpl;
 import org.scribble.ext.assrt.ast.AssrtAnnotDataElem;
-import org.scribble.ext.assrt.ast.AssrtArithExpr;
+import org.scribble.ext.assrt.ast.AssrtAExprNode;
 import org.scribble.ext.assrt.ast.AssrtAssertDecl;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
+import org.scribble.ext.assrt.ast.AssrtBExprNode;
 import org.scribble.ext.assrt.ast.AssrtModule;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
@@ -176,13 +176,13 @@ public class AssrtDelFactoryImpl extends DelFactoryImpl implements AssrtDelFacto
 
 	// General and globals
 	@Override
-	public void AssrtAssertion(AssrtAssertion n)
+	public void AssrtAssertion(AssrtBExprNode n)
 	{
 		setDel(n, createDefaultDel());
 	}
 
 	@Override
-	public void AssrtArithExpr(AssrtArithExpr n)
+	public void AssrtArithExpr(AssrtAExprNode n)
 	{
 		setDel(n, createDefaultDel());
 	}

@@ -20,7 +20,7 @@ import org.scribble.core.model.global.SingleBuffers;
 import org.scribble.core.type.kind.PayElemKind;
 import org.scribble.core.type.name.PayElemType;
 import org.scribble.core.type.name.Role;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtLogFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
@@ -87,7 +87,7 @@ public class AssrtSConfig extends SConfig
 				throw new RuntimeException("Shouldn't get in here: " + a);
 			}
 			
-			AssrtBoolFormula assertion;
+			AssrtBFormula assertion;
 			if (a.isSend()) 
 			{
 				assertion = ((AssrtESend) a).ass;
@@ -104,7 +104,7 @@ public class AssrtSConfig extends SConfig
 			AssrtLogFormula newFormula = null; 
 		
 			if (assertion!=null) {
-				AssrtBoolFormula currFormula = assertion;
+				AssrtBFormula currFormula = assertion;
 				
 				//try
 				{
@@ -195,7 +195,7 @@ public class AssrtSConfig extends SConfig
 				if (action.isSend())
 				{
 					AssrtESend send = (AssrtESend)action;
-					AssrtBoolFormula assertion = send.ass;
+					AssrtBFormula assertion = send.ass;
 					
 					Set<String> newVarNames = send.payload.elems.stream()
 							.filter(v -> (v instanceof AssrtPayElemType<?>) && ((AssrtPayElemType<?>) v).isAnnotVarDecl())  // FIXME?
@@ -233,7 +233,7 @@ public class AssrtSConfig extends SConfig
 			{
 				if (action.isSend()) {
 					AssrtESend send = (AssrtESend)action;
-					AssrtBoolFormula assertion = send.ass; 
+					AssrtBFormula assertion = send.ass; 
 					if (assertion != null)
 					{
 						if (!JavaSmtWrapper.getInstance().isSat(assertion, this.formula)) {

@@ -2,36 +2,36 @@ package org.scribble.ext.assrt.core.type.formula;
 
 import java.util.Set;
 
-import org.scribble.ext.assrt.core.type.formula.AssrtBinBoolFormula.Op;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula.Op;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.BooleanFormulaManager;
 
-public class AssrtNegFormula extends AssrtBoolFormula
+public class AssrtNegFormula extends AssrtBFormula
 {
-	public final AssrtBoolFormula expr;
+	public final AssrtBFormula expr;
 
-	protected AssrtNegFormula(AssrtBoolFormula expr)
+	protected AssrtNegFormula(AssrtBFormula expr)
 	{
 		this.expr = expr;
 	}
 
 	@Override
-	public AssrtBoolFormula getCnf()
+	public AssrtBFormula getCnf()
 	{
 		if (this.expr instanceof AssrtNegFormula)
 		{
 			return ((AssrtNegFormula) this.expr).expr.getCnf();
 		}
-		else if (this.expr instanceof AssrtBinBoolFormula)
+		else if (this.expr instanceof AssrtBinBFormula)
 		{
-			AssrtBinBoolFormula bf = (AssrtBinBoolFormula) this.expr;
+			AssrtBinBFormula bf = (AssrtBinBFormula) this.expr;
 			switch (bf.op)
 			{
 				case And:
 				{
-					AssrtBinBoolFormula tmp
+					AssrtBinBFormula tmp
 							= AssrtFormulaFactory.AssrtBinBool(Op.Or, AssrtFormulaFactory.AssrtNeg(bf.left), AssrtFormulaFactory.AssrtNeg(bf.right));
 					return tmp.getCnf();
 				}
@@ -41,7 +41,7 @@ public class AssrtNegFormula extends AssrtBoolFormula
 				}
 				case Or:
 				{
-					AssrtBinBoolFormula tmp
+					AssrtBinBFormula tmp
 							= AssrtFormulaFactory.AssrtBinBool(Op.And, AssrtFormulaFactory.AssrtNeg(bf.left), AssrtFormulaFactory.AssrtNeg(bf.right));
 					return tmp.getCnf();
 				}
@@ -59,25 +59,25 @@ public class AssrtNegFormula extends AssrtBoolFormula
 	}
 
 	@Override
-	public boolean isNF(AssrtBinBoolFormula.Op op)
+	public boolean isNF(AssrtBinBFormula.Op op)
 	{
 		return this.expr.hasOp(op == Op.And ? Op.Or : Op.And);
 	}
 
 	@Override
-	public boolean hasOp(AssrtBinBoolFormula.Op op)
+	public boolean hasOp(AssrtBinBFormula.Op op)
 	{
 		return this.expr.hasOp(op);
 	}
 
 	@Override
-	public AssrtBoolFormula squash()
+	public AssrtBFormula squash()
 	{
 		return AssrtFormulaFactory.AssrtNeg(this.expr.squash());
 	}
 
 	@Override
-	public AssrtBoolFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
+	public AssrtBFormula subs(AssrtIntVarFormula old, AssrtIntVarFormula neu)
 	{
 		return AssrtFormulaFactory.AssrtNeg(this.expr.subs(old, neu));
 	}

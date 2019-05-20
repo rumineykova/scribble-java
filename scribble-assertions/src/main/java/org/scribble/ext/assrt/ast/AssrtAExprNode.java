@@ -3,34 +3,34 @@ package org.scribble.ext.assrt.ast;
 import org.antlr.runtime.Token;
 import org.scribble.ast.ScribNodeBase;
 import org.scribble.del.DelFactory;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 
 // Based on AssrtAssertion
-public class AssrtArithExpr extends ScribNodeBase implements AssrtFormulaNode
-{	
-	public final AssrtArithFormula expr;
+public class AssrtAExprNode extends ScribNodeBase implements AssrtExprNode
+{
+	public final AssrtAFormula expr;
 
 	// ScribTreeAdaptor#create constructor
-	public AssrtArithExpr(Token t, AssrtArithFormula expr)
+	public AssrtAExprNode(Token t, AssrtAFormula expr)
 	{
 		super(t);
 		this.expr = expr;
 	}
 
 	// Tree#dupNode constructor
-	protected AssrtArithExpr(AssrtArithExpr node)
+	protected AssrtAExprNode(AssrtAExprNode node)
 	{
 		super(node);
 		this.expr = node.expr;
 	}
-	
+
 	@Override
-	public AssrtArithExpr dupNode()
+	public AssrtAExprNode dupNode()
 	{
-		return new AssrtArithExpr(this);
+		return new AssrtAExprNode(this);
 	}
-	
+
 	@Override
 	public void decorateDel(DelFactory df)
 	{
@@ -38,27 +38,17 @@ public class AssrtArithExpr extends ScribNodeBase implements AssrtFormulaNode
 	}
 
 	@Override
-	public AssrtArithFormula getFormula()
+	public AssrtAFormula getFormula()
 	{
 		return this.expr;
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		return this.expr.toString();  
+		return this.expr.toString();
 	}
 }
-
-
-
-
-
-
-
-
-
-
 
 /*
 	private AssrtArithFormula expr;

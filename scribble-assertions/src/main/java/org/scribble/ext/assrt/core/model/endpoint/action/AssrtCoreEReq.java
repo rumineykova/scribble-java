@@ -10,8 +10,8 @@ import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactory;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSReq;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEReq;
 
@@ -20,10 +20,10 @@ public class AssrtCoreEReq extends AssrtEReq implements AssrtCoreEAction
 	// Annot needed -- e.g. mu X(x:=..) . mu Y(y:=..) ... X<123> -- rec var X will be discarded, so edge action needs to record which var is being updated
 	/*public final AssrtDataTypeVar annot;  // Not null (by AssrtCoreGProtocolTranslator)
 	public final AssrtArithFormula expr;*/
-	public final List<AssrtArithFormula> stateexprs;
+	public final List<AssrtAFormula> stateexprs;
 
 	public AssrtCoreEReq(ModelFactory mf, Role peer, MsgId<?> mid,
-			Payload payload, AssrtBoolFormula ass, List<AssrtArithFormula> stateexprs)
+			Payload payload, AssrtBFormula ass, List<AssrtAFormula> stateexprs)
 	{
 		super(mf, peer, mid, payload, ass);
 		this.stateexprs = Collections.unmodifiableList(stateexprs);
@@ -60,7 +60,7 @@ public class AssrtCoreEReq extends AssrtEReq implements AssrtCoreEAction
 
 	@Override
 	//public AssrtArithFormula getArithExpr()
-	public List<AssrtArithFormula> getStateExprs()
+	public List<AssrtAFormula> getStateExprs()
 	{
 		//return this.expr;
 		return this.stateexprs;

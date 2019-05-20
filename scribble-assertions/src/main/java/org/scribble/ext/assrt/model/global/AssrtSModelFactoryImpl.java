@@ -14,7 +14,7 @@ import org.scribble.core.model.global.SingleBuffers;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
-import org.scribble.ext.assrt.core.type.formula.AssrtBoolFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtLogFormula;
 import org.scribble.ext.assrt.model.global.actions.AssrtSAcc;
 import org.scribble.ext.assrt.model.global.actions.AssrtSRecv;
@@ -63,28 +63,28 @@ public class AssrtSModelFactoryImpl extends SModelFactoryImpl
 	
 	@Override
 	public AssrtSSend newAssrtSSend(Role subj, Role obj, MsgId<?> mid,
-			Payload payload, AssrtBoolFormula bf)
+			Payload payload, AssrtBFormula bf)
 	{
 		return new AssrtSSend(subj, obj, mid, payload, bf);
 	}
 	
 	@Override
 	public AssrtSRecv newAssrtSReceive(Role subj, Role obj, MsgId<?> mid,
-			Payload payload, AssrtBoolFormula bf)
+			Payload payload, AssrtBFormula bf)
 	{
 		return new AssrtSRecv(subj, obj, mid, payload, bf);
 	}
 	
 	@Override
 	public AssrtSReq newAssrtSRequest(Role subj, Role obj, MsgId<?> mid,
-			Payload payload, AssrtBoolFormula bf)
+			Payload payload, AssrtBFormula bf)
 	{
 		return new AssrtSReq(subj, obj, mid, payload, bf);
 	}
 	
 	@Override
 	public AssrtSAcc newAssrtSAccept(Role subj, Role obj, MsgId<?> mid,
-			Payload payload, AssrtBoolFormula bf)
+			Payload payload, AssrtBFormula bf)
 	{
 		return new AssrtSAcc(subj, obj, mid, payload, bf);
 	}

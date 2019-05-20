@@ -9,8 +9,8 @@ import org.scribble.ast.NonRoleParamDeclList;
 import org.scribble.ast.RoleDeclList;
 import org.scribble.ast.global.GProtocolHeader;
 import org.scribble.ast.name.qualified.GProtocolNameNode;
-import org.scribble.ext.assrt.ast.AssrtArithExpr;
-import org.scribble.ext.assrt.ast.AssrtAssertion;
+import org.scribble.ext.assrt.ast.AssrtAExprNode;
+import org.scribble.ext.assrt.ast.AssrtBExprNode;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.core.type.kind.AssrtIntVarNameKind;
@@ -39,10 +39,10 @@ public class AssrtAntlrGProtocolHeader
 		List<AssrtIntVarNameNode> annotvars = (assTree.getChildCount() > 1)
 				? parseAssrtStateVarDeclListVars(assTree, af)
 				: Collections.emptyList();
-		List<AssrtArithExpr> annotexprs = (assTree.getChildCount() > 1)
+		List<AssrtAExprNode> annotexprs = (assTree.getChildCount() > 1)
 				? parseAssrtStateVarDeclListExprs(ap, assTree, af)
 				: Collections.emptyList();
-		AssrtAssertion ass = parseAssrtStateVarDeclListAssertionChild(ap, assTree, af);
+		AssrtBExprNode ass = parseAssrtStateVarDeclListAssertionChild(ap, assTree, af);
 		return af.AssrtGProtocolHeader(root, name, rdl, pdl, //ass);
 				annotvars, annotexprs,
 				ass);
@@ -51,7 +51,7 @@ public class AssrtAntlrGProtocolHeader
 	public static final int ASSRT_STATEVARDECLLISTASSERTION_CHILD_INDEX = 0;
 	public static final int ASSRT_STATEVARDECL_CHILDREN_START_INDEX = 1;
 	
-	private static AssrtAssertion parseAssrtStateVarDeclListAssertionChild(AssrtAntlrToFormulaParser ap, CommonTree assTree, AssrtAstFactory af)
+	private static AssrtBExprNode parseAssrtStateVarDeclListAssertionChild(AssrtAntlrToFormulaParser ap, CommonTree assTree, AssrtAstFactory af)
 	{
 		CommonTree ass = (CommonTree) assTree.getChild(ASSRT_STATEVARDECLLISTASSERTION_CHILD_INDEX);
 		return (ass.getChildCount() == 0)
@@ -70,7 +70,7 @@ public class AssrtAntlrGProtocolHeader
 				.collect(Collectors.toList());
 	}
 	
-	private static List<AssrtArithExpr> parseAssrtStateVarDeclListExprs(AssrtAntlrToFormulaParser ap, CommonTree assTree, AssrtAstFactory af)
+	private static List<AssrtAExprNode> parseAssrtStateVarDeclListExprs(AssrtAntlrToFormulaParser ap, CommonTree assTree, AssrtAstFactory af)
 	{
 		List<?> children = assTree.getChildren();
 		List<CommonTree> cs = 

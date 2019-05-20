@@ -8,14 +8,14 @@ import org.scribble.ast.ScribNode;
 import org.scribble.ast.local.LContinue;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.del.DelFactory;
-import org.scribble.ext.assrt.ast.AssrtArithExpr;
-import org.scribble.ext.assrt.ast.AssrtStateVarArgAnnotNode;
+import org.scribble.ext.assrt.ast.AssrtAExprNode;
+import org.scribble.ext.assrt.ast.AssrtStateVarArgNode;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
 
 @Deprecated
-public class AssrtLContinue extends LContinue implements AssrtStateVarArgAnnotNode
+public class AssrtLContinue extends LContinue implements AssrtStateVarArgNode
 {
 	public static final int EXPR_CHILDREN_START_INDEX = 1;  // cf. AssrtGDo
 
@@ -32,11 +32,11 @@ public class AssrtLContinue extends LContinue implements AssrtStateVarArgAnnotNo
 	}
 	
 	@Override
-	public List<AssrtArithExpr> getAnnotExprChildren()
+	public List<AssrtAExprNode> getAnnotExprChildren()
 	{
 		List<? extends ScribNode> cs = getChildren();
 		return cs.subList(EXPR_CHILDREN_START_INDEX, cs.size()).stream()
-				.map(x -> (AssrtArithExpr) x).collect(Collectors.toList());
+				.map(x -> (AssrtAExprNode) x).collect(Collectors.toList());
 	}
 	
 	@Override
@@ -47,7 +47,7 @@ public class AssrtLContinue extends LContinue implements AssrtStateVarArgAnnotNo
 	}
 
 	// "add", not "set"
-	public void addScribChildren(RecVarNode rv, List<AssrtArithExpr> aexprs)
+	public void addScribChildren(RecVarNode rv, List<AssrtAExprNode> aexprs)
 	{
 		// Cf. above getters and Scribble.g children order
 		addChild(rv);
@@ -73,7 +73,7 @@ public class AssrtLContinue extends LContinue implements AssrtStateVarArgAnnotNo
 				"[assrt] Deprecated for " + getClass() + ":\n\t" + this);
 	}
 
-	public AssrtLContinue reconstruct(RecVarNode rv, List<AssrtArithExpr> aexprs)
+	public AssrtLContinue reconstruct(RecVarNode rv, List<AssrtAExprNode> aexprs)
 	{
 		AssrtLContinue dup = dupNode();
 		dup.addScribChildren(rv, aexprs);
@@ -85,7 +85,7 @@ public class AssrtLContinue extends LContinue implements AssrtStateVarArgAnnotNo
 	public LContinue visitChildren(AstVisitor v) throws ScribException
 	{
 		RecVarNode rv = (RecVarNode) visitChild(getRecVarChild(), v);
-		List<AssrtArithExpr> aexprs = visitChildListWithClassEqualityCheck(this,
+		List<AssrtAExprNode> aexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);
 		return reconstruct(rv, aexprs);
 	}

@@ -14,7 +14,7 @@ import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.job.AssrtCore;
-import org.scribble.ext.assrt.core.type.formula.AssrtArithFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.kind.AssrtAnnotDataTypeKind;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
@@ -94,7 +94,7 @@ public class AssrtCoreEGraphBuilder
 
 			//AssrtArithFormula expr = crv.annotexprs;
 			//AssrtDataTypeVar annot = s.getAnnotVars().keySet().iterator().next();
-			List<AssrtArithFormula> annotexprs = crv.annotexprs;
+			List<AssrtAFormula> annotexprs = crv.annotexprs;
 			//List<AssrtDataTypeVar> annotvars = s.getAnnotVars().keySet().stream().collect(Collectors.toList());
 
 			this.util.addEdge(s1, toEAction(r, k, a, //annotvars,
@@ -119,7 +119,7 @@ public class AssrtCoreEGraphBuilder
 
 	private EAction toEAction(Role r, AssrtCoreLActionKind k, AssrtCoreMsg a,
 			//AssrtDataTypeVar annot, AssrtArithFormula expr)
-			List<AssrtArithFormula> annotexprs)
+			List<AssrtAFormula> annotexprs)
 	{
 		AssrtCoreEModelFactory ef = (AssrtCoreEModelFactory) this.util.mf;  // FIXME: factor out
 		if (k.equals(AssrtCoreLActionKind.SEND))
