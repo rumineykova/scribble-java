@@ -47,8 +47,8 @@ public interface AssrtAstFactory extends AstFactory
 
 
 	// General and globals
-	AssrtBExprNode AssrtAssertion(Token t, AssrtBFormula bexpr);  // Bool expr
-	AssrtAExprNode AssrtArithAnnotation(Token t, AssrtAFormula aexpr);  // Int expr
+	AssrtAExprNode AssrtAExprNode(Token t, AssrtAFormula aform);  // Int expr
+	AssrtBExprNode AssrtBExprNode(Token t, AssrtBFormula bform);  // Bool expr
 
 	AssrtModule AssrtModule(Token t, ModuleDecl modd,
 			List<? extends ImportDecl<?>> impds,

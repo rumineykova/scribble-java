@@ -4,13 +4,13 @@ import org.scribble.core.type.name.DataName;
 import org.scribble.ext.assrt.core.type.kind.AssrtAnnotDataTypeKind;
 
 // Cf. GDelegType; similarly located in name package -- CHECKME: maybe refactor (both) out of name, and (Assrt)PayloadType
-public class AssrtAnnotDataType
+public class AssrtAnnotDataName
 		implements AssrtPayElemType<AssrtAnnotDataTypeKind>
 {
 	public final AssrtDataTypeVar var;
 	public final DataName data;  // CHECKME: generalise?
 	
-	public AssrtAnnotDataType(AssrtDataTypeVar varName, DataName data)
+	public AssrtAnnotDataName(AssrtDataTypeVar varName, DataName data)
 	{
 		this.var = varName; 
 		this.data = data; 
@@ -35,18 +35,18 @@ public class AssrtAnnotDataType
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtAnnotDataType))
+		if (!(o instanceof AssrtAnnotDataName))
 		{
 			return false;
 		}
-		AssrtAnnotDataType them = (AssrtAnnotDataType) o;
+		AssrtAnnotDataName them = (AssrtAnnotDataName) o;
 		return them.canEquals(this) && them.var.equals(this.var)
 				&& them.data.equals(this.data);
 	}
 	
 	public boolean canEquals(Object o)
 	{
-		return o instanceof AssrtAnnotDataType;
+		return o instanceof AssrtAnnotDataName;
 	}
 
 	@Override

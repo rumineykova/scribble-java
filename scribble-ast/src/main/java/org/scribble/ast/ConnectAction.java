@@ -56,6 +56,6 @@ public abstract class ConnectAction<K extends ProtoKind>
 			return false;
 		}
 		SigLitNode msn = (SigLitNode) n;
-		return msn.getOpChild().isEmpty() && msn.getPayloadListChild().isEmpty();
+		return msn.getOpChild().isEmpty() && msn.getPayElemListChild().isEmpty();
 	}
 }

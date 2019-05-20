@@ -175,22 +175,22 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	}
 
 	@Override
-	public AssrtBExprNode AssrtAssertion(Token t, AssrtBFormula bexpr)
-	{
-		t = newToken(t, this.tokens.getType("ASSRT_ASSERT"));
-		AssrtBExprNode n = new AssrtBExprNode(t, bexpr);
-		n.decorateDel(this.df);
-		return n;
-	}
-
-	@Override
-	public AssrtAExprNode AssrtArithAnnotation(Token t, AssrtAFormula aexpr)
+	public AssrtAExprNode AssrtAExprNode(Token t, AssrtAFormula aform)
 	{
 		/*t = newToken(t, ...);
 		AssrtArithExpr n = new AssrtArithExpr(t, aexpr);
 		n.decorateDel(this.df);
 		return n;*/
 		throw new RuntimeException("[TODO] " + t);
+	}
+
+	@Override
+	public AssrtBExprNode AssrtBExprNode(Token t, AssrtBFormula bform)
+	{
+		t = newToken(t, this.tokens.getType("ASSRT_ASSERT"));
+		AssrtBExprNode n = new AssrtBExprNode(t, bform);
+		n.decorateDel(this.df);
+		return n;
 	}
 
 	@Override

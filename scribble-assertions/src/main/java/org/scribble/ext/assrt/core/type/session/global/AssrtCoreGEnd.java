@@ -6,7 +6,7 @@ import java.util.List;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreEnd;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
@@ -23,7 +23,7 @@ public class AssrtCoreGEnd extends AssrtCoreEnd<Global>
 	}
 
 	@Override
-	public List<AssrtAnnotDataType> collectAnnotDataTypeVarDecls()
+	public List<AssrtAnnotDataName> collectAnnotDataTypeVarDecls()
 	{
 		return Collections.emptyList();
 	}

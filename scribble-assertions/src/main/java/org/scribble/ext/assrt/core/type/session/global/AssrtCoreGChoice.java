@@ -16,7 +16,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreChoice;
@@ -44,9 +44,9 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public List<AssrtAnnotDataType> collectAnnotDataTypeVarDecls()
+	public List<AssrtAnnotDataName> collectAnnotDataTypeVarDecls()
 	{
-		List<AssrtAnnotDataType> res = this.cases.keySet().stream()
+		List<AssrtAnnotDataName> res = this.cases.keySet().stream()
 				.flatMap(a -> a.pay.stream()).collect(Collectors.toList());
 		this.cases.keySet().forEach(
 				a -> res.addAll(this.cases.get(a).collectAnnotDataTypeVarDecls()));

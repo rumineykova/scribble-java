@@ -5,16 +5,16 @@ import java.util.List;
 
 import org.scribble.core.type.name.Op;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 
 
 public class AssrtCoreMsg
 {
 	public final Op op;
-	public final List<AssrtAnnotDataType> pay;
+	public final List<AssrtAnnotDataName> pay;
 	public final AssrtBFormula ass;  // cnf?  Set?  // Not null -- empty ass set to True by AssrtCoreGProtocolDeclTranslator
 	
-	public AssrtCoreMsg(Op op, List<AssrtAnnotDataType> pay, AssrtBFormula ass)
+	public AssrtCoreMsg(Op op, List<AssrtAnnotDataName> pay, AssrtBFormula ass)
 	{
 		this.op = op;
 		this.pay = Collections.unmodifiableList(pay);

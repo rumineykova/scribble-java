@@ -43,7 +43,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtUnintPredicateFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.job.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
@@ -233,9 +233,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						Set<AssrtDataTypeVar> known = new HashSet<>(this.K.get(src));
 						a.payload.elems.forEach(pe ->
 						{
-							if (pe instanceof AssrtAnnotDataType)
+							if (pe instanceof AssrtAnnotDataName)
 							{
-								known.add(((AssrtAnnotDataType) pe).var);
+								known.add(((AssrtAnnotDataName) pe).var);
 							}
 							else
 							{
@@ -309,7 +309,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						Set<AssrtIntVarFormula> varsA = new HashSet<>();
 						/*varsA.add(AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));  
 								// Adding even if var not used*/
-						a.payload.elems.forEach(x -> varsA.add(AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) x).var.toString())));
+						a.payload.elems.forEach(x -> varsA.add(AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataName) x).var.toString())));
 						// N.B. includes the case for recursion cycles where var is "already"
 						// in F
 						if (!varsA.isEmpty()) // FIXME: currently never empty
@@ -438,7 +438,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		/*AssrtIntVarFormula vvv = AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString());
 		varsA.add(vvv); // Adding even if var not used*/
 		((EAction) a).payload.elems.forEach(x -> varsA.add(AssrtFormulaFactory
-				.AssrtIntVar(((AssrtAnnotDataType) x).var.toString())));
+				.AssrtIntVar(((AssrtAnnotDataName) x).var.toString())));
 				// N.B. includes the case for recursion cycles where var is "already" in F
 		if (!varsA.isEmpty()) // FIXME: currently never empty
 		{
@@ -925,7 +925,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				es.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>)::iterator)*/
 		for (PayElemType<?> pt : es.payload.elems)  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
 		{
-			if (pt instanceof AssrtAnnotDataType)
+			if (pt instanceof AssrtAnnotDataName)
 			{
 				// OK -- currently not checking K-bound assertion vars (cf. isUnknownVarError) -- nor satisfiability (send ass implies receive ss)
 				// FIXME: currently fire requires send and receive assertions (and both hacked to True) to be syntactically equal, which is wrong
@@ -975,7 +975,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		boolean ok = true;
 		for (PayElemType<?> pt : es.payload.elems)  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
 		{
-			if (pt instanceof AssrtAnnotDataType)
+			if (pt instanceof AssrtAnnotDataName)
 			{
 				// OK -- currently not checking K-bound assertion vars (cf. isUnknownVarError) -- nor satisfiability (send ass implies receive ss)
 				// FIXME: currently fire requires send and receive assertions (and both hacked to True) to be syntactically equal, which is wrong
@@ -1152,9 +1152,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
 		for (PayElemType<?> pt : ((EAction) a).payload.elems)
 		{
-			if (pt instanceof AssrtAnnotDataType)
+			if (pt instanceof AssrtAnnotDataName)
 			{
-				AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
+				AssrtDataTypeVar v = ((AssrtAnnotDataName) pt).var;
 
 				// N.B. no "updateRfromF" -- actually, "update R from payload annot" -- leaving R statevars as they are is OK, validation only done from F's and R already incorporated into F (and updates handled by updateFfromR)
 				// But would it be more consistent to update R?
@@ -1194,10 +1194,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					(a.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>))::iterator)*/
 		for (PayElemType<?> pt : ((EAction) a).payload.elems)
 		{
-			if (pt instanceof AssrtAnnotDataType)
+			if (pt instanceof AssrtAnnotDataName)
 			{
 				// Update K
-				AssrtDataTypeVar v = ((AssrtAnnotDataType) pt).var;
+				AssrtDataTypeVar v = ((AssrtAnnotDataName) pt).var;
 
 				AssrtBFormula f = m.getAssertion();
 				/*AssrtExistsFormulaHolder h =
@@ -1835,7 +1835,7 @@ class AssrtCoreEBot extends AssrtCoreEMsg
 	// N.B. must be initialised *before* ASSSRTCORE_BOT
 	private static final Payload ASSRTCORE_EMPTY_PAYLOAD =
 			new Payload(
-					Arrays.asList(new AssrtAnnotDataType(new AssrtDataTypeVar("_BOT"),
+					Arrays.asList(new AssrtAnnotDataName(new AssrtDataTypeVar("_BOT"),
 							AssrtCoreGProtoDeclTranslator.UNIT_DATATYPE)));
 			// Cf. Payload.EMPTY_PAYLOAD
 
@@ -1907,7 +1907,7 @@ class AssrtCoreEPendingRequest extends AssrtCoreEMsg  // Q stores ESends (not EC
 {
 	public static final Payload ASSRTCORE_EMPTY_PAYLOAD =
 			new Payload(
-					Arrays.asList(new AssrtAnnotDataType(new AssrtDataTypeVar("_BOT"),
+					Arrays.asList(new AssrtAnnotDataName(new AssrtDataTypeVar("_BOT"),
 							AssrtCoreGProtoDeclTranslator.UNIT_DATATYPE)));
 			// Cf. Payload.EMPTY_PAYLOAD
 	

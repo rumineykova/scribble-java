@@ -10,7 +10,7 @@ import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRec;
@@ -30,11 +30,11 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public List<AssrtAnnotDataType> collectAnnotDataTypeVarDecls()
+	public List<AssrtAnnotDataName> collectAnnotDataTypeVarDecls()
 	{
-		List<AssrtAnnotDataType> res = this.body.collectAnnotDataTypeVarDecls();
+		List<AssrtAnnotDataName> res = this.body.collectAnnotDataTypeVarDecls();
 		this.annotvars.keySet().stream().forEachOrdered(
-				v -> res.add(new AssrtAnnotDataType(v, new DataName("int"))));  // TODO: factor out int constant
+				v -> res.add(new AssrtAnnotDataName(v, new DataName("int"))));  // TODO: factor out int constant
 		/*this.ass.getIntVars().stream().forEachOrdered(
 				v -> res.add(new AssrtAnnotDataType(v, new DataType("int"))));  // No: not decls*/
 		return res;

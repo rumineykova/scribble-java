@@ -30,7 +30,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.core.type.name.AssrtPayElemType;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
@@ -91,7 +91,7 @@ public class AssrtStpEState extends AssrtEState
 						AssrtPayElemType<?> apet = (AssrtPayElemType<?>) pet;
 						if (apet.isAnnotVarDecl())
 						{
-							AssrtAnnotDataType adt = (AssrtAnnotDataType) apet;
+							AssrtAnnotDataName adt = (AssrtAnnotDataName) apet;
 							if (!adt.var.toString().startsWith("__dum"))
 							{
 								List<AssrtDataTypeVar> vs = kv.get(succ.id);

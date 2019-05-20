@@ -22,7 +22,7 @@ import org.scribble.core.type.name.PayElemType;
 import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtLogFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 import org.scribble.ext.assrt.core.type.name.AssrtPayElemType;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtERecv;
@@ -135,7 +135,7 @@ public class AssrtSConfig extends SConfig
 							String varName;
 							if (apt.isAnnotVarDecl())
 							{
-								varName = ((AssrtAnnotDataType) elem).var.toString();
+								varName = ((AssrtAnnotDataName) elem).var.toString();
 
 								if (!vars.containsKey(r))
 								{
@@ -199,7 +199,7 @@ public class AssrtSConfig extends SConfig
 					
 					Set<String> newVarNames = send.payload.elems.stream()
 							.filter(v -> (v instanceof AssrtPayElemType<?>) && ((AssrtPayElemType<?>) v).isAnnotVarDecl())  // FIXME?
-							.map(v -> ((AssrtAnnotDataType) v).var.toString())
+							.map(v -> ((AssrtAnnotDataName) v).var.toString())
 							.collect(Collectors.toSet()); 
 					
 					if (assertion !=null)

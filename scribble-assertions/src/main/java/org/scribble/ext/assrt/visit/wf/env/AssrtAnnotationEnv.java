@@ -10,14 +10,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.core.type.name.Role;
-import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
 
 // FIXME: check and refactor syntactic checks with AssrtNameDisambiguator
 public class AssrtAnnotationEnv //extends Env<AssrtAnnotationEnv>
 {
 	// "May" analysis -- context merge takes the union
-	private Map<Role, Set<AssrtAnnotDataType>> decls;  // Var declaration binding  // Role is the src role of the transfer -- not important?
+	private Map<Role, Set<AssrtAnnotDataName>> decls;  // Var declaration binding  // Role is the src role of the transfer -- not important?
 
 	// "Must" analysis -- context merge takes the intersection
 	private Map<Role, Set<AssrtDataTypeVar>> vars;  // "Knowledge" of var (according to message passing)
@@ -28,7 +28,7 @@ public class AssrtAnnotationEnv //extends Env<AssrtAnnotationEnv>
 		this(Collections.emptyMap(), Collections.emptyMap());
 	}
 	
-	protected AssrtAnnotationEnv(Map<Role, Set<AssrtAnnotDataType>> decls, Map<Role, Set<AssrtDataTypeVar>> vars)
+	protected AssrtAnnotationEnv(Map<Role, Set<AssrtAnnotDataName>> decls, Map<Role, Set<AssrtDataTypeVar>> vars)
 	{
 		this.decls = new HashMap<>(decls);
 		this.vars = new HashMap<>(vars);
@@ -72,11 +72,11 @@ public class AssrtAnnotationEnv //extends Env<AssrtAnnotationEnv>
 		AssrtAnnotationEnv copy = copy();
 
 		// "Union"
-		Map<Role, Set<AssrtAnnotDataType>> decls = children.stream()
+		Map<Role, Set<AssrtAnnotDataName>> decls = children.stream()
 				.flatMap(c -> c.decls.entrySet().stream())
 				.collect(Collectors.toMap(
-						Map.Entry<Role, Set<AssrtAnnotDataType>>::getKey,
-						Map.Entry<Role, Set<AssrtAnnotDataType>>::getValue,
+						Map.Entry<Role, Set<AssrtAnnotDataName>>::getKey,
+						Map.Entry<Role, Set<AssrtAnnotDataName>>::getValue,
 						(v1, v2) -> { v1.addAll(v2); return v1; }
 				));
 		copy.decls = decls;
@@ -99,7 +99,7 @@ public class AssrtAnnotationEnv //extends Env<AssrtAnnotationEnv>
 	}
 
 	// Also bootstraps src as "knowing" adt.var
-	public AssrtAnnotationEnv addAnnotDataType(Role src, AssrtAnnotDataType adt)
+	public AssrtAnnotationEnv addAnnotDataType(Role src, AssrtAnnotDataName adt)
 	{
 		AssrtAnnotationEnv copy = copy();
 		copy.addAnnotDataTypeAux(src, adt);
@@ -107,9 +107,9 @@ public class AssrtAnnotationEnv //extends Env<AssrtAnnotationEnv>
 		return copy;
 	}
 	
-	private void addAnnotDataTypeAux(Role role, AssrtAnnotDataType adt)
+	private void addAnnotDataTypeAux(Role role, AssrtAnnotDataName adt)
 	{
-		Set<AssrtAnnotDataType> tmp = this.decls.get(role);
+		Set<AssrtAnnotDataName> tmp = this.decls.get(role);
 		if (tmp == null)
 		{
 			tmp = new HashSet<>();

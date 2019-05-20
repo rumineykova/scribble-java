@@ -7,7 +7,7 @@ import org.scribble.ast.name.qualified.DataNameNode;
 import org.scribble.core.type.kind.DataKind;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
-import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataType;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
@@ -82,10 +82,10 @@ public class AssrtAnnotDataElem extends ScribNodeBase
 	}
 
 	@Override
-	public AssrtAnnotDataType toPayloadType()
+	public AssrtAnnotDataName toPayloadType()
 	{
 		// TODO: make it PayloadType AnnotPayload  // CHECKME: means return just the data type?  but maybe the var is needed
-		return new AssrtAnnotDataType(getVarNameChild().toName(),
+		return new AssrtAnnotDataName(getVarNameChild().toName(),
 				getDataNameChild().toPayloadType());
 	}
 

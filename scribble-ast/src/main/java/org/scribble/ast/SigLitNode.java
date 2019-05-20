@@ -42,7 +42,7 @@ public class SigLitNode extends ScribNodeBase implements MsgNode
 		return (OpNode) getChild(OP_CHILD_INDEX);
 	}
 	
-	public PayElemList getPayloadListChild()
+	public PayElemList getPayElemListChild()
 	{
 		return (PayElemList) getChild(PAYLOAD_CHILD_INDEX);
 	}
@@ -79,7 +79,7 @@ public class SigLitNode extends ScribNodeBase implements MsgNode
 	{
 		OpNode op = (OpNode) visitChild(getOpChild(), nv);
 		PayElemList pay = (PayElemList) 
-				visitChild(getPayloadListChild(), nv);
+				visitChild(getPayElemListChild(), nv);
 		return reconstruct(op, pay);
 	}
 
@@ -94,7 +94,7 @@ public class SigLitNode extends ScribNodeBase implements MsgNode
 	public SigLit toArg()
 	{
 		return new SigLit(getOpChild().toName(),
-				getPayloadListChild().toPayload());
+				getPayElemListChild().toPayload());
 	}
 
 	@Override
@@ -106,6 +106,6 @@ public class SigLitNode extends ScribNodeBase implements MsgNode
 	@Override
 	public String toString()
 	{
-		return getOpChild().toString() + getPayloadListChild().toString();
+		return getOpChild().toString() + getPayElemListChild().toString();
 	}
 }

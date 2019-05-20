@@ -51,7 +51,7 @@ public class AssrtAntlrGDo
 		CommonTree tmp = //(CommonTree) annotTree.getChild(0);  // Formula node to parse  // FIXME: factor out?
 				annotTree;
 		AssrtAFormula f = (AssrtAFormula) ap.parse(tmp);  // By AssrtAssertions.g
-		return af.AssrtArithAnnotation(annotTree, f);
+		return af.AssrtAExprNode(annotTree, f);
 	}
 
 	public static CommonTree getAssertionChild(CommonTree root)
