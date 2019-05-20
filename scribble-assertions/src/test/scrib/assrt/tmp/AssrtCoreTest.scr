@@ -73,24 +73,22 @@
 
 
 
-// mergine DONE
+// merging DONE
 // - coreconfig flags Map->Set -- done: refactored separate CoreArgs and CoreFlags
+// - make uniform orig/new assrt node parsing/astfactor (refactor parser mixed new ast types with old token types) -- refactor new ast types to fully subsume old ones (e.g., getChildren) -- done
+// - fix new parser reflection in tree adaptor (no common interface for "module" top-level method) -- done
+// - refactor astfactoryimpl token constants to parser (and refactor ast/delfactoryimpl to scribble-ast) -- done: ScribAntlrTokens
 
 // merging TODO
 // - rename "new" factory methods? (easily confused with new expr)  centralise?
-// - rename AssrtCore to Core -- implement "strict" mode via translator?
+// - rename AssrtCore to Core? -- implement "strict" mode via translator?
 	// - proto params not supported -- CHECKME: mixing rec/continue with protodecl/do
 // - refactor exceptions to main packages
 // - refactor -inline via temporary directory/file
-// - fix new parser reflection in tree adaptor (no common interface for "module" top-level method)
-// - check super.addScribChildren
-// - make uniform orig/new assrt node parsing/astfactory
+// - check super.addScribChildren pattern
 // - consider del's over ast subclassing for ext's like assrt -- alternatively, extend base's, and subclass for G/L (instead of extending G/L)
-// - check overrides, return super types where better
-// - Actually @deprecate runtimeexception overrides? e.g, reconstruct
-// - refactor astfactoryimpl token constants to parser (and refactor ast/delfactoryimpl to scribble-ast)
-
-//...HERE refactor parser mixed new ast types with old token types -- refactor new ast types to fully subsume old ones
+// - check genereal overrides, return super types where better -- @deprecate runtimeexception overrides? e.g, reconstruct
+// - check Assrt NameDisamb/checkAnnot passes
 
 // later:
 // - refactor modulecontext building, move dup vis name checks out (drop scribexception)

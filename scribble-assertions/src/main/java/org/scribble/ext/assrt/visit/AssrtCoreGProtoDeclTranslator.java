@@ -9,6 +9,7 @@ import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGType;
 import org.scribble.job.Job;
 
 // Cf. GTypeTranslator
+@Deprecated
 public class AssrtCoreGProtoDeclTranslator
 {
 	public static final DataName UNIT_DATATYPE = new DataName("_Unit");  // TODO
