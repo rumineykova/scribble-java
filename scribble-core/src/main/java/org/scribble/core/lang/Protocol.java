@@ -132,7 +132,6 @@ public abstract class Protocol
 	public int hashCode()
 	{
 		int hash = 7;
-		hash = 31 * hash + super.hashCode();
 		hash = 31 * hash + this.mods.hashCode();
 		hash = 31 * hash + this.fullname.hashCode();
 		hash = 31 * hash + this.roles.hashCode();

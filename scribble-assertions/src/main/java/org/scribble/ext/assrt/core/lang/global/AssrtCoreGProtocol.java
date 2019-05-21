@@ -45,6 +45,8 @@ public class AssrtCoreGProtocol extends GProtocol
 {
 	public final AssrtCoreGType def;  // N.B. shadowing super Seq def (set to null)
 	
+	// FIXME: state vars + annot
+	
 	public AssrtCoreGProtocol(CommonTree source, List<ProtoMod> mods,
 			GProtoName fullname, List<Role> rs,
 			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreGType def)
@@ -156,15 +158,23 @@ public class AssrtCoreGProtocol extends GProtocol
 	@Override
 	public String toString()
 	{
-		return this.mods.stream().map(x -> x.toString() + " ")
-				.collect(Collectors.joining()) + "global " + super.toString();
+		//return super.toString();  // No: super.def == null
+		return "protocol " + this.fullname.getSimpleName()
+				+ paramsToString()
+				+ rolesToString()
+				+ " {\n" + this.def + "\n}";
 	}
 
 	@Override
 	public int hashCode()
 	{
 		int hash = 25799;
-		hash = 31 * hash + super.hashCode();
+		//hash = 31 * hash + super.hashCode();  // No: super.def == null
+		hash = 31 * hash + this.mods.hashCode();
+		hash = 31 * hash + this.fullname.hashCode();
+		hash = 31 * hash + this.roles.hashCode();
+		hash = 31 * hash + this.params.hashCode();
+		hash = 31 * hash + this.def.hashCode();
 		return hash;
 	}
 
@@ -179,7 +189,12 @@ public class AssrtCoreGProtocol extends GProtocol
 		{
 			return false;
 		}
-		return super.equals(o);  // Does canEquals
+		//return super.equals(o);  // Does canEquals  // No: super.def == null
+		AssrtCoreGProtocol them = (AssrtCoreGProtocol) o;
+		return them.canEquals(this)
+				&& this.mods.equals(them.mods) && this.fullname.equals(them.fullname)
+				&& this.roles.equals(them.roles) && this.params.equals(them.params)
+				&& this.def.equals(them.def);
 	}
 
 	@Override

@@ -9,7 +9,7 @@ public class AssrtAssertKind extends AbstractKind implements ModuleMemberKind
 	
 	protected AssrtAssertKind()
 	{
-
+		throw new RuntimeException("[TODO]");
 	}
 
 	@Override

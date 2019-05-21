@@ -51,6 +51,7 @@ import org.scribble.main.resource.locator.ResourceLocator;
 import org.scribble.util.AntlrSourceException;
 import org.scribble.util.Pair;
 import org.scribble.util.RuntimeScribException;
+import org.scribble.util.RuntimeScribSyntaxException;
 import org.scribble.util.ScribException;
 import org.scribble.util.ScribParserException;
 import org.scribble.util.ScribUtil;
@@ -271,6 +272,10 @@ public class CommandLine
 		}
 		catch (RuntimeScribException e)
 		{
+			if (e instanceof RuntimeScribSyntaxException)  // Needed for test harness
+			{
+				throw e;
+			}
 			System.err.println(e.getMessage());
 			System.exit(1);
 		}
@@ -278,7 +283,7 @@ public class CommandLine
 
 	protected void runTasks()
 			throws AntlrSourceException, ScribParserException, CommandLineException
-			// AntlrSourceException super of ScribbleException -- needed for, e.g., AssrtCoreSyntaxException
+			// AntlrSourceException super of ScribbleException
 	{
 		Main mc = newMain();  // Represents current instance of tooling for given CL args
 		Job job = mc.newJob();  // A Job is some series of passes performed on each Module in the MainContext (e.g., cf. Job::runVisitorPass)

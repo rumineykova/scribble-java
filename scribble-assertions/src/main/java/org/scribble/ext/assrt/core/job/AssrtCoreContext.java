@@ -23,8 +23,6 @@ import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.ProtoName;
 import org.scribble.core.visit.global.GTypeInliner;
 
-// Global "static" context information for a Job -- single instance per Job, should not be shared between Jobs
-// Mutable: projections, graphs, etc are added mutably later -- replaceModule also mutable setter -- "users" get this from the Job and expect to setter mutate "in place"
 public class AssrtCoreContext extends CoreContext
 {
 	//protected final Map<ProtoName<Global>, GProtocol> imeds;
@@ -42,18 +40,19 @@ public class AssrtCoreContext extends CoreContext
 		super(core, imeds);
 	}
 	
-	// Used by Core for pass running
-	// Safer to return names and require user to get the target value by name, to make sure the value is created
+	@Override
 	public Set<ProtoName<Global>> getParsedFullnames()
 	{
 		return this.imeds.keySet().stream().collect(Collectors.toSet());
 	}
 	
+	@Override
 	public GProtocol getIntermediate(ProtoName<Global> fullname)
 	{
 		return this.imeds.get(fullname);
 	}
 	
+	@Override
 	public GProtocol getInlined(ProtoName<Global> fullname)
 	{
 		GProtocol inlined = this.inlined.get(fullname);
@@ -66,6 +65,7 @@ public class AssrtCoreContext extends CoreContext
 		return inlined;
 	}
 	
+	@Override
 	protected void addInlined(ProtoName<Global> fullname, GProtocol g)
 	{
 		this.inlined.put(fullname, g);

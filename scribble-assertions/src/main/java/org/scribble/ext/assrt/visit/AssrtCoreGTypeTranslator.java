@@ -111,10 +111,20 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		List<Role> rs = n.getRoles();
 		List<MemberName<? extends NonRoleParamKind>> ps = n.getHeaderChild()
 				.getParamDeclListChild().getParams();  // CHECKME: make more uniform with source::getRoles ?
+		if (!ps.isEmpty())
+		{
+			throw new RuntimeException(
+					"[TODO] Proto params not yet supported:\n" + n);
+		}
 		
+		System.out.println("bbbb:\n" + def + "\n");
+
 		AssrtCoreGType body = parseSeq(
 				def.getBlockChild().getInteractSeqChild().getInteractionChildren(),
 				new HashMap<>(), false, false);
+
+		// FIXME: state vars + annot
+		
 		return new AssrtCoreGProtocol(n, mods, fullname, rs, ps, body);
 	}
 
@@ -328,12 +338,15 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		if (src.equals(dst))
 		{
 			throw new RuntimeException(
-					"[assrt-core] Shouldn't get in here (self-communication): " + src
+					"[assrt-core] Self-communication (shouldn't get in here): " + src
 							+ ", " + dst);
 		}
 		
 		AssrtCoreGType cont = parseSeq(is.subList(1, is.size()), rvs, false, false);  
 				// Subseqeuent choice/rec is guarded by (at least) this action
+		
+		System.out.println("aaaa: " + is.get(0) + " ,, " + msg);
+		
 		return this.tf.global.AssrtCoreGChoice((ScribNodeBase) is.get(0), src, kind,
 				dst, Stream.of(msg).collect(Collectors.toMap(x -> x, x -> cont)));
 	}
@@ -346,10 +359,10 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 
 	private Op parseOp(MsgNode n) throws AssrtCoreSyntaxException
 	{
-		if (!n.isSigNameNode())
+		if (!n.isSigLitNode())
 		{
 			throw new AssrtCoreSyntaxException(n.getSource(),
-					" [assrt-core] Msg sig names not supported: " + n);  // TODO: SigName
+					"[TODO] " + n.getClass() + ":\n\t" + n);  // TODO: SigName
 		}
 		SigLitNode msn = ((SigLitNode) n);
 		return msn.getOpChild().toName();
@@ -364,10 +377,10 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 
 	private List<AssrtAnnotDataName> parsePayload(MsgNode n) throws AssrtCoreSyntaxException
 	{
-		if (!n.isSigNameNode())
+		if (!n.isSigLitNode())
 		{
 			throw new AssrtCoreSyntaxException(n.getSource(),
-					" [TODO] Sig names not supported: " + n); // TODO: SigName
+					" [TODO] " + n.getClass() + ":\n\t" + n); // TODO: SigName
 		}
 		SigLitNode msn = ((SigLitNode) n);
 		if (msn.getPayElemListChild().getElementChildren().isEmpty())

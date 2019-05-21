@@ -23,7 +23,8 @@ public abstract class AbstractKind implements Kind
 		
 	}
 
-	public AbstractKind(String kind)
+	// For subclasses
+	protected AbstractKind(String kind)
 	{
 		this.kind = kind;
 	}

@@ -116,7 +116,8 @@ public class AssrtGConnect extends GConnect implements AssrtActionAssertNode
 	@Override
 	public String toString()
 	{
-		return super.toString() + " " + getAssertionChild();
+		AssrtBExprNode bexpr = getAssertionChild();
+		return super.toString() + ((bexpr == null) ? "" : " @" + bexpr);
 	}
 }
 

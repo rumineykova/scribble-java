@@ -19,7 +19,7 @@ public class DataKind extends AbstractKind implements PayElemKind, ImportKind, M
 	
 	protected DataKind()
 	{
-		super("DataType");
+		super("Data");
 	}
 
 	@Override

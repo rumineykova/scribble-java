@@ -16,7 +16,7 @@ import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.core.type.kind.AssrtAnnotDataTypeKind;
+import org.scribble.ext.assrt.core.type.kind.AssrtAnnotDataKind;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRecVar;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLActionKind;
@@ -126,7 +126,7 @@ public class AssrtCoreEGraphBuilder
 		{
 			return ef.newAssrtCoreESend(r, a.op, 
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p).collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 
@@ -136,7 +136,7 @@ public class AssrtCoreEGraphBuilder
 			//return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
 			return ef.newAssrtCoreEReceive(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p).collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 
@@ -147,7 +147,7 @@ public class AssrtCoreEGraphBuilder
 		{
 			return ef.newAssrtCoreERequest(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p).collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 		}
@@ -155,7 +155,7 @@ public class AssrtCoreEGraphBuilder
 		{
 			return ef.newAssrtCoreEAccept(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataTypeKind>) p).collect(Collectors.toList())),
+					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p).collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 		}

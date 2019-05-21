@@ -1,11 +1,11 @@
 package org.scribble.ext.assrt.core.type.name;
 
 import org.scribble.core.type.name.DataName;
-import org.scribble.ext.assrt.core.type.kind.AssrtAnnotDataTypeKind;
+import org.scribble.ext.assrt.core.type.kind.AssrtAnnotDataKind;
 
 // Cf. GDelegType; similarly located in name package -- CHECKME: maybe refactor (both) out of name, and (Assrt)PayloadType
 public class AssrtAnnotDataName
-		implements AssrtPayElemType<AssrtAnnotDataTypeKind>
+		implements AssrtPayElemType<AssrtAnnotDataKind>
 {
 	public final AssrtDataTypeVar var;
 	public final DataName data;  // CHECKME: generalise?
@@ -17,9 +17,9 @@ public class AssrtAnnotDataName
 	}
 
 	@Override
-	public AssrtAnnotDataTypeKind getKind()
+	public AssrtAnnotDataKind getKind()
 	{
-		return AssrtAnnotDataTypeKind.KIND;
+		return AssrtAnnotDataKind.KIND;
 	}
 	
 	@Override

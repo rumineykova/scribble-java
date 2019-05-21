@@ -4,15 +4,15 @@ import org.scribble.core.type.kind.AbstractKind;
 import org.scribble.core.type.kind.PayElemKind;
 
 //public class AssrtAnnotPayloadElemKind extends AbstractKind implements PayloadTypeKind
-public class AssrtAnnotDataTypeKind extends AbstractKind //extends DataTypeKind  // No: extending DataTypeKind doesn't mean anything for these Kind objects themselves
+public class AssrtAnnotDataKind extends AbstractKind //extends DataTypeKind  // No: extending DataTypeKind doesn't mean anything for these Kind objects themselves
 			implements PayElemKind
 {
-	public static final AssrtAnnotDataTypeKind KIND 
-			= new AssrtAnnotDataTypeKind();
+	public static final AssrtAnnotDataKind KIND 
+			= new AssrtAnnotDataKind();
 	
-	protected AssrtAnnotDataTypeKind()
+	protected AssrtAnnotDataKind()
 	{
-
+		super("AssrtAnnotData");
 	}
 
 	@Override
@@ -28,16 +28,16 @@ public class AssrtAnnotDataTypeKind extends AbstractKind //extends DataTypeKind 
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtAnnotDataTypeKind))
+		if (!(o instanceof AssrtAnnotDataKind))
 		{
 			return false;
 		}
-		return ((AssrtAnnotDataTypeKind) o).canEqual(this);
+		return ((AssrtAnnotDataKind) o).canEqual(this);
 	}
 	
 	@Override
 	public boolean canEqual(Object o)
 	{
-		return o instanceof AssrtAnnotDataTypeKind;
+		return o instanceof AssrtAnnotDataKind;
 	}
 }

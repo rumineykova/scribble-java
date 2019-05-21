@@ -10,7 +10,7 @@ public class AssrtIntVarNameKind extends AbstractKind implements PayElemKind
 	
 	protected AssrtIntVarNameKind()
 	{
-
+		super("AssrtIntVar");
 	}
 
 	@Override
