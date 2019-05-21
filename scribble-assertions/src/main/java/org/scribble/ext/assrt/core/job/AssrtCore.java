@@ -85,5 +85,11 @@ public class AssrtCore extends Core
 		
 		super.runPasses();
 	}
+	
+	@Override
+	public AssrtCoreContext getContext()
+	{
+		return (AssrtCoreContext) super.getContext();
+	}
 }
 

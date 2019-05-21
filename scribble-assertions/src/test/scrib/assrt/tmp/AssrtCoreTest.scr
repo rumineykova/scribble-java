@@ -99,6 +99,7 @@
 // - annot var lin modifier?  etc?
 // - consider refactoring Core/Config/Context to be more neutral of G/LProtocol (use Protocol super)
 //		- consider refactoring base as an ext outside of core
+//		- separate core (seq) from "classic"?
 
 
 

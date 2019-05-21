@@ -38,12 +38,14 @@ import org.scribble.core.visit.STypeUnfolder;
 import org.scribble.core.visit.Substitutor;
 import org.scribble.core.visit.gather.RoleGatherer;
 import org.scribble.core.visit.global.InlinedProjector;
+import org.scribble.ext.assrt.core.lang.AssrtCoreProtocol;
 import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGType;
 import org.scribble.util.ScribException;
 
 public class AssrtCoreGProtocol extends GProtocol
+		implements AssrtCoreProtocol<Global, GProtoName, GSeq>
 {
-	public final AssrtCoreGType type;  // N.B. shadowing super Seq def (set to null)
+	public final AssrtCoreGType type;  // N.B. super.def Seq set to null
 	
 	// FIXME: state vars + annot
 	
@@ -83,7 +85,7 @@ public class AssrtCoreGProtocol extends GProtocol
 				this.params, sig.args);
 		//GSeq inlined = v.visitSeq(subs.visitSeq(this.def));
 		AssrtCoreGType inlined = null;
-		/*RecVar rv = v.getInlinedRecVar(sig);
+		RecVar rv = v.getInlinedRecVar(sig);
 		GRecursion rec = v.core.config.tf.global.GRecursion(null, rv, inlined);  // CHECKME: or protodecl source?
 		GSeq seq = v.core.config.tf.global.GSeq(null, Arrays.asList(rec));
 		GSeq def = v.core.config.vf.<Global, GSeq>RecPruner().visitSeq(seq);
@@ -93,7 +95,7 @@ public class AssrtCoreGProtocol extends GProtocol
 				.collect(Collectors.toList());
 		return //new GProtocol
 				reconstruct(getSource(), this.mods, this.fullname, rs,
-				this.params, def);*/
+				this.params, def);
 		throw new RuntimeException("[TODO]");
 	}
 	

@@ -30,9 +30,9 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public List<AssrtAnnotDataName> collectAnnotDataTypeVarDecls()
+	public List<AssrtAnnotDataName> collectAnnotDataVarDecls()
 	{
-		List<AssrtAnnotDataName> res = this.body.collectAnnotDataTypeVarDecls();
+		List<AssrtAnnotDataName> res = this.body.collectAnnotDataVarDecls();
 		this.annotvars.keySet().stream().forEachOrdered(
 				v -> res.add(new AssrtAnnotDataName(v, new DataName("int"))));  // TODO: factor out int constant
 		/*this.ass.getIntVars().stream().forEachOrdered(

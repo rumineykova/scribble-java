@@ -27,6 +27,7 @@ import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLChoice;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
+import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
 
 public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 		implements AssrtCoreGType
@@ -44,13 +45,10 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public List<AssrtAnnotDataName> collectAnnotDataTypeVarDecls()
+	public AssrtCoreGType inline(AssrtCoreGTypeInliner v)
 	{
-		List<AssrtAnnotDataName> res = this.cases.keySet().stream()
-				.flatMap(a -> a.pay.stream()).collect(Collectors.toList());
-		this.cases.keySet().forEach(
-				a -> res.addAll(this.cases.get(a).collectAnnotDataTypeVarDecls()));
-		return res;
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -182,6 +180,16 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 		
 		return af.local.AssrtCoreLChoice(null, roles.iterator().next(),
 				AssrtCoreLActionKind.RECV, merged);
+	}
+
+	@Override
+	public List<AssrtAnnotDataName> collectAnnotDataVarDecls()
+	{
+		List<AssrtAnnotDataName> res = this.cases.keySet().stream()
+				.flatMap(a -> a.pay.stream()).collect(Collectors.toList());
+		this.cases.keySet().forEach(
+				a -> res.addAll(this.cases.get(a).collectAnnotDataVarDecls()));
+		return res;
 	}
 	
 	@Override

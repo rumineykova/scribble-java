@@ -117,7 +117,7 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 					"[TODO] Proto params not yet supported:\n" + n);
 		}
 		
-		System.out.println("bbbb:\n" + def + "\n");
+		System.out.println("aaaa:\n" + def + "\n");
 
 		AssrtCoreGType body = parseSeq(
 				def.getBlockChild().getInteractSeqChild().getInteractionChildren(),
@@ -345,7 +345,7 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		AssrtCoreGType cont = parseSeq(is.subList(1, is.size()), rvs, false, false);  
 				// Subseqeuent choice/rec is guarded by (at least) this action
 		
-		System.out.println("aaaa: " + is.get(0) + " ,, " + msg);
+		System.out.println("bbbb: " + is.get(0) + " ,, " + msg);
 		
 		return this.tf.global.AssrtCoreGChoice((ScribNodeBase) is.get(0), src, kind,
 				dst, Stream.of(msg).collect(Collectors.toMap(x -> x, x -> cont)));

@@ -22,6 +22,7 @@ import org.scribble.core.lang.global.GProtocol;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.ProtoName;
 import org.scribble.core.visit.global.GTypeInliner;
+import org.scribble.ext.assrt.core.lang.global.AssrtCoreGProtocol;
 
 public class AssrtCoreContext extends CoreContext
 {
@@ -47,9 +48,9 @@ public class AssrtCoreContext extends CoreContext
 	}
 	
 	@Override
-	public GProtocol getIntermediate(ProtoName<Global> fullname)
+	public AssrtCoreGProtocol getIntermediate(ProtoName<Global> fullname)
 	{
-		return this.imeds.get(fullname);
+		return (AssrtCoreGProtocol) this.imeds.get(fullname);
 	}
 	
 	@Override
