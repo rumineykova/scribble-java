@@ -13,12 +13,13 @@ import org.scribble.core.lang.global.GProtocol;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.ModuleName;
 import org.scribble.core.type.session.STypeFactory;
-import org.scribble.core.type.session.global.GTypeFactoryImpl;
-import org.scribble.core.type.session.local.LTypeFactoryImpl;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.job.AssrtCoreArgs;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
+import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGTypeFactory;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLTypeFactory;
 import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.scribble.ext.assrt.visit.AssrtVisitorFactoryImpl;
 import org.scribble.job.Job;
@@ -49,8 +50,8 @@ public class AssrtJob extends Job
 	@Override
 	protected STypeFactory newSTypeFactory()
 	{
-		return new STypeFactory(new GTypeFactoryImpl(),
-				new LTypeFactoryImpl());
+		return new AssrtCoreSTypeFactory(new AssrtCoreGTypeFactory(),
+				new AssrtCoreLTypeFactory());
 	}
 
 	/*// A Scribble extension should override newJobConfig/Context/Core as appropriate

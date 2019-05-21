@@ -51,18 +51,18 @@ public class GProtocol extends Protocol<Global, GProtoName, GSeq>
 		implements GNode  // Mainly for GDel.translate return (to include GProtocol)
 {
 	public GProtocol(CommonTree source, List<ProtoMod> mods,
-			GProtoName fullname, List<Role> roles,
-			List<MemberName<? extends NonRoleParamKind>> params, GSeq def)
+			GProtoName fullname, List<Role> rs,
+			List<MemberName<? extends NonRoleParamKind>> ps, GSeq def)
 	{
-		super(source, mods, fullname, roles, params, def);
+		super(source, mods, fullname, rs, ps, def);
 	}
 
 	@Override
 	public GProtocol reconstruct(CommonTree source,
-			List<ProtoMod> mods, GProtoName fullname, List<Role> roles,
-			List<MemberName<? extends NonRoleParamKind>> params, GSeq def)
+			List<ProtoMod> mods, GProtoName fullname, List<Role> rs,
+			List<MemberName<? extends NonRoleParamKind>> ps, GSeq def)
 	{
-		return new GProtocol(source, mods, fullname, roles, params, def);
+		return new GProtocol(source, mods, fullname, rs, ps, def);
 	}
 	
 	// Cf. (e.g.) checkRoleEnabling, that takes Core

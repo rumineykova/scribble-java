@@ -46,21 +46,21 @@ public abstract class Protocol
 	public final B def;
 
 	public Protocol(CommonTree source, List<ProtoMod> mods, N fullname,
-			List<Role> roles, List<MemberName<? extends NonRoleParamKind>> params,
+			List<Role> rs, List<MemberName<? extends NonRoleParamKind>> ps,
 			B def)
 	{
 		this.source = source;  // CHECKME: factor out with SType(Base) ?
 		this.mods = Collections.unmodifiableList(mods);
 		this.fullname = fullname;
-		this.roles = Collections.unmodifiableList(roles);
-		this.params = Collections.unmodifiableList(params);
+		this.roles = Collections.unmodifiableList(rs);
+		this.params = Collections.unmodifiableList(ps);
 		this.def = def;
 	}
 	
 	// N.B. LProtocol has an additional "self" field, reconstruct pattern not perfect
 	public abstract Protocol<K, N, B> reconstruct(CommonTree source,
-			List<ProtoMod> mods, N fullname, List<Role> roles,
-			List<MemberName<? extends NonRoleParamKind>> params, B def);
+			List<ProtoMod> mods, N fullname, List<Role> rs,
+			List<MemberName<? extends NonRoleParamKind>> ps, B def);
 	
 	public boolean isAux()
 	{

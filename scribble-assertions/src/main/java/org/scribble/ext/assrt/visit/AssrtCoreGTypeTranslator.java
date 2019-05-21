@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.scribble.ast.DirectedInteraction;
+import org.scribble.ast.Module;
 import org.scribble.ast.MsgNode;
 import org.scribble.ast.PayElem;
 import org.scribble.ast.ScribNode;
@@ -36,9 +37,13 @@ import org.scribble.ast.global.GProtoDef;
 import org.scribble.ast.global.GSessionNode;
 import org.scribble.ast.global.GSimpleSessionNode;
 import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.core.lang.ProtoMod;
 import org.scribble.core.lang.global.GNode;
 import org.scribble.core.type.kind.Global;
+import org.scribble.core.type.kind.NonRoleParamKind;
 import org.scribble.core.type.name.DataName;
+import org.scribble.core.type.name.GProtoName;
+import org.scribble.core.type.name.MemberName;
 import org.scribble.core.type.name.ModuleName;
 import org.scribble.core.type.name.Op;
 import org.scribble.core.type.name.PayElemType;
@@ -51,6 +56,7 @@ import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.AssrtBExprNode;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
 import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
+import org.scribble.ext.assrt.core.lang.global.AssrtCoreGProtocol;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
@@ -84,16 +90,33 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 	public GNode visit(ScribNode n)
 	{
 		//return ((GDel) n.del()).translate(n, this);
-		throw new RuntimeException("[TODO] :\n" + n);
+		throw new RuntimeException("Deprecated for " + getClass() + ":\n" + t);
 	}
 
-	public AssrtCoreGType translate(GProtoDecl glod)
+	public GNode visit(GProtoDecl n) throws AssrtCoreSyntaxException
+	{
+		return translate(n);
+	}
+
+	// Cf. GProtoDeclDel::translate
+	public AssrtCoreGProtocol translate(GProtoDecl n)
 			throws AssrtCoreSyntaxException
 	{
-		GProtoDef inlined = glod.getDefChild();
-		return parseSeq(
-				inlined.getBlockChild().getInteractSeqChild().getInteractionChildren(),
+		GProtoDef def = n.getDefChild();
+		
+		Module m = (Module) n.getParent();
+		List<ProtoMod> mods = n.getModifierListChild().getModList().stream()
+				.map(x -> x.toProtoMod()).collect(Collectors.toList());
+		GProtoName fullname = new GProtoName(m.getFullModuleName(),
+				n.getHeaderChild().getDeclName());
+		List<Role> rs = n.getRoles();
+		List<MemberName<? extends NonRoleParamKind>> ps = n.getHeaderChild()
+				.getParamDeclListChild().getParams();  // CHECKME: make more uniform with source::getRoles ?
+		
+		AssrtCoreGType seq = parseSeq(
+				def.getBlockChild().getInteractSeqChild().getInteractionChildren(),
 				new HashMap<>(), false, false);
+		return new AssrtCoreGProtocol(n, mods, fullname, rs, ps, seq);
 	}
 
 	// List<GSessionNode> because subList is useful for parsing the continuation
@@ -137,11 +160,13 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		{
 			if (checkChoiceGuard)  // No "flattening" of nested choices not allowed?
 			{
-				throw new AssrtCoreSyntaxException(first.getSource(), "[assrt-core] Unguarded in choice case: " + first);
+				throw new AssrtCoreSyntaxException(first.getSource(),
+						"[assrt-core] Unguarded in choice case: " + first);
 			}
 			if (is.size() > 1)
 			{
-				throw new AssrtCoreSyntaxException(is.get(1).getSource(), "[assrt-core] Bad sequential composition after: " + first);
+				throw new AssrtCoreSyntaxException(is.get(1).getSource(),
+						"[assrt-core] Bad sequential composition after: " + first);
 			}
 
 			if (first instanceof GChoice)

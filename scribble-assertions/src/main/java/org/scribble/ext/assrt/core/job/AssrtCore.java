@@ -74,7 +74,7 @@ public class AssrtCore extends Core
 	@Override
 	protected CoreContext newCoreContext(Set<GProtocol> imeds)
 	{
-		return super.newCoreContext(imeds);
+		return new AssrtCoreContext(this, imeds);
 	}
 
 	@Override

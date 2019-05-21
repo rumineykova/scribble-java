@@ -43,7 +43,7 @@ import org.scribble.util.ScribUtil;
 // Mutable: projections, graphs, etc are added mutably later -- replaceModule also mutable setter -- "users" get this from the Job and expect to setter mutate "in place"
 public class CoreContext
 {
-	private final Core core;
+	protected final Core core;
 
 	// Keys are full names
 	// CHECKME: not currently used by core? -- core fully independent of modules, etc., because full disamb already done? (by imed translation)
@@ -52,34 +52,34 @@ public class CoreContext
 	// "Directly" translated global protos, i.e., separate proto decls without any inlining/unfolding/etc
 	// Protos retain original decl role list (and args)
   // Keys are full names (though GProtocol already includes full name) -- parameterised name mainly tracks back to Do.proto not being "specialised"
-	private final Map<ProtoName<Global>, GProtocol> imeds;
+	protected final Map<ProtoName<Global>, GProtocol> imeds;
 
 	// N.B. protos have pruned role decls -- CHECKME: prune args?
 	// Mods are preserved
   // Keys are full names
-	private final Map<ProtoName<Global>, GProtocol> inlined = new HashMap<>();
-	private final Map<ProtoName<Global>, GProtocol> unfs = new HashMap<>();
+	protected final Map<ProtoName<Global>, GProtocol> inlined = new HashMap<>();
+	protected final Map<ProtoName<Global>, GProtocol> unfs = new HashMap<>();
 
 	// CHECKME: rename projis?
-	private final Map<ProtoName<Local>, LProjection> iprojs = new HashMap<>();  // Projected from inlined; keys are full names
+	protected final Map<ProtoName<Local>, LProjection> iprojs = new HashMap<>();  // Projected from inlined; keys are full names
 	
 	// CHECKME: refactor to Job ?
 	// Projected from intermediates
 	// N.B. unlike iprojs, initial projections not pruned/fixed at all -- do-arg pruning, do-pruning, ext-choice-subj fixing all done incrementally
 	// LProtocolName is the full local protocol name (module name is the prefix)  // LProtocolName key is LProtocol value fullname (i.e., redundant)
-	private final Map<ProtoName<Local>, LProjection> projs = new HashMap<>();
+	protected final Map<ProtoName<Local>, LProjection> projs = new HashMap<>();
 			// FIXME: choice-subj fixing, do-pruning -- factor out to Job and do there via AstVisitor? -- make testing compare the two sides 
 			// TODO: refactor projection, choice-subj fixing, do-pruning, do-arg fixing, etc. fully to Job (and drop this.projs from here)
 
 	// Built from projected inlined
-	private final Map<ProtoName<Local>, EGraph> fEGraphs = new HashMap<>();
-	private final Map<ProtoName<Local>, EGraph> uEGraphs = new HashMap<>();
-	private final Map<ProtoName<Local>, EGraph> mEGraphs = new HashMap<>();  
+	protected final Map<ProtoName<Local>, EGraph> fEGraphs = new HashMap<>();
+	protected final Map<ProtoName<Local>, EGraph> uEGraphs = new HashMap<>();
+	protected final Map<ProtoName<Local>, EGraph> mEGraphs = new HashMap<>();  
 			// Toolchain currently depends on single instance of each graph (state id equality), e.g. cannot re-build or re-minimise, would not be the same graph instance
 			// FIXME: currently only minimising "fair" graph, need to consider minimisation orthogonally to fairness -- NO: minimising (of fair) is for API gen only, unfair-transform does not use minimisation (regardless of user flag) for WF
 
-	private final Map<ProtoName<Global>, SGraph> fSGraphs = new HashMap<>();
-	private final Map<ProtoName<Global>, SGraph> uSGraphs = new HashMap<>();
+	protected final Map<ProtoName<Global>, SGraph> fSGraphs = new HashMap<>();
+	protected final Map<ProtoName<Global>, SGraph> uSGraphs = new HashMap<>();
 	
 	protected CoreContext(Core core, //Map<ModuleName, ModuleContext> modcs,
 			Set<GProtocol> imeds)
@@ -359,7 +359,7 @@ public class CoreContext
 	// Duplicated from CommandLine.runDot -- TODO: update to use createTmpFile (cf. runDot)
 	// Minimises the FSM up to bisimulation
 	// N.B. ltsconvert will typically re-number the states
-	private static String runAut(String fsm, String aut) throws ScribException
+	protected static String runAut(String fsm, String aut) throws ScribException
 	{
 		String tmpName = aut + ".tmp";
 		File tmp = new File(tmpName);

@@ -49,27 +49,27 @@ public class LProtocol extends Protocol<Local, LProtoName, LSeq>
 	public final Role self;
 
 	public LProtocol(CommonTree source, List<ProtoMod> mods,
-			LProtoName fullname, List<Role> roles, Role self,
-			List<MemberName<? extends NonRoleParamKind>> params, LSeq def)
+			LProtoName fullname, List<Role> rs, Role self,
+			List<MemberName<? extends NonRoleParamKind>> ps, LSeq def)
 	{
-		super(source, mods, fullname, roles, params, def);
+		super(source, mods, fullname, rs, ps, def);
 		this.self = self;
 	}
 
 	@Override
 	public LProtocol reconstruct(CommonTree source,
-			List<ProtoMod> mods, LProtoName fullname, List<Role> roles,
+			List<ProtoMod> mods, LProtoName fullname, List<Role> rs,
 			//Role self,  // CHECKME: reconstruct pattern not working here?
-			List<MemberName<? extends NonRoleParamKind>> params, LSeq def)
+			List<MemberName<? extends NonRoleParamKind>> ps, LSeq def)
 	{
-		return reconstruct(source, mods, fullname, roles, this.self, params, def);  // N.B. this.self
+		return reconstruct(source, mods, fullname, rs, this.self, ps, def);  // N.B. this.self
 	}
 
 	public LProtocol reconstruct(CommonTree source,
-			List<ProtoMod> mods, LProtoName fullname, List<Role> roles,
-			Role self, List<MemberName<? extends NonRoleParamKind>> params, LSeq def)
+			List<ProtoMod> mods, LProtoName fullname, List<Role> rs,
+			Role self, List<MemberName<? extends NonRoleParamKind>> ps, LSeq def)
 	{
-		return new LProtocol(source, mods, fullname, roles, self, params, def);
+		return new LProtocol(source, mods, fullname, rs, self, ps, def);
 	}
 	
 	// CHECKME: drop from Protocol (after removing Protocol from SType?)

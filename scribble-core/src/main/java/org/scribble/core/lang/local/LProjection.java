@@ -32,20 +32,20 @@ public class LProjection extends LProtocol
 	public final GProtoName global;
 	
 	public LProjection(List<ProtoMod> mods, LProtoName fullname,
-			List<Role> roles, Role self,
-			List<MemberName<? extends NonRoleParamKind>> params, GProtoName global,
+			List<Role> rs, Role self,
+			List<MemberName<? extends NonRoleParamKind>> ps, GProtoName global,
 			LSeq body)
 	{
-		super(null, mods, fullname, roles, self, params, body);
+		super(null, mods, fullname, rs, self, ps, body);
 		this.global = global;
 	}
 
 	@Override
 	public LProjection reconstruct(CommonTree source,
-			List<ProtoMod> mods, LProtoName fullname, List<Role> roles,
-			Role self, List<MemberName<? extends NonRoleParamKind>> params, LSeq body)
+			List<ProtoMod> mods, LProtoName fullname, List<Role> rs,
+			Role self, List<MemberName<? extends NonRoleParamKind>> ps, LSeq body)
 	{
-		return new LProjection(mods, fullname, roles, this.self, params,
+		return new LProjection(mods, fullname, rs, this.self, ps,
 				this.global, body);
 	}
 
