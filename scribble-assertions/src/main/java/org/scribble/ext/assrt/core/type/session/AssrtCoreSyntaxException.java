@@ -1,12 +1,13 @@
 package org.scribble.ext.assrt.core.type.session;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.scribble.util.AntlrSourceException;
+import org.scribble.util.RuntimeScribException;
 
 // For parsing errors due to core syntax restrictions (vs. "full" Scribble) -- distinction used for JUnit testing (i.e., to indicate non core syntax that are otherwise valid protocols)
 // i.e., should only be thrown by AssrtCoreGProtocolDeclTranslator
 // N.B. so should not be used for actual "semantic" WF errors
-public class AssrtCoreSyntaxException extends AntlrSourceException   // N.B. not Scribble/AssrttException -- cf. AssrtCoreTestBase::tests
+public class AssrtCoreSyntaxException extends //AntlrSourceException   // N.B. not Scribble/AssrttException -- cf. AssrtCoreTestBase::tests
+		RuntimeScribException   // CHECKME (AssrtCoreTestBase)
 {
 
 	/**

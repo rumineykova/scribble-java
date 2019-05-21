@@ -163,7 +163,7 @@ public class Job
 				Module m = parsed.get(fullname);
 				for (GProtoDecl ast : m.getGProtoDeclChildren())
 				{
-					GProtocol imed = (GProtocol) ast.visitWith(t);
+					GProtocol imed = (GProtocol) ast.visitWithNoThrows(t);
 					imeds.add(imed);
 					verbosePrintPass(
 							//"\nParsed:\n" + gpd + 

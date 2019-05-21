@@ -90,12 +90,11 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 	public GNode visit(ScribNode n)
 	{
 		//return ((GDel) n.del()).translate(n, this);
-		throw new RuntimeException("Deprecated for " + getClass() + ":\n" + t);
-	}
-
-	public GNode visit(GProtoDecl n) throws AssrtCoreSyntaxException
-	{
-		return translate(n);
+		if (n instanceof GProtoDecl)
+		{
+			return translate((GProtoDecl) n);
+		}
+		throw new RuntimeException("Deprecated for " + getClass() + ":\n" + n);
 	}
 
 	// Cf. GProtoDeclDel::translate
@@ -113,10 +112,10 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		List<MemberName<? extends NonRoleParamKind>> ps = n.getHeaderChild()
 				.getParamDeclListChild().getParams();  // CHECKME: make more uniform with source::getRoles ?
 		
-		AssrtCoreGType seq = parseSeq(
+		AssrtCoreGType body = parseSeq(
 				def.getBlockChild().getInteractSeqChild().getInteractionChildren(),
 				new HashMap<>(), false, false);
-		return new AssrtCoreGProtocol(n, mods, fullname, rs, ps, seq);
+		return new AssrtCoreGProtocol(n, mods, fullname, rs, ps, body);
 	}
 
 	// List<GSessionNode> because subList is useful for parsing the continuation

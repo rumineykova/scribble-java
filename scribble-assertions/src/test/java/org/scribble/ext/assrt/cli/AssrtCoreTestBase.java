@@ -67,7 +67,8 @@ public abstract class AssrtCoreTestBase extends ScribTestBase
 			if (cause instanceof AssrtCoreSyntaxException)
 			{
 				ScribTestBase.NUM_SKIPPED++;
-				System.out.println("[assrt-core] Skipping (non-core syntax): " + this.example + "  (" + ScribTestBase.NUM_SKIPPED + " skipped)");
+				System.out.println("[assrt-core] Skipping (non-core syntax): "
+						+ this.example + "  (" + ScribTestBase.NUM_SKIPPED + " skipped)");
 			}
 			else
 			{

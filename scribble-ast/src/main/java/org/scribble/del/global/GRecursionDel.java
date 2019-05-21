@@ -30,7 +30,7 @@ public class GRecursionDel extends RecursionDel
 	{
 		GRecursion source = (GRecursion) n;
 		RecVar recvar = source.getRecVarChild().toName();
-		GSeq block = (GSeq) source.getBlockChild().visitWith(t);
+		GSeq block = (GSeq) source.getBlockChild().visitWithNoThrows(t);
 		return t.tf.global.GRecursion(source, recvar, block);
 	}
 }

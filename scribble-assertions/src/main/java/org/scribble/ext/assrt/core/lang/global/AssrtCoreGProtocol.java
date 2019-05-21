@@ -13,7 +13,6 @@
  */
 package org.scribble.ext.assrt.core.lang.global;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -31,9 +30,7 @@ import org.scribble.core.type.kind.NonRoleParamKind;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.LProtoName;
 import org.scribble.core.type.name.MemberName;
-import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
-import org.scribble.core.type.session.global.GRecursion;
 import org.scribble.core.type.session.global.GSeq;
 import org.scribble.core.type.session.local.LSeq;
 import org.scribble.core.visit.STypeInliner;
@@ -41,21 +38,32 @@ import org.scribble.core.visit.STypeUnfolder;
 import org.scribble.core.visit.Substitutor;
 import org.scribble.core.visit.gather.RoleGatherer;
 import org.scribble.core.visit.global.InlinedProjector;
+import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGType;
 import org.scribble.util.ScribException;
 
 public class AssrtCoreGProtocol extends GProtocol
 {
+	public final AssrtCoreGType def;  // N.B. shadowing super Seq def (set to null)
+	
 	public AssrtCoreGProtocol(CommonTree source, List<ProtoMod> mods,
 			GProtoName fullname, List<Role> rs,
-			List<MemberName<? extends NonRoleParamKind>> ps, GSeq def)
+			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreGType def)
 	{
-		super(source, mods, fullname, rs, ps, def);
+		super(source, mods, fullname, rs, ps, null);  // N.B. null Seq as super.def
+		this.def = def;
 	}
 
 	@Override
 	public AssrtCoreGProtocol reconstruct(CommonTree source,
 			List<ProtoMod> mods, GProtoName fullname, List<Role> rs,
 			List<MemberName<? extends NonRoleParamKind>> ps, GSeq def)
+	{
+		throw new RuntimeException("Deprecated for " + getClass() + ":\n" + def);
+	}
+
+	public AssrtCoreGProtocol reconstruct(CommonTree source,
+			List<ProtoMod> mods, GProtoName fullname, List<Role> rs,
+			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreGType def)
 	{
 		return new AssrtCoreGProtocol(source, mods, fullname, rs, ps, def);
 	}
@@ -71,8 +79,9 @@ public class AssrtCoreGProtocol extends GProtocol
 
 		Substitutor<Global, GSeq> subs = v.core.config.vf.Substitutor(this.roles, sig.roles,
 				this.params, sig.args);
-		GSeq inlined = v.visitSeq(subs.visitSeq(this.def));
-		RecVar rv = v.getInlinedRecVar(sig);
+		//GSeq inlined = v.visitSeq(subs.visitSeq(this.def));
+		AssrtCoreGType inlined = null;
+		/*RecVar rv = v.getInlinedRecVar(sig);
 		GRecursion rec = v.core.config.tf.global.GRecursion(null, rv, inlined);  // CHECKME: or protodecl source?
 		GSeq seq = v.core.config.tf.global.GSeq(null, Arrays.asList(rec));
 		GSeq def = v.core.config.vf.<Global, GSeq>RecPruner().visitSeq(seq);
@@ -82,7 +91,8 @@ public class AssrtCoreGProtocol extends GProtocol
 				.collect(Collectors.toList());
 		return //new GProtocol
 				reconstruct(getSource(), this.mods, this.fullname, rs,
-				this.params, def);
+				this.params, def);*/
+		throw new RuntimeException("[TODO]");
 	}
 	
 	@Override
@@ -112,10 +122,11 @@ public class AssrtCoreGProtocol extends GProtocol
 	// Currently assuming inlining (or at least "disjoint" protodecl projection, without role fixing)
 	public LProjection projectInlined(Core core, Role self)
 	{
-		LSeq def = core.config.vf.global.InlinedProjector(core, self)
+		/*LSeq def = core.config.vf.global.InlinedProjector(core, self)
 				.visitSeq(this.def);
 		LSeq fixed = core.config.vf.local.InlinedExtChoiceSubjFixer().visitSeq(def);
-		return projectAux(core, self, this.roles, fixed);
+		return projectAux(core, self, this.roles, fixed);*/
+		throw new RuntimeException("[TODO]");
 	}
 	
 	// Does rec and role pruning

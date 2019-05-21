@@ -36,7 +36,7 @@ public class GChoiceDel extends ChoiceDel implements GCompoundSessionNodeDel
 		List<GSeq> blocks = new LinkedList<>();
 		for (GProtoBlock b : source.getBlockChildren())
 		{
-			blocks.add((GSeq) b.visitWith(t));
+			blocks.add((GSeq) b.visitWithNoThrows(t));
 		}
 		return t.tf.global.GChoice(source, subj, blocks);
 	}

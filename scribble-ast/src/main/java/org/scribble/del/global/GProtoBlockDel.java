@@ -24,6 +24,6 @@ public class GProtoBlockDel extends ProtoBlockDel implements GDel
 	@Override
 	public GSeq translate(ScribNode n, GTypeTranslator t)
 	{
-		return (GSeq) ((GProtoBlock) n).getInteractSeqChild().visitWith(t);
+		return (GSeq) ((GProtoBlock) n).getInteractSeqChild().visitWithNoThrows(t);
 	}
 }

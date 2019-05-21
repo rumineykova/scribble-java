@@ -53,7 +53,7 @@ public interface ScribNode extends Tree
 		return v.visit(this);  // N.B. ScribNode has getParent
 	}
 
-	default <T> T visitWith(SimpleAstVisitorNoThrows<T> v)  // "Top-level" visitor entry method, c.f. STypeAggNoThrow
+	default <T> T visitWithNoThrows(SimpleAstVisitorNoThrows<T> v)  // "Top-level" visitor entry method, c.f. STypeAggNoThrow
 	{
 		return v.visit(this);  // N.B. ScribNode has getParent
 	}

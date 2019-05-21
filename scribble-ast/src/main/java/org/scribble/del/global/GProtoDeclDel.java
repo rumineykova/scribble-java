@@ -49,7 +49,7 @@ public class GProtoDeclDel extends ProtoDeclDel<Global> implements GDel
 		List<Role> rs = source.getRoles();
 		List<MemberName<? extends NonRoleParamKind>> ps = source.getHeaderChild()
 				.getParamDeclListChild().getParams();  // CHECKME: make more uniform with source::getRoles ?
-		GSeq body = (GSeq) source.getDefChild().getBlockChild().visitWith(t);
+		GSeq body = (GSeq) source.getDefChild().getBlockChild().visitWithNoThrows(t);
 		return new GProtocol(source, mods, fullname, rs, ps, body);
 	}
 }
