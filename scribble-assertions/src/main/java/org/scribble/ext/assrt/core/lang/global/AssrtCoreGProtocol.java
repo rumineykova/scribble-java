@@ -43,16 +43,16 @@ import org.scribble.util.ScribException;
 
 public class AssrtCoreGProtocol extends GProtocol
 {
-	public final AssrtCoreGType def;  // N.B. shadowing super Seq def (set to null)
+	public final AssrtCoreGType type;  // N.B. shadowing super Seq def (set to null)
 	
 	// FIXME: state vars + annot
 	
 	public AssrtCoreGProtocol(CommonTree source, List<ProtoMod> mods,
 			GProtoName fullname, List<Role> rs,
-			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreGType def)
+			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreGType type)
 	{
 		super(source, mods, fullname, rs, ps, null);  // N.B. null Seq as super.def
-		this.def = def;
+		this.type = type;
 	}
 
 	@Override
@@ -65,9 +65,9 @@ public class AssrtCoreGProtocol extends GProtocol
 
 	public AssrtCoreGProtocol reconstruct(CommonTree source,
 			List<ProtoMod> mods, GProtoName fullname, List<Role> rs,
-			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreGType def)
+			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreGType type)
 	{
-		return new AssrtCoreGProtocol(source, mods, fullname, rs, ps, def);
+		return new AssrtCoreGProtocol(source, mods, fullname, rs, ps, type);
 	}
 	
 	// Cf. (e.g.) checkRoleEnabling, that takes Core
@@ -162,7 +162,7 @@ public class AssrtCoreGProtocol extends GProtocol
 		return "protocol " + this.fullname.getSimpleName()
 				+ paramsToString()
 				+ rolesToString()
-				+ " {\n" + this.def + "\n}";
+				+ " {\n" + this.type + "\n}";
 	}
 
 	@Override
@@ -174,7 +174,7 @@ public class AssrtCoreGProtocol extends GProtocol
 		hash = 31 * hash + this.fullname.hashCode();
 		hash = 31 * hash + this.roles.hashCode();
 		hash = 31 * hash + this.params.hashCode();
-		hash = 31 * hash + this.def.hashCode();
+		hash = 31 * hash + this.type.hashCode();
 		return hash;
 	}
 
@@ -194,7 +194,7 @@ public class AssrtCoreGProtocol extends GProtocol
 		return them.canEquals(this)
 				&& this.mods.equals(them.mods) && this.fullname.equals(them.fullname)
 				&& this.roles.equals(them.roles) && this.params.equals(them.params)
-				&& this.def.equals(them.def);
+				&& this.type.equals(them.type);
 	}
 
 	@Override
