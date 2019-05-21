@@ -29,11 +29,11 @@ public class AssrtSortKind extends AbstractKind
 		{
 			return false;
 		}
-		return ((DataKind) o).canEqual(this);
+		return ((DataKind) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtSortKind;
 	}

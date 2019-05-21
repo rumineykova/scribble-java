@@ -33,11 +33,11 @@ public class Global extends AbstractKind implements ProtoKind
 		{
 			return false;
 		}
-		return ((Global) o).canEqual(this);
+		return ((Global) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof Global;
 	}

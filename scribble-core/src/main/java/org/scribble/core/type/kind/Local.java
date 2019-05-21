@@ -33,11 +33,11 @@ public class Local extends AbstractKind implements ProtoKind, PayElemKind
 		{
 			return false;
 		}
-		return ((Local) o).canEqual(this);
+		return ((Local) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof Local;
 	}

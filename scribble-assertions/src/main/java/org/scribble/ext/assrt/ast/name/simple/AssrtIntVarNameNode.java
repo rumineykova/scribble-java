@@ -9,13 +9,13 @@ import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtExprNode;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
-import org.scribble.ext.assrt.core.type.kind.AssrtIntVarNameKind;
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.kind.AssrtIntVarKind;
+import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 
 // N.B. used both directly as a PayloadElemNameNode, and for the annotation in AssrtAnnotDataTypeElem -- also used for statevars
-public class AssrtIntVarNameNode extends SimpleNameNode<AssrtIntVarNameKind>
-		implements PayElemNameNode<AssrtIntVarNameKind>, AssrtExprNode
+public class AssrtIntVarNameNode extends SimpleNameNode<AssrtIntVarKind>
+		implements PayElemNameNode<AssrtIntVarKind>, AssrtExprNode
 {
 	// ScribTreeAdaptor#create constructor
 	// Constructor sig for ANTLR "node token" option, generally ttype == t.getType(), where t is a ScribbleParser.ID token type
@@ -49,7 +49,7 @@ public class AssrtIntVarNameNode extends SimpleNameNode<AssrtIntVarNameKind>
 	}
 
 	@Override
-	public AssrtDataTypeVar toName()
+	public AssrtDataVar toName()
 	{
 		return getFormula().toName();
 	}
@@ -63,7 +63,7 @@ public class AssrtIntVarNameNode extends SimpleNameNode<AssrtIntVarNameKind>
 	}
 
 	@Override
-	public AssrtDataTypeVar toPayloadType()
+	public AssrtDataVar toPayloadType()
 	{
 		return toName();  
 				// CHECKME: Shouldn't this be the type (i.e., int), not the var name? -- cf. toName

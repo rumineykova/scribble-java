@@ -33,11 +33,11 @@ public class RoleKind extends AbstractKind implements ParamKind
 		{
 			return false;
 		}
-		return ((RoleKind) o).canEqual(this);
+		return ((RoleKind) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof RoleKind;
 	}

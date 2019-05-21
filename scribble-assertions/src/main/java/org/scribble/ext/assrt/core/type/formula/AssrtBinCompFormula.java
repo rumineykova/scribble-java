@@ -3,7 +3,7 @@ package org.scribble.ext.assrt.core.type.formula;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
@@ -133,9 +133,9 @@ public class AssrtBinCompFormula extends AssrtBFormula implements AssrtBinFormul
 	}
 	
 	@Override
-	public Set<AssrtDataTypeVar> getIntVars()
+	public Set<AssrtDataVar> getIntVars()
 	{
-		Set<AssrtDataTypeVar> vars = new HashSet<>(this.left.getIntVars()); 
+		Set<AssrtDataVar> vars = new HashSet<>(this.left.getIntVars()); 
 		vars.addAll(this.right.getIntVars()); 
 		return vars; 
 	}

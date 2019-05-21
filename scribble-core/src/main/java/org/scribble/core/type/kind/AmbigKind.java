@@ -34,11 +34,11 @@ public class AmbigKind extends AbstractKind implements NonRoleArgKind//, Payload
 		{
 			return false;
 		}
-		return ((AmbigKind) o).canEqual(this);
+		return ((AmbigKind) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AmbigKind;
 	}

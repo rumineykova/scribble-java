@@ -33,11 +33,11 @@ public class RecVarKind extends AbstractKind
 		{
 			return false;
 		}
-		return ((RecVarKind) o).canEqual(this);
+		return ((RecVarKind) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof RecVarKind;
 	}

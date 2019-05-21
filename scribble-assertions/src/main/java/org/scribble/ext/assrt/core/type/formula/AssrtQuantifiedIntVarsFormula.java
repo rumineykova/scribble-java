@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 
 public abstract class AssrtQuantifiedIntVarsFormula extends AssrtBFormula
 {
@@ -20,9 +20,9 @@ public abstract class AssrtQuantifiedIntVarsFormula extends AssrtBFormula
 	}
 
 	@Override
-	public Set<AssrtDataTypeVar> getIntVars()
+	public Set<AssrtDataVar> getIntVars()
 	{
-		Set<AssrtDataTypeVar> vs = this.expr.getIntVars();
+		Set<AssrtDataVar> vs = this.expr.getIntVars();
 		vs.removeAll(this.vars.stream().map(v -> v.toName()).collect(Collectors.toList()));
 		return vs;
 	}

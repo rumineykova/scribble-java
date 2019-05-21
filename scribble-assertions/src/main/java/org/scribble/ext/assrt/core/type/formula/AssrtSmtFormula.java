@@ -2,7 +2,7 @@ package org.scribble.ext.assrt.core.type.formula;
 
 import java.util.Set;
 
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 import org.sosy_lab.java_smt.api.Formula;
 
 // FIXME: rename AnnotFormula
@@ -33,7 +33,7 @@ public abstract class AssrtSmtFormula<F extends Formula>  // FIXME: drop java_sm
 	 // FIXME: JSMT has a problem dealing with subsequent squashed formula, JSMT formula factory seems to cache var/expr translations
 	protected abstract F toJavaSmtFormula(); //throws AssertionParseException;
 	
-	public abstract Set<AssrtDataTypeVar> getIntVars();  // Change return to AssrtIntVarFormula? less confusing -- cf. AssrtEState.statevars
+	public abstract Set<AssrtDataVar> getIntVars();  // Change return to AssrtIntVarFormula? less confusing -- cf. AssrtEState.statevars
 	
 	@Override
 	public String toString()

@@ -13,7 +13,7 @@ import org.scribble.ext.assrt.ast.AssrtAExprNode;
 import org.scribble.ext.assrt.ast.AssrtBExprNode;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
-import org.scribble.ext.assrt.core.type.kind.AssrtIntVarNameKind;
+import org.scribble.ext.assrt.core.type.kind.AssrtIntVarKind;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
 import org.scribble.ext.assrt.parser.scribble.AssrtAntlrToScribParser;
 import org.scribble.parser.scribble.AntlrToScribParser;
@@ -66,7 +66,7 @@ public class AssrtAntlrGProtocolHeader
 				children.subList(ASSRT_STATEVARDECL_CHILDREN_START_INDEX, children.size()).stream()  // Stream of ASSRT_STATEVARDECL
 					.map(c -> (CommonTree) ((CommonTree) c).getChild(0)).collect(Collectors.toList());  // List of INTVAR
 		return cs.stream().map(c -> 
-					(AssrtIntVarNameNode) af.SimpleNameNode(c, AssrtIntVarNameKind.KIND, c.getChild(0).getText()))  // Cf. AssrtAntlrIntVarFormula::parseIntVarFormula
+					(AssrtIntVarNameNode) af.SimpleNameNode(c, AssrtIntVarKind.KIND, c.getChild(0).getText()))  // Cf. AssrtAntlrIntVarFormula::parseIntVarFormula
 				.collect(Collectors.toList());
 	}
 	

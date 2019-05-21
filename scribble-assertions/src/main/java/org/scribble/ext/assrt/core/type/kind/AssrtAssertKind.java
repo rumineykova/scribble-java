@@ -29,11 +29,11 @@ public class AssrtAssertKind extends AbstractKind implements ModuleMemberKind
 		{
 			return false;
 		}
-		return ((AssrtAssertKind) o).canEqual(this);
+		return ((AssrtAssertKind) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtAssertKind;
 	}

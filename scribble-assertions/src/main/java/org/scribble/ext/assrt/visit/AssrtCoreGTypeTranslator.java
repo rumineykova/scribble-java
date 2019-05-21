@@ -59,7 +59,7 @@ import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
 import org.scribble.ext.assrt.core.lang.global.AssrtCoreGProtocol;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
@@ -311,7 +311,7 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		AssrtCoreMsg a = this.tf.AssrtCoreAction(op, pay, bexpr.getFormula());
 		Role src = parseSrcRole(n);
 		Role dst = parseDstRole(n);
-		AssrtCoreGActionKind kind = AssrtCoreGActionKind.MESSAGE;
+		AssrtCoreGActionKind kind = AssrtCoreGActionKind.MSG_TRANSFER;
 		return parseGSimpleInteractionNode(is, rvs, src, a, dst, kind);
 	}
 
@@ -490,9 +490,9 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		return r.toName();
 	}
 	
-	private static AssrtDataTypeVar makeFreshDataTypeVar()
+	private static AssrtDataVar makeFreshDataTypeVar()
 	{
-		return new AssrtDataTypeVar("_dum" + varCounter++);
+		return new AssrtDataVar("_dum" + varCounter++);
 	}
 
 	private static String makeFreshRecVarName()

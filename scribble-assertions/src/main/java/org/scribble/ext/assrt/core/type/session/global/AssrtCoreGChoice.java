@@ -35,12 +35,12 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 	public final Role dst;  // this.dest == super.role
 
 	protected AssrtCoreGChoice(CommonTree source, Role src,
-			AssrtCoreGActionKind kind, Role dest,
+			AssrtCoreGActionKind kind, Role dst,
 			Map<AssrtCoreMsg, AssrtCoreGType> cases)
 	{
-		super(source, dest, kind, cases);
+		super(source, dst, kind, cases);
 		this.src = src;
-		this.dst = dest;
+		this.dst = dst;
 	}
 
 	@Override
@@ -142,7 +142,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 		List<AssrtCoreLChoice> choices = filtered.stream()
 				.map(v -> (AssrtCoreLChoice) v).collect(Collectors.toList());
 	
-		Set<Role> roles = choices.stream().map(v -> v.role)
+		Set<Role> roles = choices.stream().map(v -> v.peer)
 				.collect(Collectors.toSet());
 				// Subj not one of curent src/dest, must be projected inside each case to a guarded continuation
 		if (roles.size() > 1)

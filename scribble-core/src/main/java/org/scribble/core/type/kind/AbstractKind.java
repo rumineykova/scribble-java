@@ -40,7 +40,7 @@ public abstract class AbstractKind implements Kind
 	@Override
 	public abstract boolean equals(Object o);
 
-	public abstract boolean canEqual(Object o);  // Not really needed due to singleton pattern
+	public abstract boolean canEquals(Object o);  // Not really needed due to singleton pattern
 
 	@Override
 	public String toString()

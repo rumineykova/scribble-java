@@ -6,7 +6,7 @@ import org.scribble.core.model.ModelFactory;
 import org.scribble.core.model.endpoint.EGraphBuilderUtil;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 
 // Helper class for EGraphBuilder -- can access the protected setters of EState (via superclass helper methods)
 // Tailored to support graph building from syntactic local protocol choice and recursion
@@ -18,7 +18,7 @@ public class AssrtEGraphBuilderUtil extends EGraphBuilderUtil
 	}
 	
 	public void addStateVars(AssrtEState s,
-			LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> vars,
+			LinkedHashMap<AssrtDataVar, AssrtAFormula> vars,
 			AssrtBFormula ass)
 	{
 		//((AssrtEState) this.entry).addAnnotVars(vars);

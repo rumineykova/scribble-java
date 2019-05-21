@@ -33,11 +33,11 @@ public class PackageKind extends AbstractKind
 		{
 			return false;
 		}
-		return ((PackageKind) o).canEqual(this);
+		return ((PackageKind) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof PackageKind;
 	}

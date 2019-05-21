@@ -35,11 +35,11 @@ public class IdKind extends AbstractKind
 		{
 			return false;
 		}
-		return ((IdKind) o).canEqual(this);
+		return ((IdKind) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof IdKind;
 	}

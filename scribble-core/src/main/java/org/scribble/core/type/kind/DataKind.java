@@ -33,11 +33,11 @@ public class DataKind extends AbstractKind implements PayElemKind, ImportKind, M
 		{
 			return false;
 		}
-		return ((DataKind) o).canEqual(this);
+		return ((DataKind) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof DataKind;
 	}

@@ -7,7 +7,7 @@ import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLActionKind;
 
 public enum AssrtCoreGActionKind implements AssrtCoreActionKind<Global>
 {
-	MESSAGE,
+	MSG_TRANSFER,
 	CONNECT;
 	//DISCONNECT
 	
@@ -16,7 +16,7 @@ public enum AssrtCoreGActionKind implements AssrtCoreActionKind<Global>
 	{
 		switch (this)
 		{
-			case MESSAGE: return "->";
+			case MSG_TRANSFER: return "->";
 			case CONNECT: return "->>";
 			default: throw new RuntimeException("Won't get here: " + this);
 		}
@@ -26,7 +26,7 @@ public enum AssrtCoreGActionKind implements AssrtCoreActionKind<Global>
 	public AssrtCoreLActionKind project(Role src, Role subj)
 	{
 		return 
-				this == AssrtCoreGActionKind.MESSAGE
+				this == AssrtCoreGActionKind.MSG_TRANSFER
 				? (src.equals(subj) 
 						? AssrtCoreLActionKind.SEND : AssrtCoreLActionKind.RECV)
 				: (src.equals(subj) 

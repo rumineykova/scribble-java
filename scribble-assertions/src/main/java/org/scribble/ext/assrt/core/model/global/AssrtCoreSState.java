@@ -44,7 +44,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtUnintPredicateFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 import org.scribble.ext.assrt.job.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAction;
@@ -63,7 +63,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 {
 	private static int counter = 1;
 	
-	private static AssrtIntVarFormula makeFreshIntVar(AssrtDataTypeVar var)
+	private static AssrtIntVarFormula makeFreshIntVar(AssrtDataVar var)
 	{
 		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString() + counter++);  // HACK
 		//return AssrtFormulaFactory.AssrtIntVar("_" + var.toString());  // HACK
@@ -74,11 +74,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	// In hash/equals -- cf. SState.config
 	private final Map<Role, AssrtEState> P;          
 	private final Map<Role, Map<Role, AssrtCoreEMsg>> Q;  // null value means connected and empty -- dest -> src -> msg
-	private final Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> R;  
+	private final Map<Role, Map<AssrtDataVar, AssrtAFormula>> R;  
 	
 	private final Map<Role, Set<AssrtBFormula>> Rass;
 
-	private final Map<Role, Set<AssrtDataTypeVar>> K;  // Conflict between having this in the state, and formula building?
+	private final Map<Role, Set<AssrtDataVar>> K;  // Conflict between having this in the state, and formula building?
 	private final Map<Role, Set<AssrtBFormula>> F;   // N.B. because F not in equals/hash, "final" receive in a recursion doesn't get built -- cf., unsat check only for send actions
 	
 	private final Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename; // combine with K?
@@ -93,9 +93,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	// Pre: non-aliased "ownership" of all Map contents
 	protected AssrtCoreSState(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMsg>> Q,
-			Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> R,
+			Map<Role, Map<AssrtDataVar, AssrtAFormula>> R,
 			Map<Role, Set<AssrtBFormula>> Rass,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBFormula>> F,
+			Map<Role, Set<AssrtDataVar>> K, Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename
 	)
 	{
@@ -230,7 +230,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					{
 						Role src = e.getKey();
 
-						Set<AssrtDataTypeVar> known = new HashSet<>(this.K.get(src));
+						Set<AssrtDataVar> known = new HashSet<>(this.K.get(src));
 						a.payload.elems.forEach(pe ->
 						{
 							if (pe instanceof AssrtAnnotDataName)
@@ -325,7 +325,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 							AssrtTrueFormula.TRUE,
 							(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2));
 					
-					Map<AssrtDataTypeVar, AssrtAFormula> statevars = this.R.get(src);
+					Map<AssrtDataVar, AssrtAFormula> statevars = this.R.get(src);
 					if (!statevars.isEmpty())
 					{
 						AssrtBFormula RR = statevars.entrySet().stream().map(x -> (AssrtBFormula)  // Cast needed for reduce
@@ -351,7 +351,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		Set<String> rs = job.getContext().getMainModule()
 				.getGProtoDeclChild(simpname).getHeaderChild().getRoleDeclListChild()
 				.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
-					Set<AssrtDataTypeVar> free = impli.getIntVars().stream()
+					Set<AssrtDataVar> free = impli.getIntVars().stream()
 							.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
 							.collect(Collectors.toSet());
 					if (!free.isEmpty())
@@ -449,7 +449,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And,
 						b1, b2));
 		
-		Map<AssrtDataTypeVar, AssrtAFormula> statevars = this.R.get(src);
+		Map<AssrtDataVar, AssrtAFormula> statevars = this.R.get(src);
 		if (!statevars.isEmpty())
 		{
 			AssrtBFormula RR = statevars.entrySet().stream().map(x -> (AssrtBFormula)  // Cast needed for reduce
@@ -478,7 +478,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		Set<String> rs = job.getContext().getMainModule()
 				.getGProtoDeclChild(simpname).getHeaderChild().getRoleDeclListChild()
 				.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
-		Set<AssrtDataTypeVar> free = tocheck.getIntVars().stream()
+		Set<AssrtDataVar> free = tocheck.getIntVars().stream()
 				.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
 				.collect(Collectors.toSet());
 		if (!free.isEmpty())
@@ -589,7 +589,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 						.getGProtoDeclChild(simpname).getHeaderChild()
 						.getRoleDeclListChild().getRoles().stream().map(Object::toString)
 						.collect(Collectors.toSet());
-				Set<AssrtDataTypeVar> free = impli.getIntVars().stream()
+				Set<AssrtDataVar> free = impli.getIntVars().stream()
 						.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
 						.collect(Collectors.toSet());
 				if (!free.isEmpty())
@@ -645,7 +645,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				AssrtTrueFormula.TRUE,
 				(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2));
 		
-		Map<AssrtDataTypeVar, AssrtAFormula> statevars = this.R.get(self);
+		Map<AssrtDataVar, AssrtAFormula> statevars = this.R.get(self);
 		if (!statevars.isEmpty())
 		{
 			AssrtBFormula RR = statevars.entrySet().stream().map(x -> (AssrtBFormula)  // Cast needed for reduce
@@ -679,7 +679,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			
 		if (exprs.isEmpty())  // "forwards" rec enter -- cf. updateKFR
 		{
-			LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> stateVars2 = succ.getStateVars();
+			LinkedHashMap<AssrtDataVar, AssrtAFormula> stateVars2 = succ.getStateVars();
 			if (!stateVars2.isEmpty())
 			{
 				AssrtBFormula reduced = stateVars2.entrySet().stream()
@@ -707,7 +707,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					.getGProtoDeclChild(simpname).getHeaderChild().getRoleDeclListChild()
 					.getRoles().stream().map(Object::toString)
 					.collect(Collectors.toSet());
-			Set<AssrtDataTypeVar> free = impli.getIntVars().stream()
+			Set<AssrtDataVar> free = impli.getIntVars().stream()
 					.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
 					.collect(Collectors.toSet());
 			if (!free.isEmpty())
@@ -746,14 +746,14 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 				return AssrtTrueFormula.TRUE;
 			}
 
-			List<AssrtDataTypeVar> old = new LinkedList<>(succ.getStateVars().keySet());  // FIXME statevar ordering w.r.t. exprs
+			List<AssrtDataVar> old = new LinkedList<>(succ.getStateVars().keySet());  // FIXME statevar ordering w.r.t. exprs
 			List<AssrtIntVarFormula> fresh = old.stream().map(v -> makeFreshIntVar(v))
 					.collect(Collectors.toList());
 
 			//List<AssrtDataTypeVar> rara = new LinkedList<>(RARA.getIntVars());
 			
 			Iterator<AssrtIntVarFormula> i_fresh = fresh.iterator();
-			for (AssrtDataTypeVar v : old)
+			for (AssrtDataVar v : old)
 			{
 				rhs = rhs.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()),
 						i_fresh.next());
@@ -783,7 +783,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 					.getGProtoDeclChild(simpname).getHeaderChild().getRoleDeclListChild()
 					.getRoles().stream().map(Object::toString)
 					.collect(Collectors.toSet());
-			Set<AssrtDataTypeVar> free = impli.getIntVars().stream()
+			Set<AssrtDataVar> free = impli.getIntVars().stream()
 					.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
 					.collect(Collectors.toSet());
 			if (!free.isEmpty())
@@ -1022,13 +1022,13 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	{
 		Map<Role, AssrtEState> P = new HashMap<>(this.P);
 		Map<Role, Map<Role, AssrtCoreEMsg>> Q = AssrtCoreSState.copyQ(this.Q);
-		Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> R = AssrtCoreSState.copyR(this.R);
+		Map<Role, Map<AssrtDataVar, AssrtAFormula>> R = AssrtCoreSState.copyR(this.R);
 
 		//R.get(self).putAll(succ.getAnnotVars());  // Should "overwrite" previous var values -- no, do later (and from action info, not state)
 
 		Map<Role, Set<AssrtBFormula>> Rass = AssrtCoreSState.copyRass(this.Rass);
 
-		Map<Role, Set<AssrtDataTypeVar>> K = AssrtCoreSState.copyK(this.K);
+		Map<Role, Set<AssrtDataVar>> K = AssrtCoreSState.copyK(this.K);
 		Map<Role, Set<AssrtBFormula>> F = AssrtCoreSState.copyF(this.F);
 
 		Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename = AssrtCoreSState.copyRename(this.rename);
@@ -1072,9 +1072,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	// Update (in place) P, Q, R, K and F
 	private static void fireSend(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMsg>> Q,
-			Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> R,
+			Map<Role, Map<AssrtDataVar, AssrtAFormula>> R,
 			Map<Role, Set<AssrtBFormula>> Rass,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBFormula>> F,
+			Map<Role, Set<AssrtDataVar>> K, Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreESend es, AssrtEState succ)
 	{
@@ -1093,9 +1093,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	private static void fireReceive(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMsg>> Q,
-			Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> R, 
+			Map<Role, Map<AssrtDataVar, AssrtAFormula>> R, 
 			Map<Role, Set<AssrtBFormula>> Rass,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBFormula>> F,   // FIXME: manage F with receive assertions?
+			Map<Role, Set<AssrtDataVar>> K, Map<Role, Set<AssrtBFormula>> F,   // FIXME: manage F with receive assertions?
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreERecv er, AssrtEState succ)
 	{
@@ -1110,9 +1110,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	private static void fireRequest(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMsg>> Q,
-			Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> R,
+			Map<Role, Map<AssrtDataVar, AssrtAFormula>> R,
 			Map<Role, Set<AssrtBFormula>> Rass,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBFormula>> F,
+			Map<Role, Set<AssrtDataVar>> K, Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreEReq er, AssrtEState succ)
 	{
@@ -1126,9 +1126,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	// FIXME: R
 	private static void fireAccept(Map<Role, AssrtEState> P, Map<Role, Map<Role, AssrtCoreEMsg>> Q,
-			Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> R,
+			Map<Role, Map<AssrtDataVar, AssrtAFormula>> R,
 			Map<Role, Set<AssrtBFormula>> Rass,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBFormula>> F, 
+			Map<Role, Set<AssrtDataVar>> K, Map<Role, Set<AssrtBFormula>> F, 
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreEAcc ea, AssrtEState succ)
 	{
@@ -1142,9 +1142,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		inputUpdateKF(R, Rass, K, F, rename, self, (AssrtCoreEAction) ea, m, succ, pr.shadow);  // FIXME: core
 	}
 
-	private static void outputUpdateKF(Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> R,
+	private static void outputUpdateKF(Map<Role, Map<AssrtDataVar, AssrtAFormula>> R,
 			Map<Role, Set<AssrtBFormula>> Rass,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBFormula>> F,
+			Map<Role, Set<AssrtDataVar>> K, Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreEAction a, AssrtEState succ)  // FIXME: EAction closest base type
 	{
@@ -1154,7 +1154,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			if (pt instanceof AssrtAnnotDataName)
 			{
-				AssrtDataTypeVar v = ((AssrtAnnotDataName) pt).var;
+				AssrtDataVar v = ((AssrtAnnotDataName) pt).var;
 
 				// N.B. no "updateRfromF" -- actually, "update R from payload annot" -- leaving R statevars as they are is OK, validation only done from F's and R already incorporated into F (and updates handled by updateFfromR)
 				// But would it be more consistent to update R?
@@ -1183,9 +1183,9 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	// a is the EFSM input action, which has (hacked) True ass; m is the dequeued msg, which carries the (actual) ass from the output side
 	// FIXME: factor better with outputUpdateKF
-	private static void inputUpdateKF(Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> R,
+	private static void inputUpdateKF(Map<Role, Map<AssrtDataVar, AssrtAFormula>> R,
 			Map<Role, Set<AssrtBFormula>> Rass,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBFormula>> F,
+			Map<Role, Set<AssrtDataVar>> K, Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreEAction a, AssrtEAction m, AssrtEState succ,
 			Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow)  // FIXME: EAction closest base type
@@ -1197,7 +1197,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			if (pt instanceof AssrtAnnotDataName)
 			{
 				// Update K
-				AssrtDataTypeVar v = ((AssrtAnnotDataName) pt).var;
+				AssrtDataVar v = ((AssrtAnnotDataName) pt).var;
 
 				AssrtBFormula f = m.getAssertion();
 				/*AssrtExistsFormulaHolder h =
@@ -1243,11 +1243,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 
 	private static //Map<AssrtIntVarFormula, AssrtIntVarFormula>
 			void updateKFR(
-			Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> R,
+			Map<Role, Map<AssrtDataVar, AssrtAFormula>> R,
 			Map<Role, Set<AssrtBFormula>> Rass,
-			Map<Role, Set<AssrtDataTypeVar>> K, Map<Role, Set<AssrtBFormula>> F,
+			Map<Role, Set<AssrtDataVar>> K, Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
-			Role self, AssrtCoreEAction a, AssrtDataTypeVar v, AssrtBFormula f, AssrtEState succ)  // FIXME: EAction closest base type
+			Role self, AssrtCoreEAction a, AssrtDataVar v, AssrtBFormula f, AssrtEState succ)  // FIXME: EAction closest base type
 	{
 		// Update K
 		putK(K, self, v);
@@ -1289,11 +1289,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		
 
 		// Rename old R vars -- must come before adding new F and R clauses
-		Map<AssrtDataTypeVar, AssrtAFormula> Rself = R.get(self);
+		Map<AssrtDataVar, AssrtAFormula> Rself = R.get(self);
 		//AssrtDataTypeVar annot = a.getAnnotVar();
 
 		// "forward" recs will have annotvars but no stateexprs
-		LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> annotvars = succ.getStateVars();
+		LinkedHashMap<AssrtDataVar, AssrtAFormula> annotvars = succ.getStateVars();
 		List<AssrtAFormula> stateexprs = a.getStateExprs();
 		
 
@@ -1305,7 +1305,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		{
 			annotvars.entrySet().forEach(e ->
 			{
-				AssrtDataTypeVar k = e.getKey();
+				AssrtDataVar k = e.getKey();
 				AssrtAFormula af = e.getValue();
 				
 				
@@ -1340,7 +1340,7 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 			}
 
 			Iterator<AssrtAFormula> afs = stateexprs.iterator();
-			for (AssrtDataTypeVar annot : annotvars.keySet())  // FIXME: statevar ordering
+			for (AssrtDataVar annot : annotvars.keySet())  // FIXME: statevar ordering
 			{
 				//AssrtArithFormula expr = a.getStateExprs().iterator().next();
 				AssrtAFormula expr = afs.next();
@@ -1372,11 +1372,11 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 	}
 
 	private static void updateRandFfromR(Map<Role, Set<AssrtBFormula>> F, Role self,
-			Map<AssrtDataTypeVar, AssrtAFormula> Rself, AssrtDataTypeVar annot, AssrtAFormula expr, boolean forwards)
+			Map<AssrtDataVar, AssrtAFormula> Rself, AssrtDataVar annot, AssrtAFormula expr, boolean forwards)
 	{
 		if (!forwards)
 		{
-			for (AssrtDataTypeVar v : expr.getIntVars())
+			for (AssrtDataVar v : expr.getIntVars())
 			{
 				AssrtIntVarFormula fresh = //makeFreshIntVar(v);
 					AssrtFormulaFactory.AssrtIntVar("__" + v.toString());
@@ -1635,22 +1635,22 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return copy;
 	}
 
-	private static Map<Role, Set<AssrtDataTypeVar>> makeK(Set<Role> rs)
+	private static Map<Role, Set<AssrtDataVar>> makeK(Set<Role> rs)
 	{
 		return rs.stream().collect(Collectors.toMap(r -> r, r -> new HashSet<>()));
 	}
 
-	private static Map<Role, Set<AssrtDataTypeVar>> copyK(
-			Map<Role, Set<AssrtDataTypeVar>> K)
+	private static Map<Role, Set<AssrtDataVar>> copyK(
+			Map<Role, Set<AssrtDataVar>> K)
 	{
 		return K.entrySet().stream().collect(
 				Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
 	}
 
-	private static void putK(Map<Role, Set<AssrtDataTypeVar>> K, Role r,
-			AssrtDataTypeVar v)
+	private static void putK(Map<Role, Set<AssrtDataVar>> K, Role r,
+			AssrtDataVar v)
 	{
-		Set<AssrtDataTypeVar> tmp = K.get(r);
+		Set<AssrtDataVar> tmp = K.get(r);
 		/*if (tmp == null)  // No: makeK already made all Sets -- cf. makeQ, and no putQ
 		{
 			tmp = new HashSet<>();
@@ -1689,10 +1689,10 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		F.get(r).add(f);
 	}
 
-	private static Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> makeR(
+	private static Map<Role, Map<AssrtDataVar, AssrtAFormula>> makeR(
 			Map<Role, AssrtEState> P)
 	{
-		Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> R = P.entrySet()
+		Map<Role, Map<AssrtDataVar, AssrtAFormula>> R = P.entrySet()
 				.stream().collect(Collectors.toMap(Entry::getKey,
 						e -> new HashMap<>(e.getValue().getStateVars())));
 		/*Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.keySet().stream().collect(Collectors.toMap(r -> r, r ->
@@ -1703,8 +1703,8 @@ public class AssrtCoreSState extends MPrettyState<Void, SAction, AssrtCoreSState
 		return R;
 	}
 
-	private static Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> copyR(
-			Map<Role, Map<AssrtDataTypeVar, AssrtAFormula>> R)
+	private static Map<Role, Map<AssrtDataVar, AssrtAFormula>> copyR(
+			Map<Role, Map<AssrtDataVar, AssrtAFormula>> R)
 	{
 		return R.entrySet().stream().collect(
 				Collectors.toMap(Entry::getKey, e -> new HashMap<>(e.getValue())));
@@ -1835,7 +1835,7 @@ class AssrtCoreEBot extends AssrtCoreEMsg
 	// N.B. must be initialised *before* ASSSRTCORE_BOT
 	private static final Payload ASSRTCORE_EMPTY_PAYLOAD =
 			new Payload(
-					Arrays.asList(new AssrtAnnotDataName(new AssrtDataTypeVar("_BOT"),
+					Arrays.asList(new AssrtAnnotDataName(new AssrtDataVar("_BOT"),
 							AssrtCoreGProtoDeclTranslator.UNIT_DATATYPE)));
 			// Cf. Payload.EMPTY_PAYLOAD
 
@@ -1907,7 +1907,7 @@ class AssrtCoreEPendingRequest extends AssrtCoreEMsg  // Q stores ESends (not EC
 {
 	public static final Payload ASSRTCORE_EMPTY_PAYLOAD =
 			new Payload(
-					Arrays.asList(new AssrtAnnotDataName(new AssrtDataTypeVar("_BOT"),
+					Arrays.asList(new AssrtAnnotDataName(new AssrtDataVar("_BOT"),
 							AssrtCoreGProtoDeclTranslator.UNIT_DATATYPE)));
 			// Cf. Payload.EMPTY_PAYLOAD
 	

@@ -33,11 +33,11 @@ public class ModuleKind extends AbstractKind implements ImportKind
 		{
 			return false;
 		}
-		return ((ModuleKind) o).canEqual(this);
+		return ((ModuleKind) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof ModuleKind;
 	}

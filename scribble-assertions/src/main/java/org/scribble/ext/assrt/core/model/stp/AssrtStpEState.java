@@ -31,7 +31,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 import org.scribble.ext.assrt.core.type.name.AssrtPayElemType;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 
@@ -52,7 +52,7 @@ public class AssrtStpEState extends AssrtEState
 		Set<AssrtStpEState> todo = Stream.of(tmp).collect(Collectors.toSet());  // Invar: not in seen
 		Set<AssrtStpEState> seen = new HashSet<>();
 		
-		Map<Integer, List<AssrtDataTypeVar>> kv = new HashMap<>();  // FIXME: relies on WF disallowed merge -- and invar: not in seen
+		Map<Integer, List<AssrtDataVar>> kv = new HashMap<>();  // FIXME: relies on WF disallowed merge -- and invar: not in seen
 
 		while (!todo.isEmpty())
 		{
@@ -94,7 +94,7 @@ public class AssrtStpEState extends AssrtEState
 							AssrtAnnotDataName adt = (AssrtAnnotDataName) apet;
 							if (!adt.var.toString().startsWith("__dum"))
 							{
-								List<AssrtDataTypeVar> vs = kv.get(succ.id);
+								List<AssrtDataVar> vs = kv.get(succ.id);
 								if (vs == null)
 								{
 									vs = new LinkedList<>();
@@ -115,7 +115,7 @@ public class AssrtStpEState extends AssrtEState
 	}
 	
 	private static AssrtStpEAction foobar(AssrtCoreEModelFactory ef,
-			List<AssrtDataTypeVar> vs, AssrtCoreEAction a)
+			List<AssrtDataVar> vs, AssrtCoreEAction a)
 	{
 		if (a instanceof AssrtCoreESend)
 		{
@@ -134,7 +134,7 @@ public class AssrtStpEState extends AssrtEState
 	}
 
 	private static AssrtStpEAction barfoo(AssrtCoreEModelFactory ef,
-			List<AssrtDataTypeVar> vs, EAction ea)
+			List<AssrtDataVar> vs, EAction ea)
 	{
 			AssrtBFormula A = ((AssrtCoreEAction) ea).getAssertion();
 			Map<AssrtIntVarFormula, AssrtSmtFormula<?>> sigma = new HashMap<>();

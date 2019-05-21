@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtLogFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 import org.sosy_lab.common.ShutdownManager;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
@@ -90,7 +90,7 @@ public class JavaSmtWrapper
 	public AssrtLogFormula addFormula(AssrtBFormula f1, AssrtBFormula f2) //throws AssertionParseException
 	{
 		BooleanFormula formula = this.bfm.and( f1.getJavaSmtFormula(), f2.getJavaSmtFormula());
-		Set<AssrtDataTypeVar> vars = new HashSet<>(f1.getIntVars()); 
+		Set<AssrtDataVar> vars = new HashSet<>(f1.getIntVars()); 
 		vars.addAll(f2.getIntVars());
 		return new AssrtLogFormula(formula, vars);
 	}

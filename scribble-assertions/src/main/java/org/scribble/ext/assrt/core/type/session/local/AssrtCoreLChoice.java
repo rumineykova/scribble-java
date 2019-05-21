@@ -11,10 +11,10 @@ import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
 public class AssrtCoreLChoice extends AssrtCoreChoice<Local, AssrtCoreLType>
 		implements AssrtCoreLType
 {
-	protected AssrtCoreLChoice(CommonTree source, Role role,
+	protected AssrtCoreLChoice(CommonTree source, Role peer,
 			AssrtCoreLActionKind kind, Map<AssrtCoreMsg, AssrtCoreLType> cases)
 	{
-		super(source, role, kind, cases);
+		super(source, peer, kind, cases);
 	}
 	
 	@Override
@@ -26,7 +26,7 @@ public class AssrtCoreLChoice extends AssrtCoreChoice<Local, AssrtCoreLType>
 	@Override
 	public String toString()
 	{
-		return this.role.toString() + this.kind + casesToString();
+		return this.peer.toString() + this.kind + casesToString();
 	}
 	
 	@Override

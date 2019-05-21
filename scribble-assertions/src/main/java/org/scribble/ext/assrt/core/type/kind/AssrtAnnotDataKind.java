@@ -32,11 +32,11 @@ public class AssrtAnnotDataKind extends AbstractKind //extends DataTypeKind  // 
 		{
 			return false;
 		}
-		return ((AssrtAnnotDataKind) o).canEqual(this);
+		return ((AssrtAnnotDataKind) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtAnnotDataKind;
 	}

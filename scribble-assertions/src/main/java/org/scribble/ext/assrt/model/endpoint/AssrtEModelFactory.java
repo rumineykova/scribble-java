@@ -10,7 +10,7 @@ import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAcc;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtERecv;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEReq;
@@ -20,7 +20,7 @@ public interface AssrtEModelFactory extends EModelFactory
 {
 	
 	AssrtEState newAssrtEState(Set<RecVar> labs,
-			LinkedHashMap<AssrtDataTypeVar, AssrtAFormula> vars,
+			LinkedHashMap<AssrtDataVar, AssrtAFormula> vars,
 			AssrtBFormula ass);
 
 	AssrtESend newAssrtESend(Role peer, MsgId<?> mid, Payload payload,

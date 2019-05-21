@@ -48,11 +48,11 @@ public class OpKind extends AbstractKind implements MsgIdKind, Serializable
 		{
 			return false;
 		}
-		return ((OpKind) o).canEqual(this);
+		return ((OpKind) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof OpKind;
 	}

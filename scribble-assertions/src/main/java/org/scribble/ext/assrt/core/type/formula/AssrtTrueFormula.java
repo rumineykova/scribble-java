@@ -3,7 +3,7 @@ package org.scribble.ext.assrt.core.type.formula;
 import java.util.Collections;
 import java.util.Set;
 
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
@@ -60,7 +60,7 @@ public class AssrtTrueFormula extends AssrtBFormula
 	}
 	
 	@Override
-	public Set<AssrtDataTypeVar> getIntVars()
+	public Set<AssrtDataVar> getIntVars()
 	{
 		return Collections.emptySet(); 
 	}

@@ -3,7 +3,7 @@ package org.scribble.ext.assrt.core.type.formula;
 import java.util.Set;
 
 import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula.Op;
-import org.scribble.ext.assrt.core.type.name.AssrtDataTypeVar;
+import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.BooleanFormulaManager;
@@ -96,9 +96,9 @@ public class AssrtNegFormula extends AssrtBFormula
 	}
 
 	@Override
-	public Set<AssrtDataTypeVar> getIntVars()
+	public Set<AssrtDataVar> getIntVars()
 	{
-		Set<AssrtDataTypeVar> vs = this.expr.getIntVars();
+		Set<AssrtDataVar> vs = this.expr.getIntVars();
 		return vs;
 	}
 	

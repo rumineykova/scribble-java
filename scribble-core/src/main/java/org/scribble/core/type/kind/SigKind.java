@@ -36,11 +36,11 @@ public class SigKind extends AbstractKind implements NonRoleParamKind, MsgIdKind
 		{
 			return false;
 		}
-		return ((SigKind) o).canEqual(this);
+		return ((SigKind) o).canEquals(this);
 	}
 	
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof SigKind;
 	}
