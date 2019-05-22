@@ -9,8 +9,8 @@ import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreEnd;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLTypeFactory;
 import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
 
 
@@ -37,10 +37,10 @@ public class AssrtCoreGEnd extends AssrtCoreEnd<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public AssrtCoreLEnd projectInlined(AssrtCoreSTypeFactory af, Role r,
+	public AssrtCoreLEnd projectInlined(AssrtCore core, Role self,
 			AssrtBFormula f)
 	{
-		return af.local.AssrtCoreLEnd();
+		return ((AssrtCoreLTypeFactory) core.config.tf.local).AssrtCoreLEnd();
 	}
 
 	@Override

@@ -11,13 +11,14 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.scribble.core.lang.local;
+package org.scribble.ext.assrt.core.lang.local;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.lang.ProtoMod;
+import org.scribble.core.lang.local.LProjection;
 import org.scribble.core.type.kind.Local;
 import org.scribble.core.type.kind.NonRoleParamKind;
 import org.scribble.core.type.name.GProtoName;
@@ -26,18 +27,19 @@ import org.scribble.core.type.name.MemberName;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.local.LSeq;
 import org.scribble.core.visit.STypeInliner;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
 
-public class LProjection extends LProtocol
+public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreLProtocol ... FIXME CoreContext G/LProtocol hardcoding
 {
-	public final GProtoName global;
+	public final AssrtCoreLType type;
 	
-	public LProjection(List<ProtoMod> mods, LProtoName fullname,
+	public AssrtCoreLProjection(List<ProtoMod> mods, LProtoName fullname,
 			List<Role> rs, Role self,
 			List<MemberName<? extends NonRoleParamKind>> ps, GProtoName global,
-			LSeq body)
+			AssrtCoreLType type)
 	{
-		super(null, mods, fullname, rs, self, ps, body);
-		this.global = global;
+		super(mods, fullname, rs, self, ps, global, null);
+		this.type = type;
 	}
 
 	@Override
@@ -45,32 +47,24 @@ public class LProjection extends LProtocol
 			LProtoName fullname, List<Role> rs, Role self,
 			List<MemberName<? extends NonRoleParamKind>> ps, LSeq body)
 	{
-		return new LProjection(mods, fullname, rs, this.self, ps,
-				this.global, body);
+		throw new RuntimeException("Deprecated for " + getClass() + ":\n" + this);
 	}
 
-	/*@Override
-	public LType substitute(Substitutions subs)
+	public LProjection reconstruct(CommonTree source, List<ProtoMod> mods,
+			LProtoName fullname, List<Role> rs, Role self,
+			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreLType type)
 	{
-		*List<Role> roles = this.roles.stream().map(x -> subs.subsRole(x))
-				.collect(Collectors.toList());
-		return reconstruct(getSource(), this.mods, this.fullname, roles,
-				this.def.substitute(subs));
-	}*/
-	
+		return new AssrtCoreLProjection(mods, fullname, rs, this.self, ps,
+				this.global, type);
+	}
+
 	// Pre: stack.peek is the sig for the calling Do (or top-level entry)
 	// i.e., it gives the roles/args at the call-site
 	@Override
-	public LProjection getInlined(STypeInliner<Local, LSeq> v)
+	public AssrtCoreLProjection getInlined(STypeInliner<Local, LSeq> v)
 	{
 		throw new RuntimeException("[TODO]:\n" + this);
 	}
-	
-	/*@Override
-	public LProtocolDecl getSource()
-	{
-		return (LProtocolDecl) super.getSource();
-	}*/
 	
 	@Override
 	public String toString()
@@ -81,15 +75,19 @@ public class LProjection extends LProtocol
 				+ paramsToString()
 				+ rolesToString()
 				+ " projects " + this.global
-				+ " {\n" + this.def + "\n}";
+				+ " {\n" + this.type + "\n}";
 	}
 
 	@Override
 	public int hashCode()
 	{
 		int hash = 3167;
-		hash = 31 * hash + super.hashCode();
+		hash = 31 * hash + this.mods.hashCode();
+		hash = 31 * hash + this.fullname.hashCode();
+		hash = 31 * hash + this.rs.hashCode();
+		hash = 31 * hash + this.ps.hashCode();
 		hash = 31 * hash + this.global.hashCode();
+		hash = 31 * hash + this.type.hashCode();
 		return hash;
 	}
 
@@ -100,17 +98,20 @@ public class LProjection extends LProtocol
 		{
 			return true;
 		}
-		if (!(o instanceof LProjection))
+		if (!(o instanceof AssrtCoreLProjection))
 		{
 			return false;
 		}
-		LProjection them = (LProjection) o;
-		return super.equals(o) && this.global.equals(them.global);  // Does canEquals
+		AssrtCoreLProjection them = (AssrtCoreLProjection) o;
+		return them.canEquals(this) && this.mods.equals(them.mods)
+				&& this.fullname.equals(them.fullname) && this.rs.equals(them.rs)
+				&& this.self.equals(them.self) && this.ps.equals(them.ps)
+				&& this.global.equals(them.global) && this.type.equals(them.type);
 	}
 
 	@Override
 	public boolean canEquals(Object o)
 	{
-		return o instanceof LProjection;
+		return o instanceof AssrtCoreLProjection;
 	}
 }

@@ -14,10 +14,7 @@
 package org.scribble.ext.assrt.core.lang.global;
 
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.job.Core;
@@ -26,7 +23,6 @@ import org.scribble.core.lang.SubprotoSig;
 import org.scribble.core.lang.global.GProtocol;
 import org.scribble.core.lang.local.LProjection;
 import org.scribble.core.type.kind.Global;
-import org.scribble.core.type.kind.Local;
 import org.scribble.core.type.kind.NonRoleParamKind;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.LProtoName;
@@ -34,18 +30,18 @@ import org.scribble.core.type.name.MemberName;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.global.GSeq;
-import org.scribble.core.type.session.local.LSeq;
 import org.scribble.core.visit.STypeInliner;
 import org.scribble.core.visit.STypeUnfolder;
-import org.scribble.core.visit.gather.RoleGatherer;
 import org.scribble.core.visit.global.InlinedProjector;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.lang.AssrtCoreProtocol;
+import org.scribble.ext.assrt.core.lang.local.AssrtCoreLProjection;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.session.NoSeq;
 import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGRec;
 import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGType;
 import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGTypeFactory;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
 import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
 import org.scribble.util.ScribException;
 
@@ -125,41 +121,26 @@ public class AssrtCoreGProtocol extends GProtocol
 		throw new RuntimeException("Deprecated for " + getClass() + ":\n" + this);
 	}
 
+	@Override
 	public void checkConnectedness(Core core, boolean implicit)
 			throws ScribException
 	{
 		throw new RuntimeException("Deprecated for " + getClass() + ":\n" + this);
 	}
 	
-	// Currently assuming inlining (or at least "disjoint" protodecl projection, without role fixing)
-	public LProjection projectInlined(Core core, Role self)
+	// FIXME: return type (AssrtCoreLProjection doesn't extend AssrtCoreLProtocol), cf. CoreContext G/LProtocol hardcoding
+	@Override
+	public AssrtCoreLProjection projectInlined(Core core, Role self)
 	{
-		/*LSeq def = core.config.vf.global.InlinedProjector(core, self)
-				.visitSeq(this.def);
-		LSeq fixed = core.config.vf.local.InlinedExtChoiceSubjFixer().visitSeq(def);
-		return projectAux(core, self, this.roles, fixed);*/
-		throw new RuntimeException("[TODO]");
-	}
-	
-	// Does rec and role pruning
-	private LProjection projectAux(Core core, Role self, List<Role> decls,
-			LSeq def)
-	{
-		LSeq pruned = core.config.vf.<Local, LSeq>RecPruner().visitSeq(def);
+		AssrtCoreLType proj = this.type.projectInlined((AssrtCore) core, self,
+				AssrtTrueFormula.TRUE);
 		LProtoName fullname = InlinedProjector
 				.getFullProjectionName(this.fullname, self);
-		Set<Role> used = pruned.gather(new RoleGatherer<Local, LSeq>()::visit)
-				.collect(Collectors.toSet());
-		List<Role> roles = decls.stream()
-				.filter(x -> x.equals(self) || used.contains(x))
-				.collect(Collectors.toList());
-		List<MemberName<? extends NonRoleParamKind>> params =
-				new LinkedList<>(this.ps);  // CHECKME: filter params by usage?
-		return new LProjection(this.mods, fullname, roles, self, params,
-				this.fullname, pruned);  // CHECKME: add/do via tf?
+		return new AssrtCoreLProjection(this.mods, fullname, this.rs, self, this.ps, this.fullname, proj);
 	}
 
 	// N.B. no "fixing" passes done here -- need breadth-first passes to be sequentialised for subproto visiting
+	@Override
 	public LProjection project(Core core, Role self)
 	{
 		throw new RuntimeException("Deprecated for " + getClass() + ":\n" + this);
@@ -169,7 +150,7 @@ public class AssrtCoreGProtocol extends GProtocol
 	public String toString()
 	{
 		//return super.toString();  // No: super.def == null
-		return "protocol " + this.fullname.getSimpleName()
+		return "global protocol " + this.fullname.getSimpleName()
 				+ paramsToString()
 				+ rolesToString()
 				+ " {\n" + this.type + "\n}";

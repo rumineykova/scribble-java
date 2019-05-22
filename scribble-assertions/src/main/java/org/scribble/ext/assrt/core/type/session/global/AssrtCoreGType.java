@@ -22,8 +22,8 @@ public interface AssrtCoreGType extends AssrtCoreSType<Global, AssrtCoreGType>
 	AssrtCoreGType inline(AssrtCoreGTypeInliner v);
 	AssrtCoreGType pruneRecs(AssrtCore core);
 
-	AssrtCoreLType projectInlined(AssrtCoreSTypeFactory af, Role self,
-			AssrtBFormula f) throws AssrtCoreSyntaxException;  // N.B. checking "mergability"
+	AssrtCoreLType projectInlined(AssrtCore core, Role self, AssrtBFormula f)
+			throws AssrtCoreSyntaxException;  // N.B. checking "mergability"
 	
 	List<AssrtAnnotDataName> collectAnnotDataVarDecls();  // Currently only the vars are needed (not the data types)
 }

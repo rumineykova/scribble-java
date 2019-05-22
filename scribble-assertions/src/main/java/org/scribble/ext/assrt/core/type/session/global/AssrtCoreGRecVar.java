@@ -7,12 +7,14 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
+import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRecVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLRecVar;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLTypeFactory;
 
 	
 public class AssrtCoreGRecVar extends AssrtCoreRecVar<Global, AssrtCoreGType>
@@ -25,10 +27,11 @@ public class AssrtCoreGRecVar extends AssrtCoreRecVar<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public AssrtCoreLRecVar projectInlined(AssrtCoreSTypeFactory af, Role self,
+	public AssrtCoreLRecVar projectInlined(AssrtCore core, Role self,
 			AssrtBFormula f)
 	{
-		return af.local.AssrtCoreLRecVar(null, this.recvar, this.aforms);
+		return ((AssrtCoreLTypeFactory) core.config.tf.local).AssrtCoreLRecVar(null,
+				this.recvar, this.aforms);
 	}
 
 	@Override

@@ -16,11 +16,11 @@ import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRec;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLTypeFactory;
 import org.scribble.ext.assrt.core.visit.gather.AssrtCoreRecVarGatherer;
 import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
 
@@ -51,14 +51,14 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public AssrtCoreLType projectInlined(AssrtCoreSTypeFactory af, Role self,
+	public AssrtCoreLType projectInlined(AssrtCore core, Role self,
 			AssrtBFormula f) throws AssrtCoreSyntaxException
 	{
-		AssrtCoreLType proj = this.body.projectInlined(af, self, f);
+		AssrtCoreLType proj = this.body.projectInlined(core, self, f);
 		return (proj instanceof AssrtCoreLRecVar) 
 				? AssrtCoreLEnd.END
-				: af.local.AssrtCoreLRec(null, this.recvar, this.avars, proj,
-						this.bform);
+				: ((AssrtCoreLTypeFactory) core.config.tf.local).AssrtCoreLRec(null,
+						this.recvar, this.avars, proj, this.bform);
 	}
 
 	@Override

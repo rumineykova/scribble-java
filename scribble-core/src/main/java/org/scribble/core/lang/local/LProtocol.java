@@ -55,6 +55,7 @@ public class LProtocol extends Protocol<Local, LProtoName, LSeq>
 		this.self = self;
 	}
 
+	// For factoring between G/LProtocol (e.g., SubprotoExtChoiceSubjFixer::visitProtocol) -- worth it? or confusing?
 	@Override
 	public LProtocol reconstruct(CommonTree source,
 			List<ProtoMod> mods, LProtoName fullname, List<Role> rs,
@@ -173,7 +174,9 @@ public class LProtocol extends Protocol<Local, LProtoName, LSeq>
 		{
 			return false;
 		}
-		return super.equals(o);  // Does canEquals
+		LProtocol them = (LProtocol) o;
+		return super.equals(o)  // Does canEquals
+				&& this.self.equals(them.self); 
 	}
 
 	@Override

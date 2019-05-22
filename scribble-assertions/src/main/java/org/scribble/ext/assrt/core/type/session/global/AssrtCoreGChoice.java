@@ -28,8 +28,10 @@ import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLChoice;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLTypeFactory;
 import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
 
+// TODO: rename directed choice
 public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 		implements AssrtCoreGType
 {
@@ -75,9 +77,10 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public AssrtCoreLType projectInlined(AssrtCoreSTypeFactory af, Role self,
+	public AssrtCoreLType projectInlined(AssrtCore core, Role self,
 			AssrtBFormula f) throws AssrtCoreSyntaxException
 	{
+		AssrtCoreLTypeFactory tf = (AssrtCoreLTypeFactory) core.config.tf.local;
 		Map<AssrtCoreMsg, AssrtCoreLType> projs = new HashMap<>();
 		for (Entry<AssrtCoreMsg, AssrtCoreGType> e : this.cases.entrySet())
 		{
@@ -102,10 +105,11 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 						// HACK FIXME: currently also hacking all "message-carried assertions" to True, i.e., AssrtCoreState::fireSend/Request -- cf. AssrtSConfig::fire
 						// AssrtCoreState::getReceive/AcceptFireable currently use syntactic equality of assertions
 
-				a = af.AssrtCoreAction(a.op, a.pay, fproj);
+				a = ((AssrtCoreSTypeFactory) core.config.tf).AssrtCoreAction(a.op,
+						a.pay, fproj);
 			}
 
-			projs.put(a, e.getValue().projectInlined(af, self, fproj));
+			projs.put(a, e.getValue().projectInlined(core, self, fproj));
 					// N.B. local actions directly preserved from globals -- so core-receive also has assertion (cf. AssrtGMessageTransfer.project, currently no AssrtLReceive)
 					// FIXME: receive assertion projection -- should not be the same as send?
 		}
@@ -114,8 +118,8 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 		if (this.src.equals(self) || this.dst.equals(self))
 		{
 			Role role = this.src.equals(self) ? this.dst : this.src;
-			return af.local.AssrtCoreLChoice(null, role,
-					getKind().project(this.src, self), projs);
+			return tf.AssrtCoreLChoice(
+					null, role, getKind().project(this.src, self), projs);
 		}
 
 		// "Merge"
@@ -140,7 +144,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 						+ this + "\n onto " + self + ": mixed unguarded rec vars: " + rvs);
 			}
 
-			return af.local.AssrtCoreLRecVar(null, rvs.iterator().next(),
+			return tf.AssrtCoreLRecVar(null, rvs.iterator().next(),
 					fs.iterator().next());
 		}
 		
@@ -201,7 +205,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 			});
 		});
 		
-		return af.local.AssrtCoreLChoice(null, roles.iterator().next(),
+		return tf.AssrtCoreLChoice(null, roles.iterator().next(),
 				AssrtCoreLActionKind.RECV, merged);
 	}
 
