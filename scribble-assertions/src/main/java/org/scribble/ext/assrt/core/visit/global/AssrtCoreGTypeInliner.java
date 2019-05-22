@@ -14,20 +14,13 @@
 package org.scribble.ext.assrt.core.visit.global;
 
 import org.scribble.core.job.Core;
-import org.scribble.core.lang.SubprotoSig;
-import org.scribble.core.lang.global.GProtocol;
 import org.scribble.core.type.kind.Global;
-import org.scribble.core.type.name.ProtoName;
-import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.session.Do;
 import org.scribble.core.type.session.SType;
-import org.scribble.core.type.session.global.GSeq;
-import org.scribble.core.visit.STypeInliner;
-import org.scribble.core.visit.Substitutor;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
-import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGDo;
+import org.scribble.ext.assrt.core.type.session.NoSeq;
+import org.scribble.ext.assrt.core.visit.AssrtCoreSTypeInliner;
 
-public class AssrtCoreGTypeInliner extends STypeInliner<Global, GSeq>
+public class AssrtCoreGTypeInliner extends AssrtCoreSTypeInliner<Global>
 {
 	protected AssrtCoreGTypeInliner(Core core)
 	{
@@ -35,8 +28,10 @@ public class AssrtCoreGTypeInliner extends STypeInliner<Global, GSeq>
 	}
 
 	@Override
-	public SType<Global, GSeq> visitDo(Do<Global, GSeq> n)
+	public SType<Global, NoSeq<Global>> visitDo(Do<Global, NoSeq<Global>> n)
 	{
+		throw new RuntimeException("[TODO]");
+	/*
 		AssrtCoreSTypeFactory tf = (AssrtCoreSTypeFactory) this.core.config.tf;
 		AssrtCoreGDo n1 = (AssrtCoreGDo) n;
 		ProtoName<Global> fullname = n.proto;
@@ -55,5 +50,7 @@ public class AssrtCoreGTypeInliner extends STypeInliner<Global, GSeq>
 				// i.e. returning a GSeq -- rely on parent GSeq to inline
 		popSig();
 		return this.core.config.tf.global.GRecursion(null, rv, inlined);
+	*/
 	}
+
 }

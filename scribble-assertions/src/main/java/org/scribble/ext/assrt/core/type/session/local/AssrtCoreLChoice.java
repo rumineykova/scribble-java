@@ -11,10 +11,13 @@ import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
 public class AssrtCoreLChoice extends AssrtCoreChoice<Local, AssrtCoreLType>
 		implements AssrtCoreLType
 {
+	public final Role peer;  // this.peer == super.role
+	
 	protected AssrtCoreLChoice(CommonTree source, Role peer,
 			AssrtCoreLActionKind kind, Map<AssrtCoreMsg, AssrtCoreLType> cases)
 	{
 		super(source, peer, kind, cases);
+		this.peer = peer;
 	}
 	
 	@Override
@@ -26,14 +29,14 @@ public class AssrtCoreLChoice extends AssrtCoreChoice<Local, AssrtCoreLType>
 	@Override
 	public String toString()
 	{
-		return this.peer.toString() + this.kind + casesToString();
+		return this.role.toString() + this.kind + casesToString();
 	}
 	
 	@Override
 	public int hashCode()
 	{
 		int hash = 2399;
-		hash = 31 * hash + super.hashCode();
+		hash = 31 * hash + super.hashCode();  // Does this.peer/super.role
 		return hash;
 	}
 
@@ -48,7 +51,7 @@ public class AssrtCoreLChoice extends AssrtCoreChoice<Local, AssrtCoreLType>
 		{
 			return false;
 		}
-		return super.equals(obj);  // Checks canEquals
+		return super.equals(obj);  // Checks canEquals and this.peer/super.role
 	}
 	
 	@Override

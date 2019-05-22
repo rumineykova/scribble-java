@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.job.Core;
-import org.scribble.core.lang.Protocol;
 import org.scribble.core.lang.ProtoMod;
+import org.scribble.core.lang.Protocol;
 import org.scribble.core.lang.SubprotoSig;
 import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.model.endpoint.EState;
@@ -35,7 +35,6 @@ import org.scribble.core.type.session.local.LRecursion;
 import org.scribble.core.type.session.local.LSeq;
 import org.scribble.core.visit.STypeInliner;
 import org.scribble.core.visit.STypeUnfolder;
-import org.scribble.core.visit.Substitutor;
 import org.scribble.core.visit.local.EGraphBuilder;
 import org.scribble.core.visit.local.LDoPruner;
 import org.scribble.core.visit.local.LRoleDeclAndDoArgPruner;
@@ -72,18 +71,14 @@ public class LProtocol extends Protocol<Local, LProtoName, LSeq>
 		return new LProtocol(source, mods, fullname, rs, self, ps, def);
 	}
 	
-	// CHECKME: drop from Protocol (after removing Protocol from SType?)
-	// Pre: stack.peek is the sig for the calling Do (or top-level entry)
-	// i.e., it gives the roles/args at the call-site
+	// N.B. Do directly does visitSeq on target def -- here is only top-level entry
 	@Override
 	public LProtocol getInlined(STypeInliner<Local, LSeq> v)
 	{
 		SubprotoSig sig = new SubprotoSig(this);
 		v.pushSig(sig);
 
-		Substitutor<Local, LSeq> subs = v.core.config.vf.Substitutor(this.roles, sig.roles,
-				this.params, sig.args);
-		LSeq inlined = v.visitSeq(subs.visitSeq(this.def));
+		LSeq inlined = v.visitSeq(this.def);
 		RecVar rv = v.getInlinedRecVar(sig);
 		LRecursion rec = v.core.config.tf.local.LRecursion(null, rv, inlined);  // CHECKME: or protodecl source?
 		LSeq seq = v.core.config.tf.local.LSeq(null, Arrays.asList(rec));
@@ -93,16 +88,16 @@ public class LProtocol extends Protocol<Local, LProtoName, LSeq>
 				.collect(Collectors.toSet());
 		List<Role> rs = this.roles.stream().filter(x -> used.contains(x))  // Prune role decls
 				.collect(Collectors.toList());*/
-		return reconstruct(getSource(), this.mods, this.fullname, this.roles,
-				this.self, this.params, def);  // CHECKME: or null source?
+		return reconstruct(getSource(), this.mods, this.fullname, this.rs,
+				this.self, this.ps, def);  // CHECKME: or null source?
 	}
 	
 	@Override
 	public LProtocol unfoldAllOnce(STypeUnfolder<Local, LSeq> v)
 	{
 		LSeq unf = v.visitSeq(this.def);
-		return reconstruct(getSource(), this.mods, this.fullname, this.roles,
-				this.self, this.params, unf);
+		return reconstruct(getSource(), this.mods, this.fullname, this.rs,
+				this.self, this.ps, unf);
 	}
 
 	public void checkReachability(Core core) throws ScribException
@@ -150,7 +145,7 @@ public class LProtocol extends Protocol<Local, LProtoName, LSeq>
 	protected String rolesToString()
 	{
 		return "("
-				+ this.roles.stream()
+				+ this.rs.stream()
 						.map(x -> (x.equals(this.self)
 								? Constants.SELF_KW
 								: Constants.ROLE_KW) + " " + x)

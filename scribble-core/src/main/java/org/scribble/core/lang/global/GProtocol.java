@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.job.Core;
-import org.scribble.core.lang.Protocol;
 import org.scribble.core.lang.ProtoMod;
+import org.scribble.core.lang.Protocol;
 import org.scribble.core.lang.SubprotoSig;
 import org.scribble.core.lang.local.LProjection;
 import org.scribble.core.type.kind.Global;
@@ -39,7 +39,6 @@ import org.scribble.core.type.session.global.GSeq;
 import org.scribble.core.type.session.local.LSeq;
 import org.scribble.core.visit.STypeInliner;
 import org.scribble.core.visit.STypeUnfolder;
-import org.scribble.core.visit.Substitutor;
 import org.scribble.core.visit.gather.RoleGatherer;
 import org.scribble.core.visit.global.ConnectionChecker;
 import org.scribble.core.visit.global.ExtChoiceConsistencyChecker;
@@ -66,49 +65,46 @@ public class GProtocol extends Protocol<Global, GProtoName, GSeq>
 	}
 	
 	// Cf. (e.g.) checkRoleEnabling, that takes Core
-	// CHECKME: drop from Protocol (after removing Protocol from SType?)
-	// Pre: stack.peek is the sig for the calling Do (or top-level entry), i.e., it gives the roles/args at the call-site
+	// N.B. Do directly does visitSeq on target def -- here is only top-level entry
 	@Override
 	public GProtocol getInlined(STypeInliner<Global, GSeq> v)
 	{
 		SubprotoSig sig = new SubprotoSig(this);
 		v.pushSig(sig);
 
-		Substitutor<Global, GSeq> subs = v.core.config.vf.Substitutor(this.roles, sig.roles,
-				this.params, sig.args);
-		GSeq inlined = v.visitSeq(subs.visitSeq(this.def));
+		GSeq inlined = v.visitSeq(this.def);
 		RecVar rv = v.getInlinedRecVar(sig);
 		GRecursion rec = v.core.config.tf.global.GRecursion(null, rv, inlined);  // CHECKME: or protodecl source?
 		GSeq seq = v.core.config.tf.global.GSeq(null, Arrays.asList(rec));
 		GSeq def = v.core.config.vf.<Global, GSeq>RecPruner().visitSeq(seq);
 		Set<Role> used = def.gather(new RoleGatherer<Global, GSeq>()::visit)
 				.collect(Collectors.toSet());
-		List<Role> rs = this.roles.stream().filter(x -> used.contains(x))  // Prune role decls -- CHECKME: what is an example? was this from before unused role checking?
+		List<Role> rs = this.rs.stream().filter(x -> used.contains(x))  // Prune role decls -- CHECKME: what is an example? was this from before unused role checking?
 				.collect(Collectors.toList());
 		return //new GProtocol
 				reconstruct(getSource(), this.mods, this.fullname, rs,
-				this.params, def);
+				this.ps, def);
 	}
 	
 	@Override
 	public GProtocol unfoldAllOnce(STypeUnfolder<Global, GSeq> v)
 	{
 		GSeq unf = v.visitSeq(this.def);
-		return reconstruct(getSource(), this.mods, this.fullname, this.roles,
-				this.params, unf);
+		return reconstruct(getSource(), this.mods, this.fullname, this.rs,
+				this.ps, unf);
 	}
 
 	// Cf. (e.g.) getInlined, that takes the Visitor (not Core)
 	public void checkRoleEnabling(Core core) throws ScribException
 	{
-		Set<Role> rs = this.roles.stream().collect(Collectors.toSet());
+		Set<Role> rs = this.rs.stream().collect(Collectors.toSet());
 		RoleEnablingChecker v = core.config.vf.global.RoleEnablingChecker(rs);
 		this.def.visitWith(v);
 	}
 
 	public void checkExtChoiceConsistency(Core core) throws ScribException
 	{
-		Map<Role, Role> rs = this.roles.stream()
+		Map<Role, Role> rs = this.rs.stream()
 				.collect(Collectors.toMap(x -> x, x -> x));
 		ExtChoiceConsistencyChecker v = core.config.vf.global
 				.ExtChoiceConsistencyChecker(rs);
@@ -118,7 +114,7 @@ public class GProtocol extends Protocol<Global, GProtoName, GSeq>
 	public void checkConnectedness(Core core, boolean implicit)
 			throws ScribException
 	{
-		Set<Role> rs = this.roles.stream().collect(Collectors.toSet());
+		Set<Role> rs = this.rs.stream().collect(Collectors.toSet());
 		ConnectionChecker v = core.config.vf.global.ConnectionChecker(rs, implicit);
 		this.def.visitWith(v);
 	}
@@ -129,7 +125,7 @@ public class GProtocol extends Protocol<Global, GProtoName, GSeq>
 		LSeq def = core.config.vf.global.InlinedProjector(core, self)
 				.visitSeq(this.def);
 		LSeq fixed = core.config.vf.local.InlinedExtChoiceSubjFixer().visitSeq(def);
-		return projectAux(core, self, this.roles, fixed);
+		return projectAux(core, self, this.rs, fixed);
 	}
 	
 	// Does rec and role pruning
@@ -145,7 +141,7 @@ public class GProtocol extends Protocol<Global, GProtoName, GSeq>
 				.filter(x -> x.equals(self) || used.contains(x))
 				.collect(Collectors.toList());
 		List<MemberName<? extends NonRoleParamKind>> params =
-				new LinkedList<>(this.params);  // CHECKME: filter params by usage?
+				new LinkedList<>(this.ps);  // CHECKME: filter params by usage?
 		return new LProjection(this.mods, fullname, roles, self, params,
 				this.fullname, pruned);  // CHECKME: add/do via tf?
 	}
@@ -160,9 +156,9 @@ public class GProtocol extends Protocol<Global, GProtoName, GSeq>
 		LProtoName fullname = InlinedProjector
 				.getFullProjectionName(this.fullname, self);
 		List<MemberName<? extends NonRoleParamKind>> params =
-				new LinkedList<>(this.params);  // CHECKME: filter params by usage?
+				new LinkedList<>(this.ps);  // CHECKME: filter params by usage?
 		// N.B. also not using PreRoleCollector here for role decl pruning (cf. LRoleDeclAndDoArgPruner), "initial" projection pass not complete yet, so cannot traverse all needed subprotos
-		LProjection proj = new LProjection(this.mods, fullname, this.roles, self,
+		LProjection proj = new LProjection(this.mods, fullname, this.rs, self,
 				params, this.fullname, pruned);
 		// TODO: fully refactor ext choice subj fixing, do pruning, etc to Job and use AstVisitor?
 		return proj;

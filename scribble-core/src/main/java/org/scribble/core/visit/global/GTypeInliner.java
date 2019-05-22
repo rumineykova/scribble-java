@@ -43,11 +43,11 @@ public class GTypeInliner extends STypeInliner<Global, GSeq>
 			return this.core.config.tf.global.GContinue(n.getSource(), rv);
 		}
 		pushSig(sig);
-		GProtocol g = this.core.getContext().getIntermediate(fullname);
-		Substitutor<Global, GSeq> subs = this.core.config.vf.Substitutor(g.roles,
-				n.roles, g.params, n.args);
+		GProtocol gpro = this.core.getContext().getIntermediate(fullname);
+		Substitutor<Global, GSeq> subs = this.core.config.vf.Substitutor(gpro.rs,
+				n.roles, gpro.ps, n.args);
 		//GSeq inlined = (GSeq) g.def.visitWithNoEx(subs).visitWithNoEx(this);
-		GSeq inlined = visitSeq(subs.visitSeq(g.def));
+		GSeq inlined = visitSeq(subs.visitSeq(gpro.def));
 				// i.e. returning a GSeq -- rely on parent GSeq to inline
 		popSig();
 		return this.core.config.tf.global.GRecursion(null, rv, inlined);

@@ -140,7 +140,7 @@ public class Core
 			Set<Role> used = this.context.getInlined(fullname).def
 					.gather(new RoleGatherer<Global, GSeq>()::visit)
 					.collect(Collectors.toSet());
-			Set<Role> unused = this.context.getIntermediate(fullname).roles
+			Set<Role> unused = this.context.getIntermediate(fullname).rs
 							// imeds have original role decls (inlined's are pruned)
 					.stream().filter(x -> !used.contains(x)).collect(Collectors.toSet());
 			if (!unused.isEmpty())
@@ -198,7 +198,7 @@ public class Core
 		for (ProtoName<Global> fullname : this.context.getParsedFullnames())
 		{
 			GProtocol inlined = this.context.getInlined(fullname);
-			for (Role self : inlined.roles)
+			for (Role self : inlined.rs)
 			{
 				// pruneRecs already done (see runContextBuildingPasses)
 				// CHECKME: projection and inling commutative?
@@ -215,7 +215,7 @@ public class Core
 		for (ProtoName<Global> fullname : this.context.getParsedFullnames())
 		{
 			GProtocol imed = this.context.getIntermediate(fullname);
-			for (Role self : imed.roles)
+			for (Role self : imed.rs)
 			{
 				LProjection proj = this.context.getProjection(fullname, self);
 				verbosePrintPass("Projected intermediate onto " + self + ": "
@@ -229,7 +229,7 @@ public class Core
 		for (ProtoName<Global> fullname : this.context.getParsedFullnames())
 		{
 			GProtocol imed = this.context.getIntermediate(fullname);
-			for (Role self : imed.roles)
+			for (Role self : imed.rs)
 			{
 				LProjection proj = this.context.getProjection(fullname, self);
 				LProjection fixed = (LProjection) proj.pruneRoleDeclsAndDoArgs(v1);  // TODO: refactor as LProjection/LProto meth, cf. GProto
@@ -248,7 +248,7 @@ public class Core
 		for (ProtoName<Global> fullname : this.context.getParsedFullnames())
 		{
 			GProtocol imed = this.context.getIntermediate(fullname);
-			for (Role self : imed.roles)
+			for (Role self : imed.rs)
 			{
 				LProjection proj = this.context.getProjection(fullname, self);
 				LProjection fixed = (LProjection) proj.pruneDos(v2);  // TODO: refactor as LProjection/LProto meth, cf. GProto
@@ -268,7 +268,7 @@ public class Core
 		for (ProtoName<Global> fullname : this.context.getParsedFullnames())
 		{
 			GProtocol imed = this.context.getIntermediate(fullname);
-			for (Role self : imed.roles)
+			for (Role self : imed.rs)
 			{
 				LProjection proj = this.context.getProjection(fullname, self);
 				LProjection fixed = (LProjection) proj.fixExtChoiceSubjs(v3);
@@ -291,7 +291,7 @@ public class Core
 			{
 				continue;
 			}
-			for (Role self : inlined.roles)
+			for (Role self : inlined.rs)
 			{
 				LProjection iproj = this.context.getProjectedInlined(fullname, self);
 				iproj.checkReachability(this);
@@ -307,7 +307,7 @@ public class Core
 		for (ProtoName<Global> fullname : this.context.getParsedFullnames())
 		{
 			GProtocol inlined = this.context.getInlined(fullname);
-			for (Role self : inlined.roles)
+			for (Role self : inlined.rs)
 			{
 				// Seems to be OK even if runSyntaxWfPasses does not succeed (cf. unfair transform)
 				EGraph graph = this.context.getEGraph(fullname, self);
@@ -323,7 +323,7 @@ public class Core
 			for (ProtoName<Global> fullname : this.context.getParsedFullnames())
 			{
 				GProtocol inlined = this.context.getInlined(fullname);
-				for (Role self : inlined.roles)
+				for (Role self : inlined.rs)
 				{
 					// Pre: runGlobalSyntaxWfPasses -- e.g., bad.wfchoice.enabling.threeparty.Test02
 					EGraph graph = this.context.getUnfairEGraph(inlined.fullname, self);
@@ -344,7 +344,7 @@ public class Core
 			{
 				continue;
 			}
-			for (Role self : inlined.roles)
+			for (Role self : inlined.rs)
 			{
 				EState init = this.context.getEGraph(fullname, self).init;
 				init.traverse(new NonDetPayChecker());

@@ -13,29 +13,15 @@
  */
 package org.scribble.ext.assrt.core.visit;
 
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.job.Core;
-import org.scribble.core.lang.SubprotoSig;
 import org.scribble.core.type.kind.ProtoKind;
-import org.scribble.core.type.name.RecVar;
-import org.scribble.core.type.session.Continue;
-import org.scribble.core.type.session.Do;
-import org.scribble.core.type.session.Recursion;
-import org.scribble.core.type.session.SType;
-import org.scribble.core.type.session.Seq;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreRecVar;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreSType;
+import org.scribble.core.visit.STypeInliner;
+import org.scribble.ext.assrt.core.type.session.NoSeq;
 
 public abstract class AssrtCoreSTypeInliner<K extends ProtoKind>
+		extends STypeInliner<K, NoSeq<K>>
 {
-	public final Core core;
+	/*public final Core core;
 	
 	// Basically, "SubprotocolVisitor" -- factor out?
 	private final Deque<SubprotoSig> stack = new LinkedList<>();
@@ -44,13 +30,15 @@ public abstract class AssrtCoreSTypeInliner<K extends ProtoKind>
 	private Map<RecVar, Deque<RecVar>> recvars = new HashMap<>();
 	private Map<RecVar, Integer> counter = new HashMap<>();
 
-	private final Map<RecVar, Seq<K, ?>> recs = new HashMap<>(); 
+	private final Map<RecVar, Seq<K, ?>> recs = new HashMap<>(); */
 
 	public AssrtCoreSTypeInliner(Core core)
 	{
-		this.core = core;
+		//this.core = core;
+		super(core);
 	}
 	
+	/*
 	protected void pushRec(RecVar rv, Seq<K, ?> body)
 	{
 		if (this.recs.containsKey(rv))
@@ -144,6 +132,7 @@ public abstract class AssrtCoreSTypeInliner<K extends ProtoKind>
 	{
 		this.recvars.get(rv).pop();
 	}
+	*/
 	
 	
 	
@@ -158,6 +147,7 @@ public abstract class AssrtCoreSTypeInliner<K extends ProtoKind>
 	
 	
 	
+	/*
 	public AssrtCoreSType<K> visitContinue(AssrtCoreRecVar<K> n)
 	{
 		RecVar rv = getInlinedRecVar(n.recvar);
@@ -198,5 +188,6 @@ public abstract class AssrtCoreSTypeInliner<K extends ProtoKind>
 		}
 		return n.reconstruct(n.getSource(), elems);
 	}
+*/
 
 }

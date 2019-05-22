@@ -90,7 +90,7 @@ public class LProjectionTranslator
 
 	public LProjectionDecl translate(LProjection proj)
 	{
-		RoleDeclList rs = this.af.RoleDeclList(null, proj.roles.stream().map(x ->
+		RoleDeclList rs = this.af.RoleDeclList(null, proj.rs.stream().map(x ->
 			{
 				RoleNode r = this.af.RoleNode(null, x.toString());
 				return x.equals(proj.self) 
@@ -98,7 +98,7 @@ public class LProjectionTranslator
 						: this.af.RoleDecl(null, r);
 			}).collect(Collectors.toList()));
 		List<NonRoleParamDecl<? extends NonRoleParamKind>> pds = new LinkedList<>();
-		for (MemberName<? extends NonRoleParamKind> p : proj.params)
+		for (MemberName<? extends NonRoleParamKind> p : proj.ps)
 		{
 			if (p instanceof SigName)
 			{

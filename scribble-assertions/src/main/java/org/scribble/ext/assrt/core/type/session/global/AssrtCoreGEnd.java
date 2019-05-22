@@ -7,9 +7,10 @@ import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreEnd;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
+import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
 
 
 public class AssrtCoreGEnd extends AssrtCoreEnd<Global>
@@ -23,9 +24,9 @@ public class AssrtCoreGEnd extends AssrtCoreEnd<Global>
 	}
 
 	@Override
-	public List<AssrtAnnotDataName> collectAnnotDataVarDecls()
+	public AssrtCoreGType inline(AssrtCoreGTypeInliner v)
 	{
-		return Collections.emptyList();
+		return this;
 	}
 
 	@Override
@@ -33,6 +34,12 @@ public class AssrtCoreGEnd extends AssrtCoreEnd<Global>
 			AssrtBFormula f)
 	{
 		return af.local.AssrtCoreLEnd();
+	}
+
+	@Override
+	public List<AssrtAnnotDataName> collectAnnotDataVarDecls()
+	{
+		return Collections.emptyList();
 	}
 	
 	@Override

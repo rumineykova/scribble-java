@@ -41,11 +41,11 @@ public interface LSubprotoVisitorNoThrow<T>  // T should be SType<K, B> for STyp
 			boolean passive)
 	{
 		LProtocol target = (LProtocol) n.getTarget(core);
-		List<Role> tmp = target.roles.stream()
+		List<Role> tmp = target.rs.stream()
 				.map(x -> x.equals(target.self) ? Role.SELF : x)  // FIXME: self roledecl not actually being a self role is a mess
 				.collect(Collectors.toList());
 		Substitutor<Local, LSeq> subs = core.config.vf
-				.Substitutor(tmp, n.roles, target.params, n.args, passive);
+				.Substitutor(tmp, n.roles, target.ps, n.args, passive);
 		return subs.visitSeq(target.def);
 	}
 }

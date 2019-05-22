@@ -61,17 +61,17 @@ public class SubprotoProjector extends InlinedProjector  // CHECKME: this way, o
 		CoreContext corec = this.core.getContext();
 		ProtoName<Global> proto = n.proto;
 		GProtocol imed = corec.getIntermediate(proto);
-		Role targSelf = imed.roles.get(n.roles.indexOf(this.self));
-		if (!imed.roles.contains(targSelf))  // CHECKME: because roles already pruned for intermed decl?
+		Role targSelf = imed.rs.get(n.roles.indexOf(this.self));
+		if (!imed.rs.contains(targSelf))  // CHECKME: because roles already pruned for intermed decl?
 		{
 			return LSkip.SKIP;
 		}
 
 		LProtoName fullname = InlinedProjector.getFullProjectionName(proto,
 				targSelf);
-		Substitutions subs = new Substitutions(imed.roles, n.roles,
+		Substitutions subs = new Substitutions(imed.rs, n.roles,
 				Collections.emptyList(), Collections.emptyList());
-		List<Role> used = corec.getInlined(proto).roles.stream()  // N.B. global (inlined) roles -- still need to prune roles w.r.t. localised projection
+		List<Role> used = corec.getInlined(proto).rs.stream()  // N.B. global (inlined) roles -- still need to prune roles w.r.t. localised projection
 				.map(x -> subs.subsRole(x)).collect(Collectors.toList());
 		List<Role> rs = n.roles.stream().filter(x -> used.contains(x))
 				.map(x -> x.equals(this.self) ? Role.SELF : x)  

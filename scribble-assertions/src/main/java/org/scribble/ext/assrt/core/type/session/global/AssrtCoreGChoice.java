@@ -12,15 +12,15 @@ import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreActionKind;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreChoice;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLActionKind;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLChoice;
@@ -32,8 +32,8 @@ import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
 public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 		implements AssrtCoreGType
 {
-	public final Role src;  // Singleton -- no disconnect for now
-	public final Role dst;  // this.dest == super.role
+	public final Role src;
+	public final Role dst;  // this.dst == super.role
 
 	protected AssrtCoreGChoice(CommonTree source, Role src,
 			AssrtCoreGActionKind kind, Role dst,
@@ -47,8 +47,10 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 	@Override
 	public AssrtCoreGType inline(AssrtCoreGTypeInliner v)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Map<AssrtCoreMsg, AssrtCoreGType> cases = this.cases.entrySet().stream()
+				.collect(Collectors.toMap(Entry::getKey, x -> x.getValue().inline(v)));
+		return ((AssrtCoreGTypeFactory) v.core.config.tf.global)
+				.AssrtCoreGChoice(getSource(), this.src, getKind(), this.dst, cases);
 	}
 
 	@Override
@@ -208,7 +210,8 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 	public int hashCode()
 	{
 		int hash = 2339;
-		hash = 31 * hash + super.hashCode();
+		hash = 31 * hash + super.hashCode();  // Does this.dst/super.role
+
 		hash = 31 * hash + this.src.hashCode();
 		return hash;
 	}
@@ -224,7 +227,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 		{
 			return false;
 		}
-		return super.equals(obj)  // Checks canEquals
+		return super.equals(obj)  // Checks canEquals and this.dst/super.role
 				&& this.src.equals(((AssrtCoreGChoice) obj).src);  
 	}
 	

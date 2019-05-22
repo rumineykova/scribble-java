@@ -12,16 +12,17 @@ public abstract class AssrtCoreChoice<K extends ProtoKind,
 			B extends AssrtCoreSType<K>>  // Without Seq complication, take kinded Type directly
 		extends AssrtCoreSTypeBase<K>
 {
-	public final Role peer;
+	public final Role role;  // N.B. "fixed" dst for global, "relative" peer for local -- CHECKME: why dst for global?
+			// CHECKME: deprecate role?
 	public final AssrtCoreActionKind<K> kind;
 	public final Map<AssrtCoreMsg, B> cases;
 	
 	// Pre: cases.size() > 1
-	protected AssrtCoreChoice(CommonTree source, Role peer,
+	protected AssrtCoreChoice(CommonTree source, Role role,
 			AssrtCoreActionKind<K> kind, Map<AssrtCoreMsg, B> cases)
 	{
 		super(source);
-		this.peer = peer;
+		this.role = role;
 		this.kind = kind;
 		this.cases = Collections.unmodifiableMap(cases);
 	}
@@ -32,7 +33,7 @@ public abstract class AssrtCoreChoice<K extends ProtoKind,
 	public int hashCode()
 	{
 		int hash = 29;
-		hash = 31 * hash + this.peer.hashCode();
+		hash = 31 * hash + this.role.hashCode();
 		hash = 31 * hash + this.kind.hashCode();
 		hash = 31 * hash + this.cases.hashCode();
 		return hash;
@@ -51,7 +52,7 @@ public abstract class AssrtCoreChoice<K extends ProtoKind,
 		}
 		AssrtCoreChoice<?, ?> them = (AssrtCoreChoice<?, ?>) o; 
 		return super.equals(o)  // Checks canEquals -- implicitly checks kind
-				&& this.peer.equals(them.peer) && this.kind.equals(them.kind)
+				&& this.role.equals(them.role) && this.kind.equals(them.kind)
 				&& this.cases.equals(them.cases);
 	}
 	

@@ -13,6 +13,7 @@
  */
 package org.scribble.ext.assrt.core.lang.global;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +31,7 @@ import org.scribble.core.type.kind.NonRoleParamKind;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.LProtoName;
 import org.scribble.core.type.name.MemberName;
+import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.global.GSeq;
 import org.scribble.core.type.session.local.LSeq;
@@ -39,15 +41,20 @@ import org.scribble.core.visit.Substitutor;
 import org.scribble.core.visit.gather.RoleGatherer;
 import org.scribble.core.visit.global.InlinedProjector;
 import org.scribble.ext.assrt.core.lang.AssrtCoreProtocol;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.session.NoSeq;
+import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGRec;
 import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGType;
+import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGTypeFactory;
+import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
 import org.scribble.util.ScribException;
 
 public class AssrtCoreGProtocol extends GProtocol
-		implements AssrtCoreProtocol<Global, GProtoName, GSeq>
+		implements AssrtCoreProtocol<Global, GProtoName, NoSeq<Global>>  // FIXME HACK: Grotocol has GSeq, but here NoSeq
 {
 	public final AssrtCoreGType type;  // N.B. super.def Seq set to null
 	
-	// FIXME: state vars + annot
+	// FIXME: state vars + annot  // factor out with recursion?
 	
 	public AssrtCoreGProtocol(CommonTree source, List<ProtoMod> mods,
 			GProtoName fullname, List<Role> rs,
@@ -57,6 +64,7 @@ public class AssrtCoreGProtocol extends GProtocol
 		this.type = type;
 	}
 
+	// Deprecated because no longer using GSeq def
 	@Override
 	public AssrtCoreGProtocol reconstruct(CommonTree source,
 			List<ProtoMod> mods, GProtoName fullname, List<Role> rs,
@@ -73,7 +81,6 @@ public class AssrtCoreGProtocol extends GProtocol
 	}
 	
 	// Cf. (e.g.) checkRoleEnabling, that takes Core
-	// CHECKME: drop from Protocol (after removing Protocol from SType?)
 	// Pre: stack.peek is the sig for the calling Do (or top-level entry), i.e., it gives the roles/args at the call-site
 	@Override
 	public AssrtCoreGProtocol getInlined(STypeInliner<Global, GSeq> v)
@@ -81,22 +88,22 @@ public class AssrtCoreGProtocol extends GProtocol
 		SubprotoSig sig = new SubprotoSig(this);
 		v.pushSig(sig);
 
-		Substitutor<Global, GSeq> subs = v.core.config.vf.Substitutor(this.roles, sig.roles,
-				this.params, sig.args);
-		//GSeq inlined = v.visitSeq(subs.visitSeq(this.def));
-		AssrtCoreGType inlined = null;
+		AssrtCoreGTypeInliner cast = (AssrtCoreGTypeInliner) 
+				(STypeInliner<Global, ?>) v;  // CHECKME: cast OK?  no warning?
+		AssrtCoreGType inlined = this.type.inline(cast);  
+				// CHECKME: refactor type.inline back into visitor pattern?  // Can't because AssrtCoreSTypes do not extend base Choice/etc
+
 		RecVar rv = v.getInlinedRecVar(sig);
-		GRecursion rec = v.core.config.tf.global.GRecursion(null, rv, inlined);  // CHECKME: or protodecl source?
-		GSeq seq = v.core.config.tf.global.GSeq(null, Arrays.asList(rec));
-		GSeq def = v.core.config.vf.<Global, GSeq>RecPruner().visitSeq(seq);
-		Set<Role> used = def.gather(new RoleGatherer<Global, GSeq>()::visit)
-				.collect(Collectors.toSet());
+		AssrtCoreGTypeFactory tf = (AssrtCoreGTypeFactory) v.core.config.tf.global;
+		AssrtCoreGRec rec = tf.AssrtCoreGRec(null, rv, new LinkedHashMap<>(),
+				inlined, AssrtTrueFormula.TRUE);
+
+		// TODO
+		/*Set<Role> used = rec.gather(new RoleGatherer<Global, GSeq>()::visit) .collect(Collectors.toSet());
 		List<Role> rs = this.roles.stream().filter(x -> used.contains(x))  // Prune role decls -- CHECKME: what is an example? was this from before unused role checking?
-				.collect(Collectors.toList());
-		return //new GProtocol
-				reconstruct(getSource(), this.mods, this.fullname, rs,
-				this.params, def);
-		throw new RuntimeException("[TODO]");
+				.collect(Collectors.toList());*/
+		return new AssrtCoreGProtocol(getSource(), this.mods, this.fullname,
+				this.rs, this.ps, rec);
 	}
 	
 	@Override
@@ -146,7 +153,7 @@ public class AssrtCoreGProtocol extends GProtocol
 				.filter(x -> x.equals(self) || used.contains(x))
 				.collect(Collectors.toList());
 		List<MemberName<? extends NonRoleParamKind>> params =
-				new LinkedList<>(this.params);  // CHECKME: filter params by usage?
+				new LinkedList<>(this.ps);  // CHECKME: filter params by usage?
 		return new LProjection(this.mods, fullname, roles, self, params,
 				this.fullname, pruned);  // CHECKME: add/do via tf?
 	}
@@ -174,8 +181,8 @@ public class AssrtCoreGProtocol extends GProtocol
 		//hash = 31 * hash + super.hashCode();  // No: super.def == null
 		hash = 31 * hash + this.mods.hashCode();
 		hash = 31 * hash + this.fullname.hashCode();
-		hash = 31 * hash + this.roles.hashCode();
-		hash = 31 * hash + this.params.hashCode();
+		hash = 31 * hash + this.rs.hashCode();
+		hash = 31 * hash + this.ps.hashCode();
 		hash = 31 * hash + this.type.hashCode();
 		return hash;
 	}
@@ -195,7 +202,7 @@ public class AssrtCoreGProtocol extends GProtocol
 		AssrtCoreGProtocol them = (AssrtCoreGProtocol) o;
 		return them.canEquals(this)
 				&& this.mods.equals(them.mods) && this.fullname.equals(them.fullname)
-				&& this.roles.equals(them.roles) && this.params.equals(them.params)
+				&& this.rs.equals(them.rs) && this.ps.equals(them.ps)
 				&& this.type.equals(them.type);
 	}
 

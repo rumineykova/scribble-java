@@ -59,7 +59,7 @@ public class AssrtCoreEGraphBuilder
 			AssrtCoreLChoice lc = (AssrtCoreLChoice) lt;
 			AssrtCoreLActionKind k = lc.getKind();
 			lc.cases.entrySet().stream().forEach(e ->
-				buildEdgeAndContinuation(s1, s2, recs, lc.peer, k, e.getKey(), e.getValue())
+				buildEdgeAndContinuation(s1, s2, recs, lc.role, k, e.getKey(), e.getValue())
 			);
 		}
 		else if (lt instanceof AssrtCoreLRec)
