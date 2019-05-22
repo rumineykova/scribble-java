@@ -4,7 +4,8 @@ import org.scribble.core.type.kind.Local;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreEnd;
 
 
-public class AssrtCoreLEnd extends AssrtCoreEnd<Local> implements AssrtCoreLType
+public class AssrtCoreLEnd extends AssrtCoreEnd<Local, AssrtCoreLType>
+		implements AssrtCoreLType
 {
 	public static final AssrtCoreLEnd END = new AssrtCoreLEnd();
 	

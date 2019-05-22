@@ -16,19 +16,22 @@ package org.scribble.ext.assrt.core.visit.global;
 import org.scribble.core.job.Core;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.session.Do;
-import org.scribble.core.type.session.SType;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSType;
 import org.scribble.ext.assrt.core.type.session.NoSeq;
+import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGType;
 import org.scribble.ext.assrt.core.visit.AssrtCoreSTypeInliner;
 
-public class AssrtCoreGTypeInliner extends AssrtCoreSTypeInliner<Global>
+public class AssrtCoreGTypeInliner extends AssrtCoreSTypeInliner<Global, 
+		AssrtCoreGType>
 {
-	protected AssrtCoreGTypeInliner(Core core)
+	public AssrtCoreGTypeInliner(Core core)
 	{
 		super(core);
 	}
 
 	@Override
-	public SType<Global, NoSeq<Global>> visitDo(Do<Global, NoSeq<Global>> n)
+	public AssrtCoreSType<Global, AssrtCoreGType> visitDo(Do<Global, 
+			NoSeq<Global>> n)
 	{
 		throw new RuntimeException("[TODO]");
 	/*

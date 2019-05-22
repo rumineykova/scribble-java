@@ -26,8 +26,8 @@ import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Arg;
 import org.scribble.ext.assrt.core.lang.AssrtCoreProtocol;
 
-public abstract class AssrtCoreDo<K extends ProtoKind, B extends AssrtCoreSType<K>>
-		extends AssrtCoreSTypeBase<K>
+public abstract class AssrtCoreDo<K extends ProtoKind, B extends AssrtCoreSType<K, B>>
+		extends AssrtCoreSTypeBase<K, B>
 {
 	public final ProtoName<K> proto;  // Currently disamb'd to fullname by GTypeTranslator (see GDoDel::translate)
 	public final List<Role> roles;  // Ordered role args; pre: size > 2

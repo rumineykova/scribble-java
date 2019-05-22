@@ -2,22 +2,27 @@ package org.scribble.ext.assrt.core.type.session.global;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.DataName;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
+import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRec;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
+import org.scribble.ext.assrt.core.visit.gather.AssrtCoreRecVarGatherer;
+import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
 
 public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 		implements AssrtCoreGType
@@ -30,25 +35,41 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 	}
 
 	@Override
+	public AssrtCoreGType pruneRecs(AssrtCore core)
+	{
+		Set<RecVar> rvs = this.body
+				.assrtCoreGather(
+						new AssrtCoreRecVarGatherer<Global, AssrtCoreGType>()::visit)
+				.collect(Collectors.toSet());
+		return rvs.contains(this.recvar) ? this : this.body;
+	}
+
+	@Override
+	public AssrtCoreGType inline(AssrtCoreGTypeInliner v)
+	{
+		throw new RuntimeException("[TODO] :\n" + this);
+	}
+
+	@Override
+	public AssrtCoreLType projectInlined(AssrtCoreSTypeFactory af, Role self,
+			AssrtBFormula f) throws AssrtCoreSyntaxException
+	{
+		AssrtCoreLType proj = this.body.projectInlined(af, self, f);
+		return (proj instanceof AssrtCoreLRecVar) 
+				? AssrtCoreLEnd.END
+				: af.local.AssrtCoreLRec(null, this.recvar, this.avars, proj,
+						this.bform);
+	}
+
+	@Override
 	public List<AssrtAnnotDataName> collectAnnotDataVarDecls()
 	{
 		List<AssrtAnnotDataName> res = this.body.collectAnnotDataVarDecls();
-		this.annotvars.keySet().stream().forEachOrdered(
+		this.avars.keySet().stream().forEachOrdered(
 				v -> res.add(new AssrtAnnotDataName(v, new DataName("int"))));  // TODO: factor out int constant
 		/*this.ass.getIntVars().stream().forEachOrdered(
 				v -> res.add(new AssrtAnnotDataType(v, new DataType("int"))));  // No: not decls*/
 		return res;
-	}
-
-	@Override
-	public AssrtCoreLType project(AssrtCoreSTypeFactory af, Role r,
-			AssrtBFormula f) throws AssrtCoreSyntaxException
-	{
-		AssrtCoreLType proj = this.body.project(af, r, f);
-		return (proj instanceof AssrtCoreLRecVar) 
-				? AssrtCoreLEnd.END
-				: af.local.AssrtCoreLRec(null, this.recvar, this.annotvars, proj,
-						this.ass);
 	}
 
 	@Override

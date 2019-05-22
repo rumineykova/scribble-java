@@ -54,7 +54,7 @@ public class Core
 {
 	public final CoreConfig config;  // Immutable
 
-	private final CoreContext context;  // Mutable (Visitor passes replace modules)
+	protected final CoreContext context;  // Mutable (Visitor passes replace modules)
 	
 	public Core(ModuleName mainFullname, CoreArgs args,
 			//Map<ModuleName, ModuleContext> modcs, 
@@ -446,7 +446,7 @@ public class Core
 		}
 	}
 	
-	private void verbosePrintPass(String s)
+	protected void verbosePrintPass(String s)
 	{
 		verbosePrintln("\n[Core] " + s);
 	}

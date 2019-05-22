@@ -20,15 +20,15 @@ import org.scribble.core.job.Core;
 import org.scribble.core.job.CoreArgs;
 import org.scribble.core.job.CoreContext;
 import org.scribble.core.lang.global.GProtocol;
+import org.scribble.core.lang.local.LProjection;
 import org.scribble.core.model.ModelFactory;
 import org.scribble.core.model.endpoint.EModelFactory;
 import org.scribble.core.model.global.SModelFactory;
+import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.ModuleName;
+import org.scribble.core.type.name.ProtoName;
+import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.STypeFactory;
-import org.scribble.core.visit.STypeVisitorFactory;
-import org.scribble.core.visit.STypeVisitorFactoryImpl;
-import org.scribble.core.visit.global.GTypeVisitorFactoryImpl;
-import org.scribble.core.visit.local.LTypeVisitorFactoryImpl;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactoryImpl;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactoryImpl;
 import org.scribble.util.ScribException;
@@ -43,13 +43,13 @@ public class AssrtCore extends Core
 		super(mainFullname, args, imeds, tf);
 	}
 	
-	// A Scribble extension should override newSTypeVisitorFactory/ModelFactory as appropriate
+	/*// A Scribble extension should override newSTypeVisitorFactory/ModelFactory as appropriate
 	@Override
 	protected STypeVisitorFactory newSTypeVisitorFactory()
 	{
-		return new STypeVisitorFactoryImpl(new GTypeVisitorFactoryImpl(),
+		return new STypeVisitorFactoryImpl(new AssrtCoreGTypeVisitorFactoryImpl(),
 				new LTypeVisitorFactoryImpl());
-	}
+	}*/
 	
 	// A Scribble extension should override newSTypeVisitorFactory/ModelFactory as appropriate
 	@Override
@@ -80,10 +80,48 @@ public class AssrtCore extends Core
 	@Override
 	public void runPasses() throws ScribException
 	{
+		runSyntaxTransformPasses();
+		//runGlobalSyntaxWfPasses();
+		runProjectionPasses();  // CHECKME: can try before validation (i.e., including syntactic WF), to promote greater tool feedback? (cf. CommandLine output "barrier")
+		//runProjectionSyntaxWfPasses();
+		runEfsmBuildingPasses();  // Currently, unfair-transform graph building must come after syntactic WF --- TODO fix graph building to prevent crash ?
+		runLocalModelCheckingPasses();
+		runGlobalModelCheckingPasses();
+	}
+	
+	@Override
+	protected void runSyntaxTransformPasses()  // No ScribException, no errors expected
+	{
+		verbosePrintPass("Inlining subprotocols for all globals...");
+		for (ProtoName<Global> fullname : this.context.getParsedFullnames())
+		{
+			GProtocol inlined = this.context.getInlined(fullname);
+			verbosePrintPass(
+					"Inlined subprotocols: " + fullname + "\n" + inlined);
+		}
+				
+		// Skipping unfolding -- unnecessary with proper guarding
+	}
+	
+	@Override
+	protected void runProjectionPasses()  // No ScribException, no errors expected
+	{
+		verbosePrintPass("Projecting all inlined globals...");
+		for (ProtoName<Global> fullname : this.context.getParsedFullnames())
+		{
+			GProtocol inlined = this.context.getInlined(fullname);
+			for (Role self : inlined.rs)
+			{
+				// pruneRecs already done (see runContextBuildingPasses)
+				// CHECKME: projection and inling commutative?
+				LProjection iproj = this.context.getProjectedInlined(inlined.fullname,
+						self);
+				verbosePrintPass("Projected inlined onto " + self + ": "
+						+ inlined.fullname + "\n" + iproj);
+			}
+		}
 		
-		// TODO: override passes for Assrt as needed
-		
-		super.runPasses();
+		// Skipping imed projection
 	}
 	
 	@Override

@@ -2,15 +2,17 @@ package org.scribble.ext.assrt.core.type.session;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.type.kind.ProtoKind;
 import org.scribble.core.type.name.Role;
 
 public abstract class AssrtCoreChoice<K extends ProtoKind, 
-			B extends AssrtCoreSType<K>>  // Without Seq complication, take kinded Type directly
-		extends AssrtCoreSTypeBase<K>
+			B extends AssrtCoreSType<K, B>>  // Without Seq complication, take kinded Type directly
+		extends AssrtCoreSTypeBase<K, B>
 {
 	public final Role role;  // N.B. "fixed" dst for global, "relative" peer for local -- CHECKME: why dst for global?
 			// CHECKME: deprecate role?
@@ -26,6 +28,15 @@ public abstract class AssrtCoreChoice<K extends ProtoKind,
 		this.kind = kind;
 		this.cases = Collections.unmodifiableMap(cases);
 	}
+	
+	@Override
+	public <T> Stream<T> assrtCoreGather(
+			Function<AssrtCoreSType<K, B>, Stream<T>> f)
+	{
+		return Stream.concat(f.apply(this),
+				this.cases.values().stream().flatMap(x -> x.assrtCoreGather(f)));
+	}
+
 	
 	public abstract AssrtCoreActionKind<K> getKind();
 	

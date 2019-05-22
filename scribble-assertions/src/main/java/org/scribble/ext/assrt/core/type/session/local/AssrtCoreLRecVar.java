@@ -9,7 +9,8 @@ import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRecVar;
 
 	
-public class AssrtCoreLRecVar extends AssrtCoreRecVar<Local>
+public class AssrtCoreLRecVar extends AssrtCoreRecVar<Local, 
+				AssrtCoreLType>
 		implements AssrtCoreLType
 {
 	protected AssrtCoreLRecVar(CommonTree source, RecVar var,

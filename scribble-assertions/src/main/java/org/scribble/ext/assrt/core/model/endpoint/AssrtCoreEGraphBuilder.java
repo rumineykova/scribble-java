@@ -67,8 +67,8 @@ public class AssrtCoreEGraphBuilder
 			AssrtCoreLRec lr = (AssrtCoreLRec) lt;
 
 			//this.util.addAnnotVarInits(s1, Stream.of(lr.annot).collect(Collectors.toMap(a -> a, a -> lr.init)));
-			this.util.addStateVars(s1, lr.annotvars,
-					lr.ass);
+			this.util.addStateVars(s1, lr.avars,
+					lr.bform);
 
 			Map<RecVar, AssrtEState> tmp = new HashMap<>(recs);
 			tmp.put(lr.recvar, s1);
@@ -94,7 +94,7 @@ public class AssrtCoreEGraphBuilder
 
 			//AssrtArithFormula expr = crv.annotexprs;
 			//AssrtDataTypeVar annot = s.getAnnotVars().keySet().iterator().next();
-			List<AssrtAFormula> annotexprs = crv.annotexprs;
+			List<AssrtAFormula> annotexprs = crv.aforms;
 			//List<AssrtDataTypeVar> annotvars = s.getAnnotVars().keySet().stream().collect(Collectors.toList());
 
 			this.util.addEdge(s1, toEAction(r, k, a, //annotvars,

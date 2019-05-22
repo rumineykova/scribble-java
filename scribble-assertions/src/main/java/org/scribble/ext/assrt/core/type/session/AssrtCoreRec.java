@@ -1,7 +1,9 @@
 package org.scribble.ext.assrt.core.type.session;
 
 import java.util.LinkedHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.type.kind.ProtoKind;
@@ -11,33 +13,40 @@ import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 
 public abstract class AssrtCoreRec<K extends ProtoKind, 
-			B extends AssrtCoreSType<K>>  // Without Seq complication, take kinded Type directly
-		extends AssrtCoreSTypeBase<K>
+			B extends AssrtCoreSType<K, B>>  // Without Seq complication, take kinded Type directly
+		extends AssrtCoreSTypeBase<K, B>
 {
-	public final RecVar recvar;  // FIXME: RecVarNode?  (Cf. AssrtCoreAction.op/pay)
-	public final LinkedHashMap<AssrtDataVar, AssrtAFormula> annotvars;  // Int  // Non-null
+	public final RecVar recvar;  // CHECKME: RecVarNode?  (Cf. AssrtCoreAction.op/pay)
+	public final LinkedHashMap<AssrtDataVar, AssrtAFormula> avars;  // Int  // Non-null
 	public final B body;
-	public final AssrtBFormula ass;
+	public final AssrtBFormula bform;
 	
 	protected AssrtCoreRec(CommonTree source, RecVar recvar,
-			LinkedHashMap<AssrtDataVar, AssrtAFormula> annotvars, B body,
-			AssrtBFormula ass)
+			LinkedHashMap<AssrtDataVar, AssrtAFormula> avars, B body,
+			AssrtBFormula bform)
 	{
 		super(source);
 		this.recvar = recvar;
-		this.annotvars = new LinkedHashMap<>(annotvars);
+		this.avars = new LinkedHashMap<>(avars);
 		this.body = body;
-		this.ass = ass;
+		this.bform = bform;
+	}
+	
+	@Override
+	public <T> Stream<T> assrtCoreGather(
+			Function<AssrtCoreSType<K, B>, Stream<T>> f)
+	{
+		return Stream.concat(f.apply(this), this.body.assrtCoreGather(f));
 	}
 	
 	@Override
 	public String toString()
 	{
 		return "mu " + this.recvar + "("
-				+ this.annotvars.entrySet().stream()
+				+ this.avars.entrySet().stream()
 						.map(e -> e.getKey() + " := " + e.getValue()).collect(
 								Collectors.joining(", "))
-				+ ")" + this.ass + "." + this.body;
+				+ ")" + this.bform + "." + this.body;
 	}
 
 	@Override
@@ -54,9 +63,9 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 		AssrtCoreRec<?, ?> them = (AssrtCoreRec<?, ?>) o;
 		return super.equals(o)  // Checks canEquals -- implicitly checks kind
 				&& this.recvar.equals(them.recvar) 
-				&& this.annotvars.equals(them.annotvars)
+				&& this.avars.equals(them.avars)
 				&& this.body.equals(them.body)
-				&& this.ass.equals(them.ass);
+				&& this.bform.equals(them.bform);
 	}
 	
 	@Override
@@ -68,9 +77,9 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + this.recvar.hashCode();
-		result = prime * result + this.annotvars.hashCode();
+		result = prime * result + this.avars.hashCode();
 		result = prime * result + this.body.hashCode();
-		result = prime * result + this.ass.hashCode();
+		result = prime * result + this.bform.hashCode();
 		return result;
 	}
 }

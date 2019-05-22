@@ -25,8 +25,9 @@ import org.scribble.core.visit.STypeAggNoThrow;
 import org.scribble.util.ScribException;
 
 // SessTypeBase is to SessType as ScribNodeBase is to ScribNode
-public abstract class AssrtCoreSTypeBase<K extends ProtoKind>
-		extends STypeBase<K, NoSeq<K>>
+public abstract class AssrtCoreSTypeBase<K extends ProtoKind, 
+			B extends AssrtCoreSType<K, B>>
+		extends STypeBase<K, NoSeq<K>> implements AssrtCoreSType<K, B>
 {
 	public AssrtCoreSTypeBase(CommonTree source)
 	{

@@ -37,9 +37,9 @@ import org.scribble.core.type.session.global.GSeq;
 import org.scribble.core.type.session.local.LSeq;
 import org.scribble.core.visit.STypeInliner;
 import org.scribble.core.visit.STypeUnfolder;
-import org.scribble.core.visit.Substitutor;
 import org.scribble.core.visit.gather.RoleGatherer;
 import org.scribble.core.visit.global.InlinedProjector;
+import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.lang.AssrtCoreProtocol;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.session.NoSeq;
@@ -88,22 +88,23 @@ public class AssrtCoreGProtocol extends GProtocol
 		SubprotoSig sig = new SubprotoSig(this);
 		v.pushSig(sig);
 
-		AssrtCoreGTypeInliner cast = (AssrtCoreGTypeInliner) 
-				(STypeInliner<Global, ?>) v;  // CHECKME: cast OK?  no warning?
+		//AssrtCoreGTypeInliner cast = (AssrtCoreGTypeInliner) (STypeInliner<Global, ?>) v;  // CHECKME: cast OK?  no warning?
+		AssrtCoreGTypeInliner cast = new AssrtCoreGTypeInliner(v.core);  // FIXME: doesn't fit visitorfactory pattern, not an GTypeInliner because of NoSeq
 		AssrtCoreGType inlined = this.type.inline(cast);  
-				// CHECKME: refactor type.inline back into visitor pattern?  // Can't because AssrtCoreSTypes do not extend base Choice/etc
+				// CHECKME: refactor type.inline back into visitor pattern?  // No: cannot, because AssrtCoreSTypes do not extend base Choice/etc
 
 		RecVar rv = v.getInlinedRecVar(sig);
 		AssrtCoreGTypeFactory tf = (AssrtCoreGTypeFactory) v.core.config.tf.global;
 		AssrtCoreGRec rec = tf.AssrtCoreGRec(null, rv, new LinkedHashMap<>(),
 				inlined, AssrtTrueFormula.TRUE);
+		AssrtCoreGType pruned = rec.pruneRecs((AssrtCore) v.core);
 
 		// TODO
 		/*Set<Role> used = rec.gather(new RoleGatherer<Global, GSeq>()::visit) .collect(Collectors.toSet());
-		List<Role> rs = this.roles.stream().filter(x -> used.contains(x))  // Prune role decls -- CHECKME: what is an example? was this from before unused role checking?
+		List<Role> rs = this.roles.stream().filter(x -> used.contains(x))  // Prune role decls -- CHECKME: what is an example?  was this from before unused role checking?
 				.collect(Collectors.toList());*/
 		return new AssrtCoreGProtocol(getSource(), this.mods, this.fullname,
-				this.rs, this.ps, rec);
+				this.rs, this.ps, pruned);
 	}
 	
 	@Override

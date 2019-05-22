@@ -42,7 +42,7 @@ public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public AssrtCoreLType project(AssrtCoreSTypeFactory af, Role subj,
+	public AssrtCoreLType projectInlined(AssrtCoreSTypeFactory af, Role subj,
 			AssrtBFormula f) throws AssrtCoreSyntaxException
 	{
 		throw new RuntimeException("[TODO] :\n\t" + this);

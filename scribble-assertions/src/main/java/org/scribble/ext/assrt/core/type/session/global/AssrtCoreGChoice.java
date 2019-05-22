@@ -11,6 +11,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
+import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula;
@@ -45,6 +46,26 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 	}
 
 	@Override
+	public AssrtCoreGType pruneRecs(AssrtCore core)
+	{
+		Map<AssrtCoreMsg, AssrtCoreGType> pruned = new HashMap<>();
+		for (Entry<AssrtCoreMsg, AssrtCoreGType> e : this.cases.entrySet())
+		{
+			AssrtCoreGType tmp = e.getValue().pruneRecs(core);
+			if (!tmp.equals(AssrtCoreGEnd.END))
+			{
+				pruned.put(e.getKey(), tmp);
+			}
+		}
+		if (pruned.isEmpty())
+		{
+			return AssrtCoreGEnd.END;
+		}
+		return ((AssrtCoreGTypeFactory) core.config.tf.global)
+				.AssrtCoreGChoice(getSource(), this.src, getKind(), this.dst, pruned);
+	}
+
+	@Override
 	public AssrtCoreGType inline(AssrtCoreGTypeInliner v)
 	{
 		Map<AssrtCoreMsg, AssrtCoreGType> cases = this.cases.entrySet().stream()
@@ -54,7 +75,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public AssrtCoreLType project(AssrtCoreSTypeFactory af, Role r,
+	public AssrtCoreLType projectInlined(AssrtCoreSTypeFactory af, Role self,
 			AssrtBFormula f) throws AssrtCoreSyntaxException
 	{
 		Map<AssrtCoreMsg, AssrtCoreLType> projs = new HashMap<>();
@@ -64,7 +85,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 			AssrtBFormula fproj = AssrtFormulaFactory
 					.AssrtBinBool(AssrtBinBFormula.Op.And, f, a.ass);
 
-			if (this.dst.equals(r))  // Projecting receiver side
+			if (this.dst.equals(self))  // Projecting receiver side
 			{
 				/*Set<AssrtDataTypeVar> vs = fproj.getVars();
 						// FIXME: converting Set to List
@@ -84,17 +105,17 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 				a = af.AssrtCoreAction(a.op, a.pay, fproj);
 			}
 
-			projs.put(a, e.getValue().project(af, r, fproj));
+			projs.put(a, e.getValue().projectInlined(af, self, fproj));
 					// N.B. local actions directly preserved from globals -- so core-receive also has assertion (cf. AssrtGMessageTransfer.project, currently no AssrtLReceive)
 					// FIXME: receive assertion projection -- should not be the same as send?
 		}
 		
 		// "Simple" cases
-		if (this.src.equals(r) || this.dst.equals(r))
+		if (this.src.equals(self) || this.dst.equals(self))
 		{
-			Role role = this.src.equals(r) ? this.dst : this.src;
+			Role role = this.src.equals(self) ? this.dst : this.src;
 			return af.local.AssrtCoreLChoice(null, role,
-					getKind().project(this.src, r), projs);
+					getKind().project(this.src, self), projs);
 		}
 
 		// "Merge"
@@ -104,19 +125,19 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 					.anyMatch(v -> !(v instanceof AssrtCoreLRecVar)))
 			{
 				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n"
-						+ this + "\n onto " + r + ": cannot merge unguarded rec vars.");
+						+ this + "\n onto " + self + ": cannot merge unguarded rec vars.");
 			}
 
 			Set<RecVar> rvs = projs.values().stream()
 					.map(v -> ((AssrtCoreLRecVar) v).recvar).collect(Collectors.toSet());
 			Set<List<AssrtAFormula>> fs = projs.values().stream()
-					.map(v -> ((AssrtCoreLRecVar) v).annotexprs)
+					.map(v -> ((AssrtCoreLRecVar) v).aforms)
 					.collect(Collectors.toSet());
 					// CHECKME? syntactic equality of exprs
 			if (rvs.size() > 1 || fs.size() > 1)
 			{
 				throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n"
-						+ this + "\n onto " + r + ": mixed unguarded rec vars: " + rvs);
+						+ this + "\n onto " + self + ": mixed unguarded rec vars: " + rvs);
 			}
 
 			return af.local.AssrtCoreLRecVar(null, rvs.iterator().next(),
@@ -148,7 +169,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 		if (roles.size() > 1)
 		{
 			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this
-					+ "\n onto " + r + ": mixed peer roles: " + roles);
+					+ "\n onto " + self + ": mixed peer roles: " + roles);
 		}
 		Set<AssrtCoreActionKind<?>> kinds = choices.stream().map(v -> v.kind)
 				.collect(Collectors.toSet());
@@ -156,7 +177,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 		if (kinds.size() > 1)
 		{
 			throw new AssrtCoreSyntaxException("[assrt-core] Cannot project \n" + this
-					+ "\n onto " + r + ": mixed action kinds: " + kinds);
+					+ "\n onto " + self + ": mixed action kinds: " + kinds);
 		}
 		
 		Map<AssrtCoreMsg, AssrtCoreLType> merged = new HashMap<>();
@@ -173,7 +194,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 				if (merged.containsKey(k)) //&& !b.equals(merged.get(k))) // TODO
 				{
 							throw new RuntimeException(
-									"[assrt-core] Cannot project \n" + this + "\n onto " + r
+									"[assrt-core] Cannot project \n" + this + "\n onto " + self
 											+ ": cannot merge: " + b + " and " + merged.get(k));
 						}
 				merged.put(k, b);

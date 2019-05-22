@@ -10,12 +10,12 @@ import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRecVar;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLRecVar;
 
 	
-public class AssrtCoreGRecVar extends AssrtCoreRecVar<Global>
+public class AssrtCoreGRecVar extends AssrtCoreRecVar<Global, AssrtCoreGType>
 		implements AssrtCoreGType
 {
 	protected AssrtCoreGRecVar(CommonTree source, RecVar var,
@@ -25,16 +25,16 @@ public class AssrtCoreGRecVar extends AssrtCoreRecVar<Global>
 	}
 
 	@Override
-	public List<AssrtAnnotDataName> collectAnnotDataVarDecls()
+	public AssrtCoreLRecVar projectInlined(AssrtCoreSTypeFactory af, Role self,
+			AssrtBFormula f)
 	{
-		return Collections.emptyList();
+		return af.local.AssrtCoreLRecVar(null, this.recvar, this.aforms);
 	}
 
 	@Override
-	public AssrtCoreLRecVar project(AssrtCoreSTypeFactory af, Role r,
-			AssrtBFormula f)
+	public List<AssrtAnnotDataName> collectAnnotDataVarDecls()
 	{
-		return af.local.AssrtCoreLRecVar(null, this.recvar, this.annotexprs);
+		return Collections.emptyList();
 	}
 
 	@Override
