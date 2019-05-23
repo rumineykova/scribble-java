@@ -9,35 +9,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.core.model.endpoint.actions.ESend;
+import org.scribble.core.model.global.SModel;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.job.AssrtCoreArgs;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.job.AssrtJob;
-import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.job.Job;
 
 // 1-bounded LTS
 // Factor out with SGraph/SModel?
-public class AssrtCoreSModel
+public class AssrtCoreSModel extends SModel
 {
-	public final Map<Role, AssrtEState> E0;
-	public final AssrtCoreSState init;
-	
-	public Map<Integer, AssrtCoreSState> allStates; // State ID -> GMState
-
-	private Map<Integer, Set<Integer>> reach; // State ID -> reachable states (not reflexive)
-	private Set<Set<Integer>> termSets;
-
-	protected AssrtCoreSModel(Map<Role, AssrtEState> E0, AssrtCoreSState init,
-			Map<Integer, AssrtCoreSState> allStates)
+	protected AssrtCoreSModel(AssrtCoreSGraph graph)
 	{
-		this.E0 = Collections.unmodifiableMap(E0);
-		this.init = init;
-		this.allStates = Collections.unmodifiableMap(allStates);
-
-		this.reach = getReachabilityMap();
-		this.termSets = findTerminalSets();
+		super(graph);
 	}
 	
 	public AssrtCoreSafetyErrors getSafetyErrors(Job job, GProtoName simpname)
@@ -239,230 +225,5 @@ public class AssrtCoreSModel
 			}
 		}
 		return false;
-	}
-	
-	@Override
-	public String toString()
-	{
-		return this.init.toString();
-	}
-	
-	public String toDot()
-	{
-		return this.init.toDot();
-	}
-	
-	@Override
-	public final int hashCode()
-	{
-		int hash = 2887;
-		hash = 31 * hash + this.init.hashCode();
-		return hash;
-	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (!(o instanceof AssrtCoreSModel))
-		{
-			return false;
-		}
-		return this.init.id == ((AssrtCoreSModel) o).init.id;
-	}
-
-	
-	/**
-	 *  Duplicated from SGraph
-	 */
-
-	public Set<Set<Integer>> getTerminalSets()
-	{
-		return this.termSets;
-	}
-
-	public Set<Set<Integer>> findTerminalSets()
-	{
-		Set<Set<Integer>> termSets = new HashSet<>();
-		Set<Set<Integer>> checked = new HashSet<>();
-		for (Integer i : reach.keySet())
-		{
-			AssrtCoreSState s = this.allStates.get(i);
-			Set<Integer> rs = this.reach.get(s.id);
-			if (!checked.contains(rs) && rs.contains(s.id))
-			{
-				checked.add(rs);
-				if (isTerminalSetMember(s))
-				{
-					termSets.add(rs);
-				}
-			}
-		}
-		//this.termSets = Collections.unmodifiableSet(termSets);
-		return termSets;
-	}
-
-	private boolean isTerminalSetMember(AssrtCoreSState s)
-	{
-		Set<Integer> rs = this.reach.get(s.id);
-		Set<Integer> tmp = new HashSet<>(rs);
-		tmp.remove(s.id);
-		for (Integer r : tmp)
-		{
-			if (!this.reach.containsKey(r) || !this.reach.get(r).equals(rs))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/*// Pre: reach.get(start).contains(end) // FIXME: will return null if initial
-	// state is error
-	public List<SAction> getTrace(F17SState start, F17SState end)
-	{
-		SortedMap<Integer, Set<Integer>> candidates = new TreeMap<>();
-		Set<Integer> dis0 = new HashSet<Integer>();
-		dis0.add(start.id);
-		candidates.put(0, dis0);
-
-		Set<Integer> seen = new HashSet<>();
-		seen.add(start.id);
-
-		return getTraceAux(new LinkedList<>(), seen, candidates, end);
-	}
-
-	// Djikstra's
-	private List<SAction> getTraceAux(List<SAction> trace, Set<Integer> seen,
-			SortedMap<Integer, Set<Integer>> candidates, F17SState end)
-	{
-		Integer dis = candidates.keySet().iterator().next();
-		Set<Integer> cs = candidates.get(dis);
-		Iterator<Integer> it = cs.iterator();
-		Integer currid = it.next();
-		it.remove();
-		if (cs.isEmpty())
-		{
-			candidates.remove(dis);
-		}
-
-		F17SState curr = this.states.get(currid);
-		Iterator<SAction> as = curr.getAllActions().iterator();
-		Iterator<F17SState> ss = curr.getAllSuccessors().iterator();
-		while (as.hasNext())
-		{
-			SAction a = as.next();
-			F17SState s = ss.next();
-			if (s.id == end.id)
-			{
-				trace.add(a);
-				return trace;
-			}
-
-			if (!seen.contains(s.id) && this.reach.containsKey(s.id)
-					&& this.reach.get(s.id).contains(end.id))
-			{
-				seen.add(s.id);
-				Set<Integer> tmp1 = candidates.get(dis + 1);
-				if (tmp1 == null)
-				{
-					tmp1 = new HashSet<>();
-					candidates.put(dis + 1, tmp1);
-				}
-				tmp1.add(s.id);
-				List<SAction> tmp2 = new LinkedList<>(trace);
-				tmp2.add(a);
-				List<SAction> res = getTraceAux(tmp2, seen, candidates, end);
-				if (res != null)
-				{
-					return res;
-				}
-			}
-		}
-		return null;
-	}*/
-
-	// Not reflexive
-	public Map<Integer, Set<Integer>> getReachabilityMap()
-	{
-		if (this.reach != null)
-		{
-			return this.reach;
-		}
-
-		Map<Integer, Integer> idToIndex = new HashMap<>(); // state ID -> array
-																												// index
-		Map<Integer, Integer> indexToId = new HashMap<>(); // array index -> state
-																												// ID
-		int i = 0;
-		for (AssrtCoreSState s : this.allStates.values())
-		{
-			idToIndex.put(s.id, i);
-			indexToId.put(i, s.id);
-			i++;
-		}
-		this.reach = getReachabilityAux(idToIndex, indexToId);
-
-		return this.reach;
-	}
-
-	private Map<Integer, Set<Integer>> getReachabilityAux(
-			Map<Integer, Integer> idToIndex, Map<Integer, Integer> indexToId)
-	{
-		int size = idToIndex.keySet().size();
-		boolean[][] reach = new boolean[size][size];
-
-		for (Integer s1id : idToIndex.keySet())
-		{
-			for (AssrtCoreSState s2 : this.allStates.get(s1id).getSuccs())
-			{
-				reach[idToIndex.get(s1id)][idToIndex.get(s2.id)] = true;
-			}
-		}
-
-		for (boolean again = true; again;)
-		{
-			again = false;
-			for (int i = 0; i < size; i++)
-			{
-				for (int j = 0; j < size; j++)
-				{
-					if (reach[i][j])
-					{
-						for (int k = 0; k < size; k++)
-						{
-							if (reach[j][k] && !reach[i][k])
-							{
-								reach[i][k] = true;
-								again = true;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		Map<Integer, Set<Integer>> res = new HashMap<>();
-		for (int i = 0; i < size; i++)
-		{
-			Set<Integer> tmp = res.get(indexToId.get(i));
-			for (int j = 0; j < size; j++)
-			{
-				if (reach[i][j])
-				{
-					if (tmp == null)
-					{
-						tmp = new HashSet<>();
-						res.put(indexToId.get(i), tmp);
-					}
-					tmp.add(indexToId.get(j));
-				}
-			}
-		}
-
-		return Collections.unmodifiableMap(res);
 	}
 }

@@ -20,6 +20,7 @@ import org.scribble.util.Constants;
 import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
 
+@Deprecated
 public class AssrtLRecursion extends LRecursion
 		implements AssrtStateVarDeclNode
 {

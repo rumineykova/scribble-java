@@ -449,7 +449,13 @@ public class SConfig
 		{
 			return false;
 		}
-		SConfig c = (SConfig) o;
-		return this.efsms.equals(c.efsms) && this.queues.equals(c.queues);
+		SConfig them = (SConfig) o;
+		return them.canEquals(this) && this.efsms.equals(them.efsms)
+				&& this.queues.equals(them.queues);
+	}
+	
+	protected boolean canEquals(Object o)
+	{
+		return o instanceof SConfig;
 	}
 }
