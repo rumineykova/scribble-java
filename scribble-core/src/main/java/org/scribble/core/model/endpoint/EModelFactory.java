@@ -29,6 +29,7 @@ import org.scribble.core.type.session.Payload;
 
 public interface EModelFactory
 {
+	// N.B. EGraphBuilder is a visitor (in LTypeVisitorFactory) -- cf. SGraphBuilder (SModelFactory)
 	EGraphBuilderUtil EGraphBuilderUtil();
 
 	// protected constructors (MState mutable)
