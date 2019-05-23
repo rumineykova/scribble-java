@@ -25,7 +25,6 @@ import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLRec;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLRecVar;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
-import org.scribble.ext.assrt.job.AssrtJob;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 
@@ -33,11 +32,10 @@ public class AssrtCoreEGraphBuilder
 {
 	private final AssrtCore core;
 	private final AssrtEGraphBuilderUtil util;  // Not using any features for unguarded choice/recursion/continue (recursion manually tracked here)
-
 	
-	public AssrtCoreEGraphBuilder(AssrtJob job)
+	public AssrtCoreEGraphBuilder(AssrtCore core)
 	{
-		this.core = (AssrtCore) job.getCore();
+		this.core = core;
 		this.util = (AssrtEGraphBuilderUtil) this.core.config.mf.local
 				.EGraphBuilderUtil();
 	}
@@ -52,15 +50,16 @@ public class AssrtCoreEGraphBuilder
 		return this.util.finalise();
 	}
 	
-	private void build(AssrtCoreLType lt, AssrtEState s1, AssrtEState s2, Map<RecVar, AssrtEState> recs)
+	private void build(AssrtCoreLType lt, AssrtEState s1, AssrtEState s2,
+			Map<RecVar, AssrtEState> recs)
 	{
 		if (lt instanceof AssrtCoreLChoice)
 		{
 			AssrtCoreLChoice lc = (AssrtCoreLChoice) lt;
 			AssrtCoreLActionKind k = lc.getKind();
 			lc.cases.entrySet().stream().forEach(e ->
-				buildEdgeAndContinuation(s1, s2, recs, lc.role, k, e.getKey(), e.getValue())
-			);
+			buildEdgeAndContinuation(s1, s2, recs, lc.role, k, e.getKey(),
+					e.getValue())			);
 		}
 		else if (lt instanceof AssrtCoreLRec)
 		{
@@ -80,8 +79,9 @@ public class AssrtCoreEGraphBuilder
 		}
 	}
 
-	private void buildEdgeAndContinuation(AssrtEState s1, AssrtEState s2, Map<RecVar, AssrtEState> recs, 
-			Role r, AssrtCoreLActionKind k, AssrtCoreMsg a, AssrtCoreLType cont)
+	private void buildEdgeAndContinuation(AssrtEState s1, AssrtEState s2,
+			Map<RecVar, AssrtEState> recs, Role r, AssrtCoreLActionKind k,
+			AssrtCoreMsg a, AssrtCoreLType cont)
 	{
 		if (cont instanceof AssrtCoreLEnd)
 		{
@@ -102,7 +102,7 @@ public class AssrtCoreEGraphBuilder
 		}
 		else
 		{
-			AssrtEState s = (AssrtEState) ((AssrtCoreEModelFactory) this.util.mf)
+			AssrtEState s = (AssrtEState) ((AssrtCoreEModelFactory) this.util.mf.local)
 					.EState(Collections.emptySet());
 					// FIXME: call Assrt directly? -- no "vars" here though (intermediate sequence states), only on rec states
 
@@ -121,12 +121,14 @@ public class AssrtCoreEGraphBuilder
 			//AssrtDataTypeVar annot, AssrtArithFormula expr)
 			List<AssrtAFormula> annotexprs)
 	{
-		AssrtCoreEModelFactory ef = (AssrtCoreEModelFactory) this.util.mf;  // FIXME: factor out
+		AssrtCoreEModelFactory ef = (AssrtCoreEModelFactory) this.util.mf.local;  // FIXME: factor out
 		if (k.equals(AssrtCoreLActionKind.SEND))
 		{
 			return ef.newAssrtCoreESend(r, a.op, 
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p).collect(Collectors.toList())),
+					new Payload(
+							a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p)
+									.collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 
@@ -136,7 +138,9 @@ public class AssrtCoreEGraphBuilder
 			//return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
 			return ef.newAssrtCoreEReceive(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p).collect(Collectors.toList())),
+					new Payload(
+							a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p)
+									.collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 
@@ -147,7 +151,9 @@ public class AssrtCoreEGraphBuilder
 		{
 			return ef.newAssrtCoreERequest(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p).collect(Collectors.toList())),
+					new Payload(
+							a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p)
+									.collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 		}
@@ -155,7 +161,9 @@ public class AssrtCoreEGraphBuilder
 		{
 			return ef.newAssrtCoreEAccept(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
-					new Payload(a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p).collect(Collectors.toList())),
+					new Payload(
+							a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p)
+									.collect(Collectors.toList())),
 					a.ass, //annot,
 					annotexprs);
 		}

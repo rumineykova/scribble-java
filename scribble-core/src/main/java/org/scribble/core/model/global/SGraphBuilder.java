@@ -17,12 +17,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.scribble.core.job.Core;
-import org.scribble.core.model.endpoint.EFsm;
+import org.scribble.core.model.ModelFactory;
 import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.model.endpoint.actions.EAction;
 import org.scribble.core.model.global.actions.SAction;
@@ -32,24 +29,16 @@ import org.scribble.util.ScribException;
 
 public class SGraphBuilder
 {
-	public final Core core;
+	//public final Core core;
+	protected final ModelFactory mf;
 	
-	private final SGraphBuilderUtil util;
+	protected final SGraphBuilderUtil util;
 	
-	public SGraphBuilder(Core core)
+	public SGraphBuilder(ModelFactory mf)
 	{
-		this.core = core;
-		this.util = this.core.config.mf.global.SGraphBuilderUtil();
-	}
-
-	// Do as an initial state rather than config?
-	protected SConfig createInitConfig(Map<Role, EGraph> egraphs,
-			boolean explicit)
-	{
-		Map<Role, EFsm> efsms = egraphs.entrySet().stream()
-				.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().toFsm()));
-		SingleBuffers b0 = new SingleBuffers(efsms.keySet(), !explicit);
-		return this.core.config.mf.global.SConfig(efsms, b0);
+		//this.core = core;
+		this.mf = mf;
+		this.util = mf.global.SGraphBuilderUtil();
 	}
 	
 	// Factory method: not fully integrated with SGraph constructor because of Job arg (debug printing)
@@ -60,7 +49,7 @@ public class SGraphBuilder
 	{
 		this.util.reset();
 		
-		SConfig c0 = createInitConfig(egraphs, explicit);
+		SConfig c0 = this.util.createInitConfig(egraphs, explicit);
 		SState init = this.util.newState(c0);
 		Set<SState> todo = new LinkedHashSet<>();  // Consider Map<s.id, s>, faster than full SConfig hash ?
 		todo.add(init);
@@ -120,7 +109,6 @@ public class SGraphBuilder
 			}
 		}
 
-		return this.core.config.mf.global.SGraph(fullname, this.util.getStates(),
-				init);
+		return mf.global.SGraph(fullname, this.util.getStates(), init);
 	}
 }

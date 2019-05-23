@@ -13,12 +13,16 @@
  */
 package org.scribble.ext.assrt.core.lang.local;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.core.job.Core;
 import org.scribble.core.lang.ProtoMod;
 import org.scribble.core.lang.local.LProjection;
+import org.scribble.core.model.endpoint.EGraph;
+import org.scribble.core.model.endpoint.EState;
 import org.scribble.core.type.kind.Local;
 import org.scribble.core.type.kind.NonRoleParamKind;
 import org.scribble.core.type.name.GProtoName;
@@ -27,6 +31,10 @@ import org.scribble.core.type.name.MemberName;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.local.LSeq;
 import org.scribble.core.visit.STypeInliner;
+import org.scribble.ext.assrt.core.job.AssrtCore;
+import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEGraphBuilder;
+import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
+import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
 
 public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreLProtocol ... FIXME CoreContext G/LProtocol hardcoding
@@ -64,6 +72,20 @@ public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreL
 	public AssrtCoreLProjection getInlined(STypeInliner<Local, LSeq> v)
 	{
 		throw new RuntimeException("[TODO]:\n" + this);
+	}
+
+	@Override
+	public EGraph toEGraph(Core core)
+	{
+		if (this.type.equals(AssrtCoreLEnd.END))
+		{
+			EState s = ((AssrtCoreEModelFactory) core.config.mf.local)
+					.EState(Collections.emptySet());
+			return new EGraph(s, s);  // TODO: refactor constructor inside mf
+		}
+		//EGraphBuilder b = core.config.vf.local.EGraphBuilder(core);
+		AssrtCoreEGraphBuilder b = new AssrtCoreEGraphBuilder((AssrtCore) core);  // CHECKME: override EGraphBuilder visitor?
+		return b.build(this.type);
 	}
 	
 	@Override

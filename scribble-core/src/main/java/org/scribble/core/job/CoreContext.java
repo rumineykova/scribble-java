@@ -25,7 +25,6 @@ import org.scribble.core.model.endpoint.AutGraphParser;
 import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.model.endpoint.EState;
 import org.scribble.core.model.global.SGraph;
-import org.scribble.core.model.global.SGraphBuilder;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.kind.Local;
 import org.scribble.core.type.name.GProtoName;
@@ -291,7 +290,8 @@ public class CoreContext
 			Map<Role, EGraph> egraphs = getEGraphsForSGraphBuilding(fullname, true);
 			boolean explicit = this.imeds.get(fullname).isExplicit();
 			GProtoName cast = (GProtoName) fullname;  // Could also reconstruct if really needed
-			graph = new SGraphBuilder(this.core).build(egraphs, explicit, cast);
+			graph = this.core.config.mf.global.SGraphBuilder().build(egraphs,
+					explicit, cast);
 			addSGraph(fullname, graph);
 		}
 		return graph;
@@ -323,7 +323,8 @@ public class CoreContext
 			Map<Role, EGraph> egraphs = getEGraphsForSGraphBuilding(fullname, false);
 			boolean explicit = this.imeds.get(fullname).isExplicit();
 			GProtoName cast = (GProtoName) fullname;  // Could also reconstruct if really needed
-			graph = new SGraphBuilder(this.core).build(egraphs, explicit, cast);
+			graph = this.core.config.mf.global.SGraphBuilder().build(egraphs,
+					explicit, cast);
 			addUnfairSGraph(fullname, graph);
 		}
 		return graph;

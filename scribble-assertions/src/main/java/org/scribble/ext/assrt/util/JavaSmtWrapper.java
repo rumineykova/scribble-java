@@ -81,7 +81,8 @@ public class JavaSmtWrapper
 		}
 		catch (InvalidConfigurationException e)
 		{
-			System.err.println("InvalidConfigurationException: " + e.getMessage());
+			//System.err.println("InvalidConfigurationException: " + e.getMessage());
+			throw new RuntimeException(e);
 		}
 
 		return instance;

@@ -22,6 +22,7 @@ public class AssrtSGraphBuilderUtil extends SGraphBuilderUtil
 	}
 	
 	// TODO: factor out of util, cf. SGraphBuilder.createInitConfig
+	@Override
 	protected SConfig createInitConfig(Map<Role, EGraph> egraphs,
 			boolean explicit)
 	{

@@ -16,13 +16,17 @@ package org.scribble.core.model.global;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.scribble.core.model.GraphBuilderUtil;
 import org.scribble.core.model.ModelFactory;
+import org.scribble.core.model.endpoint.EFsm;
+import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.model.global.actions.SAction;
 import org.scribble.core.type.kind.Global;
+import org.scribble.core.type.name.Role;
 
 public class SGraphBuilderUtil
 		extends GraphBuilderUtil<Void, SAction, SState, Global>
@@ -39,6 +43,17 @@ public class SGraphBuilderUtil
 	protected void reset()
 	{
 		this.states.clear();
+	}
+
+	// Here for ext overriding (e.g., Assrt)
+	// Do as an initial state rather than config?
+	protected SConfig createInitConfig(Map<Role, EGraph> egraphs,
+			boolean explicit)
+	{
+		Map<Role, EFsm> efsms = egraphs.entrySet().stream()
+				.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().toFsm()));
+		SingleBuffers b0 = new SingleBuffers(efsms.keySet(), !explicit);
+		return this.mf.global.SConfig(efsms, b0);
 	}
 	
 	public SState newState(SConfig c)

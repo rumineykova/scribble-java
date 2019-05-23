@@ -40,6 +40,12 @@ public class SModelFactoryImpl extends ModelFactoryBase implements SModelFactory
 	}
 
 	@Override
+	public SGraphBuilder SGraphBuilder()
+	{
+		return new SGraphBuilder(this.mf);
+	}
+
+	@Override
 	public SGraphBuilderUtil SGraphBuilderUtil()
 	{
 		return new SGraphBuilderUtil(this.mf);

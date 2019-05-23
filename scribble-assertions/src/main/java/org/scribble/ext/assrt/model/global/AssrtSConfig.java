@@ -236,7 +236,8 @@ public class AssrtSConfig extends SConfig
 					AssrtBFormula assertion = send.ass; 
 					if (assertion != null)
 					{
-						if (!JavaSmtWrapper.getInstance().isSat(assertion, this.formula)) {
+						if (!JavaSmtWrapper.getInstance().isSat(assertion, this.formula))
+						{
 							unsafStates.add(send); 
 						}
 					}

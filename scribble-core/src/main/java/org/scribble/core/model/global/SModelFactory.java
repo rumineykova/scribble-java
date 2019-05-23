@@ -30,6 +30,7 @@ import org.scribble.core.type.session.Payload;
 
 public interface SModelFactory
 {
+	SGraphBuilder SGraphBuilder();
 	SGraphBuilderUtil SGraphBuilderUtil();
 
 	// protected constructors (MState mutable)

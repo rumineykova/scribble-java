@@ -10,6 +10,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.type.kind.ProtoKind;
 import org.scribble.core.type.name.Role;
 
+// TODO: rename directed choice
 public abstract class AssrtCoreChoice<K extends ProtoKind, 
 			B extends AssrtCoreSType<K, B>>  // Without Seq complication, take kinded Type directly
 		extends AssrtCoreSTypeBase<K, B>

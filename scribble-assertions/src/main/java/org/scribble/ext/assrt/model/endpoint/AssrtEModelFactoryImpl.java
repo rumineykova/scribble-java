@@ -32,6 +32,12 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl
 		super(mf);
 	}
 
+	@Override
+	public AssrtEGraphBuilderUtil EGraphBuilderUtil()
+	{
+		return new AssrtEGraphBuilderUtil(this.mf);
+	}
+
 
 	// "Disable" old types 
 	// FIXME: also used from AutParser, need to make AssrtAutParser -- or just don't disable? or create with True? -- also for newEState
