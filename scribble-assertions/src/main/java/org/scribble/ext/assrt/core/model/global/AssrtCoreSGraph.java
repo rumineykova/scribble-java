@@ -4,9 +4,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.scribble.core.model.global.SGraph;
+import org.scribble.core.model.global.SState;
 import org.scribble.core.type.name.GProtoName;
 
 // 1-bounded LTS
@@ -20,12 +23,14 @@ public class AssrtCoreSGraph extends SGraph
 	private Map<Integer, Set<Integer>> reach; // State ID -> reachable states (not reflexive)
 	private Set<Set<Integer>> termSets;
 
-	protected AssrtCoreSGraph(GProtoName proto,
-			Map<Integer, AssrtCoreSState> states, AssrtCoreSState init)
+	protected AssrtCoreSGraph(GProtoName fullname,
+			Map<Integer, SState> states, SState init)
 	{
-		super(proto, states, init);  // FIXME: AssrtCoreSState is not an SState
-		this.init = init;
-		this.states = Collections.unmodifiableMap(states);
+		super(fullname, states, init);  // FIXME: AssrtCoreSState is not an SState
+		this.init = (AssrtCoreSState) init;
+		this.states = Collections
+				.unmodifiableMap(states.entrySet().stream().collect(Collectors
+						.toMap(Entry::getKey, x -> (AssrtCoreSState) x.getValue())));
 
 		this.reach = getReachabilityMap();
 		this.termSets = findTerminalSets();

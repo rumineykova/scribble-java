@@ -52,7 +52,7 @@ import org.scribble.ext.assrt.visit.AssrtCoreGProtoDeclTranslator;
 import org.scribble.job.Job;
 
 			
-public class AssrtCoreSConfig extends SConfig
+public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 {
 	private static int counter = 1;
 	
@@ -851,11 +851,6 @@ public class AssrtCoreSConfig extends SConfig
 		return copy;
 	}
 
-	private static Map<Role, Set<AssrtDataVar>> makeK(Set<Role> rs)
-	{
-		return rs.stream().collect(Collectors.toMap(r -> r, r -> new HashSet<>()));
-	}
-
 	private static Map<Role, Set<AssrtDataVar>> copyK(
 			Map<Role, Set<AssrtDataVar>> K)
 	{
@@ -875,23 +870,6 @@ public class AssrtCoreSConfig extends SConfig
 		tmp.add(v);
 	}
 
-	//private static Map<Role, Set<AssrtBoolFormula>> makeF(Set<Role> rs)
-	private static Map<Role, Set<AssrtBFormula>> makeF(
-			Map<Role, AssrtEState> P)
-	{
-		//return rs.stream().collect(Collectors.toMap(r -> r, r -> new HashSet<>()));
-		return P.entrySet().stream().collect(Collectors.toMap(
-				Entry::getKey,
-				/*e -> e.getValue().getStateVars().entrySet().stream()
-						.map(b -> AssrtFormulaFactory.AssrtBinComp(
-								AssrtBinCompFormula.Op.Eq, 
-								AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
-								b.getValue()))
-						.collect(Collectors.toSet())*/
-				e -> new HashSet<>()
-		));
-	}
-
 	private static Map<Role, Set<AssrtBFormula>> copyF(
 			Map<Role, Set<AssrtBFormula>> F)
 	{
@@ -905,42 +883,11 @@ public class AssrtCoreSConfig extends SConfig
 		F.get(r).add(f);
 	}
 
-	private static Map<Role, Map<AssrtDataVar, AssrtAFormula>> makeR(
-			Map<Role, AssrtEState> P)
-	{
-		Map<Role, Map<AssrtDataVar, AssrtAFormula>> R = P.entrySet()
-				.stream().collect(Collectors.toMap(Entry::getKey,
-						e -> new HashMap<>(e.getValue().getStateVars())));
-		/*Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.keySet().stream().collect(Collectors.toMap(r -> r, r ->
-				Stream.of(false).collect(Collectors.toMap(
-						x -> AssrtCoreESend.DUMMY_VAR,
-						x -> AssrtCoreESend.ZERO))
-			));*/
-		return R;
-	}
-
 	private static Map<Role, Map<AssrtDataVar, AssrtAFormula>> copyR(
 			Map<Role, Map<AssrtDataVar, AssrtAFormula>> R)
 	{
 		return R.entrySet().stream().collect(
 				Collectors.toMap(Entry::getKey, e -> new HashMap<>(e.getValue())));
-	}
-	
-	private static Map<Role, Set<AssrtBFormula>> makeRass(Map<Role, AssrtEState> P)
-	{
-		return P.entrySet().stream().collect(Collectors.toMap(
-				Entry::getKey,
-				e ->
-				{
-					Set<AssrtBFormula> set = new HashSet<>();
-					AssrtBFormula ass = e.getValue().getAssertion();
-					if (!ass.equals(AssrtTrueFormula.TRUE))
-					{
-						set.add(ass);
-					}
-					return set;
-				}
-		));
 	}
 
 	private static Map<Role, Set<AssrtBFormula>> copyRass(

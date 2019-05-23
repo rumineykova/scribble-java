@@ -84,7 +84,6 @@ public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreL
 		}
 		AssrtCoreEGraphBuilder b = (AssrtCoreEGraphBuilder) core.config.vf.local
 				.EGraphBuilder(core);  // N.B. currently, does not actually implement the visitor pattern
-		//AssrtCoreEGraphBuilder b = new AssrtCoreEGraphBuilder((AssrtCore) core);  // CHECKME: override EGraphBuilder visitor?
 		return b.build(this.type);
 	}
 	

@@ -9,27 +9,32 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.model.endpoint.actions.EAction;
-import org.scribble.core.model.global.SModelFactory;
+import org.scribble.core.model.global.SGraphBuilder;
+import org.scribble.core.model.global.SState;
+import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.Role;
-import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 
 
 // Duplicated from F17LTSBuilder
-public class AssrtCoreSModelBuilder  // SModel is a wrapper for SGraph with model validation methods -- here, just build "model" directly (no "graph")
+// SModel is a wrapper for SGraph with model validation methods -- here, just build "model" directly (no "graph")
+public class AssrtCoreSGraphBuilder extends SGraphBuilder 
 {
-	@Deprecated
-	private final SModelFactory sf;
-	
-	public AssrtCoreSModelBuilder(SModelFactory sf)
+	public AssrtCoreSGraphBuilder(ModelFactory mf)
 	{
-		this.sf = sf;
+		super(mf);
 	}
 	
-	public AssrtCoreSModel build(Map<Role, AssrtEState> E0, boolean isExplicit)
+	@Override
+	public AssrtCoreSGraph build(Map<Role, EGraph> egraphs, boolean isExplicit, GProtoName fullname)
 	{
-		Map<Role, AssrtEState> assrtE0 = E0.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> e.getValue()));
-		AssrtCoreSState init = new AssrtCoreSState(assrtE0, isExplicit);  // FIXME: make AssrtCoreSModelFactory (also AssrtCoreSModel) -- cf. (Assrt)SModelFactory
+		/*Map<Role, AssrtEState> assrtE0 = egraphs.entrySet().stream().collect(
+				Collectors.toMap(Entry::getKey, e -> (AssrtEState) e.getValue().init));*/
+		AssrtCoreSConfig c0 = ((AssrtCoreSGraphBuilderUtil) this.util)
+				.createInitConfig(egraphs, isExplicit);
+		AssrtCoreSState init = new AssrtCoreSState(c0);  // FIXME: make AssrtCoreSModelFactory (also AssrtCoreSModel) -- cf. (Assrt)SModelFactory
 		
 		Set<AssrtCoreSState> todo = new HashSet<>();
 		Map<Integer, AssrtCoreSState> seen = new HashMap<>();
@@ -108,10 +113,10 @@ public class AssrtCoreSModelBuilder  // SModel is a wrapper for SGraph with mode
 		}
 		
 
-		protected SGraph(GProtoName proto, Map<Integer, SState> states, SState init)
-
-		AssrtCoreSModel res = new AssrtCoreSModel(E0, init, seen);
-		
-		return res;
+		return (AssrtCoreSGraph) this.mf.global
+				.SGraph(fullname,
+						seen.entrySet().stream().collect(
+								Collectors.toMap(Entry::getKey, x -> (SState) x.getValue())),
+						init);
 	}
 }
