@@ -19,10 +19,12 @@ import java.util.stream.Collectors;
 import org.scribble.core.job.Core;
 import org.scribble.core.job.CoreContext;
 import org.scribble.core.lang.global.GProtocol;
+import org.scribble.core.model.global.SGraph;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.ProtoName;
 import org.scribble.core.visit.global.GTypeInliner;
 import org.scribble.ext.assrt.core.lang.global.AssrtCoreGProtocol;
+import org.scribble.util.ScribException;
 
 public class AssrtCoreContext extends CoreContext
 {
@@ -70,5 +72,22 @@ public class AssrtCoreContext extends CoreContext
 	protected void addInlined(ProtoName<Global> fullname, GProtocol g)
 	{
 		this.inlined.put(fullname, g);
+	}
+	
+	@Override
+	public SGraph getSGraph(ProtoName<Global> fullname) throws ScribException
+	{
+		SGraph graph = this.fSGraphs.get(fullname);
+		if (graph == null)
+		{
+			/*Map<Role, EGraph> egraphs = getEGraphsForSGraphBuilding(fullname, true);
+			boolean explicit = this.imeds.get(fullname).isExplicit();
+			GProtoName cast = (GProtoName) fullname;  // Could also reconstruct if really needed
+			graph = this.core.config.mf.global.SGraphBuilder().build(egraphs,
+					explicit, cast);
+			addSGraph(fullname, graph);*/
+			throw new RuntimeException("[TODO] : " + fullname);
+		}
+		return graph;
 	}
 }

@@ -29,8 +29,12 @@ import org.scribble.core.type.name.ModuleName;
 import org.scribble.core.type.name.ProtoName;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.STypeFactory;
+import org.scribble.core.visit.STypeVisitorFactory;
+import org.scribble.core.visit.STypeVisitorFactoryImpl;
+import org.scribble.core.visit.global.GTypeVisitorFactoryImpl;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactoryImpl;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactoryImpl;
+import org.scribble.ext.assrt.core.visit.local.AssrtCoreLTypeVisitorFactoryImpl;
 import org.scribble.util.ScribException;
 
 
@@ -43,13 +47,13 @@ public class AssrtCore extends Core
 		super(mainFullname, args, imeds, tf);
 	}
 	
-	/*// A Scribble extension should override newSTypeVisitorFactory/ModelFactory as appropriate
+	// A Scribble extension should override newSTypeVisitorFactory/ModelFactory as appropriate
 	@Override
 	protected STypeVisitorFactory newSTypeVisitorFactory()
 	{
-		return new STypeVisitorFactoryImpl(new AssrtCoreGTypeVisitorFactoryImpl(),
-				new LTypeVisitorFactoryImpl());
-	}*/
+		return new STypeVisitorFactoryImpl(new GTypeVisitorFactoryImpl(),
+				new AssrtCoreLTypeVisitorFactoryImpl());
+	}
 	
 	// A Scribble extension should override newSTypeVisitorFactory/ModelFactory as appropriate
 	@Override

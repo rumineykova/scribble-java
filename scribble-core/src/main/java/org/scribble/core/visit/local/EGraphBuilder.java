@@ -53,7 +53,7 @@ public class EGraphBuilder extends STypeVisitorNoThrow<Local, LSeq>
 {
 	public final Core core;
 
-	private EGraphBuilderUtil util;
+	protected final EGraphBuilderUtil util;
 
 	protected EGraphBuilder(Core core)
 	{

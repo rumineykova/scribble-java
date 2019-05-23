@@ -31,7 +31,6 @@ import org.scribble.core.type.name.MemberName;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.local.LSeq;
 import org.scribble.core.visit.STypeInliner;
-import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEGraphBuilder;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
@@ -83,8 +82,9 @@ public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreL
 					.EState(Collections.emptySet());
 			return new EGraph(s, s);  // TODO: refactor constructor inside mf
 		}
-		//EGraphBuilder b = core.config.vf.local.EGraphBuilder(core);
-		AssrtCoreEGraphBuilder b = new AssrtCoreEGraphBuilder((AssrtCore) core);  // CHECKME: override EGraphBuilder visitor?
+		AssrtCoreEGraphBuilder b = (AssrtCoreEGraphBuilder) core.config.vf.local
+				.EGraphBuilder(core);  // N.B. currently, does not actually implement the visitor pattern
+		//AssrtCoreEGraphBuilder b = new AssrtCoreEGraphBuilder((AssrtCore) core);  // CHECKME: override EGraphBuilder visitor?
 		return b.build(this.type);
 	}
 	

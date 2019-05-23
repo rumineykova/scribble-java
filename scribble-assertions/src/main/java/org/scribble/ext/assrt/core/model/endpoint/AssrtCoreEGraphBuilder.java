@@ -9,10 +9,19 @@ import java.util.stream.Collectors;
 
 import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.model.endpoint.actions.EAction;
+import org.scribble.core.type.kind.Local;
 import org.scribble.core.type.name.PayElemType;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Choice;
+import org.scribble.core.type.session.Continue;
+import org.scribble.core.type.session.DirectedInteraction;
+import org.scribble.core.type.session.DisconnectAction;
 import org.scribble.core.type.session.Payload;
+import org.scribble.core.type.session.Recursion;
+import org.scribble.core.type.session.SType;
+import org.scribble.core.type.session.local.LSeq;
+import org.scribble.core.visit.local.EGraphBuilder;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
@@ -28,16 +37,20 @@ import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
 import org.scribble.ext.assrt.model.endpoint.AssrtEGraphBuilderUtil;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 
-public class AssrtCoreEGraphBuilder
+public class AssrtCoreEGraphBuilder extends EGraphBuilder
 {
+	// CHECKME: for convenience, shadowing supers -- OK? or bad
 	private final AssrtCore core;
-	private final AssrtEGraphBuilderUtil util;  // Not using any features for unguarded choice/recursion/continue (recursion manually tracked here)
+	private final AssrtEGraphBuilderUtil util;  // Not using any features for unguarded choice/recursion/continue (recursion manually tracked here)*/
 	
 	public AssrtCoreEGraphBuilder(AssrtCore core)
 	{
-		this.core = core;
+		super(core);
+		/*this.core = core;
 		this.util = (AssrtEGraphBuilderUtil) this.core.config.mf.local
-				.EGraphBuilderUtil();
+				.EGraphBuilderUtil();*/
+		this.core = core;
+		this.util = (AssrtEGraphBuilderUtil) super.util;
 	}
 	
 	public EGraph build(AssrtCoreLType lt)
@@ -175,5 +188,42 @@ public class AssrtCoreEGraphBuilder
 		{
 			throw new RuntimeException("[assrt-core] Shouldn't get in here: " + k);
 		}
+	}
+
+	@Override
+	public SType<Local, LSeq> visitContinue(Continue<Local, LSeq> n)
+	{
+		throw new RuntimeException("Deprecated for " + getClass() + ":");
+	}
+
+	@Override
+	public SType<Local, LSeq> visitChoice(Choice<Local, LSeq> n)
+	{
+		throw new RuntimeException("Deprecated for " + getClass() + ":");
+	}
+
+	@Override
+	public SType<Local, LSeq> visitDirectedInteraction(
+			DirectedInteraction<Local, LSeq> n)
+	{
+		throw new RuntimeException("Deprecated for " + getClass() + ":");
+	}
+
+	@Override
+	public SType<Local, LSeq> visitDisconnect(DisconnectAction<Local, LSeq> n)
+	{
+		throw new RuntimeException("Deprecated for " + getClass() + ":");
+	}
+
+	@Override
+	public SType<Local, LSeq> visitRecursion(Recursion<Local, LSeq> n)
+	{
+		throw new RuntimeException("Deprecated for " + getClass() + ":");
+	}
+
+	@Override
+	public LSeq visitSeq(LSeq n)
+	{
+		throw new RuntimeException("Deprecated for " + getClass() + ":");
 	}
 }
