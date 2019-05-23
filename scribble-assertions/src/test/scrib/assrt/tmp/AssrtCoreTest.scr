@@ -100,6 +100,7 @@
 // - consider refactoring Core/Config/Context to be more neutral of G/LProtocol (use Protocol super)
 //		- consider refactoring base as an ext outside of core
 //		- separate core (seq) from "classic"? -- maybe add Seq as an "ext" of classic? (currently deprecating a lot of core for classic, but should be the other way round)
+//		- consider replacing some inheritance by nesting, e.g., LProjection/Protocol (cf. SModel/SGraph)
 
 
 

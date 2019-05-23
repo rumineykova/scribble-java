@@ -107,6 +107,9 @@ public class AssrtCoreSModelBuilder  // SModel is a wrapper for SGraph with mode
 			}
 		}
 		
+
+		protected SGraph(GProtoName proto, Map<Integer, SState> states, SState init)
+
 		AssrtCoreSModel res = new AssrtCoreSModel(E0, init, seen);
 		
 		return res;

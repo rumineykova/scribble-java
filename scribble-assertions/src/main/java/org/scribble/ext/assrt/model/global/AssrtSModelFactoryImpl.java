@@ -31,6 +31,12 @@ public class AssrtSModelFactoryImpl extends SModelFactoryImpl
 	}
 
 	@Override
+	public SGraphBuilder SGraphBuilder()
+	{
+		return new AssrtSGraphBuilder(this.mf);
+	}
+
+	@Override
 	public AssrtSGraphBuilderUtil SGraphBuilderUtil()
 	{
 		return new AssrtSGraphBuilderUtil(this.mf);
