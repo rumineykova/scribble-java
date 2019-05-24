@@ -76,7 +76,7 @@ public class EFsm
 	@Override
 	public String toString()
 	{
-		return Integer.toString(this.curr.id);
+		return "(root=" +this.graph.init.id + ", curr=" + this.curr.id + ")";
 	}
 }
 

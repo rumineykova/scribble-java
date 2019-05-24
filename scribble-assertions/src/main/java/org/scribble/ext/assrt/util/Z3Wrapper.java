@@ -120,25 +120,29 @@ public class Z3Wrapper
 	}
 
 	// FIXME: move to utils?
-	public static final RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnintPredicateFormula>>> getUnintPreds
-			= new RecursiveFunctionalInterface<Function<AssrtSmtFormula<?>, Set<AssrtUnintPredicateFormula>>>()
+	public static final 
+			RecursiveFunctionalInterface<
+					Function<AssrtSmtFormula<?>, Set<AssrtUnintPredicateFormula>>> 
+			getUnintPreds = 
+			new RecursiveFunctionalInterface<
+					Function<AssrtSmtFormula<?>, Set<AssrtUnintPredicateFormula>>>()
 	{{
-		this.func = ff ->
+		this.func = x ->
 		{
-			if (ff instanceof AssrtBinFormula)
+			if (x instanceof AssrtBinFormula)
 			{
-				AssrtBinFormula<?> bf = (AssrtBinFormula<?>) ff;
+				AssrtBinFormula<?> bf = (AssrtBinFormula<?>) x;
 									return Stream.of(bf.getLeft(), bf.getRight())
-											.flatMap(x -> this.func.apply(x).stream())
+											.flatMap(y -> this.func.apply(y).stream())
 											.collect(Collectors.toSet());
 			}
-			else if (ff instanceof AssrtQuantifiedIntVarsFormula)
+			else if (x instanceof AssrtQuantifiedIntVarsFormula)
 			{
-				return this.func.apply(((AssrtQuantifiedIntVarsFormula) ff).expr);
+				return this.func.apply(((AssrtQuantifiedIntVarsFormula) x).expr);
 			}
-			else if (ff instanceof AssrtUnintPredicateFormula)
+			else if (x instanceof AssrtUnintPredicateFormula)
 			{
-				return Stream.of((AssrtUnintPredicateFormula) ff)
+				return Stream.of((AssrtUnintPredicateFormula) x)
 						.collect(Collectors.toSet());
 						// Nested predicates not possible
 			}

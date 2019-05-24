@@ -69,13 +69,13 @@ public class SConfig
 			{
 				// Currently not convenient to delegate to states, as state types not distinguished
 				case TERMINAL: break;
-				case OUTPUT: as.addAll(getOutputFireable(self, fsm)); break;
+				case OUTPUT: as.addAll(getOutFireable(self, fsm)); break;
 				case UNARY_RECEIVE:
 				case POLY_RECIEVE: 
-					as.addAll(getReceiveFireable(self, fsm));  // addAll for generic typing
+					as.addAll(getRecvFireable(self, fsm));  // addAll for generic typing
 					break;
-				case ACCEPT: as.addAll(getAcceptFireable(self, fsm)); break;
-				case SERVER_WRAP: as.addAll(getServerWrapFireable(self, fsm)); break;
+				case ACCEPT: as.addAll(getAccFireable(self, fsm)); break;
+				case SERVER_WRAP: as.addAll(getSWrapFireable(self, fsm)); break;
 				default: throw new RuntimeException("Unknown state kind: " + fsm);
 			}
 			if (!as.isEmpty())  // Guards against res.put for empty "as", but perhaps unnecessary?
@@ -89,7 +89,7 @@ public class SConfig
 	// Pre: fsm.curr.getStateKind() == EStateKind.OUTPUT
 	// fsm is self's Efsm
 	// (N.B. return Set, not List -- see getFireable)
-	protected Set<EAction> getOutputFireable(Role self, EFsm fsm)  // "output" and "client" actions
+	protected Set<EAction> getOutFireable(Role self, EFsm fsm)  // "output" and "client" actions
 	{
 		Set<EAction> res = new LinkedHashSet<>();
 		for (EAction a : fsm.curr.getActions())  // Actions may be a mixture of the following cases
@@ -129,7 +129,7 @@ public class SConfig
 	// Pre: fsm.curr.getStateKind() == EStateKind.UNARY_RECEIVE or POLY_RECIEVE
 	// Unary or poly receive
 	// (N.B. return Set, not List -- see getFireable)
-	protected Set<ERecv> getReceiveFireable(Role self, EFsm fsm)
+	protected Set<ERecv> getRecvFireable(Role self, EFsm fsm)
 	{
 		return fsm.curr.getActions().stream().map(x -> (ERecv) x)
 				.filter(x -> this.queues.canReceive(self, x))
@@ -138,7 +138,7 @@ public class SConfig
 
 	// Pre: fsm.curr.getStateKind() == EStateKind.ACCEPT
 	// (N.B. return Set, not List -- see getFireable)
-	protected Set<EAcc> getAcceptFireable(Role self, EFsm fsm)
+	protected Set<EAcc> getAccFireable(Role self, EFsm fsm)
 	{
 		List<EAction> as = fsm.curr.getActions();
 		Role peer = as.get(0).peer;  // All peer's the same
@@ -152,7 +152,7 @@ public class SConfig
 	// Pre: fsm.curr.getStateKind() == EStateKind.SERVER_WRAP
 	// (N.B. return Set, not List -- see getFireable)
 	// Duplicated from getAcceptFireable
-	protected Set<EServerWrap> getServerWrapFireable(Role self, EFsm fsm)
+	protected Set<EServerWrap> getSWrapFireable(Role self, EFsm fsm)
 	{
 		List<EAction> as = fsm.curr.getActions();  // Actually for ServerWrap, size() == 1
 		Role peer = as.get(0).peer;  // All peer's the same

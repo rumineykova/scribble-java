@@ -39,6 +39,7 @@ public class AssrtCoreSGraphBuilderUtil extends SGraphBuilderUtil
 						.collect(Collectors.toMap(r -> r, r -> new HashMap<>())));
 	}
 
+	// TODO: EFsm -> EGraph
 	private static Map<Role, Map<AssrtDataVar, AssrtAFormula>> makeR(
 			Map<Role, EFsm> P)
 	{

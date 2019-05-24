@@ -38,7 +38,7 @@ public interface SModelFactory
 	SConfig SConfig(Map<Role, EFsm> state, SingleBuffers buffs);
 	SGraph SGraph(GProtoName fullname, Map<Integer, SState> states, 
 			SState init);  // states: s.id -> s
-	SModel SModel(SGraph g);
+	SModel SModel(SGraph graph);
 	
 	// public constructors (subpackage, immutable)
 	SSend SSend(Role subj, Role obj, MsgId<?> mid, Payload pay);

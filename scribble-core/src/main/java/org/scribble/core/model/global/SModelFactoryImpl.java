@@ -72,9 +72,9 @@ public class SModelFactoryImpl extends ModelFactoryBase implements SModelFactory
 	}
 	
 	@Override
-	public SModel SModel(SGraph g)
+	public SModel SModel(SGraph graph)
 	{
-		return new SModel(g);
+		return new SModel(graph);
 	}
 
 	@Override

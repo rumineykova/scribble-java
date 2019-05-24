@@ -35,7 +35,7 @@ public interface AssrtCoreSModelFactory extends SModelFactory
 			SState init);  // states: s.id -> s
 
 	@Override
-	AssrtCoreSModel SModel(SGraph g);*/
+	AssrtCoreSModel SModel(SGraph graph);*/
 
 
 	AssrtCoreSConfig AssrtCoreSConfig(Map<Role, EFsm> P, SingleBuffers Q,

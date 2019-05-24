@@ -58,7 +58,7 @@ public class AssrtCoreSModelFactoryImpl extends SModelFactoryImpl //AssrtSModelF
 			Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
 	{
-		return new AssrtCoreSConfig(mf, P, Q, R, Rass, K, F, rename);
+		return new AssrtCoreSConfig(mf, P, Q, K, F, R, Rass, rename);
 	}
 
 	@Override
@@ -69,9 +69,9 @@ public class AssrtCoreSModelFactoryImpl extends SModelFactoryImpl //AssrtSModelF
 	}
 
 	@Override
-	public AssrtCoreSModel SModel(SGraph g)
+	public AssrtCoreSModel SModel(SGraph graph)
 	{
-		return new AssrtCoreSModel((AssrtCoreSGraph) g);
+		return new AssrtCoreSModel((AssrtCoreSGraph) graph);
 	}
 
 	@Override
