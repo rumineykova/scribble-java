@@ -50,24 +50,24 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 			i.remove();
 			seen.put(curr.id, curr);
 
-			Map<Role, List<EAction>> fireable = curr.getFireable();
-			Set<Entry<Role, List<EAction>>> es = new HashSet<>(fireable.entrySet());
+			Map<Role, Set<EAction>> fireable = curr.config.getFireable();
+			Set<Entry<Role, Set<EAction>>> es = new HashSet<>(fireable.entrySet());
 			while (!es.isEmpty())
 			{
-				Iterator<Entry<Role, List<EAction>>> j = es.iterator();
-				Entry<Role, List<EAction>> e = j.next();
+				Iterator<Entry<Role, Set<EAction>>> j = es.iterator();
+				Entry<Role, Set<EAction>> e = j.next();
 				j.remove();
 				//boolean removed = es.remove(e);
 
 				Role self = e.getKey();
-				List<EAction> as = e.getValue();
+				Set<EAction> as = e.getValue();
 				for (EAction a : as)
 				{
 					// cf. SState.getNextStates
 					final AssrtCoreSState tmp;
 					if (a.isSend() || a.isReceive() || a.isRequest() || a.isAccept())// || a.isDisconnect())
 					{
-						tmp = curr.fire(self, a);
+						tmp = curr.config.async(self, a);  // TODO ...use util.addEdgesAndGetNewSuccs to create/get states
 					}
 					/*else if (a.isConnect() || a.isAccept())
 					{

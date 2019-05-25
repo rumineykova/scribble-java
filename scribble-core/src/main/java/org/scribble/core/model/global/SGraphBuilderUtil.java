@@ -64,7 +64,7 @@ public class SGraphBuilderUtil
 	}
 
 	// Pre: this.states.containsKey(curr.config)
-	public Set<SState> getSuccs(SState curr, SAction a, //List<SConfig> succs)
+	public Set<SState> addEdgesAndGetNewSuccs(SState curr, SAction a, //List<SConfig> succs)
 			Set<SConfig> succs)
 			// SConfig.a/sync currently produces a List, but here collapse identical configs for global model (represent non-det "by edges", not "by model states")
 	{
@@ -75,10 +75,10 @@ public class SGraphBuilderUtil
 			SState next = seen
 					? this.states.get(c)
 					: newState(c);
-			curr.addEdge(a, next);
-			if (!seen)  // Must use cached test, newState changes adds the key
+			curr.addEdge(a, next);  // Add edge to succ, regardless of new or not
+			if (!seen)  // Must use "cached" test, newState changes adds the key
 			{
-				res.add(next);
+				res.add(next);  // Only return new succs
 			}
 		}
 		return res;

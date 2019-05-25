@@ -79,7 +79,8 @@ public class SGraphBuilder
 					{
 						Set<SConfig> next = new HashSet<>(curr.config.async(r, a));
 								// SConfig.a/sync currently produces a List, but here collapse identical configs for global model (represent non-det "by edges", not "by model states")
-						Set<SState> succs = this.util.getSuccs(curr, a.toGlobal(r), next);  // util.getSuccs constructs the edges
+						Set<SState> succs = this.util.addEdgesAndGetNewSuccs(curr,
+								a.toGlobal(r), next);  // Constructs the edges
 						todo.addAll(succs);
 					}
 					// Synchronous (client/server) actions
@@ -97,7 +98,7 @@ public class SGraphBuilder
 									// CHECKME: edge will be drawn as the connect, but should be read as the sync. of both -- something like "r1, r2: sync" may be more consistent (or take a set of actions as the edge label?)
 							Set<SConfig> next = new HashSet<>(curr.config.sync(r, a, a.peer, abar));
 									// SConfig.a/sync currently produces a List, but here collapse identical configs for global model (represent non-det "by edges", not "by model states")
-							Set<SState> succs = this.util.getSuccs(curr, aglobal, next);  // util.getSuccs constructs the edges
+							Set<SState> succs = this.util.addEdgesAndGetNewSuccs(curr, aglobal, next);  // util.getSuccs constructs the edges
 							todo.addAll(succs);
 						}
 					}
