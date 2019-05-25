@@ -12,14 +12,15 @@ public interface AssrtCoreEAction extends AssrtEAction
 
 	/*AssrtDataTypeVar getAnnotVar();
 	AssrtArithFormula getArithExpr();*/
-	List<AssrtAFormula> getStateExprs();  // Cf. AssrtStateVarArgAnnotNode::getAnnotExprs
+	List<AssrtAFormula> getStateExprs();  // Any edge may be a continue-edge with state exprs
+			// Cf. AssrtStateVarArgAnnotNode::getAnnotExprs
 	
 	default String stateExprsToString()
 	{
-		List<AssrtAFormula> exprs = getStateExprs();
-		return exprs.isEmpty() 
+		List<AssrtAFormula> aforms = getStateExprs();
+		return aforms.isEmpty() 
 				? "" 
-				: ("<" + exprs.stream().map(Object::toString)
+				: ("<" + aforms.stream().map(Object::toString)
 						.collect(Collectors.joining(", ")) + ">");
 	}
 }

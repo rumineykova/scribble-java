@@ -91,6 +91,7 @@
 // - check genereal overrides, return super types where better -- @deprecate runtimeexception overrides? e.g, reconstruct
 // - check Assrt NameDisamb/checkAnnot passes
 // - rename Assertions.g related stuff with Annot prefix
+// - disamb annot statevars (etc?) to qualified names, avoid "rename" issues (cf. AssrtCoreSConfig)
 
 // later:
 // - refactor modulecontext building, move dup vis name checks out (drop scribexception)
