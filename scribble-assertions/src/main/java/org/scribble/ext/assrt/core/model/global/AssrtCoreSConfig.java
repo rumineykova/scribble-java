@@ -456,7 +456,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			updateRecContinue(self, svars, sexprs, F, Vself);
 		}
 
-		compactF(self, F);
+		compactF(F.get(self));
 		//return rename;
 	}
 
@@ -585,11 +585,15 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		H = H.stream().map(x -> x.subs(old, fresh)).collect(Collectors.toSet());
 		F.put(self, H);
 	}
-	
-	private static void compactF(Role self, Map<Role, Set<AssrtBFormula>> F)
+
+	private static void appendToF(AssrtBFormula bform, Set<AssrtBFormula> Fself)
 	{
-		Set<AssrtBFormula> s = F.get(self);
-		Iterator<AssrtBFormula> i = s.iterator();
+		Fself.add(bform);
+	}
+	
+	private static void compactF(Set<AssrtBFormula> Fself)
+	{
+		Iterator<AssrtBFormula> i = Fself.iterator();
 		while (i.hasNext())
 		{
 			AssrtBFormula f = i.next();
@@ -671,8 +675,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				// Actual assertion (f) for annotvar (v) added in here
 	}
 
-
-	// FIXME: R
+	// FIXME: V
 	private static void fireAcc(Map<Role, EFsm> P, SingleBuffers Q,
 			Map<Role, Map<AssrtDataVar, AssrtAFormula>> V,
 			Map<Role, Set<AssrtBFormula>> R,
@@ -1557,11 +1560,6 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
 		R.get(r).put(annot, expr);
 	}*/
-
-	private static void appendToF(AssrtBFormula bform, Set<AssrtBFormula> Fself)
-	{
-		Fself.add(bform);
-	}
 
 	private static Map<Role, Map<Role, AssrtCoreEMsg>> copyQ(
 			Map<Role, Map<Role, AssrtCoreEMsg>> Q)
