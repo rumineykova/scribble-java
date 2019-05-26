@@ -112,7 +112,6 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 			}
 		}
 		
-
 		return (AssrtCoreSGraph) this.mf.global
 				.SGraph(fullname,
 						seen.entrySet().stream().collect(

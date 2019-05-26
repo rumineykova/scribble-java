@@ -29,10 +29,10 @@ public class SStateErrors
 	
 	// FIXME: factor out explicit error classes -- for error message formatting
 	// FIXME: could also check for roles stuck on unconnected sends here (probably better, than current syntax check)
-	public final Map<Role, ERecv> stuck;         // Reception errors
+	public final Map<Role, ? extends ERecv> stuck;         // Reception errors
 	public final Set<Set<Role>> waitFor;         // Deadlock cycles
-	public final Map<Role, Set<ESend>> orphans;  // Orphan messages
-	public final Map<Role, EState> unfinished;   // Unfinished roles
+	public final Map<Role, Set<? extends ESend>> orphans;  // Orphan messages
+	public final Map<Role, ? extends EState> unfinished;   // Unfinished roles
 
 	public SStateErrors(SState state)
 	{

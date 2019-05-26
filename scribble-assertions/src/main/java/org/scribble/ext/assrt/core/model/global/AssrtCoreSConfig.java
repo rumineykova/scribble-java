@@ -19,6 +19,7 @@ import org.scribble.core.model.endpoint.EFsm;
 import org.scribble.core.model.endpoint.EState;
 import org.scribble.core.model.endpoint.EStateKind;
 import org.scribble.core.model.endpoint.actions.EAction;
+import org.scribble.core.model.endpoint.actions.ESend;
 import org.scribble.core.model.endpoint.actions.EServerWrap;
 import org.scribble.core.model.global.SConfig;
 import org.scribble.core.model.global.SingleBuffers;
@@ -741,81 +742,91 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	}*/
 	
 	// Need to consider hasPendingRequest? -- no: the semantics blocks both sides until connected, so don't need to validate those "intermediate" states
-	public boolean isReceptionError()
+	//public boolean isReceptionError()
+	@Override
+	public Map<Role, ? extends AssrtCoreERecv> getStuckMessages()
 	{
-		return this.P.entrySet().stream().anyMatch(e ->  // e: Entry<Role, EState>
+		Map<Role, AssrtCoreERecv> res = new HashMap<>();
+		for (Role self : this.efsms.keySet())
 		{
-			EState s = e.getValue();
-			EStateKind k = s.getStateKind();
-			if (k != EStateKind.UNARY_RECEIVE && k != EStateKind.POLY_RECIEVE)
+			EFsm s = this.efsms.get(self);
+			EStateKind k = s.curr.getStateKind();
+			if (k == EStateKind.UNARY_RECEIVE || k == EStateKind.POLY_RECIEVE)
 			{
-				return false;
+				Role peer = s.curr.getActions().get(0).peer;  // Pre: consistent ext choice subj
+				AssrtCoreESend send = ((AssrtCoreESend) this.queues.getQueue(self)
+						.get(peer)).toTrueAssertion();
+				if (send != null)
+				{
+					AssrtCoreERecv recv = send.toDual(peer);
+					if (!s.curr.hasAction(recv))  // CHECKME: ...map(a -> ((AssrtCoreESend) a.toDual(dst)).toTrueAssertion()) ?
+								// FIXME: check assertion implication (not just syntactic equals) -- cf. AssrtSConfig::fire
+					{
+						res.put(self, recv);
+					}
+				}
 			}
-			Role dest = e.getKey();
-			List<EAction> as = s.getActions();
-			Role src = as.get(0).peer;
-			return hasMsg(dest, src) && 
-					//!as.contains(this.Q.get(dest).get(src).toDual(src));
-					as.stream()
-						.map(a -> ((AssrtCoreESend) a.toDual(dest)).toTrueAssertion())
-						.noneMatch(a -> a.equals(this.Q.get(dest).get(src).toTrueAssertion()));   // cf. toTrueAssertion done now only on receiver side
-								// HACK FIXME: check assertion implication (not just syntactic equals) -- cf. AssrtSConfig::fire
 		}
-		);
+		return res;
 	}
 
-	// Includes orphan pending requests -- maybe shouldn't?  handled by synchronisation error?
-	public boolean isOrphanError(Map<Role, AssrtEState> E0)
+	/*@Override
+	protected Set<Role> getWaitingFor(Role r)
 	{
-		return this.P.entrySet().stream().anyMatch(e ->
+		throw new RuntimeException("[TODO] : " + r);
+	}*/
+
+	/*// TODO: orphan pending requests -- maybe shouldn't?  handled by synchronisation error?
+	//public boolean isOrphanError(Map<Role, AssrtEState> E0)
+	public Map<Role, Set<? extends AssrtCoreESend>> getOrphanMessages()
+	{
+		Map<Role, Set<? extends AssrtCoreESend>> res = new HashMap<>();
+		for (Role r : this.efsms.keySet())
 		{
-			Role r1 = e.getKey();
-			EState s = e.getValue();
-			return
-						 isInactive(s, E0.get(r1).id)
-					&& (this.P.keySet().stream().anyMatch(r2 -> 
-								 hasMsg(r1, r2)
-							 
-							// FIXME: factor out as "pending request reception error"? -- actually, already checked as synchronisation error?
-							|| (  isPendingRequest(r2, r1)  // N.B. pending request *to* inactive r1 
-									 
-								 // Otherwise all initial request messages considered as bad
-								 && s.getActions().stream()
-										 .map(a -> ((AssrtCoreEReq) a.toDual(r1)).toTrueAssertion())
-										 .noneMatch(a -> a.equals(((AssrtCoreEPendingRequest) this.Q.get(r1).get(r2)).getMsg().toTrueAssertion()))  
-											 
-								 )
-						 ));  
-						////|| !this.owned.get(e.getKey()).isEmpty()  
-						
-			// FIXME: need AnnotEConnect to consume owned properly
-		});
-	}
-
-	public boolean isUnfinishedRoleError(Map<Role, AssrtEState> E0)
-	{
-		return this.isTerminal() &&
-				this.P.entrySet().stream().anyMatch(e -> isActive(e.getValue(), E0.get(e.getKey()).id));
-	}
+			Set<ESend> orphs = new HashSet<>();
+			EFsm fsm = this.efsms.get(r);
+			if (fsm.curr.isTerminal())  // Local termination of r, i.e. not necessarily "full deadlock cycle"
+			{
+				orphs.addAll(this.queues.getQueue(r).values().stream()
+						.filter(v -> v != null).collect(Collectors.toSet()));
+			}
+			else
+			{
+				this.efsms.keySet().stream()
+						.filter(x -> !r.equals(x) && !this.queues.isConnected(r, x))  // !isConnected(r, x), means r considers its side closed
+						.map(x -> this.queues.getQueue(r).get(x)).filter(x -> x != null)  // r's side is closed, but remaining message(s) in r's buff
+						.forEachOrdered(x -> orphs.add(x));
+			}
+			if (!orphs.isEmpty())
+			{
+				res.put(r, orphs);
+			}
+		}
+		return res;
+	}*/
 
 	// Request/accept are bad if local queue is established
 	// N.B. request/accept when remote queue is established is not an error -- relying on semantics to block until both remote/local queues not established; i.e., error precluded by design of model, not by validation
 	// N.B. not considering pending requests, for the same reason as above and as why not considered for, e.g., reception errors -- i.e., not validating those "intermediate" states
 	// Deadlock/progress errors that could be related to "decoupled" connection sync still caught by existing checks, e.g., orphan message or unfinished role
+	@Deprecated
 	public boolean isConnectionError()
 	{
-		return this.P.entrySet().stream().anyMatch(e -> 
+		throw new RuntimeException("[TODO] : ");
+		/*return this.P.entrySet().stream().anyMatch(e -> 
 				e.getValue().getActions().stream().anyMatch(a ->
 						(a.isRequest() || a.isAccept()) && isInputQueueEstablished(e.getKey(), a.peer)
 		));
-				// FIXME: check for pending port, if so then port is used -- need to extend an AnnotEConnect type with ScribAnnot (cf. AnnotPayloadType)
+				// FIXME: check for pending port, if so then port is used -- need to extend an AnnotEConnect type with ScribAnnot (cf. AnnotPayloadType)*/
 	}
 
 	// Send is bad if either local queue or remote queue is not established, and no pending request to the target
 	// Receive is bad if local queue is not established and no pending request to the target
+	@Deprecated
 	public boolean isUnconnectedError()
 	{
-		return this.P.entrySet().stream().anyMatch(e -> 
+		throw new RuntimeException("[TODO] : ");
+		/*return this.P.entrySet().stream().anyMatch(e -> 
 		{
 			Role r = e.getKey();
 			return 
@@ -824,13 +835,15 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 										(!isInputQueueEstablished(r, a.peer) || !isInputQueueEstablished(a.peer, r)) && !isPendingRequest(r, a.peer))
 							|| (a.isReceive() && !isInputQueueEstablished(r, a.peer) && !isPendingRequest(r, a.peer)));
 			// Don't need to use isPendingRequest(a.peer, r) because only requestor is "at the next state" while request pending 
-		});
+		});*/
 	}
 
 	// "Connection message" reception error
+	@Deprecated
 	public boolean isSynchronisationError()
 	{
-		return this.P.entrySet().stream().anyMatch(e ->  // e: Entry<Role, EState>
+		throw new RuntimeException("[TODO] : ");
+		/*return this.P.entrySet().stream().anyMatch(e ->  // e: Entry<Role, EState>
 		{
 			EState s = e.getValue();
 			EStateKind k = s.getStateKind();
@@ -846,7 +859,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 								 ((AssrtCoreEPendingRequest) this.Q.get(dest).get(src)).getMsg()
 								.toTrueAssertion().toDual(src)
 							);
-		});
+		});*/
 	}
 	
 	public boolean isUnknownDataTypeVarError(Job job, GProtoName simpname)

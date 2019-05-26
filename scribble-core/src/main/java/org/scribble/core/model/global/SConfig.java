@@ -32,11 +32,11 @@ import org.scribble.core.model.endpoint.EState;
 import org.scribble.core.model.endpoint.EStateKind;
 import org.scribble.core.model.endpoint.actions.EAcc;
 import org.scribble.core.model.endpoint.actions.EAction;
+import org.scribble.core.model.endpoint.actions.EClientWrap;
 import org.scribble.core.model.endpoint.actions.EDisconnect;
 import org.scribble.core.model.endpoint.actions.ERecv;
 import org.scribble.core.model.endpoint.actions.EReq;
 import org.scribble.core.model.endpoint.actions.ESend;
-import org.scribble.core.model.endpoint.actions.EClientWrap;
 import org.scribble.core.model.endpoint.actions.EServerWrap;
 import org.scribble.core.type.name.Role;
 
@@ -247,7 +247,8 @@ public class SConfig
 	}
 
 	// Stuck due to non-consumable messages (reception errors)
-	public Map<Role, ERecv> getStuckMessages()
+	// CHECKME: refactor inner parts to (e.g.) EState?  similarly for wait-for, orphans, etc?
+	public Map<Role, ? extends ERecv> getStuckMessages()
 	{
 		Map<Role, ERecv> res = new HashMap<>();
 		for (Role self : this.efsms.keySet())
@@ -381,9 +382,9 @@ public class SConfig
 	}
 
 	// Includes "unconnected" messages -- CHECKME: should unconnected messages be considered as "stuck" instead?
-	public Map<Role, Set<ESend>> getOrphanMessages()
+	public Map<Role, Set<? extends ESend>> getOrphanMessages()
 	{
-		Map<Role, Set<ESend>> res = new HashMap<>();
+		Map<Role, Set<? extends ESend>> res = new HashMap<>();
 		for (Role r : this.efsms.keySet())
 		{
 			Set<ESend> orphs = new HashSet<>();
@@ -410,7 +411,7 @@ public class SConfig
 	
 	// Not just "unfinished", but also "non-initiated" (accept guarded) -- though could be non-initiated after some previous completions
 	// Maybe not needed? previously not used (even without accept-correlation check)
-	public Map<Role, EState> getUnfinishedRoles()
+	public Map<Role, ? extends EState> getUnfinishedRoles()
 	{
 		if (!getFireable().isEmpty())  
 				// Once no fireable, then finished (no further fireable will be produced)

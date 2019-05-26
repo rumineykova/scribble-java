@@ -92,6 +92,7 @@
 // - check Assrt NameDisamb/checkAnnot passes
 // - rename Assertions.g related stuff with Annot prefix
 // - disamb annot statevars (etc?) to qualified names, avoid "rename" issues (cf. AssrtCoreSConfig)
+// - maybe move init config factory from util to builder?
 
 // later:
 // - refactor modulecontext building, move dup vis name checks out (drop scribexception)
