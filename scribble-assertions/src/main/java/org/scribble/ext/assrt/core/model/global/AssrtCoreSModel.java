@@ -53,7 +53,7 @@ public class AssrtCoreSModel extends SModel
 				//this.allStates.values().stream().filter(AssrtCoreSState::isDisconnectedError).collect(Collectors.toSet());
 
 		Set<AssrtCoreSState> unknownVars = all.stream()
-				.filter(s -> s.isUnknownDataTypeVarError(job, simpname))
+				.filter(s -> s.getUnknownDataVarError(job, simpname))
 				.collect(Collectors.toSet());
 
 		Set<AssrtCoreSState> asserts = null;  
@@ -90,7 +90,7 @@ public class AssrtCoreSModel extends SModel
 			asserts = all.stream()
 					.filter(s -> s.isAssertionProgressError(job, simpname))
 					.collect(Collectors.toSet());
-			unsats = all.stream().filter(s -> s.isUnsatisfiableError(job, simpname))
+			unsats = all.stream().filter(s -> s.getAssertUnsatErrors(job, simpname))
 					.collect(Collectors.toSet());
 			recasserts = all.stream()
 					.filter(s -> s.isRecursionAssertionError(job, simpname, this.init))

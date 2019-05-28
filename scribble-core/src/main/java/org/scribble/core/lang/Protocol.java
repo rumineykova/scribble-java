@@ -38,8 +38,8 @@ public abstract class Protocol
 	
 	public final List<ProtoMod> mods;
 	public final N fullname;
-	public final List<Role> rs;  // Ordered role params; pre: size >= 2
-	public final List<MemberName<? extends NonRoleParamKind>> ps;  
+	public final List<Role> roles;  // Ordered role params; pre: size >= 2
+	public final List<MemberName<? extends NonRoleParamKind>> params;  
 			// N.B. there is no Data/SigParamName  // CHECKME: always simple names?
 			// NonRoleParamKind, not NonRoleArgKind, because latter includes AmbigKind due to parsing requirements
 			// CHECKME: make a ParamName? or at least SimpleName?
@@ -52,8 +52,8 @@ public abstract class Protocol
 		this.source = source;  // CHECKME: factor out with SType(Base) ?
 		this.mods = Collections.unmodifiableList(mods);
 		this.fullname = fullname;
-		this.rs = Collections.unmodifiableList(rs);
-		this.ps = Collections.unmodifiableList(ps);
+		this.roles = Collections.unmodifiableList(rs);
+		this.params = Collections.unmodifiableList(ps);
 		this.def = def;
 	}
 	
@@ -98,14 +98,14 @@ public abstract class Protocol
 	protected String rolesToString()
 	{
 		return "("
-				+ this.rs.stream().map(x -> Constants.ROLE_KW + " " + x.toString())
+				+ this.roles.stream().map(x -> Constants.ROLE_KW + " " + x.toString())
 						.collect(Collectors.joining(", "))
 				+ ")";
 	}
 
 	protected String paramsToString()
 	{
-		return "<" + this.ps.stream() // CHECKME: drop empty "<>" ?
+		return "<" + this.params.stream() // CHECKME: drop empty "<>" ?
 				.map(x ->
 					{
 						String k;
@@ -134,8 +134,8 @@ public abstract class Protocol
 		int hash = 7;
 		hash = 31 * hash + this.mods.hashCode();
 		hash = 31 * hash + this.fullname.hashCode();
-		hash = 31 * hash + this.rs.hashCode();
-		hash = 31 * hash + this.ps.hashCode();
+		hash = 31 * hash + this.roles.hashCode();
+		hash = 31 * hash + this.params.hashCode();
 		hash = 31 * hash + this.def.hashCode();
 		return hash;
 	}
@@ -154,7 +154,7 @@ public abstract class Protocol
 		Protocol<?, ?, ?> them = (Protocol<?, ?, ?>) o;
 		return them.canEquals(this)
 				&& this.mods.equals(them.mods) && this.fullname.equals(them.fullname)
-				&& this.rs.equals(them.rs) && this.ps.equals(them.ps)
+				&& this.roles.equals(them.roles) && this.params.equals(them.params)
 				&& this.def.equals(them.def);
 	}
 

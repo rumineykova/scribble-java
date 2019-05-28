@@ -79,32 +79,32 @@ public class GProtocol extends Protocol<Global, GProtoName, GSeq>
 		GSeq def = v.core.config.vf.<Global, GSeq>RecPruner().visitSeq(seq);
 		Set<Role> used = def.gather(new RoleGatherer<Global, GSeq>()::visit)
 				.collect(Collectors.toSet());
-		List<Role> rs = this.rs.stream().filter(x -> used.contains(x))  // Prune role decls -- CHECKME: what is an example? was this from before unused role checking?
+		List<Role> rs = this.roles.stream().filter(x -> used.contains(x))  // Prune role decls -- CHECKME: what is an example? was this from before unused role checking?
 				.collect(Collectors.toList());
 		return //new GProtocol
 				reconstruct(getSource(), this.mods, this.fullname, rs,
-				this.ps, def);
+				this.params, def);
 	}
 	
 	@Override
 	public GProtocol unfoldAllOnce(STypeUnfolder<Global, GSeq> v)
 	{
 		GSeq unf = v.visitSeq(this.def);
-		return reconstruct(getSource(), this.mods, this.fullname, this.rs,
-				this.ps, unf);
+		return reconstruct(getSource(), this.mods, this.fullname, this.roles,
+				this.params, unf);
 	}
 
 	// Cf. (e.g.) getInlined, that takes the Visitor (not Core)
 	public void checkRoleEnabling(Core core) throws ScribException
 	{
-		Set<Role> rs = this.rs.stream().collect(Collectors.toSet());
+		Set<Role> rs = this.roles.stream().collect(Collectors.toSet());
 		RoleEnablingChecker v = core.config.vf.global.RoleEnablingChecker(rs);
 		this.def.visitWith(v);
 	}
 
 	public void checkExtChoiceConsistency(Core core) throws ScribException
 	{
-		Map<Role, Role> rs = this.rs.stream()
+		Map<Role, Role> rs = this.roles.stream()
 				.collect(Collectors.toMap(x -> x, x -> x));
 		ExtChoiceConsistencyChecker v = core.config.vf.global
 				.ExtChoiceConsistencyChecker(rs);
@@ -114,7 +114,7 @@ public class GProtocol extends Protocol<Global, GProtoName, GSeq>
 	public void checkConnectedness(Core core, boolean implicit)
 			throws ScribException
 	{
-		Set<Role> rs = this.rs.stream().collect(Collectors.toSet());
+		Set<Role> rs = this.roles.stream().collect(Collectors.toSet());
 		ConnectionChecker v = core.config.vf.global.ConnectionChecker(rs, implicit);
 		this.def.visitWith(v);
 	}
@@ -125,7 +125,7 @@ public class GProtocol extends Protocol<Global, GProtoName, GSeq>
 		LSeq def = core.config.vf.global.InlinedProjector(core, self)
 				.visitSeq(this.def);
 		LSeq fixed = core.config.vf.local.InlinedExtChoiceSubjFixer().visitSeq(def);
-		return projectAux(core, self, this.rs, fixed);
+		return projectAux(core, self, this.roles, fixed);
 	}
 	
 	// Does rec and role pruning
@@ -141,7 +141,7 @@ public class GProtocol extends Protocol<Global, GProtoName, GSeq>
 				.filter(x -> x.equals(self) || used.contains(x))
 				.collect(Collectors.toList());
 		List<MemberName<? extends NonRoleParamKind>> params =
-				new LinkedList<>(this.ps);  // CHECKME: filter params by usage?
+				new LinkedList<>(this.params);  // CHECKME: filter params by usage?
 		return new LProjection(this.mods, fullname, roles, self, params,
 				this.fullname, pruned);  // CHECKME: add/do via tf?
 	}
@@ -156,9 +156,9 @@ public class GProtocol extends Protocol<Global, GProtoName, GSeq>
 		LProtoName fullname = InlinedProjector
 				.getFullProjectionName(this.fullname, self);
 		List<MemberName<? extends NonRoleParamKind>> params =
-				new LinkedList<>(this.ps);  // CHECKME: filter params by usage?
+				new LinkedList<>(this.params);  // CHECKME: filter params by usage?
 		// N.B. also not using PreRoleCollector here for role decl pruning (cf. LRoleDeclAndDoArgPruner), "initial" projection pass not complete yet, so cannot traverse all needed subprotos
-		LProjection proj = new LProjection(this.mods, fullname, this.rs, self,
+		LProjection proj = new LProjection(this.mods, fullname, this.roles, self,
 				params, this.fullname, pruned);
 		// TODO: fully refactor ext choice subj fixing, do pruning, etc to Job and use AstVisitor?
 		return proj;

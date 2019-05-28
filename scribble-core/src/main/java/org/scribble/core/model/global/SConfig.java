@@ -247,7 +247,7 @@ public class SConfig
 	}
 
 	// Stuck due to non-consumable messages (reception errors)
-	// CHECKME: refactor inner parts to (e.g.) EState?  similarly for wait-for, orphans, etc?
+	// CHECKME: refactor inner parts to (e.g.) EState? maybe EFsm better (dynamics errors, e.g., need queues); similarly for wait-for, orphans, etc.
 	public Map<Role, ? extends ERecv> getStuckMessages()
 	{
 		Map<Role, ERecv> res = new HashMap<>();

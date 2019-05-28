@@ -100,7 +100,7 @@ public class AssrtCoreGProtocol extends GProtocol
 		List<Role> rs = this.roles.stream().filter(x -> used.contains(x))  // Prune role decls -- CHECKME: what is an example?  was this from before unused role checking?
 				.collect(Collectors.toList());*/
 		return new AssrtCoreGProtocol(getSource(), this.mods, this.fullname,
-				this.rs, this.ps, pruned);
+				this.roles, this.params, pruned);
 	}
 	
 	@Override
@@ -136,7 +136,7 @@ public class AssrtCoreGProtocol extends GProtocol
 				AssrtTrueFormula.TRUE);
 		LProtoName fullname = InlinedProjector
 				.getFullProjectionName(this.fullname, self);
-		return new AssrtCoreLProjection(this.mods, fullname, this.rs, self, this.ps, this.fullname, proj);
+		return new AssrtCoreLProjection(this.mods, fullname, this.roles, self, this.params, this.fullname, proj);
 	}
 
 	// N.B. no "fixing" passes done here -- need breadth-first passes to be sequentialised for subproto visiting
@@ -163,8 +163,8 @@ public class AssrtCoreGProtocol extends GProtocol
 		//hash = 31 * hash + super.hashCode();  // No: super.def == null
 		hash = 31 * hash + this.mods.hashCode();
 		hash = 31 * hash + this.fullname.hashCode();
-		hash = 31 * hash + this.rs.hashCode();
-		hash = 31 * hash + this.ps.hashCode();
+		hash = 31 * hash + this.roles.hashCode();
+		hash = 31 * hash + this.params.hashCode();
 		hash = 31 * hash + this.type.hashCode();
 		return hash;
 	}
@@ -184,7 +184,7 @@ public class AssrtCoreGProtocol extends GProtocol
 		AssrtCoreGProtocol them = (AssrtCoreGProtocol) o;
 		return them.canEquals(this)
 				&& this.mods.equals(them.mods) && this.fullname.equals(them.fullname)
-				&& this.rs.equals(them.rs) && this.ps.equals(them.ps)
+				&& this.roles.equals(them.roles) && this.params.equals(them.params)
 				&& this.type.equals(them.type);
 	}
 

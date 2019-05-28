@@ -48,15 +48,15 @@ public class SubprotoSig
 
 	public SubprotoSig(GProtocol n)
 	{
-		this(n.fullname, n.rs, paramsToArgs(n.ps));
+		this(n.fullname, n.roles, paramsToArgs(n.params));
 	}
 
 	public SubprotoSig(LProtocol n)
 	{
-		this(n.fullname, n.rs.stream().map(x -> x.equals(n.self) ? Role.SELF : x)
+		this(n.fullname, n.roles.stream().map(x -> x.equals(n.self) ? Role.SELF : x)
 						// N.B. role decls (cf. do-args) don't feature self (cf. LSelfDecl), even after pruning/fixing
 						// FIXME: (implicit) self role mess
-				.collect(Collectors.toList()), paramsToArgs(n.ps));
+				.collect(Collectors.toList()), paramsToArgs(n.params));
 	}
 
 	private static List<Arg<? extends NonRoleParamKind>> paramsToArgs(

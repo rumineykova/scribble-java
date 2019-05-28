@@ -301,7 +301,7 @@ public class CoreContext
 			ProtoName<Global> fullname, boolean fair) throws ScribException
 	{
 		Map<Role, EGraph> egraphs = new HashMap<>();
-		for (Role self : this.imeds.get(fullname).rs)
+		for (Role self : this.imeds.get(fullname).roles)
 		{
 			egraphs.put(self, fair 
 					? getEGraph(fullname, self) 

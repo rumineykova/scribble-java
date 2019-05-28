@@ -2,28 +2,22 @@ package org.scribble.ext.assrt.job;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.scribble.ast.AstFactory;
 import org.scribble.ast.Module;
-import org.scribble.ast.global.GProtoDecl;
 import org.scribble.core.job.Core;
 import org.scribble.core.job.CoreArgs;
 import org.scribble.core.lang.global.GProtocol;
-import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.ModuleName;
 import org.scribble.core.type.session.STypeFactory;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.job.AssrtCoreArgs;
-import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGTypeFactory;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLTypeFactory;
-import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.scribble.ext.assrt.visit.AssrtVisitorFactoryImpl;
 import org.scribble.job.Job;
-import org.scribble.job.JobContext;
 import org.scribble.util.ScribException;
 import org.scribble.visit.VisitorFactory;
 
@@ -87,38 +81,5 @@ public class AssrtJob extends Job
 		{
 			runVisitorPassOnAllModules(AssrtAnnotationChecker.class);
 		}*/
-	}
-
-
-	
-	
-	
-	
-	
-	
-	// N.B. currently only used by assrt-core
-	public boolean checkSat(GProtoName simpname, Set<AssrtBFormula> fs)  // Maybe record simpname as field (for core)
-	{
-		Solver solver = ((AssrtCoreArgs) this.config.args).solver;
-		switch (solver)
-		{
-			case NATIVE_Z3:
-			{
-				JobContext jc = getContext();
-				return Z3Wrapper.checkSat(this,
-						(GProtoDecl) jc.getMainModule().getGProtoDeclChild(simpname),
-						fs);
-			}
-			case NONE:
-			{
-				verbosePrintln("\n[assrt-core] [WARNING] Skipping sat check:\n\t"
-						+ fs.stream().map(f -> f.toSmt2Formula() + "\n\t")
-								.collect(Collectors.joining("")));
-				return true;
-			}
-			default:
-				throw new RuntimeException(
-						"[assrt-core] Shouldn't get in here: " + solver);
-		}
 	}
 }

@@ -44,8 +44,8 @@ public class GTypeInliner extends STypeInliner<Global, GSeq>
 		}
 		pushSig(sig);
 		GProtocol gpro = this.core.getContext().getIntermediate(fullname);
-		Substitutor<Global, GSeq> subs = this.core.config.vf.Substitutor(gpro.rs,
-				n.roles, gpro.ps, n.args);
+		Substitutor<Global, GSeq> subs = this.core.config.vf.Substitutor(gpro.roles,
+				n.roles, gpro.params, n.args);
 		//GSeq inlined = (GSeq) g.def.visitWithNoEx(subs).visitWithNoEx(this);
 		GSeq inlined = visitSeq(subs.visitSeq(gpro.def));
 				// i.e. returning a GSeq -- rely on parent GSeq to inline

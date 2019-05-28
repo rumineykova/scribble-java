@@ -105,8 +105,8 @@ public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreL
 		int hash = 3167;
 		hash = 31 * hash + this.mods.hashCode();
 		hash = 31 * hash + this.fullname.hashCode();
-		hash = 31 * hash + this.rs.hashCode();
-		hash = 31 * hash + this.ps.hashCode();
+		hash = 31 * hash + this.roles.hashCode();
+		hash = 31 * hash + this.params.hashCode();
 		hash = 31 * hash + this.global.hashCode();
 		hash = 31 * hash + this.type.hashCode();
 		return hash;
@@ -125,8 +125,8 @@ public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreL
 		}
 		AssrtCoreLProjection them = (AssrtCoreLProjection) o;
 		return them.canEquals(this) && this.mods.equals(them.mods)
-				&& this.fullname.equals(them.fullname) && this.rs.equals(them.rs)
-				&& this.self.equals(them.self) && this.ps.equals(them.ps)
+				&& this.fullname.equals(them.fullname) && this.roles.equals(them.roles)
+				&& this.self.equals(them.self) && this.params.equals(them.params)
 				&& this.global.equals(them.global) && this.type.equals(them.type);
 	}
 

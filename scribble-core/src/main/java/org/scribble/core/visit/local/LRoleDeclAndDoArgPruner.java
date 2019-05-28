@@ -57,13 +57,13 @@ public class LRoleDeclAndDoArgPruner extends STypeVisitorNoThrow<Local, LSeq>
 	{
 		// N.B. must use PreRoleCollector (on orig), standard subproto traversal not possible yet because target proto role decls not yet fixed (being done now)
 		Set<Role> used = n.def.visitWithNoThrow(newPreRoleCollector());  // CHECKME: vf?
-		List<Role> rs = n.rs.stream()
+		List<Role> rs = n.roles.stream()
 				.filter(x -> used.contains(x) || x.equals(n.self))  // FIXME: self roledecl not actually being a self role is a mess
 				.collect(Collectors.toList());
 		// N.B. *role decls* (cf. do-args) don't feature "self" (cf. LSelfDecl)
 		LSeq pruned = visitSeq(n.def);
 		return n.reconstruct(n.getSource(), n.mods, n.fullname, rs, n.self,
-				n.ps, pruned);  // CHECKME: prune params?
+				n.params, pruned);  // CHECKME: prune params?
 	}
 
 	public Do<Local, LSeq> visitDo(Do<Local, LSeq> n)
@@ -100,14 +100,14 @@ class PreSubprotoRoleCollector extends SubprotoRoleCollector
 
 		this.stack.push(sig);
 		LProjection target = (LProjection) n.getTarget(this.core);
-		List<Role> tmp = this.core.getContext().getInlined(target.global).rs
+		List<Role> tmp = this.core.getContext().getInlined(target.global).roles
 						// Currently, do-args arity matches that of inlined, i.e., not necessarily the arity of the actual local target (cf. InlinedProjector.visitDo)
 				.stream()//.map(x -> x.equals(target.self) ? Role.SELF : x)  
 						// "self" for do-args not done yet (cf., SubprotoProjector.visitDo), now being fixed by LDoArgPruner
 						// Cf., LSubprotoVisitorNoThrow.prepareSubprotoForVisit
 				.collect(Collectors.toList());
 		Substitutor<Local, LSeq> subs = this.core.config.vf
-				.Substitutor(tmp, n.roles, target.ps, n.args, true);  // true (passive) to ignore "self"  // CHECKME: prune args?
+				.Substitutor(tmp, n.roles, target.params, n.args, true);  // true (passive) to ignore "self"  // CHECKME: prune args?
 		Set<Role> res = target.def.visitWithNoThrow(subs).visitWithNoThrow(this);
 		this.stack.pop();
 		return res;

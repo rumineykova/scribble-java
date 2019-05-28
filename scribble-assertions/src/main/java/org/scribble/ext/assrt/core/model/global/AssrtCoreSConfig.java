@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,7 +20,7 @@ import org.scribble.core.model.endpoint.EFsm;
 import org.scribble.core.model.endpoint.EState;
 import org.scribble.core.model.endpoint.EStateKind;
 import org.scribble.core.model.endpoint.actions.EAction;
-import org.scribble.core.model.endpoint.actions.ESend;
+import org.scribble.core.model.endpoint.actions.EDisconnect;
 import org.scribble.core.model.endpoint.actions.EServerWrap;
 import org.scribble.core.model.global.SConfig;
 import org.scribble.core.model.global.SingleBuffers;
@@ -29,6 +30,7 @@ import org.scribble.core.type.name.Op;
 import org.scribble.core.type.name.PayElemType;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAcc;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAction;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreERecv;
@@ -98,7 +100,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			Role self = e.getKey();
 			EState s = e.getValue().curr;
 			res.put(self, new LinkedHashSet<>());
-			for (EAction a : s.getActions())
+			for (EAction a : s.getDetActions())
 			{
 				if (a.isSend())
 				{
@@ -377,7 +379,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			if (e instanceof AssrtAnnotDataName)
 			{
 				AssrtDataVar v = ((AssrtAnnotDataName) e).var;
-				renameOldVarsInF(self, v, F, rename);
+				//renameOldVarsInF(self, v, F, rename);  // CHECKME
 				updateForAnnotVar(v, K.get(self));
 			}
 			else
@@ -538,6 +540,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		for (AssrtDataVar svar : svars.keySet())  // FIXME: statevar ordering
 		{
 			AssrtAFormula expr = exprs.next();
+
+			/*// CHECKME
 			if (expr.getIntVars().contains(svar))  // CHECKME: what is the example?
 			{
 				// CHECKME: renaming like this OK? -- basically all V vars are being left open for top-level forall
@@ -546,7 +550,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 						//makeFreshIntVar(annot)  // Makes model construction non-terminating, e.g., mu X(x:=..) ... X<x> -- makes unbounded fresh in x = fresh(x)
 						AssrtFormulaFactory.AssrtIntVar("_" + svar.toString())  // CHECKME: is this OK?
 				);	
-			}
+			}*/
 
 			// Update V from action -- recursion back to a rec, via a continue
 			AssrtAFormula curr = Vself.get(svar);
@@ -567,24 +571,26 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	{
 		if (!forwards)
 		{
+			/* // CHECKME: what is an example?
 			for (AssrtDataVar v : aform.getIntVars())
 			{
 				AssrtIntVarFormula fresh = AssrtFormulaFactory
 						.AssrtIntVar("__" + v.toString());
 				aform = aform.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()),
 						fresh);
-			}
+			}*/
 		}
 
 		// Must come after initial F update (addAnnotBexprToF)
 		Vself.put(svar, aform);   // "Overwrite" (if already known)
 
+		/*
 		// CHECKME: what is an example? -- old/new vars due to looping?  __ renaming above?  // CHECKME: if (!forwards)?
 		AssrtIntVarFormula old = AssrtFormulaFactory.AssrtIntVar(svar.toString());
 		AssrtIntVarFormula fresh = makeFreshIntVar(svar);
 		Set<AssrtBFormula> H = F.get(self);
 		H = H.stream().map(x -> x.subs(old, fresh)).collect(Collectors.toSet());
-		F.put(self, H);
+		F.put(self, H);*/
 	}
 
 	private static void appendToF(AssrtBFormula bform, Set<AssrtBFormula> Fself)
@@ -657,6 +663,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		// N.B. no "updateRfromF" -- actually, "update V from payload annot" -- leaving V statevars as they are is OK, validation only done from F's and V already incorporated into F (and updates handled by updateFfromV)
 		// But would it be more consistent to update V?
 		
+		/*
 		// CHECKME: what is an example?
 		Set<AssrtBFormula> H = F.get(self);
 		Set<Entry<AssrtIntVarFormula, AssrtIntVarFormula>> reself = rename
@@ -669,6 +676,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 		F.put(self, H);
 		rename.get(self).putAll(shadow);
+		*/
 
 		updateForAssrtionAndStateExprs(self,
 				msg.getAssertion(), a.getStateExprs(), succ, 
@@ -862,211 +870,231 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		});*/
 	}
 	
-	public boolean isUnknownDataTypeVarError(Job job, GProtoName simpname)
+	public Map<Role, Set<AssrtCoreEAction>> getUnknownDataVarErrors(
+			AssrtCore core, GProtoName fullname)
 	{
-		return this.P.entrySet().stream().anyMatch(e ->
-				e.getValue().getActions().stream().anyMatch(a -> 
+		Map<Role, Set<AssrtCoreEAction>> res = new HashMap<>();
+		for (Entry<Role, EFsm> e : P.entrySet())
+		{
+			Role self = e.getKey();
+			EState curr = e.getValue().curr;
+			Set<AssrtDataVar> Kself = this.K.get(self);
+			Set<AssrtDataVar> Vself = this.V.get(self).keySet();
+			Set<String> rs = core.getContext().getInlined(fullname).roles.stream()
+					.map(Object::toString).collect(Collectors.toSet());
+			Predicate<EAction> f = a ->
+			{
+				if (a.isSend() || a.isRequest())
 				{
-					if (a.isSend() || a.isRequest())
-					{
-						Role src = e.getKey();
-
-						Set<AssrtDataVar> known = new HashSet<>(this.K.get(src));
-						a.payload.elems.forEach(pe ->
-						{
-							if (pe instanceof AssrtAnnotDataName)
-							{
-								known.add(((AssrtAnnotDataName) pe).var);
-							}
-							else
-							{
-								throw new RuntimeException("[assrt-core] Shouldn't get in here: " + pe);
-							}
-						});
-
-						known.addAll(this.V.get(src).keySet());
-
-					Set<String> rs = job.getContext().getMainModule()
-							.getGProtoDeclChild(simpname).getHeaderChild()
-							.getRoleDeclListChild().getRoles().stream().map(Object::toString)
+					Set<AssrtDataVar> known = a.payload.elems.stream()
+							.map(x -> ((AssrtAnnotDataName) x).var)
 							.collect(Collectors.toSet());
-						return ((AssrtCoreEAction) a).getAssertion().getIntVars().stream()
-								.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars
-								.anyMatch(v -> !known.contains(v));
-					}
-					else
+						// TODO: throw new RuntimeException("[assrt-core] Shouldn't get in here: " + pe);
+					known.addAll(Kself);
+					known.addAll(Vself);
+					return ((AssrtCoreEAction) a).getAssertion().getIntVars().stream()
+							.filter(x -> !rs.contains(x.toString()))  // CHECKME: formula role vars -- what is this for?
+							.anyMatch(x -> !Kself.contains(x));
+				}
+				else
+				{
+					return false;  // CHECKME: receive-side assertions? currently hardcoded to True
+				}
+			};
+			for (EAction a : e.getValue().curr.getDetActions())
+			{
+				if (f.test(a))
+				{
+					Set<AssrtCoreEAction> tmp = res.get(self);
+					if (tmp == null)
 					{
-						// FIXME: receive assertions? currently hardcoded to True
-
-						return false;
+						tmp = new HashSet<>();
+						res.put(self, tmp);
 					}
-				}));
+					tmp.add((AssrtCoreEAction) a);
+				}
+			}
+		}
+		return res;
 	}
 	
-	public Set<AssrtBFormula> getAssertionProgressChecks(Job job, GProtoName simpname)
+	// i.e., output state has a "well-asserted" action
+	public Map<Role, EState> getAssertProgressErrors(AssrtCore core,
+			GProtoName fullname)
+			// CHECKME: not actually a "progress" error -- "safety"?
+	{
+		//return this.P.entrySet().stream().anyMatch(e ->  // anyMatch is on the endpoints (not actions)
+		Map<Role, EState> res = new HashMap<>();
+		for (Entry<Role, EFsm> e : this.P.entrySet())
+		{
+			Role self = e.getKey();
+			EState curr = e.getValue().curr;
+			AssrtBFormula squashed = getAsserProgressCheck(core, fullname, self,
+					curr);
+			if (squashed.equals(AssrtTrueFormula.TRUE))
+			{
+				continue;
+			}
+
+			core.verbosePrintln("\n[assrt-core] Checking assertion progress for "
+					+ self + " at " + curr.id + "(" + "[TODO: sstate id]" + "):");
+			core.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
+			if (!core.checkSat(fullname,
+					Stream.of(squashed).collect(Collectors.toSet())))
+			{
+				res.put(self, curr);
+			}
+		}
+		return res;
+	}
+
+	// formula: isAssertionProgressSatisfied (i.e., true = OK)
+	private AssrtBFormula getAsserProgressCheck(AssrtCore core,
+			GProtoName fullname, Role self, EState curr)
+	{
+		//if (as.isEmpty() || as.stream().noneMatch(a -> a.isSend() || a.isRequest())) 
+		if (curr.isTerminal() || curr.getStateKind() != EStateKind.OUTPUT)  // CHECKME: only output states?
+		{
+			return AssrtTrueFormula.TRUE;
+		}
+		List<EAction> as = curr.getActions();  // N.B. getActions includes non-fireable
+		if (as.stream().anyMatch(x -> x instanceof EDisconnect))
+		{
+			throw new RuntimeException("[assrt-core] [TODO] Disconnect actions: " + as);
+		}
+
+		// lhs = conjunction of F terms, V eq-terms and R terms -- i.e., what we already know
+		Set<AssrtBFormula> Fself = this.F.get(self);
+		AssrtBFormula lhs = Fself.isEmpty()
+				? AssrtTrueFormula.TRUE
+				: Fself.stream().reduce((x1, x2) -> AssrtFormulaFactory
+						.AssrtBinBool(AssrtBinBFormula.Op.And, x1, x2)).get();  // First, conjunction of F terms
+		Map<AssrtDataVar, AssrtAFormula> Vself = this.V.get(self);
+		if (!Vself.isEmpty())
+		{
+			AssrtBFormula vconj = Vself.entrySet().stream()
+					.map(x -> (AssrtBFormula) AssrtFormulaFactory.AssrtBinComp(  // Cast needed for reduce
+							AssrtBinCompFormula.Op.Eq,
+							AssrtFormulaFactory.AssrtIntVar(x.getKey().toString()),
+							x.getValue()))
+					.reduce((e1, e2) -> (AssrtBFormula) AssrtFormulaFactory  // Second, conjunction of V eq-terms
+							.AssrtBinBool(AssrtBinBFormula.Op.And, e1, e2))
+					.get();
+			lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs, vconj);
+		}
+		Set<AssrtBFormula> Rself = this.R.get(self);
+		if (!Rself.isEmpty())
+		{
+			AssrtBFormula Rconj = Rself.stream().reduce((b1, b2) -> AssrtFormulaFactory  // Third, conjunction of R terms
+					.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2)).get();
+			lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs, Rconj);
+		}
+
+		// rhs = disjunction of assertions (ex-qualified by pay annot vars) from each action -- i.e., what we would like to do
+		AssrtBFormula rhs = null;
+		for (EAction a : as)
+		{
+			if (!(a instanceof AssrtCoreESend) && !(a instanceof AssrtCoreEReq))
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
+			}
+			AssrtBFormula ass = ((AssrtCoreEAction) a).getAssertion();
+			if (ass.equals(AssrtTrueFormula.TRUE))
+			{
+				return AssrtTrueFormula.TRUE;  // If any assertion is True, then assertion-progress trivially satisfied
+			}
+			Set<AssrtIntVarFormula> assVars = a.payload.elems.stream()
+					.map(x -> AssrtFormulaFactory
+							.AssrtIntVar(((AssrtAnnotDataName) x).var.toString()))
+					.collect(Collectors.toSet());  // ex-qualify pay annot vars, this will be *some* set of values
+					// N.B. includes the case for recursion cycles where var is "already" in F
+					// CHECKME: Adding even if var not used?
+			if (!assVars.isEmpty()) // CHECKME: currently never empty
+			{
+				ass = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(assVars),
+						ass);
+			}
+			rhs = (rhs == null) 
+					? ass
+					: AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.Or, rhs, ass);
+		}
+		
+		AssrtBFormula impli = AssrtFormulaFactory
+				.AssrtBinBool(AssrtBinBFormula.Op.Imply, lhs, rhs);
+		Set<String> rs = core.getContext().getInlined(fullname).roles.stream()
+				.map(Object::toString).collect(Collectors.toSet());
+		Set<AssrtDataVar> free = impli.getIntVars().stream()
+				.filter(x -> !rs.contains(x.toString())) // CHECKME: formula role vars -- cf. getUnknownDataVarErrors
+				.collect(Collectors.toSet());
+		if (!free.isEmpty())
+		{
+			impli = AssrtFormulaFactory.AssrtForallFormula(  // Finally, fa-quantify all free vars
+					free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
+							.collect(Collectors.toList()),
+					impli);
+		}
+		return impli.squash();
+	}
+	
+	/*public Set<AssrtBFormula> getAssertionProgressChecks(Job job, GProtoName simpname)
 	{
 		return this.P.entrySet().stream().map(e ->  // anyMatch is on the endpoints (not actions)
 			getAssertionProgressCheck(job, simpname, e.getKey(), e.getValue())
 		).collect(Collectors.toSet());
-	}
+	}*/
 
-	// formula: isAssertionProgressSatisfied (i.e., true = OK)
-	// return null for True formula
-	//private Optional<AssrtBoolFormula> getAssertionProgressCheck(Job job, GProtoName simpname, Role src, AssrtEState s)
-	private AssrtBFormula getAssertionProgressCheck(Job job, GProtoName simpname, Role src, AssrtEState s)
+	// i.e., state has an action that is not satisfiable (deadcode)
+	public Map<Role, AssrtCoreEAction> getAssertUnsatErrors(AssrtCore core,
+			GProtoName fullname)
 	{
-			List<EAction> as = s.getActions(); // N.B. getActions includes non-fireable
-			if (as.isEmpty() || as.stream().noneMatch(a -> a.isSend() || a.isRequest())) 
-			{
-				//return Optional.empty();
-				return AssrtTrueFormula.TRUE;
-			}
-					
-			/*as.stream().noneMatch(a ->
-			{
-				if (a instanceof AssrtCoreESend || a instanceof AssrtCoreERequest)
-				{*/
-					//Role src = e.getKey();
-					/*AssrtBoolFormula ass = ((AssrtCoreEAction) a).getAssertion();
-					if (ass.equals(AssrtTrueFormula.TRUE))
-					{
-						return true;
-					}*/
-
-					AssrtBFormula AA = null;// = ass;
-					for (EAction a : as)
-					{
-						if (!(a instanceof AssrtCoreESend) && !(a instanceof AssrtCoreEReq))
-						{
-							throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
-						}
-						AssrtBFormula ass = ((AssrtCoreEAction) a).getAssertion();
-						if (ass.equals(AssrtTrueFormula.TRUE))
-						{
-							//return Optional.empty();
-							return AssrtTrueFormula.TRUE;
-						}
-
-						Set<AssrtIntVarFormula> varsA = new HashSet<>();
-						/*varsA.add(AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString()));  
-								// Adding even if var not used*/
-						a.payload.elems.forEach(x -> varsA.add(AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataName) x).var.toString())));
-						// N.B. includes the case for recursion cycles where var is "already"
-						// in F
-						if (!varsA.isEmpty()) // FIXME: currently never empty
-						{
-							//AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
-							ass = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), ass);
-						}
-						
-						AA = (AA == null) ? ass : AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.Or, AA, ass);
-					}
-
-					AssrtBFormula lhs = this.F.get(src).stream().reduce(
-							AssrtTrueFormula.TRUE,
-							(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2));
-					
-					Map<AssrtDataVar, AssrtAFormula> statevars = this.V.get(src);
-					if (!statevars.isEmpty())
-					{
-						AssrtBFormula RR = statevars.entrySet().stream().map(x -> (AssrtBFormula)  // Cast needed for reduce
-									AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
-											AssrtFormulaFactory.AssrtIntVar(x.getKey().toString()),
-											x.getValue()))
-								.reduce(
-									//(AssrtBoolFormula) AssrtTrueFormula.TRUE,
-									(e1, e2) -> (AssrtBFormula) AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, e1, e2)
-								).get();
-						//RR = ((AssrtBinBoolFormula) RR).getRight();  // if only one term, RR will be the BCF
-						lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs, RR);
-					}
-					AssrtBFormula RARA = this.R.get(src).stream().reduce(AssrtTrueFormula.TRUE, 
-							(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2));
-					if (!RARA.equals(AssrtTrueFormula.TRUE))
-					{
-						lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs, RARA);
-					}
-					
-					AssrtBFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.Imply, lhs, AA);
-
-		Set<String> rs = job.getContext().getMainModule()
-				.getGProtoDeclChild(simpname).getHeaderChild().getRoleDeclListChild()
-				.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
-					Set<AssrtDataVar> free = impli.getIntVars().stream()
-							.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
-							.collect(Collectors.toSet());
-					if (!free.isEmpty())
-					{
-						impli = AssrtFormulaFactory.AssrtForallFormula(
-								free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
-										.collect(Collectors.toList()),
-								impli);
-					}
-					
-					//job.verbosePrintln("\n[assrt-core] Checking assertion progress for " + src + " at " + s + "(" + this.id + "):");
-					//String str = impli.toSmt2Formula();
-					//job.verbosePrintln("  raw      = " + str);
-
-					AssrtBFormula squashed = impli.squash();
-
-					//job.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
-
-					//return Optional.of(squashed);
-					return squashed;
-				/*}
-				/*else if (a instanceof AssrtCoreEReceive || a instanceof AssrtEAccept)
-				{
-					return true;  // FIXME: check receive assertions? -- currently receive assertions all set to True
-				}* /
-				else
-				{
-					throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
-				}
-			});*/
-
-	}
-	
-	// i.e., output state has a "well-asserted" action
-	public boolean isAssertionProgressError(Job job, GProtoName simpname)  // FIXME: not actually a "progress" error
-			//throws ScribbleException
-	{
-		/*return new StreamExceptionCaller<Boolean, ScribbleException>()
-			{
-				@Override
-				public Boolean trybody() throws ScribbleStreamException
-				{*/
-		return this.P.entrySet().stream().anyMatch(e ->  // anyMatch is on the endpoints (not actions)
+		Map<Role, AssrtCoreEAction> res = new HashMap<>();
+		for (Entry<Role, EFsm> e : this.P.entrySet())
 		{
-			//Optional<AssrtBoolFormula> f = getAssertionProgressCheck(job, simpname, e.getKey(), e.getValue());
-				AssrtBFormula f = getAssertionProgressCheck(job, simpname,
-						e.getKey(), e.getValue());
-				//if (!f.isPresent())
-			if (f.equals(AssrtTrueFormula.TRUE))
+			Role r = e.getKey();
+			EState curr = e.getValue().curr;
+			if (curr.getStateKind() != EStateKind.OUTPUT)
 			{
-				return false;
+				continue;
 			}
+			List<EAction> as = curr.getActions(); // N.B. getActions includes non-fireable
+			if (as.size() <= 1)  
+					// Only doing on non-unary choices -- for unary, assrt-prog implies assrt-sat
+					// Note: this means "downstream" assrt-unsat errors for unary-choice continuations will not be caught (i.e., false => false for assrt-prog)
+			{
+				continue;  // No: for state-vars and state-assertions? Is it even definitely skippable without those? -- CHECKME
+			}
+			if (as.stream().anyMatch(x -> x instanceof EDisconnect))
+			{
+				throw new RuntimeException(
+						"[assrt-core] [TODO] Disconnect actions: " + as);
+			}
+			
+			for (EAction a : as)
+			{
+				AssrtCoreEAction cast = (AssrtCoreEAction) a;
+				AssrtBFormula squashed = getAssertSatCheck(core, fullname, r, cast);
+				if (squashed.equals(AssrtTrueFormula.TRUE))  // OK to skip? i.e., no need to check existing F (impli LHS) is true?
+				{
+					continue; 
+				}
 
-				job.verbosePrintln("\n[assrt-core] Checking assertion progress for "
-						+ e.getKey() + " at " + e.getValue() + "(" + this.id + "):");
-				job.verbosePrintln("  squashed = " + f.toSmt2Formula());
-
-			return !((AssrtJob) job).checkSat(simpname, Stream.of(f).collect(Collectors.toSet()));
+				core.verbosePrintln(
+						"\n[assrt-core] Checking assertion satisfiability for " + r + " at "
+								+ curr.id + "([TODO]: sstate id):");
+				core.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
+				if (!core.checkSat(fullname,
+						Stream.of(squashed).collect(Collectors.toSet())))
+				{
+					res.put(r, cast);
+				}
+			}
 		}
-		);
-	}
-	
-	public Set<AssrtBFormula> getSatisfiableChecks(Job job, GProtoName simpname)
-	{
-		return this.P.entrySet().stream().flatMap(e ->  // anyMatch is on the endpoints (not actions)
-		e.getValue().getActions().stream().map(a -> getSatisfiableCheck(job,
-				simpname, e.getKey(), (AssrtCoreEAction) a))
-		).collect(Collectors.toSet());
+		return res;
 	}
 
 	// formula: isSatisfiable (i.e., true = OK)
-	// return null for True formula
-	private AssrtBFormula getSatisfiableCheck(Job job, GProtoName simpname,
-			Role src, AssrtCoreEAction a)
+	private AssrtBFormula getAssertSatCheck(AssrtCore core, GProtoName fullname,
+			Role self, AssrtCoreEAction a)
 	{
 		AssrtBFormula ass = a.getAssertion();
 		if (ass.equals(AssrtTrueFormula.TRUE))  // OK to skip? i.e., no need to check existing F (impli LHS) is true?
@@ -1086,11 +1114,11 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
 		}
 		
-		AssrtBFormula tocheck = this.F.get(src).stream().reduce(AA,
+		AssrtBFormula tocheck = this.F.get(self).stream().reduce(AA,
 				(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And,
 						b1, b2));
 		
-		Map<AssrtDataVar, AssrtAFormula> statevars = this.V.get(src);
+		Map<AssrtDataVar, AssrtAFormula> statevars = this.V.get(self);
 		if (!statevars.isEmpty())
 		{
 			AssrtBFormula RR = statevars.entrySet().stream().map(x -> (AssrtBFormula)  // Cast needed for reduce
@@ -1106,7 +1134,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			tocheck = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And,
 					tocheck, RR);
 		}
-		AssrtBFormula RARA = this.R.get(src).stream()
+		AssrtBFormula RARA = this.R.get(self).stream()
 				.reduce(AssrtTrueFormula.TRUE, (b1, b2) -> AssrtFormulaFactory
 						.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2));
 		if (!RARA.equals(AssrtTrueFormula.TRUE))
@@ -1116,8 +1144,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 		// Include RR and RARA, to check lhs is sat for assrt-prog (o/w false => any)
 
-		Set<String> rs = job.getContext().getMainModule()
-				.getGProtoDeclChild(simpname).getHeaderChild().getRoleDeclListChild()
+		Set<String> rs = core.getContext().getMainModule()
+				.getGProtoDeclChild(fullname).getHeaderChild().getRoleDeclListChild()
 				.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
 		Set<AssrtDataVar> free = tocheck.getIntVars().stream()
 				.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
@@ -1138,54 +1166,15 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		//job.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
 
 		return squashed;
-}
-
-	// i.e., state has an action that is not satisfiable (deadcode)
-	public boolean isUnsatisfiableError(Job job, GProtoName simpname)
-	{
-		return this.P.entrySet().stream().anyMatch(e ->
-		{
-			List<EAction> as = e.getValue().getActions(); // N.B. getActions includes non-fireable
-			if (as.size() <= 1)  
-					// Only doing on non-unary choices -- for unary, assrt-prog implies sat
-					// Note: this means "downstream" unsat errors for unary-choice continuations will not be caught (i.e., false => false for assrt-prog)
-			{
-				return false;  // No: for statevars and state-assertions? Is it even definitely skippable without those?
-			}
-			return as.stream().anyMatch(a -> a.isSend() || a.isRequest()) && as.stream().anyMatch(a ->
-			{
-				if (a instanceof AssrtCoreESend || a instanceof AssrtCoreEReq)  // FIXME: factor out with isAssertionProgressError
-				{
-					AssrtBFormula f = getSatisfiableCheck(job, simpname, e.getKey(), (AssrtCoreEAction) a);
-					if (f.equals(AssrtTrueFormula.TRUE))  // OK to skip? i.e., no need to check existing F (impli LHS) is true?
-					{
-						return false; 
-					}
-
-					job.verbosePrintln("\n[assrt-core] Checking satisfiability for " + e.getKey() + " at " + e.getValue() + "(" + this.id + "):");
-					job.verbosePrintln("  formula  = " + f.toSmt2Formula());
-
-					AssrtBFormula squashed = f.squash();
-
-					job.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
-
-					return !((AssrtJob) job).checkSat(simpname, Stream.of(squashed).collect(Collectors.toSet()));
-				}
-				else if (a instanceof AssrtCoreEReq)
-				{
-					return false; // TODO: request
-				}
-				/*else if (a instanceof AssrtCoreEReceive || a instanceof AssrtCoreEAccept)
-				{
-					return true;  // FIXME: check receive assertions? -- currently receive assertions all set to True
-				}*/
-				else
-				{
-					throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
-				}
-			});
-		});
 	}
+	
+	/*public Set<AssrtBFormula> getSatisfiableChecks(Job job, GProtoName simpname)
+	{
+		return this.P.entrySet().stream().flatMap(e ->  // anyMatch is on the endpoints (not actions)
+		e.getValue().getActions().stream().map(a -> getSatisfiableCheck(job,
+				simpname, e.getKey(), (AssrtCoreEAction) a))
+		).collect(Collectors.toSet());
+	}*/
 
 	public Set<AssrtBFormula> getRecursionAssertionChecks(Job job, GProtoName simpname, AssrtCoreSConfig init)
 	{

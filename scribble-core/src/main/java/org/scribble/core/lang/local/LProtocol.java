@@ -89,16 +89,16 @@ public class LProtocol extends Protocol<Local, LProtoName, LSeq>
 				.collect(Collectors.toSet());
 		List<Role> rs = this.roles.stream().filter(x -> used.contains(x))  // Prune role decls
 				.collect(Collectors.toList());*/
-		return reconstruct(getSource(), this.mods, this.fullname, this.rs,
-				this.self, this.ps, def);  // CHECKME: or null source?
+		return reconstruct(getSource(), this.mods, this.fullname, this.roles,
+				this.self, this.params, def);  // CHECKME: or null source?
 	}
 	
 	@Override
 	public LProtocol unfoldAllOnce(STypeUnfolder<Local, LSeq> v)
 	{
 		LSeq unf = v.visitSeq(this.def);
-		return reconstruct(getSource(), this.mods, this.fullname, this.rs,
-				this.self, this.ps, unf);
+		return reconstruct(getSource(), this.mods, this.fullname, this.roles,
+				this.self, this.params, unf);
 	}
 
 	public void checkReachability(Core core) throws ScribException
@@ -146,7 +146,7 @@ public class LProtocol extends Protocol<Local, LProtoName, LSeq>
 	protected String rolesToString()
 	{
 		return "("
-				+ this.rs.stream()
+				+ this.roles.stream()
 						.map(x -> (x.equals(this.self)
 								? Constants.SELF_KW
 								: Constants.ROLE_KW) + " " + x)

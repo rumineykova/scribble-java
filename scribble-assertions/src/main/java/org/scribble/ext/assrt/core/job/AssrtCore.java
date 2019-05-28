@@ -15,6 +15,7 @@ package org.scribble.ext.assrt.core.job;
 
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.scribble.core.job.Core;
 import org.scribble.core.job.CoreArgs;
@@ -25,6 +26,7 @@ import org.scribble.core.model.ModelFactory;
 import org.scribble.core.model.endpoint.EModelFactory;
 import org.scribble.core.model.global.SModelFactory;
 import org.scribble.core.type.kind.Global;
+import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.ModuleName;
 import org.scribble.core.type.name.ProtoName;
 import org.scribble.core.type.name.Role;
@@ -34,7 +36,10 @@ import org.scribble.core.visit.STypeVisitorFactoryImpl;
 import org.scribble.core.visit.global.GTypeVisitorFactoryImpl;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactoryImpl;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactoryImpl;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.visit.local.AssrtCoreLTypeVisitorFactoryImpl;
+import org.scribble.ext.assrt.job.AssrtJob.Solver;
+import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.scribble.util.ScribException;
 
 
@@ -114,7 +119,7 @@ public class AssrtCore extends Core
 		for (ProtoName<Global> fullname : this.context.getParsedFullnames())
 		{
 			GProtocol inlined = this.context.getInlined(fullname);
-			for (Role self : inlined.rs)
+			for (Role self : inlined.roles)
 			{
 				// pruneRecs already done (see runContextBuildingPasses)
 				// CHECKME: projection and inling commutative?
@@ -132,6 +137,37 @@ public class AssrtCore extends Core
 	public AssrtCoreContext getContext()
 	{
 		return (AssrtCoreContext) super.getContext();
+	}
+
+
+	
+	
+	
+	
+	
+	// TODO: refactor, to util?
+  // Maybe record simpname as field (for core)
+	public boolean checkSat(GProtoName fullname, Set<AssrtBFormula> bforms)
+	{
+		Solver solver = ((AssrtCoreArgs) this.config.args).solver;
+		switch (solver)
+		{
+			case NATIVE_Z3:
+			{
+				AssrtCoreContext corec = getContext();
+				return Z3Wrapper.checkSat(this, corec.getIntermediate(fullname), bforms);
+			}
+			case NONE:
+			{
+				verbosePrintln("\n[assrt-core] [WARNING] Skipping sat check:\n\t"
+						+ bforms.stream().map(f -> f.toSmt2Formula() + "\n\t")
+								.collect(Collectors.joining("")));
+				return true;
+			}
+			default:
+				throw new RuntimeException(
+						"[assrt-core] Shouldn't get in here: " + solver);
+		}
 	}
 }
 

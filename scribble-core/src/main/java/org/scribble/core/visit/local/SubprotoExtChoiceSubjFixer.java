@@ -53,7 +53,7 @@ public class SubprotoExtChoiceSubjFixer extends InlinedExtChoiceSubjFixer
 		Optional<Role> res = v.visitSeq(n.def);
 		this.protos.put(n.fullname, res);
 		LSeq def = visitSeq(n.def);
-		return n.reconstruct(n.getSource(), n.mods, n.fullname, n.rs, n.ps,
+		return n.reconstruct(n.getSource(), n.mods, n.fullname, n.roles, n.params,
 				def);
 				// N.B. this reconstruct implicitly retains n.self
 	}

@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.scribble.ast.global.GProtoDecl;
-import org.scribble.ext.assrt.core.type.formula.AssrtBinFormula;
+import org.scribble.core.lang.global.GProtocol;
+import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtQuantifiedIntVarsFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtUnintPredicateFormula;
-import org.scribble.ext.assrt.job.AssrtJob;
 import org.scribble.util.ScribException;
 import org.scribble.util.ScribUtil;
 
@@ -27,19 +27,19 @@ public class Z3Wrapper
 {
 
 	// Based on CommandLine::runDot, JobContext::runAut, etc
-	public static boolean checkSat(AssrtJob job, GProtoDecl gpd,
-			Set<AssrtBFormula> fs)  //throws ScribbleException
+	public static boolean checkSat(AssrtCore core, GProtocol gproto,
+			Set<AssrtBFormula> bforms)  //throws ScribbleException
 	{
-		fs = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
+		bforms = bforms.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
 				.collect(Collectors.toSet());
-		if (fs.isEmpty())
+		if (bforms.isEmpty())
 		{
 			return true;
 		}
 
-		String smt2 = toSmt2(job, gpd, fs);
+		String smt2 = toSmt2(gproto, bforms);
 
-		job.verbosePrintln(
+		core.verbosePrintln(
 				"\n[assrt-core] Running Z3 on:\n  " + smt2.replaceAll("\\n", "\n  "));
 
 		return checkSat(smt2);
@@ -87,18 +87,18 @@ public class Z3Wrapper
 	}
 	
 	// fs shouldn't be empty (but OK)
-	private static String toSmt2(AssrtJob job, GProtoDecl gpd, Set<AssrtBFormula> fs)
+	private static String toSmt2(GProtocol gproto, Set<AssrtBFormula> bforms)
 	{
 		String smt2 = "";
-		List<String> rs = gpd.getHeaderChild().getRoleDeclListChild().getRoles()
-				.stream().map(Object::toString).sorted().collect(Collectors.toList());
+		List<String> rs = gproto.roles.stream().map(Object::toString).sorted()
+				.collect(Collectors.toList());
 		smt2 += IntStream
 				.range(0, rs.size()).mapToObj(i -> "(declare-const " + rs.get(i)
 						+ " Int)\n(assert (= " + rs.get(i) + " " + i + "))\n")
 				.collect(Collectors.joining(""));
 						// FIXME: make a Role sort?
 
-		Set<AssrtUnintPredicateFormula> preds = fs.stream()
+		Set<AssrtUnintPredicateFormula> preds = bforms.stream()
 				.flatMap(f -> getUnintPreds.func.apply(f).stream())
 				.collect(Collectors.toSet());
 		smt2 += preds.stream()
@@ -113,7 +113,7 @@ public class Z3Wrapper
 		}
 		
 		return smt2
-				+ fs.stream().map(f -> "(assert " + f.toSmt2Formula() + ")\n")
+				+ bforms.stream().map(f -> "(assert " + f.toSmt2Formula() + ")\n")
 						.collect(Collectors.joining())
 				+ "(check-sat)\n"
 				+ "(exit)";

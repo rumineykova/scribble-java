@@ -76,8 +76,8 @@ public class LDoPruner //extends DoPruner<Local, LSeq>
 		this.stack.push(sig);
 		this.unguarded.add(sig);
 		LSeq def = visitSeq(n.def);
-		return n.reconstruct(n.getSource(), n.mods, n.fullname, n.rs, n.self,
-				n.ps, def);
+		return n.reconstruct(n.getSource(), n.mods, n.fullname, n.roles, n.self,
+				n.params, def);
 	}
 
 	@Override
