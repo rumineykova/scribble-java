@@ -148,9 +148,10 @@ public class AssrtCoreSGraph extends SGraph
 
 		for (Integer s1id : idToIndex.keySet())
 		{
-			for (AssrtCoreSState s2 : this.states.get(s1id).getSuccs())
+			for (SState s2 : this.states.get(s1id).getSuccs())
 			{
-				reach[idToIndex.get(s1id)][idToIndex.get(s2.id)] = true;
+				AssrtCoreSState cast = (AssrtCoreSState) s2;
+				reach[idToIndex.get(s1id)][idToIndex.get(cast.id)] = true;
 			}
 		}
 

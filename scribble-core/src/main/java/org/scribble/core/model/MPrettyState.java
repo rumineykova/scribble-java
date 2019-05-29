@@ -85,7 +85,7 @@ public abstract class MPrettyState
 	protected String getNodeLabel()
 	{
 		String labs = this.labs.toString();
-		return "label=\"" + this.id + ": " + labs.substring(1, labs.length() - 1)
+		return "label=\"" + this.id + ": " + labs.substring(1, labs.length()-1)
 				+ "\"";
 				// TODO: revise ?
 	}

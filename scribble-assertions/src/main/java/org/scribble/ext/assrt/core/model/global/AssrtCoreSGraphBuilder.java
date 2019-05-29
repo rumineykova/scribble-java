@@ -3,7 +3,6 @@ package org.scribble.ext.assrt.core.model.global;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -12,6 +11,7 @@ import java.util.stream.Collectors;
 import org.scribble.core.model.ModelFactory;
 import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.model.endpoint.actions.EAction;
+import org.scribble.core.model.global.SConfig;
 import org.scribble.core.model.global.SGraphBuilder;
 import org.scribble.core.model.global.SState;
 import org.scribble.core.type.name.GProtoName;
@@ -64,10 +64,12 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 				for (EAction a : as)
 				{
 					// cf. SState.getNextStates
-					final AssrtCoreSState tmp;
+					final AssrtCoreSState next;
 					if (a.isSend() || a.isReceive() || a.isRequest() || a.isAccept())// || a.isDisconnect())
 					{
-						tmp = curr.config.async(self, a);  // TODO ...use util.addEdgesAndGetNewSuccs to create/get states
+						Set<SConfig> cfg = new HashSet<>(curr.config.async(self, a));  // Singleton
+						next = (AssrtCoreSState) this.util.addEdgesAndGetNewSuccs(curr,
+								a.toGlobal(self), cfg).iterator().next();  // Constructs the edges
 					}
 					/*else if (a.isConnect() || a.isAccept())
 					{
@@ -90,19 +92,10 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 					}*/
 					else
 					{
-						throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);
+						throw new RuntimeException(
+								"[assrt-core] Shouldn't get in here: " + a);
 					}
 
-					AssrtCoreSState next = tmp;  // Base case
-					if (seen.values().contains(tmp))
-					{
-						next = seen.values().stream().filter(s -> s.equals(tmp)).iterator().next();
-					}
-					else if (todo.contains(tmp))
-					{
-						next = todo.stream().filter(s -> s.equals(tmp)).iterator().next();
-					}
-					curr.addEdge(a.toGlobal(self), next);
 					curr.addSubject(self);
 					if (!seen.values().contains(next) && !todo.contains(next))
 					{

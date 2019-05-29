@@ -90,7 +90,6 @@ public class AssrtCoreSafetyErrors
 	
 	private static final String getNodeLabel(AssrtCoreSState s)
 	{
-		String m = s.getNodeLabel();
-		return m.substring("label=\"".length(), m.length() - 1);
+		return s.getLabels().toString();
 	}
 }

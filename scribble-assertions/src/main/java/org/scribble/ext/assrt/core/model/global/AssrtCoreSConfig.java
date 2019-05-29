@@ -55,8 +55,6 @@ import org.scribble.ext.assrt.visit.AssrtCoreGProtoDeclTranslator;
 public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 {
 	private static int counter = 1;
-
-	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self -- for progress checking
 	
 	// CHECKME: fields used for hash/equals -- cf. SState.config
 
@@ -1439,16 +1437,6 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 					.AssrtBinBool(AssrtBinBFormula.Op.Imply, lhs, rhs);
 			return forallQuantifyFreeVars(core, fullname, impli).squash();
 		}
-	}
-	
-	public Set<Role> getSubjects()
-	{
-		return Collections.unmodifiableSet(this.subjs);
-	}
-	
-	public void addSubject(Role subj)
-	{
-		this.subjs.add(subj);
 	}
 	
 	@Override

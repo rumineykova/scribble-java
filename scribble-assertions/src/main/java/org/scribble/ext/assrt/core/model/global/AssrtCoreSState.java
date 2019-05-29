@@ -1,9 +1,12 @@
 package org.scribble.ext.assrt.core.model.global;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.scribble.core.model.MState;
 import org.scribble.core.model.global.SState;
+import org.scribble.core.type.name.Role;
 
 			
 //.. do we really need receive-exists?  i.e., "local" vs. "global" TS? -- is global TS really justified/used? -- local TS vs coherence?
@@ -15,9 +18,22 @@ import org.scribble.core.model.global.SState;
 public class AssrtCoreSState extends //MPrettyState<Void, SAction, AssrtCoreSState, Global>
 	SState  //AssrtSState  // No: AssrtSConfig constr arg
 {
+
+	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self -- for progress checking
+
 	public AssrtCoreSState(AssrtCoreSConfig config)
 	{
 		super(config);
+	}
+	
+	public Set<Role> getSubjects()
+	{
+		return Collections.unmodifiableSet(this.subjs);
+	}
+	
+	public void addSubject(Role subj)
+	{
+		this.subjs.add(subj);
 	}
 	
 	/*@Override
