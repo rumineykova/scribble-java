@@ -31,9 +31,10 @@ import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
 public class AssrtEState extends EState
 {
 	private final LinkedHashMap<AssrtDataVar, AssrtAFormula> statevars; // Note: even with syntactic single var per rec, nested recs can lead to mulitple vars per state
+			// CHECKME: supported outside of assrt-core?
 	
 	private //final
-			AssrtBFormula ass;  // FIXME: make Set -- and eliminate placeholder True from various, use empty set instead
+			AssrtBFormula ass;  // TODO FIXME: make Set -- and eliminate placeholder True from various, use empty set instead
 
 	// FIXME: make AssrtIntTypeVar?
 	protected AssrtEState(Set<RecVar> labs, LinkedHashMap<AssrtDataVar, AssrtAFormula> vars,
@@ -41,7 +42,7 @@ public class AssrtEState extends EState
 	{
 		super(labs);
 		//this.vars = Collections.unmodifiableMap(vars);
-		this.statevars = new LinkedHashMap<>(vars);  // Side effected by addStateVars
+		this.statevars = new LinkedHashMap<>(vars);  // N.B. mutated by addStateVars
 		this.ass = ass;
 	}
 	

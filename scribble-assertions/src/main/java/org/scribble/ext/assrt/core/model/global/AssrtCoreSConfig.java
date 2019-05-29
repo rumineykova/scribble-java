@@ -893,7 +893,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 					known.addAll(Kself);
 					known.addAll(Vself);
 					return ((AssrtCoreEAction) a).getAssertion().getIntVars().stream()
-							.filter(x -> !rs.contains(x.toString()))  // CHECKME: formula role vars -- what is this for?
+							//.filter(x -> !rs.contains(x.toString()))  // CHECKME: formula role vars -- what is this for?  what is an example?
 							.anyMatch(x -> !Kself.contains(x));
 				}
 				else
@@ -968,25 +968,25 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		AssrtBFormula lhs = Fself.isEmpty()
 				? AssrtTrueFormula.TRUE
 				: Fself.stream().reduce((x1, x2) -> AssrtFormulaFactory
-						.AssrtBinBool(AssrtBinBFormula.Op.And, x1, x2)).get();  // First, conjunction of F terms
+						.AssrtBinBool(AssrtBinBFormula.Op.And, x1, x2)).get();  // Here, conjunction of F terms
 		Map<AssrtDataVar, AssrtAFormula> Vself = this.V.get(self);
 		if (!Vself.isEmpty())
 		{
 			AssrtBFormula vconj = Vself.entrySet().stream()
-					.map(x -> (AssrtBFormula) AssrtFormulaFactory.AssrtBinComp(  // Cast needed for reduce
+					.map(x -> (AssrtBFormula) AssrtFormulaFactory.AssrtBinComp(  // (Cast needed for reduce)
 							AssrtBinCompFormula.Op.Eq,
 							AssrtFormulaFactory.AssrtIntVar(x.getKey().toString()),
 							x.getValue()))
-					.reduce((e1, e2) -> (AssrtBFormula) AssrtFormulaFactory  // Second, conjunction of V eq-terms
+					.reduce((e1, e2) -> (AssrtBFormula) AssrtFormulaFactory  // Next, conjunction of V eq-terms
 							.AssrtBinBool(AssrtBinBFormula.Op.And, e1, e2))
-					.get();
+					.get();  // Non-empty
 			lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs, vconj);
 		}
 		Set<AssrtBFormula> Rself = this.R.get(self);
 		if (!Rself.isEmpty())
 		{
-			AssrtBFormula Rconj = Rself.stream().reduce((b1, b2) -> AssrtFormulaFactory  // Third, conjunction of R terms
-					.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2)).get();
+			AssrtBFormula Rconj = Rself.stream().reduce((b1, b2) -> AssrtFormulaFactory  // Next, conjunction of R terms
+					.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2)).get();  // Non-empty
 			lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs, Rconj);
 		}
 
@@ -1021,22 +1021,29 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		
 		AssrtBFormula impli = AssrtFormulaFactory
 				.AssrtBinBool(AssrtBinBFormula.Op.Imply, lhs, rhs);
+		return forallQuantifyFreeVars(core, fullname, impli).squash();  // Finally, fa-quantify all free vars
+	}
+
+	private AssrtBFormula forallQuantifyFreeVars(AssrtCore core,
+			GProtoName fullname, AssrtBFormula bform)
+	{
 		Set<String> rs = core.getContext().getInlined(fullname).roles.stream()
 				.map(Object::toString).collect(Collectors.toSet());
-		Set<AssrtDataVar> free = impli.getIntVars().stream()
-				.filter(x -> !rs.contains(x.toString())) // CHECKME: formula role vars -- cf. getUnknownDataVarErrors
+		Set<AssrtDataVar> free = bform.getIntVars().stream()
+				//.filter(x -> !rs.contains(x.toString()))  // CHECKME: formula role vars -- cf. getUnknownDataVarErrors  // CHECKME: what is an example?
 				.collect(Collectors.toSet());
 		if (!free.isEmpty())
 		{
-			impli = AssrtFormulaFactory.AssrtForallFormula(  // Finally, fa-quantify all free vars
+			bform = AssrtFormulaFactory.AssrtForallFormula(
 					free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
 							.collect(Collectors.toList()),
-					impli);
+					bform);
 		}
-		return impli.squash();
+		return bform;
 	}
 	
-	/*public Set<AssrtBFormula> getAssertionProgressChecks(Job job, GProtoName simpname)
+	/* // For batching?
+	public Set<AssrtBFormula> getAssertionProgressChecks(Job job, GProtoName simpname)
 	{
 		return this.P.entrySet().stream().map(e ->  // anyMatch is on the endpoints (not actions)
 			getAssertionProgressCheck(job, simpname, e.getKey(), e.getValue())
@@ -1102,70 +1109,68 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			return AssrtTrueFormula.TRUE; 
 		}
 
-		AssrtBFormula AA = ass;
-		Set<AssrtIntVarFormula> varsA = new HashSet<>();
-		/*AssrtIntVarFormula vvv = AssrtFormulaFactory.AssrtIntVar(((AssrtAnnotDataType) a.payload.elems.get(0)).var.toString());
-		varsA.add(vvv); // Adding even if var not used*/
-		((EAction) a).payload.elems.forEach(x -> varsA.add(AssrtFormulaFactory
-				.AssrtIntVar(((AssrtAnnotDataName) x).var.toString())));
+		// Here, action assertion, ex-quantified by pay annot vars
+		AssrtBFormula res = ass;
+		Set<AssrtIntVarFormula> varsA = ((EAction) a).payload.elems.stream()
+				.map(x -> AssrtFormulaFactory
+						.AssrtIntVar(((AssrtAnnotDataName) x).var.toString()))
+				.collect(Collectors.toSet());
 				// N.B. includes the case for recursion cycles where var is "already" in F
-		if (!varsA.isEmpty()) // FIXME: currently never empty
+				// Adding even if var not used
+		if (!varsA.isEmpty()) // CHECKME: currently never empty
 		{
-			AA = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA), AA);
+			res = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA),
+					res);
 		}
 		
-		AssrtBFormula tocheck = this.F.get(self).stream().reduce(AA,
-				(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And,
-						b1, b2));
+		// Next, conjunction of F terms -- CHECKME: always non-empty?
+		res = this.F.get(self).stream().reduce(res, (b1, b2) -> AssrtFormulaFactory
+				.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2));
 		
-		Map<AssrtDataVar, AssrtAFormula> statevars = this.V.get(self);
-		if (!statevars.isEmpty())
-		{
-			AssrtBFormula RR = statevars.entrySet().stream().map(x -> (AssrtBFormula)  // Cast needed for reduce
-						AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq, 
-								AssrtFormulaFactory.AssrtIntVar(x.getKey().toString()),
-								x.getValue()))
-					.reduce(
-						//(AssrtBoolFormula) AssrtTrueFormula.TRUE,
-							(e1, e2) -> (AssrtBFormula) AssrtFormulaFactory
-									.AssrtBinBool(AssrtBinBFormula.Op.And, e1, e2)
-					).get();
-			//RR = ((AssrtBinBoolFormula) RR).getRight();  // if only one term, RR will be the BCF
-			tocheck = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And,
-					tocheck, RR);
+		// Next, conjunction of V eq-terms
+		// Include Vself and Rself, to check lhs(?) is sat for assrt-prog (o/w false => any)
+		Map<AssrtDataVar, AssrtAFormula> Vself = this.V.get(self);
+		if (!Vself.isEmpty())
+		{  // Cast needed for reduce
+			AssrtBFormula Vconj = Vself.entrySet().stream()
+					.map(x -> (AssrtBFormula) AssrtFormulaFactory.AssrtBinComp(
+							AssrtBinCompFormula.Op.Eq,
+							AssrtFormulaFactory.AssrtIntVar(x.getKey().toString()),
+							x.getValue()))
+					.reduce((e1, e2) -> (AssrtBFormula) AssrtFormulaFactory
+							.AssrtBinBool(AssrtBinBFormula.Op.And, e1, e2))
+					.get();  // non-empty
+			res = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And,
+					res, Vconj);
 		}
-		AssrtBFormula RARA = this.R.get(self).stream()
-				.reduce(AssrtTrueFormula.TRUE, (b1, b2) -> AssrtFormulaFactory
-						.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2));
-		if (!RARA.equals(AssrtTrueFormula.TRUE))
-		{
-			tocheck = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And,
-					tocheck, RARA);
-		}
-		// Include RR and RARA, to check lhs is sat for assrt-prog (o/w false => any)
 
-		Set<String> rs = core.getContext().getMainModule()
-				.getGProtoDeclChild(fullname).getHeaderChild().getRoleDeclListChild()
-				.getRoles().stream().map(Object::toString).collect(Collectors.toSet());
-		Set<AssrtDataVar> free = tocheck.getIntVars().stream()
-				.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
+		// Next, conjunction of R terms
+		Set<AssrtBFormula> Rself = this.R.get(self);
+		if (!Rself.isEmpty())
+		{
+			AssrtBFormula Rconj = Rself.stream()
+					.reduce((b1, b2) -> AssrtFormulaFactory
+							.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2))
+					.get();  // Non-empty
+			res = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, res,
+					Rconj);
+		}
+
+		// Finally, *ex*-quanitfy all free vars
+		Set<String> rs = core.getContext().getInlined(fullname).roles.stream()
+				.map(Object::toString).collect(Collectors.toSet());
+		Set<AssrtDataVar> free = res.getIntVars().stream()
+				//.filter(x -> !rs.contains(x.toString()))  // CHECKME: formula role vars -- cf. getUnknownDataVarErrors  // CHECKME: what is the example?
 				.collect(Collectors.toSet());
 		if (!free.isEmpty())
 		{
-			tocheck = AssrtFormulaFactory.AssrtExistsFormula(  // Cf. assrt-prog, don't need action to be sat *forall* prev, just sat for *some* prev
+			res = AssrtFormulaFactory.AssrtExistsFormula(
 					free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
 							.collect(Collectors.toList()),
-					tocheck);
+					res);  // Cf. assrt-prog -- here, don't need action to be sat *forall* prev, just sat for *some* prev
 		}
-		
-		//job.verbosePrintln("\n[assrt-core] Checking satisfiability for " + src + " at " + e.getValue() + "(" + this.id + "):");
-		//job.verbosePrintln("  formula  = " + tocheck.toSmt2Formula());
 
-		AssrtBFormula squashed = tocheck.squash();
-
-		//job.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
-
-		return squashed;
+		return res.squash();
 	}
 	
 	/*public Set<AssrtBFormula> getSatisfiableChecks(Job job, GProtoName simpname)
@@ -1176,7 +1181,35 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		).collect(Collectors.toSet());
 	}*/
 
-	public Set<AssrtBFormula> getRecursionAssertionChecks(Job job, GProtoName simpname, AssrtCoreSConfig init)
+	// formula: isNotRecursionAssertionSatisfied (i.e., true = OK)
+	private AssrtBFormula getInitRecAssertCheck(AssrtCore core,
+			GProtoName fullname, Role self, AssrtEState curr)
+	{
+		AssrtBFormula toCheck = curr.getAssertion();
+		if (toCheck.equals(AssrtTrueFormula.TRUE))
+		{
+			return AssrtTrueFormula.TRUE;
+		}
+		
+		Map<AssrtDataVar, AssrtAFormula> Vself = this.V.get(self);
+		if (!Vself.isEmpty())
+		{
+			AssrtBFormula Vconj = Vself.entrySet().stream().map(x -> (AssrtBFormula)  // Cast needed
+					AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
+							AssrtFormulaFactory.AssrtIntVar(x.getKey().toString()), x.getValue()))
+							// Currently allowing recurison-assertion without any statevardecls (i.e., cannot use any vars), but pointless?
+					.reduce((b1, b2) -> AssrtFormulaFactory
+							.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2))
+							// do-statevar expr args for "forwards" rec already inlined into rec-statevars
+					.get();
+			toCheck = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.Imply,
+					Vconj, toCheck);
+		}
+
+		return forallQuantifyFreeVars(core, fullname, toCheck).squash();
+	}			
+
+	/*public Set<AssrtBFormula> getRecursionAssertionChecks(Job job, GProtoName simpname, AssrtCoreSConfig init)
 	{
 		if (this.id == init.id)
 		{
@@ -1190,58 +1223,58 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 					e.getValue().getActions().stream().map(a -> getNonInitRecursionAssertionCheck(job, simpname, e.getKey(), e.getValue(), a))
 			).collect(Collectors.toSet());
 		}
-	}
-
-	// formula: isNotRecursionAssertionSatisfied (i.e., true = OK)
-	// return null for True formula
-	private AssrtBFormula getInitRecursionAssertionCheck(Job job, GProtoName simpname, Role self, AssrtEState curr)
+	}*/
+	
+	public boolean isRecursionAssertionError(Job job, GProtoName simpname,
+			AssrtCoreSConfig init)
 	{
-		//if (this.id == init.id)  // Otherwise initial assertions not checked, since no incoming action (cf. below)
+		if (this.id == init.id)  // Otherwise initial assertions not checked, since no incoming action (cf. below)
 		{
-			AssrtBFormula initRass = curr.getAssertion();
-			if (initRass.equals(AssrtTrueFormula.TRUE))  // init state, but no need to check True assertion
+			return this.P.entrySet().stream().anyMatch(e ->
 			{
-				return AssrtTrueFormula.TRUE;
-			}
-			else
-			{
-				AssrtBFormula initRR = this.V.get(self).entrySet().stream()
-						.map(vv -> (AssrtBFormula)  // Cast needed
-							AssrtFormulaFactory.AssrtBinComp(AssrtBinCompFormula.Op.Eq,
-								AssrtFormulaFactory.AssrtIntVar(vv.getKey().toString()),
-								vv.getValue()))  // do-statevar expr args for "forwards" rec already inlined into rec-statevars
-						.reduce(AssrtTrueFormula.TRUE,  // Currently allowing recurison-assertion without any statevardecls (i.e., cannot use any vars), but pointless?
-								(b1, b2) -> AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2));
-
-				AssrtBFormula impli = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.Imply, initRR, initRass);
-
-				Set<String> rs = job.getContext().getMainModule()
-						.getGProtoDeclChild(simpname).getHeaderChild()
-						.getRoleDeclListChild().getRoles().stream().map(Object::toString)
-						.collect(Collectors.toSet());
-				Set<AssrtDataVar> free = impli.getIntVars().stream()
-						.filter(v -> !rs.contains(v.toString()))  // FIXME: formula role vars -- cf. isUnknownDataTypeVarError
-						.collect(Collectors.toSet());
-				if (!free.isEmpty())
-				{
-					impli = AssrtFormulaFactory.AssrtForallFormula(
-							free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
-									.collect(Collectors.toList()),
-							impli);
-				}
-				
-				//job.verbosePrintln("\n[assrt-core] Checking initial recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
+				Role self = e.getKey();
+				AssrtEState curr = e.getValue();
+					AssrtBFormula f = getInitRecAssertCheck(job, simpname,
+							self, curr);
+					
+				job.verbosePrintln("\n[assrt-core] Checking initial recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
 				//String str = impli.toSmt2Formula();
 				//job.verbosePrintln("  raw      = " + str);
 
-				AssrtBFormula squashed = impli.squash();
+				//AssrtBoolFormula squashed = impli.squash();
 
-				//job.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
+				job.verbosePrintln("  squashed = " + f.toSmt2Formula());
 
-				return squashed;
-			}
-		}	
-	}			
+					return !((AssrtJob) job).checkSat(simpname,
+							Stream.of(f).collect(Collectors.toSet()));
+				});
+		}
+		else
+		{
+			return this.P.entrySet().stream().anyMatch(e ->
+			{
+				Role self = e.getKey();
+				AssrtEState curr = e.getValue();
+				return curr.getActions().stream().anyMatch(a ->
+				{
+					AssrtBFormula f = getNonInitRecursionAssertionCheck(job, simpname, self, curr, a);
+						
+							job.verbosePrintln(
+									"\n[assrt-core] Checking recursion assertion for " + self
+											+ " at " + curr + "(" + this.id + "):");
+							//String str = impli.toSmt2Formula();
+					//job.verbosePrintln("  raw      = " + str);
+
+					//AssrtBoolFormula squashed = impli.squash();
+
+					job.verbosePrintln("  squashed = " + f.toSmt2Formula());
+
+							return !((AssrtJob) job).checkSat(simpname,
+									Stream.of(f).collect(Collectors.toSet()));
+						});
+			});
+		}
+	}
 
 	// formula: isNotRecursionAssertionSatisfied (i.e., true = OK)
 	// return null for True formula
@@ -1433,57 +1466,6 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			//job.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
 
 			return squashed;
-		}
-	}
-	
-	public boolean isRecursionAssertionError(Job job, GProtoName simpname,
-			AssrtCoreSConfig init)
-	{
-		if (this.id == init.id)  // Otherwise initial assertions not checked, since no incoming action (cf. below)
-		{
-			return this.P.entrySet().stream().anyMatch(e ->
-			{
-				Role self = e.getKey();
-				AssrtEState curr = e.getValue();
-					AssrtBFormula f = getInitRecursionAssertionCheck(job, simpname,
-							self, curr);
-					
-				job.verbosePrintln("\n[assrt-core] Checking initial recursion assertion for " + self + " at " + curr + "(" + this.id + "):");
-				//String str = impli.toSmt2Formula();
-				//job.verbosePrintln("  raw      = " + str);
-
-				//AssrtBoolFormula squashed = impli.squash();
-
-				job.verbosePrintln("  squashed = " + f.toSmt2Formula());
-
-					return !((AssrtJob) job).checkSat(simpname,
-							Stream.of(f).collect(Collectors.toSet()));
-				});
-		}
-		else
-		{
-			return this.P.entrySet().stream().anyMatch(e ->
-			{
-				Role self = e.getKey();
-				AssrtEState curr = e.getValue();
-				return curr.getActions().stream().anyMatch(a ->
-				{
-					AssrtBFormula f = getNonInitRecursionAssertionCheck(job, simpname, self, curr, a);
-						
-							job.verbosePrintln(
-									"\n[assrt-core] Checking recursion assertion for " + self
-											+ " at " + curr + "(" + this.id + "):");
-							//String str = impli.toSmt2Formula();
-					//job.verbosePrintln("  raw      = " + str);
-
-					//AssrtBoolFormula squashed = impli.squash();
-
-					job.verbosePrintln("  squashed = " + f.toSmt2Formula());
-
-							return !((AssrtJob) job).checkSat(simpname,
-									Stream.of(f).collect(Collectors.toSet()));
-						});
-			});
 		}
 	}
 	
