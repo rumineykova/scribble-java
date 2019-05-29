@@ -33,6 +33,7 @@ import org.scribble.core.type.name.Role;
 public class SingleBuffers
 {
 	private final Map<Role, Map<Role, Boolean>> connected = new HashMap<>();  // local -> peer -> does-local-consider-connected  (symmetric)
+			// Means we consider are at least connected to peer from our side (don't know about peer's side)
 			// CHECKME: refactor as Map<Role, Set<Role>> ?  cf. ConnectionChecker
 
 	private final Map<Role, Map<Role, ESend>> buffs = new HashMap<>();  // dest -> src -> msg -- N.B. connected.get(A).get(B) => can send into buffs.get(B).get(A) ("reversed")
@@ -69,7 +70,8 @@ public class SingleBuffers
 
 	public boolean canSend(Role self, ESend a)
 	{
-		return isConnected(self, a.peer) //&& isConnected(a.peer, self)  // CHECKME: only consider local side?
+		return isConnected(self, a.peer) //&& isConnected(a.peer, self)  
+						// CHECKME: only consider local side?  yes: we believe we can send as long as we are connected from our side -- we don't know if peer has disconnected or not
 				&& this.buffs.get(a.peer).get(self) == null;
 	}
 
@@ -150,14 +152,15 @@ public class SingleBuffers
 	}
 
 	// N.B. direction sensitive (viz., after some disconnect)
+	// Means self's input queue from peer exists -- i.e., we consider that we are at least connected from our side (don't know about peer's side)
 	public boolean isConnected(Role self, Role peer)
 	{
 		return this.connected.get(self).get(peer);
 	}
 	
-	public boolean isEmpty(Role r)  // this.connected doesn't matter
+	public boolean isEmpty(Role self)  // this.connected doesn't matter
 	{
-		return this.buffs.get(r).values().stream().allMatch(v -> v == null);
+		return this.buffs.get(self).values().stream().allMatch(v -> v == null);
 	}
 	
 	// Return a (deep) copy -- currently, checkEventualReception expects a modifiable return
@@ -169,10 +172,10 @@ public class SingleBuffers
 				x -> new HashMap<>(x.getValue())));  // Collections.unmodifiableMap(x.getValue())
 	}
 
-	// N.B. hardcoded to capacity one
-	public Map<Role, ESend> getQueue(Role r)
+	// Input queues of self from each peer -- N.B. hardcoded to capacity one
+	public Map<Role, ESend> getQueue(Role self)
 	{
-		return Collections.unmodifiableMap(this.buffs.get(r));
+		return Collections.unmodifiableMap(this.buffs.get(self));
 	}
 
 	@Override
