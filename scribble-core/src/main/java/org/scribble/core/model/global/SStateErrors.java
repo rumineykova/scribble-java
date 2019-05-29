@@ -13,9 +13,12 @@
  */
 package org.scribble.core.model.global;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.scribble.core.model.endpoint.EState;
 import org.scribble.core.model.endpoint.actions.ERecv;
@@ -37,23 +40,18 @@ public class SStateErrors
 	public SStateErrors(SState state)
 	{
 		this.state = state;
-		this.stuck = state.config.getStuckMessages();
-		this.waitFor = state.config.getWaitForCycles();
-		this.orphans = state.config.getOrphanMessages();
-		this.unfinished = state.config.getUnfinishedRoles();
+		this.stuck = Collections.unmodifiableMap(state.config.getStuckMessages());
+		this.waitFor = Collections.unmodifiableSet(state.config.getWaitForCycles());
+		this.orphans = Collections
+				.unmodifiableMap(state.config.getOrphanMessages());  // TODO: unmodifiable nested Sets
+		this.unfinished = Collections
+				.unmodifiableMap(state.config.getUnfinishedRoles());
 	}
 	
 	public boolean isEmpty()
 	{
 		return this.stuck.isEmpty() && this.waitFor.isEmpty()
 				&& this.orphans.isEmpty() && this.unfinished.isEmpty();
-	}
-	
-	@Override
-	public String toString()
-	{
-		return "stuck=" + this.stuck + ", watiFor=" + this.waitFor + ", orphans="
-				+ this.orphans + ", unfinished=" + this.unfinished;
 	}
 
 	public String toErrorMessage(SGraph graph)
@@ -91,5 +89,18 @@ public class SStateErrors
 			res += "\n    Unfinished roles: " + this.unfinished;
 		}
 		return res;
+	}
+	
+	@Override
+	public String toString()
+	{
+		//Stream.<Collection<?>>of(this.stuck, this.waitFor, this.orphans, this.unfinished)
+		List<Object> tmp = new LinkedList<>();
+		if (!this.stuck.isEmpty())  tmp.add(this.stuck);  // Because Map is not a Collection (or because waitFor is Set, not Map)
+		if (!this.waitFor.isEmpty())  tmp.add(this.waitFor);
+		if (!this.orphans.isEmpty())  tmp.add(this.orphans);
+		if (!this.unfinished.isEmpty())  tmp.add(this.unfinished);
+		return tmp.stream().map(x -> x.toString())
+				.collect(Collectors.joining(", "));
 	}
 }

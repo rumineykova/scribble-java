@@ -48,7 +48,7 @@ public class SModel
 	{
 		this.core = core;
 
-		SortedMap<Integer, SStateErrors> sErrs = getSafetyErrors();
+		SortedMap<Integer, ? extends SStateErrors> sErrs = getSafetyErrors();
 		Map<Set<SState>, Pair<Set<Role>, Map<Role, Set<ESend>>>> pErrors
 				= Collections.emptyMap();
 		if (!core.config.args.NO_PROGRESS)
@@ -77,7 +77,7 @@ public class SModel
 		}
 	}
 
-	protected SortedMap<Integer, SStateErrors> getSafetyErrors()  // s.id key lighter than full SConfig
+	protected SortedMap<Integer, ? extends SStateErrors> getSafetyErrors()  // s.id key lighter than full SConfig
 	{
 		SortedMap<Integer, SStateErrors> res = new TreeMap<>();
 		for (int id : this.graph.states.keySet())
@@ -94,6 +94,7 @@ public class SModel
 	// These are checked only on termsets (cf. safety checked on all), and "overlap" with safety errors within there
 	// Could "skip" safety checks for termsets (probably better than coercing "progress" outside of termsets, as it would probably just amount to safety anyway)
 	// CHECKME: factor out a TermSet class?
+	// TODO: SProgressErrors
 	protected Map<Set<SState>, Pair<Set<Role>, Map<Role, Set<ESend>>>>
 			getProgressErrors()
 	{

@@ -939,7 +939,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		{
 			Role self = e.getKey();
 			EState curr = e.getValue().curr;
-			AssrtBFormula squashed = getAsserProgressCheck(core, fullname, self,
+			AssrtBFormula squashed = getAssertProgressCheck(core, fullname, self,
 					curr);
 			if (squashed.equals(AssrtTrueFormula.TRUE))
 			{
@@ -959,7 +959,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	}
 
 	// formula: isAssertionProgressSatisfied (i.e., true = OK)
-	private AssrtBFormula getAsserProgressCheck(AssrtCore core,
+	private AssrtBFormula getAssertProgressCheck(AssrtCore core,
 			GProtoName fullname, Role self, EState curr)
 	{
 		//if (as.isEmpty() || as.stream().noneMatch(a -> a.isSend() || a.isRequest())) 
@@ -1033,24 +1033,6 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				.AssrtBinBool(AssrtBinBFormula.Op.Imply, lhs, rhs);
 		return forallQuantifyFreeVars(core, fullname, impli).squash();  // Finally, fa-quantify all free vars
 	}
-
-	private AssrtBFormula forallQuantifyFreeVars(AssrtCore core,
-			GProtoName fullname, AssrtBFormula bform)
-	{
-		Set<String> rs = core.getContext().getInlined(fullname).roles.stream()
-				.map(Object::toString).collect(Collectors.toSet());
-		Set<AssrtDataVar> free = bform.getIntVars().stream()
-				//.filter(x -> !rs.contains(x.toString()))  // CHECKME: formula role vars -- cf. getUnknownDataVarErrors  // CHECKME: what is an example?
-				.collect(Collectors.toSet());
-		if (!free.isEmpty())
-		{
-			bform = AssrtFormulaFactory.AssrtForallFormula(
-					free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
-							.collect(Collectors.toList()),
-					bform);
-		}
-		return bform;
-	}
 	
 	/* // For batching?
 	public Set<AssrtBFormula> getAssertionProgressChecks(Job job, GProtoName simpname)
@@ -1061,13 +1043,13 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	}*/
 
 	// i.e., state has an action that is not satisfiable (deadcode)
-	public Map<Role, AssrtCoreEAction> getAssertUnsatErrors(AssrtCore core,
+	public Map<Role, Set<AssrtCoreEAction>> getAssertUnsatErrors(AssrtCore core,
 			GProtoName fullname)
 	{
-		Map<Role, AssrtCoreEAction> res = new HashMap<>();
+		Map<Role, Set<AssrtCoreEAction>> res = new HashMap<>();
 		for (Entry<Role, EFsm> e : this.P.entrySet())
 		{
-			Role r = e.getKey();
+			Role self = e.getKey();
 			EState curr = e.getValue().curr;
 			if (curr.getStateKind() != EStateKind.OUTPUT)
 			{
@@ -1089,20 +1071,26 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			for (EAction a : as)
 			{
 				AssrtCoreEAction cast = (AssrtCoreEAction) a;
-				AssrtBFormula squashed = getAssertSatCheck(core, fullname, r, cast);
+				AssrtBFormula squashed = getAssertSatCheck(core, fullname, self, cast);
 				if (squashed.equals(AssrtTrueFormula.TRUE))  // OK to skip? i.e., no need to check existing F (impli LHS) is true?
 				{
 					continue; 
 				}
 
 				core.verbosePrintln(
-						"\n[assrt-core] Checking assertion satisfiability for " + r + " at "
+						"\n[assrt-core] Checking assertion satisfiability for " + self + " at "
 								+ curr.id + "([TODO]: SState id):");
 				core.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
 				if (!core.checkSat(fullname,
 						Stream.of(squashed).collect(Collectors.toSet())))
 				{
-					res.put(r, cast);
+					Set<AssrtCoreEAction> tmp = res.get(self);
+					if (tmp == null)
+					{
+						tmp = new HashSet<>();
+						res.put(self, tmp);
+					}
+					tmp.add(cast);
 				}
 			}
 		}
@@ -1166,7 +1154,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 					Rconj);
 		}
 
-		// Finally, *ex*-quanitfy all free vars
+		// Finally, *ex*-quanitfy all free vars -- cf. forallQuantifyFreeVars
 		Set<String> rs = core.getContext().getInlined(fullname).roles.stream()
 				.map(Object::toString).collect(Collectors.toSet());
 		Set<AssrtDataVar> free = res.getIntVars().stream()
@@ -1259,11 +1247,12 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 	}*/
 
+	// CHECKME: equivalent of assertion progress for rec-assertions?  unsat not needed for recs? (because for "unary-choice" they coincide?)
 	// Excluding "init" rec
-	public Map<Role, AssrtCoreEAction> getRecAssertErrors(AssrtCore core,
+	public Map<Role, Set<AssrtCoreEAction>> getRecAssertErrors(AssrtCore core,
 			GProtoName fullname)
 	{
-		Map<Role, AssrtCoreEAction> res = new HashMap<>();
+		Map<Role, Set<AssrtCoreEAction>> res = new HashMap<>();
 		for (Entry<Role, EFsm> e : this.P.entrySet())
 		{
 			Role self = e.getKey();
@@ -1280,7 +1269,13 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				if (!core.checkSat(fullname,
 						Stream.of(toCheck).collect(Collectors.toSet())))
 				{
-					res.put(self, cast);
+					Set<AssrtCoreEAction> tmp = res.get(self);
+					if (tmp == null)
+					{
+						tmp = new HashSet<>();
+						res.put(self, tmp);
+					}
+					tmp.add(cast);
 				}
 			}
 		}
@@ -1554,6 +1549,24 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	private static AssrtIntVarFormula makeFreshIntVar(AssrtDataVar var)
 	{
 		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString() + counter++);  // HACK
+	}
+
+	private static AssrtBFormula forallQuantifyFreeVars(AssrtCore core,
+			GProtoName fullname, AssrtBFormula bform)
+	{
+		Set<String> rs = core.getContext().getInlined(fullname).roles.stream()
+				.map(Object::toString).collect(Collectors.toSet());
+		Set<AssrtDataVar> free = bform.getIntVars().stream()
+				//.filter(x -> !rs.contains(x.toString()))  // CHECKME: formula role vars -- cf. getUnknownDataVarErrors  // CHECKME: what is an example?
+				.collect(Collectors.toSet());
+		if (!free.isEmpty())
+		{
+			bform = AssrtFormulaFactory.AssrtForallFormula(
+					free.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString()))
+							.collect(Collectors.toList()),
+					bform);
+		}
+		return bform;
 	}
 
 	

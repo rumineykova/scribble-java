@@ -25,6 +25,12 @@ public class AssrtCoreSState extends //MPrettyState<Void, SAction, AssrtCoreSSta
 	{
 		super(config);
 	}
+
+	/*@Override
+	public AssrtCoreSStateErrors getErrors()
+	{
+		return new AssrtCoreSStateErrors(core, fullname, this);  // Needs core and fullname
+	}*/
 	
 	public Set<Role> getSubjects()
 	{
