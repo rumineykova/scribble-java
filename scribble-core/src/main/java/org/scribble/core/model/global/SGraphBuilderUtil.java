@@ -52,7 +52,7 @@ public class SGraphBuilderUtil
 	{
 		Map<Role, EFsm> efsms = egraphs.entrySet().stream()
 				.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().toFsm()));
-		SingleBuffers b0 = new SingleBuffers(efsms.keySet(), !explicit);
+		SSingleBuffers b0 = new SSingleBuffers(efsms.keySet(), !explicit);
 		return this.mf.global.SConfig(efsms, b0);
 	}
 	

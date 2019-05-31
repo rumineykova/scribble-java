@@ -23,7 +23,7 @@ import org.scribble.core.model.endpoint.actions.EAction;
 import org.scribble.core.model.endpoint.actions.EDisconnect;
 import org.scribble.core.model.endpoint.actions.EServerWrap;
 import org.scribble.core.model.global.SConfig;
-import org.scribble.core.model.global.SingleBuffers;
+import org.scribble.core.model.global.SSingleBuffers;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Op;
@@ -60,7 +60,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
 	// N.B. Shadowing supers for convenience (but at least final and immutable)
 	private final Map<Role, EFsm> P;          
-	private final SingleBuffers Q;  // null value means connected and empty -- dest -> src -> msg
+	private final SSingleBuffers Q;  // null value means connected and empty -- dest -> src -> msg
 
 	public final Map<Role, Set<AssrtDataVar>> K;  // Conflict between having this in the state, and formula building?
 	public final Map<Role, Set<AssrtBFormula>> F;  // N.B. because F not in equals/hash, "final" receive in a recursion doesn't get built -- cf., unsat check only for send actions
@@ -70,7 +70,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
 	// Pre: non-aliased "ownership" of all Map contents
 	protected AssrtCoreSConfig(ModelFactory mf, Map<Role, EFsm> P,
-			SingleBuffers Q, Map<Role, Set<AssrtDataVar>> K,
+			SSingleBuffers Q, Map<Role, Set<AssrtDataVar>> K,
 			Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtDataVar, AssrtAFormula>> V,
 			Map<Role, Set<AssrtBFormula>> R,
@@ -353,7 +353,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				//es.annot,
 				es.stateexprs,
 				rename.get(self)));  // Now doing toTrueAssertion on message at receive side*/
-		SingleBuffers Q = this.Q.send(self, a);
+		SSingleBuffers Q = this.Q.send(self, a);
 
 		updateOutput(self, a, succ, K, F, V, R, rename);
 		//updateR(R, self, es);
@@ -636,7 +636,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		
 		P.put(self, succ);
 		AssrtCoreEMsg msg = (AssrtCoreEMsg) this.Q.getQueue(self).get(a.peer);  // null is \epsilon
-		SingleBuffers Q = this.Q.receive(self, a);
+		SSingleBuffers Q = this.Q.receive(self, a);
 
 		updateInput(self, a, msg, msg.shadow, succ, K, F, V, R, rename);
 		//updateR(R, self, es);
@@ -695,7 +695,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	}
 
 	// FIXME: V
-	private static void fireAcc(Map<Role, EFsm> P, SingleBuffers Q,
+	private static void fireAcc(Map<Role, EFsm> P, SSingleBuffers Q,
 			Map<Role, Map<AssrtDataVar, AssrtAFormula>> V,
 			Map<Role, Set<AssrtBFormula>> R,
 			Map<Role, Set<AssrtDataVar>> K, Map<Role, Set<AssrtBFormula>> F, 
@@ -714,7 +714,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				K, F, V, R, rename);*/
 	}
 
-	private static void fireReq(Map<Role, EFsm> P, SingleBuffers Q,
+	private static void fireReq(Map<Role, EFsm> P, SSingleBuffers Q,
 			Map<Role, Map<AssrtDataVar, AssrtAFormula>> V,
 			Map<Role, Set<AssrtBFormula>> R,
 			Map<Role, Set<AssrtDataVar>> K, Map<Role, Set<AssrtBFormula>> F,
@@ -999,6 +999,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 					.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2)).get();  // Non-empty
 			lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs, Rconj);
 		}
+		
+		// CHECKME: why V/R not also built here? cf. getRecAssertCheck-- lhs building should be uniform for all checks?
 
 		// rhs = disjunction of assertions (ex-qualified by pay annot vars) from each action -- i.e., what we would like to do
 		AssrtBFormula rhs = null;

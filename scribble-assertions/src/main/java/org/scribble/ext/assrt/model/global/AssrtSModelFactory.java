@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.scribble.core.model.endpoint.EFsm;
 import org.scribble.core.model.global.SModelFactory;
-import org.scribble.core.model.global.SingleBuffers;
+import org.scribble.core.model.global.SSingleBuffers;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
@@ -19,7 +19,7 @@ import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 public interface AssrtSModelFactory extends SModelFactory
 {
 
-	AssrtSConfig newAssrtSConfig(Map<Role, EFsm> state, SingleBuffers buffs,
+	AssrtSConfig newAssrtSConfig(Map<Role, EFsm> state, SSingleBuffers buffs,
 			AssrtLogFormula formula, Map<Role, Set<String>> variablesInScope);
 
 	AssrtSSend newAssrtSSend(Role subj, Role obj, MsgId<?> mid, Payload payload,

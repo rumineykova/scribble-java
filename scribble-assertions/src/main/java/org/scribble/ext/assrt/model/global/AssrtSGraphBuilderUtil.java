@@ -11,7 +11,7 @@ import org.scribble.core.model.endpoint.EFsm;
 import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.model.global.SConfig;
 import org.scribble.core.model.global.SGraphBuilderUtil;
-import org.scribble.core.model.global.SingleBuffers;
+import org.scribble.core.model.global.SSingleBuffers;
 import org.scribble.core.type.name.Role;
 
 public class AssrtSGraphBuilderUtil extends SGraphBuilderUtil
@@ -28,7 +28,7 @@ public class AssrtSGraphBuilderUtil extends SGraphBuilderUtil
 	{
 		Map<Role, EFsm> efsms = egraphs.entrySet().stream()
 				.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().toFsm()));
-		SingleBuffers b0 = new SingleBuffers(efsms.keySet(), !explicit);
+		SSingleBuffers b0 = new SSingleBuffers(efsms.keySet(), !explicit);
 		return ((AssrtSModelFactory) this.mf.global).newAssrtSConfig(efsms, b0,
 				null, new HashMap<Role, Set<String>>());
 	}

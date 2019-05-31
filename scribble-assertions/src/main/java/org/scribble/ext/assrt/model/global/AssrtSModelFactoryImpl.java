@@ -10,7 +10,7 @@ import org.scribble.core.model.global.SGraph;
 import org.scribble.core.model.global.SModel;
 import org.scribble.core.model.global.SModelFactoryImpl;
 import org.scribble.core.model.global.SState;
-import org.scribble.core.model.global.SingleBuffers;
+import org.scribble.core.model.global.SSingleBuffers;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
@@ -43,7 +43,7 @@ public class AssrtSModelFactoryImpl extends SModelFactoryImpl
 	}
 
 	@Override
-	public SConfig SConfig(Map<Role, EFsm> state, SingleBuffers buffs)
+	public SConfig SConfig(Map<Role, EFsm> state, SSingleBuffers buffs)
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: ");
 	}
@@ -55,7 +55,7 @@ public class AssrtSModelFactoryImpl extends SModelFactoryImpl
 	}
 	
 	@Override
-	public AssrtSConfig newAssrtSConfig(Map<Role, EFsm> state, SingleBuffers buffs,
+	public AssrtSConfig newAssrtSConfig(Map<Role, EFsm> state, SSingleBuffers buffs,
 			AssrtLogFormula formula, Map<Role, Set<String>> variablesInScope)
 	{
 		return new AssrtSConfig(this.mf, state, buffs, formula, variablesInScope);

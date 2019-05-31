@@ -13,12 +13,10 @@
  */
 package org.scribble.core.model.global;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -27,14 +25,13 @@ import java.util.stream.Collectors;
 import org.scribble.core.job.Core;
 import org.scribble.core.model.endpoint.actions.ESend;
 import org.scribble.core.type.name.Role;
-import org.scribble.util.Pair;
 import org.scribble.util.ScribException;
 
 
 // For doing validation operations on an SGraph (cf. EFsm, use Graph as an FSM)
 public class SModel
 {
-	private Core core;  // CHECKME: refactor?  but avoiding in constructor to keep mf more independent/uniform
+	//private Core core;  // CHECKME: refactor?  but avoiding in constructor to keep mf more independent/uniform
 
 	public final SGraph graph;
 
@@ -43,36 +40,31 @@ public class SModel
 		this.graph = graph;
 	}
 
-	// CHECKME: let Core call check safety/progress directly? (to avoid passing core)
+	// CHECKME: let Core call check safety/progress directly? (to avoid passing core -- only used for NO_PROGRESS)
 	public void validate(Core core) throws ScribException
 	{
-		this.core = core;
+		//this.core = core;
 
 		SortedMap<Integer, ? extends SStateErrors> sErrs = getSafetyErrors();
-		Map<Set<SState>, Pair<Set<Role>, Map<Role, Set<ESend>>>> pErrors
-				= Collections.emptyMap();
+		SProgressErrors pErrs = null;
 		if (!core.config.args.NO_PROGRESS)
 		{
-			 pErrors = getProgressErrors();
+			 pErrs = new SProgressErrors(this);
 		}
 
-		if (!sErrs.isEmpty() || !pErrors.isEmpty())
+		String msg = "";
+		if (!sErrs.isEmpty())
 		{
-			String msg = "";
-			if (!sErrs.isEmpty())
-			{
-				msg += getSafetyErrors().values().stream()
-						.map(x -> x.toErrorMessage(this.graph))
-						.collect(Collectors.joining(""));
-			}
-			if (!pErrors.isEmpty())
-			{
-				for (Entry<Set<SState>, Pair<Set<Role>, Map<Role, Set<ESend>>>> e :
-						pErrors.entrySet())
-				{
-					msg += getProgressErrorMessages(e.getKey(), e.getValue());
-				}
-			}
+			msg += getSafetyErrors().values().stream()
+					.map(x -> x.toErrorMessage(this.graph))
+					.collect(Collectors.joining(""));
+		}
+		if (!core.config.args.NO_PROGRESS && !pErrs.isEmpty())
+		{
+			msg += pErrs.toErrorMessage();
+		}
+		if (!msg.equals(""))
+		{
 			throw new ScribException(msg);
 		}
 	}
@@ -91,22 +83,20 @@ public class SModel
 		return res;
 	}
 
-	// These are checked only on termsets (cf. safety checked on all), and "overlap" with safety errors within there
+	// Progress errs are checked only on termsets (cf. safety checked on all), and "overlap" with safety errors within there
 	// Could "skip" safety checks for termsets (probably better than coercing "progress" outside of termsets, as it would probably just amount to safety anyway)
 	// CHECKME: factor out a TermSet class?
-	// TODO: SProgressErrors
-	protected Map<Set<SState>, Pair<Set<Role>, Map<Role, Set<ESend>>>>
-			getProgressErrors()
+
+	protected Map<Set<SState>, Set<Role>> getRoleProgErrors()
 	{
-		Map<Set<SState>, Pair<Set<Role>, Map<Role, Set<ESend>>>> res
-				= new HashMap<>();
-		for (Set<SState> termset: this.graph.getTermSets())
+		Map<Set<SState>, Set<Role>> res = new HashMap<>();
+		Set<Set<SState>> termsets = this.graph.getTermSets();
+		for (Set<SState> ts : termsets)
 		{
-			Set<Role> starved = checkRoleProgress(termset);
-			Map<Role, Set<ESend>> ignored = checkEventualReception(termset);
-			if (!starved.isEmpty() || !ignored.isEmpty())
+			Set<Role> err = checkRoleProgress(ts);
+			if (!err.isEmpty())
 			{
-				res.put(termset, new Pair<>(starved, ignored));
+				res.put(ts, err);
 			}
 		}
 		return res;
@@ -131,6 +121,21 @@ public class SModel
 						&& s.config.queues.getQueue(x).values().stream()
 								.allMatch(y -> y == null))  // Check empty queues for starved -- o/w, is a stuck-message
 				.collect(Collectors.toSet());
+	}
+
+	protected Map<Set<SState>, Map<Role, Set<ESend>>> getEventualRecepErrors()
+	{
+		Map<Set<SState>, Map<Role, Set<ESend>>> res = new HashMap<>();
+		Set<Set<SState>> termsets = this.graph.getTermSets();
+		for (Set<SState> ts : termsets)
+		{
+			Map<Role, Set<ESend>> err = checkEventualReception(ts);
+			if (!err.isEmpty())
+			{
+				res.put(ts, err);
+			}
+		}
+		return res;
 	}
 
 	// cf. eventual stability (could also check within termsets)
@@ -167,32 +172,5 @@ public class SModel
 			}
 		}
 		return ignored;
-	}
-
-	// Cf. SStateErrors  // TODO: refactor to Core, if not to its own class?
-	protected String getProgressErrorMessages(Set<SState> termset,
-			Pair<Set<Role>, Map<Role, Set<ESend>>> perrors)
-	{
-		String msg = "";
-		if (!perrors.left.isEmpty())  // starved
-		{
-			msg += "\nRole progress violation for " + perrors.left
-					+ " in session state terminal set:\n    " + termSetToString(termset);
-		}
-		if (!perrors.right.isEmpty())  // ignored
-		{
-			msg += "\nEventual reception violation for " + perrors.right
-					+ " in session state terminal set:\n    " + termSetToString(termset);
-		}
-		return msg;
-	}
-	
-	protected String termSetToString(Set<SState> termset)
-	{
-		return this.core.config.args.VERBOSE
-				? termset.stream().map(x -> x.toString())
-						.collect(Collectors.joining(","))
-				: termset.stream().map(x -> Integer.toString(x.id))
-						.collect(Collectors.joining(","));
 	}
 }

@@ -11,7 +11,7 @@ import org.scribble.core.model.ModelFactory;
 import org.scribble.core.model.endpoint.EFsm;
 import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.model.global.SGraphBuilderUtil;
-import org.scribble.core.model.global.SingleBuffers;
+import org.scribble.core.model.global.SSingleBuffers;
 import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
@@ -33,7 +33,7 @@ public class AssrtCoreSGraphBuilderUtil extends SGraphBuilderUtil
 	{
 		Map<Role, EFsm> P = egraphs.entrySet().stream()
 				.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().toFsm()));
-		SingleBuffers Q = new SingleBuffers(P.keySet(), !explicit);
+		SSingleBuffers Q = new SSingleBuffers(P.keySet(), !explicit);
 		return ((AssrtCoreSModelFactory) this.mf.global).AssrtCoreSConfig(P, Q,
 				makeR(P), makeRass(P), makeK(P.keySet()), makeF(P), P.keySet().stream()
 						.collect(Collectors.toMap(r -> r, r -> new HashMap<>())));

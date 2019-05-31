@@ -46,9 +46,9 @@ public class SConfig
 	protected final ModelFactory mf;
 	
 	public final Map<Role, EFsm> efsms;
-	public final SingleBuffers queues;  // N.B. currently hardcoded to capacity one
+	public final SSingleBuffers queues;  // N.B. currently hardcoded to capacity one
 	
-	protected SConfig(ModelFactory mf, Map<Role, EFsm> state, SingleBuffers queues)
+	protected SConfig(ModelFactory mf, Map<Role, EFsm> state, SSingleBuffers queues)
 	{
 		this.mf = mf;
 		this.efsms = Collections.unmodifiableMap(state);
@@ -174,7 +174,7 @@ public class SConfig
 		{
 			Map<Role, EFsm> efsms = new HashMap<>(this.efsms);
 			efsms.put(self, succ);
-			SingleBuffers queues =  // N.B. queue updates are insensitive to non-det "a"
+			SSingleBuffers queues =  // N.B. queue updates are insensitive to non-det "a"
 				  a.isSend()       ? this.queues.send(self, (ESend) a)
 				: a.isReceive()    ? this.queues.receive(self, (ERecv) a)
 				: a.isDisconnect() ? this.queues.disconnect(self, (EDisconnect) a)
@@ -205,7 +205,7 @@ public class SConfig
 				// a1 and a2 are a "sync" pair, add all combinations of succ1 and succ2 that may arise
 				efsms.put(r1, succ1);  // Overwrite existing r1/r2 entries
 				efsms.put(r2, succ2);
-				SingleBuffers queues;
+				SSingleBuffers queues;
 				// a1 and a2 definitely "sync", now just determine whether it is a connect or wrap
 				if (((a1.isRequest() && a2.isAccept())
 						|| (a1.isAccept() && a2.isRequest())))

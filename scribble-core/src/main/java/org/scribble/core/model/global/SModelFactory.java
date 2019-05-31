@@ -35,7 +35,7 @@ public interface SModelFactory
 
 	// protected constructors (MState mutable)
 	SState SState(SConfig config);
-	SConfig SConfig(Map<Role, EFsm> state, SingleBuffers buffs);
+	SConfig SConfig(Map<Role, EFsm> state, SSingleBuffers buffs);
 	SGraph SGraph(GProtoName fullname, Map<Integer, SState> states, 
 			SState init);  // states: s.id -> s
 	SModel SModel(SGraph graph);

@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.scribble.core.model.endpoint.EFsm;
 import org.scribble.core.model.global.SModelFactory;
-import org.scribble.core.model.global.SingleBuffers;
+import org.scribble.core.model.global.SSingleBuffers;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
@@ -38,7 +38,7 @@ public interface AssrtCoreSModelFactory extends SModelFactory
 	AssrtCoreSModel SModel(SGraph graph);*/
 
 
-	AssrtCoreSConfig AssrtCoreSConfig(Map<Role, EFsm> P, SingleBuffers Q,
+	AssrtCoreSConfig AssrtCoreSConfig(Map<Role, EFsm> P, SSingleBuffers Q,
 			Map<Role, Map<AssrtDataVar, AssrtAFormula>> R,
 			Map<Role, Set<AssrtBFormula>> Rass, Map<Role, Set<AssrtDataVar>> K,
 			Map<Role, Set<AssrtBFormula>> F,

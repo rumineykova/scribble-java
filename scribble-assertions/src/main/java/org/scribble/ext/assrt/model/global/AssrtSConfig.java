@@ -16,7 +16,7 @@ import org.scribble.core.model.endpoint.actions.EAction;
 import org.scribble.core.model.endpoint.actions.ERecv;
 import org.scribble.core.model.endpoint.actions.ESend;
 import org.scribble.core.model.global.SConfig;
-import org.scribble.core.model.global.SingleBuffers;
+import org.scribble.core.model.global.SSingleBuffers;
 import org.scribble.core.type.kind.PayElemKind;
 import org.scribble.core.type.name.PayElemType;
 import org.scribble.core.type.name.Role;
@@ -37,7 +37,7 @@ public class AssrtSConfig extends SConfig
 	public final Map<Role, Set<String>> varsInScope; 
 	
 	protected AssrtSConfig(ModelFactory mf, Map<Role, EFsm> state,
-			SingleBuffers buffs, AssrtLogFormula formula,
+			SSingleBuffers buffs, AssrtLogFormula formula,
 			Map<Role, Set<String>> varsInScope)
 	{
 		super(mf, state, buffs);
@@ -75,7 +75,7 @@ public class AssrtSConfig extends SConfig
 			{
 				tmp3.put(r, null);
 			}*/
-			SingleBuffers tmp2 = 
+			SSingleBuffers tmp2 = 
 						//a.isSend()       ? this.buffs.send(r, (ESend) a)
 						a.isSend()       ? this.queues.send(r, ((AssrtESend) a).toTrueAssertion())  // HACK FIXME: project receive assertion properly and check implication 
 					

@@ -10,7 +10,7 @@ import org.scribble.core.model.global.SConfig;
 import org.scribble.core.model.global.SGraph;
 import org.scribble.core.model.global.SModelFactoryImpl;
 import org.scribble.core.model.global.SState;
-import org.scribble.core.model.global.SingleBuffers;
+import org.scribble.core.model.global.SSingleBuffers;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
@@ -52,7 +52,7 @@ public class AssrtCoreSModelFactoryImpl extends SModelFactoryImpl //AssrtSModelF
 	}
 
 	@Override
-	public AssrtCoreSConfig AssrtCoreSConfig(Map<Role, EFsm> P, SingleBuffers Q,
+	public AssrtCoreSConfig AssrtCoreSConfig(Map<Role, EFsm> P, SSingleBuffers Q,
 			Map<Role, Map<AssrtDataVar, AssrtAFormula>> R,
 			Map<Role, Set<AssrtBFormula>> Rass, Map<Role, Set<AssrtDataVar>> K,
 			Map<Role, Set<AssrtBFormula>> F,

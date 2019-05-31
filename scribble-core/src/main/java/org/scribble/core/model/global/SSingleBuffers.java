@@ -30,7 +30,7 @@ import org.scribble.core.model.endpoint.actions.EServerWrap;
 import org.scribble.core.type.name.Role;
 
 // Immutable -- send/receive/etc return updated copies
-public class SingleBuffers
+public class SSingleBuffers
 {
 	private final Map<Role, Map<Role, Boolean>> connected = new HashMap<>();  // local -> peer -> does-local-consider-connected  (symmetric)
 			// Means we consider are at least connected to peer from our side (don't know about peer's side)
@@ -40,7 +40,7 @@ public class SingleBuffers
 			// N.B. hardcoded to capacity one -- SQueues would be the generalisation
 			// null ESend for empty queue
 
-	public SingleBuffers(Set<Role> roles, boolean implicit)
+	public SSingleBuffers(Set<Role> roles, boolean implicit)
 	{
 		for(Role r1 : roles)
 		{
@@ -59,7 +59,7 @@ public class SingleBuffers
 		}
 	}
 
-	protected SingleBuffers(SingleBuffers queues)
+	protected SSingleBuffers(SSingleBuffers queues)
 	{
 		for (Role r : queues.buffs.keySet())
 		{
@@ -115,18 +115,18 @@ public class SingleBuffers
 
 	// Pre: canSend, e.g., via via SConfig.getFireable
 	// Return an updated copy
-	public SingleBuffers send(Role self, ESend a)
+	public SSingleBuffers send(Role self, ESend a)
 	{
-		SingleBuffers copy = new SingleBuffers(this);
+		SSingleBuffers copy = new SSingleBuffers(this);
 		copy.buffs.get(a.peer).put(self, a);
 		return copy;
 	}
 
 	// Pre: canReceive, e.g., via SConfig.getFireable
 	// Return an updated copy
-	public SingleBuffers receive(Role self, ERecv a)
+	public SSingleBuffers receive(Role self, ERecv a)
 	{
-		SingleBuffers copy = new SingleBuffers(this);
+		SSingleBuffers copy = new SSingleBuffers(this);
 		copy.buffs.get(self).put(a.peer, null);
 		return copy;
 	}
@@ -134,9 +134,9 @@ public class SingleBuffers
   // Sync action
 	// Pre: canRequest(r1, [[r2]]) and canAccept(r2, [[r1]]), where [[r]] is a matching action with peer r -- e.g., via via SConfig.getFireable
 	// Return an updated copy
-	public SingleBuffers connect(Role r1, Role r2)  // Role sides and message don't matter
+	public SSingleBuffers connect(Role r1, Role r2)  // Role sides and message don't matter
 	{
-		SingleBuffers copy = new SingleBuffers(this);
+		SSingleBuffers copy = new SSingleBuffers(this);
 		copy.connected.get(r1).put(r2, true);
 		copy.connected.get(r2).put(r1, true);
 		return copy;
@@ -144,9 +144,9 @@ public class SingleBuffers
 
 	// Pre: canDisconnect(self, d), e.g., via SConfig.via getFireable
 	// Return an updated copy
-	public SingleBuffers disconnect(Role self, EDisconnect d)
+	public SSingleBuffers disconnect(Role self, EDisconnect d)
 	{
-		SingleBuffers copy = new SingleBuffers(this);
+		SSingleBuffers copy = new SSingleBuffers(this);
 		copy.connected.get(self).put(d.peer, false);  // Didn't update buffs (cf. SConfig.getOrphanMessages)
 		return copy;
 	}
@@ -194,11 +194,11 @@ public class SingleBuffers
 		{
 			return true;
 		}
-		if (!(o instanceof SingleBuffers))
+		if (!(o instanceof SSingleBuffers))
 		{
 			return false;
 		}
-		SingleBuffers b = (SingleBuffers) o;
+		SSingleBuffers b = (SSingleBuffers) o;
 		return this.connected.equals(b.connected) && this.buffs.equals(b.buffs);
 	}
 	

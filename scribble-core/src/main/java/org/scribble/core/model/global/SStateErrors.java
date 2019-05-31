@@ -26,6 +26,7 @@ import org.scribble.core.model.endpoint.actions.ESend;
 import org.scribble.core.model.global.actions.SAction;
 import org.scribble.core.type.name.Role;
 
+// Per state -- cf. SProgressErrors (per model)
 public class SStateErrors
 {
 	public final SState state;

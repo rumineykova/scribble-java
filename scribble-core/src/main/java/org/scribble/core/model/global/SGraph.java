@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.scribble.core.model.MPrettyPrint;
 import org.scribble.core.model.global.actions.SAction;
@@ -201,6 +202,15 @@ public class SGraph implements MPrettyPrint
 			while (w.id != v.id);
 			this.sscs.add(ssc);
 		}
+	}
+
+	public static String termSetToString(Set<SState> termset)
+	{
+		return /*this.core.config.args.VERBOSE
+				? termset.stream().map(x -> x.toString())
+						.collect(Collectors.joining(","))
+				:*/ termset.stream().map(x -> Integer.toString(x.id))
+						.collect(Collectors.joining(","));
 	}
 
 

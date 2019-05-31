@@ -66,7 +66,7 @@ public class SModelFactoryImpl extends ModelFactoryBase implements SModelFactory
 	}
 
 	@Override
-	public SConfig SConfig(Map<Role, EFsm> state, SingleBuffers buffs)
+	public SConfig SConfig(Map<Role, EFsm> state, SSingleBuffers buffs)
 	{
 		return new SConfig(this.mf, state, buffs);
 	}
