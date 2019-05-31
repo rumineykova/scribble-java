@@ -88,6 +88,7 @@ public class AssrtEState extends EState
 	protected String getEdgeLabel(EAction msg)
 	{
 		return "label=\"" + msg.toString().replaceAll("\\\"", "\\\\\"") + "\"";
+				// Because of @"..." syntax, need to escape the quotes
 	}
 	
 	@Override

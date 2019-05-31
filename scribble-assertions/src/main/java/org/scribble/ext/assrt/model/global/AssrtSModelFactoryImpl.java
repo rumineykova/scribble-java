@@ -21,6 +21,7 @@ import org.scribble.ext.assrt.model.global.actions.AssrtSRecv;
 import org.scribble.ext.assrt.model.global.actions.AssrtSReq;
 import org.scribble.ext.assrt.model.global.actions.AssrtSSend;
 
+@Deprecated
 public class AssrtSModelFactoryImpl extends SModelFactoryImpl
 		implements AssrtSModelFactory
 {

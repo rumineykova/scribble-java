@@ -18,9 +18,11 @@ public interface AssrtCoreEAction extends AssrtEAction
 	default String stateExprsToString()
 	{
 		List<AssrtAFormula> aforms = getStateExprs();
-		return aforms.isEmpty() 
+		/*return aforms.isEmpty() 
 				? "" 
 				: ("<" + aforms.stream().map(Object::toString)
-						.collect(Collectors.joining(", ")) + ">");
+						.collect(Collectors.joining(", ")) + ">");*/
+		return "<" + aforms.stream().map(Object::toString)
+						.collect(Collectors.joining(", ")) + ">";
 	}
 }

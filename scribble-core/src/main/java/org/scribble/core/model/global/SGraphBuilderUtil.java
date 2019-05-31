@@ -38,13 +38,8 @@ public class SGraphBuilderUtil
 		super(mf);
 		reset();
 	}
-	
-	@Override
-	protected void reset()
-	{
-		this.states.clear();
-	}
 
+	// A Scribble ext should override createInitConfig/newState
 	// Here for ext overriding (e.g., Assrt)
 	// Do as an initial state rather than config?
 	protected SConfig createInitConfig(Map<Role, EGraph> egraphs,
@@ -61,6 +56,12 @@ public class SGraphBuilderUtil
 		SState s = this.mf.global.SState(c);
 		this.states.put(c, s);
 		return s;
+	}
+	
+	@Override
+	protected void reset()
+	{
+		this.states.clear();
 	}
 
 	// Pre: this.states.containsKey(curr.config)

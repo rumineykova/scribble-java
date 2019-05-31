@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.scribble.core.model.MState;
 import org.scribble.core.model.global.SState;
+import org.scribble.core.model.global.actions.SAction;
 import org.scribble.core.type.name.Role;
 
 			
@@ -54,11 +55,12 @@ public class AssrtCoreSState extends //MPrettyState<Void, SAction, AssrtCoreSSta
 		return "label=\"" + this.id + ":" + lab + "\"";
 	}*/
 
-	/*@Override
+	@Override
 	protected String getEdgeLabel(SAction msg)
 	{
 		return "label=\"" + msg.toString().replaceAll("\\\"", "\\\\\"") + "\"";
-	}*/
+				// Because of @"..." syntax, need to escape the quotes
+	}
 
 	/*@Override
 	public void addEdge(SAction a, SState s)  // Visibility hack (for AssrtCoreSModelBuilder::build)
