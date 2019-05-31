@@ -33,14 +33,14 @@ public class AssrtCoreERecv extends AssrtERecv implements AssrtCoreEAction
 	@Override
 	public AssrtCoreESend toDual(Role self)
 	{
-		return ((AssrtCoreEModelFactory) this.mf.local).newAssrtCoreESend(self, this.mid,
+		return ((AssrtCoreEModelFactory) this.mf.local).AssrtCoreESend(self, this.mid,
 				this.payload, this.ass, this.stateexprs);
 	}
 
 	@Override
 	public AssrtCoreSRecv toGlobal(Role self)
 	{
-		return ((AssrtCoreSModelFactory) this.mf.global).newAssrtCoreSReceive(self,
+		return ((AssrtCoreSModelFactory) this.mf.global).AssrtCoreSRecv(self,
 				this.peer, this.mid, this.payload, this.ass, this.stateexprs);
 	}
 

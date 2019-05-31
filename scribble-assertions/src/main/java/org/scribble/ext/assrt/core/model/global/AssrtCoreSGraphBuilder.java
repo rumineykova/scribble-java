@@ -1,19 +1,16 @@
 package org.scribble.ext.assrt.core.model.global;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.scribble.core.model.ModelFactory;
 import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.model.endpoint.actions.EAction;
 import org.scribble.core.model.global.SConfig;
 import org.scribble.core.model.global.SGraphBuilder;
-import org.scribble.core.model.global.SState;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.Role;
 
@@ -37,19 +34,14 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 		AssrtCoreSState init = new AssrtCoreSState(c0);  // FIXME: make AssrtCoreSModelFactory (also AssrtCoreSModel) -- cf. (Assrt)SModelFactory
 		
 		Set<AssrtCoreSState> todo = new HashSet<>();
-		Map<Integer, AssrtCoreSState> seen = new HashMap<>();
 		todo.add(init);
 		
 		while (!todo.isEmpty())
 		//for (int zz = 0; !todo.isEmpty(); zz++)
 		{
-			//System.err.print(zz + " ");
-				
 			Iterator<AssrtCoreSState> i = todo.iterator();
 			AssrtCoreSState curr = i.next();
 			i.remove();
-			seen.put(curr.id, curr);
-
 			Map<Role, Set<EAction>> fireable = curr.config.getFireable();
 			Set<Entry<Role, Set<EAction>>> es = new HashSet<>(fireable.entrySet());
 			while (!es.isEmpty())
@@ -64,12 +56,12 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 				for (EAction a : as)
 				{
 					// cf. SState.getNextStates
-					final AssrtCoreSState next;
+					final AssrtCoreSState succ;
 					if (a.isSend() || a.isReceive() || a.isRequest() || a.isAccept())// || a.isDisconnect())
 					{
-						Set<SConfig> cfg = new HashSet<>(curr.config.async(self, a));  // Singleton
-						next = (AssrtCoreSState) this.util.addEdgesAndGetNewSuccs(curr,
-								a.toGlobal(self), cfg).iterator().next();  // Constructs the edges
+						Set<SConfig> next = new HashSet<>(curr.config.async(self, a));  // Singleton
+						succ = (AssrtCoreSState) this.util.addEdgesAndGetNewSuccs(curr,
+								a.toGlobal(self), next).iterator().next();  // Constructs the edges
 					}
 					/*else if (a.isConnect() || a.isAccept())
 					{
@@ -97,18 +89,12 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 					}
 
 					curr.addSubject(self);
-					if (!seen.values().contains(next) && !todo.contains(next))
-					{
-						todo.add(next);
-					}
+					todo.add(succ);
 				}
 			}
 		}
 		
-		return (AssrtCoreSGraph) this.mf.global
-				.SGraph(fullname,
-						seen.entrySet().stream().collect(
-								Collectors.toMap(Entry::getKey, x -> (SState) x.getValue())),
-						init);
+		return (AssrtCoreSGraph) this.mf.global.SGraph(fullname,
+				this.util.getStates(), init);  // Cf. super
 	}
 }

@@ -24,6 +24,7 @@ import org.scribble.core.lang.global.GProtocol;
 import org.scribble.core.lang.local.LProjection;
 import org.scribble.core.model.ModelFactory;
 import org.scribble.core.model.endpoint.EModelFactory;
+import org.scribble.core.model.global.SGraph;
 import org.scribble.core.model.global.SModelFactory;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.GProtoName;
@@ -35,6 +36,8 @@ import org.scribble.core.visit.STypeVisitorFactory;
 import org.scribble.core.visit.STypeVisitorFactoryImpl;
 import org.scribble.core.visit.global.GTypeVisitorFactoryImpl;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactoryImpl;
+import org.scribble.ext.assrt.core.model.global.AssrtCoreSGraph;
+import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactory;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactoryImpl;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.visit.local.AssrtCoreLTypeVisitorFactoryImpl;
@@ -131,6 +134,32 @@ public class AssrtCore extends Core
 		}
 		
 		// Skipping imed projection
+	}
+
+	@Override
+	protected void validateByScribble(ProtoName<Global> fullname, boolean fair)
+			throws ScribException
+	{
+		SGraph graph = fair
+				? this.context.getSGraph(fullname)
+				: this.context.getUnfairSGraph(fullname);
+		if (this.config.args.VERBOSE)
+		{
+			String dot = graph.init.toDot();
+			String[] lines = dot.split("\\R");
+			verbosePrintPass(
+					//"(" + fullname + ") Built global model...\n" + graph.init.toDot() + "\n(" + fullname + ") ..." + graph.states.size() + " states");
+					"Built " + (!fair ? "\"unfair\" " : "") + "global model ("
+							+ graph.states.size() + " states): " + fullname + "\n"
+							+ ((lines.length > 50)  // CHECKME: factor out constant?
+									? "...[snip]...  (model text over 50 lines, try -[u]model[png])"
+									: dot));
+		}
+
+		verbosePrintPass("Checking " + (!fair ? "\"unfair\" " : "")
+				+ "global model: " + fullname);
+		((AssrtCoreSModelFactory) this.config.mf.global)
+				.AssrtCoreSModel(this, (AssrtCoreSGraph) graph).validate(this);  // FIXME: overriding only for this line (extra core arg)
 	}
 	
 	@Override

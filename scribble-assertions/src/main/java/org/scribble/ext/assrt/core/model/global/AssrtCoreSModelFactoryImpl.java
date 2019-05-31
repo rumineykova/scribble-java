@@ -76,6 +76,7 @@ public class AssrtCoreSModelFactoryImpl extends SModelFactoryImpl //AssrtSModelF
 		throw new RuntimeException("Deprecated for " + getClass());
 	}
 
+	// FIXME: breaks super pattern, extra core arg -- cf. Core.validateByScribble -- CHECKME: core really needed?
 	@Override
 	public AssrtCoreSModel AssrtCoreSModel(AssrtCore core, AssrtCoreSGraph graph)
 	{
@@ -83,30 +84,30 @@ public class AssrtCoreSModelFactoryImpl extends SModelFactoryImpl //AssrtSModelF
 	}
 
 	@Override
-	public AssrtCoreSSend newAssrtCoreSSend(Role subj, Role obj, MsgId<?> mid,
-			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs)
+	public AssrtCoreSSend AssrtCoreSSend(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs)
 	{
-		return new AssrtCoreSSend(subj, obj, mid, payload, bf, stateexprs);
+		return new AssrtCoreSSend(subj, obj, mid, pay, ass, sexprs);
 	}
 
 	@Override
-	public AssrtCoreSRecv newAssrtCoreSReceive(Role subj, Role obj, MsgId<?> mid,
-			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs)
+	public AssrtCoreSRecv AssrtCoreSRecv(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs)
 	{
-		return new AssrtCoreSRecv(subj, obj, mid, payload, bf, stateexprs);
+		return new AssrtCoreSRecv(subj, obj, mid, pay, ass, sexprs);
 	}
 
 	@Override
-	public AssrtCoreSReq newAssrtCoreSRequest(Role subj, Role obj, MsgId<?> mid,
-			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs)
+	public AssrtCoreSReq AssrtCoreSReq(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs)
 	{
-		return new AssrtCoreSReq(subj, obj, mid, payload, bf, stateexprs);
+		return new AssrtCoreSReq(subj, obj, mid, pay, ass, sexprs);
 	}
 
 	@Override
-	public AssrtCoreSAcc newAssrtCoreSAccept(Role subj, Role obj, MsgId<?> mid,
-			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs)
+	public AssrtCoreSAcc AssrtCoreSAcc(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs)
 	{
-		return new AssrtCoreSAcc(subj, obj, mid, payload, bf, stateexprs);
+		return new AssrtCoreSAcc(subj, obj, mid, pay, ass, sexprs);
 	}
 }

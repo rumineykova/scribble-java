@@ -137,7 +137,7 @@ public class AssrtCoreEGraphBuilder extends EGraphBuilder
 		AssrtCoreEModelFactory ef = (AssrtCoreEModelFactory) this.util.mf.local;  // FIXME: factor out
 		if (k.equals(AssrtCoreLActionKind.SEND))
 		{
-			return ef.newAssrtCoreESend(r, a.op, 
+			return ef.AssrtCoreESend(r, a.op, 
 					//new Payload(Arrays.asList(a.pays)),
 					new Payload(
 							a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p)
@@ -149,7 +149,7 @@ public class AssrtCoreEGraphBuilder extends EGraphBuilder
 		else if (k.equals(AssrtCoreLActionKind.RECV))
 		{
 			//return ef.newAssrtEReceive(r, a.op, new Payload(Arrays.asList(a.pay)), a.ass);
-			return ef.newAssrtCoreEReceive(r, a.op,
+			return ef.AssrtCoreERecv(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
 					new Payload(
 							a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p)
@@ -162,7 +162,7 @@ public class AssrtCoreEGraphBuilder extends EGraphBuilder
 		}
 		else if (k.equals(AssrtCoreLActionKind.REQ))
 		{
-			return ef.newAssrtCoreERequest(r, a.op,
+			return ef.AssrtCoreEReq(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
 					new Payload(
 							a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p)
@@ -172,7 +172,7 @@ public class AssrtCoreEGraphBuilder extends EGraphBuilder
 		}
 		else if (k.equals(AssrtCoreLActionKind.ACC))
 		{
-			return ef.newAssrtCoreEAccept(r, a.op,
+			return ef.AssrtCoreEAcc(r, a.op,
 					//new Payload(Arrays.asList(a.pays)),
 					new Payload(
 							a.pay.stream().map(p -> (PayElemType<AssrtAnnotDataKind>) p)

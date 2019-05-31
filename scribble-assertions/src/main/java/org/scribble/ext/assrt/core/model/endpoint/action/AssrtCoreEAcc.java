@@ -31,14 +31,14 @@ public class AssrtCoreEAcc extends AssrtEAcc implements AssrtCoreEAction
 	@Override
 	public AssrtCoreEReq toDual(Role self)
 	{
-		return ((AssrtCoreEModelFactory) this.mf.local).newAssrtCoreERequest(self,
+		return ((AssrtCoreEModelFactory) this.mf.local).AssrtCoreEReq(self,
 				this.mid, this.payload, this.ass, this.stateexprs);
 	}
 
 	@Override
 	public AssrtCoreSAcc toGlobal(Role self)
 	{
-		return ((AssrtCoreSModelFactory) this.mf.global).newAssrtCoreSAccept(self,
+		return ((AssrtCoreSModelFactory) this.mf.global).AssrtCoreSAcc(self,
 				this.peer, this.mid, this.payload, this.ass, this.stateexprs);
 	}
 

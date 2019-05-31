@@ -297,7 +297,7 @@ public class CoreContext
 		return graph;
 	}
 
-	private Map<Role, EGraph> getEGraphsForSGraphBuilding(
+	protected Map<Role, EGraph> getEGraphsForSGraphBuilding(
 			ProtoName<Global> fullname, boolean fair) throws ScribException
 	{
 		Map<Role, EGraph> egraphs = new HashMap<>();

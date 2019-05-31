@@ -46,12 +46,12 @@ public interface AssrtCoreSModelFactory extends SModelFactory
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename);
 	AssrtCoreSModel AssrtCoreSModel(AssrtCore core, AssrtCoreSGraph graph);
 	
-	AssrtCoreSSend newAssrtCoreSSend(Role subj, Role obj, MsgId<?> mid,
-			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs);
-	AssrtCoreSRecv newAssrtCoreSReceive(Role subj, Role obj, MsgId<?> mid,
-			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs);
-	AssrtCoreSReq newAssrtCoreSRequest(Role subj, Role obj, MsgId<?> mid,
-			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs);
-	AssrtCoreSAcc newAssrtCoreSAccept(Role subj, Role obj, MsgId<?> mid,
-			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs);
+	AssrtCoreSSend AssrtCoreSSend(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs);
+	AssrtCoreSRecv AssrtCoreSRecv(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs);
+	AssrtCoreSReq AssrtCoreSReq(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs);
+	AssrtCoreSAcc AssrtCoreSAcc(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs);
 }

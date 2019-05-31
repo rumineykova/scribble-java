@@ -12,6 +12,7 @@ import org.scribble.core.model.global.SGraph;
 import org.scribble.core.model.global.SState;
 import org.scribble.core.type.name.GProtoName;
 
+// FIXME: refactor using base tarjan
 // 1-bounded LTS
 // Factor out with SGraph/SModel?
 public class AssrtCoreSGraph extends SGraph
@@ -124,10 +125,8 @@ public class AssrtCoreSGraph extends SGraph
 			return this.reach;
 		}
 
-		Map<Integer, Integer> idToIndex = new HashMap<>(); // state ID -> array
-																												// index
-		Map<Integer, Integer> indexToId = new HashMap<>(); // array index -> state
-																												// ID
+		Map<Integer, Integer> idToIndex = new HashMap<>(); // state ID -> array index
+		Map<Integer, Integer> indexToId = new HashMap<>(); // array index -> state ID
 		int i = 0;
 		for (AssrtCoreSState s : this.states.values())
 		{

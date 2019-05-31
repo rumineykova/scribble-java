@@ -44,7 +44,7 @@ public class AssrtStpEState extends AssrtEState
 
 	public static AssrtStpEState from(AssrtCoreEModelFactory ef, AssrtEState init)
 	{
-		AssrtStpEState tmp = ef.newAssertStpEState(init.getLabels());
+		AssrtStpEState tmp = ef.AssertStpEState(init.getLabels());
 		Map<Integer, AssrtEState> m1 = new HashMap<>();
 		Map<Integer, AssrtStpEState> m2 = new HashMap<>();
 		m1.put(tmp.id, init);
@@ -72,7 +72,7 @@ public class AssrtStpEState extends AssrtEState
 				}
 				else
 				{
-					succ = ef.newAssertStpEState(init.getLabels());
+					succ = ef.AssertStpEState(init.getLabels());
 					m1.put(succ.id, osucc);
 					m2.put(osucc.id, succ);
 				}
@@ -201,11 +201,11 @@ public class AssrtStpEState extends AssrtEState
 			}
 			if (ea instanceof AssrtCoreESend)
 			{
-				return ef.newAssrtStpESend(ea.peer, ea.mid, new Payload(tmp), sigma, A);
+				return ef.AssrtStpESend(ea.peer, ea.mid, new Payload(tmp), sigma, A);
 			}
 			else
 			{
-				return ef.newAssrtStpEReceive(ea.peer, ea.mid, new Payload(tmp), sigma, A);
+				return ef.AssrtStpERecv(ea.peer, ea.mid, new Payload(tmp), sigma, A);
 			}
 	}
 }

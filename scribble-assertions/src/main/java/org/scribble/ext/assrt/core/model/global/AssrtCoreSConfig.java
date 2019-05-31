@@ -25,12 +25,12 @@ import org.scribble.core.model.endpoint.actions.EServerWrap;
 import org.scribble.core.model.global.SConfig;
 import org.scribble.core.model.global.SSingleBuffers;
 import org.scribble.core.type.name.GProtoName;
-import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Op;
 import org.scribble.core.type.name.PayElemType;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.job.AssrtCore;
+import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAcc;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAction;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreERecv;
@@ -353,7 +353,10 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				//es.annot,
 				es.stateexprs,
 				rename.get(self)));  // Now doing toTrueAssertion on message at receive side*/
-		SSingleBuffers Q = this.Q.send(self, a);
+
+		AssrtCoreEMsg msg = ((AssrtCoreEModelFactory) this.mf.local).AssrtCoreEMsg(
+				a.peer, a.mid, a.payload, a.ass, a.sexprs, rename.get(self));
+		SSingleBuffers Q = this.Q.send(self, msg);
 
 		updateOutput(self, a, succ, K, F, V, R, rename);
 		//updateR(R, self, es);
@@ -1661,93 +1664,6 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
 
 
-// Enqueued message
-class AssrtCoreEMsg extends AssrtCoreESend
-{
-	public final Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow;  // N.B. not in equals/hash
-	
-	/*public AssrtCoreEMsg(EModelFactory ef, AssrtCoreESend es)
-	{
-		this(ef, es.peer, es.mid, es.payload, es.ass, es.annot, es.expr);
-	}*/
-
-	public AssrtCoreEMsg(ModelFactory mf, Role peer, MsgId<?> mid, Payload payload,
-			AssrtBFormula ass, //AssrtDataTypeVar annot, AssrtArithFormula expr
-			List<AssrtAFormula> stateexprs)
-	{
-		this(mf, peer, mid, payload, ass, 
-				//annot, expr,
-				stateexprs,
-				Collections.emptyMap());
-	}
-
-	public AssrtCoreEMsg(ModelFactory mf, Role peer, MsgId<?> mid, Payload payload,
-			AssrtBFormula ass, //AssrtDataTypeVar annot, AssrtArithFormula expr,
-			List<AssrtAFormula> stateexprs,
-			Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow)
-	{
-		super(mf, peer, mid, payload, ass, //annot,
-				stateexprs);
-		this.shadow = Collections.unmodifiableMap(shadow);
-	}
-
-	@Override
-	public String toString()
-	{
-		return super.toString()
-				+ (this.shadow.isEmpty() ? "" : this.shadow.toString());
-	} 
-
-	@Override
-	public int hashCode()
-	{
-		int hash = 6827;
-		hash = 31 * hash + super.hashCode();
-		return hash;
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj)
-		{
-			return true;
-		}
-		if (!(obj instanceof AssrtCoreEMsg))
-		{
-			return false;
-		}
-		return super.equals(obj);
-	}
-	
-	@Override
-	public boolean canEquals(Object o)  // FIXME: rename canEquals
-	{
-		return o instanceof AssrtCoreEMsg;
-	}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // \bot
 class AssrtCoreEBot extends AssrtCoreEMsg
 {
@@ -1822,7 +1738,7 @@ class AssrtCoreEBot extends AssrtCoreEMsg
 }
 
 // <a> -- TODO: for open/port annotations
-class AssrtCoreEPendingRequest extends AssrtCoreEMsg  // Q stores ESends (not EConnect)
+class AssrtCoreEPendingRequest extends AssrtCoreEMsg
 {
 	public static final Payload ASSRTCORE_EMPTY_PAYLOAD =
 			new Payload(

@@ -33,7 +33,7 @@ public class AssrtCoreEReq extends AssrtEReq implements AssrtCoreEAction
 	@Override
 	public AssrtCoreEReq toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
 	{
-		return ((AssrtCoreEModelFactory) this.mf.local).newAssrtCoreERequest(
+		return ((AssrtCoreEModelFactory) this.mf.local).AssrtCoreEReq(
 				this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE,
 				Collections.emptyList());
 	}
@@ -41,14 +41,14 @@ public class AssrtCoreEReq extends AssrtEReq implements AssrtCoreEAction
 	@Override
 	public AssrtCoreEAcc toDual(Role self)
 	{
-		return ((AssrtCoreEModelFactory) this.mf.local).newAssrtCoreEAccept(self,
+		return ((AssrtCoreEModelFactory) this.mf.local).AssrtCoreEAcc(self,
 				this.mid, this.payload, this.ass, this.stateexprs);
 	}
 
 	@Override
 	public AssrtCoreSReq toGlobal(Role self)
 	{
-		return ((AssrtCoreSModelFactory) this.mf.global).newAssrtCoreSRequest(self,
+		return ((AssrtCoreSModelFactory) this.mf.global).AssrtCoreSReq(self,
 				this.peer, this.mid, this.payload, this.ass, this.stateexprs);
 	}
 
