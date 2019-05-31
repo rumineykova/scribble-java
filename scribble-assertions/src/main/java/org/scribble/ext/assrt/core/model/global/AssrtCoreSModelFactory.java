@@ -10,6 +10,7 @@ import org.scribble.core.model.global.SSingleBuffers;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSAcc;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSRecv;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSReq;
@@ -43,6 +44,7 @@ public interface AssrtCoreSModelFactory extends SModelFactory
 			Map<Role, Set<AssrtBFormula>> Rass, Map<Role, Set<AssrtDataVar>> K,
 			Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename);
+	AssrtCoreSModel AssrtCoreSModel(AssrtCore core, AssrtCoreSGraph graph);
 	
 	AssrtCoreSSend newAssrtCoreSSend(Role subj, Role obj, MsgId<?> mid,
 			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs);

@@ -9,12 +9,13 @@ import org.scribble.core.model.endpoint.EFsm;
 import org.scribble.core.model.global.SConfig;
 import org.scribble.core.model.global.SGraph;
 import org.scribble.core.model.global.SModelFactoryImpl;
-import org.scribble.core.model.global.SState;
 import org.scribble.core.model.global.SSingleBuffers;
+import org.scribble.core.model.global.SState;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSAcc;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSRecv;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSReq;
@@ -71,7 +72,14 @@ public class AssrtCoreSModelFactoryImpl extends SModelFactoryImpl //AssrtSModelF
 	@Override
 	public AssrtCoreSModel SModel(SGraph graph)
 	{
-		return new AssrtCoreSModel((AssrtCoreSGraph) graph);
+		//return new AssrtCoreSModel((AssrtCoreSGraph) graph);
+		throw new RuntimeException("Deprecated for " + getClass());
+	}
+
+	@Override
+	public AssrtCoreSModel AssrtCoreSModel(AssrtCore core, AssrtCoreSGraph graph)
+	{
+		return new AssrtCoreSModel(core, graph);
 	}
 
 	@Override

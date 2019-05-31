@@ -13,85 +13,13 @@
  */
 package org.scribble.ext.assrt.core.model.global;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.scribble.core.model.global.SProgressErrors;
 
-import org.scribble.core.model.endpoint.EState;
-import org.scribble.core.model.global.SStateErrors;
-import org.scribble.core.type.name.GProtoName;
-import org.scribble.core.type.name.Role;
-import org.scribble.ext.assrt.core.job.AssrtCore;
-import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAction;
-
-public class AssrtCoreSProgressErrors extends SStateErrors
+@Deprecated
+public class AssrtCoreSProgressErrors extends SProgressErrors
 {
-	// FIXME: factor out explicit error classes -- for error message formatting
-	// FIXME: could also check for roles stuck on unconnected sends here (probably better, than current syntax check)
-
-	public final Map<Role, Set<AssrtCoreEAction>> unknown;
-	public final Map<Role, EState> assprog;  // TODO: rename -- state (safety) error, not "progress"
-	public final Map<Role, Set<AssrtCoreEAction>> assunsat;
-	public final Map<Role, Set<AssrtCoreEAction>> recass;  // CHECKME: equiv of assprog for rec asserts?
-
-	// CHECKME: core and fullname really necessary?
-	public AssrtCoreSProgressErrors(AssrtCore core, GProtoName fullname,
-			AssrtCoreSState state)
+	public AssrtCoreSProgressErrors(AssrtCoreSModel model)
 	{
-		super(state);
-		AssrtCoreSConfig cfg = (AssrtCoreSConfig) state.config;
-		this.unknown = Collections
-				.unmodifiableMap(cfg.getUnknownDataVarErrors(core, fullname));  // TODO: unmodifiable nested Sets
-		this.assprog = Collections
-				.unmodifiableMap(cfg.getAssertProgressErrors(core, fullname));
-		this.assunsat = Collections
-				.unmodifiableMap(cfg.getAssertUnsatErrors(core, fullname));
-		this.recass = Collections
-				.unmodifiableMap(cfg.getAssertUnsatErrors(core, fullname));
-		
-		// TODO batching
-		// TODO refactor super to take core
-	}
-	
-	@Override
-	public boolean isEmpty()
-	{
-		return super.isEmpty() && this.unknown.isEmpty() && this.assprog.isEmpty()
-				&& this.assunsat.isEmpty() && this.recass.isEmpty();
-	}
-
-	@Override
-	protected String appendErrors()
-	{
-		String res = super.appendErrors();
-		if (!this.unknown.isEmpty())
-		{
-			res += "\n    Unknown data vars: " + this.unknown;
-		}
-		if (!this.assprog.isEmpty())
-		{
-			res += "\n    Assertion-progress errors: " + this.assprog;
-		}
-		if (!this.assunsat.isEmpty())
-		{
-			res += "\n    Unsatisfiable assertions: " + this.assunsat;
-		}
-		if (!this.recass.isEmpty())
-		{
-			res += "\n    Recursion-assertion errors: " + this.recass;
-		}
-		return res;
-	}
-	
-	@Override
-	public String toString()
-	{
-		String sup = super.toString();
-		return (sup.isEmpty() ? "" : sup + ", ") + Stream
-				.<Map<?, ?>> of(this.unknown, this.assprog, this.assunsat, this.recass)
-				.filter(x -> !x.isEmpty()).map(x -> x.toString())
-				.collect(Collectors.joining(", "));
+		super(model);
 	}
 }

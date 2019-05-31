@@ -911,7 +911,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 					return false;  // CHECKME: receive-side assertions? currently hardcoded to True
 				}
 			};
-			for (EAction a : e.getValue().curr.getDetActions())
+			for (EAction a : curr.getDetActions())
 			{
 				if (f.test(a))
 				{

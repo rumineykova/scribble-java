@@ -1,16 +1,9 @@
 package org.scribble.ext.assrt.core.model.global;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
-import org.scribble.core.model.endpoint.actions.ESend;
 import org.scribble.core.model.global.SModel;
-import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 
 // 1-bounded LTS
@@ -44,72 +37,23 @@ public class AssrtCoreSModel extends SModel
 		}
 		return res;
 	}
-	
-	public boolean isActive(AssrtCoreSState s, Role r)
-	{
-		return AssrtCoreSState.isActive(s.getP().get(r), this.E0.get(r).id);
-	}
-	
-	public AssrtCoreProgressErrors getProgressErrors()
-	{
-		//return new AssrtCoreProgressErrors(Collections.emptyMap(), Collections.emptyMap());
-		Map<Role, Set<Set<AssrtCoreSState>>> roleProgress = new HashMap<>();
-				/*this.E0.keySet().stream().collect(Collectors.toMap((r) -> r, (r) ->
-					this.termSets.stream().map((ts) -> ts.stream().map((i) -> this.allStates.get(i)).collect(Collectors.toSet()))
-						.filter((ts) -> ts.stream().allMatch((s) -> !s.getSubjects().contains(r)))
-							.collect(Collectors.toSet())));*/
-		for (Role r : this.E0.keySet())
-		{
-			for (Set<Integer> ts : this.termSets)	
-			{
-				if (ts.stream().allMatch(i -> isActive(this.allStates.get(i), r)
-						&& !this.allStates.get(i).getSubjects().contains(r)))
-				{
-					Set<Set<AssrtCoreSState>> set = roleProgress.get(r);
-					if (set == null)
-					{
-						set = new HashSet<>();
-						roleProgress.put(r, set);
-					}
-					set.add(ts.stream().map((i) -> this.allStates.get(i))
-							.collect(Collectors.toSet()));
-				}	
-			}
-		}
+}
 
-		Map<ESend, Set<Set<AssrtCoreSState>>> eventualReception = new HashMap<>();
-		for (Role r1 : this.E0.keySet())
-		{
-			for (Role r2 : this.E0.keySet())
-			{
-				if (!r1.equals(r2))
-				{
-					for (Set<Integer> ts : this.termSets)	
-					{
-						AssrtCoreSState s1 = this.allStates.get(ts.iterator().next());
-						ESend es = s1.getQ().get(r1).get(r2);
 
-						if (es != null && !(es instanceof AssrtCoreEBot)  // FIXME: hasMessage?
-								&& ts.stream().allMatch(i -> es
-										.equals(this.allStates.get(i).getQ().get(r1).get(r2))))
-						{
-							Set<Set<AssrtCoreSState>> set = eventualReception.get(es);
-							if (set == null)
-							{
-								set = new HashSet<Set<AssrtCoreSState>>();
-								eventualReception.put(es,  set);
-							}
-							set.add(ts.stream().map(i -> this.allStates.get(i))
-									.collect(Collectors.toSet()));
-						}
-					}
-				}
-			}
-		}
-		
-		return new AssrtCoreProgressErrors(roleProgress, eventualReception);
+
+
+
+
+
+
+
+
+
+	
+	/*public boolean isActive(AssrtCoreSState s, Role r)
+	{
+		return AssrtCoreSConfig.isActive(s.getP().get(r), this.E0.get(r).id);
 	}
-	//*/
 	
 	// Revised "eventual reception" -- 1-bounded stable property with subject role side condition
 	// FIXME: refactor as actual eventual reception -- though original one may be better for error feedback
@@ -149,13 +93,13 @@ public class AssrtCoreSModel extends SModel
 		{
 			return false;
 		}
-		/*for (F17SState succ : s.getAllSuccessors())
-		{
-			if (isStable(succ))
-			{
-				return true;
-			}
-		}*/
+//		for (F17SState succ : s.getAllSuccessors())
+//		{
+//			if (isStable(succ))
+//			{
+//				return true;
+//			}
+//		}
 		for (AssrtCoreSState succ : s.getSuccs())
 		{
 			Set<AssrtCoreSState> tmp = new HashSet<>(seen);
@@ -167,4 +111,4 @@ public class AssrtCoreSModel extends SModel
 		}
 		return false;
 	}
-}
+	*/
