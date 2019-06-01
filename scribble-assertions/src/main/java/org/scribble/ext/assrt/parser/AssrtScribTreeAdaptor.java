@@ -52,10 +52,11 @@ public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 
 			case "MODULE":
 			case "GPROTOHEADER": 
-				throw new RuntimeException("Deprecated \"" + t.getText() + "\": " + t);  
+				throw new RuntimeException("Deprecated \"" + t.getText() + "\": " + t);
 
-			case "GMSGTRANSFER": n = new AssrtGMsgTransfer(t); break;
-			case "GCONNECT": n = new AssrtGConnect(t); break;
+			case "GMSGTRANSFER": //n = new AssrtGMsgTransfer(t); break;
+			case "GCONNECT": //n = new AssrtGConnect(t); break;
+				throw new RuntimeException("Deprecated \"" + t.getText() + "\": " + t);
 
 			//case AssrtScribbleParser.GCONTINUE: n = new AssrtGContinue(t); break;
 			case "GDO": n = new AssrtGDo(t); break;
@@ -79,12 +80,12 @@ public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 
 			case "ASSRT_GPROTOHEADER": n = new AssrtGProtoHeader(t); break;
 
-			case "ASSRT_ANNOTPAYLOADELEM": n = new AssrtAnnotDataElem(t); break;
+			case "ASSRT_ANNOTDATAELEM": n = new AssrtAnnotDataElem(t); break;
 
-			case "ASSRT_GLOBALMESSAGETRANSFER": n = new AssrtGMsgTransfer(t); break;
-			case "ASSRT_GLOBALCONNECT": n = new AssrtGConnect(t); break;
+			case "ASSRT_GMSGTRANSFER": n = new AssrtGMsgTransfer(t); break;
+			case "ASSRT_GCONNECT": n = new AssrtGConnect(t); break;
 			
-			case "ASSRT_GLOBALDO": n = new AssrtGDo(t); break;
+			case "ASSRT_GDO": n = new AssrtGDo(t); break;
 
 			default:
 			{

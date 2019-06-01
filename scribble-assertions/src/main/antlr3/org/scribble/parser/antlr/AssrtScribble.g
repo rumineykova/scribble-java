@@ -159,27 +159,27 @@ tokens
   ASSRT_MODULE;
 
 	// "Node type" constants -- but not parsed "directly" by AntlrToScribParser
-	ASSRT_ANNOTPAYLOADELEM; 
+	ASSRT_ANNOTDATAELEM; 
 
 	// Parsed "directly" by AntlrToScribParser
   // Empty assertions first parsed as original (not Assert) categories -- later translated to null assertion Assrts via AssrtAntlrToScribParser
 	ASSRT_GPROTOHEADER;
 
-	ASSRT_GLOBALMESSAGETRANSFER;
-	ASSRT_GLOBALCONNECT;
+	ASSRT_GMSGTRANSFER;
+	ASSRT_GCONNECT;
 
-	ASSRT_GLOBALDO;
+	ASSRT_GDO;
 	
 	ASSRT_ASSERT;
 	ASSRT_UNINTFUNARGLIST;
 	ASSRT_UNINTFUNARG;
 
-	ASSRT_LOCALPROTOCOLHEADER;
+	ASSRT_LPROTOHEADER;
 
-	ASSRT_LOCALSEND;
-	ASSRT_LOCALREQ;
+	ASSRT_LSEND;
+	ASSRT_LREQ;
 
-	ASSRT_LOCALDO;
+	ASSRT_LDO;
 }
 
 
@@ -481,7 +481,7 @@ payelem:
 |
 	assrt_intvarname ':' qualifieddataname
 -> 
-	^(ASSRT_ANNOTPAYLOADELEM assrt_intvarname qualifieddataname)
+	^(ASSRT_ANNOTDATAELEM assrt_intvarname qualifieddataname)
 ;
 // TODO: assrt_intvarname ':' ambigname -- for simplenames
 
@@ -498,7 +498,7 @@ protodecl:
  * Section 3.7 Global Protocol Declarations
  */
 gprotodecl:
-	protomods gprotoheader gprotodef
+	protomods assrt_gprotoheader gprotodef
 ->
 	^(GPROTODECL protomods assrt_gprotoheader gprotodef)
 ;
@@ -577,7 +577,7 @@ gseq:
 
 ginteraction:
 	// Simple session node: directed interaction
-	gconnect | gmsgtransfer //| assrt_gmsgtransfer  // TODO: generally refactor, e.g., make all msgtransfer into assrt_msgtransfer here
+	assrt_gconnect | assrt_gmsgtransfer
 |
 	// Simple session node: basic interaction
 	gwrap | gdisconnect 
@@ -598,10 +598,12 @@ message:
 ;  
 
 // TODO: qualified (sig)names -- although qualified signame subsumes param name case
-gmsgtransfer:
-	message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
+assrt_gmsgtransfer:
+	//message FROM_KW rolename TO_KW rolename (',' rolename )* ';'
+	message FROM_KW rolename TO_KW rolename ';'
 ->
-	^(GMSGTRANSFER message rolename rolename+)
+	//^(GMSGTRANSFER message rolename rolename+)
+	^(ASSRT_GMSGTRANSFER message rolename rolename {null})
 	// Return base GLOBALMESSAGETRANSFER (i.e., no ASSRT_EMPTY_ASSERTION)
 	// Rely on AssrtAntlrToScribParser to use AssrtAstFactory to create AssrtGMsgTransfer with empty assertion -- CHECKME: create empty/true assertion here (and "deprecate" the base methods?)
 
@@ -610,20 +612,22 @@ gmsgtransfer:
 	//message FROM_KW rolename TO_KW rolename (',' rolename )* ';' '@' EXTID
 	message FROM_KW rolename TO_KW rolename ';' '@' EXTID
 ->
-	^(ASSRT_GLOBALMESSAGETRANSFER message rolename rolename 
+	^(ASSRT_GMSGTRANSFER message rolename rolename 
 			{AssertionsParser.parseAssertion($EXTID.text)})
 			// N.B. calling a separate parser this way loses line/char number information
 ;
 // TODO: multisend
 	
-gconnect:
+assrt_gconnect:
 	message CONNECT_KW rolename TO_KW rolename ';'
 ->
-	^(GCONNECT message rolename rolename)
+	//^(GCONNECT message rolename rolename)
+	^(ASSRT_GCONNECT message rolename rolename {null})
 |
 	t=CONNECT_KW rolename TO_KW rolename ';'
 ->
-	^(GCONNECT ^(SIG_LIT ^(EMPTY_OP) ^(PAYELEM_LIST)) rolename rolename)
+	//^(GCONNECT ^(SIG_LIT ^(EMPTY_OP) ^(PAYELEM_LIST)) rolename rolename)
+	^(GCONNECT ^(SIG_LIT ^(EMPTY_OP) ^(PAYELEM_LIST)) rolename rolename {null})
       // CHECKME: deprecate? i.e., require "()" as for message transfers?  i.e., simply delete this rule?
 
 // Assrt
@@ -631,15 +635,15 @@ gconnect:
 	//ASSRT_EXPR message CONNECT_KW rolename TO_KW rolename ';'
 	message CONNECT_KW rolename TO_KW rolename ';' '@' EXTID
 ->
-	^(ASSRT_GLOBALCONNECT {AssertionsParser.parseAssertion($EXTID.text)} 
-			rolename rolename message)
+	^(ASSRT_GCONNECT message rolename rolename 
+			{AssertionsParser.parseAssertion($EXTID.text)})
 ;
 /*
 |
 	//ASSRT_EXPR CONNECT_KW rolename TO_KW rolename ';'
 	t=CONNECT_KW rolename TO_KW rolename ';' '@' EXTID
 ->
-	^(ASSRT_GLOBALCONNECT {AssertionsParser.parseAssertion($EXTID.text)} 
+	^(ASSRT_GCONNECT {AssertionsParser.parseAssertion($EXTID.text)} 
 			rolename rolename ^(MESSAGESIGNATURE EMPTY_OPERATOR ^(PAYLOAD)))  // Empty message sig duplicated from messagesignature
 ;
 */
@@ -695,7 +699,7 @@ gdo:
 |
 	DO_KW simplegprotoname roleargs ';' '@' EXTID
 ->
-	^(ASSRT_GLOBALDO simplegprotoname ^(NONROLEARG_LIST) 
+	^(ASSRT_GDO simplegprotoname ^(NONROLEARG_LIST) 
 			roleargs 
 			{AssertionsParser.parseStateVarArgList($EXTID.text)})
 ;
