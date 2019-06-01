@@ -10,6 +10,8 @@ public class AssrtAntlrToFormulaParserUtil
 		String type = ct.getToken().getText();
 		switch (type)
 		{
+			case "ROOT": return AssrtAntlrNodeType.ROOT;
+
 			case AssrtAssertionsAntlrConstants.BOOLEXPR_NODE_TYPE:     return AssrtAntlrNodeType.BOOLEXPR;
 			case AssrtAssertionsAntlrConstants.COMPEXPR_NODE_TYPE:     return AssrtAntlrNodeType.COMPEXPR;
 			case AssrtAssertionsAntlrConstants.ARITHEXPR_NODE_TYPE:    return AssrtAntlrNodeType.ARITHEXPR;

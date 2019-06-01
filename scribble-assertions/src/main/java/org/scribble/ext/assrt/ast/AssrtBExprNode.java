@@ -6,6 +6,7 @@ import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 
+// ScribNode wrapper for AssrtBFormula (that is parsed "directly" to Formula)
 // In general, should be an action "annotation" -- but currently only used for boolean assertions
 // This is the "actual syntax" node (has source) -- cf. formula, does (and should) not record source (e.g., affects equals/hash)
 public class AssrtBExprNode extends ScribNodeBase implements AssrtExprNode
@@ -14,7 +15,7 @@ public class AssrtBExprNode extends ScribNodeBase implements AssrtExprNode
 	public final AssrtBFormula expr;
 
 	// ScribTreeAdaptor#create constructor
-	public AssrtBExprNode(Token t, AssrtBFormula bexpr)
+	public AssrtBExprNode(int ttype, Token t, AssrtBFormula bexpr)  // EXTID<AssrtBExprNode>[$EXTID, ...], cf. Scribble.g simple names
 	{
 		super(t);
 		this.expr = bexpr;

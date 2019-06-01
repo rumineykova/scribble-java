@@ -218,6 +218,7 @@ tokens
   import org.scribble.ast.name.simple.RoleNode;
   import org.scribble.ast.name.simple.SigParamNode;
 
+  import org.scribble.ext.assrt.ast.AssrtBExprNode;
   import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 }
 
@@ -610,13 +611,19 @@ assrt_gmsgtransfer:
 // Assrt
 | 
 	//message FROM_KW rolename TO_KW rolename (',' rolename )* ';' '@' EXTID
-	message FROM_KW rolename TO_KW rolename ';' '@' EXTID
+	message FROM_KW rolename TO_KW rolename ';' assrt_assertion
 ->
-	^(ASSRT_GMSGTRANSFER message rolename rolename 
-			{AssertionsParser.parseAssertion($EXTID.text)})
+	^(ASSRT_GMSGTRANSFER message rolename rolename assrt_assertion)
+			//{AssertionsParser.parseAssertion($EXTID.text)})
 			// N.B. calling a separate parser this way loses line/char number information
 ;
 // TODO: multisend
+	
+assrt_assertion:
+	'@' t=EXTID
+->
+	EXTID<AssrtBExprNode>[$t, AssertionsParser.parseAssertion($t.text)]
+;	
 	
 assrt_gconnect:
 	message CONNECT_KW rolename TO_KW rolename ';'
@@ -699,8 +706,7 @@ gdo:
 |
 	DO_KW simplegprotoname roleargs ';' '@' EXTID
 ->
-	^(ASSRT_GDO simplegprotoname ^(NONROLEARG_LIST) 
-			roleargs 
+	^(ASSRT_GDO simplegprotoname ^(NONROLEARG_LIST) roleargs 
 			{AssertionsParser.parseStateVarArgList($EXTID.text)})
 ;
 // TODO: non-role args, annot

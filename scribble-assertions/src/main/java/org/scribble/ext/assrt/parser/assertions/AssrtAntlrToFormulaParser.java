@@ -40,9 +40,12 @@ public class AssrtAntlrToFormulaParser
 	{
 		ScribAntlrWrapper.checkForAntlrErrors(ct);
 		
+		// TODO: drop "type", just use string constant directly
 		AssrtAntlrNodeType type = AssrtAntlrToFormulaParserUtil.getAntlrNodeType(ct);
 		switch (type)
 		{
+			case ROOT: return parse((CommonTree) ct.getChild(0));
+			
 			case BOOLEXPR:  return AssrtAntlrBoolExpr.parseBoolExpr(this, ct);
 			case COMPEXPR:  return AssrtAntlrCompExpr.parseCompExpr(this, ct);
 			case ARITHEXPR: return AssrtAntlrArithExpr.parseArithExpr(this, ct);

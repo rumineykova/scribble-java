@@ -25,6 +25,8 @@ public class AssrtAssertionsAntlrConstants
 
 	public enum AssrtAntlrNodeType
 	{
+		ROOT,
+		
 		// For AssrtScribParser
 		BOOLEXPR, COMPEXPR, ARITHEXPR, NEGEXPR,
 		UNFUN, UNFUNARGLIST,

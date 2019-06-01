@@ -55,12 +55,16 @@ tokens
 	ASSRT_STATEVARDECLLISTASSERTION;
 	ASSRT_STATEVARARGLIST;
 	
-	ASSRT_EMPTYASS
+	ASSRT_EMPTYASS;
 }
 
 @parser::header
 {
 	package org.scribble.parser.antlr;
+	
+	import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
+	import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
+	import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
 }
 
 @lexer::header
@@ -77,12 +81,12 @@ tokens
   	System.exit(1);
 	}
   
-	public static CommonTree parseAssertion(String source) throws RecognitionException
+	public static AssrtBFormula parseAssertion(String source) throws RecognitionException
 	{
 		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
-		return (CommonTree) parser.root().getTree();
+		return (AssrtBFormula) AssrtAntlrToFormulaParser.getInstance().parse((CommonTree) parser.root().getTree());
 	}
 
 	public static CommonTree parseArithAnnotation(String source) throws RecognitionException
@@ -157,13 +161,17 @@ num:
 // statevars -- TODO: refactor to AssrtScribble.g
 	
 statevardecllist:
-	'(' statevardecl (',' statevardecl)* ')'
+/*	'(' statevardecl (',' statevardecl)* ')'
 ->
 	^(ASSRT_STATEVARDECLLIST ^(ASSRT_EMPTYASS) statevardecl+)
-|
-	('(' statevardecl (',' statevardecl)* ')')? bool_expr
+|*/
+	'(' statevardecl (',' statevardecl)* ')' bool_expr
 ->
-	^(ASSRT_STATEVARDECLLIST ^(ASSRT_STATEVARDECLLISTASSERTION bool_expr) statevardecl+?)
+	^(ASSRT_STATEVARDECLLIST ^(ASSRT_STATEVARDECLLISTASSERTION bool_expr) statevardecl+)
+|
+	bool_expr
+->
+	^(ASSRT_STATEVARDECLLIST ^(ASSRT_STATEVARDECLLISTASSERTION bool_expr)) 
 ;
 	
 statevardecl:
