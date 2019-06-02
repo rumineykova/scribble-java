@@ -160,15 +160,15 @@ global protocol Proto1(role A, role B)
 //*/
 
 
-//*
+/*
 global protocol Proto1(role A, role B)
 {
-	1(x: int) from A to B;  @"x<3"
+	1(x: int) from A to B;  @"x>0"
 }
 //*/
 
 
-/*
+//*
 global protocol Proto1(role A, role B)
 {
 	1(x: int) from A to B;  @"x < 3"  // Testing whitespace

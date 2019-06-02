@@ -301,13 +301,11 @@ fragment SYMBOL:
 	'|' | '¬' | ',' | '=' | '<' | '>' | '+' | '-' | '*'  // Assrt
 ;
 
-// Comes after SYMBOL due to an ANTLR syntax highlighting issue involving
-// quotes.
-// Parser doesn't work without quotes here (e.g. if inlined into parser rules)
+// Comes after SYMBOL due to an ANTLR syntax highlighting issue involving quotes.
+// CHECKME: parser doesn't work without locating the quotes here? (e.g. if inlined into parser rules)
 EXTID:
-	'\"' (LETTER | DIGIT | SYMBOL)* '\"'
+	'\"' (LETTER | DIGIT | SYMBOL | WHITESPACE)* '\"'  // N.B. WHITESPACE, for assertions white space
 ;
- //(LETTER | DIGIT | SYMBOL)*  // Not working
 
 fragment LETTER:
 	'a'..'z' | 'A'..'Z'

@@ -58,6 +58,7 @@ tokens
 	ASSRT_EMPTYASS;
 }
 
+
 @parser::header
 {
 	package org.scribble.parser.antlr;
@@ -83,6 +84,8 @@ tokens
   
 	public static AssrtBFormula parseAssertion(String source) throws RecognitionException
 	{
+		try
+		{
 		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(
@@ -90,6 +93,12 @@ tokens
 		AssrtBFormula res = (AssrtBFormula) AssrtAntlrToFormulaParser
 				.getInstance().parse((CommonTree) parser.root().getTree());  // CHECKME: boolformula() instead of root() ?
 		return res;
+		}
+		catch (RecognitionException e)
+		{
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	public static CommonTree parseArithAnnotation(String source) throws RecognitionException
@@ -119,6 +128,7 @@ tokens
 	}
 }
 
+
 // Not referred to explicitly, deals with whitespace implicitly (don't delete this)
 WHITESPACE:
 	('\t' | ' ' | '\r' | '\n'| '\u000C')+
@@ -126,6 +136,7 @@ WHITESPACE:
 		$channel = HIDDEN;
 	}
 ;
+
 
 fragment LETTER:
 	'a'..'z' | 'A'..'Z'
