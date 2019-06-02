@@ -47,7 +47,7 @@ public class SGraphBuilderUtil
 	{
 		Map<Role, EFsm> efsms = egraphs.entrySet().stream()
 				.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().toFsm()));
-		SSingleBuffers b0 = new SSingleBuffers(efsms.keySet(), !explicit);
+		SSingleBuffers b0 = new SSingleBuffers(efsms.keySet(), !explicit);  // TODO: refactor queues creation via modelfactory (cf. AssrtCoreSSingleBuffers)
 		return this.mf.global.SConfig(efsms, b0);
 	}
 	

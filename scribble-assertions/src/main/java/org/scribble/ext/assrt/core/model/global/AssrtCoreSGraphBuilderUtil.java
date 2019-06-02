@@ -33,7 +33,7 @@ public class AssrtCoreSGraphBuilderUtil extends SGraphBuilderUtil
 	{
 		Map<Role, EFsm> P = egraphs.entrySet().stream()
 				.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().toFsm()));
-		SSingleBuffers Q = new SSingleBuffers(P.keySet(), !explicit);
+		SSingleBuffers Q = new AssrtCoreSSingleBuffers(P.keySet(), !explicit);  // TODO: refactor queues creation via modelfactory (cf. super)
 		return ((AssrtCoreSModelFactory) this.mf.global).AssrtCoreSConfig(P, Q,
 				makeR(P), makeRass(P), makeK(P.keySet()), makeF(P), P.keySet().stream()
 						.collect(Collectors.toMap(r -> r, r -> new HashMap<>())));

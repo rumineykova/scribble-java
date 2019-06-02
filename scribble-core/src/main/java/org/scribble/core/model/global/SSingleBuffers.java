@@ -32,11 +32,11 @@ import org.scribble.core.type.name.Role;
 // Immutable -- send/receive/etc return updated copies
 public class SSingleBuffers
 {
-	private final Map<Role, Map<Role, Boolean>> connected = new HashMap<>();  // local -> peer -> does-local-consider-connected  (symmetric)
+	protected final Map<Role, Map<Role, Boolean>> connected = new HashMap<>();  // local -> peer -> does-local-consider-connected  (symmetric)
 			// Means we consider are at least connected to peer from our side (don't know about peer's side)
 			// CHECKME: refactor as Map<Role, Set<Role>> ?  cf. ConnectionChecker
 
-	private final Map<Role, Map<Role, ESend>> buffs = new HashMap<>();  // dest -> src -> msg -- N.B. connected.get(A).get(B) => can send into buffs.get(B).get(A) ("reversed")
+	protected final Map<Role, Map<Role, ESend>> buffs = new HashMap<>();  // dest -> src -> msg -- N.B. connected.get(A).get(B) => can send into buffs.get(B).get(A) ("reversed")
 			// N.B. hardcoded to capacity one -- SQueues would be the generalisation
 			// null ESend for empty queue
 
@@ -59,13 +59,28 @@ public class SSingleBuffers
 		}
 	}
 
-	protected SSingleBuffers(SSingleBuffers queues)
+	/*protected SSingleBuffers(SSingleBuffers queues)  // TODO: add to modelfactory
 	{
 		for (Role r : queues.buffs.keySet())
 		{
 			this.connected.put(r, new HashMap<>(queues.connected.get(r)));
 			this.buffs.put(r, new HashMap<>(queues.buffs.get(r)));
 		}
+	}*/
+	protected SSingleBuffers()
+	{
+	
+	}
+
+	protected SSingleBuffers copy()  // TODO: refactor to modelfactory
+	{
+		SSingleBuffers copy = new SSingleBuffers();
+		for (Role r : this.buffs.keySet())
+		{
+			copy.connected.put(r, new HashMap<>(this.connected.get(r)));
+			copy.buffs.put(r, new HashMap<>(this.buffs.get(r)));
+		}
+		return copy;
 	}
 
 	public boolean canSend(Role self, ESend a)
@@ -117,7 +132,7 @@ public class SSingleBuffers
 	// Return an updated copy
 	public SSingleBuffers send(Role self, ESend a)
 	{
-		SSingleBuffers copy = new SSingleBuffers(this);
+		SSingleBuffers copy = copy();//new SSingleBuffers(this);
 		copy.buffs.get(a.peer).put(self, a);
 		return copy;
 	}
@@ -126,7 +141,7 @@ public class SSingleBuffers
 	// Return an updated copy
 	public SSingleBuffers receive(Role self, ERecv a)
 	{
-		SSingleBuffers copy = new SSingleBuffers(this);
+		SSingleBuffers copy = copy(); //new SSingleBuffers(this);
 		copy.buffs.get(self).put(a.peer, null);
 		return copy;
 	}
@@ -136,7 +151,7 @@ public class SSingleBuffers
 	// Return an updated copy
 	public SSingleBuffers connect(Role r1, Role r2)  // Role sides and message don't matter
 	{
-		SSingleBuffers copy = new SSingleBuffers(this);
+		SSingleBuffers copy = copy(); //new SSingleBuffers(this);
 		copy.connected.get(r1).put(r2, true);
 		copy.connected.get(r2).put(r1, true);
 		return copy;
@@ -146,7 +161,7 @@ public class SSingleBuffers
 	// Return an updated copy
 	public SSingleBuffers disconnect(Role self, EDisconnect d)
 	{
-		SSingleBuffers copy = new SSingleBuffers(this);
+		SSingleBuffers copy = copy(); //new SSingleBuffers(this);
 		copy.connected.get(self).put(d.peer, false);  // Didn't update buffs (cf. SConfig.getOrphanMessages)
 		return copy;
 	}
@@ -177,9 +192,22 @@ public class SSingleBuffers
 	{
 		return Collections.unmodifiableMap(this.buffs.get(self));
 	}
+	
+	@Override
+	public String toString()
+	{
+		return this.buffs.entrySet().stream()
+				.filter(e -> e.getValue().values().stream().anyMatch(v -> v != null))
+				.collect(Collectors.toMap(
+						e -> e.getKey(),
+						e -> e.getValue().entrySet().stream()
+								.filter(f -> f.getValue() != null)
+								.collect(Collectors.toMap(f -> f.getKey(), f -> f.getValue()))
+				)).toString();
+	}
 
 	@Override
-	public final int hashCode()
+	public int hashCode()
 	{
 		int hash = 131;
 		hash = 31 * hash + this.connected.hashCode();
@@ -198,20 +226,13 @@ public class SSingleBuffers
 		{
 			return false;
 		}
-		SSingleBuffers b = (SSingleBuffers) o;
-		return this.connected.equals(b.connected) && this.buffs.equals(b.buffs);
+		SSingleBuffers them = (SSingleBuffers) o;
+		return them.canEquals(this) && this.connected.equals(them.connected)
+				&& this.buffs.equals(them.buffs);
 	}
 	
-	@Override
-	public String toString()
+	protected boolean canEquals(Object o)
 	{
-		return this.buffs.entrySet().stream()
-				.filter(e -> e.getValue().values().stream().anyMatch(v -> v != null))
-				.collect(Collectors.toMap(
-						e -> e.getKey(),
-						e -> e.getValue().entrySet().stream()
-								.filter(f -> f.getValue() != null)
-								.collect(Collectors.toMap(f -> f.getKey(), f -> f.getValue()))
-				)).toString();
+		return o instanceof SSingleBuffers;
 	}
 }

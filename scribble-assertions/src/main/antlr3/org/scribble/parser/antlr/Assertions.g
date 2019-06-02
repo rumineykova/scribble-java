@@ -88,7 +88,7 @@ tokens
 		AssertionsParser parser = new AssertionsParser(
 				new CommonTokenStream(lexer));
 		AssrtBFormula res = (AssrtBFormula) AssrtAntlrToFormulaParser
-				.getInstance().parse((CommonTree) parser.root().getTree());
+				.getInstance().parse((CommonTree) parser.root().getTree());  // CHECKME: boolformula() instead of root() ?
 		return res;
 	}
 
