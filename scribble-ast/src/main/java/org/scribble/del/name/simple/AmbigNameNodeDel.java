@@ -16,7 +16,7 @@ package org.scribble.del.name.simple;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.scribble.ast.MsgTransfer;
+import org.scribble.ast.DirectedInteraction;
 import org.scribble.ast.PayElem;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.name.simple.AmbigNameNode;
@@ -50,7 +50,7 @@ public class AmbigNameNodeDel extends ScribDelBase
 		{
 			// CHECKME HACK: MsgTransfer assumes MessageNode (cast in visitChildren), so this needs to be caught here  
 			// CHECKME: any other similar cases?
-			if (parent instanceof MsgTransfer<?>)
+			if (parent instanceof DirectedInteraction<?>)
 			{
 				throw new ScribException(a.getSource(),
 						"Invalid occurrence of data name: " + parent);

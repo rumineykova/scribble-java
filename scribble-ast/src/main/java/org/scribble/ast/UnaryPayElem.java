@@ -47,6 +47,8 @@ public class UnaryPayElem<K extends PayElemKind> extends ScribNodeBase
 		super(node);
 	}
 	
+	// PayElemNameNode includes AmbigNameNode for pre-disamb traversal, cf. MsgNode
+	// FIXME: <K> return kind incompatible with AmbigNameNode
 	public PayElemNameNode<K> getNameChild()
 	{
 		// FIXME
@@ -87,7 +89,7 @@ public class UnaryPayElem<K extends PayElemKind> extends ScribNodeBase
 	public UnaryPayElem<K> visitChildren(AstVisitor nv)
 			throws ScribException
 	{
-		@SuppressWarnings("unchecked")
+		// FIXME:
 		PayElemNameNode<K> name = (PayElemNameNode<K>) visitChild(
 				getNameChild(), nv);
 				// CHECKME: probably need to record an explicit kind token, for "cast checking"

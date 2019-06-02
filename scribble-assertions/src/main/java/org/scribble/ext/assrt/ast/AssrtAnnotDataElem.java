@@ -3,8 +3,10 @@ package org.scribble.ext.assrt.ast;
 import org.antlr.runtime.Token;
 import org.scribble.ast.PayElem;
 import org.scribble.ast.ScribNodeBase;
+import org.scribble.ast.name.PayElemNameNode;
 import org.scribble.ast.name.qualified.DataNameNode;
 import org.scribble.core.type.kind.DataKind;
+import org.scribble.core.type.name.DataName;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
@@ -38,13 +40,15 @@ public class AssrtAnnotDataElem extends ScribNodeBase
 		return (AssrtIntVarNameNode) getChild(VAR_CHILD_INDEX);
 	}
 	
-	public DataNameNode getDataNameChild()
+	// FIXME: <DataKind> incompatible with AmbigNameNode -- cf. UnaryPayElem
+	public PayElemNameNode<DataKind> getDataNameChild()
 	{
-		return (DataNameNode) getChild(DATA_CHILD_INDEX);
+		return (PayElemNameNode<DataKind>) getChild(DATA_CHILD_INDEX);
 	}
 
 	// "add", not "set"
-	public void addScribChildren(AssrtIntVarNameNode var, DataNameNode data)
+	public void addScribChildren(AssrtIntVarNameNode var,
+			PayElemNameNode<DataKind> data)
 	{
 		// Cf. above getters and Scribble.g children order
 		addChild(var);
@@ -64,7 +68,7 @@ public class AssrtAnnotDataElem extends ScribNodeBase
 	}
 	
 	public AssrtAnnotDataElem reconstruct(AssrtIntVarNameNode var,
-			DataNameNode data)
+			PayElemNameNode<DataKind> data)
 	{
 		AssrtAnnotDataElem dup = dupNode();
 		dup.addScribChildren(var, data);
@@ -77,7 +81,8 @@ public class AssrtAnnotDataElem extends ScribNodeBase
 	{
 		AssrtIntVarNameNode var = (AssrtIntVarNameNode) visitChild(
 				getVarNameChild(), v);
-		DataNameNode data = (DataNameNode) visitChild(getDataNameChild(), v);
+		PayElemNameNode<DataKind> data = (PayElemNameNode<DataKind>) visitChild(  // Cf. UnaryPayElem
+				getDataNameChild(), v);
 		return reconstruct(var, data);
 	}
 
@@ -86,7 +91,7 @@ public class AssrtAnnotDataElem extends ScribNodeBase
 	{
 		// TODO: make it PayloadType AnnotPayload  // CHECKME: means return just the data type?  but maybe the var is needed
 		return new AssrtAnnotDataName(getVarNameChild().toName(),
-				getDataNameChild().toPayloadType());
+				(DataName) getDataNameChild().toPayloadType());  // CHECKME: cast (cf. getDataNameChild, potentially AmbigNameNode)
 	}
 
 	@Override

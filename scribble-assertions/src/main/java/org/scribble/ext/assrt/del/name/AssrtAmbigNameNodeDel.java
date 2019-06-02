@@ -23,7 +23,6 @@ public class AssrtAmbigNameNodeDel extends AmbigNameNodeDel
 	{
 		AmbigNameNode ann = (AmbigNameNode) visited;
 		AmbigName name = ann.toName();
-
 		return ((AssrtNameDisambiguator) disamb).isVarnameInScope(name.toString())
 				? ((AssrtAstFactory) disamb.job.config.af)
 						.AssrtIntVarNameNode(ann.token, name.getLastElement())  // CHECKME: token OK?

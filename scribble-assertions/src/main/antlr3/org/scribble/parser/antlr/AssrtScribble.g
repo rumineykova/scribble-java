@@ -480,6 +480,10 @@ payelem:
 
 // Assrt
 |
+	assrt_intvarname ':' ambigname
+->
+	^(ASSRT_ANNOTDATAELEM assrt_intvarname ambigname)
+|
 	assrt_intvarname ':' qualifieddataname
 -> 
 	^(ASSRT_ANNOTDATAELEM assrt_intvarname qualifieddataname)

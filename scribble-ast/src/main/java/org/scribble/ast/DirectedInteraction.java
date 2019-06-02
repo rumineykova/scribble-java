@@ -43,6 +43,7 @@ public abstract class DirectedInteraction<K extends ProtoKind>
 		super(node);
 	}
 	
+	// MsgNode includes AmbigNameNode for pre-disamb traversal, cf. PayElemNameNode
 	public MsgNode getMessageNodeChild()
 	{
 		return (MsgNode) getChild(MSG_CHILD_INDEX);

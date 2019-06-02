@@ -105,6 +105,8 @@
 //		- consider refactoring base as an ext outside of core
 //		- separate core (seq) from "classic"? -- maybe add Seq as an "ext" of classic? (currently deprecating a lot of core for classic, but should be the other way round)
 //		- consider replacing some inheritance by nesting, e.g., LProjection/Protocol (cf. SModel/SGraph)
+// - refactor Kinds as types only?  or values needed for serialization?
+// - fix UnaryPayElem generic casts (and AssrtAnnotDataElem)
 
 
 
