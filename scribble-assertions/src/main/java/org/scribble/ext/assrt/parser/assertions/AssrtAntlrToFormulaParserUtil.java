@@ -3,8 +3,10 @@ package org.scribble.ext.assrt.parser.assertions;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertionsAntlrConstants.AssrtAntlrNodeType;
 
+@Deprecated
 public class AssrtAntlrToFormulaParserUtil
 {
+	@Deprecated
 	public static AssrtAntlrNodeType getAntlrNodeType(CommonTree ct)
 	{
 		String type = ct.getToken().getText();

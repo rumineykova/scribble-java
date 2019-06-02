@@ -130,16 +130,59 @@
 module assrt.tmp.AssrtCoreTest;
 
 
-//type <dotnet> "System.UInt32" from "..." as int;
+type <dotnet> "System.UInt32" from "..." as int;
 //type <dotnet> "System.String" from "..." as str;
 
 
-//*
+/*
 global protocol Proto1(role A, role B)
 {
 	1() from A to B;  @"True"
 }
 //*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x:AssrtCoreTest.int) from A to B;  @"True"
+}
+//*/
+
+
+//*
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B;  @"True"
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*

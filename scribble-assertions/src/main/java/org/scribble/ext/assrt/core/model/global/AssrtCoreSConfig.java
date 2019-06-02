@@ -1440,6 +1440,17 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	}
 	
 	@Override
+	public String toString()
+	{
+		return "(P=" + this.P + ",\nQ=" 
+			+ this.Q.toString().replaceAll("\\\"", "\\\\\"")  // Because of @"..." syntax, need to escape the quotes
+			+ ",\nK=" + this.K + ",\nF=" + this.F
+			+ ",\nV=" + this.V
+			+ ",\nR=" + this.R
+		 + ",\nrename=" + this.rename + ")";
+	}
+	
+	@Override
 	public final int hashCode()
 	{
 		int hash = 22279;

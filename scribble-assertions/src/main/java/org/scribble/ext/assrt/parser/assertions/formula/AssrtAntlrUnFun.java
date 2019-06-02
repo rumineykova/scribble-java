@@ -10,6 +10,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtUnintPredicateFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
 
+@Deprecated
 public class AssrtAntlrUnFun
 {
 	public static final int NAME_INDEX = 0;

@@ -85,8 +85,11 @@ tokens
 	{
 		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
-		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
-		return (AssrtBFormula) AssrtAntlrToFormulaParser.getInstance().parse((CommonTree) parser.root().getTree());
+		AssertionsParser parser = new AssertionsParser(
+				new CommonTokenStream(lexer));
+		AssrtBFormula res = (AssrtBFormula) AssrtAntlrToFormulaParser
+				.getInstance().parse((CommonTree) parser.root().getTree());
+		return res;
 	}
 
 	public static CommonTree parseArithAnnotation(String source) throws RecognitionException

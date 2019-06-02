@@ -42,18 +42,6 @@ public class AssrtCoreSState extends //MPrettyState<Void, SAction, AssrtCoreSSta
 	{
 		this.subjs.add(subj);
 	}
-	
-	/*@Override
-	protected String getNodeLabel()
-	{
-		String lab = "(P=" + this.P + ",\nQ=" 
-			//+ this.Q 
-			+ this.Q.toString().replaceAll("\\\"", "\\\\\"")
-			+ ",\nR=" + this.R
-			+ ",\nRass=" + this.Rass
-			+ ",\nK=" + this.K + ",\nF=" + this.F + ",\nrename=" + this.rename + ")";
-		return "label=\"" + this.id + ":" + lab + "\"";
-	}*/
 
 	@Override
 	protected String getEdgeLabel(SAction msg)

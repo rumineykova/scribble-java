@@ -107,6 +107,19 @@ public class AstFactoryImpl implements AstFactory
 		t.setText(text);
 		return t;
 	}
+
+	protected CommonToken newExtIdToken(Token old, String text)
+	{
+		int type = this.tokens.getType("EXTID");
+		if (old == null)
+		{
+			return new CommonToken(type, text);
+		}
+		CommonToken t = new CommonToken(old);  // Type and text set below, but "inherit" some other additional info
+		t.setType(type);
+		t.setText(text);
+		return t;
+	}
 	
 	// type comes from the int constants in ScribbleParser, which come from the tokens in Scribble.g
 	// Pre: type is an "imaginary token" type from ScribbleParser -- (not ID)

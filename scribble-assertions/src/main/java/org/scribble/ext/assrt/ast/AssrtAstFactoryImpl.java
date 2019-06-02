@@ -184,11 +184,13 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 		throw new RuntimeException("[TODO] " + t);
 	}
 
+	// Cf., e.g., RoleNode
 	@Override
 	public AssrtBExprNode AssrtBExprNode(Token t, AssrtBFormula bform)
 	{
-		t = newToken(t, this.tokens.getType("ASSRT_ASSERT"));
-		AssrtBExprNode n = new AssrtBExprNode(t, bform);
+		int type = this.tokens.getType("EXTID");  // Cf., e.g., RoleNode getType "ID", also (generated) AssrtScribbleParser
+		t = newExtIdToken(t, t.getText());
+		AssrtBExprNode n = new AssrtBExprNode(type, t, bform);
 		n.decorateDel(this.df);
 		return n;
 	}
