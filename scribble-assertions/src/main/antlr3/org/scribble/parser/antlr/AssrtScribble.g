@@ -158,12 +158,14 @@ tokens
   
   ASSRT_MODULE;
 
-	// "Node type" constants -- but not parsed "directly" by AntlrToScribParser
 	ASSRT_ANNOTDATAELEM; 
 
-	// Parsed "directly" by AntlrToScribParser
   // Empty assertions first parsed as original (not Assert) categories -- later translated to null assertion Assrts via AssrtAntlrToScribParser
 	ASSRT_GPROTOHEADER;
+	ASSRT_STATEVARANNOTNODE;
+	//ASSRT_SVAR_ANNOT;
+	ASSRT_STATEVARDECL_LIST;
+	ASSRT_STATEVARDECL;
 
 	ASSRT_GMSGTRANSFER;
 	ASSRT_GCONNECT;
@@ -218,6 +220,7 @@ tokens
   import org.scribble.ast.name.simple.RoleNode;
   import org.scribble.ast.name.simple.SigParamNode;
 
+  import org.scribble.ext.assrt.ast.AssrtAExprNode;
   import org.scribble.ext.assrt.ast.AssrtBExprNode;
   import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 }
@@ -353,7 +356,7 @@ rolename: t=ID -> ID<RoleNode>[$t] ;
 sigparamname: t=ID -> ID<SigParamNode>[$t] ;
 
 // Assrt
-assrt_intvarname: t=ID -> ID<AssrtIntVarNameNode>[$t] ;  // N.B. Int
+assrt_intvarname: t=ID -> ID<AssrtIntVarNameNode>[$t] ;  // N.B. Specifically int
 
 
 /**
@@ -431,7 +434,7 @@ sigdecl:
 ;
 
 
-// Assrt
+// Assrt  // Currently "deprecated"
 assert_fundecl:
 	ASSERT_KW ID unintfunarglist simpledataname '=' EXTID ';'
 /*->
@@ -516,24 +519,47 @@ protomods:
 
 // N.B. intermed translation uses full proto name
 assrt_gprotoheader:
-	t=GLOBAL_KW PROTOCOL_KW simplegprotoname paramdecls roledecls
+	GLOBAL_KW PROTOCOL_KW simplegprotoname paramdecls roledecls
 ->
 	^(ASSRT_GPROTOHEADER simplegprotoname paramdecls roledecls)
 
 // Assrt
 |
-	GLOBAL_KW PROTOCOL_KW simplegprotoname roledecls '@' EXTID
+	GLOBAL_KW PROTOCOL_KW simplegprotoname roledecls '@' assrt_statevardecls? t=EXTID //assrt_statevar_annot
+			// TODO: paramdecls
 ->
-	^(ASSRT_GPROTOHEADER simplegprotoname ^(PARAMDECL_LIST) roledecls
-			{AssertionsParser.parseStateVarDeclList($EXTID.text)}) 
-			// use ".tree" for Tree instead of text String
+	^(ASSRT_GPROTOHEADER simplegprotoname ^(PARAMDECL_LIST) roledecls 
+			//assrt_statevar_annot) 
+			EXTID<AssrtBExprNode>[$t, AssertionsParser.parseAssertion($t.text)]
+			assrt_statevardecls?)
+			// use ".tree" for Tree instead of .text String
 ;
 // Following same pattern as gmsgtransfer: explicitly invoke AssertionsParser, and extra assertion element only for new category
 // -- later translation by AssrtAntlrToScribParser converts original nodes to empty-assertion new nodes
-// TODO: paramdecls and annot
+
+assrt_statevardecls:
+	'<' assrt_statevardecl (',' assrt_statevardecl)* '>'
+->
+	^(ASSRT_STATEVARDECL_LIST assrt_statevardecl+)
+;
+
+assrt_statevardecl:
+	assrt_intvarname ':=' id=EXTID
+->
+	^(ASSRT_STATEVARDECL assrt_intvarname 
+			EXTID<AssrtAExprNode>[$id, AssertionsParser.parseArithAnnotation($id.text)])
+;
+	
+/*assrt_statevar_annot:
+	'@' t=EXTID
+->
+	////{AssertionsParser.parseStateVarAnnot($EXTID.text)}
+	//EXTID<AssrtBExprNode>[$t, AssertionsParser.parseAssertion($t.text)]
+	^(ASSRT_STATEVARANNOTNODE EXTID<AssrtBExprNode>[$t, AssertionsParser.parseAssertion($t.text)])
+;*/
 
 roledecls: 
-	t='(' roledecl (',' roledecl)* ')' -> ^(ROLEDECL_LIST roledecl+)
+	'(' roledecl (',' roledecl)* ')' -> ^(ROLEDECL_LIST roledecl+)
 ;
 
 roledecl:
@@ -613,15 +639,15 @@ assrt_gmsgtransfer:
 // Assrt
 | 
 	//message FROM_KW rolename TO_KW rolename (',' rolename )* ';' '@' EXTID
-	message FROM_KW rolename TO_KW rolename ';' assrt_assertion
+	message FROM_KW rolename TO_KW rolename ';' assrt_gmsgtransfer_annot
 ->
-	^(ASSRT_GMSGTRANSFER message rolename rolename assrt_assertion)
+	^(ASSRT_GMSGTRANSFER message rolename rolename assrt_gmsgtransfer_annot)
 			//{AssertionsParser.parseAssertion($EXTID.text)})
 			// N.B. calling a separate parser this way loses line/char number information
 ;
 // TODO: multisend
 	
-assrt_assertion:
+assrt_gmsgtransfer_annot:
 	'@' t=EXTID
 ->
 	EXTID<AssrtBExprNode>[$t, AssertionsParser.parseAssertion($t.text)]

@@ -3,11 +3,12 @@ package org.scribble.ext.assrt.core.type.name;
 import org.scribble.core.type.name.AbstractName;
 import org.scribble.ext.assrt.core.type.kind.AssrtIntVarKind;
 
-public class AssrtDataVar extends AbstractName<AssrtIntVarKind> implements AssrtPayElemType<AssrtIntVarKind>
+public class AssrtIntVar extends AbstractName<AssrtIntVarKind>
+		implements AssrtPayElemType<AssrtIntVarKind>
 {
 	private static final long serialVersionUID = 1L;
 
-	public AssrtDataVar(String simplename)
+	public AssrtIntVar(String simplename)
 	{
 		super(AssrtIntVarKind.KIND, simplename);
 	}
@@ -19,7 +20,7 @@ public class AssrtDataVar extends AbstractName<AssrtIntVarKind> implements Assrt
 		{
 			return true;
 		}
-		if (!(o instanceof AssrtDataVar))
+		if (!(o instanceof AssrtIntVar))
 		{
 			return false;
 		}
@@ -29,7 +30,7 @@ public class AssrtDataVar extends AbstractName<AssrtIntVarKind> implements Assrt
 	@Override
 	public boolean canEquals(Object o)
 	{
-		return o instanceof AssrtDataVar;
+		return o instanceof AssrtIntVar;
 	}
 
 	@Override

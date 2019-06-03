@@ -19,11 +19,14 @@ import org.scribble.ast.global.GMsgTransfer;
 import org.scribble.ast.local.LRecv;
 import org.scribble.ast.name.simple.AmbigNameNode;
 import org.scribble.del.DelFactoryImpl;
-import org.scribble.ext.assrt.ast.AssrtAnnotDataElem;
 import org.scribble.ext.assrt.ast.AssrtAExprNode;
+import org.scribble.ext.assrt.ast.AssrtAnnotDataElem;
 import org.scribble.ext.assrt.ast.AssrtAssertDecl;
 import org.scribble.ext.assrt.ast.AssrtBExprNode;
 import org.scribble.ext.assrt.ast.AssrtModule;
+import org.scribble.ext.assrt.ast.AssrtStateVarAnnotNode;
+import org.scribble.ext.assrt.ast.AssrtStateVarDecl;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclList;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
@@ -197,6 +200,24 @@ public class AssrtDelFactoryImpl extends DelFactoryImpl implements AssrtDelFacto
 	public void AssrtGProtoHeader(AssrtGProtoHeader n)
 	{
 		setDel(n, createDefaultDel());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
+	}
+	
+	@Override
+	public void AssrtStateVarAnnotNode(AssrtStateVarAnnotNode n)
+	{
+		setDel(n, createDefaultDel());
+	}
+
+	@Override
+	public void AssrtStateVarDeclList(AssrtStateVarDeclList n)
+	{
+		setDel(n, createDefaultDel());
+	}
+
+	@Override
+	public void AssrtStateVarDecl(AssrtStateVarDecl n)
+	{
+		setDel(n, createDefaultDel());
 	}
 
 	@Override

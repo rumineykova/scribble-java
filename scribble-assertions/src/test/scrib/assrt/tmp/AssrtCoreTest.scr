@@ -197,10 +197,10 @@ global protocol Proto1(role A, role B)
 {
 	1() from A to B;  @"False"  // Testing assrt-prog
 }
-*/
+//*/
 
 
-//*
+/*
 global protocol Proto1(role A, role B)
 {
 	choice at A
@@ -212,7 +212,51 @@ global protocol Proto1(role A, role B)
 		2() from A to B;  @"True"
 	}
 }
-/*/
+//*/
+
+
+//*
+global protocol Proto1(role A, role B)  @"True"
+{
+	1() from A to B;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)  @"<x := 1>"
+{
+	1() from A to B;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)  //@"<x := 1>"
+{
+	do Proto1Aux(A, B);
+}
+
+aux global protocol Proto1Aux(role A, role B)  @"<x := 1>"
+{
+	1() from A to B;	
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

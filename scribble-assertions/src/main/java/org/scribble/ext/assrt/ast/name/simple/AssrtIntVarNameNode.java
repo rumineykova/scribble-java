@@ -10,7 +10,7 @@ import org.scribble.ext.assrt.ast.AssrtExprNode;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.kind.AssrtIntVarKind;
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 
 // N.B. used both directly as a PayloadElemNameNode, and for the annotation in AssrtAnnotDataTypeElem -- also used for statevars
@@ -49,7 +49,7 @@ public class AssrtIntVarNameNode extends SimpleNameNode<AssrtIntVarKind>
 	}
 
 	@Override
-	public AssrtDataVar toName()
+	public AssrtIntVar toName()
 	{
 		return getFormula().toName();
 	}
@@ -63,7 +63,7 @@ public class AssrtIntVarNameNode extends SimpleNameNode<AssrtIntVarKind>
 	}
 
 	@Override
-	public AssrtDataVar toPayloadType()
+	public AssrtIntVar toPayloadType()
 	{
 		return toName();  
 				// CHECKME: Shouldn't this be the type (i.e., int), not the var name? -- cf. toName

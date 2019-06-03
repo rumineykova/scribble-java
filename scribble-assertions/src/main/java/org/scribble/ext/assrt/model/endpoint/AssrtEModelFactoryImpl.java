@@ -17,7 +17,7 @@ import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEAcc;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtERecv;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtEReq;
@@ -81,7 +81,7 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl
 
 	@Override
 	public AssrtEState newAssrtEState(Set<RecVar> labs,
-			LinkedHashMap<AssrtDataVar, AssrtAFormula> vars,  // CHECKME: AssrtIntVar?
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> vars,  // CHECKME: AssrtIntVar?
 			AssrtBFormula ass)
 	{
 		return new AssrtEState(labs, vars, ass);

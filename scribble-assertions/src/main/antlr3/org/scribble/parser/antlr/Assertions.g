@@ -63,6 +63,8 @@ tokens
 {
 	package org.scribble.parser.antlr;
 	
+	import org.scribble.ext.assrt.ast.AssrtStateVarAnnotNode;
+	import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 	import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 	import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 	import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
@@ -84,28 +86,43 @@ tokens
   
 	public static AssrtBFormula parseAssertion(String source) throws RecognitionException
 	{
-		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
+		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTID
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(
 				new CommonTokenStream(lexer));
 		AssrtBFormula res = (AssrtBFormula) AssrtAntlrToFormulaParser
 				.getInstance().parse((CommonTree) parser.root().getTree());  // CHECKME: boolformula() instead of root() ?
 		return res;
-		}
 	}
 
-	public static CommonTree parseArithAnnotation(String source) throws RecognitionException
+	public static AssrtAFormula parseArithAnnotation(String source) throws RecognitionException
 	{
-		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
+		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTID
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
-		return (CommonTree) parser.arith_expr().getTree();
+		//return (CommonTree) parser.arith_expr().getTree();
+		AssrtAFormula res = (AssrtAFormula) AssrtAntlrToFormulaParser
+				.getInstance().parse((CommonTree) parser.arith_expr().getTree());  // CHECKME: boolformula() instead of root() ?
+		return res;
+	}
+
+	public static AssrtStateVarAnnotNode parseStateVarAnnot(String source) 
+			throws RecognitionException
+	{
+		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTID
+		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
+		AssertionsParser parser = new AssertionsParser(
+				new CommonTokenStream(lexer));
+		CommonTree res = (CommonTree) parser.annot_statevardecls().getTree();
+		AssrtStateVarAnnotNode n = new AssrtStateVarAnnotNode(res.getToken());
+		//n.addScribChildren(...);
+		return n;
 	}
 
 	public static CommonTree parseStateVarDeclList(String source) 
 			throws RecognitionException
 	{
-		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
+		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTID
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(
 				new CommonTokenStream(lexer));
@@ -114,7 +131,7 @@ tokens
 
 	public static CommonTree parseStateVarArgList(String source) throws RecognitionException
 	{
-		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTIDENTIFIER
+		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTID
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
 		return (CommonTree) parser.statevararglist().getTree();
@@ -165,16 +182,18 @@ num:
 ; 
 
 	
-// statevars -- TODO: refactor to AssrtScribble.g
+// statevars -- TODO: refactor to AssrtScribble.g -- no: it's all inside the EXTID annot -- but: doesn't have to be...
+	
+annot_statevardecls: statevardecllist EOF;
 	
 statevardecllist:
-/*	'(' statevardecl (',' statevardecl)* ')'
+/*	'<' statevardecl (',' statevardecl)* '>'
 ->
-	^(ASSRT_STATEVARDECLLIST ^(ASSRT_EMPTYASS) statevardecl+)
-|*/
-	'(' statevardecl (',' statevardecl)* ')' bool_expr
+	^(ASSRT_STATEVARDECLLIST ^(ASSRT_EMPTYASS) statevardecl+)*/
+|
+	'<' statevardecl (',' statevardecl)* '>' bool_expr?
 ->
-	^(ASSRT_STATEVARDECLLIST ^(ASSRT_STATEVARDECLLISTASSERTION bool_expr) statevardecl+)
+	^(ASSRT_STATEVARDECLLIST ^(ASSRT_STATEVARDECLLISTASSERTION bool_expr?) statevardecl+)
 |
 	bool_expr
 ->

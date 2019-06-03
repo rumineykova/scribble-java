@@ -218,6 +218,26 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 		n.decorateDel(this.df);
 		return n;
 	}
+
+	@Override
+	public AssrtStateVarDeclList AssrtStateVarDeclList(Token t, List<AssrtStateVarDecl> svars)
+	{
+		t = newToken(t, this.tokens.getType("ASSRT_STATEVARDECLLIST"));
+		AssrtStateVarDeclList n = new AssrtStateVarDeclList(t);
+		n.addScribChildren(svars);
+		n.decorateDel(this.df);
+		return n;
+	}
+
+	@Override
+	public AssrtStateVarDecl AssrtStateVarDecl(Token t, AssrtIntVarNameNode svar)
+	{
+		t = newToken(t, this.tokens.getType("ASSRT_STATEVARDECL"));
+		AssrtStateVarDecl n = new AssrtStateVarDecl(t);
+		n.addScribChildren(svar);
+		n.decorateDel(this.df);
+		return n;
+	}
 	
 	// An "additional" category, does not "replace" an existing one -- cf. AssrtGMessageTransfer
 	@Override

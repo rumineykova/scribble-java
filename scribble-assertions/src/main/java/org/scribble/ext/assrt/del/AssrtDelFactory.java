@@ -14,11 +14,14 @@
 package org.scribble.ext.assrt.del;
 
 import org.scribble.del.DelFactory;
-import org.scribble.ext.assrt.ast.AssrtAnnotDataElem;
 import org.scribble.ext.assrt.ast.AssrtAExprNode;
+import org.scribble.ext.assrt.ast.AssrtAnnotDataElem;
 import org.scribble.ext.assrt.ast.AssrtAssertDecl;
 import org.scribble.ext.assrt.ast.AssrtBExprNode;
 import org.scribble.ext.assrt.ast.AssrtModule;
+import org.scribble.ext.assrt.ast.AssrtStateVarAnnotNode;
+import org.scribble.ext.assrt.ast.AssrtStateVarDecl;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclList;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
@@ -49,6 +52,9 @@ public interface AssrtDelFactory extends DelFactory
 	void AssrtAssertDecl(AssrtAssertDecl n);
 
 	void AssrtGProtoHeader(AssrtGProtoHeader n);
+	void AssrtStateVarAnnotNode(AssrtStateVarAnnotNode n);
+	void AssrtStateVarDeclList(AssrtStateVarDeclList n);
+	void AssrtStateVarDecl(AssrtStateVarDecl n);
 
 	void AssrtGMsgTransfer(AssrtGMsgTransfer n);
 	void AssrtGConnect(AssrtGConnect n);

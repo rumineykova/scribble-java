@@ -355,7 +355,7 @@ module:
  * Section 3.3 Import Declarations
  */
 importmodule:
-	t=IMPORT_KW modulename (AS_KW alias=simplemodulename)? ';'
+	IMPORT_KW modulename (AS_KW alias=simplemodulename)? ';'
 ->
 	^(IMPORTMODULE modulename $alias?)
 ;
@@ -369,14 +369,14 @@ nonprotodecl:
 
 datadecl:
 	// Deprecate TYPE_KW ?
-	t=TYPE_KW '<' schema=ID '>' extName=EXTID FROM_KW
+	TYPE_KW '<' schema=ID '>' extName=EXTID FROM_KW
 	extSource=EXTID AS_KW alias=simpledataname ';'
 ->
 	// alias first to be uniform with other NameDeclNode (getRawNameNodeChild)
 	^(DATADECL $alias $schema $extName $extSource)
 |
 	// CHECKME: duplicated above, because t=(TYPE_KW | DATA_KW) *sometimes* causes null token NPEs... 
-	t=DATA_KW '<' schema=ID '>' extName=EXTID FROM_KW
+	DATA_KW '<' schema=ID '>' extName=EXTID FROM_KW
 	extSource=EXTID AS_KW alias=simpledataname ';'
 ->
 	// alias first to be uniform with other NameDeclNode (getRawNameNodeChild)
@@ -384,7 +384,7 @@ datadecl:
 ;
 
 sigdecl:
-	t=SIG_KW '<' schema=ID '>' extName=EXTID FROM_KW extSource=EXTID AS_KW
+	SIG_KW '<' schema=ID '>' extName=EXTID FROM_KW extSource=EXTID AS_KW
 	alias=simplesigname ';'
 ->
 	// alias first to be uniform with other NameDeclNode (getRawNameNodeChild)
@@ -438,44 +438,44 @@ gprotodecl:
   
 // "aux" must come before "explicit"
 protomods:
-                       -> ^(PROTOMOD_LIST)
-| t=AUX_KW             -> ^(PROTOMOD_LIST AUX_KW)
-| t=AUX_KW EXPLICIT_KW -> ^(PROTOMOD_LIST AUX_KW EXPLICIT_KW)
-| t=EXPLICIT_KW        -> ^(PROTOMOD_LIST EXPLICIT_KW)
+                     -> ^(PROTOMOD_LIST)
+| AUX_KW             -> ^(PROTOMOD_LIST AUX_KW)
+| AUX_KW EXPLICIT_KW -> ^(PROTOMOD_LIST AUX_KW EXPLICIT_KW)
+| EXPLICIT_KW        -> ^(PROTOMOD_LIST EXPLICIT_KW)
 ;
 
 // N.B. intermed translation uses full proto name
 gprotoheader:
-	t=GLOBAL_KW PROTOCOL_KW simplegprotoname paramdecls roledecls
+	GLOBAL_KW PROTOCOL_KW simplegprotoname paramdecls roledecls
 ->
 	^(GPROTOHEADER simplegprotoname paramdecls roledecls)
 ;
 
 roledecls: 
-	t='(' roledecl (',' roledecl)* ')' -> ^(ROLEDECL_LIST roledecl+)
+	'(' roledecl (',' roledecl)* ')' -> ^(ROLEDECL_LIST roledecl+)
 ;
 
 roledecl:
-	t=ROLE_KW rolename -> ^(ROLEDECL rolename)
+	ROLE_KW rolename -> ^(ROLEDECL rolename)
 ;
 
 paramdecls:
 	-> ^(PARAMDECL_LIST)
 |
-	t='<' (paramdecl (',' paramdecl)*)? '>' -> ^(PARAMDECL_LIST paramdecl*)
+	'<' (paramdecl (',' paramdecl)*)? '>' -> ^(PARAMDECL_LIST paramdecl*)
 ;
 
 paramdecl: dataparamdecl | sigparamdecl ;
 
 dataparamdecl: 
-	t=TYPE_KW dataparamname -> ^(DATAPARAMDECL dataparamname)
+	TYPE_KW dataparamname -> ^(DATAPARAMDECL dataparamname)
 |
-	t=DATA_KW dataparamname -> ^(DATAPARAMDECL dataparamname)
+	DATA_KW dataparamname -> ^(DATAPARAMDECL dataparamname)
 			// TODO: refactor -- cf. datadecl
 ;
 
 sigparamdecl:  
-	t=SIG_KW sigparamname -> ^(SIGPARAMDECL sigparamname)
+	SIG_KW sigparamname -> ^(SIGPARAMDECL sigparamname)
 ;
 
 
@@ -490,7 +490,7 @@ gprotodef:
  * Section 3.7.3 Global Interaction Blocks and Sequences
  */
 gprotoblock:
-	t='{' gseq '}' -> ^(GPROTOBLOCK gseq)
+	'{' gseq '}' -> ^(GPROTOBLOCK gseq)
 ;
 
 gseq:
@@ -533,20 +533,20 @@ gconnect:
 ->
 	^(GCONNECT message rolename rolename)
 |
-	t=CONNECT_KW rolename TO_KW rolename ';'
+	CONNECT_KW rolename TO_KW rolename ';'
 ->
 	^(GCONNECT ^(SIG_LIT ^(EMPTY_OP) ^(PAYELEM_LIST)) rolename rolename)
       // CHECKME: deprecate? i.e., require "()" as for message transfers?  i.e., simply delete this rule?
 ;
 
 gdisconnect:
-	t=DISCONNECT_KW rolename AND_KW rolename ';'
+	DISCONNECT_KW rolename AND_KW rolename ';'
 ->
 	^(GDCONN rolename rolename)
 ;
 
 gwrap:
-	t=WRAP_KW rolename TO_KW rolename ';'
+	WRAP_KW rolename TO_KW rolename ';'
 ->
 	^(GWRAP rolename rolename)
 ;
@@ -556,7 +556,7 @@ gwrap:
  * Section 3.7.5 Global Choice
  */
 gchoice:
-	t=CHOICE_KW AT_KW rolename gprotoblock (OR_KW gprotoblock)*
+	CHOICE_KW AT_KW rolename gprotoblock (OR_KW gprotoblock)*
 ->
 	^(GCHOICE rolename gprotoblock+)
 ;
@@ -566,13 +566,13 @@ gchoice:
  * Section 3.7.6 Global Recursion
  */
 grecursion:
-	t=REC_KW recvarname gprotoblock
+	REC_KW recvarname gprotoblock
 ->
 	^(GRECURSION recvarname gprotoblock)
 ;
 
 gcontinue:
-	t=CONTINUE_KW recvarname ';'
+	CONTINUE_KW recvarname ';'
 ->
 	^(GCONTINUE recvarname)
 ;
@@ -588,7 +588,7 @@ gdo:
 ;
 
 roleargs:
-	t='(' rolearg (',' rolearg)* ')' -> ^(ROLEARG_LIST rolearg+)
+	'(' rolearg (',' rolearg)* ')' -> ^(ROLEARG_LIST rolearg+)
 ;
 
 rolearg:
@@ -597,7 +597,7 @@ rolearg:
 nonroleargs:
 	-> ^(NONROLEARG_LIST)
 |
-	t='<' (nonrolearg (',' nonrolearg)*)? '>' -> ^(NONROLEARG_LIST nonrolearg*)
+	'<' (nonrolearg (',' nonrolearg)*)? '>' -> ^(NONROLEARG_LIST nonrolearg*)
 ;
 
 // Grammatically same as message, but qualifiedname case may also be a payload type

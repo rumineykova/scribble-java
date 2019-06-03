@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 import org.sosy_lab.java_smt.api.BooleanFormulaManager;
@@ -244,9 +244,9 @@ public class AssrtBinBFormula extends AssrtBFormula implements AssrtBinFormula<B
 	}
 	
 	@Override
-	public Set<AssrtDataVar> getIntVars()
+	public Set<AssrtIntVar> getIntVars()
 	{
-		Set<AssrtDataVar> vars = new HashSet<>(this.left.getIntVars()); 
+		Set<AssrtIntVar> vars = new HashSet<>(this.left.getIntVars()); 
 		vars.addAll(this.right.getIntVars()); 
 		return vars; 
 	}

@@ -25,9 +25,9 @@ import org.scribble.visit.AstVisitor;
 public abstract class ProtoHeader<K extends ProtoKind>
 		extends NameDeclNode<K> implements ProtoKindNode<K>
 {
-	public static final int NAMENODE_CHILD = 0;
-	public static final int PARAMDECLLIST_CHILD = 1;
-	public static final int ROLEDECLLIST_CHILD = 2;
+	public static final int NAMENODE_CHILD_INDEX = 0;
+	public static final int PARAMDECLLIST_CHILD_INDEX = 1;
+	public static final int ROLEDECLLIST_CHILD_INDEX = 2;
 	
 	// ScribTreeAdaptor#create constructor
 	public ProtoHeader(Token t)
@@ -47,12 +47,12 @@ public abstract class ProtoHeader<K extends ProtoKind>
 	
 	public NonRoleParamDeclList getParamDeclListChild()
 	{
-		return (NonRoleParamDeclList) getChild(PARAMDECLLIST_CHILD);
+		return (NonRoleParamDeclList) getChild(PARAMDECLLIST_CHILD_INDEX);
 	}
 	
 	public RoleDeclList getRoleDeclListChild()
 	{
-		return (RoleDeclList) getChild(ROLEDECLLIST_CHILD);  // TODO: swap order with paramdecllist (in grammar)
+		return (RoleDeclList) getChild(ROLEDECLLIST_CHILD_INDEX);  // TODO: swap order with paramdecllist (in grammar)
 	}
 
 	// "add", not "set"

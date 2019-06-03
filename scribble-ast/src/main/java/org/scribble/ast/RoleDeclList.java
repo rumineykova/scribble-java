@@ -44,7 +44,7 @@ public class RoleDeclList extends ParamDeclList<RoleKind>
 
 	public List<Role> getRoles()
 	{
-		return getDeclChildren().stream().map(decl -> decl.getDeclName())
+		return getDeclChildren().stream().map(x -> x.getDeclName())
 				.collect(Collectors.toList());
 	}
 	

@@ -16,7 +16,7 @@ import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 
 public class AssrtCoreSGraphBuilderUtil extends SGraphBuilderUtil
@@ -40,10 +40,10 @@ public class AssrtCoreSGraphBuilderUtil extends SGraphBuilderUtil
 	}
 
 	// TODO: EFsm -> EGraph
-	private static Map<Role, Map<AssrtDataVar, AssrtAFormula>> makeR(
+	private static Map<Role, Map<AssrtIntVar, AssrtAFormula>> makeR(
 			Map<Role, EFsm> P)
 	{
-		Map<Role, Map<AssrtDataVar, AssrtAFormula>> R = P.entrySet()
+		Map<Role, Map<AssrtIntVar, AssrtAFormula>> R = P.entrySet()
 				.stream().collect(Collectors.toMap(Entry::getKey, e -> new HashMap<>(
 						((AssrtEState) e.getValue().graph.init).getStateVars())));
 		/*Map<Role, Map<AssrtDataTypeVar, AssrtArithFormula>> R = P.keySet().stream().collect(Collectors.toMap(r -> r, r ->
@@ -72,7 +72,7 @@ public class AssrtCoreSGraphBuilderUtil extends SGraphBuilderUtil
 		));
 	}
 
-	private static Map<Role, Set<AssrtDataVar>> makeK(Set<Role> rs)
+	private static Map<Role, Set<AssrtIntVar>> makeK(Set<Role> rs)
 	{
 		return rs.stream().collect(Collectors.toMap(r -> r, r -> new HashSet<>()));
 	}

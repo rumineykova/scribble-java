@@ -59,7 +59,7 @@ import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
 import org.scribble.ext.assrt.core.lang.global.AssrtCoreGProtocol;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreActionKind;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
@@ -490,9 +490,9 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		return r.toName();
 	}
 	
-	private static AssrtDataVar makeFreshDataTypeVar()
+	private static AssrtIntVar makeFreshDataTypeVar()
 	{
-		return new AssrtDataVar("_dum" + varCounter++);
+		return new AssrtIntVar("_dum" + varCounter++);
 	}
 
 	private static String makeFreshRecVarName()

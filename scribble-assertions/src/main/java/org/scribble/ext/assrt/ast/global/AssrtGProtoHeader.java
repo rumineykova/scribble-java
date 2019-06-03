@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.antlr.runtime.Token;
-import org.antlr.runtime.tree.CommonTree;
-import org.antlr.runtime.tree.Tree;
 import org.scribble.ast.NonRoleParamDeclList;
 import org.scribble.ast.ProtoHeader;
 import org.scribble.ast.RoleDeclList;
@@ -15,6 +13,7 @@ import org.scribble.core.type.kind.Global;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtAExprNode;
 import org.scribble.ext.assrt.ast.AssrtBExprNode;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclList;
 import org.scribble.ext.assrt.ast.AssrtStateVarDeclNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
@@ -24,12 +23,15 @@ import org.scribble.visit.AstVisitor;
 public class AssrtGProtoHeader extends GProtoHeader
 		implements AssrtStateVarDeclNode
 {
-	//public static final int ROLEDECLLIST_CHILD = 2;
-	public static final int ASSRT_ANNOT_CHILD_INDEX = 3;  // null if no @-annotation
+	/*public static final int ASSRT_ANNOT_CHILD_INDEX = 3;  // null if no @-annotation
 
 	// N.B. EXTID-parsed children of ASSRT_CHILD_INDEX subtree (i.e., grandchildren of this) -- cf. Assertions.g
 	public static final int ANNOT_ASSERT_CHILD_INDEX = 0;  // null if not specified (means "true", but not written syntactically)
-	public static final int ANNOT_STATEVAR_CHILDREN_START_INDEX = 1;
+	public static final int ANNOT_STATEVAR_CHILDREN_START_INDEX = 1;*/
+
+	//public static final int ROLEDECLLIST_CHILD = 2;
+	public static final int ASSRT_ASSERTION_CHILD_INDEX = 3;  // May be null
+	public static final int ASSRT_STATEVARDECLLIST_CHILD_INDEX = 4;  // May be null
 
 	// ScribTreeAdaptor#create constructor
 	public AssrtGProtoHeader(Token t)
@@ -43,45 +45,55 @@ public class AssrtGProtoHeader extends GProtoHeader
 		super(node);
 	}
 
-	@Override
+	/*@Override
 	public CommonTree getAnnotChild()
 	{
 		return (CommonTree) getChild(ASSRT_ANNOT_CHILD_INDEX);
-	}
+	}*/
 
 	// N.B. null if not specified -- currently duplicated from AssrtGMessageTransfer
 	@Override
 	public AssrtBExprNode getAnnotAssertChild()
 	{
-		CommonTree ext = getAnnotChild();
+		/*CommonTree ext = getAnnotChild();
 		if (ext == null)
 		{
 			return null;
 		}
 		Tree n = ext.getChild(ANNOT_ASSERT_CHILD_INDEX);
+		
+		System.out.println("3333: " + n);
+		
 		return (n.getText().equals("ASSRT_EMPTYASS"))  // TODO: factor out constant
 				? null
-				: (AssrtBExprNode) n;
+				: (AssrtBExprNode) n;*/
+		return (AssrtBExprNode) getChild(ASSRT_ASSERTION_CHILD_INDEX);
 	}
 	
-	@Override
+/*	@Override
 	public List<AssrtIntVarNameNode> getAnnotVarChildren()
 	{
-		/*List<? extends ScribNode> cs = getChildren();
-		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
-				.filter(x -> x instanceof AssrtIntVarNameNode)
-				.map(x -> (AssrtIntVarNameNode) x).collect(Collectors.toList());*/
+//		List<? extends ScribNode> cs = getChildren();
+//		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
+//				.filter(x -> x instanceof AssrtIntVarNameNode)
+//				.map(x -> (AssrtIntVarNameNode) x).collect(Collectors.toList());
 		return Collections.emptyList();  // FIXME:
 	}
 
 	@Override
 	public List<AssrtAExprNode> getAnnotExprChildren()
 	{
-		/*List<? extends ScribNode> cs = getChildren();
-		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
-				.filter(x -> x instanceof AssrtArithExpr)
-				.map(x -> (AssrtArithExpr) x).collect(Collectors.toList());*/
+//		List<? extends ScribNode> cs = getChildren();
+//		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
+//				.filter(x -> x instanceof AssrtArithExpr)
+//				.map(x -> (AssrtArithExpr) x).collect(Collectors.toList());
 		return Collections.emptyList();  // FIXME:
+	}*/
+
+	@Override
+	public AssrtStateVarDeclList getStateVarDeclListChild()
+	{
+		return (AssrtStateVarDeclList) getChild(ASSRT_STATEVARDECLLIST_CHILD_INDEX);
 	}
 
 	/*@Override
@@ -93,14 +105,15 @@ public class AssrtGProtoHeader extends GProtoHeader
 
 	// "add", not "set"
 	public void addScribChildren(ProtoNameNode<Global> name,
-			NonRoleParamDeclList ps, RoleDeclList rs, AssrtBExprNode assrt,
-			List<AssrtIntVarNameNode> annotvars, List<AssrtAExprNode> annotexprs)
+			NonRoleParamDeclList ps, RoleDeclList rs, AssrtBExprNode ass,
+			//List<AssrtIntVarNameNode> svars, List<AssrtAExprNode> sexprs)
+			AssrtStateVarDeclList svars)
 	{
 		// Cf. above getters and Scribble.g children order
 		super.addScribChildren(name, ps, rs);
-		addChild(assrt);
-		addChildren(annotvars);
-		addChildren(annotexprs);
+		addChild(ass);
+		addChild(svars);
+		//addChildren(sexprs);
 	}
 	
 	@Override
@@ -125,10 +138,11 @@ public class AssrtGProtoHeader extends GProtoHeader
 
 	public AssrtGProtoHeader reconstruct(ProtoNameNode<Global> name,
 			NonRoleParamDeclList ps, RoleDeclList rs, AssrtBExprNode ass,
-			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs)
+			//List<AssrtIntVarNameNode> svars, List<AssrtAExprNode> sexprs)
+			AssrtStateVarDeclList svars)
 	{
 		AssrtGProtoHeader dup = dupNode();
-		dup.addScribChildren(name, ps, rs, ass, avars, aexprs);
+		dup.addScribChildren(name, ps, rs, ass, svars);//, sexprs);
 		dup.setDel(del());  // No copy
 		return dup;
 	}
@@ -142,16 +156,22 @@ public class AssrtGProtoHeader extends GProtoHeader
 		NonRoleParamDeclList ps = (NonRoleParamDeclList) 
 				visitChild(getParamDeclListChild(), v);*/
 		ProtoHeader<Global> sup = super.visitChildren(v);
-		List<AssrtIntVarNameNode> avars = visitChildListWithClassEqualityCheck(
+		AssrtBExprNode ass = getAnnotAssertChild();
+		if (ass != null) 
+		{
+			ass = (AssrtBExprNode) visitChild(ass, v);
+		}
+		/*List<AssrtIntVarNameNode> svars = visitChildListWithClassEqualityCheck(
 				this, getAnnotVarChildren(), v);
-		List<AssrtAExprNode> aexprs = visitChildListWithClassEqualityCheck(this,
-				getAnnotExprChildren(), v);
-		AssrtBExprNode tmp = getAnnotAssertChild();
-		AssrtBExprNode ass = (tmp == null) 
-				? null
-				: (AssrtBExprNode) visitChild(tmp, v);
+		List<AssrtAExprNode> sexprs = visitChildListWithClassEqualityCheck(this,
+				getAnnotExprChildren(), v);*/
+		AssrtStateVarDeclList svars = getStateVarDeclListChild();
+		if (svars != null)
+		{
+			svars = (AssrtStateVarDeclList) visitChild(svars, v);
+		}
 		return reconstruct(sup.getNameNodeChild(), sup.getParamDeclListChild(),
-				sup.getRoleDeclListChild(), ass, avars, aexprs);
+				sup.getRoleDeclListChild(), ass, svars);//, sexprs);
 	}
 	
 	@Override

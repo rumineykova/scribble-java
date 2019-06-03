@@ -26,7 +26,7 @@ import org.scribble.core.type.session.local.LType;
 import org.scribble.core.type.session.local.LTypeFactoryImpl;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
 
 // CHECKME: override pattern not ideal, but maybe OK due to the "language shift" -- also no Impl suffix
@@ -40,7 +40,7 @@ public class AssrtCoreLTypeFactory extends LTypeFactoryImpl
 	}
 
 	public AssrtCoreLRec AssrtCoreLRec(CommonTree source, RecVar rv,
-			LinkedHashMap<AssrtDataVar, AssrtAFormula> avars,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> avars,
 			AssrtCoreLType body, AssrtBFormula bform)
 	{
 		return new AssrtCoreLRec(source, rv, avars, body, bform);

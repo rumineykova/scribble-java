@@ -10,19 +10,19 @@ import org.scribble.core.type.kind.ProtoKind;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 
 public abstract class AssrtCoreRec<K extends ProtoKind, 
 			B extends AssrtCoreSType<K, B>>  // Without Seq complication, take kinded Type directly
 		extends AssrtCoreSTypeBase<K, B>
 {
 	public final RecVar recvar;  // CHECKME: RecVarNode?  (Cf. AssrtCoreAction.op/pay)
-	public final LinkedHashMap<AssrtDataVar, AssrtAFormula> avars;  // Int  // Non-null
+	public final LinkedHashMap<AssrtIntVar, AssrtAFormula> avars;  // Int  // Non-null
 	public final B body;
 	public final AssrtBFormula bform;
 	
 	protected AssrtCoreRec(CommonTree source, RecVar recvar,
-			LinkedHashMap<AssrtDataVar, AssrtAFormula> avars, B body,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> avars, B body,
 			AssrtBFormula bform)
 	{
 		super(source);

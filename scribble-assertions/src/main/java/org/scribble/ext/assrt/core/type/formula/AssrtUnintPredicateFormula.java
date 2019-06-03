@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.core.type.name.AssrtSort;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
@@ -78,7 +78,7 @@ public class AssrtUnintPredicateFormula extends AssrtBFormula implements AssrtUn
 	}
 
 	@Override
-	public Set<AssrtDataVar> getIntVars()
+	public Set<AssrtIntVar> getIntVars()
 	{
 		return this.args.stream().flatMap(a -> a.getIntVars().stream()).collect(Collectors.toSet());
 	}

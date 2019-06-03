@@ -26,18 +26,18 @@ import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 
 public class AssrtEState extends EState
 {
-	private final LinkedHashMap<AssrtDataVar, AssrtAFormula> statevars; // Note: even with syntactic single var per rec, nested recs can lead to mulitple vars per state
+	private final LinkedHashMap<AssrtIntVar, AssrtAFormula> statevars; // Note: even with syntactic single var per rec, nested recs can lead to mulitple vars per state
 			// CHECKME: supported outside of assrt-core?
 	
 	private //final
 			AssrtBFormula ass;  // TODO FIXME: make Set -- and eliminate placeholder True from various, use empty set instead
 
 	// FIXME: make AssrtIntTypeVar?
-	protected AssrtEState(Set<RecVar> labs, LinkedHashMap<AssrtDataVar, AssrtAFormula> vars,
+	protected AssrtEState(Set<RecVar> labs, LinkedHashMap<AssrtIntVar, AssrtAFormula> vars,
 			AssrtBFormula ass)  // FIXME: currently syntactically restricted to one annot var
 	{
 		super(labs);
@@ -53,7 +53,7 @@ public class AssrtEState extends EState
 				this.ass);
 	}
 	
-	public LinkedHashMap<AssrtDataVar, AssrtAFormula> getStateVars()
+	public LinkedHashMap<AssrtIntVar, AssrtAFormula> getStateVars()
 	{
 		return this.statevars;
 	}
@@ -64,7 +64,7 @@ public class AssrtEState extends EState
 	}
 
 	// For public access, do via AssrtEGraphBuilderUtil
-	protected final void addStateVars(LinkedHashMap<AssrtDataVar, AssrtAFormula> vars,
+	protected final void addStateVars(LinkedHashMap<AssrtIntVar, AssrtAFormula> vars,
 			AssrtBFormula ass)
 	{
 		this.statevars.putAll(vars);  // FIXME: ordering w.r.t. nested recs (i.e., multiple calls to here)

@@ -3,7 +3,7 @@ package org.scribble.ext.assrt.core.type.formula;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.IntegerFormulaManager;
 import org.sosy_lab.java_smt.api.NumeralFormula.IntegerFormula;
@@ -20,9 +20,9 @@ public class AssrtIntVarFormula extends AssrtAFormula
 	}
 	
 	// i.e., to "type"
-	public AssrtDataVar toName()
+	public AssrtIntVar toName()
 	{
-		return new AssrtDataVar(this.name);
+		return new AssrtIntVar(this.name);
 	}
 
 	@Override
@@ -56,10 +56,10 @@ public class AssrtIntVarFormula extends AssrtAFormula
 	}
 	
 	@Override
-	public Set<AssrtDataVar> getIntVars()
+	public Set<AssrtIntVar> getIntVars()
 	{
-		Set<AssrtDataVar> vars = new HashSet<>();
-		vars.add(new AssrtDataVar(this.name));  // FIXME: currently may also be a role
+		Set<AssrtIntVar> vars = new HashSet<>();
+		vars.add(new AssrtIntVar(this.name));  // FIXME: currently may also be a role
 		return vars; 
 	}
 	

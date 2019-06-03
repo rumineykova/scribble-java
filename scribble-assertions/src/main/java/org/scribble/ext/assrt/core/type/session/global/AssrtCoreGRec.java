@@ -14,7 +14,7 @@ import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRec;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
@@ -28,7 +28,7 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 		implements AssrtCoreGType
 {
 	protected AssrtCoreGRec(CommonTree source, RecVar rv,
-			LinkedHashMap<AssrtDataVar, AssrtAFormula> avars,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> avars,
 			AssrtCoreGType body, AssrtBFormula bform)
 	{
 		super(source, rv, avars, body, bform);

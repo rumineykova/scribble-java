@@ -4,16 +4,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.util.JavaSmtWrapper;
 import org.sosy_lab.java_smt.api.BooleanFormula;
 
 public class AssrtLogFormula extends AssrtBFormula
 {
-	public final Set<AssrtDataVar> vars; 
+	public final Set<AssrtIntVar> vars; 
 	
 	// Takes vars separately, because vars is done by AssrtBoolFormula::getVars (not BooleanFormula)
-	public AssrtLogFormula(BooleanFormula f, Set<AssrtDataVar> vars)
+	public AssrtLogFormula(BooleanFormula f, Set<AssrtIntVar> vars)
 	{
 		this.formula = f;  
 		this.vars = Collections.unmodifiableSet(vars); 	
@@ -62,7 +62,7 @@ public class AssrtLogFormula extends AssrtBFormula
 	}
 	
 	@Override
-	public Set<AssrtDataVar> getIntVars()
+	public Set<AssrtIntVar> getIntVars()
 	{
 		return new HashSet<>(this.vars); 
 	}

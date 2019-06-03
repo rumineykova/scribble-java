@@ -1,32 +1,34 @@
 package org.scribble.ext.assrt.ast;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
-
 // ProtoHeader or Recursion
 public interface AssrtStateVarDeclNode
 {
-	CommonTree getAnnotChild();
+	//CommonTree getAnnotChild();
 	AssrtBExprNode getAnnotAssertChild();
-	List<AssrtIntVarNameNode> getAnnotVarChildren();
-	List<AssrtAExprNode> getAnnotExprChildren();
+	//List<AssrtIntVarNameNode> getAnnotVarChildren();
+	//List<AssrtAExprNode> getAnnotExprChildren();
+	public AssrtStateVarDeclList getStateVarDeclListChild();
 
 	default String annotToString()
 	{
-		CommonTree ext = getAnnotChild();
+		/*CommonTree ext = getAnnotChild();
 		if (ext == null)
 		{
 			return "";
-		}
-		Iterator<AssrtAExprNode> exprs = getAnnotExprChildren().iterator();
+		}*/
+		/*List<AssrtIntVarNameNode> svars = getAnnotVarChildren();
+		Iterator<AssrtAExprNode> sexprs = getAnnotExprChildren().iterator();
 		AssrtBExprNode ass = getAnnotAssertChild();
 		return " @(\""
-				+ getAnnotVarChildren().stream().map(v -> v + " := " + exprs.next())
-						.collect(Collectors.joining(", "))
-				+ "\") " + ((ass == null) ? "" : ass);
+				+ (svars.isEmpty()
+						? ""
+						: "<" + svars.stream().map(v -> v + " := " + sexprs.next())
+								.collect(Collectors.joining(", ")) + ">\"")
+				+ ((ass == null) ? "" : " " + ass);*/
+		AssrtBExprNode ass = getAnnotAssertChild();
+		AssrtStateVarDeclList svars = getStateVarDeclListChild();
+		return " @(\""
+				+ (svars == null ? "" : svars)
+				+ (ass == null ? "" : (svars == null ? "" : " ") + ass);
 	}
 }

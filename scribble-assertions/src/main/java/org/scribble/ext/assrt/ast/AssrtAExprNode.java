@@ -12,10 +12,10 @@ public class AssrtAExprNode extends ScribNodeBase implements AssrtExprNode
 	public final AssrtAFormula expr;
 
 	// ScribTreeAdaptor#create constructor
-	public AssrtAExprNode(Token t, AssrtAFormula expr)
+	public AssrtAExprNode(int ttype, Token t, AssrtAFormula aexpr)  // EXTID<AssrtBExprNode>[$EXTID, ...], cf. Scribble.g simple names
 	{
 		super(t);
-		this.expr = expr;
+		this.expr = aexpr;
 	}
 
 	// Tree#dupNode constructor

@@ -23,7 +23,7 @@ import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtLogFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.core.type.name.AssrtPayElemType;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtERecv;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
@@ -145,7 +145,7 @@ public class AssrtSConfig extends SConfig
 							}
 							else
 							{
-								varName = ((AssrtDataVar) elem).toString();
+								varName = ((AssrtIntVar) elem).toString();
 							}
 
 							if (!vars.containsKey(a.obj))

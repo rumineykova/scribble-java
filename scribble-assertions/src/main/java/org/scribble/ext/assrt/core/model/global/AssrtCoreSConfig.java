@@ -46,7 +46,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtUnintPredicateFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.scribble.ext.assrt.visit.AssrtCoreGProtoDeclTranslator;
@@ -62,17 +62,17 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	private final Map<Role, EFsm> P;          
 	private final SSingleBuffers Q;  // null value means connected and empty -- dest -> src -> msg
 
-	public final Map<Role, Set<AssrtDataVar>> K;  // Conflict between having this in the state, and formula building?
+	public final Map<Role, Set<AssrtIntVar>> K;  // Conflict between having this in the state, and formula building?
 	public final Map<Role, Set<AssrtBFormula>> F;  // N.B. because F not in equals/hash, "final" receive in a recursion doesn't get built -- cf., unsat check only for send actions
-	public final Map<Role, Map<AssrtDataVar, AssrtAFormula>> V;  
+	public final Map<Role, Map<AssrtIntVar, AssrtAFormula>> V;  
 	public final Map<Role, Set<AssrtBFormula>> R;  // F is history for action ass's; R is history for rec ass's ?
 	private final Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename; // combine with K?
 
 	// Pre: non-aliased "ownership" of all Map contents
 	protected AssrtCoreSConfig(ModelFactory mf, Map<Role, EFsm> P,
-			SSingleBuffers Q, Map<Role, Set<AssrtDataVar>> K,
+			SSingleBuffers Q, Map<Role, Set<AssrtIntVar>> K,
 			Map<Role, Set<AssrtBFormula>> F,
-			Map<Role, Map<AssrtDataVar, AssrtAFormula>> V,
+			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V,
 			Map<Role, Set<AssrtBFormula>> R,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
 	{
@@ -338,9 +338,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	private AssrtCoreSConfig fireSend(Role self, AssrtCoreESend a, EFsm succ)
 	{
 		Map<Role, EFsm> P = new HashMap<>(this.P);
-		Map<Role, Set<AssrtDataVar>> K = copyK(this.K);
+		Map<Role, Set<AssrtIntVar>> K = copyK(this.K);
 		Map<Role, Set<AssrtBFormula>> F = copyF(this.F);
-		Map<Role, Map<AssrtDataVar, AssrtAFormula>> V = copyR(this.V);
+		Map<Role, Map<AssrtIntVar, AssrtAFormula>> V = copyR(this.V);
 		//R.get(self).putAll(succ.getAnnotVars());  // Should "overwrite" previous var values -- no, do later (and from action info, not state)
 		Map<Role, Set<AssrtBFormula>> R = copyRass(this.R);
 		Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename = copyRename(
@@ -367,9 +367,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
   // CHECKME: only need to update self entries of Maps -- almost: except for addAnnotOpensToF, and some renaming via Streams
 	private static void updateOutput(Role self, AssrtCoreEAction a, EFsm succ,
-			Map<Role, Set<AssrtDataVar>> K, 
+			Map<Role, Set<AssrtIntVar>> K, 
 			Map<Role, Set<AssrtBFormula>> F,
-			Map<Role, Map<AssrtDataVar, AssrtAFormula>> V,
+			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V,
 			Map<Role, Set<AssrtBFormula>> R,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
 	{
@@ -377,7 +377,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		{
 			if (e instanceof AssrtAnnotDataName)
 			{
-				AssrtDataVar v = ((AssrtAnnotDataName) e).var;
+				AssrtIntVar v = ((AssrtAnnotDataName) e).var;
 				//renameOldVarsInF(self, v, F, rename);  // CHECKME
 				updateForAnnotVar(v, K.get(self));
 			}
@@ -395,7 +395,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	// Rename existing vars with same name -- CHECKME: what is an example?
 	// N.B. no "updateRfromF" -- actually, "update R from payload annot" -- leaving R statevars as they are is OK, validation only done from F's and R already incorporated into F (and updates handled by updateFfromR)
 	// But would it be more consistent to update R?
-	private static void renameOldVarsInF(Role self, AssrtDataVar v, 
+	private static void renameOldVarsInF(Role self, AssrtIntVar v, 
 			Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
 	{
@@ -412,7 +412,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 	}
 
-	private static void updateForAnnotVar(AssrtDataVar v, Set<AssrtDataVar> Kself)
+	private static void updateForAnnotVar(AssrtIntVar v, Set<AssrtIntVar> Kself)
 	{
 		addAnnotVarToK(v, Kself);  // Update K
 	}
@@ -420,21 +420,21 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
   // CHECKME: only need to update self entries of Maps -- almost: except for addAnnotOpensToF, and some renaming via Streams
 	private static void updateForAssertionAndStateExprs(Role self,  // CHECKME: EAction closest base type -- ?
 			AssrtBFormula ass, List<AssrtAFormula> aexprs, EFsm succ,  // From an AssrtAnnotDataName pay elem
-			Map<Role, Set<AssrtDataVar>> K, 
+			Map<Role, Set<AssrtIntVar>> K, 
 			Map<Role, Set<AssrtBFormula>> F, 
-			Map<Role, Map<AssrtDataVar, AssrtAFormula>> V, 
+			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V, 
 			Map<Role, Set<AssrtBFormula>> R, 
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)  
 	{
 		addAnnotOpensToF(ass, F);  // CHECKME HACK?  for port forwarding
 		addAssertionToF(ass, F.get(self));
 
-		Map<AssrtDataVar, AssrtAFormula> Vself = V.get(self);  
+		Map<AssrtIntVar, AssrtAFormula> Vself = V.get(self);  
 				// Rename old R vars -- must come before adding new F and R clauses  // CHECKME: not done?
 
 		// "forward" recs will have annot vars but no state exprs
 		AssrtEState s = (AssrtEState) succ.curr;
-		LinkedHashMap<AssrtDataVar, AssrtAFormula> svars = s.getStateVars();
+		LinkedHashMap<AssrtIntVar, AssrtAFormula> svars = s.getStateVars();
 				// aforms = action update exprs for state vars  // CHECKME: svars.size() == aforms.size() ?
 
 		// Following must come after F update (addAnnotBexprToF)
@@ -488,7 +488,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 	}
 
-	private static void addAnnotVarToK(AssrtDataVar v, Set<AssrtDataVar> Kself)
+	private static void addAnnotVarToK(AssrtIntVar v, Set<AssrtIntVar> Kself)
 	{
 		Kself.add(v);
 	}
@@ -503,14 +503,14 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
 	// Must come after initial F update (addAnnotBexprToF)
 	private static void updateRecEntry(Role self,
-			LinkedHashMap<AssrtDataVar, AssrtAFormula> svars, AssrtBFormula ass,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars, AssrtBFormula ass,
 			Map<Role, Set<AssrtBFormula>> F,
-			Map<AssrtDataVar, AssrtAFormula> Vself, 
+			Map<AssrtIntVar, AssrtAFormula> Vself, 
 			Set<AssrtBFormula> Rself)
 	{
-		for (Entry<AssrtDataVar, AssrtAFormula> e : svars.entrySet())
+		for (Entry<AssrtIntVar, AssrtAFormula> e : svars.entrySet())
 		{
-			AssrtDataVar svar = e.getKey();
+			AssrtIntVar svar = e.getKey();
 			AssrtAFormula sexpr = e.getValue();  // "Init" state var expr
 			
 			// CHECKME: record statevar mapping for "direct substitution" modelling special case? (i.e., no "old var" renaming)...
@@ -535,13 +535,13 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
 	// Must come after initial F update (addAnnotBexprToF)
 	private static void updateRecContinue(Role self,
-			List<AssrtDataVar> svars,
+			List<AssrtIntVar> svars,
 			List<AssrtAFormula> aexprs,			
 			Map<Role, Set<AssrtBFormula>> F,
-			Map<AssrtDataVar, AssrtAFormula> Vself)
+			Map<AssrtIntVar, AssrtAFormula> Vself)
 	{
 		Iterator<AssrtAFormula> iaexprs = aexprs.iterator();
-		for (AssrtDataVar svar : svars)  // FIXME: statevar ordering
+		for (AssrtIntVar svar : svars)  // FIXME: statevar ordering
 		{
 			AssrtAFormula aexpr = iaexprs.next();
 
@@ -571,10 +571,10 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	}
 
 	// F part is only a renaming(?)
-	private static void updateVAndFFromStateVar(Role self, AssrtDataVar svar,
+	private static void updateVAndFFromStateVar(Role self, AssrtIntVar svar,
 			AssrtAFormula aform,
 			Map<Role, Set<AssrtBFormula>> F,  // Currently renaming creates new Set, so need to replace the entry in F (cf. mutate Fself)
-			Map<AssrtDataVar, AssrtAFormula> Vself, 
+			Map<AssrtIntVar, AssrtAFormula> Vself, 
 			boolean forwards)
 	{
 		if (!forwards)
@@ -629,9 +629,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	private AssrtCoreSConfig fireRecv(Role self, AssrtCoreERecv a, EFsm succ)
 	{
 		Map<Role, EFsm> P = new HashMap<>(this.P);
-		Map<Role, Set<AssrtDataVar>> K = copyK(this.K);
+		Map<Role, Set<AssrtIntVar>> K = copyK(this.K);
 		Map<Role, Set<AssrtBFormula>> F = copyF(this.F);
-		Map<Role, Map<AssrtDataVar, AssrtAFormula>> V = copyR(this.V);
+		Map<Role, Map<AssrtIntVar, AssrtAFormula>> V = copyR(this.V);
 		//R.get(self).putAll(succ.getAnnotVars());  // Should "overwrite" previous var values -- no, do later (and from action info, not state)
 		Map<Role, Set<AssrtBFormula>> R = copyRass(this.R);
 		Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename = copyRename(
@@ -653,8 +653,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	private static void updateInput(Role self, AssrtCoreEAction a,
 			AssrtCoreEMsg msg, Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow,
 			EFsm succ,
-			Map<Role, Set<AssrtDataVar>> K, Map<Role, Set<AssrtBFormula>> F,
-			Map<Role, Map<AssrtDataVar, AssrtAFormula>> V,
+			Map<Role, Set<AssrtIntVar>> K, Map<Role, Set<AssrtBFormula>> F,
+			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V,
 			Map<Role, Set<AssrtBFormula>> R,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename) 
 			// CHECKME: EAction closest base type -- ?
@@ -663,7 +663,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		{
 			if (pt instanceof AssrtAnnotDataName)
 			{
-				AssrtDataVar v = ((AssrtAnnotDataName) pt).var;
+				AssrtIntVar v = ((AssrtAnnotDataName) pt).var;
 				updateForAnnotVar(v, K.get(self));  // Update K
 			}
 			else
@@ -699,9 +699,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
 	// FIXME: V
 	private static void fireAcc(Map<Role, EFsm> P, SSingleBuffers Q,
-			Map<Role, Map<AssrtDataVar, AssrtAFormula>> V,
+			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V,
 			Map<Role, Set<AssrtBFormula>> R,
-			Map<Role, Set<AssrtDataVar>> K, Map<Role, Set<AssrtBFormula>> F, 
+			Map<Role, Set<AssrtIntVar>> K, Map<Role, Set<AssrtBFormula>> F, 
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreEAcc a, EFsm succ)
 	{
@@ -718,9 +718,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	}
 
 	private static void fireReq(Map<Role, EFsm> P, SSingleBuffers Q,
-			Map<Role, Map<AssrtDataVar, AssrtAFormula>> V,
+			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V,
 			Map<Role, Set<AssrtBFormula>> R,
-			Map<Role, Set<AssrtDataVar>> K, Map<Role, Set<AssrtBFormula>> F,
+			Map<Role, Set<AssrtIntVar>> K, Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename,
 			Role self, AssrtCoreEReq a, EFsm succ)
 	{
@@ -891,15 +891,15 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		{
 			Role self = e.getKey();
 			EState curr = e.getValue().curr;
-			Set<AssrtDataVar> Kself = this.K.get(self);
-			Set<AssrtDataVar> Vself = this.V.get(self).keySet();
+			Set<AssrtIntVar> Kself = this.K.get(self);
+			Set<AssrtIntVar> Vself = this.V.get(self).keySet();
 			Set<String> rs = core.getContext().getInlined(fullname).roles.stream()
 					.map(Object::toString).collect(Collectors.toSet());
 			Predicate<EAction> isErr = a ->
 			{
 				if (a.isSend() || a.isRequest())
 				{
-					Set<AssrtDataVar> known = a.payload.elems.stream()
+					Set<AssrtIntVar> known = a.payload.elems.stream()
 							.map(x -> ((AssrtAnnotDataName) x).var)
 							.collect(Collectors.toSet());
 						// TODO: throw new RuntimeException("[assrt-core] Shouldn't get in here: " + pe);
@@ -976,7 +976,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				? AssrtTrueFormula.TRUE
 				: Fself.stream().reduce((x1, x2) -> AssrtFormulaFactory
 						.AssrtBinBool(AssrtBinBFormula.Op.And, x1, x2)).get();  // Here, conjunction of F terms
-		Map<AssrtDataVar, AssrtAFormula> Vself = this.V.get(self);
+		Map<AssrtIntVar, AssrtAFormula> Vself = this.V.get(self);
 		if (!Vself.isEmpty())
 		{
 			AssrtBFormula vconj = Vself.entrySet().stream()
@@ -1126,7 +1126,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		
 		// Next, conjunction of V eq-terms
 		// Include Vself and Rself, to check lhs(?) is sat for assrt-prog (o/w false => any)
-		Map<AssrtDataVar, AssrtAFormula> Vself = this.V.get(self);
+		Map<AssrtIntVar, AssrtAFormula> Vself = this.V.get(self);
 		if (!Vself.isEmpty())
 		{  // Cast needed for reduce
 			AssrtBFormula Vconj = Vself.entrySet().stream()
@@ -1156,7 +1156,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		// Finally, *ex*-quanitfy all free vars -- cf. forallQuantifyFreeVars
 		Set<String> rs = core.getContext().getInlined(fullname).roles.stream()
 				.map(Object::toString).collect(Collectors.toSet());
-		Set<AssrtDataVar> free = res.getIntVars().stream()
+		Set<AssrtIntVar> free = res.getIntVars().stream()
 				//.filter(x -> !rs.contains(x.toString()))  // CHECKME: formula role vars -- cf. getUnknownDataVarErrors  // CHECKME: what is the example?
 				.collect(Collectors.toSet());
 		if (!free.isEmpty())
@@ -1212,7 +1212,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			return AssrtTrueFormula.TRUE;
 		}
 		
-		Map<AssrtDataVar, AssrtAFormula> Vself = this.V.get(self);
+		Map<AssrtIntVar, AssrtAFormula> Vself = this.V.get(self);
 		if (!Vself.isEmpty())
 		{
 			AssrtBFormula Vconj = Vself.entrySet().stream().map(x -> (AssrtBFormula)  // Cast needed
@@ -1313,7 +1313,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 		
 		// Next, conjunction of V eq-terms
-		Map<AssrtDataVar, AssrtAFormula> Vself = this.V.get(self);
+		Map<AssrtIntVar, AssrtAFormula> Vself = this.V.get(self);
 		if (!Vself.isEmpty())
 		{
 			AssrtBFormula Vconj = Vself.entrySet().stream()
@@ -1355,7 +1355,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			}
 
 			// Next for lhs, state var eq-terms for initial rec entry
-			LinkedHashMap<AssrtDataVar, AssrtAFormula> svars = succ.getStateVars();
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars = succ.getStateVars();
 			if (!svars.isEmpty())
 			{
 				AssrtBFormula svarsConj = svars.entrySet().stream()
@@ -1400,11 +1400,11 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			}
 
 			// Next for rhs, rename target rec state vars
-			List<AssrtDataVar> old = new LinkedList<>(succ.getStateVars().keySet());  // FIXME state var ordering w.r.t. exprs
+			List<AssrtIntVar> old = new LinkedList<>(succ.getStateVars().keySet());  // FIXME state var ordering w.r.t. exprs
 			List<AssrtIntVarFormula> fresh = old.stream().map(v -> makeFreshIntVar(v))
 					.collect(Collectors.toList());
 			Iterator<AssrtIntVarFormula> ifresh = fresh.iterator();
-			for (AssrtDataVar v : old)
+			for (AssrtIntVar v : old)
 			{
 				rhs = rhs.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()),
 						ifresh.next());
@@ -1519,8 +1519,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		return copy;
 	}*/
 
-	private static Map<Role, Set<AssrtDataVar>> copyK(
-			Map<Role, Set<AssrtDataVar>> K)
+	private static Map<Role, Set<AssrtIntVar>> copyK(
+			Map<Role, Set<AssrtIntVar>> K)
 	{
 		return K.entrySet().stream().collect(
 				Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
@@ -1533,8 +1533,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
 	}
 
-	private static Map<Role, Map<AssrtDataVar, AssrtAFormula>> copyR(
-			Map<Role, Map<AssrtDataVar, AssrtAFormula>> R)
+	private static Map<Role, Map<AssrtIntVar, AssrtAFormula>> copyR(
+			Map<Role, Map<AssrtIntVar, AssrtAFormula>> R)
 	{
 		return R.entrySet().stream().collect(
 				Collectors.toMap(Entry::getKey, e -> new HashMap<>(e.getValue())));
@@ -1554,7 +1554,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				Collectors.toMap(Entry::getKey, e -> new HashMap<>(e.getValue())));
 	}
 
-	private static AssrtIntVarFormula makeFreshIntVar(AssrtDataVar var)
+	private static AssrtIntVarFormula makeFreshIntVar(AssrtIntVar var)
 	{
 		return AssrtFormulaFactory.AssrtIntVar("_" + var.toString() + counter++);  // HACK
 	}
@@ -1564,7 +1564,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	{
 		Set<String> rs = core.getContext().getInlined(fullname).roles.stream()
 				.map(Object::toString).collect(Collectors.toSet());
-		Set<AssrtDataVar> free = bform.getIntVars().stream()
+		Set<AssrtIntVar> free = bform.getIntVars().stream()
 				//.filter(x -> !rs.contains(x.toString()))  // CHECKME: formula role vars -- cf. getUnknownDataVarErrors  // CHECKME: what is an example?
 				.collect(Collectors.toSet());
 		if (!free.isEmpty())
@@ -1673,7 +1673,7 @@ class AssrtCoreEBot extends AssrtCoreEMsg
 	// N.B. must be initialised *before* ASSSRTCORE_BOT
 	private static final Payload ASSRTCORE_EMPTY_PAYLOAD =
 			new Payload(
-					Arrays.asList(new AssrtAnnotDataName(new AssrtDataVar("_BOT"),
+					Arrays.asList(new AssrtAnnotDataName(new AssrtIntVar("_BOT"),
 							AssrtCoreGProtoDeclTranslator.UNIT_DATATYPE)));
 			// Cf. Payload.EMPTY_PAYLOAD
 
@@ -1745,7 +1745,7 @@ class AssrtCoreEPendingRequest extends AssrtCoreEMsg
 {
 	public static final Payload ASSRTCORE_EMPTY_PAYLOAD =
 			new Payload(
-					Arrays.asList(new AssrtAnnotDataName(new AssrtDataVar("_BOT"),
+					Arrays.asList(new AssrtAnnotDataName(new AssrtIntVar("_BOT"),
 							AssrtCoreGProtoDeclTranslator.UNIT_DATATYPE)));
 			// Cf. Payload.EMPTY_PAYLOAD
 	

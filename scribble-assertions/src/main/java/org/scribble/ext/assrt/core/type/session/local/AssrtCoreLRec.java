@@ -7,14 +7,14 @@ import org.scribble.core.type.kind.Local;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
-import org.scribble.ext.assrt.core.type.name.AssrtDataVar;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRec;
 
 public class AssrtCoreLRec extends AssrtCoreRec<Local, AssrtCoreLType>
 		implements AssrtCoreLType
 {
 	protected AssrtCoreLRec(CommonTree source, RecVar rv,
-			LinkedHashMap<AssrtDataVar, AssrtAFormula> avars,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> avars,
 			AssrtCoreLType body, AssrtBFormula bform)
 	{
 		super(source, rv, avars, body, bform);
