@@ -60,7 +60,9 @@ public interface AssrtAstFactory extends AstFactory
 			RoleDeclList rs, NonRoleParamDeclList ps, 
 			AssrtStateVarDeclList svars, AssrtBExprNode ass);//, List<AssrtAExprNode> sexprs);  // FIXME: not actually how parsed
 	AssrtStateVarDeclList AssrtStateVarDeclList(Token t, List<AssrtStateVarDecl> svars);
-	AssrtStateVarDecl AssrtStateVarDecl(Token t, AssrtIntVarNameNode svar);
+
+	AssrtStateVarDecl AssrtStateVarDecl(Token t, AssrtIntVarNameNode svar,
+			AssrtAExprNode sexpr);
 
 	AssrtAssertDecl AssrtAssertDecl(Token t, AssrtAssertNameNode name,
 			List<AssrtSortNode> ps, AssrtSortNode ret, AssrtSmtFormula<?> expr);

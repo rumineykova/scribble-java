@@ -1,7 +1,5 @@
 package org.scribble.ext.assrt.ast;
 
-import org.scribble.ast.ScribNode;
-
 // ProtoHeader or Recursion
 public interface AssrtStateVarDeclNode
 {
@@ -27,10 +25,12 @@ public interface AssrtStateVarDeclNode
 						: "<" + svars.stream().map(v -> v + " := " + sexprs.next())
 								.collect(Collectors.joining(", ")) + ">\"")
 				+ ((ass == null) ? "" : " " + ass);*/
-		AssrtBExprNode ass = getAnnotAssertChild();
 		AssrtStateVarDeclList svars = getStateVarDeclListChild();
-		return " @(\""
-				+ (svars == null ? "" : svars)
-				+ (ass == null ? "" : (svars == null ? "" : " ") + ass);
+		AssrtBExprNode ass = getAnnotAssertChild();
+		return (svars == null && ass == null) 
+				? ""
+				: " @" + (svars == null || svars.isEmpty()
+								? "" : svars + (ass == null ? "" : " "))
+						+ (ass == null ? "" : ass);
 	}
 }

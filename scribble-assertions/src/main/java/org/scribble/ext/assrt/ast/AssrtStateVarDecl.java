@@ -15,16 +15,22 @@ package org.scribble.ext.assrt.ast;
 
 import org.antlr.runtime.Token;
 import org.scribble.ast.ParamDecl;
+import org.scribble.ast.name.NameNode;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.core.type.kind.AssrtIntVarKind;
 import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
+import org.scribble.util.ScribException;
+import org.scribble.visit.AstVisitor;
 
 // Names that are declared in a protocol header (roles and parameters -- not the protocol name though)
 // RoleKind or (NonRole)ParamKind
 public class AssrtStateVarDecl extends ParamDecl<AssrtIntVarKind>
 {
+	//public static final int NAMENODE_CHILD_INDEX = 0;
+	public static final int ASSRT_STATEVAREXPR_CHILD_INDEX = 1;
+
 	// ScribTreeAdaptor#create constructor
 	public AssrtStateVarDecl(Token t)
 	{
@@ -43,6 +49,25 @@ public class AssrtStateVarDecl extends ParamDecl<AssrtIntVarKind>
 		return (AssrtIntVarNameNode) getRawNameNodeChild();
 	}
 	
+	public AssrtAExprNode getStateVarExprChild()
+	{
+		return (AssrtAExprNode) getChild(ASSRT_STATEVAREXPR_CHILD_INDEX);
+	}
+
+	@Override
+	public void addScribChildren(NameNode<AssrtIntVarKind> name)
+	{
+		throw new RuntimeException("Deprecated for " + getClass() + ": " + this);
+	}
+
+	// "add", not "set"
+	public void addScribChildren(NameNode<AssrtIntVarKind> name, AssrtAExprNode sexpr)
+	{
+		// Cf. above getters and Scribble.g children order
+		super.addScribChildren(name);
+		addChild(sexpr);
+	}
+	
 	@Override
 	public AssrtStateVarDecl dupNode()
 	{
@@ -56,6 +81,32 @@ public class AssrtStateVarDecl extends ParamDecl<AssrtIntVarKind>
 	}
 
 	@Override
+	public ParamDecl<AssrtIntVarKind> reconstruct(NameNode<AssrtIntVarKind> name)
+	{
+		throw new RuntimeException("Deprecated for " + getClass() + ": " + this);
+	}
+
+	public ParamDecl<AssrtIntVarKind> reconstruct(NameNode<AssrtIntVarKind> name,
+			AssrtAExprNode sexpr)
+			// Always a "simple" name (e.g., like Role), but Type/Sig names are not SimpleNames
+	{
+		AssrtStateVarDecl dup = dupNode();
+		dup.addScribChildren(name, sexpr);
+		dup.setDel(del());  // No copy
+		return dup;
+	}
+	
+	@Override
+	public ParamDecl<AssrtIntVarKind> visitChildren(AstVisitor v)
+			throws ScribException
+	{
+		NameNode<AssrtIntVarKind> svar = 
+				visitChildWithClassEqualityCheck(this, getNameNodeChild(), v);
+		AssrtAExprNode sexpr = (AssrtAExprNode) visitChild(getStateVarExprChild(), v);
+		return reconstruct(svar, sexpr);
+	}
+
+	@Override
 	public AssrtIntVar getDeclName()
 	{
 		return getNameNodeChild().toName();
@@ -64,7 +115,13 @@ public class AssrtStateVarDecl extends ParamDecl<AssrtIntVarKind>
 	@Override
 	public String getKeyword()
 	{
-		return "";  // FIXME:  output still adds ' ' after this empty keyword
+		throw new RuntimeException("Deprecated for " + getClass() + ": " + this);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return getDeclName().toString() + " := " + getStateVarExprChild();
 	}
 }
 

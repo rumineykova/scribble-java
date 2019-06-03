@@ -117,7 +117,8 @@ public class AssrtLSend extends LSend implements AssrtActionAssertNode
 	@Override
 	public String toString()
 	{
-		return super.toString() + " " + getAssertionChild();
+		AssrtBExprNode ass = getAssertionChild();
+		return super.toString() + (ass == null ? "" : " @" + getAssertionChild());
 	}
 }
 

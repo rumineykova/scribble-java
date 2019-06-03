@@ -25,8 +25,8 @@ public class AssrtGProtoHeader extends GProtoHeader
 	public static final int ANNOT_STATEVAR_CHILDREN_START_INDEX = 1;*/
 
 	//public static final int ROLEDECLLIST_CHILD = 2;
-	public static final int ASSRT_STATEVARDECLLIST_CHILD_INDEX = 3;  // May be empty (cf. ParamDeclList child)
-	public static final int ASSRT_ASSERTION_CHILD_INDEX = 4;  // May be null
+	public static final int ASSRT_STATEVARDECLLIST_CHILD_INDEX = 3;  // null if no @-annot; o/w may be empty (cf. ParamDeclList child) -- FIXME (deprecate empty)
+	public static final int ASSRT_ASSERTION_CHILD_INDEX = 4;  // null if no @-annot; o/w may still be null
 
 	// ScribTreeAdaptor#create constructor
 	public AssrtGProtoHeader(Token t)
@@ -62,10 +62,6 @@ public class AssrtGProtoHeader extends GProtoHeader
 		return (n.getText().equals("ASSRT_EMPTYASS"))  // TODO: factor out constant
 				? null
 				: (AssrtBExprNode) n;*/
-
-		
-		System.out.println("3333: " + getChildren());
-		
 		return (AssrtBExprNode) getChild(ASSRT_ASSERTION_CHILD_INDEX);
 	}
 	

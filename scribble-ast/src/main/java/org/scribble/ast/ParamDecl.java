@@ -52,11 +52,11 @@ public abstract class ParamDecl<K extends ParamKind>
 	}
 	
 	@Override
-	public ParamDecl<K> visitChildren(AstVisitor nv)
+	public ParamDecl<K> visitChildren(AstVisitor v)
 			throws ScribException
 	{
 		NameNode<K> name = 
-				visitChildWithClassEqualityCheck(this, getNameNodeChild(), nv);
+				visitChildWithClassEqualityCheck(this, getNameNodeChild(), v);
 		return reconstruct(name);
 	}
 	

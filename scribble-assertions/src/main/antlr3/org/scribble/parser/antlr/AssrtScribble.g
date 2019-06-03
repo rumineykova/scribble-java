@@ -538,14 +538,14 @@ assrt_gprotoheader:
 			// TODO: paramdecls
 ->
 	^(ASSRT_GPROTOHEADER simplegprotoname ^(PARAMDECL_LIST) roledecls 
-			//{null}  // ANTLR is filtering this somewhere?
+			//{null}  // ANTLR is filtering this somewhere?  added by the parser, but not present in getChildren
 			^(ASSRT_STATEVARDECL_LIST)  // Cf. ^(PARAMDECL_LIST)
 			assrt_statevarassrt)
 ;
 // Following same pattern as gmsgtransfer: explicitly invoke AssertionsParser, and extra assertion element only for new category
 // -- later translation by AssrtAntlrToScribParser converts original nodes to empty-assertion new nodes
 	
-assrt_statevarassrt:
+assrt_statevarassrt:  // FIXME: refactor with assrt_gmsgtransfer_annot
 	t=EXTID
 ->
 	EXTID<AssrtBExprNode>[$t, AssertionsParser.parseAssertion($t.text)]
@@ -746,12 +746,25 @@ gdo:
 
 // Assrt
 |
-	DO_KW simplegprotoname roleargs ';' '@' EXTID
+	DO_KW simplegprotoname roleargs ';' '@' //assrt_statevarargs
+			'<' assrt_statevararg (',' assrt_statevararg)* '>'
 ->
-	^(ASSRT_GDO simplegprotoname ^(NONROLEARG_LIST) roleargs 
-			{AssertionsParser.parseStateVarArgList($EXTID.text)})
+	^(ASSRT_GDO simplegprotoname ^(NONROLEARG_LIST) roleargs assrt_statevararg+)
 ;
 // TODO: non-role args, annot
+
+/*assrt_statevarargs:
+	'<' assrt_statevararg (',' assrt_statevararg)* '>'
+->
+	^(ASSRT_... assrt_statevararg+)
+;*/
+
+// TODO: refactor with assrt_statevardecl
+assrt_statevararg:  // ScribNode "wrappers" (for EXTID/Assertions.g), cf. simple names (for ID)
+	id=EXTID
+->
+	EXTID<AssrtAExprNode>[$id, AssertionsParser.parseArithAnnotation($id.text)]
+;
 
 roleargs:
 	t='(' rolearg (',' rolearg)* ')' -> ^(ROLEARG_LIST rolearg+)

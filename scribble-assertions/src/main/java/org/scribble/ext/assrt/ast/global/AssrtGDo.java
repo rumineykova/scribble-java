@@ -22,7 +22,7 @@ import org.scribble.visit.AstVisitor;
 // Cf. AssrtGContinue
 public class AssrtGDo extends GDo implements AssrtStateVarArgNode
 {
-	public static final int EXPR_CHILDREN_START_INDEX = 3;
+	public static final int STATEVAREXPR_CHILDREN_START_INDEX = 3;
 
 	// ScribTreeAdaptor#create constructor
 	public AssrtGDo(Token t)
@@ -40,8 +40,8 @@ public class AssrtGDo extends GDo implements AssrtStateVarArgNode
 	public List<AssrtAExprNode> getAnnotExprChildren()
 	{
 		List<? extends ScribNode> cs = getChildren();
-		return cs.subList(3, cs.size()).stream().map(x -> (AssrtAExprNode) x)
-				.collect(Collectors.toList());
+		return cs.subList(STATEVAREXPR_CHILDREN_START_INDEX, cs.size()).stream()
+				.map(x -> (AssrtAExprNode) x).collect(Collectors.toList());
 	}
 	
 	@Override
@@ -54,13 +54,13 @@ public class AssrtGDo extends GDo implements AssrtStateVarArgNode
 
 	// "add", not "set"
 	public void addScribChildren(ProtoNameNode<Global> proto, NonRoleArgList as,
-			RoleArgList rs, List<AssrtAExprNode> aexprs)
+			RoleArgList rs, List<AssrtAExprNode> sexprs)
 	{
 		// Cf. above getters and Scribble.g children order
 		addChild(proto);  // Order re. getter indices
 		addChild(as);
 		addChild(rs);
-		addChildren(aexprs);
+		addChildren(sexprs);
 	}
 	
 	@Override
@@ -84,10 +84,10 @@ public class AssrtGDo extends GDo implements AssrtStateVarArgNode
 	}
 
 	public AssrtGDo reconstruct(ProtoNameNode<Global> proto, RoleArgList rs,
-			NonRoleArgList as, List<AssrtAExprNode> aexprs)
+			NonRoleArgList as, List<AssrtAExprNode> sexprs)
 	{
 		AssrtGDo dup = dupNode();
-		dup.addScribChildren(proto, as, rs, aexprs);
+		dup.addScribChildren(proto, as, rs, sexprs);
 		dup.setDel(del());  // No copy
 		return dup;
 	}
@@ -99,9 +99,9 @@ public class AssrtGDo extends GDo implements AssrtStateVarArgNode
 				getProtoNameChild(), v);
 		RoleArgList rs = (RoleArgList) visitChild(getRoleListChild(), v);
 		NonRoleArgList as = (NonRoleArgList) visitChild(getNonRoleListChild(), v);
-		List<AssrtAExprNode> aexprs = visitChildListWithClassEqualityCheck(this,
+		List<AssrtAExprNode> sexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);
-		return reconstruct(proto, rs, as, aexprs);
+		return reconstruct(proto, rs, as, sexprs);
 	}
 
 	@Override

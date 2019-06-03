@@ -44,8 +44,8 @@ public interface ScribNode extends Tree
 	ScribDel del();
 	//ScribNode del(ScribDel del);
 
-	ScribNode accept(AstVisitor nv) throws ScribException;  // The "top-level" method, e.g., module.accept(v)  (cf. Job::runVisitorOnModule)
-	ScribNode visitChildren(AstVisitor nv) throws ScribException;
+	ScribNode accept(AstVisitor v) throws ScribException;  // The "top-level" method, e.g., module.accept(v)  (cf. Job::runVisitorOnModule)
+	ScribNode visitChildren(AstVisitor v) throws ScribException;
 	
 	// For "simpler" visiting patterns than above
 	default <T> T visitWith(SimpleAstVisitor<T> v) throws ScribException  // "Top-level" visitor entry method

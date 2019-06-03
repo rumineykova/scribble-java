@@ -46,7 +46,7 @@ public class AssrtAExprNode extends ScribNodeBase implements AssrtExprNode
 	@Override
 	public String toString()
 	{
-		return this.expr.toString();
+		return "\"" + this.expr.toString() + "\"";
 	}
 }
 
