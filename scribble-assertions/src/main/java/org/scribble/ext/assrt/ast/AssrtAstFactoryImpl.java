@@ -189,7 +189,7 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 	public AssrtBExprNode AssrtBExprNode(Token t, AssrtBFormula bform)
 	{
 		int type = this.tokens.getType("EXTID");  // Cf., e.g., RoleNode getType "ID", also (generated) AssrtScribbleParser
-		t = newExtIdToken(t, t.getText());
+		t = newExtIdToken(t, (t == null) ? bform.toString() : t.getText());  // CHECKME: toString consistent with parsed syntax?  (cf. toSmt2Formula?)
 		AssrtBExprNode n = new AssrtBExprNode(type, t, bform);
 		n.decorateDel(this.df);
 		return n;

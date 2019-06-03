@@ -882,6 +882,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		});*/
 	}
 	
+	// Cf. refactor syntactically?  cf. connection errors
 	public Map<Role, Set<AssrtCoreEAction>> getUnknownDataVarErrors(
 			AssrtCore core, GProtoName fullname)
 	{
@@ -894,9 +895,6 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			Set<AssrtDataVar> Vself = this.V.get(self).keySet();
 			Set<String> rs = core.getContext().getInlined(fullname).roles.stream()
 					.map(Object::toString).collect(Collectors.toSet());
-			
-			System.out.println("1111: " + self);
-			
 			Predicate<EAction> isErr = a ->
 			{
 				if (a.isSend() || a.isRequest())
@@ -909,15 +907,20 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 					known.addAll(Vself);
 					return ((AssrtCoreEAction) a).getAssertion().getIntVars().stream()
 							//.filter(x -> !rs.contains(x.toString()))  // CHECKME: formula role vars -- what is this for?  what is an example?
-							.anyMatch(x -> !Kself.contains(x));
+							.anyMatch(x -> !known.contains(x));
 				}
 				else
 				{
 					return false;  // CHECKME: input-side assertions? currently hardcoded to True
 				}
 			};
-			res.put(self, curr.getDetActions().stream().filter(x -> isErr.test(x))
-					.map(x -> (AssrtCoreEAction) x).collect(Collectors.toSet()));
+			Set<AssrtCoreEAction> tmp = curr.getDetActions().stream()
+					.filter(x -> isErr.test(x)).map(x -> (AssrtCoreEAction) x)
+					.collect(Collectors.toSet());
+			if (!tmp.isEmpty())
+			{
+				res.put(self, tmp);
+			}
 		}
 		return res;
 	}
@@ -1265,8 +1268,13 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				return core.checkSat(fullname,
 						Stream.of(toCheck).collect(Collectors.toSet()));
 			};
-			res.put(self, curr.getActions().stream().filter(x -> !isSat.test(x))
-					.map(x -> (AssrtCoreEAction) x).collect(Collectors.toSet()));
+			Set<AssrtCoreEAction> tmp = curr.getActions().stream()
+					.filter(x -> !isSat.test(x)).map(x -> (AssrtCoreEAction) x)
+					.collect(Collectors.toSet());
+			if (!tmp.isEmpty())
+			{
+				res.put(self, tmp);
+			}
 		}
 		return res;
 	}

@@ -119,7 +119,7 @@ public class AssrtGMsgTransfer extends GMsgTransfer
 	public String toString()
 	{
 		AssrtBExprNode bexpr = getAssertionChild();
-		return super.toString() + ((bexpr == null) ? "" : " @" + bexpr);
+		return super.toString() + ((bexpr == null) ? "" : " " + bexpr);
 	}
 }
 

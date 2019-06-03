@@ -29,7 +29,8 @@ public class AssrtCoreSModel extends SModel
 		{
 			//SStateErrors errs = this.graph.states.get(id).getErrors();  // TODO: getErrors needs core/fullname args
 			AssrtCoreSStateErrors errs = new AssrtCoreSStateErrors(this.core,
-					this.graph.proto, (AssrtCoreSState) this.graph.states.get(id));
+					this.graph.proto, (AssrtCoreSState) this.graph.init,
+					(AssrtCoreSState) this.graph.states.get(id));
 			if (!errs.isEmpty())
 			{
 				res.put(id, errs);

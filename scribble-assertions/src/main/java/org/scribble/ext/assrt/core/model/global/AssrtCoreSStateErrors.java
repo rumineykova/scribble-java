@@ -25,6 +25,7 @@ import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.Role;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAction;
+import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 
 public class AssrtCoreSStateErrors extends SStateErrors
 {
@@ -34,11 +35,12 @@ public class AssrtCoreSStateErrors extends SStateErrors
 	public final Map<Role, Set<AssrtCoreEAction>> unknown;
 	public final Map<Role, EState> assprog;  // TODO: rename -- state (safety) error, not "progress"
 	public final Map<Role, Set<AssrtCoreEAction>> assunsat;
+	public final Map<Role, AssrtEState> initrecass;
 	public final Map<Role, Set<AssrtCoreEAction>> recass;  // CHECKME: equiv of assprog for rec asserts?
 
 	// CHECKME: core and fullname really necessary?
 	public AssrtCoreSStateErrors(AssrtCore core, GProtoName fullname,
-			AssrtCoreSState state)
+			AssrtCoreSState init, AssrtCoreSState state)
 	{
 		super(state);
 		AssrtCoreSConfig cfg = (AssrtCoreSConfig) state.config;
@@ -48,8 +50,17 @@ public class AssrtCoreSStateErrors extends SStateErrors
 				.unmodifiableMap(cfg.getAssertProgressErrors(core, fullname));
 		this.assunsat = Collections
 				.unmodifiableMap(cfg.getAssertUnsatErrors(core, fullname));
-		this.recass = Collections
-				.unmodifiableMap(cfg.getAssertUnsatErrors(core, fullname));
+		if (this.state.id == init.id)
+		{
+			this.initrecass = cfg.getInitRecAssertErrors(core, fullname);
+			this.recass = Collections.emptyMap();
+		}
+		else
+		{
+			this.initrecass = Collections.emptyMap();
+			this.recass = Collections
+				.unmodifiableMap(cfg.getRecAssertErrors(core, fullname));
+		}
 		
 		// TODO batching
 		// TODO refactor super to take core
