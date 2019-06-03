@@ -525,17 +525,31 @@ assrt_gprotoheader:
 
 // Assrt
 |
-	GLOBAL_KW PROTOCOL_KW simplegprotoname roledecls '@' assrt_statevardecls? t=EXTID //assrt_statevar_annot
+	GLOBAL_KW PROTOCOL_KW simplegprotoname roledecls '@' assrt_statevardecls assrt_statevarassrt? //assrt_statevar_annot
 			// TODO: paramdecls
 ->
 	^(ASSRT_GPROTOHEADER simplegprotoname ^(PARAMDECL_LIST) roledecls 
 			//assrt_statevar_annot) 
-			EXTID<AssrtBExprNode>[$t, AssertionsParser.parseAssertion($t.text)]
-			assrt_statevardecls?)
+			assrt_statevardecls
+			assrt_statevarassrt?)
 			// use ".tree" for Tree instead of .text String
+|
+	GLOBAL_KW PROTOCOL_KW simplegprotoname roledecls '@' assrt_statevarassrt
+			// TODO: paramdecls
+->
+	^(ASSRT_GPROTOHEADER simplegprotoname ^(PARAMDECL_LIST) roledecls 
+			//{null}  // ANTLR is filtering this somewhere?
+			^(ASSRT_STATEVARDECL_LIST)  // Cf. ^(PARAMDECL_LIST)
+			assrt_statevarassrt)
 ;
 // Following same pattern as gmsgtransfer: explicitly invoke AssertionsParser, and extra assertion element only for new category
 // -- later translation by AssrtAntlrToScribParser converts original nodes to empty-assertion new nodes
+	
+assrt_statevarassrt:
+	t=EXTID
+->
+	EXTID<AssrtBExprNode>[$t, AssertionsParser.parseAssertion($t.text)]
+;
 
 assrt_statevardecls:
 	'<' assrt_statevardecl (',' assrt_statevardecl)* '>'
@@ -632,7 +646,7 @@ assrt_gmsgtransfer:
 	message FROM_KW rolename TO_KW rolename ';'
 ->
 	//^(GMSGTRANSFER message rolename rolename+)
-	^(ASSRT_GMSGTRANSFER message rolename rolename {null})
+	^(ASSRT_GMSGTRANSFER message rolename rolename)// {null})
 	// Return base GLOBALMESSAGETRANSFER (i.e., no ASSRT_EMPTY_ASSERTION)
 	// Rely on AssrtAntlrToScribParser to use AssrtAstFactory to create AssrtGMsgTransfer with empty assertion -- CHECKME: create empty/true assertion here (and "deprecate" the base methods?)
 
@@ -657,12 +671,12 @@ assrt_gconnect:
 	message CONNECT_KW rolename TO_KW rolename ';'
 ->
 	//^(GCONNECT message rolename rolename)
-	^(ASSRT_GCONNECT message rolename rolename {null})
+	^(ASSRT_GCONNECT message rolename rolename)// {null})
 |
 	t=CONNECT_KW rolename TO_KW rolename ';'
 ->
 	//^(GCONNECT ^(SIG_LIT ^(EMPTY_OP) ^(PAYELEM_LIST)) rolename rolename)
-	^(GCONNECT ^(SIG_LIT ^(EMPTY_OP) ^(PAYELEM_LIST)) rolename rolename {null})
+	^(GCONNECT ^(SIG_LIT ^(EMPTY_OP) ^(PAYELEM_LIST)) rolename rolename)// {null})
       // CHECKME: deprecate? i.e., require "()" as for message transfers?  i.e., simply delete this rule?
 
 // Assrt

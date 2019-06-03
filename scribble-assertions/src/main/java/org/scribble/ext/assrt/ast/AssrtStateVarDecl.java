@@ -64,8 +64,7 @@ public class AssrtStateVarDecl extends ParamDecl<AssrtIntVarKind>
 	@Override
 	public String getKeyword()
 	{
-		//return Constants.ROLE_KW;
-		throw new RuntimeException("Deprecated for " + getClass() + "\n:" + this);
+		return "";  // FIXME:  output still adds ' ' after this empty keyword
 	}
 }
 

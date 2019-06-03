@@ -19,7 +19,8 @@ import org.scribble.ast.ScribNodeBase;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.AssrtAnnotDataElem;
 import org.scribble.ext.assrt.ast.AssrtModule;
-import org.scribble.ext.assrt.ast.AssrtStateVarAnnotNode;
+import org.scribble.ext.assrt.ast.AssrtStateVarDecl;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclList;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
 import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
@@ -80,7 +81,9 @@ public class AssrtScribTreeAdaptor extends ScribTreeAdaptor
 			case "ASSERT_KW": throw new RuntimeException("[TODO] : " + t);
 
 			case "ASSRT_GPROTOHEADER": n = new AssrtGProtoHeader(t); break;
-			case "ASSRT_STATEVARANNOTNODE": n = new AssrtStateVarAnnotNode(t); break;
+			//case "ASSRT_STATEVARANNOTNODE": n = new AssrtStateVarAnnotNode(t); break;
+			case "ASSRT_STATEVARDECL_LIST": n = new AssrtStateVarDeclList(t); break;
+			case "ASSRT_STATEVARDECL": n = new AssrtStateVarDecl(t); break;
 
 			case "ASSRT_ANNOTDATAELEM": n = new AssrtAnnotDataElem(t); break;
 

@@ -58,8 +58,7 @@ public interface AssrtAstFactory extends AstFactory
 	// FIXME: should not be an AssrtAssertion -- should be just an (integer) var decl expr (which is not a bool expr)
 	AssrtGProtoHeader AssrtGProtoHeader(Token t, GProtoNameNode name,
 			RoleDeclList rs, NonRoleParamDeclList ps, 
-			AssrtBExprNode ass, List<AssrtIntVarNameNode> svars,
-			List<AssrtAExprNode> sexprs);  // FIXME: not actually how parsed
+			AssrtStateVarDeclList svars, AssrtBExprNode ass);//, List<AssrtAExprNode> sexprs);  // FIXME: not actually how parsed
 	AssrtStateVarDeclList AssrtStateVarDeclList(Token t, List<AssrtStateVarDecl> svars);
 	AssrtStateVarDecl AssrtStateVarDecl(Token t, AssrtIntVarNameNode svar);
 

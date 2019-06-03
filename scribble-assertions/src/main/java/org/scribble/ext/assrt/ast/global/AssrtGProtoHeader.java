@@ -1,8 +1,5 @@
 package org.scribble.ext.assrt.ast.global;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.antlr.runtime.Token;
 import org.scribble.ast.NonRoleParamDeclList;
 import org.scribble.ast.ProtoHeader;
@@ -11,11 +8,9 @@ import org.scribble.ast.global.GProtoHeader;
 import org.scribble.ast.name.qualified.ProtoNameNode;
 import org.scribble.core.type.kind.Global;
 import org.scribble.del.DelFactory;
-import org.scribble.ext.assrt.ast.AssrtAExprNode;
 import org.scribble.ext.assrt.ast.AssrtBExprNode;
 import org.scribble.ext.assrt.ast.AssrtStateVarDeclList;
 import org.scribble.ext.assrt.ast.AssrtStateVarDeclNode;
-import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
@@ -30,8 +25,8 @@ public class AssrtGProtoHeader extends GProtoHeader
 	public static final int ANNOT_STATEVAR_CHILDREN_START_INDEX = 1;*/
 
 	//public static final int ROLEDECLLIST_CHILD = 2;
-	public static final int ASSRT_ASSERTION_CHILD_INDEX = 3;  // May be null
-	public static final int ASSRT_STATEVARDECLLIST_CHILD_INDEX = 4;  // May be null
+	public static final int ASSRT_STATEVARDECLLIST_CHILD_INDEX = 3;  // May be empty (cf. ParamDeclList child)
+	public static final int ASSRT_ASSERTION_CHILD_INDEX = 4;  // May be null
 
 	// ScribTreeAdaptor#create constructor
 	public AssrtGProtoHeader(Token t)
@@ -67,6 +62,10 @@ public class AssrtGProtoHeader extends GProtoHeader
 		return (n.getText().equals("ASSRT_EMPTYASS"))  // TODO: factor out constant
 				? null
 				: (AssrtBExprNode) n;*/
+
+		
+		System.out.println("3333: " + getChildren());
+		
 		return (AssrtBExprNode) getChild(ASSRT_ASSERTION_CHILD_INDEX);
 	}
 	
@@ -105,14 +104,14 @@ public class AssrtGProtoHeader extends GProtoHeader
 
 	// "add", not "set"
 	public void addScribChildren(ProtoNameNode<Global> name,
-			NonRoleParamDeclList ps, RoleDeclList rs, AssrtBExprNode ass,
-			//List<AssrtIntVarNameNode> svars, List<AssrtAExprNode> sexprs)
-			AssrtStateVarDeclList svars)
+			NonRoleParamDeclList ps, RoleDeclList rs, //List<AssrtIntVarNameNode> svars, List<AssrtAExprNode> sexprs)
+			AssrtStateVarDeclList svars,
+			AssrtBExprNode ass)
 	{
 		// Cf. above getters and Scribble.g children order
 		super.addScribChildren(name, ps, rs);
-		addChild(ass);
 		addChild(svars);
+		addChild(ass);
 		//addChildren(sexprs);
 	}
 	
@@ -137,12 +136,12 @@ public class AssrtGProtoHeader extends GProtoHeader
 	}*/
 
 	public AssrtGProtoHeader reconstruct(ProtoNameNode<Global> name,
-			NonRoleParamDeclList ps, RoleDeclList rs, AssrtBExprNode ass,
-			//List<AssrtIntVarNameNode> svars, List<AssrtAExprNode> sexprs)
-			AssrtStateVarDeclList svars)
+			NonRoleParamDeclList ps, RoleDeclList rs, //List<AssrtIntVarNameNode> svars, List<AssrtAExprNode> sexprs)
+			AssrtStateVarDeclList svars,
+			AssrtBExprNode ass)
 	{
 		AssrtGProtoHeader dup = dupNode();
-		dup.addScribChildren(name, ps, rs, ass, svars);//, sexprs);
+		dup.addScribChildren(name, ps, rs, svars, ass);//, sexprs);
 		dup.setDel(del());  // No copy
 		return dup;
 	}
@@ -156,11 +155,6 @@ public class AssrtGProtoHeader extends GProtoHeader
 		NonRoleParamDeclList ps = (NonRoleParamDeclList) 
 				visitChild(getParamDeclListChild(), v);*/
 		ProtoHeader<Global> sup = super.visitChildren(v);
-		AssrtBExprNode ass = getAnnotAssertChild();
-		if (ass != null) 
-		{
-			ass = (AssrtBExprNode) visitChild(ass, v);
-		}
 		/*List<AssrtIntVarNameNode> svars = visitChildListWithClassEqualityCheck(
 				this, getAnnotVarChildren(), v);
 		List<AssrtAExprNode> sexprs = visitChildListWithClassEqualityCheck(this,
@@ -170,8 +164,13 @@ public class AssrtGProtoHeader extends GProtoHeader
 		{
 			svars = (AssrtStateVarDeclList) visitChild(svars, v);
 		}
+		AssrtBExprNode ass = getAnnotAssertChild();
+		if (ass != null) 
+		{
+			ass = (AssrtBExprNode) visitChild(ass, v);
+		}
 		return reconstruct(sup.getNameNodeChild(), sup.getParamDeclListChild(),
-				sup.getRoleDeclListChild(), ass, svars);//, sexprs);
+				sup.getRoleDeclListChild(), svars, ass);//, sexprs);
 	}
 	
 	@Override

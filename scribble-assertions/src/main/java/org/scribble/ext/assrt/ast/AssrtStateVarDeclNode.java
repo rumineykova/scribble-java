@@ -1,5 +1,7 @@
 package org.scribble.ext.assrt.ast;
 
+import org.scribble.ast.ScribNode;
+
 // ProtoHeader or Recursion
 public interface AssrtStateVarDeclNode
 {
