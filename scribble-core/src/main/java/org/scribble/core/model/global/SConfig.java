@@ -258,13 +258,13 @@ public class SConfig
 			if (k == EStateKind.UNARY_RECEIVE || k == EStateKind.POLY_RECIEVE)
 			{
 				Role peer = s.curr.getActions().get(0).peer;  // Pre: consistent ext choice subj
-				ESend send = this.queues.getQueue(self).get(peer);
-				if (send != null)
+				ESend msg = this.queues.getQueue(self).get(peer);
+				if (msg != null)
 				{
-					ERecv recv = send.toDual(peer);
-					if (!s.curr.hasAction(recv))
+					ERecv dual = msg.toDual(peer);
+					if (!s.curr.hasAction(dual))
 					{
-						res.put(self, recv);
+						res.put(self, dual);
 					}
 				}
 			}

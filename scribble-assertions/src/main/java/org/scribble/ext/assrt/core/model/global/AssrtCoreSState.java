@@ -22,7 +22,7 @@ public class AssrtCoreSState extends //MPrettyState<Void, SAction, AssrtCoreSSta
 
 	private final Set<Role> subjs = new HashSet<>();  // Hacky: mostly because EState has no self -- for progress checking
 
-	public AssrtCoreSState(AssrtCoreSConfig config)
+	protected AssrtCoreSState(AssrtCoreSConfig config)
 	{
 		super(config);
 	}

@@ -775,15 +775,14 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			if (k == EStateKind.UNARY_RECEIVE || k == EStateKind.POLY_RECIEVE)
 			{
 				Role peer = s.curr.getActions().get(0).peer;  // Pre: consistent ext choice subj
-				AssrtCoreESend send = ((AssrtCoreESend) this.queues.getQueue(self)
-						.get(peer)).toTrueAssertion();
-				if (send != null)
+				AssrtCoreESend msg = (AssrtCoreESend) this.queues.getQueue(self).get(peer);
+				if (msg != null)
 				{
-					AssrtCoreERecv recv = send.toDual(peer);
-					if (!s.curr.hasAction(recv))  // CHECKME: ...map(a -> ((AssrtCoreESend) a.toDual(dst)).toTrueAssertion()) ?
+					AssrtCoreERecv dual = msg.toTrueAssertion().toDual(peer);
+					if (!s.curr.hasAction(dual))  // CHECKME: ...map(a -> ((AssrtCoreESend) a.toDual(dst)).toTrueAssertion()) ?
 								// FIXME: check assertion implication (not just syntactic equals) -- cf. AssrtSConfig::fire
 					{
-						res.put(self, recv);
+						res.put(self, dual);
 					}
 				}
 			}
@@ -887,7 +886,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			AssrtCore core, GProtoName fullname)
 	{
 		Map<Role, Set<AssrtCoreEAction>> res = new HashMap<>();
-		for (Entry<Role, EFsm> e : P.entrySet())
+		for (Entry<Role, EFsm> e : this.P.entrySet())
 		{
 			Role self = e.getKey();
 			EState curr = e.getValue().curr;
@@ -895,7 +894,10 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			Set<AssrtDataVar> Vself = this.V.get(self).keySet();
 			Set<String> rs = core.getContext().getInlined(fullname).roles.stream()
 					.map(Object::toString).collect(Collectors.toSet());
-			Predicate<EAction> f = a ->
+			
+			System.out.println("1111: " + self);
+			
+			Predicate<EAction> isErr = a ->
 			{
 				if (a.isSend() || a.isRequest())
 				{
@@ -911,22 +913,11 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				}
 				else
 				{
-					return false;  // CHECKME: receive-side assertions? currently hardcoded to True
+					return false;  // CHECKME: input-side assertions? currently hardcoded to True
 				}
 			};
-			for (EAction a : curr.getDetActions())
-			{
-				if (f.test(a))
-				{
-					Set<AssrtCoreEAction> tmp = res.get(self);
-					if (tmp == null)
-					{
-						tmp = new HashSet<>();
-						res.put(self, tmp);
-					}
-					tmp.add((AssrtCoreEAction) a);
-				}
-			}
+			res.put(self, curr.getDetActions().stream().filter(x -> isErr.test(x))
+					.map(x -> (AssrtCoreEAction) x).collect(Collectors.toSet()));
 		}
 		return res;
 	}
@@ -1262,7 +1253,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		{
 			Role self = e.getKey();
 			AssrtEState curr = (AssrtEState) e.getValue().curr;
-			for (EAction a : curr.getActions())
+			Predicate<EAction> isSat = a ->  // false = error
 			{
 				AssrtCoreEAction cast = (AssrtCoreEAction) a;
 				AssrtBFormula toCheck = getRecAssertCheck(core,
@@ -1271,18 +1262,11 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				core.verbosePrintln("\n[assrt-core] Checking recursion assertion for "
 						+ self + " at " + curr.id + "([TODO] SState id):");
 				core.verbosePrintln("  squashed = " + toCheck.toSmt2Formula());
-				if (!core.checkSat(fullname,
-						Stream.of(toCheck).collect(Collectors.toSet())))
-				{
-					Set<AssrtCoreEAction> tmp = res.get(self);
-					if (tmp == null)
-					{
-						tmp = new HashSet<>();
-						res.put(self, tmp);
-					}
-					tmp.add(cast);
-				}
-			}
+				return core.checkSat(fullname,
+						Stream.of(toCheck).collect(Collectors.toSet()));
+			};
+			res.put(self, curr.getActions().stream().filter(x -> !isSat.test(x))
+					.map(x -> (AssrtCoreEAction) x).collect(Collectors.toSet()));
 		}
 		return res;
 	}

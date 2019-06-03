@@ -11,6 +11,7 @@ import org.scribble.core.model.endpoint.EGraph;
 import org.scribble.core.model.endpoint.actions.EAction;
 import org.scribble.core.model.global.SConfig;
 import org.scribble.core.model.global.SGraphBuilder;
+import org.scribble.core.model.global.SState;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.Role;
 
@@ -29,9 +30,9 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 	{
 		/*Map<Role, AssrtEState> assrtE0 = egraphs.entrySet().stream().collect(
 				Collectors.toMap(Entry::getKey, e -> (AssrtEState) e.getValue().init));*/
-		AssrtCoreSConfig c0 = ((AssrtCoreSGraphBuilderUtil) this.util)
-				.createInitConfig(egraphs, isExplicit);
-		AssrtCoreSState init = new AssrtCoreSState(c0);  // FIXME: make AssrtCoreSModelFactory (also AssrtCoreSModel) -- cf. (Assrt)SModelFactory
+		AssrtCoreSGraphBuilderUtil util = (AssrtCoreSGraphBuilderUtil) this.util;
+		AssrtCoreSConfig c0 = util.createInitConfig(egraphs, isExplicit);
+		AssrtCoreSState init = (AssrtCoreSState) util.newState(c0);
 		
 		Set<AssrtCoreSState> todo = new HashSet<>();
 		todo.add(init);
@@ -93,7 +94,7 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 				}
 			}
 		}
-		
+
 		return (AssrtCoreSGraph) this.mf.global.SGraph(fullname,
 				this.util.getStates(), init);  // Cf. super
 	}
