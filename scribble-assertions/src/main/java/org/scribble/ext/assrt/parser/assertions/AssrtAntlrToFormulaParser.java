@@ -41,7 +41,7 @@ public class AssrtAntlrToFormulaParser
 		String lab = ct.token.getText();
 		switch (lab)  // Cf. AssrtScribTreeAdaptor
 		{
-			case "ROOT":      return parse((CommonTree) ct.getChild(0));
+			case "ROOT":      return parse((CommonTree) ct.getChild(0));  // TODO: deprecate, Assertions should offer only AFormula and BFormula parsing
 
 			// Static "parse" methods basically in lieu of actual Antlr (CommonTree) nodes for annot syntax (cf. ScribNode, AssrtScribTreeAdaptor) 
 			case "BOOLEXPR":  return AssrtAntlrBoolExpr.parseBoolExpr(this, ct);

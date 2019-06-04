@@ -19,11 +19,11 @@ public abstract class AssrtCoreRecVar<K extends ProtoKind,
 	public final RecVar recvar;
 	public final List<AssrtAFormula> aforms;
 	
-	protected AssrtCoreRecVar(CommonTree source, RecVar var,
+	protected AssrtCoreRecVar(CommonTree source, RecVar rv,
 			List<AssrtAFormula> annotexprs)
 	{
 		super(source);
-		this.recvar = var;
+		this.recvar = rv;
 		this.aforms = Collections.unmodifiableList(annotexprs);
 	}
 	

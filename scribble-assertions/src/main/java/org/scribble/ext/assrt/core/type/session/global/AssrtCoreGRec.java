@@ -35,6 +35,12 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 	}
 
 	@Override
+	public AssrtCoreGType inline(AssrtCoreGTypeInliner v)
+	{
+		throw new RuntimeException("[TODO] :\n" + this);
+	}
+
+	@Override
 	public AssrtCoreGType pruneRecs(AssrtCore core)
 	{
 		Set<RecVar> rvs = this.body
@@ -42,12 +48,6 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 						new AssrtCoreRecVarGatherer<Global, AssrtCoreGType>()::visit)
 				.collect(Collectors.toSet());
 		return rvs.contains(this.recvar) ? this : this.body;
-	}
-
-	@Override
-	public AssrtCoreGType inline(AssrtCoreGTypeInliner v)
-	{
-		throw new RuntimeException("[TODO] :\n" + this);
 	}
 
 	@Override

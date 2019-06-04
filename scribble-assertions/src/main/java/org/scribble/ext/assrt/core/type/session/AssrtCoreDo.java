@@ -15,16 +15,20 @@ package org.scribble.ext.assrt.core.type.session;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.job.Core;
+import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.kind.NonRoleParamKind;
 import org.scribble.core.type.kind.ProtoKind;
 import org.scribble.core.type.name.ProtoName;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Arg;
 import org.scribble.ext.assrt.core.lang.AssrtCoreProtocol;
+import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGType;
 
 public abstract class AssrtCoreDo<K extends ProtoKind, B extends AssrtCoreSType<K, B>>
 		extends AssrtCoreSTypeBase<K, B>
@@ -43,6 +47,13 @@ public abstract class AssrtCoreDo<K extends ProtoKind, B extends AssrtCoreSType<
 		this.proto = proto;
 		this.roles = Collections.unmodifiableList(roles);
 		this.args = Collections.unmodifiableList(args);
+	}
+
+	@Override
+	public <T> Stream<T> assrtCoreGather(
+			Function<AssrtCoreSType<K, B>, Stream<T>> f)
+	{
+		throw new RuntimeException("Deprecated for " + getClass() + ":\n\t" + this);
 	}
 
 	public abstract AssrtCoreProtocol<K, ?, ?> getTarget(Core core);  // CHECKME: "?"

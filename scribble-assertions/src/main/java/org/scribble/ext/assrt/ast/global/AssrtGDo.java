@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.antlr.runtime.Token;
-import org.scribble.ast.Do;
 import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.RoleArgList;
 import org.scribble.ast.ScribNode;
@@ -43,20 +42,13 @@ public class AssrtGDo extends GDo implements AssrtStateVarArgNode
 		return cs.subList(STATEVAREXPR_CHILDREN_START_INDEX, cs.size()).stream()
 				.map(x -> (AssrtAExprNode) x).collect(Collectors.toList());
 	}
-	
-	@Override
-	public void addScribChildren(ProtoNameNode<Global> proto, NonRoleArgList as,
-			RoleArgList rs)
-	{
-		throw new RuntimeException(
-				"[assrt] Deprecated for " + getClass() + ":\n\t" + this);
-	}
 
 	// "add", not "set"
 	public void addScribChildren(ProtoNameNode<Global> proto, NonRoleArgList as,
 			RoleArgList rs, List<AssrtAExprNode> sexprs)
 	{
 		// Cf. above getters and Scribble.g children order
+		super.addScribChildren(proto, as, rs);
 		addChild(proto);  // Order re. getter indices
 		addChild(as);
 		addChild(rs);
@@ -73,14 +65,6 @@ public class AssrtGDo extends GDo implements AssrtStateVarArgNode
 	public void decorateDel(DelFactory df)
 	{
 		((AssrtDelFactory) df).AssrtGDo(this);
-	}
-
-	@Override
-	public Do<Global> reconstruct(ProtoNameNode<Global> proto, NonRoleArgList as,
-			RoleArgList rs)
-	{
-		throw new RuntimeException(
-				"[assrt] Deprecated for " + getClass() + ":\n\t" + this);
 	}
 
 	public AssrtGDo reconstruct(ProtoNameNode<Global> proto, RoleArgList rs,
@@ -100,7 +84,7 @@ public class AssrtGDo extends GDo implements AssrtStateVarArgNode
 		RoleArgList rs = (RoleArgList) visitChild(getRoleListChild(), v);
 		NonRoleArgList as = (NonRoleArgList) visitChild(getNonRoleListChild(), v);
 		List<AssrtAExprNode> sexprs = visitChildListWithClassEqualityCheck(this,
-				getAnnotExprChildren(), v);
+				getAnnotExprChildren(), v);  // Supports empty list
 		return reconstruct(proto, rs, as, sexprs);
 	}
 

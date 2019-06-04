@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.Role;
+import org.scribble.core.type.name.Substitutions;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSType;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
 import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
@@ -19,6 +19,8 @@ public interface AssrtCoreGType extends AssrtCoreSType<Global, AssrtCoreGType>
 	
 	// CHECKME: refactor as visitors?
 	
+	// CHECKME: some may need to be factored up to base
+	AssrtCoreGType substitute(Substitutions subs);
 	AssrtCoreGType inline(AssrtCoreGTypeInliner v);
 	AssrtCoreGType pruneRecs(AssrtCore core);
 

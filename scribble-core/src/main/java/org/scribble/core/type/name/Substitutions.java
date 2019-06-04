@@ -34,6 +34,7 @@ public class Substitutions
 			// NonRoleParamKind, not NonRoleArgKind, because latter includes AmbigKind due to parsing requirements
 			// Better (CHECKME: necessary?) to separate roles and args -- but MessageSigName and DataType need to be distinct (so can group up, cf. NonRoleArgList)
 
+	// CHECKME: parameterise class on name kind, and separate roles/params/etc?
 	public Substitutions(List<Role> rold, List<Role> rnew,
 			List<MemberName<? extends NonRoleParamKind>> aold,
 			List<Arg<? extends NonRoleParamKind>> anew)

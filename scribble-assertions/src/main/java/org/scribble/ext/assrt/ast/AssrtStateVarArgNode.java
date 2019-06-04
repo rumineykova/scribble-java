@@ -9,8 +9,8 @@ public interface AssrtStateVarArgNode
 
 	default String annotToString()
 	{
-		List<AssrtAExprNode> tmp = getAnnotExprChildren();
-		return tmp.isEmpty() 
+		List<AssrtAExprNode> sexprs = getAnnotExprChildren();
+		return sexprs.isEmpty() 
 				? ""
 				: " @<" + getAnnotExprChildren().stream().map(Object::toString)
 						.collect(Collectors.joining(", ")) + ">;";

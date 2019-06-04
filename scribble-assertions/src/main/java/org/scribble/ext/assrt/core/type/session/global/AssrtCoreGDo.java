@@ -13,23 +13,31 @@
  */
 package org.scribble.ext.assrt.core.type.session.global;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.job.Core;
+import org.scribble.core.lang.SubprotoSig;
+import org.scribble.core.lang.global.GProtocol;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.kind.NonRoleParamKind;
 import org.scribble.core.type.name.ProtoName;
+import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Arg;
+import org.scribble.core.type.session.global.GSeq;
+import org.scribble.core.visit.Substitutor;
 import org.scribble.ext.assrt.core.job.AssrtCore;
+import org.scribble.ext.assrt.core.job.AssrtCoreContext;
 import org.scribble.ext.assrt.core.lang.global.AssrtCoreGProtocol;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreDo;
-import org.scribble.ext.assrt.core.type.session.AssrtCoreSTypeFactory;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
+import org.scribble.ext.assrt.core.type.session.NoSeq;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
+import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
 
 public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 		implements AssrtCoreGType
@@ -42,6 +50,39 @@ public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 	}
 
 	@Override
+	public AssrtCoreGType inline(AssrtCoreGTypeInliner v)
+	{
+		ProtoName<Global> fullname = this.proto;
+		SubprotoSig sig = new SubprotoSig(fullname, this.roles, this.args);
+		RecVar rv = v.getInlinedRecVar(sig);
+		AssrtCoreGTypeFactory tf = (AssrtCoreGTypeFactory) v.core.config.tf.global;
+		if (v.hasSig(sig))
+		{
+			return tf.AssrtCoreGRecVar(getSource(), rv, this.aforms);
+		}
+		v.pushSig(sig);
+		AssrtCoreGProtocol gpro = ((AssrtCoreContext) v.core.getContext())
+				.getIntermediate(fullname);
+		/*Substitutor<Global, NoSeq<Global>> subs = v.core.config.vf.Substitutor(gpro.roles,
+				this.roles, gpro.params, this.args);
+		//GSeq inlined = (GSeq) g.def.visitWithNoEx(subs).visitWithNoEx(this);
+		GSeq inlined = visitSeq(subs.visitSeq(gpro.def));
+				// i.e. returning a GSeq -- rely on parent GSeq to inline*/
+
+		//Substitutions(rold, rnew, aold, anew)
+
+		v.popSig();
+		return tf.AssrtCoreGRec(null, rv, gpro.avars, inlined, gpro.bform);  
+				// TODO: f/w entry: inline (replace) target avar exprs by this.aforms 
+	}
+
+	@Override
+	public AssrtCoreGType pruneRecs(AssrtCore core)
+	{
+		return this;
+	}
+
+	@Override
 	public AssrtCoreLType projectInlined(AssrtCore core, Role self,
 			AssrtBFormula f) throws AssrtCoreSyntaxException
 	{
@@ -51,7 +92,7 @@ public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 	@Override
 	public List<AssrtAnnotDataName> collectAnnotDataVarDecls()
 	{
-		throw new RuntimeException("[TODO] :\n\t" + this);
+		return Collections.emptyList();
 	}
 	
 	@Override
@@ -95,6 +136,7 @@ public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 	{
 		return o instanceof AssrtCoreGDo;
 	}
+
 }
 
 

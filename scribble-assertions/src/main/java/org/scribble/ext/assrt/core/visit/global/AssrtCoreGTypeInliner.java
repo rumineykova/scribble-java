@@ -14,7 +14,9 @@
 package org.scribble.ext.assrt.core.visit.global;
 
 import org.scribble.core.job.Core;
+import org.scribble.core.lang.SubprotoSig;
 import org.scribble.core.type.kind.Global;
+import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.session.Do;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSType;
 import org.scribble.ext.assrt.core.type.session.NoSeq;
@@ -33,7 +35,7 @@ public class AssrtCoreGTypeInliner extends AssrtCoreSTypeInliner<Global,
 	public AssrtCoreSType<Global, AssrtCoreGType> visitDo(Do<Global, 
 			NoSeq<Global>> n)
 	{
-		throw new RuntimeException("[TODO]");
+		throw new RuntimeException("Deprecated for " + getClass() + ":\n" + n);
 	/*
 		AssrtCoreSTypeFactory tf = (AssrtCoreSTypeFactory) this.core.config.tf;
 		AssrtCoreGDo n1 = (AssrtCoreGDo) n;
@@ -56,4 +58,21 @@ public class AssrtCoreGTypeInliner extends AssrtCoreSTypeInliner<Global,
 	*/
 	}
 
+	@Override
+	public boolean hasSig(SubprotoSig sig)
+	{
+		return super.hasSig(sig);
+	}
+	
+	@Override
+	public void popSig()
+	{
+		super.popSig();
+	}
+
+	@Override
+	public RecVar getInlinedRecVar(RecVar rv)
+	{
+		return super.getInlinedRecVar(rv);
+	}
 }

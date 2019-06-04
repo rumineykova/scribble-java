@@ -48,6 +48,15 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 	}
 
 	@Override
+	public AssrtCoreGType inline(AssrtCoreGTypeInliner v)
+	{
+		Map<AssrtCoreMsg, AssrtCoreGType> cases = this.cases.entrySet().stream()
+				.collect(Collectors.toMap(Entry::getKey, x -> x.getValue().inline(v)));
+		return ((AssrtCoreGTypeFactory) v.core.config.tf.global)
+				.AssrtCoreGChoice(getSource(), this.src, getKind(), this.dst, cases);
+	}
+
+	@Override
 	public AssrtCoreGType pruneRecs(AssrtCore core)
 	{
 		Map<AssrtCoreMsg, AssrtCoreGType> pruned = new HashMap<>();
@@ -65,15 +74,6 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 		}
 		return ((AssrtCoreGTypeFactory) core.config.tf.global)
 				.AssrtCoreGChoice(getSource(), this.src, getKind(), this.dst, pruned);
-	}
-
-	@Override
-	public AssrtCoreGType inline(AssrtCoreGTypeInliner v)
-	{
-		Map<AssrtCoreMsg, AssrtCoreGType> cases = this.cases.entrySet().stream()
-				.collect(Collectors.toMap(Entry::getKey, x -> x.getValue().inline(v)));
-		return ((AssrtCoreGTypeFactory) v.core.config.tf.global)
-				.AssrtCoreGChoice(getSource(), this.src, getKind(), this.dst, cases);
 	}
 
 	@Override
