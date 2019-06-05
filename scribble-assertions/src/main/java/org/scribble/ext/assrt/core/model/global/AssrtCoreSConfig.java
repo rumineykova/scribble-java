@@ -1289,7 +1289,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		{
 			// CHECKME: "skip" if no msg avail (because assertion carried by msg)? -- what is an example?
 			if (!this.Q.isConnected(self, ((EAction) a).peer)
-					|| this.Q.getQueue(self) == null)
+					|| this.Q.getQueue(self).get(cast.peer) == null)
 				 // !isPendingRequest(a.peer, self))  // TODO: open/port annots
 			{
 				return AssrtTrueFormula.TRUE;
@@ -1302,7 +1302,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 		AssrtEState succ = curr.getDetSucc(cast);
 
-		// lhs = ...  // TODO: factor out lhs building with others above
+		// lhs = ...  // TODO: factor out lhs building with others above -- CHECKME lhs should be same for all?
 		// Here, conjunction of F terms
 		AssrtBFormula lhs = null;
 		Set<AssrtBFormula> Fself = this.F.get(self);
@@ -1334,7 +1334,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		// Next, assertion from action (carried by msg for input actions)
 		AssrtBFormula ass = (cast.isSend() || cast.isRequest())  // CHECKME: AssrtEAction doesn't have those methods, refactor?
 				? a.getAssertion()
-				: //(a.isReceive() || a.isAccept())  // Has msg/req already checked
+				: //(a.isReceive() || a.isAccept())  // Has msg/req already checked at top
 					((AssrtCoreEMsg) this.Q.getQueue(self).get(cast.peer)).getAssertion();
 					// Cf. updateInput, msg.getAssertion()
 		if (!ass.equals(AssrtTrueFormula.TRUE))
