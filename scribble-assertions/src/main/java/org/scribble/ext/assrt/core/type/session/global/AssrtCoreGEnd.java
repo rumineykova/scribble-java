@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.Role;
+import org.scribble.core.type.name.Substitutions;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
@@ -25,13 +26,19 @@ public class AssrtCoreGEnd extends AssrtCoreEnd<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public AssrtCoreGType pruneRecs(AssrtCore core)
+	public AssrtCoreGType substitute(AssrtCore core, Substitutions subs)
 	{
 		return this;
 	}
 
 	@Override
 	public AssrtCoreGType inline(AssrtCoreGTypeInliner v)
+	{
+		return this;
+	}
+
+	@Override
+	public AssrtCoreGType pruneRecs(AssrtCore core)
 	{
 		return this;
 	}

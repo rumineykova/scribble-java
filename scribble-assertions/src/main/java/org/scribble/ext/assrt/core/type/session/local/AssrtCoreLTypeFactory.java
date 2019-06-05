@@ -43,7 +43,7 @@ public class AssrtCoreLTypeFactory extends LTypeFactoryImpl
 			LinkedHashMap<AssrtIntVar, AssrtAFormula> avars,
 			AssrtCoreLType body, AssrtBFormula bform)
 	{
-		return new AssrtCoreLRec(source, rv, avars, body, bform);
+		return new AssrtCoreLRec(source, rv, body, avars, bform);
 	}
 
 	public AssrtCoreLRecVar AssrtCoreLRecVar(CommonTree source, RecVar rv,

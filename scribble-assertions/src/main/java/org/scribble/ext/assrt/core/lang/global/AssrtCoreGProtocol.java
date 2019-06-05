@@ -91,8 +91,8 @@ public class AssrtCoreGProtocol extends GProtocol
 
 		RecVar rv = v.getInlinedRecVar(sig);
 		AssrtCoreGTypeFactory tf = (AssrtCoreGTypeFactory) v.core.config.tf.global;
-		AssrtCoreGRec rec = tf.AssrtCoreGRec(null, rv, new LinkedHashMap<>(),
-				inlined, AssrtTrueFormula.TRUE);
+		AssrtCoreGRec rec = tf.AssrtCoreGRec(null, rv, inlined,
+				new LinkedHashMap<>(), AssrtTrueFormula.TRUE);
 		AssrtCoreGType pruned = rec.pruneRecs((AssrtCore) v.core);
 
 		// TODO

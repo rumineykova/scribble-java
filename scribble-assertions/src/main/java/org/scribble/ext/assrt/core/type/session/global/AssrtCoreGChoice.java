@@ -11,6 +11,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
+import org.scribble.core.type.name.Substitutions;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
@@ -45,6 +46,18 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 		super(source, dst, kind, cases);
 		this.src = src;
 		this.dst = dst;
+	}
+
+	@Override
+	public AssrtCoreGType substitute(AssrtCore core, Substitutions subs)
+	{
+		Role src = subs.subsRole(this.src);
+		Role dst = subs.subsRole(this.dst);
+		Map<AssrtCoreMsg, AssrtCoreGType> cases = this.cases.entrySet().stream()
+				.collect(Collectors.toMap(Entry::getKey,
+						x -> x.getValue().substitute(core, subs)));
+		return ((AssrtCoreGTypeFactory) core.config.tf.global)
+				.AssrtCoreGChoice(getSource(), src, getKind(), dst, cases);
 	}
 
 	@Override

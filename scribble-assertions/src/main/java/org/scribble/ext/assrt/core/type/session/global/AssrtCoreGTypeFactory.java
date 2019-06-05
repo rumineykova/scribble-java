@@ -38,18 +38,16 @@ public class AssrtCoreGTypeFactory extends GTypeFactoryImpl
 	}
 	
 	public AssrtCoreGRec AssrtCoreGRec(CommonTree source, RecVar rv,
-			LinkedHashMap<AssrtIntVar, AssrtAFormula> avars,
-			AssrtCoreGType body,
-			AssrtBFormula bform)
+			AssrtCoreGType body, LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,
+			AssrtBFormula ass)
 	{
-		return new AssrtCoreGRec(source, rv, avars, body,
-				bform);
+		return new AssrtCoreGRec(source, rv, body, svars, ass);
 	}
 	
 	public AssrtCoreGRecVar AssrtCoreGRecVar(CommonTree source, RecVar rv,
-			List<AssrtAFormula> aforms)
+			List<AssrtAFormula> sexprs)
 	{
-		return new AssrtCoreGRecVar(source, rv, aforms);
+		return new AssrtCoreGRecVar(source, rv, sexprs);
 	}
 
 	public AssrtCoreGEnd AssrtCoreGEnd()
@@ -76,7 +74,7 @@ public class AssrtCoreGTypeFactory extends GTypeFactoryImpl
 
 	@Override
 	public GContinue GContinue(
-			CommonTree source, RecVar recvar)
+			CommonTree source, RecVar rv)
 	{
 		throw new RuntimeException(
 				"Deprecated for " + getClass() + ":\n\t" + source);
@@ -108,9 +106,7 @@ public class AssrtCoreGTypeFactory extends GTypeFactoryImpl
 	}
 
 	@Override
-	public GRecursion GRecursion(
-			CommonTree source, RecVar recvar,
-			GSeq body)
+	public GRecursion GRecursion(CommonTree source, RecVar rv, GSeq body)
 	{
 		throw new RuntimeException(
 				"Deprecated for " + getClass() + ":\n\t" + source);

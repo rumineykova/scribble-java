@@ -25,6 +25,7 @@ import org.scribble.core.type.kind.NonRoleParamKind;
 import org.scribble.core.type.name.ProtoName;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
+import org.scribble.core.type.name.Substitutions;
 import org.scribble.core.type.session.Arg;
 import org.scribble.core.type.session.global.GSeq;
 import org.scribble.core.visit.Substitutor;
@@ -42,11 +43,17 @@ import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
 public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 		implements AssrtCoreGType
 {
-	
 	protected AssrtCoreGDo(CommonTree source, ProtoName<Global> proto,
 			List<Role> roles, List<Arg<? extends NonRoleParamKind>> args)
 	{
 		super(source, proto, roles, args);
+	}
+
+	@Override
+	public AssrtCoreGType substitute(AssrtCore core, Substitutions subs)
+	{
+		throw new RuntimeException(
+				"[TODO] Substitutions for " + getClass() + ":\n" + this);
 	}
 
 	@Override
@@ -61,18 +68,18 @@ public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 			return tf.AssrtCoreGRecVar(getSource(), rv, this.aforms);
 		}
 		v.pushSig(sig);
-		AssrtCoreGProtocol gpro = ((AssrtCoreContext) v.core.getContext())
-				.getIntermediate(fullname);
-		/*Substitutor<Global, NoSeq<Global>> subs = v.core.config.vf.Substitutor(gpro.roles,
-				this.roles, gpro.params, this.args);
-		//GSeq inlined = (GSeq) g.def.visitWithNoEx(subs).visitWithNoEx(this);
-		GSeq inlined = visitSeq(subs.visitSeq(gpro.def));
-				// i.e. returning a GSeq -- rely on parent GSeq to inline*/
-
-		//Substitutions(rold, rnew, aold, anew)
+		AssrtCoreGProtocol gpro = getTarget(v.core);
+		if (!gpro.params.isEmpty() || !this.args.isEmpty())
+		{
+			throw new RuntimeException("[TODO] Inlining for proto/do params/args for "
+					+ getClass() + ":\n" + this);
+		}
+		Substitutions subs = new Substitutions(gpro.roles, this.roles, gpro.params,
+				this.args);
+		AssrtCoreGType inlined = gpro.type.substitute(subs);  // N.B. .type, not .def
 
 		v.popSig();
-		return tf.AssrtCoreGRec(null, rv, gpro.avars, inlined, gpro.bform);  
+		return tf.AssrtCoreGRec(null, rv, inlined, gpro.avars, gpro.bform);  
 				// TODO: f/w entry: inline (replace) target avar exprs by this.aforms 
 	}
 
@@ -136,7 +143,6 @@ public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 	{
 		return o instanceof AssrtCoreGDo;
 	}
-
 }
 
 

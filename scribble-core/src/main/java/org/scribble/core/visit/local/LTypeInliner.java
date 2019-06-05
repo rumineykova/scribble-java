@@ -43,7 +43,7 @@ public class LTypeInliner extends STypeInliner<Local, LSeq>
 			return this.core.config.tf.local.LContinue(n.getSource(), rv);
 		}
 		pushSig(sig);
-		LProtocol lpro = this.core.getContext().getProjection(fullname);  // This line differs from GDo version
+		LProtocol lpro = (LProtocol) n.getTarget(this.core);  // This line differs from GDo version
 		Substitutor<Local, LSeq> subs = this.core.config.vf.Substitutor(lpro.roles,
 				n.roles, lpro.params, n.args);
 		//LSeq inlined = (LSeq) p.def.visitWithNoThrow(subs).visitWithNoThrow(this);

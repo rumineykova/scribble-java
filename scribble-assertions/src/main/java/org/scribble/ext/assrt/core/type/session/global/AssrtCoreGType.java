@@ -20,7 +20,7 @@ public interface AssrtCoreGType extends AssrtCoreSType<Global, AssrtCoreGType>
 	// CHECKME: refactor as visitors?
 	
 	// CHECKME: some may need to be factored up to base
-	AssrtCoreGType substitute(Substitutions subs);
+	AssrtCoreGType substitute(AssrtCore core, Substitutions subs);
 	AssrtCoreGType inline(AssrtCoreGTypeInliner v);
 	AssrtCoreGType pruneRecs(AssrtCore core);
 

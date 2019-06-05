@@ -79,8 +79,7 @@ public class AssrtCoreEGraphBuilder extends EGraphBuilder
 			AssrtCoreLRec lr = (AssrtCoreLRec) lt;
 
 			//this.util.addAnnotVarInits(s1, Stream.of(lr.annot).collect(Collectors.toMap(a -> a, a -> lr.init)));
-			this.util.addStateVars(s1, lr.avars,
-					lr.bform);
+			this.util.addStateVars(s1, lr.svars, lr.ass);
 
 			Map<RecVar, AssrtEState> tmp = new HashMap<>(recs);
 			tmp.put(lr.recvar, s1);

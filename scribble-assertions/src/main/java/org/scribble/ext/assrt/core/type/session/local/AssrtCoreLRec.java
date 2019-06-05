@@ -13,11 +13,10 @@ import org.scribble.ext.assrt.core.type.session.AssrtCoreRec;
 public class AssrtCoreLRec extends AssrtCoreRec<Local, AssrtCoreLType>
 		implements AssrtCoreLType
 {
-	protected AssrtCoreLRec(CommonTree source, RecVar rv,
-			LinkedHashMap<AssrtIntVar, AssrtAFormula> avars,
-			AssrtCoreLType body, AssrtBFormula bform)
+	protected AssrtCoreLRec(CommonTree source, RecVar rv, AssrtCoreLType body,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars, AssrtBFormula ass)
 	{
-		super(source, rv, avars, body, bform);
+		super(source, rv, body, svars, ass);
 	}
 
 	@Override

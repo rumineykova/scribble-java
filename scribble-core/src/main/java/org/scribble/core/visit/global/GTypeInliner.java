@@ -43,7 +43,7 @@ public class GTypeInliner extends STypeInliner<Global, GSeq>
 			return this.core.config.tf.global.GContinue(n.getSource(), rv);
 		}
 		pushSig(sig);
-		GProtocol gpro = this.core.getContext().getIntermediate(fullname);
+		GProtocol gpro = (GProtocol) n.getTarget(core);
 		Substitutor<Global, GSeq> subs = this.core.config.vf.Substitutor(gpro.roles,
 				n.roles, gpro.params, n.args);
 		//GSeq inlined = (GSeq) g.def.visitWithNoEx(subs).visitWithNoEx(this);

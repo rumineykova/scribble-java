@@ -17,19 +17,19 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 		extends AssrtCoreSTypeBase<K, B>
 {
 	public final RecVar recvar;  // CHECKME: RecVarNode?  (Cf. AssrtCoreAction.op/pay)
-	public final LinkedHashMap<AssrtIntVar, AssrtAFormula> avars;  // Int  // Non-null
 	public final B body;
-	public final AssrtBFormula bform;
+	public final LinkedHashMap<AssrtIntVar, AssrtAFormula> svars;  // Int  // Non-null
+	public final AssrtBFormula ass;
 	
 	protected AssrtCoreRec(CommonTree source, RecVar recvar,
-			LinkedHashMap<AssrtIntVar, AssrtAFormula> avars, B body,
-			AssrtBFormula bform)
+			B body, LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,
+			AssrtBFormula ass)
 	{
 		super(source);
 		this.recvar = recvar;
-		this.avars = new LinkedHashMap<>(avars);
+		this.svars = new LinkedHashMap<>(svars);
 		this.body = body;
-		this.bform = bform;
+		this.ass = ass;
 	}
 	
 	@Override
@@ -43,10 +43,10 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 	public String toString()
 	{
 		return "mu " + this.recvar + "("
-				+ this.avars.entrySet().stream()
+				+ this.svars.entrySet().stream()
 						.map(e -> e.getKey() + " := " + e.getValue()).collect(
 								Collectors.joining(", "))
-				+ ")" + this.bform + "." + this.body;
+				+ ")" + this.ass + "." + this.body;
 	}
 
 	@Override
@@ -63,9 +63,9 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 		AssrtCoreRec<?, ?> them = (AssrtCoreRec<?, ?>) o;
 		return super.equals(o)  // Checks canEquals -- implicitly checks kind
 				&& this.recvar.equals(them.recvar) 
-				&& this.avars.equals(them.avars)
 				&& this.body.equals(them.body)
-				&& this.bform.equals(them.bform);
+				&& this.svars.equals(them.svars)
+				&& this.ass.equals(them.ass);
 	}
 	
 	@Override
@@ -77,9 +77,9 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + this.recvar.hashCode();
-		result = prime * result + this.avars.hashCode();
 		result = prime * result + this.body.hashCode();
-		result = prime * result + this.bform.hashCode();
+		result = prime * result + this.svars.hashCode();
+		result = prime * result + this.ass.hashCode();
 		return result;
 	}
 }

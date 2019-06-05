@@ -28,7 +28,7 @@ public class AssrtCoreGRecVar extends AssrtCoreRecVar<Global, AssrtCoreGType>
 	}
 
 	@Override
-	public AssrtCoreGType substitute(Substitutions subs)
+	public AssrtCoreGType substitute(AssrtCore core, Substitutions subs)
 	{
 		return this;
 	}

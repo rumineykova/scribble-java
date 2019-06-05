@@ -10,6 +10,7 @@ import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.name.DataName;
 import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
+import org.scribble.core.type.name.Substitutions;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
@@ -27,11 +28,18 @@ import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
 public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 		implements AssrtCoreGType
 {
-	protected AssrtCoreGRec(CommonTree source, RecVar rv,
-			LinkedHashMap<AssrtIntVar, AssrtAFormula> avars,
-			AssrtCoreGType body, AssrtBFormula bform)
+	protected AssrtCoreGRec(CommonTree source, RecVar rv, AssrtCoreGType body,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars, AssrtBFormula ass)
 	{
-		super(source, rv, avars, body, bform);
+		super(source, rv, body, svars, ass);
+	}
+
+	@Override
+	public AssrtCoreGType substitute(AssrtCore core, Substitutions subs)
+	{
+		return ((AssrtCoreGTypeFactory) core.config.tf.global).AssrtCoreGRec(
+				getSource(), this.recvar, this.body.substitute(core, subs), this.svars,
+				this.ass);
 	}
 
 	@Override
@@ -58,14 +66,14 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 		return (proj instanceof AssrtCoreLRecVar) 
 				? AssrtCoreLEnd.END
 				: ((AssrtCoreLTypeFactory) core.config.tf.local).AssrtCoreLRec(null,
-						this.recvar, this.avars, proj, this.bform);
+						this.recvar, this.svars, proj, this.ass);
 	}
 
 	@Override
 	public List<AssrtAnnotDataName> collectAnnotDataVarDecls()
 	{
 		List<AssrtAnnotDataName> res = this.body.collectAnnotDataVarDecls();
-		this.avars.keySet().stream().forEachOrdered(
+		this.svars.keySet().stream().forEachOrdered(
 				v -> res.add(new AssrtAnnotDataName(v, new DataName("int"))));  // TODO: factor out int constant
 		/*this.ass.getIntVars().stream().forEachOrdered(
 				v -> res.add(new AssrtAnnotDataType(v, new DataType("int"))));  // No: not decls*/
