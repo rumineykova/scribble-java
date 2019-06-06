@@ -38,7 +38,7 @@ public class AssrtCoreGRecVar extends AssrtCoreRecVar<Global, AssrtCoreGType>
 	{
 		RecVar rv = v.getInlinedRecVar(this.recvar);
 		return ((AssrtCoreGTypeFactory) v.core.config.tf.global)
-				.AssrtCoreGRecVar(getSource(), rv, this.aforms);
+				.AssrtCoreGRecVar(getSource(), rv, this.stateexprs);
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class AssrtCoreGRecVar extends AssrtCoreRecVar<Global, AssrtCoreGType>
 			AssrtBFormula f)
 	{
 		return ((AssrtCoreLTypeFactory) core.config.tf.local).AssrtCoreLRecVar(null,
-				this.recvar, this.aforms);
+				this.recvar, this.stateexprs);
 	}
 
 	@Override

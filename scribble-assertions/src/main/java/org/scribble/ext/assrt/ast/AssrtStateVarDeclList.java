@@ -20,7 +20,6 @@ import org.antlr.runtime.Token;
 import org.scribble.ast.ParamDeclList;
 import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.core.type.kind.AssrtIntVarKind;
-import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 
 
@@ -45,11 +44,11 @@ public class AssrtStateVarDeclList extends ParamDeclList<AssrtIntVarKind>
 				.collect(Collectors.toList());
 	}
 
-	public List<AssrtIntVar> getRoles()
+	/*public List<AssrtIntVar> getIntVars()
 	{
 		return getDeclChildren().stream().map(x -> x.getDeclName())
 				.collect(Collectors.toList());
-	}
+	}*/
 	
 	@Override
 	public AssrtStateVarDeclList dupNode()

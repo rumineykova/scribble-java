@@ -239,7 +239,7 @@ global protocol Proto1(role A, role B)  @<x := "1">
 //*/
 
 
-//*
+/*
 global protocol Proto1(role C, role S)
 {
 	HELLO(int) from C to S;

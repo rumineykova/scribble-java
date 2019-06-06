@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import org.scribble.ast.Module;
 import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GProtoDecl;
+import org.scribble.ast.global.GProtoHeader;
 import org.scribble.core.lang.ProtoMod;
 import org.scribble.core.lang.global.GProtocol;
 import org.scribble.core.type.kind.Global;
@@ -41,13 +42,14 @@ public class GProtoDeclDel extends ProtoDeclDel<Global> implements GDel
 	public GProtocol translate(ScribNode n, GTypeTranslator t) 
 	{
 		GProtoDecl source = (GProtoDecl) n;
+		GProtoHeader hdr = source.getHeaderChild();
 		Module m = (Module) n.getParent();
 		List<ProtoMod> mods = source.getModifierListChild().getModList().stream()
 				.map(x -> x.toProtoMod()).collect(Collectors.toList());
 		GProtoName fullname = new GProtoName(m.getFullModuleName(),
-				source.getHeaderChild().getDeclName());
+				hdr.getDeclName());
 		List<Role> rs = source.getRoles();
-		List<MemberName<? extends NonRoleParamKind>> ps = source.getHeaderChild()
+		List<MemberName<? extends NonRoleParamKind>> ps = hdr
 				.getParamDeclListChild().getParams();  // CHECKME: make more uniform with source::getRoles ?
 		GSeq body = (GSeq) source.getDefChild().getBlockChild().visitWithNoThrows(t);
 		return new GProtocol(source, mods, fullname, rs, ps, body);

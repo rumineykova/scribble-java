@@ -525,7 +525,9 @@ assrt_gprotoheader:
 
 // Assrt
 |
-	GLOBAL_KW PROTOCOL_KW simplegprotoname roledecls '@' assrt_statevardecls assrt_statevarassrt? //assrt_statevar_annot
+	GLOBAL_KW PROTOCOL_KW simplegprotoname roledecls '@' assrt_statevardecls 
+			assrt_statevarassrt? 
+			//assrt_statevar_annot
 			// TODO: paramdecls
 ->
 	^(ASSRT_GPROTOHEADER simplegprotoname ^(PARAMDECL_LIST) roledecls 

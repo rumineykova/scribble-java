@@ -318,13 +318,12 @@ public class AssrtAstFactoryImpl extends AstFactoryImpl
 
 	@Override
 	public AssrtLProtoHeader AssrtLProtoHeader(Token t, LProtoNameNode name,
-			RoleDeclList rs, NonRoleParamDeclList ps,
-			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs,
-			AssrtBExprNode ass)  // FIXME: not actually how parsed
+			RoleDeclList rs, NonRoleParamDeclList ps, AssrtStateVarDeclList svars,
+			AssrtBExprNode ass)
 	{
 		t = newToken(t, this.tokens.getType("ASSRT_LOCALPROTOCOLHEADER"));
 		AssrtLProtoHeader n = new AssrtLProtoHeader(t);
-		n.addScribChildren(name, ps, rs, ass, avars, aexprs);
+		n.addScribChildren(name, ps, rs, svars, ass);
 		n.decorateDel(this.df);
 		return n;
 	}

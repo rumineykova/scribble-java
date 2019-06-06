@@ -18,8 +18,8 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 {
 	public final RecVar recvar;  // CHECKME: RecVarNode?  (Cf. AssrtCoreAction.op/pay)
 	public final B body;
-	public final LinkedHashMap<AssrtIntVar, AssrtAFormula> svars;  // Int  // Non-null
-	public final AssrtBFormula ass;
+	public final LinkedHashMap<AssrtIntVar, AssrtAFormula> statevars;  // Int  // Non-null  // CHECKME: factor out with AssrtCore(G)Protocol?
+	public final AssrtBFormula assertion;
 	
 	protected AssrtCoreRec(CommonTree source, RecVar recvar,
 			B body, LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,
@@ -27,9 +27,9 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 	{
 		super(source);
 		this.recvar = recvar;
-		this.svars = new LinkedHashMap<>(svars);
+		this.statevars = new LinkedHashMap<>(svars);
 		this.body = body;
-		this.ass = ass;
+		this.assertion = ass;
 	}
 	
 	@Override
@@ -43,10 +43,10 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 	public String toString()
 	{
 		return "mu " + this.recvar + "("
-				+ this.svars.entrySet().stream()
+				+ this.statevars.entrySet().stream()
 						.map(e -> e.getKey() + " := " + e.getValue()).collect(
 								Collectors.joining(", "))
-				+ ")" + this.ass + "." + this.body;
+				+ ")" + this.assertion + "." + this.body;
 	}
 
 	@Override
@@ -64,8 +64,8 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 		return super.equals(o)  // Checks canEquals -- implicitly checks kind
 				&& this.recvar.equals(them.recvar) 
 				&& this.body.equals(them.body)
-				&& this.svars.equals(them.svars)
-				&& this.ass.equals(them.ass);
+				&& this.statevars.equals(them.statevars)
+				&& this.assertion.equals(them.assertion);
 	}
 	
 	@Override
@@ -78,8 +78,8 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 		int result = 1;
 		result = prime * result + this.recvar.hashCode();
 		result = prime * result + this.body.hashCode();
-		result = prime * result + this.svars.hashCode();
-		result = prime * result + this.ass.hashCode();
+		result = prime * result + this.statevars.hashCode();
+		result = prime * result + this.assertion.hashCode();
 		return result;
 	}
 }

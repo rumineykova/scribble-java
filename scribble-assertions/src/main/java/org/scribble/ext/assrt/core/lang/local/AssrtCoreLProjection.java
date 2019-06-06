@@ -14,6 +14,7 @@
 package org.scribble.ext.assrt.core.lang.local;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,20 +34,30 @@ import org.scribble.core.type.session.local.LSeq;
 import org.scribble.core.visit.STypeInliner;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEGraphBuilder;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
 
 public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreLProtocol ... FIXME CoreContext G/LProtocol hardcoding
 {
+	// TODO: duplicated from AssrtCoreGProtocol -- refactor
 	public final AssrtCoreLType type;
+	public final LinkedHashMap<AssrtIntVar, AssrtAFormula> statevars;
+	public final AssrtBFormula assertion;  // non-null (True)
 	
 	public AssrtCoreLProjection(List<ProtoMod> mods, LProtoName fullname,
-			List<Role> rs, Role self,
-			List<MemberName<? extends NonRoleParamKind>> ps, GProtoName global,
-			AssrtCoreLType type)
+			List<Role> rs, Role self, List<MemberName<? extends NonRoleParamKind>> ps,
+			GProtoName global, AssrtCoreLType type,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,
+			AssrtBFormula assrt)
 	{
 		super(mods, fullname, rs, self, ps, global, null);
 		this.type = type;
+		this.statevars = new LinkedHashMap<>(svars);  // TODO: unmod
+		this.assertion = assrt;
 	}
 
 	@Override
@@ -59,10 +70,11 @@ public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreL
 
 	public LProjection reconstruct(CommonTree source, List<ProtoMod> mods,
 			LProtoName fullname, List<Role> rs, Role self,
-			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreLType type)
+			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreLType type,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars, AssrtBFormula ass)
 	{
 		return new AssrtCoreLProjection(mods, fullname, rs, this.self, ps,
-				this.global, type);
+				this.global, type, svars, ass);
 	}
 
 	// Pre: stack.peek is the sig for the calling Do (or top-level entry)
@@ -84,6 +96,10 @@ public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreL
 		}
 		AssrtCoreEGraphBuilder b = (AssrtCoreEGraphBuilder) core.config.vf.local
 				.EGraphBuilder(core);  // N.B. currently, does not actually implement the visitor pattern
+		if (!this.statevars.isEmpty() || !this.assertion.equals(AssrtTrueFormula.TRUE))
+		{
+			throw new RuntimeException("[TODO] statevars or assertions:\n" + this);
+		}
 		return b.build(this.type);
 	}
 	
@@ -96,6 +112,10 @@ public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreL
 				+ paramsToString()
 				+ rolesToString()
 				+ " projects " + this.global
+				+ " @<"
+				+ this.statevars.entrySet().stream()
+						.map(x -> x.getKey() + " := \"" + x.getValue() + "\"")
+				+ "> \"" + this.assertion + "\""
 				+ " {\n" + this.type + "\n}";
 	}
 
@@ -109,6 +129,8 @@ public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreL
 		hash = 31 * hash + this.params.hashCode();
 		hash = 31 * hash + this.global.hashCode();
 		hash = 31 * hash + this.type.hashCode();
+		hash = 31 * hash + this.statevars.hashCode();
+		hash = 31 * hash + this.assertion.hashCode();
 		return hash;
 	}
 
@@ -127,7 +149,9 @@ public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreL
 		return them.canEquals(this) && this.mods.equals(them.mods)
 				&& this.fullname.equals(them.fullname) && this.roles.equals(them.roles)
 				&& this.self.equals(them.self) && this.params.equals(them.params)
-				&& this.global.equals(them.global) && this.type.equals(them.type);
+				&& this.global.equals(them.global) && this.type.equals(them.type)
+				&& this.statevars.equals(them.statevars)
+				&& this.assertion.equals(them.assertion);
 	}
 
 	@Override

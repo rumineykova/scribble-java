@@ -59,7 +59,8 @@ public interface AssrtAstFactory extends AstFactory
 	AssrtGProtoHeader AssrtGProtoHeader(Token t, GProtoNameNode name,
 			RoleDeclList rs, NonRoleParamDeclList ps, 
 			AssrtStateVarDeclList svars, AssrtBExprNode ass);//, List<AssrtAExprNode> sexprs);  // FIXME: not actually how parsed
-	AssrtStateVarDeclList AssrtStateVarDeclList(Token t, List<AssrtStateVarDecl> svars);
+	AssrtStateVarDeclList AssrtStateVarDeclList(Token t,
+			List<AssrtStateVarDecl> svars);
 
 	AssrtStateVarDecl AssrtStateVarDecl(Token t, AssrtIntVarNameNode svar,
 			AssrtAExprNode sexpr);
@@ -88,9 +89,8 @@ public interface AssrtAstFactory extends AstFactory
 
 	// Locals
 	AssrtLProtoHeader AssrtLProtoHeader(Token t, LProtoNameNode name,
-			RoleDeclList rs, NonRoleParamDeclList ps,
-			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs,
-			AssrtBExprNode ass);  // FIXME: not actually how parsed
+			RoleDeclList rs, NonRoleParamDeclList ps, AssrtStateVarDeclList svars,
+			AssrtBExprNode ass);
 
 	AssrtLSend AssrtLSend(Token t, MsgNode msg, RoleNode self,
 			List<RoleNode> dsts, AssrtBExprNode ass);

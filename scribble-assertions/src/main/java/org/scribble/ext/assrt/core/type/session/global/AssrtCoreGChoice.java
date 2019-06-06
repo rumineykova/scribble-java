@@ -148,7 +148,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 			Set<RecVar> rvs = projs.values().stream()
 					.map(v -> ((AssrtCoreLRecVar) v).recvar).collect(Collectors.toSet());
 			Set<List<AssrtAFormula>> fs = projs.values().stream()
-					.map(v -> ((AssrtCoreLRecVar) v).aforms)
+					.map(v -> ((AssrtCoreLRecVar) v).stateexprs)
 					.collect(Collectors.toSet());
 					// CHECKME? syntactic equality of exprs
 			if (rvs.size() > 1 || fs.size() > 1)

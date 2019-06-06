@@ -21,14 +21,13 @@ import java.util.stream.Stream;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.job.Core;
-import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.kind.NonRoleParamKind;
 import org.scribble.core.type.kind.ProtoKind;
 import org.scribble.core.type.name.ProtoName;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Arg;
 import org.scribble.ext.assrt.core.lang.AssrtCoreProtocol;
-import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGType;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 
 public abstract class AssrtCoreDo<K extends ProtoKind, B extends AssrtCoreSType<K, B>>
 		extends AssrtCoreSTypeBase<K, B>
@@ -38,15 +37,16 @@ public abstract class AssrtCoreDo<K extends ProtoKind, B extends AssrtCoreSType<
 	public final List<Arg<? extends NonRoleParamKind>> args;
 			// NonRoleParamKind, not NonRoleArgKind, because latter includes AmbigKind due to parsing requirements
 
-	//public final List<AssrtAFormula> annotexprs;  // FIXME -- cf. AssrtCoreRecVar
+	public final List<AssrtAFormula> stateexprs;  // Cf. AssrtCoreRecVar
 
-	public AssrtCoreDo(CommonTree source, ProtoName<K> proto,
-			List<Role> roles, List<Arg<? extends NonRoleParamKind>> args)
+	public AssrtCoreDo(CommonTree source, ProtoName<K> proto, List<Role> roles,
+			List<Arg<? extends NonRoleParamKind>> args, List<AssrtAFormula> sexprs)
 	{
 		super(source);
 		this.proto = proto;
 		this.roles = Collections.unmodifiableList(roles);
 		this.args = Collections.unmodifiableList(args);
+		this.stateexprs = sexprs;
 	}
 
 	@Override
@@ -57,9 +57,6 @@ public abstract class AssrtCoreDo<K extends ProtoKind, B extends AssrtCoreSType<
 	}
 
 	public abstract AssrtCoreProtocol<K, ?, ?> getTarget(Core core);  // CHECKME: "?"
-
-	public abstract AssrtCoreDo<K, B> reconstruct(CommonTree source,
-			ProtoName<K> proto, List<Role> roles, List<Arg<? extends NonRoleParamKind>> args);
 	
 	@Override
 	public String toString()
@@ -71,7 +68,10 @@ public abstract class AssrtCoreDo<K extends ProtoKind, B extends AssrtCoreSType<
 				+ ">"
 				+ "(" + this.roles.stream().map(x -> x.toString())
 						.collect(Collectors.joining(", "))
-				+ ");";
+				+ ")"
+				+ "<" + this.stateexprs.stream().map(e -> e.toString())  // Cf. AssrtCoreRecVar
+						.collect(Collectors.joining(", "))
+				+ ">";
 	}
 
 	@Override
@@ -82,6 +82,7 @@ public abstract class AssrtCoreDo<K extends ProtoKind, B extends AssrtCoreSType<
 		hash = 31 * hash + this.proto.hashCode();
 		hash = 31 * hash + this.roles.hashCode();
 		hash = 31 * hash + this.args.hashCode();
+		hash = 31 * hash + this.stateexprs.hashCode();
 		return hash;
 	}
 
@@ -99,6 +100,6 @@ public abstract class AssrtCoreDo<K extends ProtoKind, B extends AssrtCoreSType<
 		AssrtCoreDo<?, ?> them = (AssrtCoreDo<?, ?>) o;
 		return super.equals(this)  // Does canEquals
 				&& this.proto.equals(them.proto) && this.roles.equals(them.roles) 
-				&& this.args.equals(them.args);
+				&& this.args.equals(them.args) && this.stateexprs.equals(them.stateexprs);
 	}
 }

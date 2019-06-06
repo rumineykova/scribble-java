@@ -19,7 +19,6 @@ import java.util.List;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.job.Core;
 import org.scribble.core.lang.SubprotoSig;
-import org.scribble.core.lang.global.GProtocol;
 import org.scribble.core.type.kind.Global;
 import org.scribble.core.type.kind.NonRoleParamKind;
 import org.scribble.core.type.name.ProtoName;
@@ -27,16 +26,13 @@ import org.scribble.core.type.name.RecVar;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.name.Substitutions;
 import org.scribble.core.type.session.Arg;
-import org.scribble.core.type.session.global.GSeq;
-import org.scribble.core.visit.Substitutor;
 import org.scribble.ext.assrt.core.job.AssrtCore;
-import org.scribble.ext.assrt.core.job.AssrtCoreContext;
 import org.scribble.ext.assrt.core.lang.global.AssrtCoreGProtocol;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreDo;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
-import org.scribble.ext.assrt.core.type.session.NoSeq;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
 import org.scribble.ext.assrt.core.visit.global.AssrtCoreGTypeInliner;
 
@@ -44,9 +40,10 @@ public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 		implements AssrtCoreGType
 {
 	protected AssrtCoreGDo(CommonTree source, ProtoName<Global> proto,
-			List<Role> roles, List<Arg<? extends NonRoleParamKind>> args)
+			List<Role> roles, List<Arg<? extends NonRoleParamKind>> args,
+			List<AssrtAFormula> sexprs)
 	{
-		super(source, proto, roles, args);
+		super(source, proto, roles, args, sexprs);
 	}
 
 	@Override
@@ -65,7 +62,7 @@ public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 		AssrtCoreGTypeFactory tf = (AssrtCoreGTypeFactory) v.core.config.tf.global;
 		if (v.hasSig(sig))
 		{
-			return tf.AssrtCoreGRecVar(getSource(), rv, this.aforms);
+			return tf.AssrtCoreGRecVar(getSource(), rv, this.stateexprs);
 		}
 		v.pushSig(sig);
 		AssrtCoreGProtocol gpro = getTarget(v.core);
@@ -76,10 +73,10 @@ public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 		}
 		Substitutions subs = new Substitutions(gpro.roles, this.roles, gpro.params,
 				this.args);
-		AssrtCoreGType inlined = gpro.type.substitute(subs);  // N.B. .type, not .def
+		AssrtCoreGType inlined = gpro.type.substitute((AssrtCore) v.core, subs);  // N.B. .type, not .def
 
 		v.popSig();
-		return tf.AssrtCoreGRec(null, rv, inlined, gpro.avars, gpro.bform);  
+		return tf.AssrtCoreGRec(null, rv, inlined, gpro.statevars, gpro.assertion);
 				// TODO: f/w entry: inline (replace) target avar exprs by this.aforms 
 	}
 
@@ -106,14 +103,6 @@ public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 	public AssrtCoreGProtocol getTarget(Core core)
 	{
 		return ((AssrtCore) core).getContext().getIntermediate(this.proto);  // Subproto visiting hardcoded to intermediate (i.e., parsed)
-	}
-
-	@Override
-	public AssrtCoreGDo reconstruct(CommonTree source,
-			ProtoName<Global> proto, List<Role> roles,
-			List<Arg<? extends NonRoleParamKind>> args)
-	{
-		return new AssrtCoreGDo(source, proto, roles, args);
 	}
 
 	@Override

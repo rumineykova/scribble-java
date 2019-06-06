@@ -36,7 +36,10 @@ import org.scribble.core.visit.global.InlinedProjector;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.lang.AssrtCoreProtocol;
 import org.scribble.ext.assrt.core.lang.local.AssrtCoreLProjection;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.core.type.session.NoSeq;
 import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGRec;
 import org.scribble.ext.assrt.core.type.session.global.AssrtCoreGType;
@@ -50,14 +53,20 @@ public class AssrtCoreGProtocol extends GProtocol
 {
 	public final AssrtCoreGType type;  // N.B. super.def Seq set to null
 	
-	// FIXME: state vars + annot  // factor out with recursion?
+	// Cf. AssrtCoreRec
+	public final LinkedHashMap<AssrtIntVar, AssrtAFormula> statevars;
+	public final AssrtBFormula assertion;  // non-null (True)
 	
 	public AssrtCoreGProtocol(CommonTree source, List<ProtoMod> mods,
 			GProtoName fullname, List<Role> rs,
-			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreGType type)
+			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreGType type,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,
+			AssrtBFormula assrt)
 	{
 		super(source, mods, fullname, rs, ps, null);  // N.B. null Seq as super.def
 		this.type = type;
+		this.statevars = new LinkedHashMap<>(svars);  // TODO: unmod
+		this.assertion = assrt;
 	}
 
 	// Deprecated because no longer using GSeq def
@@ -69,11 +78,13 @@ public class AssrtCoreGProtocol extends GProtocol
 		throw new RuntimeException("Deprecated for " + getClass() + ":\n" + def);
 	}
 
-	public AssrtCoreGProtocol reconstruct(CommonTree source,
-			List<ProtoMod> mods, GProtoName fullname, List<Role> rs,
-			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreGType type)
+	public AssrtCoreGProtocol reconstruct(CommonTree source, List<ProtoMod> mods,
+			GProtoName fullname, List<Role> rs,
+			List<MemberName<? extends NonRoleParamKind>> ps, AssrtCoreGType type,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars, AssrtBFormula ass)
 	{
-		return new AssrtCoreGProtocol(source, mods, fullname, rs, ps, type);
+		return new AssrtCoreGProtocol(source, mods, fullname, rs, ps, type, svars,
+				ass);
 	}
 	
 	// Cf. (e.g.) checkRoleEnabling, that takes Core
@@ -100,7 +111,7 @@ public class AssrtCoreGProtocol extends GProtocol
 		List<Role> rs = this.roles.stream().filter(x -> used.contains(x))  // Prune role decls -- CHECKME: what is an example?  was this from before unused role checking?
 				.collect(Collectors.toList());*/
 		return new AssrtCoreGProtocol(getSource(), this.mods, this.fullname,
-				this.roles, this.params, pruned);
+				this.roles, this.params, pruned, this.statevars, this.assertion);
 	}
 	
 	@Override
@@ -136,7 +147,8 @@ public class AssrtCoreGProtocol extends GProtocol
 				AssrtTrueFormula.TRUE);
 		LProtoName fullname = InlinedProjector
 				.getFullProjectionName(this.fullname, self);
-		return new AssrtCoreLProjection(this.mods, fullname, this.roles, self, this.params, this.fullname, proj);
+		return new AssrtCoreLProjection(this.mods, fullname, this.roles, self,
+				this.params, this.fullname, proj, this.statevars, this.assertion);
 	}
 
 	// N.B. no "fixing" passes done here -- need breadth-first passes to be sequentialised for subproto visiting
@@ -153,7 +165,11 @@ public class AssrtCoreGProtocol extends GProtocol
 		return "global protocol " + this.fullname.getSimpleName()
 				+ paramsToString()
 				+ rolesToString()
-				+ " {\n" + this.type + "\n}";
+				+ " @<"
+				+ this.statevars.entrySet().stream()
+						.map(x -> x.getKey() + " := \"" + x.getValue() + "\"")
+				+ "> \"" + this.assertion + "\""
+						+ " {\n" + this.type + "\n}";
 	}
 
 	@Override
@@ -166,6 +182,8 @@ public class AssrtCoreGProtocol extends GProtocol
 		hash = 31 * hash + this.roles.hashCode();
 		hash = 31 * hash + this.params.hashCode();
 		hash = 31 * hash + this.type.hashCode();
+		hash = 31 * hash + this.statevars.hashCode();
+		hash = 31 * hash + this.assertion.hashCode();
 		return hash;
 	}
 
@@ -182,10 +200,11 @@ public class AssrtCoreGProtocol extends GProtocol
 		}
 		//return super.equals(o);  // Does canEquals  // No: super.def == null
 		AssrtCoreGProtocol them = (AssrtCoreGProtocol) o;
-		return them.canEquals(this)
-				&& this.mods.equals(them.mods) && this.fullname.equals(them.fullname)
-				&& this.roles.equals(them.roles) && this.params.equals(them.params)
-				&& this.type.equals(them.type);
+		return them.canEquals(this) && this.mods.equals(them.mods)
+				&& this.fullname.equals(them.fullname) && this.roles.equals(them.roles)
+				&& this.params.equals(them.params) && this.type.equals(them.type)
+				&& this.statevars.equals(them.statevars)
+				&& this.assertion.equals(them.assertion);
 	}
 
 	@Override

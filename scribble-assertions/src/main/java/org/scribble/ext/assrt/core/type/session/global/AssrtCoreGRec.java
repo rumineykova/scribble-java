@@ -38,8 +38,8 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 	public AssrtCoreGType substitute(AssrtCore core, Substitutions subs)
 	{
 		return ((AssrtCoreGTypeFactory) core.config.tf.global).AssrtCoreGRec(
-				getSource(), this.recvar, this.body.substitute(core, subs), this.svars,
-				this.ass);
+				getSource(), this.recvar, this.body.substitute(core, subs), this.statevars,
+				this.assertion);
 	}
 
 	@Override
@@ -66,14 +66,14 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 		return (proj instanceof AssrtCoreLRecVar) 
 				? AssrtCoreLEnd.END
 				: ((AssrtCoreLTypeFactory) core.config.tf.local).AssrtCoreLRec(null,
-						this.recvar, this.svars, proj, this.ass);
+						this.recvar, this.statevars, proj, this.assertion);
 	}
 
 	@Override
 	public List<AssrtAnnotDataName> collectAnnotDataVarDecls()
 	{
 		List<AssrtAnnotDataName> res = this.body.collectAnnotDataVarDecls();
-		this.svars.keySet().stream().forEachOrdered(
+		this.statevars.keySet().stream().forEachOrdered(
 				v -> res.add(new AssrtAnnotDataName(v, new DataName("int"))));  // TODO: factor out int constant
 		/*this.ass.getIntVars().stream().forEachOrdered(
 				v -> res.add(new AssrtAnnotDataType(v, new DataType("int"))));  // No: not decls*/

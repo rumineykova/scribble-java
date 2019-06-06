@@ -45,25 +45,6 @@ public class AssrtGProtoHeader extends GProtoHeader
 	{
 		return (CommonTree) getChild(ASSRT_ANNOT_CHILD_INDEX);
 	}*/
-
-	// N.B. null if not specified -- currently duplicated from AssrtGMessageTransfer
-	@Override
-	public AssrtBExprNode getAnnotAssertChild()
-	{
-		/*CommonTree ext = getAnnotChild();
-		if (ext == null)
-		{
-			return null;
-		}
-		Tree n = ext.getChild(ANNOT_ASSERT_CHILD_INDEX);
-		
-		System.out.println("3333: " + n);
-		
-		return (n.getText().equals("ASSRT_EMPTYASS"))  // TODO: factor out constant
-				? null
-				: (AssrtBExprNode) n;*/
-		return (AssrtBExprNode) getChild(ASSRT_ASSERTION_CHILD_INDEX);
-	}
 	
 /*	@Override
 	public List<AssrtIntVarNameNode> getAnnotVarChildren()
@@ -91,6 +72,25 @@ public class AssrtGProtoHeader extends GProtoHeader
 		return (AssrtStateVarDeclList) getChild(ASSRT_STATEVARDECLLIST_CHILD_INDEX);
 	}
 
+	// N.B. null if not specified -- currently duplicated from AssrtGMessageTransfer
+	@Override
+	public AssrtBExprNode getAnnotAssertChild()
+	{
+		/*CommonTree ext = getAnnotChild();
+		if (ext == null)
+		{
+			return null;
+		}
+		Tree n = ext.getChild(ANNOT_ASSERT_CHILD_INDEX);
+		
+		System.out.println("3333: " + n);
+		
+		return (n.getText().equals("ASSRT_EMPTYASS"))  // TODO: factor out constant
+				? null
+				: (AssrtBExprNode) n;*/
+		return (AssrtBExprNode) getChild(ASSRT_ASSERTION_CHILD_INDEX);
+	}
+
 	/*@Override
 	public void addScribChildren(ProtoNameNode<Global> name,
 			NonRoleParamDeclList ps, RoleDeclList rs)
@@ -101,8 +101,7 @@ public class AssrtGProtoHeader extends GProtoHeader
 	// "add", not "set"
 	public void addScribChildren(ProtoNameNode<Global> name,
 			NonRoleParamDeclList ps, RoleDeclList rs, //List<AssrtIntVarNameNode> svars, List<AssrtAExprNode> sexprs)
-			AssrtStateVarDeclList svars,
-			AssrtBExprNode ass)
+			AssrtStateVarDeclList svars, AssrtBExprNode ass)
 	{
 		// Cf. above getters and Scribble.g children order
 		super.addScribChildren(name, ps, rs);
@@ -133,8 +132,7 @@ public class AssrtGProtoHeader extends GProtoHeader
 
 	public AssrtGProtoHeader reconstruct(ProtoNameNode<Global> name,
 			NonRoleParamDeclList ps, RoleDeclList rs, //List<AssrtIntVarNameNode> svars, List<AssrtAExprNode> sexprs)
-			AssrtStateVarDeclList svars,
-			AssrtBExprNode ass)
+			AssrtStateVarDeclList svars, AssrtBExprNode ass)
 	{
 		AssrtGProtoHeader dup = dupNode();
 		dup.addScribChildren(name, ps, rs, svars, ass);//, sexprs);
@@ -156,7 +154,7 @@ public class AssrtGProtoHeader extends GProtoHeader
 		List<AssrtAExprNode> sexprs = visitChildListWithClassEqualityCheck(this,
 				getAnnotExprChildren(), v);*/
 		AssrtStateVarDeclList svars = getStateVarDeclListChild();
-		if (svars != null)
+		if (svars != null)  // CHECKME: now never null? (or shouldn't be?)
 		{
 			svars = (AssrtStateVarDeclList) visitChild(svars, v);
 		}

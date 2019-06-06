@@ -17,14 +17,14 @@ public abstract class AssrtCoreRecVar<K extends ProtoKind,
 		extends AssrtCoreSTypeBase<K, B>
 {
 	public final RecVar recvar;
-	public final List<AssrtAFormula> aforms;
+	public final List<AssrtAFormula> stateexprs;
 	
 	protected AssrtCoreRecVar(CommonTree source, RecVar rv,
 			List<AssrtAFormula> annotexprs)
 	{
 		super(source);
 		this.recvar = rv;
-		this.aforms = Collections.unmodifiableList(annotexprs);
+		this.stateexprs = Collections.unmodifiableList(annotexprs);
 	}
 	
 	@Override
@@ -37,8 +37,10 @@ public abstract class AssrtCoreRecVar<K extends ProtoKind,
 	@Override 
 	public String toString()
 	{
-		return this.recvar.toString() + "<" + this.aforms.stream()
-				.map(e -> e.toString()).collect(Collectors.joining(", ")) + ">";
+		return this.recvar.toString()
+				+ "<" + this.stateexprs.stream().map(e -> e.toString())  // CHECKME: factor out with AssrtCoreDo?
+						.collect(Collectors.joining(", "))
+				+ ">";
 	}
 	
 	@Override
@@ -51,7 +53,7 @@ public abstract class AssrtCoreRecVar<K extends ProtoKind,
 		AssrtCoreRecVar<?, ?> them = (AssrtCoreRecVar<?, ?>) o;
 		return super.equals(o) // Checks canEquals -- implicitly checks kind
 				&& this.recvar.equals(them.recvar)
-				&& this.aforms.equals(them.aforms);
+				&& this.stateexprs.equals(them.stateexprs);
 	}
 
 	@Override
@@ -59,7 +61,7 @@ public abstract class AssrtCoreRecVar<K extends ProtoKind,
 	{
 		int hash = 6733;
 		hash = 31*hash + this.recvar.hashCode();
-		hash = 31*hash + this.aforms.hashCode();
+		hash = 31*hash + this.stateexprs.hashCode();
 		return hash;
 	}
 }

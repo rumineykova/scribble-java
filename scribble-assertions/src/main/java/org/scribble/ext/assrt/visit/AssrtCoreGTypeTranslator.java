@@ -14,6 +14,7 @@
 package org.scribble.ext.assrt.visit;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,10 @@ import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.AssrtBExprNode;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
 import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
+import org.scribble.ext.assrt.ast.global.AssrtGProtoHeader;
 import org.scribble.ext.assrt.core.lang.global.AssrtCoreGProtocol;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
@@ -106,10 +110,11 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		Module m = (Module) n.getParent();
 		List<ProtoMod> mods = n.getModifierListChild().getModList().stream()
 				.map(x -> x.toProtoMod()).collect(Collectors.toList());
+		AssrtGProtoHeader hdr = (AssrtGProtoHeader) n.getHeaderChild();
 		GProtoName fullname = new GProtoName(m.getFullModuleName(),
-				n.getHeaderChild().getDeclName());
+				hdr.getDeclName());
 		List<Role> rs = n.getRoles();
-		List<MemberName<? extends NonRoleParamKind>> ps = n.getHeaderChild()
+		List<MemberName<? extends NonRoleParamKind>> ps = hdr
 				.getParamDeclListChild().getParams();  // CHECKME: make more uniform with source::getRoles ?
 		if (!ps.isEmpty())
 		{
@@ -123,9 +128,11 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 				def.getBlockChild().getInteractSeqChild().getInteractionChildren(),
 				new HashMap<>(), false, false);
 
-		// FIXME: state vars + annot
-		
-		return new AssrtCoreGProtocol(n, mods, fullname, rs, ps, body);
+		LinkedHashMap<AssrtIntVar, AssrtAFormula> svars = new LinkedHashMap<>();
+		hdr.getStateVarDeclListChild().getDeclChildren().forEach(
+				x -> svars.put(x.getDeclName(), x.getStateVarExprChild().expr));
+		AssrtBFormula ass = hdr.getAnnotAssertChild().expr;
+		return new AssrtCoreGProtocol(n, mods, fullname, rs, ps, body, svars, ass);
 	}
 
 	// List<GSessionNode> because subList is useful for parsing the continuation
