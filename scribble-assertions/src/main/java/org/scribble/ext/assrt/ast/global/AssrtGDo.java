@@ -49,9 +49,6 @@ public class AssrtGDo extends GDo implements AssrtStateVarArgNode
 	{
 		// Cf. above getters and Scribble.g children order
 		super.addScribChildren(proto, as, rs);
-		addChild(proto);  // Order re. getter indices
-		addChild(as);
-		addChild(rs);
 		addChildren(sexprs);
 	}
 	

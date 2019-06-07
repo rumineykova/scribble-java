@@ -97,6 +97,7 @@
 // - refactor common formula building for error checks in AssrtCoreSConfig
 
 // later:
+// - fix duplicate proto decl name check
 // - refactor modulecontext building, move dup vis name checks out (drop scribexception)
 // - try var type inference
 // - refactor namedisamb functionality
@@ -184,7 +185,7 @@ global protocol Proto1(role A, role B)
 //*/
 
 
-//*
+/*
 global protocol Proto1(role A, role B)
 {
 	1(x: int) from A to B;  @"x > 0"
@@ -239,6 +240,35 @@ global protocol Proto1(role A, role B)  @<x := "1">
 //*/
 
 
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;
+	do Proto1(A, B);
+}
+
+
+/*
+global protocol Adder(role C, role S)
+{
+	rec Loop {
+		HELLO(u:int) from C to S;
+		choice at C
+		{
+			ADD(w:int) from C to S; 
+			ADD(v:int) from C to S; 
+			RES(f:int) from S to C;
+			continue Loop; 
+		}
+		or
+		{
+			BYE() from C to S;
+			BYE() from S to C;
+		}
+	}
+}
+//*/
+
+
 /*
 global protocol Proto1(role C, role S)
 {
@@ -254,6 +284,58 @@ global protocol Proto1(role C, role S)
 	{
 		BYE() from C to S;
 		BYE() from S to C;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role P, role R, role C)
+{
+	Plane(x1:int, x2:int, x3:int, x4:int) from P to R;
+	do Loop(P, R, C);
+}
+
+aux global protocol Loop(role P, role R, role C)
+{
+	choice at P
+	{
+		IsAbove(v1:int) from P to R;   
+		Res(b1:int) from R to P; // @"b1=0 || b1=1"
+		IsAbove(v2:int) from P to R;   
+		Res(b2:int) from R to P; // @"b2=0 || b2=1"
+		choice at P
+		{
+			BothIn() from P to R; // @"b1=1 && b2=1"
+			BothIn(r1:int) from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			BothOut() from P to R; // @"b1=0 && b2=0"
+			BothOut() from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			Intersct(y1:int, y2:int) from P to R; // @"(b1=1 && b2=0) || (b1=0 && b2=1)" // && y1=v1 && y2:v2
+			Res(i:int) from R to P;
+			choice at P
+			{
+				SecOut(r2:int) from P to C; // @"b2=0" // && r2=i
+				do Loop(P, R, C);
+			}
+			or
+			{
+				SecIn(r3:int, r4:int) from P to C; // @"b2=1" //  && (r3=i && r4=v2)
+				do Loop(P, R, C);
+			}
+		}
+	}
+	or
+	{
+		Close() from P to R;   
+		Close() from P to C;
 	}
 }
 //*/

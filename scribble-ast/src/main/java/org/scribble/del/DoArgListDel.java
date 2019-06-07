@@ -74,7 +74,9 @@ public abstract class DoArgListDel extends ScribDelBase
 				.collect(Collectors.toList());
 		if (pd.size() != 1)
 		{
-			throw new ScribException("[disamb] Target protocol ambiguous or not found: " + pn);
+			throw new ScribException("[disamb] Target protocol " + pn
+					+ " ambiguous or not found:\n" + pd.stream().map(Object::toString)
+							.collect(Collectors.joining("\n")));
 		}
 		return pd.get(0);
 	}
