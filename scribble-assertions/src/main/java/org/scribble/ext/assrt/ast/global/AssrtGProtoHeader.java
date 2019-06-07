@@ -18,14 +18,8 @@ import org.scribble.visit.AstVisitor;
 public class AssrtGProtoHeader extends GProtoHeader
 		implements AssrtStateVarDeclNode
 {
-	/*public static final int ASSRT_ANNOT_CHILD_INDEX = 3;  // null if no @-annotation
-
-	// N.B. EXTID-parsed children of ASSRT_CHILD_INDEX subtree (i.e., grandchildren of this) -- cf. Assertions.g
-	public static final int ANNOT_ASSERT_CHILD_INDEX = 0;  // null if not specified (means "true", but not written syntactically)
-	public static final int ANNOT_STATEVAR_CHILDREN_START_INDEX = 1;*/
-
 	//public static final int ROLEDECLLIST_CHILD = 2;
-	public static final int ASSRT_STATEVARDECLLIST_CHILD_INDEX = 3;  // null if no @-annot; o/w may be empty (cf. ParamDeclList child) -- FIXME (deprecate empty)
+	public static final int ASSRT_STATEVARDECLLIST_CHILD_INDEX = 3;  // null if no @-annot; o/w may be empty but not null (cf. ParamDeclList child)
 	public static final int ASSRT_ASSERTION_CHILD_INDEX = 4;  // null if no @-annot; o/w may still be null
 
 	// ScribTreeAdaptor#create constructor
@@ -40,32 +34,6 @@ public class AssrtGProtoHeader extends GProtoHeader
 		super(node);
 	}
 
-	/*@Override
-	public CommonTree getAnnotChild()
-	{
-		return (CommonTree) getChild(ASSRT_ANNOT_CHILD_INDEX);
-	}*/
-	
-/*	@Override
-	public List<AssrtIntVarNameNode> getAnnotVarChildren()
-	{
-//		List<? extends ScribNode> cs = getChildren();
-//		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
-//				.filter(x -> x instanceof AssrtIntVarNameNode)
-//				.map(x -> (AssrtIntVarNameNode) x).collect(Collectors.toList());
-		return Collections.emptyList();  // FIXME:
-	}
-
-	@Override
-	public List<AssrtAExprNode> getAnnotExprChildren()
-	{
-//		List<? extends ScribNode> cs = getChildren();
-//		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
-//				.filter(x -> x instanceof AssrtArithExpr)
-//				.map(x -> (AssrtArithExpr) x).collect(Collectors.toList());
-		return Collections.emptyList();  // FIXME:
-	}*/
-
 	@Override
 	public AssrtStateVarDeclList getStateVarDeclListChild()
 	{
@@ -76,27 +44,8 @@ public class AssrtGProtoHeader extends GProtoHeader
 	@Override
 	public AssrtBExprNode getAnnotAssertChild()
 	{
-		/*CommonTree ext = getAnnotChild();
-		if (ext == null)
-		{
-			return null;
-		}
-		Tree n = ext.getChild(ANNOT_ASSERT_CHILD_INDEX);
-		
-		System.out.println("3333: " + n);
-		
-		return (n.getText().equals("ASSRT_EMPTYASS"))  // TODO: factor out constant
-				? null
-				: (AssrtBExprNode) n;*/
 		return (AssrtBExprNode) getChild(ASSRT_ASSERTION_CHILD_INDEX);
 	}
-
-	/*@Override
-	public void addScribChildren(ProtoNameNode<Global> name,
-			NonRoleParamDeclList ps, RoleDeclList rs)
-	{
-		throw new RuntimeException("Deprecated for " + getClass() + ":\n\t" + this);
-	}*/
 
 	// "add", not "set"
 	public void addScribChildren(ProtoNameNode<Global> name,
@@ -122,16 +71,8 @@ public class AssrtGProtoHeader extends GProtoHeader
 		((AssrtDelFactory) df).AssrtGProtoHeader(this);
 	}
 
-	/*@Override
 	public AssrtGProtoHeader reconstruct(ProtoNameNode<Global> name,
-			NonRoleParamDeclList ps, RoleDeclList rs)
-	{
-		throw new RuntimeException(
-				"[assrt] Deprecated for " + getClass() + ":\n\t" + this);
-	}*/
-
-	public AssrtGProtoHeader reconstruct(ProtoNameNode<Global> name,
-			NonRoleParamDeclList ps, RoleDeclList rs, //List<AssrtIntVarNameNode> svars, List<AssrtAExprNode> sexprs)
+			NonRoleParamDeclList ps, RoleDeclList rs,
 			AssrtStateVarDeclList svars, AssrtBExprNode ass)
 	{
 		AssrtGProtoHeader dup = dupNode();
@@ -143,16 +84,7 @@ public class AssrtGProtoHeader extends GProtoHeader
 	@Override
 	public GProtoHeader visitChildren(AstVisitor v) throws ScribException
 	{
-		/*ProtocolNameNode<K> nameNodeChild = (ProtocolNameNode<K>) visitChild(
-				getNameNodeChild(), nv);* /  // Don't really need to visit, and can avoid generic cast
-		RoleDeclList rs = (RoleDeclList) visitChild(getRoleDeclListChild(), v);
-		NonRoleParamDeclList ps = (NonRoleParamDeclList) 
-				visitChild(getParamDeclListChild(), v);*/
 		ProtoHeader<Global> sup = super.visitChildren(v);
-		/*List<AssrtIntVarNameNode> svars = visitChildListWithClassEqualityCheck(
-				this, getAnnotVarChildren(), v);
-		List<AssrtAExprNode> sexprs = visitChildListWithClassEqualityCheck(this,
-				getAnnotExprChildren(), v);*/
 		AssrtStateVarDeclList svars = getStateVarDeclListChild();
 		if (svars != null)  // CHECKME: now never null? (or shouldn't be?)
 		{
@@ -241,4 +173,60 @@ public class AssrtGProtoHeader extends GProtoHeader
 				annotvars, annotexprs,
 				ass);
 	}
+
+
+
+
+
+
+
+
+
+	public static final int ASSRT_ANNOT_CHILD_INDEX = 3;  // null if no @-annotation
+
+	// N.B. EXTID-parsed children of ASSRT_CHILD_INDEX subtree (i.e., grandchildren of this) -- cf. Assertions.g
+	public static final int ANNOT_ASSERT_CHILD_INDEX = 0;  // null if not specified (means "true", but not written syntactically)
+	public static final int ANNOT_STATEVAR_CHILDREN_START_INDEX = 1;
 */
+
+	/*@Override
+	public CommonTree getAnnotChild()
+	{
+		return (CommonTree) getChild(ASSRT_ANNOT_CHILD_INDEX);
+	}*/
+	
+/*	@Override
+	public List<AssrtIntVarNameNode> getAnnotVarChildren()
+	{
+//		List<? extends ScribNode> cs = getChildren();
+//		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
+//				.filter(x -> x instanceof AssrtIntVarNameNode)
+//				.map(x -> (AssrtIntVarNameNode) x).collect(Collectors.toList());
+		return Collections.emptyList();  // FIXME:
+	}
+
+	@Override
+	public List<AssrtAExprNode> getAnnotExprChildren()
+	{
+//		List<? extends ScribNode> cs = getChildren();
+//		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
+//				.filter(x -> x instanceof AssrtArithExpr)
+//				.map(x -> (AssrtArithExpr) x).collect(Collectors.toList());
+		return Collections.emptyList();  // FIXME:
+	}*/
+
+	/*// Because svars never null -- no: null better for super addScribChildren/reconstruct pattern
+	@Override
+	public void addScribChildren(ProtoNameNode<Global> name,
+			NonRoleParamDeclList ps, RoleDeclList rs)
+	{
+		throw new RuntimeException("Deprecated for " + getClass() + ":\n\t" + this);
+	}*/
+
+	/*@Override
+	public AssrtGProtoHeader reconstruct(ProtoNameNode<Global> name,
+			NonRoleParamDeclList ps, RoleDeclList rs)
+	{
+		throw new RuntimeException(
+				"[assrt] Deprecated for " + getClass() + ":\n\t" + this);
+	}*/

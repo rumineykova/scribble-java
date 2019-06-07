@@ -20,7 +20,7 @@ public class AssrtLProtoHeader extends LProtoHeader
 		implements AssrtStateVarDeclNode
 {
 	//public static final int ROLEDECLLIST_CHILD = 2;
-	public static final int ASSRT_STATEVARDECLLIST_CHILD_INDEX = 3;  // null if no @-annot; o/w may be empty (cf. ParamDeclList child) -- FIXME (deprecate empty)
+	public static final int ASSRT_STATEVARDECLLIST_CHILD_INDEX = 3;  // null if no @-annot; o/w may be empty but not null (cf. ParamDeclList child)
 	public static final int ASSRT_ASSERTION_CHILD_INDEX = 4;  // null if no @-annot; o/w may still be null
 
 	// ScribTreeAdaptor#create constructor
@@ -34,24 +34,6 @@ public class AssrtLProtoHeader extends LProtoHeader
 	{
 		super(node);
 	}
-	
-	/*@Override
-	public List<AssrtIntVarNameNode> getAnnotVarChildren()
-	{
-		List<? extends ScribNode> cs = getChildren();
-		return cs.subList(ASSRT_ASSERTION_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
-				.filter(x -> x instanceof AssrtIntVarNameNode)
-				.map(x -> (AssrtIntVarNameNode) x).collect(Collectors.toList());
-	}
-
-	@Override
-	public List<AssrtAExprNode> getAnnotExprChildren()
-	{
-		List<? extends ScribNode> cs = getChildren();
-		return cs.subList(ASSRT_ASSERTION_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
-				.filter(x -> x instanceof AssrtAExprNode)
-				.map(x -> (AssrtAExprNode) x).collect(Collectors.toList());
-	}*/
 
 	@Override
 	public AssrtStateVarDeclList getStateVarDeclListChild()
@@ -65,13 +47,6 @@ public class AssrtLProtoHeader extends LProtoHeader
 	{
 		return (AssrtBExprNode) getChild(ASSRT_STATEVARDECLLIST_CHILD_INDEX);
 	}
-
-	/*@Override
-	public void addScribChildren(ProtoNameNode<Local> name,
-			NonRoleParamDeclList ps, RoleDeclList rs)
-	{
-		throw new RuntimeException("Deprecated for " + getClass() + ":\n\t" + this);
-	}*/
 
 	// "add", not "set"
 	public void addScribChildren(ProtoNameNode<Local> name,
@@ -96,14 +71,6 @@ public class AssrtLProtoHeader extends LProtoHeader
 		((AssrtDelFactory) df).AssrtLProtoHeader(this);
 	}
 
-	/*@Override
-	public AssrtLProtoHeader reconstruct(ProtoNameNode<Local> name,
-			NonRoleParamDeclList ps, RoleDeclList rs)
-	{
-		throw new RuntimeException(
-				"[assrt] Deprecated for " + getClass() + ":\n\t" + this);
-	}*/
-
 	public AssrtLProtoHeader reconstruct(ProtoNameNode<Local> name,
 			NonRoleParamDeclList ps, RoleDeclList rs,
 			AssrtStateVarDeclList svars, AssrtBExprNode ass)
@@ -117,16 +84,7 @@ public class AssrtLProtoHeader extends LProtoHeader
 	@Override
 	public LProtoHeader visitChildren(AstVisitor v) throws ScribException
 	{
-		/*ProtocolNameNode<K> nameNodeChild = (ProtocolNameNode<K>) visitChild(
-				getNameNodeChild(), nv);*/  // Don't really need to visit, and can avoid generic cast
-		/*RoleDeclList rs = (RoleDeclList) visitChild(getRoleDeclListChild(), v);
-		NonRoleParamDeclList ps = (NonRoleParamDeclList) 
-				visitChild(getParamDeclListChild(), v);*/
 		ProtoHeader<Local> sup = super.visitChildren(v);
-		/*List<AssrtIntVarNameNode> annotvars = visitChildListWithClassEqualityCheck(
-				this, getAnnotVarChildren(), v);
-		List<AssrtAExprNode> aexprs = visitChildListWithClassEqualityCheck(this,
-				getAnnotExprChildren(), v);*/
 		AssrtStateVarDeclList svars = getStateVarDeclListChild();
 		if (svars != null)  // CHECKME: now never null? (or shouldn't be?)
 		{
@@ -197,6 +155,40 @@ public class AssrtLProtoHeader extends LProtoHeader
 		Iterator<AssrtArithExprNode> exprs = getAnnotExprChildren().iterator();
 		return getAnnotVarChildren().stream().collect(
 				Collectors.toMap(v -> v.toName(), v -> exprs.next().getFormula()));
+	}
+	
+	@Override
+	public List<AssrtIntVarNameNode> getAnnotVarChildren()
+	{
+		List<? extends ScribNode> cs = getChildren();
+		return cs.subList(ASSRT_ASSERTION_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
+				.filter(x -> x instanceof AssrtIntVarNameNode)
+				.map(x -> (AssrtIntVarNameNode) x).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<AssrtAExprNode> getAnnotExprChildren()
+	{
+		List<? extends ScribNode> cs = getChildren();
+		return cs.subList(ASSRT_ASSERTION_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
+				.filter(x -> x instanceof AssrtAExprNode)
+				.map(x -> (AssrtAExprNode) x).collect(Collectors.toList());
+	}
+
+	// Because svars never null -- no: null better for super addScribChildren/reconstruct pattern
+	@Override
+	public void addScribChildren(ProtoNameNode<Local> name,
+			NonRoleParamDeclList ps, RoleDeclList rs)
+	{
+		throw new RuntimeException("Deprecated for " + getClass() + ":\n\t" + this);
+	}
+
+	@Override
+	public AssrtLProtoHeader reconstruct(ProtoNameNode<Local> name,
+			NonRoleParamDeclList ps, RoleDeclList rs)
+	{
+		throw new RuntimeException(
+				"[assrt] Deprecated for " + getClass() + ":\n\t" + this);
 	}
 //*/
 	

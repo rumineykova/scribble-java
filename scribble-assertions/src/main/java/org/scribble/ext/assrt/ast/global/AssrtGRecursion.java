@@ -1,20 +1,15 @@
 package org.scribble.ext.assrt.ast.global;
 
-import java.util.List;
-
 import org.antlr.runtime.Token;
-import org.antlr.runtime.tree.CommonTree;
-import org.antlr.runtime.tree.Tree;
 import org.scribble.ast.ProtoBlock;
-import org.scribble.ast.global.GProtoBlock;
+import org.scribble.ast.Recursion;
 import org.scribble.ast.global.GRecursion;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.core.type.kind.Global;
 import org.scribble.del.DelFactory;
-import org.scribble.ext.assrt.ast.AssrtAExprNode;
 import org.scribble.ext.assrt.ast.AssrtBExprNode;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclList;
 import org.scribble.ext.assrt.ast.AssrtStateVarDeclNode;
-import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
 import org.scribble.ext.assrt.del.AssrtDelFactory;
 import org.scribble.util.Constants;
 import org.scribble.util.ScribException;
@@ -27,11 +22,8 @@ public class AssrtGRecursion extends GRecursion
 		implements AssrtStateVarDeclNode
 {
 	//public static final int BODY_CHILD_INDEX = 1;
-	public static final int ASSRT_EXT_CHILD_INDEX = 3;  // null if no @-annotation
-
-	// N.B. EXTID-parsed children of ASSRT_CHILD_INDEX subtree (i.e., grandchildren of this) -- cf. Assertions.g
-	public static final int EXT_ASSERT_CHILD_INDEX = 0;  // null if not specified (means "true", but not written syntactically)
-	public static final int EXT_STATEVAR_CHILDREN_START_INDEX = 1;
+	public static final int ASSRT_STATEVARDECLLIST_CHILD_INDEX = 2;  // null if no @-annot; o/w may be empty (cf. ParamDeclList child) -- FIXME: currently never null?
+	public static final int ASSRT_ASSERTION_CHILD_INDEX = 3;  // null if no @-annot; o/w may still be null
 
 	// ScribTreeAdaptor#create constructor
 	public AssrtGRecursion(Token t)
@@ -48,62 +40,26 @@ public class AssrtGRecursion extends GRecursion
 	// Following duplicated from AssrtGProtoHeader
 
 	@Override
-	public CommonTree getAnnotChild()
+	public AssrtStateVarDeclList getStateVarDeclListChild()
 	{
-		return (CommonTree) getChild(ASSRT_EXT_CHILD_INDEX);
+		return (AssrtStateVarDeclList) getChild(ASSRT_STATEVARDECLLIST_CHILD_INDEX);
 	}
 
 	// N.B. null if not specified -- currently duplicated from AssrtGMessageTransfer
 	@Override
 	public AssrtBExprNode getAnnotAssertChild()
 	{
-		CommonTree ext = getAnnotChild();
-		if (ext == null)
-		{
-			return null;
-		}
-		Tree n = ext.getChild(EXT_ASSERT_CHILD_INDEX);
-		return (n.getText().equals("ASSRT_EMPTYASS"))  // TODO: factor out constant
-				? null
-				: (AssrtBExprNode) n;
-	}
-	
-	@Override
-	public List<AssrtIntVarNameNode> getAnnotVarChildren()
-	{
-		/*List<? extends ScribNode> cs = getChildren();
-		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
-				.filter(x -> x instanceof AssrtIntVarNameNode)
-				.map(x -> (AssrtIntVarNameNode) x).collect(Collectors.toList());*/
-		throw new RuntimeException("[TODO] : ");
-	}
-
-	@Override
-	public List<AssrtAExprNode> getAnnotExprChildren()
-	{
-		/*List<? extends ScribNode> cs = getChildren();
-		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
-				.filter(x -> x instanceof AssrtArithExpr)
-				.map(x -> (AssrtArithExpr) x).collect(Collectors.toList());*/
-		throw new RuntimeException("[TODO] : ");
-	}
-
-	@Override
-	public void addScribChildren(RecVarNode rv, ProtoBlock<Global> block)
-	{
-		throw new RuntimeException("Deprecated for " + getClass() + ":\n\t" + this);
+		return (AssrtBExprNode) getChild(ASSRT_ASSERTION_CHILD_INDEX);
 	}
 
 	// "add", not "set"
 	public void addScribChildren(RecVarNode rv, ProtoBlock<Global> block,
-			AssrtBExprNode ass, List<AssrtIntVarNameNode> avars,
-			List<AssrtAExprNode> aexprs)
+			AssrtStateVarDeclList svars, AssrtBExprNode ass)
 	{
 		// Cf. above getters and Scribble.g children order
 		super.addScribChildren(rv, block);
+		addChild(svars);
 		addChild(ass);
-		addChildren(avars);
-		addChildren(aexprs);
 	}
 	
 	@Override
@@ -118,20 +74,11 @@ public class AssrtGRecursion extends GRecursion
 		((AssrtDelFactory) df).AssrtGRecursion(this);
 	}
 
-	@Override
 	public AssrtGRecursion reconstruct(RecVarNode recvar,
-			ProtoBlock<Global> block)
-	{
-		throw new RuntimeException(
-				"[assrt] Deprecated for " + getClass() + ": " + this);
-	}
-
-	public AssrtGRecursion reconstruct(RecVarNode recvar,
-			ProtoBlock<Global> block, AssrtBExprNode ass,
-			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs)
+			ProtoBlock<Global> block, AssrtStateVarDeclList svars, AssrtBExprNode ass)
 	{
 		AssrtGRecursion dup = dupNode();
-		dup.addScribChildren(recvar, block, ass, avars, aexprs);
+		dup.addScribChildren(recvar, block, svars, ass);
 		dup.setDel(del());  // No copy
 		return dup;
 	}
@@ -139,18 +86,18 @@ public class AssrtGRecursion extends GRecursion
 	@Override
 	public AssrtGRecursion visitChildren(AstVisitor v) throws ScribException
 	{
-		RecVarNode recvar = (RecVarNode) visitChild(getRecVarChild(), v);
-		GProtoBlock block = visitChildWithClassEqualityCheck(this, getBlockChild(),
-				v);
-		AssrtBExprNode tmp = getAnnotAssertChild();
-		AssrtBExprNode ass = (tmp == null) 
-				? null
-				: (AssrtBExprNode) visitChild(tmp, v);
-		List<AssrtIntVarNameNode> avars = visitChildListWithClassEqualityCheck(
-				this, getAnnotVarChildren(), v);
-		List<AssrtAExprNode> aexprs = visitChildListWithClassEqualityCheck(this,
-				getAnnotExprChildren(), v);
-		return reconstruct(recvar, block, ass, avars, aexprs);
+		Recursion<Global> sup = super.visitChildren(v);
+		AssrtStateVarDeclList svars = getStateVarDeclListChild();
+		if (svars != null)  // CHECKME: now never null? (or shouldn't be?)
+		{
+			svars = (AssrtStateVarDeclList) visitChild(svars, v);
+		}
+		AssrtBExprNode ass = getAnnotAssertChild();
+		if (ass != null) 
+		{
+			ass = (AssrtBExprNode) visitChild(ass, v);
+		}
+		return reconstruct(sup.getRecVarChild(), sup.getBlockChild(), svars, ass);
 	}
 
 	@Override
@@ -284,3 +231,48 @@ public class AssrtGRecursion extends GRecursion
 		}
 	}
 //*/
+
+
+
+
+	/*//public static final int BODY_CHILD_INDEX = 1;
+	public static final int ASSRT_EXT_CHILD_INDEX = 3;  // null if no @-annotation
+
+	// N.B. EXTID-parsed children of ASSRT_CHILD_INDEX subtree (i.e., grandchildren of this) -- cf. Assertions.g
+	public static final int EXT_ASSERT_CHILD_INDEX = 0;  // null if not specified (means "true", but not written syntactically)
+	public static final int EXT_STATEVAR_CHILDREN_START_INDEX = 1;*/
+
+	/*@Override
+	public List<AssrtIntVarNameNode> getAnnotVarChildren()
+	{
+//		List<? extends ScribNode> cs = getChildren();
+//		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
+//				.filter(x -> x instanceof AssrtIntVarNameNode)
+//				.map(x -> (AssrtIntVarNameNode) x).collect(Collectors.toList());
+		throw new RuntimeException("[TODO] : ");
+	}
+
+	@Override
+	public List<AssrtAExprNode> getAnnotExprChildren()
+	{
+//		List<? extends ScribNode> cs = getChildren();
+//		return cs.subList(ANNOT_CHILDREN_START_INDEX, cs.size()).stream()  // TODO: refactor, cf. Module::getMemberChildren
+//				.filter(x -> x instanceof AssrtArithExpr)
+//				.map(x -> (AssrtArithExpr) x).collect(Collectors.toList());
+		throw new RuntimeException("[TODO] : ");
+	}*/
+
+	/*// Because svars never null -- no: null better for super addScribChildren/reconstruct pattern
+	@Override
+	public void addScribChildren(RecVarNode rv, ProtoBlock<Global> block)
+	{
+		throw new RuntimeException("Deprecated for " + getClass() + ":\n\t" + this);
+	}*/
+
+	/*@Override
+	public AssrtGRecursion reconstruct(RecVarNode recvar,
+			ProtoBlock<Global> block)
+	{
+		throw new RuntimeException(
+				"[assrt] Deprecated for " + getClass() + ": " + this);
+	}*/

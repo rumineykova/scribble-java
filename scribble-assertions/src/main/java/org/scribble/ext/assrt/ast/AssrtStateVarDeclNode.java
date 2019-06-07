@@ -27,10 +27,11 @@ public interface AssrtStateVarDeclNode
 				+ ((ass == null) ? "" : " " + ass);*/
 		AssrtStateVarDeclList svars = getStateVarDeclListChild();
 		AssrtBExprNode ass = getAnnotAssertChild();
-		return (svars == null && ass == null) 
-				? ""
-				: " @" + (svars == null || svars.isEmpty()
-								? "" : svars + (ass == null ? "" : " "))
-						+ (ass == null ? "" : ass);
+		if (svars == null && ass == null) 
+		{
+			return "";
+		}
+		return " @" + (svars == null || svars.isEmpty()
+				? "" : svars + (ass == null ? "" : " ")) + (ass == null ? "" : ass);
 	}
 }

@@ -55,6 +55,7 @@ import org.scribble.ext.assrt.ast.AssrtActionAssertNode;
 import org.scribble.ext.assrt.ast.AssrtAnnotDataElem;
 import org.scribble.ext.assrt.ast.AssrtAstFactory;
 import org.scribble.ext.assrt.ast.AssrtBExprNode;
+import org.scribble.ext.assrt.ast.AssrtStateVarDeclList;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
 import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
 import org.scribble.ext.assrt.ast.global.AssrtGProtoHeader;
@@ -128,11 +129,15 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 				def.getBlockChild().getInteractSeqChild().getInteractionChildren(),
 				new HashMap<>(), false, false);
 
+		AssrtStateVarDeclList tmp1 = hdr.getStateVarDeclListChild();
 		LinkedHashMap<AssrtIntVar, AssrtAFormula> svars = new LinkedHashMap<>();
-		hdr.getStateVarDeclListChild().getDeclChildren().forEach(
-				x -> svars.put(x.getDeclName(), x.getStateVarExprChild().expr));
-		AssrtBExprNode tmp = hdr.getAnnotAssertChild();
-		AssrtBFormula ass = (tmp == null) ? AssrtTrueFormula.TRUE : tmp.expr;
+		if (tmp1 != null)
+		{
+			tmp1.getDeclChildren().forEach(
+					x -> svars.put(x.getDeclName(), x.getStateVarExprChild().expr));
+		}
+		AssrtBExprNode tmp2 = hdr.getAnnotAssertChild();
+		AssrtBFormula ass = (tmp2 == null) ? AssrtTrueFormula.TRUE : tmp2.expr;
 		return new AssrtCoreGProtocol(n, mods, fullname, rs, ps, body, svars, ass);
 	}
 
