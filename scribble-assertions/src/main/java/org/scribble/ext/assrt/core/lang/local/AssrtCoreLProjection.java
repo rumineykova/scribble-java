@@ -36,7 +36,6 @@ import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEGraphBuilder;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLEnd;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
@@ -52,12 +51,12 @@ public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreL
 			List<Role> rs, Role self, List<MemberName<? extends NonRoleParamKind>> ps,
 			GProtoName global, AssrtCoreLType type,
 			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,
-			AssrtBFormula assrt)
+			AssrtBFormula ass)
 	{
 		super(mods, fullname, rs, self, ps, global, null);
 		this.type = type;
 		this.statevars = new LinkedHashMap<>(svars);  // TODO: unmod
-		this.assertion = assrt;
+		this.assertion = ass;
 	}
 
 	@Override
@@ -96,11 +95,7 @@ public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreL
 		}
 		AssrtCoreEGraphBuilder b = (AssrtCoreEGraphBuilder) core.config.vf.local
 				.EGraphBuilder(core);  // N.B. currently, does not actually implement the visitor pattern
-		if (!this.statevars.isEmpty() || !this.assertion.equals(AssrtTrueFormula.TRUE))
-		{
-			throw new RuntimeException("[TODO] statevars or assertions:\n" + this);
-		}
-		return b.build(this.type);
+		return b.build(this.statevars, this.assertion, this.type);
 	}
 	
 	@Override

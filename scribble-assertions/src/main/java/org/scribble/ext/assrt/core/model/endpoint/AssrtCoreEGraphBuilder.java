@@ -24,8 +24,9 @@ import org.scribble.core.type.session.local.LSeq;
 import org.scribble.core.visit.local.EGraphBuilder;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.kind.AssrtAnnotDataKind;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreMsg;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreRecVar;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLActionKind;
@@ -53,11 +54,12 @@ public class AssrtCoreEGraphBuilder extends EGraphBuilder
 		this.util = (AssrtEGraphBuilderUtil) super.util;
 	}
 	
-	public EGraph build(AssrtCoreLType lt)
+	// Not LProtocol arg, LProjection currently not subtype of LProtocol
+	public EGraph build(LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,
+			AssrtBFormula ass, AssrtCoreLType lt)
 	{
 		this.util.setEntry(((AssrtCoreEModelFactory) this.core.config.mf.local)
-				.newAssrtEState(Collections.emptySet(), new LinkedHashMap<>(),
-						AssrtTrueFormula.TRUE));
+				.newAssrtEState(Collections.emptySet(), svars, ass));
 		
 		build(lt, this.util.getEntry(), this.util.getExit(), new HashMap<>());
 		return this.util.finalise();

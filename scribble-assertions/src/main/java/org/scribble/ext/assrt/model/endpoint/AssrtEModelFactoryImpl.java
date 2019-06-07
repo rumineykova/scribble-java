@@ -43,25 +43,25 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl
 	// FIXME: also used from AutParser, need to make AssrtAutParser -- or just don't disable? or create with True? -- also for newEState
 
 	@Override
-	public ESend ESend(Role peer, MsgId<?> mid, Payload payload)
+	public ESend ESend(Role peer, MsgId<?> mid, Payload pay)
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: ");
 	}
 
 	@Override
-	public ERecv ERecv(Role peer, MsgId<?> mid, Payload payload)
+	public ERecv ERecv(Role peer, MsgId<?> mid, Payload pay)
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: ");
 	}
 
 	@Override
-	public EReq EReq(Role peer, MsgId<?> mid, Payload payload)
+	public EReq EReq(Role peer, MsgId<?> mid, Payload pay)
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: ");
 	}
 
 	@Override
-	public EAcc EAcc(Role peer, MsgId<?> mid, Payload payload)
+	public EAcc EAcc(Role peer, MsgId<?> mid, Payload pay)
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: ");
 	}
@@ -81,34 +81,38 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl
 
 	@Override
 	public AssrtEState newAssrtEState(Set<RecVar> labs,
-			LinkedHashMap<AssrtIntVar, AssrtAFormula> vars,  // CHECKME: AssrtIntVar?
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,  // CHECKME: AssrtIntVar?
 			AssrtBFormula ass)
 	{
-		return new AssrtEState(labs, vars, ass);
+		return new AssrtEState(labs, svars, ass);
 	}
 
 	@Override
-	//public AssrtESend newAssrtESend(Role peer, MsgId<?> mid, Payload payload, AssrtAssertion assertion)
-	public AssrtESend newAssrtESend(Role peer, MsgId<?> mid, Payload payload, AssrtBFormula bf)
+	//public AssrtESend newAssrtESend(Role peer, MsgId<?> mid, Payload pay, AssrtAssertion assertion)
+	public AssrtESend newAssrtESend(Role peer, MsgId<?> mid, Payload pay,
+			AssrtBFormula ass)
 	{
-		return new AssrtESend(this.mf, peer, mid, payload, bf);
+		return new AssrtESend(this.mf, peer, mid, pay, ass);
 	}
 
 	@Override
-	public AssrtERecv newAssrtEReceive(Role peer, MsgId<?> mid, Payload payload, AssrtBFormula bf)
+	public AssrtERecv newAssrtEReceive(Role peer, MsgId<?> mid, Payload pay,
+			AssrtBFormula ass)
 	{
-		return new AssrtERecv(this.mf, peer, mid, payload, bf);
+		return new AssrtERecv(this.mf, peer, mid, pay, ass);
 	}
 
 	@Override
-	public AssrtEReq newAssrtERequest(Role peer, MsgId<?> mid, Payload payload, AssrtBFormula bf)
+	public AssrtEReq newAssrtERequest(Role peer, MsgId<?> mid, Payload pay,
+			AssrtBFormula ass)
 	{
-		return new AssrtEReq(this.mf, peer, mid, payload, bf);
+		return new AssrtEReq(this.mf, peer, mid, pay, ass);
 	}
 
 	@Override
-	public AssrtEAcc newAssrtEAccept(Role peer, MsgId<?> mid, Payload payload, AssrtBFormula bf)
+	public AssrtEAcc newAssrtEAccept(Role peer, MsgId<?> mid, Payload pay,
+			AssrtBFormula ass)
 	{
-		return new AssrtEAcc(this.mf, peer, mid, payload, bf);
+		return new AssrtEAcc(this.mf, peer, mid, pay, ass);
 	}
 }

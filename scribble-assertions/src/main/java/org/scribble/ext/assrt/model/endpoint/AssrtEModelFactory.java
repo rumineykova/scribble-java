@@ -20,16 +20,16 @@ public interface AssrtEModelFactory extends EModelFactory
 {
 	
 	AssrtEState newAssrtEState(Set<RecVar> labs,
-			LinkedHashMap<AssrtIntVar, AssrtAFormula> vars,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,
 			AssrtBFormula ass);
 
-	AssrtESend newAssrtESend(Role peer, MsgId<?> mid, Payload payload,
+	AssrtESend newAssrtESend(Role peer, MsgId<?> mid, Payload pay,
 			AssrtBFormula bf);
-	AssrtERecv newAssrtEReceive(Role peer, MsgId<?> mid, Payload payload,
+	AssrtERecv newAssrtEReceive(Role peer, MsgId<?> mid, Payload pay,
 			AssrtBFormula bf);
 			// CHECKME: duality? (assertions currently ignored by toDual)
-	AssrtEReq newAssrtERequest(Role peer, MsgId<?> mid, Payload payload,
+	AssrtEReq newAssrtERequest(Role peer, MsgId<?> mid, Payload pay,
 			AssrtBFormula bf);
-	AssrtEAcc newAssrtEAccept(Role peer, MsgId<?> mid, Payload payload,
+	AssrtEAcc newAssrtEAccept(Role peer, MsgId<?> mid, Payload pay,
 			AssrtBFormula bf);
 }
