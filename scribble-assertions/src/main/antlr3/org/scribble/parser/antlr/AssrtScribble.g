@@ -518,12 +518,13 @@ protomods:
 ;
 
 // N.B. intermed translation uses full proto name
+
 assrt_gprotoheader:
+// Assrt
 	GLOBAL_KW PROTOCOL_KW simplegprotoname paramdecls roledecls
 ->
-	^(ASSRT_GPROTOHEADER simplegprotoname paramdecls roledecls)
-
-// Assrt
+	^(ASSRT_GPROTOHEADER simplegprotoname paramdecls roledecls   // CHECKME: non-empty paramdecls currently broken for assrt?
+			^(ASSRT_STATEVARDECL_LIST))
 |
 	GLOBAL_KW PROTOCOL_KW simplegprotoname roledecls '@' assrt_statevardecls 
 			assrt_statevarassrt? 

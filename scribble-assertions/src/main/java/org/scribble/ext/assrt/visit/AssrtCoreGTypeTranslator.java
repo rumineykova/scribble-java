@@ -131,7 +131,8 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		LinkedHashMap<AssrtIntVar, AssrtAFormula> svars = new LinkedHashMap<>();
 		hdr.getStateVarDeclListChild().getDeclChildren().forEach(
 				x -> svars.put(x.getDeclName(), x.getStateVarExprChild().expr));
-		AssrtBFormula ass = hdr.getAnnotAssertChild().expr;
+		AssrtBExprNode tmp = hdr.getAnnotAssertChild();
+		AssrtBFormula ass = (tmp == null) ? AssrtTrueFormula.TRUE : tmp.expr;
 		return new AssrtCoreGProtocol(n, mods, fullname, rs, ps, body, svars, ass);
 	}
 

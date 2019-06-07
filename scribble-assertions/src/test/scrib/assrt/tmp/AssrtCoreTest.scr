@@ -231,7 +231,7 @@ global protocol Proto1(role A, role B)  @<x := "1"> "True"
 //*/
 
 
-/*
+//*
 global protocol Proto1(role A, role B)  @<x := "1">
 {
 	1() from A to B;
