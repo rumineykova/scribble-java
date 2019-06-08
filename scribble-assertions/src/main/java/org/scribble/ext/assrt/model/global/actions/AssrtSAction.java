@@ -9,7 +9,7 @@ public interface AssrtSAction
 	default String assertionToString()
 	{
 		AssrtBFormula ass = getAssertion();
-		return //ass.equals(AssrtTrueFormula.TRUE) ? "" : 
-		("@\"" + ass + "\"");
+		//return ass.equals(AssrtTrueFormula.TRUE) ? "" : ("@\"" + ass + "\"");
+		return "\"" + ass + "\"";
 	}
 }

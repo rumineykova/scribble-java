@@ -171,7 +171,7 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 			}*/
 			else if (first instanceof AssrtGDo)  // Inlining done later on AssrtCoreGType
 			{
-				throw new RuntimeException("[TODO] :\n" + first);
+				return parseAssrtGDo(rvs, checkRecGuard, (AssrtGDo) first);
 			}
 			else
 			{
@@ -205,7 +205,8 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 			}*/
 			else
 			{
-				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + first);
+				throw new RuntimeException(
+						"[assrt-core] [TODO] " + first.getClass() + ":\n" + first);
 			}
 		}
 	}
@@ -312,6 +313,27 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		List<AssrtArithFormula> exprs = gc.annotexprs.stream().map(e -> e.getFormula()).collect(Collectors.toList());
 		return this.af.AssrtCoreGRecVar(recvar, exprs);
 	}*/
+
+	// Duplicated from parseAssrtGContinue
+	private AssrtCoreGType parseAssrtGDo(Map<RecVar, RecVar> rvs,
+			boolean checkRecGuard, AssrtGDo n) throws AssrtCoreSyntaxException
+	{
+		if (checkRecGuard)
+		{
+			throw new AssrtCoreSyntaxException(n.getSource(),
+					"[assrt-core] Unguarded in recursion: " + n);
+		}
+		List<AssrtAFormula> sexprs = n.getAnnotExprChildren().stream()
+				.map(x -> x.getFormula()).collect(Collectors.toList());
+		if (!n.getNonRoleListChild().isEmpty())
+		{
+			throw new RuntimeException(
+					"[assrt-core] [TODO] Non-role do-args:\n\t" + this);
+		}
+		return this.tf.global.AssrtCoreGDo(n.getSource(),
+				n.getProtoNameChild().toName(), n.getRoleListChild().getRoles(),
+				n.getNonRoleListChild().getParamKindArgs(), sexprs);
+	}
 
 	// Parses message interactions as unary choices
 	private AssrtCoreGChoice parseAssrtGMsgTransfer(List<GSessionNode> is,

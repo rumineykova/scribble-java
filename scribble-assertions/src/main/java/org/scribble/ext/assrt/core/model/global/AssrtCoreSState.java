@@ -33,6 +33,7 @@ public class AssrtCoreSState extends //MPrettyState<Void, SAction, AssrtCoreSSta
 		return new AssrtCoreSStateErrors(core, fullname, this);  // Needs core and fullname
 	}*/
 	
+	// CHECKME: ?
 	public Set<Role> getSubjects()
 	{
 		return Collections.unmodifiableSet(this.subjs);

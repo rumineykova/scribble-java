@@ -89,7 +89,7 @@ public abstract class Do<K extends ProtoKind>
 		return reconstruct(proto, as, rs);
 	}
 
-	// FIXME: mcontext now redundant because NameDisambiguator converts all targets to full names -- NO: currently disamb doesn't
+	// CHECKME: mcontext now redundant because NameDisambiguator converts all targets to full names -- NO: currently disamb doesn't
 	// To get full name from original target name, use mcontext visible names (e.g. in or before name disambiguation pass)
 	// This is still useful for subclass casting to G/LProtocolName
 	public ProtoName<K> getTargetProtoDeclFullName(ModuleContext mcontext)

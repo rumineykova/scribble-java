@@ -64,10 +64,10 @@ public class AssrtEState extends EState
 	}
 
 	// For public access, do via AssrtEGraphBuilderUtil
-	protected final void addStateVars(LinkedHashMap<AssrtIntVar, AssrtAFormula> vars,
+	protected final void addStateVars(LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,
 			AssrtBFormula ass)
 	{
-		this.statevars.putAll(vars);  // FIXME: ordering w.r.t. nested recs (i.e., multiple calls to here)
+		this.statevars.putAll(svars);  // FIXME: ordering w.r.t. nested recs (i.e., multiple calls to here)
 		
 		this.ass = (this.ass.equals(AssrtTrueFormula.TRUE))
 				? ass
@@ -79,8 +79,9 @@ public class AssrtEState extends EState
 	{
 		String labs = this.labs.toString();
 		return "label=\"" + this.id + ": " + labs.substring(1, labs.length() - 1)
-				+ (this.statevars.isEmpty() ? "" : ", " + this.statevars)
-				+ (this.ass.equals(AssrtTrueFormula.TRUE) ? "" : ", " + this.ass)
+				/*+ (this.statevars.isEmpty() ? "" : ", " + this.statevars)
+				+ (this.ass.equals(AssrtTrueFormula.TRUE) ? "" : ", " + this.ass)*/
+				+ " " + this.statevars + " " + this.ass
 				+ "\"";  // FIXME: would be more convenient for this method to return only the label body
 	}
 

@@ -44,7 +44,7 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 	{
 		return "mu " + this.recvar + "("
 				+ this.statevars.entrySet().stream()
-						.map(e -> e.getKey() + " := " + e.getValue()).collect(
+						.map(x -> x.getKey() + " := " + x.getValue()).collect(
 								Collectors.joining(", "))
 				+ ")" + this.assertion + "." + this.body;
 	}

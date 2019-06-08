@@ -18,11 +18,11 @@ public class AssrtEGraphBuilderUtil extends EGraphBuilderUtil
 	}
 	
 	public void addStateVars(AssrtEState s,
-			LinkedHashMap<AssrtIntVar, AssrtAFormula> vars,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,
 			AssrtBFormula ass)
 	{
 		//((AssrtEState) this.entry).addAnnotVars(vars);
-		s.addStateVars(vars, ass);
+		s.addStateVars(svars, ass);
 	}
 	
 	@Override

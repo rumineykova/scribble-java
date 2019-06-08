@@ -109,9 +109,11 @@ public class AssrtCoreLProjection extends LProjection  // N.B. not an AssrtCoreL
 				+ " projects " + this.global
 				+ " @<"
 				+ this.statevars.entrySet().stream()
-						.map(x -> x.getKey() + " := \"" + x.getValue() + "\"")
+						//.map(x -> x.getKey() + " := \"" + x.getValue() + "\"")
+						.map(x -> x.getKey() + " := " + x.getValue())
 						.collect(Collectors.joining(", "))
-				+ "> \"" + this.assertion + "\""
+				//+ "> \"" + this.assertion + "\""
+				+ "> " + this.assertion
 				+ " {\n" + this.type + "\n}";
 	}
 

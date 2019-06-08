@@ -38,7 +38,7 @@ public abstract class AssrtCoreRecVar<K extends ProtoKind,
 	public String toString()
 	{
 		return this.recvar.toString()
-				+ "<" + this.stateexprs.stream().map(e -> e.toString())  // CHECKME: factor out with AssrtCoreDo?
+				+ "<" + this.stateexprs.stream().map(x -> x.toString())  // CHECKME: factor out with AssrtCoreDo?
 						.collect(Collectors.joining(", "))
 				+ ">";
 	}

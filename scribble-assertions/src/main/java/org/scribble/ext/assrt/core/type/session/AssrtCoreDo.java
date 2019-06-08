@@ -54,6 +54,7 @@ public abstract class AssrtCoreDo<K extends ProtoKind, B extends AssrtCoreSType<
 			Function<AssrtCoreSType<K, B>, Stream<T>> f)
 	{
 		throw new RuntimeException("Deprecated for " + getClass() + ":\n\t" + this);
+		//return f.apply(this);
 	}
 
 	public abstract AssrtCoreProtocol<K, ?, ?> getTarget(Core core);  // CHECKME: "?"
@@ -69,7 +70,7 @@ public abstract class AssrtCoreDo<K extends ProtoKind, B extends AssrtCoreSType<
 				+ "(" + this.roles.stream().map(x -> x.toString())
 						.collect(Collectors.joining(", "))
 				+ ")"
-				+ "<" + this.stateexprs.stream().map(e -> e.toString())  // Cf. AssrtCoreRecVar
+				+ "<" + this.stateexprs.stream().map(x -> x.toString())  // Cf. AssrtCoreRecVar
 						.collect(Collectors.joining(", "))
 				+ ">";
 	}

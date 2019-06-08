@@ -15,6 +15,7 @@ package org.scribble.ext.assrt.core.lang.global;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.job.Core;
@@ -87,19 +88,19 @@ public class AssrtCoreGProtocol extends GProtocol
 				ass);
 	}
 	
+	// TODO: N.B. currently, dummy is discarded -- refactor
 	// Cf. (e.g.) checkRoleEnabling, that takes Core
 	// Pre: stack.peek is the sig for the calling Do (or top-level entry), i.e., it gives the roles/args at the call-site
 	@Override
-	public AssrtCoreGProtocol getInlined(STypeInliner<Global, GSeq> v)
+	public AssrtCoreGProtocol getInlined(STypeInliner<Global, GSeq> dummy)
 	{
 		SubprotoSig sig = new SubprotoSig(this);
+		//AssrtCoreGTypeInliner cast = (AssrtCoreGTypeInliner) (STypeInliner<Global, ?>) v;  // CHECKME: cast OK?  no warning?
+		AssrtCoreGTypeInliner v = new AssrtCoreGTypeInliner(dummy.core);  // FIXME: doesn't fit visitorfactory pattern, not an GTypeInliner because of NoSeq
 		v.pushSig(sig);
 
-		//AssrtCoreGTypeInliner cast = (AssrtCoreGTypeInliner) (STypeInliner<Global, ?>) v;  // CHECKME: cast OK?  no warning?
-		AssrtCoreGTypeInliner cast = new AssrtCoreGTypeInliner(v.core);  // FIXME: doesn't fit visitorfactory pattern, not an GTypeInliner because of NoSeq
-		AssrtCoreGType inlined = this.type.inline(cast);  
+		AssrtCoreGType inlined = this.type.inline(v);  
 				// CHECKME: refactor type.inline back into visitor pattern?  // No: cannot, because AssrtCoreSTypes do not extend base Choice/etc
-
 		RecVar rv = v.getInlinedRecVar(sig);
 		AssrtCoreGTypeFactory tf = (AssrtCoreGTypeFactory) v.core.config.tf.global;
 		AssrtCoreGRec rec = tf.AssrtCoreGRec(null, rv, inlined,
@@ -167,9 +168,12 @@ public class AssrtCoreGProtocol extends GProtocol
 				+ rolesToString()
 				+ " @<"
 				+ this.statevars.entrySet().stream()
-						.map(x -> x.getKey() + " := \"" + x.getValue() + "\"")
-				+ "> \"" + this.assertion + "\""
-						+ " {\n" + this.type + "\n}";
+						//.map(x -> x.getKey() + " := \"" + x.getValue() + "\"")
+						.map(x -> x.getKey() + " := " + x.getValue())
+						.collect(Collectors.joining(", "))
+				//+ "> \"" + this.assertion + "\""
+				+ "> " + this.assertion
+				+ " {\n" + this.type + "\n}";
 	}
 
 	@Override

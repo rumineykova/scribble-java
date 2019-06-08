@@ -29,7 +29,7 @@ public class AssrtCoreMsg
 		{
 			pays = pays.substring(1, pays.length() - 1);  // For back-compat with prev. unary pay restriction
 		}
-		return this.op + "<" + pays + " | " + this.ass + ">";
+		return this.op + "(" + pays + ")" + this.ass;
 	}
 
 	@Override

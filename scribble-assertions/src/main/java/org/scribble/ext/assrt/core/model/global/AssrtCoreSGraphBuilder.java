@@ -34,14 +34,14 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 		AssrtCoreSConfig c0 = util.createInitConfig(egraphs, isExplicit);
 		AssrtCoreSState init = (AssrtCoreSState) util.newState(c0);
 		
-		Set<AssrtCoreSState> todo = new HashSet<>();
+		Set<SState> todo = new HashSet<>();
 		todo.add(init);
 		
 		while (!todo.isEmpty())
 		//for (int zz = 0; !todo.isEmpty(); zz++)
 		{
-			Iterator<AssrtCoreSState> i = todo.iterator();
-			AssrtCoreSState curr = i.next();
+			Iterator<SState> i = todo.iterator();
+			SState curr = i.next();
 			i.remove();
 			Map<Role, Set<EAction>> fireable = curr.config.getFireable();
 			Set<Entry<Role, Set<EAction>>> es = new HashSet<>(fireable.entrySet());
@@ -57,12 +57,12 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 				for (EAction a : as)
 				{
 					// cf. SState.getNextStates
-					final AssrtCoreSState succ;
+					Set<SState> succ;
 					if (a.isSend() || a.isReceive() || a.isRequest() || a.isAccept())// || a.isDisconnect())
 					{
 						Set<SConfig> next = new HashSet<>(curr.config.async(self, a));  // Singleton
-						succ = (AssrtCoreSState) this.util.addEdgesAndGetNewSuccs(curr,
-								a.toGlobal(self), next).iterator().next();  // Constructs the edges
+						succ = this.util.addEdgesAndGetNewSuccs(curr,
+								a.toGlobal(self), next);  // Constructs the edges
 					}
 					/*else if (a.isConnect() || a.isAccept())
 					{
@@ -89,8 +89,14 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 								"[assrt-core] Shouldn't get in here: " + a);
 					}
 
-					curr.addSubject(self);
-					todo.add(succ);
+					((AssrtCoreSState) curr).addSubject(self);
+					if (succ.size() > 1)
+					{
+						throw new RuntimeException(
+								"[assrt-core] Model should curently be deterministic, shouldn't get in here:\n"
+										+ succ);
+					}
+					todo.addAll(succ);
 				}
 			}
 		}

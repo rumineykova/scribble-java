@@ -37,7 +37,8 @@ public abstract class STypeInliner<K extends ProtoKind, B extends Seq<K, B>>
 	public final Core core;
 	
 	// Basically, "SubprotocolVisitor" -- factor out?
-	private final Deque<SubprotoSig> stack = new LinkedList<>();
+	protected //private
+	final Deque<SubprotoSig> stack = new LinkedList<>();
 
   // To handle recvar shadowing in nested recs
 	private Map<RecVar, Deque<RecVar>> recvars = new HashMap<>();

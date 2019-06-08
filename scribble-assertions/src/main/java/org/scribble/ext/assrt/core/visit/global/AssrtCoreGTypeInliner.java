@@ -58,12 +58,14 @@ public class AssrtCoreGTypeInliner extends AssrtCoreSTypeInliner<Global,
 	*/
 	}
 
+	// For public
 	@Override
 	public boolean hasSig(SubprotoSig sig)
 	{
 		return super.hasSig(sig);
 	}
 	
+	// For public
 	@Override
 	public void popSig()
 	{

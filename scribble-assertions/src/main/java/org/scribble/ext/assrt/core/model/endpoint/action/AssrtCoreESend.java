@@ -75,7 +75,9 @@ public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 	public String toString()
 	{
 		//return super.toString() + "@" + this.ass + ";";
-		return super.toString() + stateExprsToString();
+		//return super.toString() + stateExprsToString();
+		return this.obj + getCommSymbol() + this.mid + this.payload
+				+ stateExprsToString() + assertionToString();
 				//+ ((this.annot.toString().startsWith("_dum")) ? "" : "<" + this.annot + " := " + this.annotexprs + ">");  // FIXME
 				//+ (this.stateexprs.isEmpty() ? "" : "<" + this.stateexprs.stream().map(Object::toString).collect(Collectors.joining(", ")) + ">");
 	}

@@ -15,6 +15,7 @@ package org.scribble.ext.assrt.core.type.session.global;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.core.job.Core;
@@ -49,8 +50,16 @@ public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 	@Override
 	public AssrtCoreGType substitute(AssrtCore core, Substitutions subs)
 	{
-		throw new RuntimeException(
-				"[TODO] Substitutions for " + getClass() + ":\n" + this);
+		//throw new RuntimeException( "[TODO] Substitutions for " + getClass() + ":\n" + this);
+		List<Role> roles = this.roles.stream().map(x -> subs.subsRole(x, false))
+				.collect(Collectors.toList());
+		if (!this.args.isEmpty())
+		{
+			throw new RuntimeException(
+					"[assrt-core] [TODO] Non-role do-args:\n\t" + this);
+		}
+		return ((AssrtCoreGTypeFactory) core.config.tf.global).AssrtCoreGDo(
+				getSource(), this.proto, roles, this.args, this.stateexprs);
 	}
 
 	@Override

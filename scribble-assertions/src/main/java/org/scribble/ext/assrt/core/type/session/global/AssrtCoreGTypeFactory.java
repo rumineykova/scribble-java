@@ -36,6 +36,13 @@ public class AssrtCoreGTypeFactory extends GTypeFactoryImpl
 	{
 		return new AssrtCoreGChoice(source, src, kind, dst, cases);
 	}
+
+	public AssrtCoreGDo AssrtCoreGDo(CommonTree source, ProtoName<Global> proto,
+			List<Role> roles, List<Arg<? extends NonRoleParamKind>> args,
+			List<AssrtAFormula> sexprs)
+	{
+		return new AssrtCoreGDo(source, proto, roles, args, sexprs);
+	}
 	
 	public AssrtCoreGRec AssrtCoreGRec(CommonTree source, RecVar rv,
 			AssrtCoreGType body, LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,

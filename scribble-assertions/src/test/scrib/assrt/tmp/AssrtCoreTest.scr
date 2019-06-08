@@ -240,30 +240,43 @@ global protocol Proto1(role A, role B)  @<x := "1">
 //*/
 
 
+/*
 global protocol Proto1(role A, role B)
 {
 	1() from A to B;
-	do Proto1(A, B);
+	do Proto1(A, B);  // Testing base recursive do, inlining
 }
+//*/
 
 
 /*
+global protocol Proto1(role A, role B)
+{
+	do Proto1Aux(A, B);  // Testing base f/w entry do, inlining
+}
+
+aux global protocol Proto1Aux(role A, role B)
+{
+	1(int) from A to B;
+}
+//*/
+
+
+//*
 global protocol Adder(role C, role S)
 {
-	rec Loop {
-		HELLO(u:int) from C to S;
-		choice at C
-		{
-			ADD(w:int) from C to S; 
-			ADD(v:int) from C to S; 
-			RES(f:int) from S to C;
-			continue Loop; 
-		}
-		or
-		{
-			BYE() from C to S;
-			BYE() from S to C;
-		}
+	HELLO(u:int) from C to S;
+	choice at C
+	{
+		ADD(w:int) from C to S; 
+		ADD(v:int) from C to S; 
+		RES(f:int) from S to C;
+		do Adder(C, S);
+	}
+	or
+	{
+		BYE() from C to S;
+		BYE() from S to C;
 	}
 }
 //*/

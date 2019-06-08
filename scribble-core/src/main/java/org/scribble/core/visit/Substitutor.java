@@ -37,7 +37,7 @@ public class Substitutor<K extends ProtoKind, B extends Seq<K, B>>
 		extends STypeVisitorNoThrow<K, B>
 {
 	private Substitutions subs;
-	private boolean passive;
+	private boolean passive;  // "default" is false (cf. GTypeInliner)
 
 	protected Substitutor(List<Role> rold, List<Role> rnew,
 			List<MemberName<? extends NonRoleParamKind>> aold,
