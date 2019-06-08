@@ -82,7 +82,8 @@ public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 		}
 		Substitutions subs = new Substitutions(gpro.roles, this.roles, gpro.params,
 				this.args);
-		AssrtCoreGType inlined = gpro.type.substitute((AssrtCore) v.core, subs);  // N.B. .type, not .def
+		AssrtCoreGType inlined = gpro.type.substitute((AssrtCore) v.core, subs)  // N.B. .type, not .def
+				.inline(v);  // Cf. GTypeInliner.visitDo -- recursive visit subproto
 
 		v.popSig();
 		return tf.AssrtCoreGRec(null, rv, inlined, gpro.statevars, gpro.assertion);

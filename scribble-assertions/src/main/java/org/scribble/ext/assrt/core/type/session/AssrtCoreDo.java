@@ -53,8 +53,8 @@ public abstract class AssrtCoreDo<K extends ProtoKind, B extends AssrtCoreSType<
 	public <T> Stream<T> assrtCoreGather(
 			Function<AssrtCoreSType<K, B>, Stream<T>> f)
 	{
+		// Currently, assrt-core gather only for rec pruning -- done after inlining, so not needed for do
 		throw new RuntimeException("Deprecated for " + getClass() + ":\n\t" + this);
-		//return f.apply(this);
 	}
 
 	public abstract AssrtCoreProtocol<K, ?, ?> getTarget(Core core);  // CHECKME: "?"
