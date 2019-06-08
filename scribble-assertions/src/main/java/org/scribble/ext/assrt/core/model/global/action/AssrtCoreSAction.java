@@ -13,6 +13,8 @@ public interface AssrtCoreSAction extends AssrtSAction
 	default String stateExprsToString()
 	{
 		List<AssrtAFormula> exprs = getStateExprs();
-		return (exprs.isEmpty() ? "" : "<" + exprs.stream().map(Object::toString).collect(Collectors.joining(", ")) + ">");
+		return //(exprs.isEmpty() ? "" :
+			"<" + exprs.stream().map(Object::toString)
+						.collect(Collectors.joining(", ")) + ">";
 	}
 }

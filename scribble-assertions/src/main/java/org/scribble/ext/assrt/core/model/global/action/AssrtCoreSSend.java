@@ -34,9 +34,11 @@ public class AssrtCoreSSend extends AssrtSSend implements AssrtCoreSAction
 	@Override
 	public String toString()
 	{
-		return super.toString() + stateExprsToString();
+		return super.toString() + stateExprsToString();  // "First", assertion must hold; "second" pass sexprs
 				//+ ((this.annot.toString().startsWith("_dum")) ? "" : "<" + this.annot + " := " + this.expr + ">");  // FIXME
 				//+ (this.stateexprs.isEmpty() ? "" : "<" + this.stateexprs.stream().map(Object::toString).collect(Collectors.joining(", ")) + ">");
+		/*return this.subj + getCommSymbol() + this.obj + ":" + this.mid
+				+ this.payload + stateExprsToString() + assertionToString();*/
 	}
 
 	@Override

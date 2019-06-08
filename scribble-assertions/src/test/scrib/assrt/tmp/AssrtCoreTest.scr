@@ -424,7 +424,20 @@ aux global protocol Loop(role P, role R, role C)
 /*
 global protocol Proto1(role A, role B)
 {
-	do Proto1Aux(A, B);  @<"0">
+	do Proto1Aux(A, B);  @<"0">  // TODO CHECKME: OK to f/w entry "override" default sexprs?  (depends if default sexprs are for "init" only or not)
+}
+
+aux global protocol Proto1Aux(role A, role B)  @<x := "1">
+{
+	1() from A to B;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	do Proto1Aux(A, B);  // TODO CHECKME: OK for f/w entry to use default sexprs?  (depends if default sexprs are for "init" only or not)
 }
 
 aux global protocol Proto1Aux(role A, role B)  @<x := "1">
@@ -437,9 +450,23 @@ aux global protocol Proto1Aux(role A, role B)  @<x := "1">
 /*
 global protocol Proto1(role A, role B)  @<x := "0">
 {
-	do Proto1Aux(A, B);  @<"1">
+	do Proto1(A, B);  @<"1">
 }
 //*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

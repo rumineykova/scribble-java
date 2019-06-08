@@ -70,11 +70,11 @@ public class AssrtCoreEReq extends AssrtEReq implements AssrtCoreEAction
 	public String toString()
 	{
 		//return super.toString() + "@" + this.ass + ";";
-		//return super.toString() + stateExprsToString();
-		return this.obj + getCommSymbol() + this.mid + this.payload
-				+ stateExprsToString() + assertionToString();
+		return super.toString() + stateExprsToString();  // "First", assertion must hold; "second" pass sexprs
 				//+ ((this.annot.toString().startsWith("_dum")) ? "" : "<" + this.annot + " := " + this.expr + ">");  // FIXME
 				//+ (this.stateexprs.isEmpty() ? "" : "<" + this.stateexprs.stream().map(Object::toString).collect(Collectors.joining(", ")) + ">");
+		/*return this.obj + getCommSymbol() + this.mid + this.payload
+				+ stateExprsToString() + assertionToString();*/
 	}
 	
 	@Override

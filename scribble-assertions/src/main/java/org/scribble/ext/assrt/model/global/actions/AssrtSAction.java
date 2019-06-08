@@ -10,6 +10,7 @@ public interface AssrtSAction
 	{
 		AssrtBFormula ass = getAssertion();
 		//return ass.equals(AssrtTrueFormula.TRUE) ? "" : ("@\"" + ass + "\"");
-		return "\"" + ass + "\"";
+		//return "\"" + ass + "\"";
+		return ass.toString();
 	}
 }

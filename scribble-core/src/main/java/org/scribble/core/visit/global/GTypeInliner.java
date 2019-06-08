@@ -47,8 +47,9 @@ public class GTypeInliner extends STypeInliner<Global, GSeq>
 		Substitutor<Global, GSeq> subs = this.core.config.vf.Substitutor(gpro.roles,
 				n.roles, gpro.params, n.args);
 		//GSeq inlined = (GSeq) g.def.visitWithNoEx(subs).visitWithNoEx(this);
-		GSeq inlined = visitSeq(subs.visitSeq(gpro.def));
-				// i.e. returning a GSeq -- rely on parent GSeq to inline
+		GSeq inlined = visitSeq(subs.visitSeq(gpro.def));  
+				// Recursive visit target def -- e.g., to treat recursive-do nested inside f/w entry-do
+				// Returning a GSeq -- rely on parent GSeq to inline
 		popSig();
 		return this.core.config.tf.global.GRecursion(null, rv, inlined);
 	}

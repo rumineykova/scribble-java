@@ -48,7 +48,8 @@ public class LTypeInliner extends STypeInliner<Local, LSeq>
 				n.roles, lpro.params, n.args);
 		//LSeq inlined = (LSeq) p.def.visitWithNoThrow(subs).visitWithNoThrow(this);
 		LSeq inlined = visitSeq(subs.visitSeq(lpro.def));
-				// i.e. returning a Seq -- rely on parent Seq to inline
+				// Recursive visit target def -- e.g., to treat recursive-do nested inside f/w entry-do
+				// Returning a Seq -- rely on parent Seq to inline
 		popSig();
 		return this.core.config.tf.local.LRecursion(null, rv, inlined);
 	}
