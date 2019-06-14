@@ -38,18 +38,26 @@ public class AssrtCoreSStateErrors extends SStateErrors
 	public final Map<Role, AssrtEState> initrecass;
 	public final Map<Role, Set<AssrtCoreEAction>> recass;  // CHECKME: equiv of assprog for rec asserts?
 
+		
+	// TODO batching
+	// TODO refactor super to take core
 	// CHECKME: core and fullname really necessary?
 	public AssrtCoreSStateErrors(AssrtCore core, GProtoName fullname,
-			AssrtCoreSState init, AssrtCoreSState state)
+			AssrtCoreSState init, AssrtCoreSState curr)
 	{
-		super(state);
-		AssrtCoreSConfig cfg = (AssrtCoreSConfig) state.config;
+		super(curr);
+		AssrtCoreSConfig cfg = (AssrtCoreSConfig) curr.config;
+		core.verbosePrintln(
+				"\n[assrt-core] Checking for safety errors in model state ("
+						+ curr.id + "):");
+
 		this.unknown = Collections
 				.unmodifiableMap(cfg.getUnknownDataVarErrors(core, fullname));  // TODO: unmodifiable nested Sets
 		this.assprog = Collections
 				.unmodifiableMap(cfg.getAssertProgressErrors(core, fullname));
 		this.assunsat = Collections
 				.unmodifiableMap(cfg.getAssertUnsatErrors(core, fullname));
+
 		if (this.state.id == init.id)
 		{
 			this.initrecass = cfg.getInitRecAssertErrors(core, fullname);
@@ -61,9 +69,6 @@ public class AssrtCoreSStateErrors extends SStateErrors
 			this.recass = Collections
 				.unmodifiableMap(cfg.getRecAssertErrors(core, fullname));
 		}
-		
-		// TODO batching
-		// TODO refactor super to take core
 	}
 	
 	@Override

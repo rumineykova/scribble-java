@@ -944,7 +944,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			}
 
 			core.verbosePrintln("\n[assrt-core] Checking assertion progress for "
-					+ self + " at " + curr.id + "(" + "[TODO: SState id]" + "):");
+					+ self + " at (" + curr.id + "):");
 			core.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
 			if (!core.checkSat(fullname,
 					Stream.of(squashed).collect(Collectors.toSet())))
@@ -1077,8 +1077,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				}
 
 				core.verbosePrintln(
-						"\n[assrt-core] Checking assertion satisfiability for " + self + " at "
-								+ curr.id + "([TODO]: SState id):");
+						"\n[assrt-core] Checking assertion satisfiability for " + self
+								+ " at (" + curr.id + "):");
 				core.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
 				if (!core.checkSat(fullname,
 						Stream.of(squashed).collect(Collectors.toSet())))
@@ -1191,7 +1191,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
 			core.verbosePrintln(
 					"\n[assrt-core] Checking initial recursion assertion for " + self
-							+ " at " + curr.id + "([TODO: SState id]):");
+							+ " at (" + curr.id + "):");
 			core.verbosePrintln("  squashed = " + toCheck.toSmt2Formula());
 			if (!core.checkSat(fullname,
 					Stream.of(toCheck).collect(Collectors.toSet())))
@@ -1263,7 +1263,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 						fullname, self, curr, cast);
 					
 				core.verbosePrintln("\n[assrt-core] Checking recursion assertion for "
-						+ self + " at " + curr.id + "([TODO] SState id):");
+						+ self + " at (" + curr.id + "):");
 				core.verbosePrintln("  squashed = " + toCheck.toSmt2Formula());
 				return core.checkSat(fullname,
 						Stream.of(toCheck).collect(Collectors.toSet()));

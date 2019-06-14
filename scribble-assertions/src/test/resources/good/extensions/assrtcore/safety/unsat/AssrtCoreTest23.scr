@@ -5,13 +5,13 @@ type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 
 
 //*
-global protocol Proto1(role B, role S) @"(x:=0)"
+global protocol Proto1(role B, role S) @<x:="0">
 {
 	5(Offer:int) from B to S;	 // Checking F updated properly (old Offer in F renamed)
 	choice at S
 	{
 		hag() from S to B; @"(Offer>x)"  // Unsat check -- no explicit assert-prog check (to z3 -- squashed)
-		do Proto1(B, S); @"<Offer>"
+		do Proto1(B, S); @<"Offer">
 	}
 	or
 	{

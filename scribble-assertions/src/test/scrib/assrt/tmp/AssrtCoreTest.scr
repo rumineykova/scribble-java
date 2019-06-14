@@ -137,6 +137,14 @@ type <dotnet> "System.UInt32" from "..." as int;
 //type <dotnet> "System.String" from "..." as str;
 
 
+//*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;	
+}
+//*/
+
+
 /*
 global protocol Proto1(role A, role B)
 {
