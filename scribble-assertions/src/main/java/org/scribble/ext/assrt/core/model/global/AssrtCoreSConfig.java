@@ -1,6 +1,5 @@
 package org.scribble.ext.assrt.core.model.global;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,10 +24,8 @@ import org.scribble.core.model.endpoint.actions.EServerWrap;
 import org.scribble.core.model.global.SConfig;
 import org.scribble.core.model.global.SSingleBuffers;
 import org.scribble.core.type.name.GProtoName;
-import org.scribble.core.type.name.Op;
 import org.scribble.core.type.name.PayElemType;
 import org.scribble.core.type.name.Role;
-import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.job.AssrtCore;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAcc;
@@ -36,7 +33,6 @@ import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEAction;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreERecv;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreEReq;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
-import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula;
@@ -49,7 +45,6 @@ import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.util.Z3Wrapper;
-import org.scribble.ext.assrt.visit.AssrtCoreGProtoDeclTranslator;
 
 			
 public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
@@ -392,7 +387,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				K, F, V, R, rename);
 	}
 
-	// Rename existing vars with same name -- CHECKME: what is an example?
+	// Rename existing vars that have the same name as 'v' -- CHECKME: what is an example?
 	// N.B. no "updateRfromF" -- actually, "update R from payload annot" -- leaving R statevars as they are is OK, validation only done from F's and R already incorporated into F (and updates handled by updateFfromR)
 	// But would it be more consistent to update R?
 	private static void renameOldVarsInF(Role self, AssrtIntVar v, 
@@ -944,13 +939,14 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			}
 
 			core.verbosePrintln("\n[assrt-core] Checking assertion progress for "
-					+ self + " at (" + curr.id + "):");
+					+ self + "(" + curr.id + "):");
 			core.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
 			if (!core.checkSat(fullname,
 					Stream.of(squashed).collect(Collectors.toSet())))
 			{
 				res.put(self, curr);
 			}
+			core.verbosePrintln("");
 		}
 		return res;
 	}
@@ -1078,7 +1074,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
 				core.verbosePrintln(
 						"\n[assrt-core] Checking assertion satisfiability for " + self
-								+ " at (" + curr.id + "):");
+								+ "(" + curr.id + "):");
 				core.verbosePrintln("  squashed = " + squashed.toSmt2Formula());
 				if (!core.checkSat(fullname,
 						Stream.of(squashed).collect(Collectors.toSet())))
@@ -1091,6 +1087,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 					}
 					tmp.add(cast);
 				}
+				core.verbosePrintln("");
 			}
 		}
 		return res;
@@ -1195,13 +1192,14 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
 			core.verbosePrintln(
 					"\n[assrt-core] Checking initial recursion assertion for " + self
-							+ " at (" + curr.id + "):");
+							+ "(" + curr.id + "):");
 			core.verbosePrintln("  squashed = " + toCheck.toSmt2Formula());
 			if (!core.checkSat(fullname,
 					Stream.of(toCheck).collect(Collectors.toSet())))
 			{
 				res.put(self, curr);
 			}
+			core.verbosePrintln("");
 		}
 		return res;
 	}
@@ -1271,10 +1269,12 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				}
 					
 				core.verbosePrintln("\n[assrt-core] Checking recursion assertion for "
-						+ self + " at (" + curr.id + "):");
+						+ self + "(" + curr.id + "):");
 				core.verbosePrintln("  squashed = " + toCheck.toSmt2Formula());
-				return core.checkSat(fullname,
+				boolean b = core.checkSat(fullname,
 						Stream.of(toCheck).collect(Collectors.toSet()));
+				core.verbosePrintln("");
+				return b;
 			};
 			Set<AssrtCoreEAction> tmp = curr.getActions().stream()
 					.filter(x -> !isSat.test(x)).map(x -> (AssrtCoreEAction) x)
@@ -1584,35 +1584,6 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 		return bform;
 	}
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/*public Map<Role, AssrtEState> getP()
-	{
-		return this.P;
-	}
-	
-	public Map<Role, Map<Role, AssrtCoreEMsg>> getQ()
-	{
-		return this.Q;
-	}*/
 }
 
 
@@ -1675,7 +1646,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
 
 
-// \bot
+/*// \bot
 class AssrtCoreEBot extends AssrtCoreEMsg
 {
 	// N.B. must be initialised *before* ASSSRTCORE_BOT
@@ -1827,3 +1798,4 @@ class AssrtCoreEPendingRequest extends AssrtCoreEMsg
 		return o instanceof AssrtCoreEPendingRequest;
 	}
 }
+//*/

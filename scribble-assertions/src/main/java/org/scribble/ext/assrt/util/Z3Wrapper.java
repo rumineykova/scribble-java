@@ -40,7 +40,7 @@ public class Z3Wrapper
 		String smt2 = toSmt2(gproto, bforms);
 
 		core.verbosePrintln(
-				"\n[assrt-core] Running Z3 on:\n  " + smt2.replaceAll("\\n", "\n  "));
+				"[assrt-core] Running Z3 on:\n  " + smt2.replaceAll("\\n", "\n  "));
 
 		return checkSat(smt2);
 	}

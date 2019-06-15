@@ -49,7 +49,7 @@ public class AssrtCoreSStateErrors extends SStateErrors
 		super(curr);
 		AssrtCoreSConfig cfg = (AssrtCoreSConfig) curr.config;
 		core.verbosePrintln(
-				"\n[assrt-core] Checking for safety errors in session state ("
+				"[assrt-core] Checking for safety errors in session state ("
 						+ curr.id + "):");
 
 		this.unknown = Collections
