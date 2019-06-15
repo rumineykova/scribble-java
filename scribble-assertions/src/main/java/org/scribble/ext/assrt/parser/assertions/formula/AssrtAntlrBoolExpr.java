@@ -15,7 +15,9 @@ public class AssrtAntlrBoolExpr
 	private static Integer CHILD_LEFT_FORMULA_INDEX = 0;
 	private static Integer CHILD_RIGHT_FORMULA_INDEX = 2;
 	
-	public static AssrtSmtFormula<?> parseBoolExpr(AssrtAntlrToFormulaParser parser, CommonTree root) //throws AssertionsParseException {
+	public static AssrtSmtFormula<?> parseBoolExpr(
+			AssrtAntlrToFormulaParser parser, CommonTree root)
+			//throws AssertionsParseException {
 	{	
 		AssrtSmtFormula<?> left = parser.parse(getLeftChild(root)); 
 		if (root.getChildCount() < 2)
@@ -23,9 +25,9 @@ public class AssrtAntlrBoolExpr
 			return left;
 		}
 		AssrtBinBFormula.Op op = parseOp(getOpChild(root)); 
-		AssrtBFormula right = (AssrtBFormula) parser.parse(getRightChild(root));  // FIXME: throw ScribbleParserException for unexpected types
+		AssrtBFormula right = (AssrtBFormula) parser.parse(getRightChild(root));  
+				// FIXME: throw ScribbleParserException for unexpected types
 		return AssrtFormulaFactory.AssrtBinBool(op, (AssrtBFormula) left, right); 
-		
 	}
 	
 	public static CommonTree getOpChild(CommonTree root)

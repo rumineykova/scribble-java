@@ -266,7 +266,7 @@ public class AssrtBinBFormula extends AssrtBFormula implements AssrtBinFormula<B
 	@Override
 	public String toString()
 	{
-		return "(" + this.left.toString() + ' '  + this.op + ' ' + this.right.toString() + ")";  
+		return "(" + this.left + ' '  + this.op + ' ' + this.right + ")";  
 	}
 
 	@Override

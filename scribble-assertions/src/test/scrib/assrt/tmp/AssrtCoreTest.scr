@@ -1,5 +1,5 @@
 //Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
-//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest.scr -Z3 -ass Proto1 -V 
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest.scr -z3 -assrt Proto1 -model Proto1
 
 
 // http://sandbox.kidstrythisathome.com/erdos/
@@ -136,13 +136,116 @@ module assrt.tmp.AssrtCoreTest;
 type <dotnet> "System.UInt32" from "..." as int;
 //type <dotnet> "System.String" from "..." as str;
 
-//*
-global protocol Proto1(role A, role B) @<x := "1">
+
+/*
+global protocol Proto1(role A, role B) @"x>0"  // FIXME: unknown x -- also tested empty lhs for getRecAssertCheck
 {
 	1() from A to B;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;	
+	do Proto1Aux(A, B);
+}
+
+aux global protocol Proto1Aux(role A, role B)  @<x := "1"> "x>0"  // Testing getRecAssertCheck lhs building
+{
+	2() from B to A;	
+}
+//*/
+
+
+//*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;	
+	do Proto1Aux(A, B);  @<"2">
+}
+
+aux global protocol Proto1Aux(role A, role B)  @<x := "1"> "x>0"
+{
+	2() from B to A;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;	
+	do Proto1Aux(A, B);  @<"2">  // FIXME: no target satate var
+}
+
+aux global protocol Proto1Aux(role A, role B)  //@"x>0"
+{
+	2() from B to A;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;	
+	do Proto1Aux(A, B);  // TODO CHECKME: allow? (omitted state args)
+}
+
+aux global protocol Proto1Aux(role A, role B)  @<x := "1">
+{
+	2() from B to A;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(y:int) from A to B;  @"y>1"  // TODO: testing F var renaming/compacting -- A async returns to rec-state while B still in "prev" iteration
+	do Proto1(A, B);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	1(y:int) from A to B;  @"y>1"
+	do Proto1(A, B);  @<"y">  // TODO: testing F var renaming/compacting and V/R renaming
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	1() from A to B;  // Testing removal of _dum1 : _Unit translation for empty payload -- reduces model size
 	do Proto1(A, B);  @<"1">
 }
 //*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	1() from A to B;  // Testing removal of _dum1 : _Unit translation for empty payload
+	do Proto1(A, B);  @<"1">
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	// FIXME: unused role decls
+
+	do Proto1(A, B);  @<"1">  // Tested .toTrueAssertion state exprs
+}
+//*/
+
 
 /*
 global protocol Proto1(role A, role B) @<x := "1">

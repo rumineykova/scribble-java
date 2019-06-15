@@ -373,7 +373,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			if (e instanceof AssrtAnnotDataName)
 			{
 				AssrtIntVar v = ((AssrtAnnotDataName) e).var;
-				//renameOldVarsInF(self, v, F, rename);  // CHECKME
+				renameOldVarsInF(self, v, F, rename);  // CHECKME
 				updateForAnnotVar(v, K.get(self));
 			}
 			else
@@ -382,18 +382,23 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtoDeclTranslator.parsePayload) -- no other pay elems allowed
 			}
 		}
+		System.out.println("bbbb1: " + F);
 		updateForAssertionAndStateExprs(self,
-				a.getAssertion(), a.getStateExprs(), succ,  // FIXME: assumes v is the only var (o/w ass/svars repeated)
+				a.getAssertion(), a.getStateExprs(), succ,  // FIXME: assumes v is the only var (o/w ass/svars repeated) -- ?
 				K, F, V, R, rename);
+		System.out.println("bbbb2: " + F);
 	}
 
-	// Rename existing vars that have the same name as 'v' -- CHECKME: what is an example?
+	// Rename existing vars that have the same name as 'v' -- renaming is basically an implementation of exist-quant (final sat checks implicitly quant over free names)
+	// E.g., rec X . A->B: 1(x:int) . X -- loop renames existing x to some fresh name
 	// N.B. no "updateRfromF" -- actually, "update R from payload annot" -- leaving R statevars as they are is OK, validation only done from F's and R already incorporated into F (and updates handled by updateFfromR)
 	// But would it be more consistent to update R?
 	private static void renameOldVarsInF(Role self, AssrtIntVar v, 
 			Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
 	{
+		System.out.println("aaaa1: " + self + " ,, " + F + " ,, " + v);
+		
 		Set<AssrtBFormula> H = F.get(self);
 		if (H.stream().anyMatch(x -> x.getIntVars().contains(v)))
 		{
@@ -404,6 +409,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			rename.get(self).put(old, fresh);
 			H = H.stream().map(x -> x.subs(old, fresh)).collect(Collectors.toSet());
 			F.put(self, H);
+
+			System.out.println("aaaa2: " + F);
 		}
 	}
 
@@ -613,7 +620,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		{
 			AssrtBFormula f = i.next();
 			if (f.equals(AssrtTrueFormula.TRUE) || f.getIntVars().stream()
-					.anyMatch(v -> v.toString().startsWith("_"))) // FIXME
+					.anyMatch(v -> v.toString().startsWith("_"))) 
+							// Pruning if formula contains "old" var renamed by renameOldVarsInF -- FIXME refactor to renameOldVarsInF?
 			{
 				i.remove();
 			}
@@ -1374,12 +1382,18 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 						.reduce((x1, x2) -> AssrtFormulaFactory
 								.AssrtBinBool(AssrtBinBFormula.Op.And, x1, x2))
 						.get();
-				lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs, svarsConj); 
+				lhs = (lhs == null) 
+						? svarsConj
+						: AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs,
+								svarsConj);
 			}
-
+			
 			// CHECKME: factor out with below
-			AssrtBFormula impli = AssrtFormulaFactory
-					.AssrtBinBool(AssrtBinBFormula.Op.Imply, lhs, rhs);
+			AssrtBFormula impli = (lhs == null) 
+					? rhs
+					: AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.Imply, lhs,
+							rhs);
+
 			return forallQuantifyFreeVars(core, fullname, impli).squash();
 		}
 		else  // Rec-continue

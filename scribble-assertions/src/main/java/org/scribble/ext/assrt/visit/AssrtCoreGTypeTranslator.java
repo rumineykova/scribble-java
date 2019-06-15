@@ -13,6 +13,7 @@
  */
 package org.scribble.ext.assrt.visit;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -122,8 +123,6 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 			throw new RuntimeException(
 					"[TODO] Proto params not yet supported:\n" + n);
 		}
-		
-		System.out.println("aaaa:\n" + def + "\n");
 
 		AssrtCoreGType body = parseSeq(
 				def.getBlockChild().getInteractSeqChild().getInteractionChildren(),
@@ -379,9 +378,6 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 		
 		AssrtCoreGType cont = parseSeq(is.subList(1, is.size()), rvs, false, false);  
 				// Subseqeuent choice/rec is guarded by (at least) this action
-		
-		System.out.println("bbbb: " + is.get(0) + " ,, " + msg);
-		
 		return this.tf.global.AssrtCoreGChoice((ScribNodeBase) is.get(0), src, kind,
 				dst, Stream.of(msg).collect(Collectors.toMap(x -> x, x -> cont)));
 	}
@@ -424,10 +420,11 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 //			AssrtVarNameNode nn = (AssrtVarNameNode) ((AssrtAstFactory) this.job.af).SimpleNameNode(null, AssrtVarNameKind.KIND, "_x" + nextVarIndex());
 //			return ((AssrtAstFactory) this.job.af).AssrtAnnotPayloadElem(null, nn, dtn);  // null source OK?
 
-			return Stream
+			/*return Stream
 					.of(new AssrtAnnotDataName(makeFreshDataTypeVar(),
 							AssrtCoreGProtoDeclTranslator.UNIT_DATATYPE))
-					.collect(Collectors.toList()); // TODO: make empty list
+					.collect(Collectors.toList()); // TODO: make empty list*/
+			return Collections.emptyList();
 		}
 //		else if (msn.payloads.getElements().size() > 1)
 //		{
@@ -454,7 +451,7 @@ public class AssrtCoreGTypeTranslator extends GTypeTranslator
 			{
 				AssrtAnnotDataName data = ((AssrtAnnotDataElem) e).toPayloadType();
 				String type = data.data.toString();
-				if (!type.equals("int") && !type.endsWith(".int"))  // HACK FIXME (currently "int" for F#)
+				if (!type.equals("int") && !type.endsWith(".int"))  // HACK FIXME (currently "int" for F# -- because STP takes dot)
 				{
 					throw new AssrtCoreSyntaxException(e.getSource(),
 							"[assrt-core] Payload annotations not supported for non- \"int\" type kind: "
