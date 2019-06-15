@@ -41,7 +41,7 @@ public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 	public AssrtCoreESend toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
 	{
 		return ((AssrtCoreEModelFactory) this.mf.local).AssrtCoreESend(this.peer,
-				this.mid, this.payload, AssrtTrueFormula.TRUE, Collections.emptyList());
+				this.mid, this.payload, AssrtTrueFormula.TRUE, this.sexprs);
 	}
 
 	@Override

@@ -33,9 +33,8 @@ public class AssrtCoreEReq extends AssrtEReq implements AssrtCoreEAction
 	@Override
 	public AssrtCoreEReq toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
 	{
-		return ((AssrtCoreEModelFactory) this.mf.local).AssrtCoreEReq(
-				this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE,
-				Collections.emptyList());
+		return ((AssrtCoreEModelFactory) this.mf.local).AssrtCoreEReq(this.peer,
+				this.mid, this.payload, AssrtTrueFormula.TRUE, this.stateexprs);
 	}
 
 	@Override
