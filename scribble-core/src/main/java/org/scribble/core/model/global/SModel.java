@@ -55,7 +55,7 @@ public class SModel
 		String msg = "";
 		if (!sErrs.isEmpty())
 		{
-			msg += getSafetyErrors().values().stream()
+			msg += sErrs.values().stream()
 					.map(x -> x.toErrorMessage(this.graph))
 					.collect(Collectors.joining(""));
 		}

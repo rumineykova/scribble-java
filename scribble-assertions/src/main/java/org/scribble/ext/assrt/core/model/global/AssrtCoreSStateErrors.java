@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.scribble.core.model.endpoint.EState;
+import org.scribble.core.model.global.SGraph;
 import org.scribble.core.model.global.SStateErrors;
 import org.scribble.core.type.name.GProtoName;
 import org.scribble.core.type.name.Role;
@@ -48,7 +49,7 @@ public class AssrtCoreSStateErrors extends SStateErrors
 		super(curr);
 		AssrtCoreSConfig cfg = (AssrtCoreSConfig) curr.config;
 		core.verbosePrintln(
-				"\n[assrt-core] Checking for safety errors in model state ("
+				"\n[assrt-core] Checking for safety errors in session state ("
 						+ curr.id + "):");
 
 		this.unknown = Collections
@@ -76,6 +77,17 @@ public class AssrtCoreSStateErrors extends SStateErrors
 	{
 		return super.isEmpty() && this.unknown.isEmpty() && this.assprog.isEmpty()
 				&& this.assunsat.isEmpty() && this.recass.isEmpty();
+	}
+
+	@Override
+	public String toErrorMessage(SGraph graph)
+	{
+		String msg = super.toErrorMessage(graph);  // Return empty when no error?
+		if (!isEmpty())
+		{
+			msg += "\n" + this.state;
+		}
+		return msg;
 	}
 
 	@Override

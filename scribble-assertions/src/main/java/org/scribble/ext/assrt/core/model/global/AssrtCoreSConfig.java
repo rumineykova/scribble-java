@@ -1188,6 +1188,10 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			Role self = e.getKey();
 			AssrtEState curr = (AssrtEState) e.getValue().curr;
 			AssrtBFormula toCheck = getInitRecAssertCheck(core, fullname, self, curr);
+			if (toCheck.equals(AssrtTrueFormula.TRUE))
+			{
+				continue;
+			}
 
 			core.verbosePrintln(
 					"\n[assrt-core] Checking initial recursion assertion for " + self
@@ -1261,6 +1265,10 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				AssrtCoreEAction cast = (AssrtCoreEAction) a;
 				AssrtBFormula toCheck = getRecAssertCheck(core,
 						fullname, self, curr, cast);
+				if (toCheck.equals(AssrtTrueFormula.TRUE))
+				{
+					return true;
+				}
 					
 				core.verbosePrintln("\n[assrt-core] Checking recursion assertion for "
 						+ self + " at (" + curr.id + "):");
