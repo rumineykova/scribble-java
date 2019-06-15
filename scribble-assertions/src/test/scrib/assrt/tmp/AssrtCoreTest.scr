@@ -1,5 +1,5 @@
-//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
-//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest.scr -z3 -assrt Proto1 -model Proto1
+//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rhu1-assrt/scribble-java
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest.scr -z3 -assrt Proto1 -modelpng Proto1.png -fsmpng Proto1 A Proto1_A.png -fsmpng Proto1 B Proto1_B.png
 
 
 // http://sandbox.kidstrythisathome.com/erdos/
@@ -137,6 +137,15 @@ type <dotnet> "System.UInt32" from "..." as int;
 //type <dotnet> "System.String" from "..." as str;
 
 
+//*
+global protocol Proto1(role A, role B)
+{
+	1(x: int) from A to B;  @"x>0"
+	do Proto1(A, B);
+}
+//*/
+
+
 /*
 global protocol Proto1(role A, role B) @"x>0"  // FIXME: unknown x -- also tested empty lhs for getRecAssertCheck
 {
@@ -159,11 +168,11 @@ aux global protocol Proto1Aux(role A, role B)  @<x := "1"> "x>0"  // Testing get
 //*/
 
 
-//*
+/*
 global protocol Proto1(role A, role B)
 {
 	1() from A to B;	
-	do Proto1Aux(A, B);  @<"2">
+	do Proto1Aux(A, B);  @<"2">  // Testing "inlining" of do-sexpr args as rec-svar exprs by proto inlining
 }
 
 aux global protocol Proto1Aux(role A, role B)  @<x := "1"> "x>0"

@@ -382,13 +382,12 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtoDeclTranslator.parsePayload) -- no other pay elems allowed
 			}
 		}
-		System.out.println("bbbb1: " + F);
 		updateForAssertionAndStateExprs(self,
 				a.getAssertion(), a.getStateExprs(), succ,  // FIXME: assumes v is the only var (o/w ass/svars repeated) -- ?
 				K, F, V, R, rename);
-		System.out.println("bbbb2: " + F);
 	}
 
+	// Mutating 'F' and 'rename'
 	// Rename existing vars that have the same name as 'v' -- renaming is basically an implementation of exist-quant (final sat checks implicitly quant over free names)
 	// E.g., rec X . A->B: 1(x:int) . X -- loop renames existing x to some fresh name
 	// N.B. no "updateRfromF" -- actually, "update R from payload annot" -- leaving R statevars as they are is OK, validation only done from F's and R already incorporated into F (and updates handled by updateFfromR)
@@ -397,20 +396,15 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
 	{
-		System.out.println("aaaa1: " + self + " ,, " + F + " ,, " + v);
-		
 		Set<AssrtBFormula> H = F.get(self);
 		if (H.stream().anyMatch(x -> x.getIntVars().contains(v)))
 		{
 			AssrtIntVarFormula old = AssrtFormulaFactory
 					.AssrtIntVar(v.toString());
 			AssrtIntVarFormula fresh = makeFreshIntVar(v);
-			//Map<AssrtIntVarFormula, AssrtIntVarFormula> rename = Stream.of(old).collect(Collectors.toMap(x -> x, x -> fresh));
 			rename.get(self).put(old, fresh);
 			H = H.stream().map(x -> x.subs(old, fresh)).collect(Collectors.toSet());
 			F.put(self, H);
-
-			System.out.println("aaaa2: " + F);
 		}
 	}
 
@@ -619,9 +613,10 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		while (i.hasNext())
 		{
 			AssrtBFormula f = i.next();
-			if (f.equals(AssrtTrueFormula.TRUE) || f.getIntVars().stream()
-					.anyMatch(v -> v.toString().startsWith("_"))) 
-							// Pruning if formula contains "old" var renamed by renameOldVarsInF -- FIXME refactor to renameOldVarsInF?
+			if (f.equals(AssrtTrueFormula.TRUE) 
+					|| f.getIntVars().stream().anyMatch(v -> v.toString().startsWith("_"))
+					) 
+							// Pruning if formula contains "old" var renamed by renameOldVarsInF -- FIXME refactor to renameOldVarsInF?  CHECKME: other sources of renaming?
 			{
 				i.remove();
 			}

@@ -15,6 +15,7 @@ package org.scribble.ext.assrt.model.endpoint;
 
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.scribble.core.model.MState;
 import org.scribble.core.model.ModelFactory;
@@ -81,7 +82,10 @@ public class AssrtEState extends EState
 		return "label=\"" + this.id + ": " + labs.substring(1, labs.length() - 1)
 				/*+ (this.statevars.isEmpty() ? "" : ", " + this.statevars)
 				+ (this.ass.equals(AssrtTrueFormula.TRUE) ? "" : ", " + this.ass)*/
-				+ " " + this.statevars + " " + this.ass
+				+ " <" + this.statevars.entrySet().stream()
+						.map(x -> x.getKey() + ":=" + x.getValue())
+						.collect(Collectors.joining(", "))
+				+ "> " + this.ass
 				+ "\"";  // FIXME: would be more convenient for this method to return only the label body
 	}
 
