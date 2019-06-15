@@ -14,6 +14,8 @@
 package org.scribble.ext.assrt.core.type.session.global;
 
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +34,7 @@ import org.scribble.ext.assrt.core.lang.global.AssrtCoreGProtocol;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreDo;
 import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
 import org.scribble.ext.assrt.core.type.session.local.AssrtCoreLType;
@@ -86,8 +89,11 @@ public class AssrtCoreGDo extends AssrtCoreDo<Global, AssrtCoreGType>
 				.inline(v);  // Cf. GTypeInliner.visitDo -- recursive visit subproto
 
 		v.popSig();
-		return tf.AssrtCoreGRec(null, rv, inlined, gpro.statevars, gpro.assertion);
-				// TODO: f/w entry: inline (replace) target avar exprs by this.aforms 
+		LinkedHashMap<AssrtIntVar, AssrtAFormula> svars = new LinkedHashMap<>();
+		Iterator<AssrtAFormula> sexprs = this.stateexprs.iterator();
+		gpro.statevars.keySet().forEach(x -> svars.put(x, sexprs.next()));  // gpro.statevars keyset is ordered
+				// Do-inlining is implicitly a f/w entry: also "inline" (i.e., replace) target svar exprs by this.sexprs -- sexprs o/w only carried by recvar (which f/w entry is not) 
+		return tf.AssrtCoreGRec(null, rv, inlined, svars, gpro.assertion);
 	}
 
 	@Override
