@@ -1,5 +1,6 @@
 package org.scribble.ext.assrt.core.model.global;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +18,6 @@ import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSReq;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 
 public interface AssrtCoreSModelFactory extends SModelFactory
@@ -43,7 +43,9 @@ public interface AssrtCoreSModelFactory extends SModelFactory
 			Map<Role, Map<AssrtIntVar, AssrtAFormula>> R,
 			Map<Role, Set<AssrtBFormula>> Rass, Map<Role, Set<AssrtIntVar>> K,
 			Map<Role, Set<AssrtBFormula>> F,
-			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename);
+			//:Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename
+			Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes
+			);
 	AssrtCoreSModel AssrtCoreSModel(AssrtCore core, AssrtCoreSGraph graph);
 	
 	AssrtCoreSSend AssrtCoreSSend(Role subj, Role obj, MsgId<?> mid,

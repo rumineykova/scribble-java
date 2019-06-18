@@ -77,7 +77,7 @@ public class AssrtCoreSState extends //MPrettyState<Void, SAction, AssrtCoreSSta
 		{
 			return false;
 		}
-		return super.equals(this);  // Checks canEquals
+		return super.equals(o);  // Checks canEquals
 	}
 
 	@Override

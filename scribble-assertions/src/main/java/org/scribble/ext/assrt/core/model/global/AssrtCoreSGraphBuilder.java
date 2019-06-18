@@ -26,7 +26,8 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 	}
 	
 	@Override
-	public AssrtCoreSGraph build(Map<Role, EGraph> egraphs, boolean isExplicit, GProtoName fullname)
+	public AssrtCoreSGraph build(Map<Role, EGraph> egraphs, boolean isExplicit,
+			GProtoName fullname)
 	{
 		/*Map<Role, AssrtEState> assrtE0 = egraphs.entrySet().stream().collect(
 				Collectors.toMap(Entry::getKey, e -> (AssrtEState) e.getValue().init));*/
@@ -100,7 +101,7 @@ public class AssrtCoreSGraphBuilder extends SGraphBuilder
 				}
 			}
 		}
-
+		
 		return (AssrtCoreSGraph) this.mf.global.SGraph(fullname,
 				this.util.getStates(), init);  // Cf. super
 	}

@@ -1,5 +1,6 @@
 package org.scribble.ext.assrt.core.model.global;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +23,6 @@ import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSReq;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
 import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 
 public class AssrtCoreSModelFactoryImpl extends SModelFactoryImpl //AssrtSModelFactoryImpl
@@ -57,9 +57,12 @@ public class AssrtCoreSModelFactoryImpl extends SModelFactoryImpl //AssrtSModelF
 			Map<Role, Map<AssrtIntVar, AssrtAFormula>> R,
 			Map<Role, Set<AssrtBFormula>> Rass, Map<Role, Set<AssrtIntVar>> K,
 			Map<Role, Set<AssrtBFormula>> F,
-			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
+			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename
+			Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes)
 	{
-		return new AssrtCoreSConfig(mf, P, Q, K, F, R, Rass, rename);
+		return new AssrtCoreSConfig(this.mf, P, Q, K, F, R, Rass, //rename
+				scopes
+				);
 	}
 
 	@Override

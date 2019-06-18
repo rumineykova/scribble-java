@@ -1,5 +1,5 @@
 //Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rhu1-assrt/scribble-java
-//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest.scr -z3 -assrt Proto1 -modelpng Proto1.png -fsmpng Proto1 A Proto1_A.png -fsmpng Proto1 B Proto1_B.png
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest.scr -fair -z3 -assrt Proto1 -modelpng Proto1 Proto1.png -fsmpng Proto1 A Proto1_A.png -fsmpng Proto1 B Proto1_B.png
 
 
 // http://sandbox.kidstrythisathome.com/erdos/
@@ -108,6 +108,7 @@
 //		- consider replacing some inheritance by nesting, e.g., LProjection/Protocol (cf. SModel/SGraph)
 // - refactor Kinds as types only?  or values needed for serialization?
 // - fix UnaryPayElem generic casts (and AssrtAnnotDataElem)
+// - standardise EFSM/model format -- should contain data type info (e.g., for STP) -- should make a decl language for FSM module members, share imports with protos
 
 
 
@@ -137,10 +138,29 @@ type <dotnet> "System.UInt32" from "..." as int;
 //type <dotnet> "System.String" from "..." as str;
 
 
-//*
+//*  // TODO
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	1() from A to B;
+	do Proto1(A, B);  @<"2">
+}
+//*/
+
+
+/*
 global protocol Proto1(role A, role B)
 {
-	1(x: int) from A to B;  @"x>0"
+	1(x: int) from A to B;  @"x>0"  // Testing updateScopes
+	2(y: int) from A to B;  @"y>x"
+	do Proto1(A, B);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x: int) from A to B;  @"x>0"  // Testing updateScopes (always empty scopes)
 	do Proto1(A, B);
 }
 //*/
@@ -231,8 +251,9 @@ global protocol Proto1(role A, role B) @<x := "1">
 /*
 global protocol Proto1(role A, role B) @<x := "1">
 {
-	1() from A to B;  // Testing removal of _dum1 : _Unit translation for empty payload -- reduces model size
-	do Proto1(A, B);  @<"1">
+	1() from A to B;
+	2() from B to A;
+	do Proto1(A, B);  @<"2">  // HERE FIXME
 }
 //*/
 
@@ -240,8 +261,17 @@ global protocol Proto1(role A, role B) @<x := "1">
 /*
 global protocol Proto1(role A, role B) @<x := "1">
 {
-	1() from A to B;  // Testing removal of _dum1 : _Unit translation for empty payload
-	do Proto1(A, B);  @<"1">
+	1() from A to B;  // Testing removal of _dum1 : _Unit translation for empty payload -- reduces model size
+	do Proto1(A, B);  @<"2">  // HERE FIXME
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	1() from A to B;  // Testing removal of _dum1 : _Unit translation for empty payload -- reduces model size
+	do Proto1(A, B);  @<"1">  // Testing .toTrueAssertion state exprs
 }
 //*/
 
@@ -251,7 +281,7 @@ global protocol Proto1(role A, role B) @<x := "1">
 {
 	// FIXME: unused role decls
 
-	do Proto1(A, B);  @<"1">  // Tested .toTrueAssertion state exprs
+	do Proto1(A, B);  @<"1">  // (But tested .toTrueAssertion state exprs)
 }
 //*/
 
@@ -426,7 +456,7 @@ aux global protocol Proto1Aux(role A, role B)
 
 
 /*
-global protocol Adder(role C, role S)
+global protocol Proto1(role C, role S)
 {
 	HELLO(u:int) from C to S;
 	choice at C
@@ -434,7 +464,7 @@ global protocol Adder(role C, role S)
 		ADD(w:int) from C to S; 
 		ADD(v:int) from C to S; 
 		RES(f:int) from S to C;
-		do Adder(C, S);
+		do Proto1(C, S);
 	}
 	or
 	{
@@ -565,6 +595,20 @@ aux global protocol Loop(role P, role R, role C)
 		Close() from P to R;   
 		Close() from P to C;
 	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	NumberOne (x: int) from A to B;  //@"x > 3"
+	NumberTwo (y: int) from B to C; @ "x = y"
+	ReturnValueTwo (z: int) from C to B; @ "z = y + y"
+	ReturnValueOne (t: int) from B to A; @ "t = z"  
+			// Testing what does A know about t -- A knows t=z, but not z = y+y
+			// In general y could be from anywhere, and A won't know y's value
+			// However, in this case y = x and x came from A -- CHECKME: refine?  or perhaps if z = x + x
 }
 //*/
 
@@ -1058,7 +1102,7 @@ global protocol Proto1(role A, role B) @"(x:=(1+(1-1)), y:=4)"
 
 
 
-// TOO try: mu X . ( A->B 1 . X + A->B 2 . mu Y . A->B 3 . Y ) with statevars and assertions
+// TODO try: mu X . ( A->B 1 . X + A->B 2 . mu Y . A->B 3 . Y ) with statevars and assertions
 
 /*
 global protocol Proto1(role A, role B)

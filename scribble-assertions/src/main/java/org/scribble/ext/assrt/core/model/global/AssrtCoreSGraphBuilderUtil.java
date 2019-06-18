@@ -2,6 +2,7 @@ package org.scribble.ext.assrt.core.model.global;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -35,8 +36,10 @@ public class AssrtCoreSGraphBuilderUtil extends SGraphBuilderUtil
 				.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().toFsm()));
 		SSingleBuffers Q = new AssrtCoreSSingleBuffers(P.keySet(), !explicit);  // TODO: refactor queues creation via modelfactory (cf. super)
 		return ((AssrtCoreSModelFactory) this.mf.global).AssrtCoreSConfig(P, Q,
-				makeR(P), makeRass(P), makeK(P.keySet()), makeF(P), P.keySet().stream()
-						.collect(Collectors.toMap(r -> r, r -> new HashMap<>())));
+				makeR(P), makeRass(P), makeK(P.keySet()), makeF(P),
+				//P.keySet().stream().collect(Collectors.toMap(r -> r, r -> new HashMap<>()))
+				makeScopes(P)
+				);
 	}
 
 	// TODO: EFsm -> EGraph
@@ -58,10 +61,10 @@ public class AssrtCoreSGraphBuilderUtil extends SGraphBuilderUtil
 	{
 		return P.entrySet().stream().collect(Collectors.toMap(
 				Entry::getKey,
-				e ->
+				x ->
 				{
 					Set<AssrtBFormula> set = new HashSet<>();
-						AssrtBFormula ass = ((AssrtEState) e.getValue().graph.init)
+						AssrtBFormula ass = ((AssrtEState) x.getValue().graph.init)
 								.getAssertion();
 						if (!ass.equals(AssrtTrueFormula.TRUE))
 					{
@@ -90,7 +93,14 @@ public class AssrtCoreSGraphBuilderUtil extends SGraphBuilderUtil
 								AssrtFormulaFactory.AssrtIntVar(b.getKey().toString()),
 								b.getValue()))
 						.collect(Collectors.toSet())*/
-				e -> new HashSet<>()
+				x -> new HashSet<>()
 		));
+	}
+	
+	private static Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> 
+			makeScopes(Map<Role, EFsm> P)
+	{
+		return P.entrySet().stream()
+				.collect(Collectors.toMap(Entry::getKey, x -> new LinkedHashMap<>()));
 	}
 }
