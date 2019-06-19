@@ -165,26 +165,36 @@ global protocol Proto1(role A, role B)
 /*
 global protocol Proto1(role A, role B, role C)
 {
-	0() from A to B;
-	do Loop(A, B, C);
-}
-
-aux global protocol Loop(role P, role R, role C)
-{
-	IsAbove(v1:int) from P to R;   
-	SecOut(r2:int) from P to C;  
-			// Testing updateScopes model construction -- v1 can be dropped and re-sent before first r2 is picked
-			// Big state space explosion 
-	do Loop(P, R, C);
+	1(x: int) from A to B;
+	2(y: int) from A to C;
+	do Proto1(A, B, C);  // Testing updateScopes, records *past* scopes (i.e., excluding current) in order
 }
 //*/
 
 
 /*
-global protocol Proto1(role P, role R, role C)
+global protocol Proto1(role A, role B, role C)
 {
-	Plane(x1:int, x2:int, x3:int, x4:int) from P to R;
-	do Loop(P, R, C);
+	0() from A to B;
+	do Loop(A, B, C);
+}
+
+aux global protocol Loop(role A, role B, role C)
+{
+	IsAbove(v1:int) from A to B;  
+	SecOut(r2:int) from A to C;  
+			// Testing updateScopes model construction -- v1 can be dropped and re-sent before first r2 is picked (async recursion) -- increases state space
+			// Tests updateScopes, non-initial self-recursion
+	do Loop(A, B, C);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	Plane(x1:int, x2:int, x3:int, x4:int) from A to B;
+	do Loop(A, B, C);
 }
 
 aux global protocol Loop(role P, role R, role C)
@@ -593,7 +603,7 @@ global protocol Proto1(role C, role S)
 /*
 global protocol Proto1(role P, role R, role C)
 {
-	Plane(int, int, int, int) from P to R;
+	Plane(int, int, int, int) from P to R;  // Currently same state space as below, due to "_dum" var names (and K/scopes)
 	do Loop(P, R, C);
 }
 
@@ -626,6 +636,11 @@ aux global protocol Loop(role P, role R, role C)
 				SecOut(int) from P to C;
 				do Loop(P, R, C);
 			}
+			or
+			{
+				SecIn(int, int) from P to C;
+				do Loop(P, R, C);
+			}
 		}
 	}
 	or
@@ -635,56 +650,6 @@ aux global protocol Loop(role P, role R, role C)
 	}
 }
 //*/
-
-
-/*
-global protocol Proto1(role P, role R, role C)
-{
-	Plane(x1:int, x2:int, x3:int, x4:int) from P to R;
-	do Loop(P, R, C);
-}
-
-aux global protocol Loop(role P, role R, role C)
-{
-	choice at P
-	{
-		IsAbove(v1:int) from P to R;   
-		Res(b1:int) from R to P;  @"b1=0 || b1=1"
-		IsAbove(v2:int) from P to R;   
-		Res(b2:int) from R to P;  @"b2=0 || b2=1"
-		choice at P
-		{
-			BothIn() from P to R;  @"b1=1 && b2=1"
-			BothIn(r1:int) from P to C;
-			do Loop(P, R, C);
-		}
-		or
-		{
-			BothOut() from P to R;  @"b1=0 && b2=0"
-			BothOut() from P to C;
-			do Loop(P, R, C);
-		}
-		or
-		{
-			Intersct(y1:int, y2:int) from P to R;  @"(b1=1 && b2=0) || (b1=0 && b2=1)" // && y1=v1 && y2=v2
-			Res(i:int) from R to P;
-			choice at P
-			{
-				SecOut(r2:int) from P to C;  @"b2=0" // && r2=i
-				do Loop(P, R, C);
-			}
-			or
-			{
-				SecIn(r3:int, r4:int) from P to C;  @"b2=1" //  && (r3=i && r4=v2)
-				do Loop(P, R, C);
-			}
-		}
-	}
-	or
-	{
-		Close() from P to R;   
-		Close() from P to C;
-	}
 
 
 /*
@@ -716,7 +681,7 @@ aux global protocol Loop(role P, role R, role C)
 		}
 		or
 		{
-			Intersct(y1:int, y2:int) from P to R;  // N.B. big state space by unfoldScopes
+			Intersct(y1:int, y2:int) from P to R;  // unfoldScopes state space increase (async recursion with scopes resetting)
 			Res(i:int) from R to P;
 			choice at P
 			{

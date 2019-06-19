@@ -63,10 +63,12 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	public final Map<Role, Set<AssrtBFormula>> R;  // F is history for action ass's; R is history for rec ass's ?
 	//private final Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename; // combine with K?  // CHECKME: unused?
 	
+	// *Past* scopes (in the sense of "preceding/outer scope"), so does not include "current" scope -- important to consider for "self-recursions"
 	// N.B. not included in equals/hashCode -- used to constrain K/F/etc to syntactic scope to determine the state, but not part of the state itself 
 	// (Probably more suitable for the graph builder to manage, but current async/sync methods inconvenient)
 	// Reflects lexical scoping -- relies on syntactic WF for var annots
-	protected final Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes;  // int is EFsm.curr state
+	protected final Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes;  
+			// role -> EFsm state id -> past "scope", i.e., known vars up to, but excluding, that state
 
 	// Pre: non-aliased "ownership" of all Map contents
 	protected AssrtCoreSConfig(ModelFactory mf, Map<Role, EFsm> P,
@@ -405,13 +407,16 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			Set<AssrtIntVar> Kself, Set<AssrtBFormula> Fself, 
 			LinkedHashMap<Integer, Set<AssrtIntVar>> scopesSelf)
 	{
-		if (succ.curr.id == this.P.get(self).graph.init.id)  // Includes, e.g., mu X.A->B.X (distinct case from below, scopes always empty)
+		int curr = this.P.get(self).curr.id;
+		/* // Would be an optimisation
+		if (succ.curr.id == this.P.get(self).graph.init.id)  // Includes, e.g., mu X.A->B.X
 		{
 			Kself.clear();
 			Fself.clear();  // FIXME TODO: V/R -- e.g., rec assertion
 			scopesSelf.clear();
 		}
-		else if (scopesSelf.keySet().contains(succ.curr.id))
+		else*/ if (curr == succ.curr.id  // Includes, e.g., mu X.A->B.X (scope always empty), but also A->B.mu X.A->B.X
+				|| scopesSelf.keySet().contains(succ.curr.id))
 		{
 			Set<AssrtIntVar> keep = new HashSet<>();
 			Iterator<Entry<Integer, Set<AssrtIntVar>>> es = scopesSelf.entrySet()
@@ -447,7 +452,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 		else
 		{
-			scopesSelf.put(succ.curr.id, ((EAction) a).payload.elems.stream()
+			scopesSelf.put(curr, ((EAction) a).payload.elems.stream()
 					.map(x -> ((AssrtAnnotDataName) x).var).collect(Collectors.toSet()));
 			return;
 		}
@@ -1531,7 +1536,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			+ ",\nV=" + this.V
 			+ ",\nR=" + this.R
 			//+ ",\nrename=" + this.rename
-		// this.scopes not included
+			+ ",\nscopes=" + this.scopes  // N.B. this.scopes not included in equals/hashCode
 			+ ")";
 	}
 	
