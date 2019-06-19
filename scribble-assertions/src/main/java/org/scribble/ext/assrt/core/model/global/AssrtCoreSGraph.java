@@ -1,55 +1,36 @@
 package org.scribble.ext.assrt.core.model.global;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.scribble.core.model.global.SGraph;
 import org.scribble.core.model.global.SState;
 import org.scribble.core.type.name.GProtoName;
 
-// FIXME: refactor using base tarjan
 // 1-bounded LTS
 // Factor out with SGraph/SModel?
 public class AssrtCoreSGraph extends SGraph
 {
-	// For convenience, shadowing supers -- CHECKME: OK or bad?
-	private final AssrtCoreSState init;
+	// For convenience, shadowing supers -- CHECKME: OK or bad? (probably bad)
+	/*private final AssrtCoreSState init;
 	private final Map<Integer, AssrtCoreSState> states; // State ID -> GMState
 
 	private Map<Integer, Set<Integer>> reach; // State ID -> reachable states (not reflexive)
-	private Set<Set<Integer>> termSets;
+	private Set<Set<Integer>> termSets;*/
 
 	protected AssrtCoreSGraph(GProtoName fullname,
-			Map<Integer, SState> states, SState init)
+			Map<Integer, ? extends SState> states, SState init)
 	{
-		super(fullname, states, init);  // FIXME: AssrtCoreSState is not an SState
-		this.init = (AssrtCoreSState) init;
+		super(fullname, states, init);
+		/*this.init = (AssrtCoreSState) init;
 		this.states = Collections
 				.unmodifiableMap(states.entrySet().stream().collect(Collectors
 						.toMap(Entry::getKey, x -> (AssrtCoreSState) x.getValue())));
 
 		this.reach = getReachabilityMap();
-		this.termSets = findTerminalSets();
+		this.termSets = findTerminalSets();*/
 	}
 	
-	@Override
-	public String toDot()
-	{
-		return this.init.toDot();
-	}
-	
-	@Override
-	public String toString()
-	{
-		return this.init.toString();
-	}
-	
-	@Override
+	/*@Override
 	public final int hashCode()
 	{
 		int hash = 2887;
@@ -69,13 +50,43 @@ public class AssrtCoreSGraph extends SGraph
 			return false;
 		}
 		return this.init.id == ((AssrtCoreSGraph) o).init.id;
-	}
+	}*/
+}
 
 	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	/**
 	 *  Duplicated from SGraph
 	 */
 
+/*
 	public Set<Set<Integer>> getTerminalSets()
 	{
 		return this.termSets;
@@ -196,4 +207,4 @@ public class AssrtCoreSGraph extends SGraph
 
 		return Collections.unmodifiableMap(res);
 	}
-}
+	//*/
