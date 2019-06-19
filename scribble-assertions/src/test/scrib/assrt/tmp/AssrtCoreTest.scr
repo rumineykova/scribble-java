@@ -148,6 +148,21 @@ global protocol Proto1(role A, role B)
 //*/
 
 
+// CHECKME: val forwarding, w.r.t. local K+F's
+global protocol Proto1(role A, role B)  @<x := "1"> "x > 0"
+{
+	choice at A
+	{
+		1(y: int) from A to B;  @"y > 1"
+		do Proto1(A, B);  @<"y">
+	}
+	or
+	{
+		2() from A to B;  // FIXME: rec-assrt error caused by choice
+	}
+}
+
+
 /*
 // CHECKME: val forwarding, w.r.t. local K+F's
 global protocol Proto1(role A, role B, role C)
@@ -826,26 +841,6 @@ aux global protocol Loop(role P, role R, role C)
 //*/
 
 
-//*
-global protocol Proto1(role C, role S)  @<x := "0", y := "1"> "y>0 && x>=0"
-		//@"(x := 0, y := 1) y>0 && x>0"  // Bad initial Rass (and later unsat)
-		//@"(x := 0, y := 1) (y>0))"
-{
-	choice at C
-	{
-		Val(x1:int) from C to S;  @"x1 = x"
-		Add(y1:int) from C to S;  @"y1 = y"
-		Sum(z:int) from S to C;   @"z = (x1+y1)"
-		do Proto1(C, S);          @<"y1", "z">
-	}
-	or
-	{
-		Bye() from C to S;
-	}
-}
-//*/
-
-
 /*
 global protocol Proto1(role A, role B, role C)
 {
@@ -856,6 +851,26 @@ global protocol Proto1(role A, role B, role C)
 			// Testing what does A know about t -- A knows t=z, but not z = y+y   // CHECKME: OK for A to know "t" (K+F)?  should be sound
 			// In general y could be from anywhere, and A won't know y's value
 			// However, in this case y = x and x came from A -- CHECKME: refine?  or perhaps if z = x + x
+}
+//*/
+
+
+/*
+global protocol Proto1(role C, role S)  @<x := "0", y := "1"> "y>0 && x>=0"
+		//@"(x := 0, y := 1) y>0 && x>0"  // Bad initial Rass (and later unsat)
+		//@"(x := 0, y := 1) (y>0))"
+{
+	choice at C
+	{
+		Val(x1:int) from C to S;  @"x1 = x"
+		Add(y1:int) from C to S;  @"y1 = y"
+		Sum(z:int) from S to C;   @"z = (x1+y1)"
+		do Proto1(C, S);          @<"y1", "z">  // FIXME
+	}
+	or
+	{
+		Bye() from C to S;
+	}
 }
 //*/
 
