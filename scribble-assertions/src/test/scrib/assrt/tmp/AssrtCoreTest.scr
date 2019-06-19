@@ -138,13 +138,174 @@ type <dotnet> "System.UInt32" from "..." as int;
 //type <dotnet> "System.String" from "..." as str;
 
 
-//*  // TODO
-global protocol Proto1(role A, role B) @<x := "1">
+
+/*
+global protocol Proto1(role A, role B)
 {
-	1() from A to B;
-	do Proto1(A, B);  @<"2">
+	1(x: int) from A to B;  @"x > 1"
 }
 //*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	0() from A to B;
+	do Proto1Aux(A, B);
+}
+
+aux global protocol Proto1Aux(role A, role B)
+{
+	choice at A
+	{
+		1(x: int) from A to B;
+		do Proto1Aux(A, B);
+	}
+	or 
+	{
+		2() from A to B;
+	}
+}
+*/
+
+//*
+global protocol Proto1(role A, role B, role C)
+{
+	88() from A to B;
+	do Loop(A, B, C);
+}
+
+aux global protocol Loop(role P, role R, role C)
+{
+// HERE port tarjan -- and undo true recv assert in proj
+
+	IsAbove(v1:int) from P to R;   
+	SecOut(r2:int) from P to C;  
+			// Testing updateScopes model construction -- v1 can be dropped and re-sent before first r2 is picked
+			// Big state space explosion 
+	do Loop(P, R, C);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	0() from A to B;
+	//0() from A to C;
+	do Proto1Aux(A, B, C);
+}
+
+global protocol Proto1Aux(role A, role B, role C)
+{
+	0() from A to B;
+	0() from B to A;
+	0() from A to B;
+	0() from B to A;
+	choice at A
+	{
+		1(x:int) from A to B;
+		2() from B to A;
+		choice at A 
+		{
+			3() from A to C;
+			//4() from C to A;
+			do Proto1Aux(A, B, C);
+		}	
+		or
+		{
+			5() from A to C;
+			//6() from C to A;
+			do Proto1Aux(A, B, C);
+		}
+	}
+	or
+	{
+		bar() from A to B;
+		bar() from A to C;
+		do Proto1Aux(A, B, C);
+	}	
+	or
+	{
+		bar2() from A to B;
+		bar2() from A to C;
+		do Proto1Aux(A, B, C);
+	}	
+	or
+	{
+		foo() from A to B;
+		foo() from A to C;
+	}
+}
+//*/
+
+/*
+global protocol Proto1(role P, role R, role C)
+{
+	//Plane(x1:int, x2:int, x3:int, x4:int) from P to R;
+	0() from P to R;
+	0() from R to P;
+	0() from P to C;
+	0() from C to P;
+	do Loop(P, R, C);
+}
+aux 
+//* /
+global protocol Loop(role P, role R, role C)
+{
+	choice at P
+	{
+		IsAbove(v1:int) from P to R;   
+		Res(b1:int) from R to P; // @"b1=0 || b1=1"
+		IsAbove(v2:int) from P to R;   
+		Res(b2:int) from R to P; // @"b2=0 || b2=1"
+		choice at P
+		{
+			BothIn() from P to R; // @"b1=1 && b2=1"
+			BothIn(r1:int) from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			BothOut() from P to R; // @"b1=0 && b2=0"
+			BothOut() from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			Intersct(y1:int, y2:int) from P to R; // @"(b1=1 && b2=0) || (b1=0 && b2=1)" // && y1=v1 && y2:v2
+			Res(i:int) from R to P;
+			choice at P
+			{
+				SecOut(r2:int) from P to C; // @"b2=0" // && r2=i
+				do Loop(P, R, C);
+			}
+			or
+			{
+				SecIn(r3:int, r4:int) from P to C; // @"b2=1" //  && (r3=i && r4=v2)
+				do Loop(P, R, C);
+			}
+		}
+	}
+	or
+	{
+		Close() from P to R;   
+		Close() from P to C;
+	}
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*
@@ -178,12 +339,22 @@ global protocol Proto1(role A, role B) @"x>0"  // FIXME: unknown x -- also teste
 global protocol Proto1(role A, role B)
 {
 	1() from A to B;	
-	do Proto1Aux(A, B);
+	do Proto1Aux(A, B);  // FIXME: do-sexpr WF -- CHECKME: or allow? (cf., below)
+	//do Proto1Aux(A, B);  @<"1">
 }
 
 aux global protocol Proto1Aux(role A, role B)  @<x := "1"> "x>0"  // Testing getRecAssertCheck lhs building
 {
 	2() from B to A;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	1() from A to B;
+	do Proto1(A, B);  @<"2">  // Testing svar initial and update values
 }
 //*/
 
@@ -484,12 +655,59 @@ global protocol Proto1(role C, role S)
 		ADD(w:int) from C to S;  @"w > 0"
 		ADD(v:int) from C to S;  @"v > 0"
 		RES(f:int) from S to C;  @"f > 0"
-		//do Proto1(C, S);
+		do Proto1(C, S);
 	}
 	or
 	{
 		BYE() from C to S;
 		BYE() from S to C;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role P, role R, role C)
+{
+	Plane(int, int, int, int) from P to R;
+	do Loop(P, R, C);
+}
+
+aux global protocol Loop(role P, role R, role C)
+{
+	choice at P
+	{
+		IsAbove(int) from P to R;   
+		Res(int) from R to P;
+		IsAbove(int) from P to R;   
+		Res(int) from R to P;
+		choice at P
+		{
+			BothIn() from P to R;
+			BothIn(int) from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			BothOut() from P to R;
+			BothOut() from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			Intersct(int, int) from P to R;
+			Res(int) from R to P;
+			choice at P
+			{
+				SecOut(int) from P to C;
+				do Loop(P, R, C);
+			}
+		}
+	}
+	or
+	{
+		Close() from P to R;   
+		Close() from P to C;
 	}
 }
 //*/
@@ -507,33 +725,83 @@ aux global protocol Loop(role P, role R, role C)
 	choice at P
 	{
 		IsAbove(v1:int) from P to R;   
-		Res(b1:int) from R to P; // @"b1=0 || b1=1"
+		Res(b1:int) from R to P;  @"b1=0 || b1=1"
 		IsAbove(v2:int) from P to R;   
-		Res(b2:int) from R to P; // @"b2=0 || b2=1"
+		Res(b2:int) from R to P;  @"b2=0 || b2=1"
 		choice at P
 		{
-			BothIn() from P to R; // @"b1=1 && b2=1"
+			BothIn() from P to R;  @"b1=1 && b2=1"
 			BothIn(r1:int) from P to C;
 			do Loop(P, R, C);
 		}
 		or
 		{
-			BothOut() from P to R; // @"b1=0 && b2=0"
+			BothOut() from P to R;  @"b1=0 && b2=0"
 			BothOut() from P to C;
 			do Loop(P, R, C);
 		}
 		or
 		{
-			Intersct(y1:int, y2:int) from P to R; // @"(b1=1 && b2=0) || (b1=0 && b2=1)" // && y1=v1 && y2:v2
+			Intersct(y1:int, y2:int) from P to R;  @"(b1=1 && b2=0) || (b1=0 && b2=1)" // && y1=v1 && y2=v2
 			Res(i:int) from R to P;
 			choice at P
 			{
-				SecOut(r2:int) from P to C; // @"b2=0" // && r2=i
+				SecOut(r2:int) from P to C;  @"b2=0" // && r2=i
 				do Loop(P, R, C);
 			}
 			or
 			{
-				SecIn(r3:int, r4:int) from P to C; // @"b2=1" //  && (r3=i && r4=v2)
+				SecIn(r3:int, r4:int) from P to C;  @"b2=1" //  && (r3=i && r4=v2)
+				do Loop(P, R, C);
+			}
+		}
+	}
+	or
+	{
+		Close() from P to R;   
+		Close() from P to C;
+	}
+
+
+/*
+global protocol Proto1(role P, role R, role C)
+{
+	Plane(x1:int, x2:int, x3:int, x4:int) from P to R;
+	do Loop(P, R, C);
+}
+
+aux global protocol Loop(role P, role R, role C)
+{
+	choice at P
+	{
+		IsAbove(v1:int) from P to R;   
+		Res(b1:int) from R to P;
+		IsAbove(v2:int) from P to R;   
+		Res(b2:int) from R to P;
+		choice at P
+		{
+			BothIn() from P to R;
+			BothIn(r1:int) from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			BothOut() from P to R;
+			BothOut() from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			Intersct(y1:int, y2:int) from P to R;  // N.B. big state space by unfoldScopes
+			Res(i:int) from R to P;
+			choice at P
+			{
+				SecOut(r2:int) from P to C;
+				do Loop(P, R, C);
+			}
+			or
+			{
+				SecIn(r3:int, r4:int) from P to C;
 				do Loop(P, R, C);
 			}
 		}
