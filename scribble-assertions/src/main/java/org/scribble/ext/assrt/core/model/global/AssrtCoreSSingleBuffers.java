@@ -52,7 +52,8 @@ public class AssrtCoreSSingleBuffers extends SSingleBuffers
 	{
 		AssrtCoreESend msg = (AssrtCoreESend) this.buffs.get(self).get(a.peer);
 		return isConnected(self, a.peer)  // Other direction doesn't matter, local can still receive after peer disconnected
-				&& msg != null && msg.toTrueAssertion().toDual(a.peer).equals(a);
+				&& msg != null && msg//.toTrueAssertion()
+						.toDual(a.peer).equals(a);
 	}
 
 	// N.B. "sync" action but only considers the self side, i.e., to actually fire, must also explicitly check canRequest

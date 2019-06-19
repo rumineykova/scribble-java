@@ -36,7 +36,7 @@ public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 		return this.mf;
 	}
 	
-	// HACK: replace assertion by True
+	// Used by AssrtCoreSSingleBuffers.canReceive and AssrtCoreSConfig.getStuckMessages
 	@Override
 	public AssrtCoreESend toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
 	{

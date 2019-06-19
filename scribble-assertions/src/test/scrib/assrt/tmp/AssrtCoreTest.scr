@@ -139,15 +139,6 @@ type <dotnet> "System.UInt32" from "..." as int;
 
 
 
-/*
-// CHECKME: val forwarding, w.r.t. local K+F's
-global protocol Proto1(role A, role B, role C)
-{
-	1(x: int) from A to B;  @"x > 1"
-	1(y: int) from B to C;  @"x = y"
-}
-//*/
-
 
 /*
 global protocol Proto1(role A, role B)
@@ -156,6 +147,15 @@ global protocol Proto1(role A, role B)
 }
 //*/
 
+
+/*
+// CHECKME: val forwarding, w.r.t. local K+F's
+global protocol Proto1(role A, role B, role C)
+{
+	1(x: int) from A to B;  @"x > 1"
+	1(y: int) from B to C;  @"x = y"
+}
+//*/
 
 
 
@@ -650,7 +650,7 @@ global protocol Proto1(role C, role S)
 //*/
 
 
-//*
+/*
 global protocol Proto1(role C, role S)
 {
 	HELLO(int) from C to S;
@@ -821,6 +821,26 @@ aux global protocol Loop(role P, role R, role C)
 	{
 		Close() from P to R;   
 		Close() from P to C;
+	}
+}
+//*/
+
+
+//*
+global protocol Proto1(role C, role S)  @<x := "0", y := "1"> "y>0 && x>=0"
+		//@"(x := 0, y := 1) y>0 && x>0"  // Bad initial Rass (and later unsat)
+		//@"(x := 0, y := 1) (y>0))"
+{
+	choice at C
+	{
+		Val(x1:int) from C to S;  @"x1 = x"
+		Add(y1:int) from C to S;  @"y1 = y"
+		Sum(z:int) from S to C;   @"z = (x1+y1)"
+		do Proto1(C, S);          @<"y1", "z">
+	}
+	or
+	{
+		Bye() from C to S;
 	}
 }
 //*/

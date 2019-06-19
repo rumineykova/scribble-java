@@ -101,17 +101,16 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 			AssrtBFormula fproj = AssrtFormulaFactory
 					.AssrtBinBool(AssrtBinBFormula.Op.And, f, a.ass);
 
-			if (this.dst.equals(self))  // Projecting receiver side
+			/*if (this.dst.equals(self))  // Projecting receiver side
 			{
-				/*Set<AssrtDataTypeVar> vs = fproj.getVars();
-						// FIXME: converting Set to List
-				vs.remove(a.ass.getVars());
-				if (!vs.isEmpty())
-				{
-					List<AssrtIntVarFormula> tmp = vs.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList());  
-					fproj = AssrtFormulaFactory.AssrtExistsFormula(tmp, fproj);
-				}*/
-				
+//				Set<AssrtDataTypeVar> vs = fproj.getVars();
+//						// FIXME: converting Set to List
+//				vs.remove(a.ass.getVars());
+//				if (!vs.isEmpty())
+//				{
+//					List<AssrtIntVarFormula> tmp = vs.stream().map(v -> AssrtFormulaFactory.AssrtIntVar(v.toString())).collect(Collectors.toList());  
+//					fproj = AssrtFormulaFactory.AssrtExistsFormula(tmp, fproj);
+//				}
 				//..FIXME: Checking TS on model, so we don't need the projection to "syntactically" record the "assertion history" in this way?
 				//..or just follow original sender-only assertion implementation?
 				fproj = AssrtTrueFormula.TRUE;  
@@ -120,7 +119,7 @@ public class AssrtCoreGChoice extends AssrtCoreChoice<Global, AssrtCoreGType>
 
 				a = ((AssrtCoreSTypeFactory) core.config.tf).AssrtCoreAction(a.op,
 						a.pay, fproj);
-			}
+			}*/
 
 			projs.put(a, e.getValue().projectInlined(core, self, fproj));
 					// N.B. local actions directly preserved from globals -- so core-receive also has assertion (cf. AssrtGMessageTransfer.project, currently no AssrtLReceive)

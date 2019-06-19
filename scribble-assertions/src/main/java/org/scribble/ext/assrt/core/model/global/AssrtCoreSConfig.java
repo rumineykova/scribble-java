@@ -855,11 +855,12 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				AssrtCoreESend msg = (AssrtCoreESend) this.queues.getQueue(self).get(peer);
 				if (msg != null)
 				{
-					AssrtCoreERecv dual = msg.toTrueAssertion().toDual(peer);
+					AssrtCoreERecv dual = msg//.toTrueAssertion()
+							.toDual(peer);  // N.B. toTrueAssertion
 					if (!s.curr.hasAction(dual))  // CHECKME: ...map(a -> ((AssrtCoreESend) a.toDual(dst)).toTrueAssertion()) ?
 								// FIXME: check assertion implication (not just syntactic equals) -- cf. AssrtSConfig::fire
 					{
-						res.put(self, dual);
+						res.put(self, msg.toDual(peer));  // "Original" message
 					}
 				}
 			}
