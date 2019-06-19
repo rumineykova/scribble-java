@@ -140,6 +140,16 @@ type <dotnet> "System.UInt32" from "..." as int;
 
 
 /*
+// CHECKME: val forwarding, w.r.t. local K+F's
+global protocol Proto1(role A, role B, role C)
+{
+	1(x: int) from A to B;  @"x > 1"
+	1(y: int) from B to C;  @"x = y"
+}
+//*/
+
+
+/*
 global protocol Proto1(role A, role B)
 {
 	1(x: int) from A to B;  @"x > 1"
@@ -561,6 +571,66 @@ aux global protocol Proto1Aux(role A, role B)
 
 
 /*
+global protocol Proto1(role A, role B)
+{
+	do Proto1Aux(A, B);  @<"0">  // TODO CHECKME: OK to f/w entry "override" default sexprs?  (depends if default sexprs are for "init" only or not)
+}
+
+aux global protocol Proto1Aux(role A, role B)  @<x := "1">
+{
+	1() from A to B;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	do Proto1Aux(A, B);  // TODO CHECKME: conversely, OK to not supply sexprs?  (o/w rec statevar decl exprs only for root?)
+}
+
+aux global protocol Proto1Aux(role A, role B)  @<x := "1">
+{
+	1() from A to B;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)  @<x := "0">
+{
+	do Proto1(A, B);  @<"1">  // FIXME: A, B, not used
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)  @<x := "0">
+{
+	1() from A to B;
+	do Proto1(A, B);  @<"1">
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 global protocol Proto1(role C, role S)
 {
 	HELLO(u:int) from C to S;
@@ -580,7 +650,7 @@ global protocol Proto1(role C, role S)
 //*/
 
 
-/*
+//*
 global protocol Proto1(role C, role S)
 {
 	HELLO(int) from C to S;
@@ -762,44 +832,10 @@ global protocol Proto1(role A, role B, role C)
 	NumberOne (x: int) from A to B;  //@"x > 3"
 	NumberTwo (y: int) from B to C; @ "x = y"
 	ReturnValueTwo (z: int) from C to B; @ "z = y + y"
-	ReturnValueOne (t: int) from B to A; @ "t = z"  
-			// Testing what does A know about t -- A knows t=z, but not z = y+y
+	ReturnValueOne (t: int) from B to A; @ "t = z"
+			// Testing what does A know about t -- A knows t=z, but not z = y+y   // CHECKME: OK for A to know "t" (K+F)?  should be sound
 			// In general y could be from anywhere, and A won't know y's value
 			// However, in this case y = x and x came from A -- CHECKME: refine?  or perhaps if z = x + x
-}
-//*/
-
-
-/*
-global protocol Proto1(role A, role B)
-{
-	do Proto1Aux(A, B);  @<"0">  // TODO CHECKME: OK to f/w entry "override" default sexprs?  (depends if default sexprs are for "init" only or not)
-}
-
-aux global protocol Proto1Aux(role A, role B)  @<x := "1">
-{
-	1() from A to B;	
-}
-//*/
-
-
-/*
-global protocol Proto1(role A, role B)
-{
-	do Proto1Aux(A, B);  // TODO CHECKME: OK for f/w entry to use default sexprs?  (depends if default sexprs are for "init" only or not)
-}
-
-aux global protocol Proto1Aux(role A, role B)  @<x := "1">
-{
-	1() from A to B;	
-}
-//*/
-
-
-/*
-global protocol Proto1(role A, role B)  @<x := "0">
-{
-	do Proto1(A, B);  @<"1">
 }
 //*/
 

@@ -42,11 +42,11 @@ public abstract class AssrtCoreRec<K extends ProtoKind,
 	@Override
 	public String toString()
 	{
-		return "mu " + this.recvar + "("
+		return "mu " + this.recvar + "<"
 				+ this.statevars.entrySet().stream()
 						.map(x -> x.getKey() + " := " + x.getValue()).collect(
 								Collectors.joining(", "))
-				+ ")" + this.assertion + "." + this.body;
+				+ ">" + this.assertion + "." + this.body;
 	}
 
 	@Override
