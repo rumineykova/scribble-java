@@ -1331,6 +1331,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 	}*/
 
+	// Pre: stuckMessages checked
 	// CHECKME: equivalent of assertion progress for rec-assertions?  unsat not needed for recs? (because for "unary-choice" they coincide?)
 	// Excluding "init" rec
 	public Map<Role, Set<AssrtCoreEAction>> getRecAssertErrors(AssrtCore core,
@@ -1359,17 +1360,44 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				core.verbosePrintln("");
 				return b;
 			};
-			Set<AssrtCoreEAction> tmp = curr.getActions().stream()
-					.filter(x -> !isSat.test(x)).map(x -> (AssrtCoreEAction) x)
-					.collect(Collectors.toSet());
-			if (!tmp.isEmpty())
+			EStateKind kind = curr.getStateKind();
+			if (kind == EStateKind.OUTPUT)
 			{
-				res.put(self, tmp);
+				Set<AssrtCoreEAction> tmp = curr.getActions().stream()
+						.filter(x -> !isSat.test(x)).map(x -> (AssrtCoreEAction) x)
+						.collect(Collectors.toSet());
+				if (!tmp.isEmpty())
+				{
+					res.put(self, tmp);
+				}
+			}
+			else if (kind == EStateKind.UNARY_RECEIVE
+					|| kind == EStateKind.POLY_RECIEVE)
+			{
+				Role peer = curr.getActions().iterator().next().peer;
+				if (!this.Q.isConnected(self, peer)
+						|| this.Q.getQueue(self).get(peer) == null)
+				{
+					continue;
+				}
+				AssrtCoreEMsg m = (AssrtCoreEMsg) this.Q.getQueue(self).get(peer);
+				EAction a = m.toDual(peer);  // Stuck messages already checked -- CHECKME: currently includes check between msg-assertion and action-assertion?
+				if (!isSat.test(a))
+				{
+					res.put(self,
+							Stream.of((AssrtCoreEAction) a).collect(Collectors.toSet()));
+				}
+			}
+			else if (kind != EStateKind.TERMINAL)
+			{
+				throw new RuntimeException(
+						"\n[assrt-core] Shouldn't get in here: " + kind);
 			}
 		}
 		return res;
 	}
 
+	// Pre: 'curr/a' is output kind, or 'curr' is input kind and 'a' is toDual of enqueued message
 	// formula: isNotRecursionAssertionSatisfied (i.e., true = OK)
 	private AssrtBFormula getRecAssertCheck(AssrtCore core, GProtoName fullname,
 			Role self, AssrtEState curr, AssrtCoreEAction a)
@@ -1378,13 +1406,14 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		EAction cast = (EAction) a;
 		if (cast.isReceive() || cast.isAccept())
 		{
+			/*// Now redundant, checked by getRecAssertErrors
 			// CHECKME: "skip" if no msg avail (because assertion carried by msg)? -- what is an example?
 			if (!this.Q.isConnected(self, ((EAction) a).peer)
 					|| this.Q.getQueue(self).get(cast.peer) == null)
 				 // !isPendingRequest(a.peer, self))  // TODO: open/port annots
 			{
 				return AssrtTrueFormula.TRUE;
-			}
+			}*/
 		}
 		else if (!(cast.isSend() || cast.isRequest()))
 		{
@@ -1392,6 +1421,11 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 					"[assrt-core] [TODO] " + cast.getClass() + ":\n\t" + cast);
 		}
 		AssrtEState succ = curr.getDetSucc(cast);
+		AssrtBFormula sass = succ.getAssertion();	
+		if (sass.equals(AssrtTrueFormula.TRUE))
+		{
+			return AssrtTrueFormula.TRUE;
+		}
 
 		// lhs = ...  // TODO: factor out lhs building with others above -- CHECKME lhs should be same for all?
 		// Here, conjunction of F terms
@@ -1423,28 +1457,21 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 		
 		// Next, assertion from action (carried by msg for input actions)
-		AssrtBFormula ass = (cast.isSend() || cast.isRequest())  // CHECKME: AssrtEAction doesn't have those methods, refactor?
+		AssrtBFormula aass = (cast.isSend() || cast.isRequest())  // CHECKME: AssrtEAction doesn't have those methods, refactor?
 				? a.getAssertion()
 				: //(a.isReceive() || a.isAccept())  // Has msg/req already checked at top
 					((AssrtCoreEMsg) this.Q.getQueue(self).get(cast.peer)).getAssertion();
 					// Cf. updateInput, msg.getAssertion()
-		if (!ass.equals(AssrtTrueFormula.TRUE))
+		if (!aass.equals(AssrtTrueFormula.TRUE))
 		{
 			lhs = (lhs == null) 
-					? ass
-					: AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs, ass);
+					? aass
+					: AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs, aass);
 		}
 			
 		List<AssrtAFormula> aexprs = a.getStateExprs();
 		if (aexprs.isEmpty())  // "Forwards" rec entry -- cf. updateForAssertionAndStateExprs, updateRecEntry/Continue
 		{
-			// rhs = target state (succ) assertion
-			AssrtBFormula rhs = succ.getAssertion();	
-			if (rhs.equals(AssrtTrueFormula.TRUE))
-			{
-				return AssrtTrueFormula.TRUE;
-			}
-
 			// Next for lhs, state var eq-terms for initial rec entry
 			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars = succ.getStateVars();
 			if (!svars.isEmpty())
@@ -1462,6 +1489,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 						: AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs,
 								svarsConj);
 			}
+
+			// rhs = target state (succ) assertion
+			AssrtBFormula rhs = sass;
 			
 			// CHECKME: factor out with below
 			AssrtBFormula impli = (lhs == null) 
@@ -1474,11 +1504,10 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		else  // Rec-continue
 		{
 			/*// Next for lhs, rec ass (on original vars)  // CHECKME: why? lhs?
-			AssrtBFormula succAss = succ.getAssertion();
-			if (!succAss.equals(AssrtTrueFormula.TRUE))
+			if (!sass.equals(AssrtTrueFormula.TRUE))
 			{
 				lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs,
-						succAss);
+						sass);
 			}*/
 
 			// rhs = existing R assertions -- CHECKME: why not just target rec ass again? (like entry)  or why entry does not check this.R and new entry ass -- i.e., why rec entry/continue not uniform?

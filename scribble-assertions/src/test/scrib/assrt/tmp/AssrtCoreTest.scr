@@ -105,7 +105,8 @@
 // - consider refactoring Core/Config/Context to be more neutral of G/LProtocol (use Protocol super)
 //		- consider refactoring base as an ext outside of core
 //		- separate core (seq) from "classic"? -- maybe add Seq as an "ext" of classic? (currently deprecating a lot of core for classic, but should be the other way round)
-//		- consider replacing some inheritance by nesting, e.g., LProjection/Protocol (cf. SModel/SGraph)
+//		- consider replacing some inheritance by delegation/nesting, e.g., LProjection/Protocol (cf. SModel/SGraph)
+//		- replace nullables by Optional
 // - refactor Kinds as types only?  or values needed for serialization?
 // - fix UnaryPayElem generic casts (and AssrtAnnotDataElem)
 // - standardise EFSM/model format -- should contain data type info (e.g., for STP) -- should make a decl language for FSM module members, share imports with protos
@@ -140,7 +141,7 @@ type <dotnet> "System.UInt32" from "..." as int;
 
 
 
-/*
+//*
 global protocol Proto1(role A, role B)
 {
 	1(x: int) from A to B;  @"x > 1"
@@ -148,7 +149,7 @@ global protocol Proto1(role A, role B)
 //*/
 
 
-// CHECKME: val forwarding, w.r.t. local K+F's
+/*// CHECKME: val forwarding, w.r.t. local K+F's
 global protocol Proto1(role A, role B)  @<x := "1"> "x > 0"
 {
 	choice at A
@@ -158,9 +159,10 @@ global protocol Proto1(role A, role B)  @<x := "1"> "x > 0"
 	}
 	or
 	{
-		2() from A to B;  // FIXME: rec-assrt error caused by choice
+		2() from A to B;  // Testing rec-assrt check, input branch checks action based on enqueue message
 	}
 }
+//*/
 
 
 /*
@@ -601,7 +603,7 @@ aux global protocol Proto1Aux(role A, role B)  @<x := "1">
 /*
 global protocol Proto1(role A, role B)
 {
-	do Proto1Aux(A, B);  // TODO CHECKME: conversely, OK to not supply sexprs?  (o/w rec statevar decl exprs only for root?)
+	do Proto1Aux(A, B);  // TODO FIXME? conversely, OK to not supply sexprs?  (o/w rec statevar decl exprs only for root?)
 }
 
 aux global protocol Proto1Aux(role A, role B)  @<x := "1">
