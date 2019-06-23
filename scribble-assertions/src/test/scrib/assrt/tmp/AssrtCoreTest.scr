@@ -671,10 +671,10 @@ global protocol Proto1(role C, role S)
 //*/
 
 
-//*
+/*
 global protocol Proto1(role C, role S)
 {
-	HELLO(int) from C to S;
+	HELLO(u:int) from C to S;
 	choice at C
 	{
 		ADD(w:int) from C to S;  @"w > 0"
@@ -743,7 +743,7 @@ aux global protocol Loop(role P, role R, role C)
 //*/
 
 
-/*
+//*
 global protocol Proto1(role P, role R, role C)
 {
 	Plane(x1:int, x2:int, x3:int, x4:int) from P to R;

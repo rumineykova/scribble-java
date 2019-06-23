@@ -132,6 +132,11 @@
 				<artifactId>scribble-test</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.scribble</groupId>
+				<artifactId>scribble-assertions</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>org.antlr</groupId>
