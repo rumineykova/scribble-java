@@ -16,5 +16,9 @@ public class AssrtCoreArgs extends CoreArgs
 		super(flags);
 		this.solver = solver;
 		this.z3Batching = z3Batching;
+		if (z3Batching)
+		{
+			throw new RuntimeException("[assrt-core] [TODO] z3 batching : ");
+		}
 	}
 }

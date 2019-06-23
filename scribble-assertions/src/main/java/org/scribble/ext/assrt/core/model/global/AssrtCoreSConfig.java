@@ -1457,11 +1457,12 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 		
 		// Next, assertion from action (carried by msg for input actions)
-		AssrtBFormula aass = (cast.isSend() || cast.isRequest())  // CHECKME: AssrtEAction doesn't have those methods, refactor?
+		AssrtBFormula aass = /*(cast.isSend() || cast.isRequest())  // CHECKME: AssrtEAction doesn't have those methods, refactor?
 				? a.getAssertion()
 				: //(a.isReceive() || a.isAccept())  // Has msg/req already checked at top
 					((AssrtCoreEMsg) this.Q.getQueue(self).get(cast.peer)).getAssertion();
-					// Cf. updateInput, msg.getAssertion()
+					// Cf. updateInput, msg.getAssertion()*/
+				a.getAssertion();  // Input-kind action already derived (toDual) from enqueued message by getRecAssertErrors
 		if (!aass.equals(AssrtTrueFormula.TRUE))
 		{
 			lhs = (lhs == null) 

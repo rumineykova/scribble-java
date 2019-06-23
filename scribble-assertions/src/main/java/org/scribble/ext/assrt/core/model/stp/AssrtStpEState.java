@@ -35,6 +35,7 @@ import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.core.type.name.AssrtPayElemType;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 
+@Deprecated
 public class AssrtStpEState extends AssrtEState
 {
 	public AssrtStpEState(Set<RecVar> labs)

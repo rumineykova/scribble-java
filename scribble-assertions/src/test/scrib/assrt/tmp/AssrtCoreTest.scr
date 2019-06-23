@@ -128,7 +128,7 @@
 --- multiparty old actvar renaming based on message flow
 --- then compacting -- i.e., syntactic term GC hack
 -- then the "inductive" step, given by old statvar renaming becoming forall
---- very conserative -- restore "precision" by recursion assertions as "loop invariants"
+--- very conservative -- restore "precision" by recursion assertions as "loop invariants"
 - so model checked errors: unknownvar (HS), assert-prog (TS?), sat (TS?), recursion-assert
 */
 
@@ -141,7 +141,7 @@ type <dotnet> "System.UInt32" from "..." as int;
 
 
 
-//*
+/*
 global protocol Proto1(role A, role B)
 {
 	1(x: int) from A to B;  @"x > 1"
@@ -149,7 +149,11 @@ global protocol Proto1(role A, role B)
 //*/
 
 
-/*// CHECKME: val forwarding, w.r.t. local K+F's
+
+
+
+
+/* // CHECKME: val forwarding, w.r.t. local K+F's
 global protocol Proto1(role A, role B)  @<x := "1"> "x > 0"
 {
 	choice at A
@@ -667,7 +671,7 @@ global protocol Proto1(role C, role S)
 //*/
 
 
-/*
+//*
 global protocol Proto1(role C, role S)
 {
 	HELLO(int) from C to S;

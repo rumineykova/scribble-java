@@ -42,24 +42,25 @@ public class AssrtCommandLine extends CommandLine
 	@Override
 	protected Main newMain() throws ScribParserException, ScribException
 	{
+		if (!hasFlag(AssrtCoreCLFlags.ASSRT_CORE_FLAG))
+		{
+			return super.newMain();
+		}
 		AssrtCoreArgs args = newCoreArgs();
 		List<Path> impaths = parseImportPaths();
 		ResourceLocator locator = new DirectoryResourceLocator(impaths);
 		Path mainpath = parseMainPath();
-		
-		// FIXME: if no -assrt, then just do super.newMain
-			
 		return new AssrtMain(locator, mainpath, args);
 	}
 
 	@Override
 	protected AssrtCoreArgs newCoreArgs()
 	{
-		Set<CoreFlags> flags = parseCoreFlags();
 		Solver solver = hasFlag(AssrtCoreCLFlags.ASSRT_CORE_NATIVE_Z3_FLAG)
 				? AssrtJob.Solver.NATIVE_Z3
 				: AssrtJob.Solver.NONE;  // FIXME: 
 		boolean z3Batching = hasFlag(AssrtCoreCLFlags.ASSRT_CORE_BATCHING_FLAG);
+		Set<CoreFlags> flags = parseCoreFlags();
 		return new AssrtCoreArgs(flags, solver, z3Batching);
 	}
 
