@@ -115,6 +115,18 @@ CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-core.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-main.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-parser.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/stringtemplate.jar'
+
+CLASSPATH=$CLASSPATH':'$DIR'/scribble-assertions/target/classes'
+CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-assertions.jar'
+#CLASSPATH=$CLASSPATH':'$SOSYLAB_COMMON
+CLASSPATH=$CLASSPATH':'$JAVASMT  # FIXME: deprecate
+#CLASSPATH=$CLASSPATH':'$Z3
+#CLASSPATH=$CLASSPATH':'$GUAVA
+#CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/common-0.3000-38-gcdb252b.jar'
+CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/java-smt-1.0.1.jar'
+#CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/com.microsoft.z3.jar'
+#CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/guava-19.0.jar'
+
 CLASSPATH="'"`fixpath "$CLASSPATH"`"'"
 
 usage=0
@@ -196,7 +208,9 @@ if [ "$usage" = 1 ]; then
   exit 0
 fi
 
-CMD='java -cp '$CLASSPATH' org.scribble.cli.CommandLine'
+#CMD='java -cp '$CLASSPATH' org.scribble.cli.CommandLine'
+CMD='java -Djava.library.path="'$JAVA_LIB_PATH'" -cp '$CLASSPATH' org.scribble.ext.assrt.cli.AssrtCommandLine'
+
 
 scribblec() {
   eval $CMD "$@"
