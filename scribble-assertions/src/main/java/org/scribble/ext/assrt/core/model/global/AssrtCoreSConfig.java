@@ -419,13 +419,6 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		//-- for each pay elem:
 		//--- GC (transitively?) old K, F -- any affected V, R already implicitly GC
 		//--- add new K, F
-		//
-		//- then V, R
-		//- for each state var
-		//--- if continue
-		//---- GC (transitively?) old V, R (also K, F?) -- outer statevars implicitly won't be affected
-		//--- add V, R
-		//XXX-- if f/w -- already treated by FSM gen? no, just inlined into statevar exprs
 
 		Set<AssrtIntVar> Kself = K.get(self);
 		Set<AssrtBFormula> Fself = F.get(self);
@@ -434,7 +427,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			if (e instanceof AssrtAnnotDataName)
 			{
 				AssrtIntVar v = ((AssrtAnnotDataName) e).var;
-				gcKF(Kself, Fself, v);  // CHECKME: redundant to remove from Kself, then add back
+				gcF(Fself, v);  // CHECKME: redundant to remove from Kself, then add back
 				Kself.add(v);
 				Fself.add(ass);  // The difference between output and input
 			}
@@ -445,6 +438,12 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			}
 		}
 		compactF(Fself);
+
+		//- then V, R
+		//- for each state var
+		//--- if continue
+		//---- GC (transitively?) old V, R (also K, F?) -- outer statevars implicitly won't be affected
+		//--- add V, R
 
 		// "forward" recs will have state vars (svars) but no action state-exprs (aexprs)
 		AssrtEState s = (AssrtEState) succ.curr;
@@ -474,13 +473,38 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 					sexpr = (AssrtAFormula) renameFormula(i.next());
 				}
 				if (isContinue) {  // CHECKME: "shadowing", e.g., forwards statevar has same name as a previous
-					gcVR(Vself, Rself, svar);
+					gcVR(Vself, Rself, svar);  // GC V , sexpr may be different than that removed
 				}
 				Vself.put(svar, sexpr);
 				Rself.add(s.getAssertion());
 			}
 			//compactR(Rself);  // TODO? (see above)
 			compactF(Rself);
+		}
+	}
+	
+	private void gcF(Set<AssrtBFormula> Fself, AssrtIntVar v) 
+	{
+		Iterator<AssrtBFormula> i = Fself.iterator();
+		while (i.hasNext())
+		{
+			if (i.next().getIntVars().contains(v)) 
+			{
+				i.remove();  // CHECKME: do transitively for vars in removed formula?
+			}
+		}
+	}
+	
+	private void gcVR(Map<AssrtIntVar, AssrtAFormula> Vself, Set<AssrtBFormula> Rself, AssrtIntVar v)
+	{
+		Vself.remove(v);
+		Iterator<AssrtBFormula> i = Rself.iterator();
+		while (i.hasNext())
+		{
+			if (i.next().getIntVars().contains(v)) 
+			{
+				i.remove();  // CHECKME: do transitively for vars in removed formula?
+			}
 		}
 	}
 
@@ -509,32 +533,6 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 							// Pruning if formula contains "old" var renamed by renameOldVarsInF -- FIXME refactor to renameOldVarsInF?  CHECKME: other sources of renaming?
 			{
 				i.remove();
-			}
-		}
-	}
-	
-	private void gcKF(Set<AssrtIntVar> Kself, Set<AssrtBFormula> Fself, AssrtIntVar v) 
-	{
-		Kself.remove(v);
-		Iterator<AssrtBFormula> i = Fself.iterator();
-		while (i.hasNext())
-		{
-			if (i.next().getIntVars().contains(v)) 
-			{
-				i.remove();  // CHECKME: do transitively for vars in removed formula?
-			}
-		}
-	}
-	
-	private void gcVR(Map<AssrtIntVar, AssrtAFormula> Vself, Set<AssrtBFormula> Rself, AssrtIntVar v)
-	{
-		Vself.remove(v);
-		Iterator<AssrtBFormula> i = Rself.iterator();
-		while (i.hasNext())
-		{
-			if (i.next().getIntVars().contains(v)) 
-			{
-				i.remove();  // CHECKME: do transitively for vars in removed formula?
 			}
 		}
 	}

@@ -45,17 +45,20 @@ public abstract class AssrtCoreTestBase extends ScribTestBase
 		new AssrtCommandLine(this.example, CLArgParser.JUNIT_FLAG, CLArgParser.IMPORT_PATH_FLAG, dir).run();
 	}*/
 	@Override
-	protected void runTest(String dir) throws CommandLineException, AntlrSourceException
+	protected void runTest(String dir) throws CommandLineException,
+			AntlrSourceException
 	{
-		new AssrtCommandLine(this.example, CLFlags.JUNIT_FLAG, CLFlags.IMPORT_PATH_FLAG, dir,
-						AssrtCoreCLFlags.ASSRT_CORE_NATIVE_Z3_FLAG, AssrtCoreCLFlags.ASSRT_CORE_BATCHING_FLAG,
-						AssrtCoreCLFlags.ASSRT_CORE_FLAG, "[AssrtCoreAllTest]")  // HACK: for AssrtCommandLine (assrt-core mode)
-				.run();
+		new AssrtCommandLine(this.example, CLFlags.JUNIT_FLAG,
+				CLFlags.IMPORT_PATH_FLAG, dir, CLFlags.FAIR_FLAG,
+				AssrtCoreCLFlags.ASSRT_CORE_NATIVE_Z3_FLAG, //AssrtCoreCLFlags.ASSRT_CORE_BATCHING_FLAG,
+				AssrtCoreCLFlags.ASSRT_CORE_FLAG)//, "[AssrtCoreAllTest]")  // HACK: for AssrtCommandLine (assrt-core mode)
+			.run();
 	}
 
 	@Override
 	@Test
-	public void tests() throws IOException, InterruptedException, ExecutionException
+	public void tests() throws IOException, InterruptedException,
+			ExecutionException
 	{
 		try
 		{
