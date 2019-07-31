@@ -429,7 +429,6 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				AssrtIntVar v = ((AssrtAnnotDataName) e).var;
 				gcF(Fself, v);  // CHECKME: redundant to remove from Kself, then add back
 				Kself.add(v);
-				Fself.add(ass);  // The difference between output and input
 			}
 			else
 			{
@@ -437,6 +436,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtoDeclTranslator.parsePayload) -- no other pay elems allowed
 			}
 		}
+		Fself.add(ass);  // (Source of) `ass` is the difference between output and input
 		compactF(Fself);
 
 		//- then V, R
@@ -476,8 +476,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 					gcVR(Vself, Rself, svar);  // GC V , sexpr may be different than that removed
 				}
 				Vself.put(svar, sexpr);
-				Rself.add(s.getAssertion());
 			}
+			Rself.add(s.getAssertion());
 			//compactR(Rself);  // TODO? (see above)
 			compactF(Rself);
 		}

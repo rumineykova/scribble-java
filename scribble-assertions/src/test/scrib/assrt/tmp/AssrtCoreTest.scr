@@ -139,6 +139,7 @@ type <dotnet> "System.UInt32" from "..." as int;
 //type <dotnet> "System.String" from "..." as str;
 
 
+//*
 global protocol Proto1(role A, role B) @<x:="3">
 {
 	1() from A to B; @"(x>2)"
@@ -151,9 +152,11 @@ global protocol Proto2(role A, role B) @<y:="4">
 	1() from A to B; @"(y>2)"
 	do Proto2(A, B); @<"y">
 }
+//*/
 
 
 
+// - tricky: state vars get "wildcarded" ("_" prefix), but "old" knowledge may remain (and be used) in F, e.g., good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f
 
 
 
