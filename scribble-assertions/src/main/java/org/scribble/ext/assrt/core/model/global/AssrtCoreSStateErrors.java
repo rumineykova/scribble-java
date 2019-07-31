@@ -55,7 +55,7 @@ public class AssrtCoreSStateErrors extends SStateErrors
 		this.unknown = Collections
 				.unmodifiableMap(cfg.getUnknownDataVarErrors(core, fullname));  // TODO: unmodifiable nested Sets
 		this.assprog = Collections
-				.unmodifiableMap(cfg.getAssertProgressErrors(core, fullname));
+				.unmodifiableMap(cfg.getAssertProgressErrors(core, fullname));  // Not actually a "progress" error
 		this.assunsat = Collections
 				.unmodifiableMap(cfg.getAssertUnsatErrors(core, fullname));
 

@@ -68,7 +68,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	// (Probably more suitable for the graph builder to manage, but current async/sync methods inconvenient)
 	// Reflects lexical scoping -- relies on syntactic WF for var annots
 	protected final Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes;  
-			// role -> EFsm state id -> past "scope", i.e., known vars up to, but excluding, that state
+			// role -> *EFsm* state id -> past "scope", i.e., known vars up to, but excluding, that state
 
 	// Pre: non-aliased "ownership" of all Map contents
 	protected AssrtCoreSConfig(ModelFactory mf, Map<Role, EFsm> P,
@@ -437,7 +437,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				es.remove();
 			}
 							
-			// So far, K/F/etc updated for "a" regardless of continue-edge or not -- now treat continue-edges based on scopes
+			// Up to here, K/F/etc updated for "a" regardless of continue-edge or not -- now treat continue-edges based on scopes
 			Kself.retainAll(keep);
 			Iterator<AssrtBFormula> i = Fself.iterator();
 			while (i.hasNext())
@@ -1003,6 +1003,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		return res;
 	}
 	
+	// N.B. actually a safety error, not a "progress" error
 	// i.e., output state has a "well-asserted" action
 	public Map<Role, EState> getAssertProgressErrors(AssrtCore core,
 			GProtoName fullname)
