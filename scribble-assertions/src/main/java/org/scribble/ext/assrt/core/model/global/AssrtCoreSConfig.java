@@ -371,6 +371,100 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				R, K, F, //rename
 				scopes);
 	}
+	
+	private void gcKF(Set<AssrtIntVar> Kself, Set<AssrtBFormula> Fself, AssrtIntVar v) 
+	{
+		Kself.remove(v);
+		Iterator<AssrtBFormula> i = Fself.iterator();
+		while (i.hasNext())
+		{
+			if (i.next().getIntVars().contains(v)) 
+			{
+				i.remove();  // CHECKME: do transitively for vars in removed formula?
+			}
+		}
+	}
+	
+	private void gcVR(Map<AssrtIntVar, AssrtAFormula> Vself, Set<AssrtBFormula> Rself, AssrtIntVar v)
+	{
+		Vself.remove(v);
+		Iterator<AssrtBFormula> i = Rself.iterator();
+		while (i.hasNext())
+		{
+			if (i.next().getIntVars().contains(v)) 
+			{
+				i.remove();  // CHECKME: do transitively for vars in removed formula?
+			}
+		}
+	}
+
+	// TODO: pass `Kself`, `Fself`, etc. directly (and not `self`)
+	// `ass` is the difference between output/input
+	private void updateKFVR(Role self, AssrtCoreEAction a, AssrtBFormula ass, EFsm succ,
+			Map<Role, Set<AssrtIntVar>> K, 
+			Map<Role, Set<AssrtBFormula>> F,
+			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V,
+			Map<Role, Set<AssrtBFormula>> R)
+	{
+		//- first K, F
+		//-- for each pay elem:
+		//--- GC (transitively?) old K, F -- any affected V, R already implicitly GC
+		//--- add new K, F
+		//
+		//- then V, R
+		//- for each state var
+		//--- if continue
+		//---- GC (transitively?) old V, R (also K, F?) -- outer statevars implicitly won't be affected
+		//--- add V, R
+		//XXX-- if f/w -- already treated by FSM gen? no, just inlined into statevar exprs
+
+		Set<AssrtIntVar> Kself = K.get(self);
+		Set<AssrtBFormula> Fself = F.get(self);
+		for (PayElemType<?> e : ((EAction) a).payload.elems)  // CHECKME: EAction closest base type
+		{
+			if (e instanceof AssrtAnnotDataName)
+			{
+				AssrtIntVar v = ((AssrtAnnotDataName) e).var;
+				gcKF(Kself, Fself, v);  // CHECKME: redundant to remove from Kself, then add back
+				Kself.add(v);
+				Fself.add(ass);  // The difference between output and input
+			}
+			else
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);  
+						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtoDeclTranslator.parsePayload) -- no other pay elems allowed
+			}
+		}
+		compactF(Fself);
+
+		// "forward" recs will have state vars (svars) but no action state-exprs (aexprs)
+		AssrtEState s = (AssrtEState) succ.curr;
+		LinkedHashMap<AssrtIntVar, AssrtAFormula> svars = s.getStateVars();
+		List<AssrtAFormula> aexprs = a.getStateExprs();
+				// Following must come after F update (addAnnotBexprToF)
+				// Update R from state -- entering a rec "forwards", i.e., not via a continue
+		if (!svars.isEmpty() || !aexprs.isEmpty())
+		{
+			Map<AssrtIntVar, AssrtAFormula> Vself = V.get(self);
+			Set<AssrtBFormula> Rself = R.get(self);  // Cf. Fself
+			//boolean isEntry = aexprs.isEmpty() && !svars.isEmpty();  
+			boolean isContinue = !aexprs.isEmpty();
+					// Rec-entry: expr args already inlined into the rec statevars (i.e., by proto inlining) -- CHECKME: means "forwards entry?" robust?  refactor?
+
+			Iterator<AssrtAFormula> i = aexprs.iterator();
+			for (Entry<AssrtIntVar, AssrtAFormula> e : svars.entrySet())
+			{
+				AssrtIntVar svar = e.getKey();
+				AssrtAFormula sexpr = aexprs.isEmpty() ? e.getValue() : i.next();  // If aexprs.isEmpty, then "init" state var expr
+				if (isContinue) {  // CHECKME: "shadowing", e.g., forwards statevar has same name as a previous
+					gcVR(Vself, Rself, svar);
+				}
+				Vself.put(svar, sexpr);
+				Rself.add(s.getAssertion());
+			}
+		}
+		//compactR(Rself);  // TODO?
+	}
 
   // CHECKME: only need to update self entries of Maps -- almost: except for addAnnotOpensToF, and some renaming via Streams
 	private void updateOutput(Role self, AssrtCoreEAction a, EFsm succ,
@@ -381,7 +475,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
 			Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes)
 	{
-		for (PayElemType<?> e : ((EAction) a).payload.elems)  // CHECKME: EAction closest base type
+		updateKFVR(self, a, a.getAssertion(), succ, K, F, V, R);
+		
+		/*for (PayElemType<?> e : ((EAction) a).payload.elems)  // CHECKME: EAction closest base type
 		{
 			if (e instanceof AssrtAnnotDataName)
 			{
@@ -400,10 +496,10 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				K, F, V, R);//, rename);
 
 		updateScopes(self, a, succ, K.get(self), F.get(self), scopes.get(self));
-				// FIXME TODO: V/R and scopes -- scopes records statevardecls ?
+				// FIXME TODO: V/R and scopes -- scopes records statevardecls ?*/
 	}
 
-	private void updateScopes(Role self, AssrtCoreEAction a, EFsm succ, 
+	/*private void updateScopes(Role self, AssrtCoreEAction a, EFsm succ, 
 			Set<AssrtIntVar> Kself, Set<AssrtBFormula> Fself, 
 			LinkedHashMap<Integer, Set<AssrtIntVar>> scopesSelf)
 	{
@@ -415,7 +511,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			Fself.clear();  // FIXME TODO: V/R -- e.g., rec assertion
 			scopesSelf.clear();
 		}
-		else*/ if (curr == succ.curr.id  // Includes, e.g., mu X.A->B.X (scope always empty), but also A->B.mu X.A->B.X
+		else* / if (curr == succ.curr.id  // Includes, e.g., mu X.A->B.X (scope always empty), but also A->B.mu X.A->B.X
 				|| scopesSelf.keySet().contains(succ.curr.id))
 		{
 			Set<AssrtIntVar> keep = new HashSet<>();
@@ -457,6 +553,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			return;
 		}
 	}
+	//*/
 
 	// Mutating 'F' and 'rename'
 	// Rename existing vars that have the same name as 'v' -- renaming is basically an implementation of exist-quant (final sat checks implicitly quant over free names)
@@ -499,7 +596,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		Map<AssrtIntVar, AssrtAFormula> Vself = V.get(self);  
 				// Rename old R vars -- must come before adding new F and R clauses  // CHECKME: not done?
 
-		// "forward" recs will have annot vars but no state exprs
+		// "forward" recs will have state vars (svars) but no action state-exprs (aexprs)
 		AssrtEState s = (AssrtEState) succ.curr;
 		LinkedHashMap<AssrtIntVar, AssrtAFormula> svars = s.getStateVars();
 				// aforms = action update exprs for state vars  // CHECKME: svars.size() == aforms.size() ?
@@ -734,7 +831,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes
 			)
 	{
-		for (PayElemType<?> pt : ((EAction) a).payload.elems)
+		updateKFVR(self, a, msg.getAssertion(), succ, K, F, V, R);
+
+		/*for (PayElemType<?> pt : ((EAction) a).payload.elems)
 		{
 			if (pt instanceof AssrtAnnotDataName)
 			{
@@ -764,7 +863,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 		F.put(self, H);
 		rename.get(self).putAll(shadow);
-		*/
+		* /
 
 		updateForAssertionAndStateExprs(self,
 				msg.getAssertion(), a.getStateExprs(), succ, 
@@ -772,6 +871,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				// Actual assertion (f) for annotvar (v) added in here
 		
 		updateScopes(self, a, succ, K.get(self), F.get(self), scopes.get(self));
+		*/
 	}
 
 	// FIXME: V
