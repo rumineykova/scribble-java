@@ -1,6 +1,5 @@
 package org.scribble.ext.assrt.core.model.global;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,12 +55,11 @@ public class AssrtCoreSModelFactoryImpl extends SModelFactoryImpl //AssrtSModelF
 	public AssrtCoreSConfig AssrtCoreSConfig(Map<Role, EFsm> P, SSingleBuffers Q,
 			Map<Role, Map<AssrtIntVar, AssrtAFormula>> R,
 			Map<Role, Set<AssrtBFormula>> Rass, Map<Role, Set<AssrtIntVar>> K,
-			Map<Role, Set<AssrtBFormula>> F,
+			Map<Role, Set<AssrtBFormula>> F)
 			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename
-			Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes)
+			//Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes)
 	{
-		return new AssrtCoreSConfig(this.mf, P, Q, K, F, R, Rass, //rename
-				scopes
+		return new AssrtCoreSConfig(this.mf, P, Q, K, F, R, Rass //rename, scopes
 				);
 	}
 

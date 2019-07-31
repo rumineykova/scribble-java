@@ -69,7 +69,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	// N.B. not included in equals/hashCode -- used to constrain K/F/etc to syntactic scope to determine the state, but not part of the state itself 
 	// (Probably more suitable for the graph builder to manage, but current async/sync methods inconvenient)
 	// Reflects lexical scoping -- relies on syntactic WF for var annots
-	protected final Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes;  
+	//protected final Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes;  
 			// role -> *EFsm* state id -> past "scope", i.e., known vars up to, but excluding, that state
 
 	// Pre: non-aliased "ownership" of all Map contents
@@ -77,9 +77,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			SSingleBuffers Q, Map<Role, Set<AssrtIntVar>> K,
 			Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V,
-			Map<Role, Set<AssrtBFormula>> R,
+			Map<Role, Set<AssrtBFormula>> R)
 			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename
-			Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes)
+			//Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes)
 	{
 		super(mf, P, Q);
 		this.P = this.efsms;  // Already unmodifiable'd (as necessary) by super
@@ -89,7 +89,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		this.V = Collections.unmodifiableMap(V);
 		this.R = Collections.unmodifiableMap(R);
 		//this.rename = Collections.unmodifiableMap(rename);
-		this.scopes = Collections.unmodifiableMap(scopes);
+		//this.scopes = Collections.unmodifiableMap(scopes);
 	}
 
 	/*// CHECKME: List<AssrtCoreEAction> -- after also doing assert-core request/accept
@@ -351,7 +351,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		Map<Role, Set<AssrtBFormula>> R = copyRass(this.R);
 		/*Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename = copyRename(
 				this.rename);*/
-		Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes = copyScopes(this.scopes);
+		//Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes = copyScopes(this.scopes);
 
 		P.put(self, succ);
 		/*//Q.get(es.peer).put(self, es.toTrueAssertion());  // HACK FIXME: cf. AssrtSConfig::fire
@@ -365,13 +365,12 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				a.peer, a.mid, a.payload, a.ass, a.sexprs);//, rename.get(self));
 		SSingleBuffers Q = this.Q.send(self, msg);
 
-		updateOutput(self, a, succ, K, F, V, R, //rename
-				scopes);
+		updateOutput(self, a, succ, K, F, V, R); //rename, scopes);
 		//updateR(R, self, es);
 
 		return ((AssrtCoreSModelFactory) this.mf.global).AssrtCoreSConfig(P, Q, V,
-				R, K, F, //rename
-				scopes);
+				R, K, F //rename scopes
+				);
 	}
 
   // CHECKME: only need to update self entries of Maps -- almost: except for addAnnotOpensToF, and some renaming via Streams
@@ -379,9 +378,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			Map<Role, Set<AssrtIntVar>> K, 
 			Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V,
-			Map<Role, Set<AssrtBFormula>> R,
+			Map<Role, Set<AssrtBFormula>> R)
 			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
-			Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes)
+			//Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes)
 	{
 		updateKFVR(self, a, a.getAssertion(), succ, K, F, V, R);
 		
@@ -556,20 +555,18 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		Map<Role, Set<AssrtBFormula>> R = copyRass(this.R);
 		/*Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename = copyRename(
 				this.rename);*/
-		Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes = copyScopes(this.scopes);
+		//Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes = copyScopes(this.scopes);
 
 		P.put(self, succ);
 		AssrtCoreEMsg msg = (AssrtCoreEMsg) this.Q.getQueue(self).get(a.peer);  // null is \epsilon
 		SSingleBuffers Q = this.Q.receive(self, a);
 
-		updateInput(self, a, msg, msg.shadow, succ, K, F, V, R,// rename
-				scopes
+		updateInput(self, a, msg, msg.shadow, succ, K, F, V, R//, rename, scopes
 				);
 		//updateR(R, self, es);
 
 		return ((AssrtCoreSModelFactory) this.mf.global).AssrtCoreSConfig(P, Q, V,
-				R, K, F,// rename
-				scopes
+				R, K, F//, rename scopes
 				);
 	}
 
@@ -580,9 +577,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			EFsm succ,
 			Map<Role, Set<AssrtIntVar>> K, Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V,
-			Map<Role, Set<AssrtBFormula>> R,
+			Map<Role, Set<AssrtBFormula>> R
 			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename  // CHECKME: EAction closest base type -- ?
-			Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes
+			//Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes
 			)
 	{
 		updateKFVR(self, a, msg.getAssertion(), succ, K, F, V, R);
@@ -1423,7 +1420,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			+ ",\nV=" + this.V
 			+ ",\nR=" + this.R
 			//+ ",\nrename=" + this.rename
-			+ ",\nscopes=" + this.scopes  // N.B. this.scopes not included in equals/hashCode
+			//+ ",\nscopes=" + this.scopes  // N.B. this.scopes not included in equals/hashCode
 			+ ")";
 	}
 	
