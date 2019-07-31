@@ -373,31 +373,38 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				R, K, F, //rename
 				scopes);
 	}
-	
-	private void gcKF(Set<AssrtIntVar> Kself, Set<AssrtBFormula> Fself, AssrtIntVar v) 
+
+  // CHECKME: only need to update self entries of Maps -- almost: except for addAnnotOpensToF, and some renaming via Streams
+	private void updateOutput(Role self, AssrtCoreEAction a, EFsm succ,
+			Map<Role, Set<AssrtIntVar>> K, 
+			Map<Role, Set<AssrtBFormula>> F,
+			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V,
+			Map<Role, Set<AssrtBFormula>> R,
+			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
+			Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes)
 	{
-		Kself.remove(v);
-		Iterator<AssrtBFormula> i = Fself.iterator();
-		while (i.hasNext())
+		updateKFVR(self, a, a.getAssertion(), succ, K, F, V, R);
+		
+		/*for (PayElemType<?> e : ((EAction) a).payload.elems)  // CHECKME: EAction closest base type
 		{
-			if (i.next().getIntVars().contains(v)) 
+			if (e instanceof AssrtAnnotDataName)
 			{
-				i.remove();  // CHECKME: do transitively for vars in removed formula?
+				AssrtIntVar v = ((AssrtAnnotDataName) e).var;
+				//renameOldVarsInF(self, v, F);//, rename);  // CHECKME
+				updateForAnnotVar(v, K.get(self));  // Currently, addAnnotVarToK
+			}
+			else
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);  
+						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtoDeclTranslator.parsePayload) -- no other pay elems allowed
 			}
 		}
-	}
-	
-	private void gcVR(Map<AssrtIntVar, AssrtAFormula> Vself, Set<AssrtBFormula> Rself, AssrtIntVar v)
-	{
-		Vself.remove(v);
-		Iterator<AssrtBFormula> i = Rself.iterator();
-		while (i.hasNext())
-		{
-			if (i.next().getIntVars().contains(v)) 
-			{
-				i.remove();  // CHECKME: do transitively for vars in removed formula?
-			}
-		}
+		updateForAssertionAndStateExprs(self,
+				a.getAssertion(), a.getStateExprs(), succ,  // FIXME: assumes v is the only var (o/w ass/svars repeated) -- ?
+				K, F, V, R);//, rename);
+
+		updateScopes(self, a, succ, K.get(self), F.get(self), scopes.get(self));
+				// FIXME TODO: V/R and scopes -- scopes records statevardecls ?*/
 	}
 
 	// TODO: pass `Kself`, `Fself`, etc. directly (and not `self`)
@@ -489,315 +496,6 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 		return f;
 	}
-
-  // CHECKME: only need to update self entries of Maps -- almost: except for addAnnotOpensToF, and some renaming via Streams
-	private void updateOutput(Role self, AssrtCoreEAction a, EFsm succ,
-			Map<Role, Set<AssrtIntVar>> K, 
-			Map<Role, Set<AssrtBFormula>> F,
-			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V,
-			Map<Role, Set<AssrtBFormula>> R,
-			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
-			Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes)
-	{
-		updateKFVR(self, a, a.getAssertion(), succ, K, F, V, R);
-		
-		/*for (PayElemType<?> e : ((EAction) a).payload.elems)  // CHECKME: EAction closest base type
-		{
-			if (e instanceof AssrtAnnotDataName)
-			{
-				AssrtIntVar v = ((AssrtAnnotDataName) e).var;
-				//renameOldVarsInF(self, v, F);//, rename);  // CHECKME
-				updateForAnnotVar(v, K.get(self));  // Currently, addAnnotVarToK
-			}
-			else
-			{
-				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + a);  
-						// Regular DataType pay elems have been given fresh annot vars (AssrtCoreGProtoDeclTranslator.parsePayload) -- no other pay elems allowed
-			}
-		}
-		updateForAssertionAndStateExprs(self,
-				a.getAssertion(), a.getStateExprs(), succ,  // FIXME: assumes v is the only var (o/w ass/svars repeated) -- ?
-				K, F, V, R);//, rename);
-
-		updateScopes(self, a, succ, K.get(self), F.get(self), scopes.get(self));
-				// FIXME TODO: V/R and scopes -- scopes records statevardecls ?*/
-	}
-
-	/*private void updateScopes(Role self, AssrtCoreEAction a, EFsm succ, 
-			Set<AssrtIntVar> Kself, Set<AssrtBFormula> Fself, 
-			LinkedHashMap<Integer, Set<AssrtIntVar>> scopesSelf)
-	{
-		int curr = this.P.get(self).curr.id;
-		/* // Would be an optimisation
-		if (succ.curr.id == this.P.get(self).graph.init.id)  // Includes, e.g., mu X.A->B.X
-		{
-			Kself.clear();
-			Fself.clear();  // FIXME TODO: V/R -- e.g., rec assertion
-			scopesSelf.clear();
-		}
-		else* / if (curr == succ.curr.id  // Includes, e.g., mu X.A->B.X (scope always empty), but also A->B.mu X.A->B.X
-				|| scopesSelf.keySet().contains(succ.curr.id))
-		{
-			Set<AssrtIntVar> keep = new HashSet<>();
-			Iterator<Entry<Integer, Set<AssrtIntVar>>> es = scopesSelf.entrySet()
-					.iterator();
-			while (es.hasNext())  // Only keep scope entries up to (and excluding) succ recursion
-			{
-				Entry<Integer, Set<AssrtIntVar>> next = es.next();
-				if (next.getKey() == succ.curr.id)
-				{
-					es.remove();
-					break;
-				}
-				keep.addAll(next.getValue());
-			}
-			while (es.hasNext())
-			{
-				es.next();
-				es.remove();
-			}
-							
-			// Up to here, K/F/etc updated for "a" regardless of continue-edge or not -- now treat continue-edges based on scopes
-			Kself.retainAll(keep);
-			Iterator<AssrtBFormula> i = Fself.iterator();
-			while (i.hasNext())
-			{
-				if (i.next().getIntVars().stream().anyMatch(x -> !keep.contains(x))) 
-				{
-					i.remove();
-				}
-			}
-
-			// FIXME TODO: V/R
-		}
-		else
-		{
-			scopesSelf.put(curr, ((EAction) a).payload.elems.stream()
-					.map(x -> ((AssrtAnnotDataName) x).var).collect(Collectors.toSet()));
-			return;
-		}
-	}
-	//*/
-
-	// Mutating 'F' and 'rename'
-	// Rename existing vars that have the same name as 'v' -- renaming is basically an implementation of exist-quant (final sat checks implicitly quant over free names)
-	// E.g., rec X . A->B: 1(x:int) . X -- loop renames existing x to some fresh name
-	// N.B. no "updateRfromF" -- actually, "update R from payload annot" -- leaving R statevars as they are is OK, validation only done from F's and R already incorporated into F (and updates handled by updateFfromR)
-	// But would it be more consistent to update R?
-	private static void renameOldVarsInF(Role self, AssrtIntVar v, 
-			Map<Role, Set<AssrtBFormula>> F)
-			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
-	{
-		Set<AssrtBFormula> H = F.get(self);
-		if (H.stream().anyMatch(x -> x.getIntVars().contains(v)))
-		{
-			AssrtIntVarFormula old = AssrtFormulaFactory
-					.AssrtIntVar(v.toString());
-			AssrtIntVarFormula fresh = makeFreshIntVar(v);
-			//rename.get(self).put(old, fresh);
-			H = H.stream().map(x -> x.subs(old, fresh)).collect(Collectors.toSet());
-			F.put(self, H);
-		}
-	}
-
-	private static void updateForAnnotVar(AssrtIntVar v, Set<AssrtIntVar> Kself)
-	{
-		addAnnotVarToK(v, Kself);  // Update K
-	}
-
-  // CHECKME: only need to update self entries of Maps -- almost: except for addAnnotOpensToF, and some renaming via Streams
-	private static void updateForAssertionAndStateExprs(Role self,  // CHECKME: EAction closest base type -- ?
-			AssrtBFormula ass, List<AssrtAFormula> aexprs, EFsm succ,  // From an AssrtAnnotDataName pay elem
-			Map<Role, Set<AssrtIntVar>> K, 
-			Map<Role, Set<AssrtBFormula>> F, 
-			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V, 
-			Map<Role, Set<AssrtBFormula>> R)
-			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)  
-	{
-		addAnnotOpensToF(ass, F);  // CHECKME HACK?  for port forwarding
-		addAssertionToF(ass, F.get(self));
-
-		Map<AssrtIntVar, AssrtAFormula> Vself = V.get(self);  
-				// Rename old R vars -- must come before adding new F and R clauses  // CHECKME: not done?
-
-		// "forward" recs will have state vars (svars) but no action state-exprs (aexprs)
-		AssrtEState s = (AssrtEState) succ.curr;
-		LinkedHashMap<AssrtIntVar, AssrtAFormula> svars = s.getStateVars();
-				// aforms = action update exprs for state vars  // CHECKME: svars.size() == aforms.size() ?
-
-		// Following must come after F update (addAnnotBexprToF)
-		// Update R from state -- entering a rec "forwards", i.e., not via a continue
-		if (aexprs.isEmpty())  // Rec-entry: statevar expr args already inlined into the rec statevars (i.e., by inlining) -- CHECKME
-				// CHECKME: means "forwards entry?" robust?  refactor?
-		{
-			if (!svars.isEmpty())
-			{
-				updateRecEntry(self, svars, s.getAssertion(), F, Vself, R.get(self));
-			}
-		}
-		else //if (!aforms.isEmpty())
-		{
-			if (svars.size() != aexprs.size())
-			{
-				throw new RuntimeException(
-						"[assrt-core] Shouldn't get here: " + svars + ", " + aexprs); 
-						// CHECKME: not actually syntactically checked yet
-			}
-			updateRecContinue(self,
-					svars.keySet().stream().collect(Collectors.toList()),  // Ordered because LinkedHashMap
-					aexprs, 
-					F,  Vself);
-		}
-
-		compactF(F.get(self));
-		//return rename;
-	}
-
-	private static void addAnnotOpensToF(AssrtBFormula bform,
-			Map<Role, Set<AssrtBFormula>> F)
-	{
-		Set<AssrtUnintPredicateFormula> preds = Z3Wrapper.getUnintPreds.func
-				.apply(bform);  // CHECKME: refactor out of Z3Wrapper
-		// CHECKME: unint-pref currrently has to be a top-level clause (assuming CNF), but should generalise
-		// CHECKME: factor out API for unint-funs properly
-		List<AssrtUnintPredicateFormula> opens = preds.stream()
-				.filter(x -> x.name.toString().equals("open"))
-				.collect(Collectors.toList());
-		for (AssrtUnintPredicateFormula p : opens)
-		{
-			if (p.args.size() != 2)
-			{
-				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + p);
-			}
-			//String port = ((AssrtIntVarFormula) i.next()).name;
-			Role client = new Role(((AssrtIntVarFormula) p.args.get(1)).name);  // FIXME: port/role values hacked as int var formulas
-
-			appendToF(p, F.get(client));
-		}
-	}
-
-	private static void addAnnotVarToK(AssrtIntVar v, Set<AssrtIntVar> Kself)
-	{
-		Kself.add(v);
-	}
-
-	private static void addAssertionToF(AssrtBFormula ass,
-			Set<AssrtBFormula> Fself)
-	{
-		appendToF(ass, Fself);  //...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
-			// CHECKME: filter open from f -- i.e., don't add to sender K
-			// Maybe make f CNF? -- https://stackoverflow.com/questions/10992531/convert-formula-to-cnf 
-	}
-
-	// Must come after initial F update (addAnnotBexprToF)
-	private static void updateRecEntry(Role self,
-			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars, AssrtBFormula ass,
-			Map<Role, Set<AssrtBFormula>> F,
-			Map<AssrtIntVar, AssrtAFormula> Vself, 
-			Set<AssrtBFormula> Rself)
-	{
-		for (Entry<AssrtIntVar, AssrtAFormula> e : svars.entrySet())
-		{
-			AssrtIntVar svar = e.getKey();
-			AssrtAFormula sexpr = e.getValue();  // "Init" state var expr
-			
-			// CHECKME: record statevar mapping for "direct substitution" modelling special case? (i.e., no "old var" renaming)...
-			// ...e.g., x -> x, or x -> y -> x -- i.e. treat subproto statevars more like formal params
-			// Anyway, need to check something about new vs. shadowed vs. udapted vs. etc state vars -- currently nothing is checked syntactically
-			// "forwards" entry rec should also be handled by action statevar update?
-			
-			if (!Vself.containsKey(svar))// || !Vself.get(svar).equals(sexpr))  // Optimisation only?
-					// CHECKME: need to treat statevars more like roles? i.e., statevar must be explicitly declared/passed to stay "in scope" in the subproto?
-			{
-				updateVAndFFromStateVar(self, svar, sexpr, F, Vself, true);
-				//putK(K, self, k);
-			}
-		}
-
-		// Cf. addAssertionToF, history recording
-		if (!ass.equals(AssrtTrueFormula.TRUE))
-		{
-			appendToR(ass, Rself);
-		}
-	}
-
-	// Must come after initial F update (addAnnotBexprToF)
-	private static void updateRecContinue(Role self,
-			List<AssrtIntVar> svars,
-			List<AssrtAFormula> aexprs,			
-			Map<Role, Set<AssrtBFormula>> F,
-			Map<AssrtIntVar, AssrtAFormula> Vself)
-	{
-		Iterator<AssrtAFormula> iaexprs = aexprs.iterator();
-		for (AssrtIntVar svar : svars)  // FIXME: statevar ordering
-		{
-			AssrtAFormula aexpr = iaexprs.next();
-
-			/*// CHECKME
-			if (expr.getIntVars().contains(svar))  // CHECKME: what is the example?
-			{
-				// CHECKME: renaming like this OK? -- basically all V vars are being left open for top-level forall
-				expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(svar.toString()), 
-						//fresh  // No: don't need to "link" V vars and F vars -- only F matters for direct formula checking
-						//makeFreshIntVar(annot)  // Makes model construction non-terminating, e.g., mu X(x:=..) ... X<x> -- makes unbounded fresh in x = fresh(x)
-						AssrtFormulaFactory.AssrtIntVar("_" + svar.toString())  // CHECKME: is this OK?
-				);	
-			}*/
-
-			// Update V from action -- recursion back to a rec, via a continue
-			AssrtAFormula curr = Vself.get(svar);
-			if (!curr.equals(aexpr)  // CHECKME: "syntactic" check is what we want here?
-					&& !((aexpr instanceof AssrtIntVarFormula)
-							&& ((AssrtIntVarFormula) aexpr).name
-									.equals("_" + svar.toString())))
-						// Hacky? if expr is just the var occurrence, then value doesn't change
-						// FIXME: generalise -- occurences of other vars can be first substituted, before "old var renaming"? -- also for rec-state updates?
-			{
-				updateVAndFFromStateVar(self, svar, aexpr, F, Vself, false);
-			}
-		}
-	}
-
-	// F part is only a renaming(?)
-	private static void updateVAndFFromStateVar(Role self, AssrtIntVar svar,
-			AssrtAFormula aform,
-			Map<Role, Set<AssrtBFormula>> F,  // Currently renaming creates new Set, so need to replace the entry in F (cf. mutate Fself)
-			Map<AssrtIntVar, AssrtAFormula> Vself, 
-			boolean forwards)
-	{
-		if (!forwards)
-		{
-			/* // CHECKME: what is an example?
-			for (AssrtDataVar v : aform.getIntVars())
-			{
-				AssrtIntVarFormula fresh = AssrtFormulaFactory
-						.AssrtIntVar("__" + v.toString());
-				aform = aform.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()),
-						fresh);
-			}*/
-		}
-
-		// Must come after initial F update (addAnnotBexprToF)
-		Vself.put(svar, aform);   // "Overwrite" (if already known)
-
-		/*
-		// CHECKME: what is an example? -- old/new vars due to looping?  __ renaming above?  // CHECKME: if (!forwards)?
-		AssrtIntVarFormula old = AssrtFormulaFactory.AssrtIntVar(svar.toString());
-		AssrtIntVarFormula fresh = makeFreshIntVar(svar);
-		Set<AssrtBFormula> H = F.get(self);
-		H = H.stream().map(x -> x.subs(old, fresh)).collect(Collectors.toSet());
-		F.put(self, H);*/
-	}
-
-	private static void appendToF(AssrtBFormula bform, Set<AssrtBFormula> Fself)
-	{
-		Fself.add(bform);
-	}
-
-	private static void appendToR(AssrtBFormula bform, Set<AssrtBFormula> Rself)
-	{
-		Rself.add(bform);
-	}
 	
 	private static void compactF(Set<AssrtBFormula> Fself)
 	{
@@ -811,6 +509,32 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 							// Pruning if formula contains "old" var renamed by renameOldVarsInF -- FIXME refactor to renameOldVarsInF?  CHECKME: other sources of renaming?
 			{
 				i.remove();
+			}
+		}
+	}
+	
+	private void gcKF(Set<AssrtIntVar> Kself, Set<AssrtBFormula> Fself, AssrtIntVar v) 
+	{
+		Kself.remove(v);
+		Iterator<AssrtBFormula> i = Fself.iterator();
+		while (i.hasNext())
+		{
+			if (i.next().getIntVars().contains(v)) 
+			{
+				i.remove();  // CHECKME: do transitively for vars in removed formula?
+			}
+		}
+	}
+	
+	private void gcVR(Map<AssrtIntVar, AssrtAFormula> Vself, Set<AssrtBFormula> Rself, AssrtIntVar v)
+	{
+		Vself.remove(v);
+		Iterator<AssrtBFormula> i = Rself.iterator();
+		while (i.hasNext())
+		{
+			if (i.next().getIntVars().contains(v)) 
+			{
+				i.remove();  // CHECKME: do transitively for vars in removed formula?
 			}
 		}
 	}
@@ -1839,27 +1563,349 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 		return bform;
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/*private void updateScopes(Role self, AssrtCoreEAction a, EFsm succ, 
+			Set<AssrtIntVar> Kself, Set<AssrtBFormula> Fself, 
+			LinkedHashMap<Integer, Set<AssrtIntVar>> scopesSelf)
+	{
+		int curr = this.P.get(self).curr.id;
+		/* // Would be an optimisation
+		if (succ.curr.id == this.P.get(self).graph.init.id)  // Includes, e.g., mu X.A->B.X
+		{
+			Kself.clear();
+			Fself.clear();  // FIXME TODO: V/R -- e.g., rec assertion
+			scopesSelf.clear();
+		}
+		else* / if (curr == succ.curr.id  // Includes, e.g., mu X.A->B.X (scope always empty), but also A->B.mu X.A->B.X
+				|| scopesSelf.keySet().contains(succ.curr.id))
+		{
+			Set<AssrtIntVar> keep = new HashSet<>();
+			Iterator<Entry<Integer, Set<AssrtIntVar>>> es = scopesSelf.entrySet()
+					.iterator();
+			while (es.hasNext())  // Only keep scope entries up to (and excluding) succ recursion
+			{
+				Entry<Integer, Set<AssrtIntVar>> next = es.next();
+				if (next.getKey() == succ.curr.id)
+				{
+					es.remove();
+					break;
+				}
+				keep.addAll(next.getValue());
+			}
+			while (es.hasNext())
+			{
+				es.next();
+				es.remove();
+			}
+							
+			// Up to here, K/F/etc updated for "a" regardless of continue-edge or not -- now treat continue-edges based on scopes
+			Kself.retainAll(keep);
+			Iterator<AssrtBFormula> i = Fself.iterator();
+			while (i.hasNext())
+			{
+				if (i.next().getIntVars().stream().anyMatch(x -> !keep.contains(x))) 
+				{
+					i.remove();
+				}
+			}
+
+			// FIXME TODO: V/R
+		}
+		else
+		{
+			scopesSelf.put(curr, ((EAction) a).payload.elems.stream()
+					.map(x -> ((AssrtAnnotDataName) x).var).collect(Collectors.toSet()));
+			return;
+		}
+	}
+	//*/
+
+	// Mutating 'F' and 'rename'
+	// Rename existing vars that have the same name as 'v' -- renaming is basically an implementation of exist-quant (final sat checks implicitly quant over free names)
+	// E.g., rec X . A->B: 1(x:int) . X -- loop renames existing x to some fresh name
+	// N.B. no "updateRfromF" -- actually, "update R from payload annot" -- leaving R statevars as they are is OK, validation only done from F's and R already incorporated into F (and updates handled by updateFfromR)
+	// But would it be more consistent to update R?
+	private static void renameOldVarsInF(Role self, AssrtIntVar v, 
+			Map<Role, Set<AssrtBFormula>> F)
+			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
+	{
+		Set<AssrtBFormula> H = F.get(self);
+		if (H.stream().anyMatch(x -> x.getIntVars().contains(v)))
+		{
+			AssrtIntVarFormula old = AssrtFormulaFactory
+					.AssrtIntVar(v.toString());
+			AssrtIntVarFormula fresh = makeFreshIntVar(v);
+			//rename.get(self).put(old, fresh);
+			H = H.stream().map(x -> x.subs(old, fresh)).collect(Collectors.toSet());
+			F.put(self, H);
+		}
+	}
+
+	private static void updateForAnnotVar(AssrtIntVar v, Set<AssrtIntVar> Kself)
+	{
+		addAnnotVarToK(v, Kself);  // Update K
+	}
+
+  // CHECKME: only need to update self entries of Maps -- almost: except for addAnnotOpensToF, and some renaming via Streams
+	private static void updateForAssertionAndStateExprs(Role self,  // CHECKME: EAction closest base type -- ?
+			AssrtBFormula ass, List<AssrtAFormula> aexprs, EFsm succ,  // From an AssrtAnnotDataName pay elem
+			Map<Role, Set<AssrtIntVar>> K, 
+			Map<Role, Set<AssrtBFormula>> F, 
+			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V, 
+			Map<Role, Set<AssrtBFormula>> R)
+			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)  
+	{
+		addAnnotOpensToF(ass, F);  // CHECKME HACK?  for port forwarding
+		addAssertionToF(ass, F.get(self));
+
+		Map<AssrtIntVar, AssrtAFormula> Vself = V.get(self);  
+				// Rename old R vars -- must come before adding new F and R clauses  // CHECKME: not done?
+
+		// "forward" recs will have state vars (svars) but no action state-exprs (aexprs)
+		AssrtEState s = (AssrtEState) succ.curr;
+		LinkedHashMap<AssrtIntVar, AssrtAFormula> svars = s.getStateVars();
+				// aforms = action update exprs for state vars  // CHECKME: svars.size() == aforms.size() ?
+
+		// Following must come after F update (addAnnotBexprToF)
+		// Update R from state -- entering a rec "forwards", i.e., not via a continue
+		if (aexprs.isEmpty())  // Rec-entry: statevar expr args already inlined into the rec statevars (i.e., by inlining) -- CHECKME
+				// CHECKME: means "forwards entry?" robust?  refactor?
+		{
+			if (!svars.isEmpty())
+			{
+				updateRecEntry(self, svars, s.getAssertion(), F, Vself, R.get(self));
+			}
+		}
+		else //if (!aforms.isEmpty())
+		{
+			if (svars.size() != aexprs.size())
+			{
+				throw new RuntimeException(
+						"[assrt-core] Shouldn't get here: " + svars + ", " + aexprs); 
+						// CHECKME: not actually syntactically checked yet
+			}
+			updateRecContinue(self,
+					svars.keySet().stream().collect(Collectors.toList()),  // Ordered because LinkedHashMap
+					aexprs, 
+					F,  Vself);
+		}
+
+		compactF(F.get(self));
+		//return rename;
+	}
+
+	private static void addAnnotOpensToF(AssrtBFormula bform,
+			Map<Role, Set<AssrtBFormula>> F)
+	{
+		Set<AssrtUnintPredicateFormula> preds = Z3Wrapper.getUnintPreds.func
+				.apply(bform);  // CHECKME: refactor out of Z3Wrapper
+		// CHECKME: unint-pref currrently has to be a top-level clause (assuming CNF), but should generalise
+		// CHECKME: factor out API for unint-funs properly
+		List<AssrtUnintPredicateFormula> opens = preds.stream()
+				.filter(x -> x.name.toString().equals("open"))
+				.collect(Collectors.toList());
+		for (AssrtUnintPredicateFormula p : opens)
+		{
+			if (p.args.size() != 2)
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + p);
+			}
+			//String port = ((AssrtIntVarFormula) i.next()).name;
+			Role client = new Role(((AssrtIntVarFormula) p.args.get(1)).name);  // FIXME: port/role values hacked as int var formulas
+
+			appendToF(p, F.get(client));
+		}
+	}
+
+	private static void addAnnotVarToK(AssrtIntVar v, Set<AssrtIntVar> Kself)
+	{
+		Kself.add(v);
+	}
+
+	private static void addAssertionToF(AssrtBFormula ass,
+			Set<AssrtBFormula> Fself)
+	{
+		appendToF(ass, Fself);  //...record assertions so far -- later error checking: *for all* values that satisify those, it should imply the next assertion
+			// CHECKME: filter open from f -- i.e., don't add to sender K
+			// Maybe make f CNF? -- https://stackoverflow.com/questions/10992531/convert-formula-to-cnf 
+	}
+
+	// Must come after initial F update (addAnnotBexprToF)
+	private static void updateRecEntry(Role self,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars, AssrtBFormula ass,
+			Map<Role, Set<AssrtBFormula>> F,
+			Map<AssrtIntVar, AssrtAFormula> Vself, 
+			Set<AssrtBFormula> Rself)
+	{
+		for (Entry<AssrtIntVar, AssrtAFormula> e : svars.entrySet())
+		{
+			AssrtIntVar svar = e.getKey();
+			AssrtAFormula sexpr = e.getValue();  // "Init" state var expr
+			
+			// CHECKME: record statevar mapping for "direct substitution" modelling special case? (i.e., no "old var" renaming)...
+			// ...e.g., x -> x, or x -> y -> x -- i.e. treat subproto statevars more like formal params
+			// Anyway, need to check something about new vs. shadowed vs. udapted vs. etc state vars -- currently nothing is checked syntactically
+			// "forwards" entry rec should also be handled by action statevar update?
+			
+			if (!Vself.containsKey(svar))// || !Vself.get(svar).equals(sexpr))  // Optimisation only?
+					// CHECKME: need to treat statevars more like roles? i.e., statevar must be explicitly declared/passed to stay "in scope" in the subproto?
+			{
+				updateVAndFFromStateVar(self, svar, sexpr, F, Vself, true);
+				//putK(K, self, k);
+			}
+		}
+
+		// Cf. addAssertionToF, history recording
+		if (!ass.equals(AssrtTrueFormula.TRUE))
+		{
+			appendToR(ass, Rself);
+		}
+	}
+
+	// Must come after initial F update (addAnnotBexprToF)
+	private static void updateRecContinue(Role self,
+			List<AssrtIntVar> svars,
+			List<AssrtAFormula> aexprs,			
+			Map<Role, Set<AssrtBFormula>> F,
+			Map<AssrtIntVar, AssrtAFormula> Vself)
+	{
+		Iterator<AssrtAFormula> iaexprs = aexprs.iterator();
+		for (AssrtIntVar svar : svars)  // FIXME: statevar ordering
+		{
+			AssrtAFormula aexpr = iaexprs.next();
+
+			/*// CHECKME
+			if (expr.getIntVars().contains(svar))  // CHECKME: what is the example?
+			{
+				// CHECKME: renaming like this OK? -- basically all V vars are being left open for top-level forall
+				expr = expr.subs(AssrtFormulaFactory.AssrtIntVar(svar.toString()), 
+						//fresh  // No: don't need to "link" V vars and F vars -- only F matters for direct formula checking
+						//makeFreshIntVar(annot)  // Makes model construction non-terminating, e.g., mu X(x:=..) ... X<x> -- makes unbounded fresh in x = fresh(x)
+						AssrtFormulaFactory.AssrtIntVar("_" + svar.toString())  // CHECKME: is this OK?
+				);	
+			}*/
+
+			// Update V from action -- recursion back to a rec, via a continue
+			AssrtAFormula curr = Vself.get(svar);
+			if (!curr.equals(aexpr)  // CHECKME: "syntactic" check is what we want here?
+					&& !((aexpr instanceof AssrtIntVarFormula)
+							&& ((AssrtIntVarFormula) aexpr).name
+									.equals("_" + svar.toString())))
+						// Hacky? if expr is just the var occurrence, then value doesn't change
+						// FIXME: generalise -- occurences of other vars can be first substituted, before "old var renaming"? -- also for rec-state updates?
+			{
+				updateVAndFFromStateVar(self, svar, aexpr, F, Vself, false);
+			}
+		}
+	}
+
+	// F part is only a renaming(?)
+	private static void updateVAndFFromStateVar(Role self, AssrtIntVar svar,
+			AssrtAFormula aform,
+			Map<Role, Set<AssrtBFormula>> F,  // Currently renaming creates new Set, so need to replace the entry in F (cf. mutate Fself)
+			Map<AssrtIntVar, AssrtAFormula> Vself, 
+			boolean forwards)
+	{
+		if (!forwards)
+		{
+			/* // CHECKME: what is an example?
+			for (AssrtDataVar v : aform.getIntVars())
+			{
+				AssrtIntVarFormula fresh = AssrtFormulaFactory
+						.AssrtIntVar("__" + v.toString());
+				aform = aform.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()),
+						fresh);
+			}*/
+		}
+
+		// Must come after initial F update (addAnnotBexprToF)
+		Vself.put(svar, aform);   // "Overwrite" (if already known)
+
+		/*
+		// CHECKME: what is an example? -- old/new vars due to looping?  __ renaming above?  // CHECKME: if (!forwards)?
+		AssrtIntVarFormula old = AssrtFormulaFactory.AssrtIntVar(svar.toString());
+		AssrtIntVarFormula fresh = makeFreshIntVar(svar);
+		Set<AssrtBFormula> H = F.get(self);
+		H = H.stream().map(x -> x.subs(old, fresh)).collect(Collectors.toSet());
+		F.put(self, H);*/
+	}
+
+	private static void appendToF(AssrtBFormula bform, Set<AssrtBFormula> Fself)
+	{
+		Fself.add(bform);
+	}
+
+	private static void appendToR(AssrtBFormula bform, Set<AssrtBFormula> Rself)
+	{
+		Rself.add(bform);
+	}
+
+
+
+
+
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
