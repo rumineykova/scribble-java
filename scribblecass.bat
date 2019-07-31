@@ -3,12 +3,12 @@
 set ANTLR=scribble-parser\lib\antlr-3.5.2-complete.jar
 
 set DIR=%~dp0%
-SET MVNREPO = %USERPROFILE%\.m2
-set SMTZ3=%MVNREPO%\org\sosy-lab\java-smt\native\x86_64-windows
 
-set Z3=%MVNREPO%\org\sosy-lab\java-smt\1.0.1\com.microsoft.z3.jar
+set SMTZ3=%USERPROFILE%\.m2\repository\org\sosy-lab\java-smt\native\x86_64-windows
 
-set JAVASMT=%MVNREPO%\org\sosy-lab\java-smt\1.0.1\java-smt-1.0.1.jar
+set Z3=%USERPROFILE%\.m2\repository\org\sosy-lab\java-smt\1.0.1\com.microsoft.z3.jar
+
+set JAVASMT=%USERPROFILE%\.m2\repository\org\sosy-lab\java-smt\1.0.1\java-smt-1.0.1.jar
 
 set LIB=scribble-dist\target\lib
 
