@@ -469,7 +469,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				if (isContinue) {  // CHECKME: "shadowing", e.g., forwards statevar has same name as a previous
 					gcVR(Vself, Rself, svar);
 				}
-				Vself.put(svar, sexpr); // HACK FIXME: can come out as, e.g., [((x >= 0) && True)
+				Vself.put(svar, sexpr);
 				Rself.add(s.getAssertion());
 			}
 			//compactR(Rself);  // TODO? (see above)

@@ -69,10 +69,11 @@ public class AssrtEState extends EState
 			AssrtBFormula ass)
 	{
 		this.statevars.putAll(svars);  // FIXME: ordering w.r.t. nested recs (i.e., multiple calls to here)
-		
 		this.ass = (this.ass.equals(AssrtTrueFormula.TRUE))
 				? ass
-				: AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, this.ass, ass);  // FIXME: make Set
+				: (ass.equals(AssrtTrueFormula.TRUE))   // E.g., addStateVars for the implicitly generated top-level rec, onto the actual entry
+						? this.ass
+						: AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, this.ass, ass);  // FIXME: make Set
 	}
 
 	@Override
