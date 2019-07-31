@@ -142,23 +142,16 @@ type <dotnet> "System.UInt32" from "..." as int;
 //type <dotnet> "System.String" from "..." as str;
 
 
-//*
+/*
 global protocol Proto1(role A, role B) @<x:="3">
 {
 	1() from A to B; @"(x>2)"  // Testing, V update also needs to GC F -- TODO add test
 	do Proto1(A, B); @<"2">
 }
-
-/*
-aux global protocol Proto2(role A, role B) @<y:="4">
-{
-	1() from A to B; @"(y>2)"
-	do Proto2(A, B); @<"y">
-}
 //*/
 
 
-/*
+//*
 global protocol Proto1(role A, role B) @<x:="3">
 {
 	1() from A to B; @"(x>2)"  // Testing ass in F, independent of pay 
@@ -169,12 +162,13 @@ global protocol Proto1(role A, role B) @<x:="3">
 global protocol Proto2(role A, role B) @<y:="4">
 {
 	1() from A to B; @"(y>2)"
-	do Proto1(A, B); @<"y">
+	//do Proto1(A, B); @<"y">
+	do Proto2(A, B); @<"y">
 }
 //*/
 
 
-// TODO
+// TODO HERE
 // - transitive V/R GC, also F
 // - batch mode
 // - fix expression parsing, e.g., parentheses

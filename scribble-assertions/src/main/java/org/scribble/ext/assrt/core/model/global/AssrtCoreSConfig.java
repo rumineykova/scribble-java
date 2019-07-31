@@ -471,13 +471,14 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				else
 				{
 					AssrtAFormula next = i.next();
-					sexpr = (next instanceof AssrtIntVarFormula)  // CHECKME: dubious hacks, but cf. good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f/g
-							? next  // A "direct" equality to a (state -- FIXME) variable can be left "unerased" without increasing the overall state space
+					sexpr = (next instanceof AssrtIntVarFormula) && Vself.keySet().stream()
+								.anyMatch(x -> x.toString().equals(next.toString())) // CHECKME: dubious hacks, but cf. good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f/g
+							? next  // A "direct" equality to a state var can be left "unerased" without increasing the overall state space
 							: (AssrtAFormula) renameFormula(next);
 				}
 				if (isContinue   // CHECKME: "shadowing", e.g., forwards statevar has same name as a previous
 						&& !((sexpr instanceof AssrtIntVarFormula)  // CHECKME: dubious hacks, but cf. good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f/g
-						&& ((AssrtIntVarFormula) sexpr).name.equals(svar.toString())))
+							&& sexpr.toString().equals(svar.toString())))
 					{
 						gcVR(Vself, Rself, svar);  // GC V , sexpr may be different than that removed
 						gcF(Fself, svar);
