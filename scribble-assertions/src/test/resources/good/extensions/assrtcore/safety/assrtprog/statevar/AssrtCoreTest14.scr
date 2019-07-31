@@ -8,10 +8,10 @@ type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 global protocol Proto1(role A, role B)
 {
 	1() from A to B;
-	do Proto2(A, B); @"<4>"
+	do Proto2(A, B); @<"4">
 }
 
-aux global protocol Proto2(role A, role B) @"(x:=3)"  // Unsat if validated as root
+aux global protocol Proto2(role A, role B) @<x:="3">  // Unsat if validated as root
 {
 	2() from B to A; @"(x=4)"
 }

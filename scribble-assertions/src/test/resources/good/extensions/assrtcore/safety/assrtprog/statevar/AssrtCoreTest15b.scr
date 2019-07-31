@@ -8,12 +8,12 @@ type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 global protocol Proto1(role A, role B)
 {
 	1() from A to B;	
-	do Proto2(A, B); @"<4>"  // Tests R update from endpoint state (as opposed to action)
+	do Proto2(A, B); @<"4">  // Tests R update from endpoint state (as opposed to action)
 }
 
-aux global protocol Proto2(role A, role B) @"(x:=3)"  // Unsat if validated as root 
+aux global protocol Proto2(role A, role B) @<x:="3">  // Unsat if validated as root 
 {
 	2(y:int) from B to A;  @"(x>3)"
-	do Proto2(A, B); @"<5>"  // Sat
+	do Proto2(A, B); @<"5">  // Sat
 }
 //*/
