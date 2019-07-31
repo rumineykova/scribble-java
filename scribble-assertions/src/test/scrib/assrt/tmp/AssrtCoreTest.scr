@@ -139,6 +139,26 @@ type <dotnet> "System.UInt32" from "..." as int;
 //type <dotnet> "System.String" from "..." as str;
 
 
+global protocol Proto1(role A, role B) @<x:="3">
+{
+	1() from A to B; @"(x>2)"
+	do Proto2(A, B); @<"x">
+}
+
+// Not aux
+global protocol Proto2(role A, role B) @<y:="4">
+{
+	1() from A to B; @"(y>2)"
+	do Proto2(A, B); @<"y">
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -236,7 +256,7 @@ global protocol Proto1(role A, role B, role C)
 
 
 
-//* // good.extensions.assrtcore.safety.unsat.AssrtCoreTest23
+/* // good.extensions.assrtcore.safety.unsat.AssrtCoreTest23
 global protocol Proto1(role B, role A) @<x:="0">  // @<x:"x=0"> "x<10"
 {
 	//1(x: int) from A to B;  @"x > 1"
