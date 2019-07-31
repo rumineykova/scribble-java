@@ -39,12 +39,14 @@ import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtUnintPredicateFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
 import org.scribble.ext.assrt.util.Z3Wrapper;
+import org.sosy_lab.java_smt.api.Formula;
 
 			
 public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
@@ -455,15 +457,37 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			for (Entry<AssrtIntVar, AssrtAFormula> e : svars.entrySet())
 			{
 				AssrtIntVar svar = e.getKey();
-				AssrtAFormula sexpr = aexprs.isEmpty() ? e.getValue() : i.next();  // If aexprs.isEmpty, then "init" state var expr
+				AssrtAFormula sexpr;
+				if (aexprs.isEmpty())
+				{
+					sexpr = e.getValue();  // "Init" state var expr
+				}
+				else
+				{
+					sexpr = (AssrtAFormula) renameFormula(i.next());
+				}
 				if (isContinue) {  // CHECKME: "shadowing", e.g., forwards statevar has same name as a previous
 					gcVR(Vself, Rself, svar);
 				}
-				Vself.put(svar, sexpr);
+				Vself.put(svar, sexpr); // HACK FIXME: can come out as, e.g., [((x >= 0) && True)
 				Rself.add(s.getAssertion());
 			}
+			//compactR(Rself);  // TODO? (see above)
+			compactF(Rself);
 		}
-		//compactR(Rself);  // TODO?
+	}
+
+	private static <T extends Formula> AssrtSmtFormula<T>
+			renameFormula(AssrtSmtFormula<T> f)
+	{
+		for (AssrtIntVar v : f.getIntVars())
+		{
+			AssrtIntVarFormula old = AssrtFormulaFactory.AssrtIntVar(v.toString());  // N.B. making *Formula*
+			AssrtIntVarFormula fresh = AssrtFormulaFactory
+					.AssrtIntVar("_" + v.toString());  // HACK
+			f = f.subs(old, fresh);  // N.B., works on Formulas
+		}
+		return f;
 	}
 
   // CHECKME: only need to update self entries of Maps -- almost: except for addAnnotOpensToF, and some renaming via Streams
@@ -1605,14 +1629,15 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 		else  // Rec-continue
 		{
-			/*// Next for lhs, rec ass (on original vars)  // CHECKME: why? lhs?
+			// Next for lhs, rec ass (on original vars)  // e.g., lhs, ...x > 0... (for existing x) => exists ...x' > 0... (for new x')
 			if (!sass.equals(AssrtTrueFormula.TRUE))
 			{
 				lhs = AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, lhs,
 						sass);
-			}*/
+			}
 
 			// rhs = existing R assertions -- CHECKME: why not just target rec ass again? (like entry)  or why entry does not check this.R and new entry ass -- i.e., why rec entry/continue not uniform?
+					// ^FIXME: should not be existing or just entry -- should be all existing up to entry ?
 			Set<AssrtBFormula> Rself = this.R.get(self);   
 					// Can use this.R because recursing, should already have all the terms to check (R added on f/w rec-entry updateRecEntry)
 					// CHECKME: should it be *all* the terms so far? yes, because treating recursion assertions as invariants?

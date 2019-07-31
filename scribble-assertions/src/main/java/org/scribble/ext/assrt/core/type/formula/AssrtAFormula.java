@@ -7,6 +7,8 @@ public abstract class AssrtAFormula extends AssrtSmtFormula<IntegerFormula>
 	@Override
 	public abstract AssrtAFormula squash();
 
-	public abstract AssrtAFormula subs(AssrtIntVarFormula old,
+	// Factor out with AssrtBFormula?
+	@Override
+	public abstract AssrtAFormula subs(AssrtIntVarFormula old, 
 			AssrtIntVarFormula neu);
 }

@@ -149,6 +149,9 @@ global protocol Test018(role A, role B)  @<x := "0">
 
 
 
+
+
+
 global protocol Test020(role A, role B)
 {
 	1() from A to B;	
