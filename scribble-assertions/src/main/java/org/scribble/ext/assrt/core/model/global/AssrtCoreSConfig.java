@@ -417,7 +417,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	{
 		//- first K, F
 		//-- for each pay elem:
-		//--- GC (transitively?) old K, F -- any affected V, R already implicitly GC
+		//--- GC (transitively?) old K, F -- any affected V, R already implicitly GC?
 		//--- add new K, F
 
 		Set<AssrtIntVar> Kself = K.get(self);
@@ -427,7 +427,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			if (e instanceof AssrtAnnotDataName)
 			{
 				AssrtIntVar v = ((AssrtAnnotDataName) e).var;
-				gcF(Fself, v);  // CHECKME: redundant to remove from Kself, then add back
+				gcF(Fself, v);
 				Kself.add(v);
 			}
 			else
@@ -470,10 +470,17 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				}
 				else
 				{
-					sexpr = (AssrtAFormula) renameFormula(i.next());
+					AssrtAFormula next = i.next();
+					sexpr = (next instanceof AssrtIntVarFormula)  // CHECKME: dubious hacks, but cf. good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f/g
+							? next  // A "direct" equality to a (state -- FIXME) variable can be left "unerased" without increasing the overall state space
+							: (AssrtAFormula) renameFormula(next);
 				}
-				if (isContinue) {  // CHECKME: "shadowing", e.g., forwards statevar has same name as a previous
-					gcVR(Vself, Rself, svar);  // GC V , sexpr may be different than that removed
+				if (isContinue   // CHECKME: "shadowing", e.g., forwards statevar has same name as a previous
+						&& !((sexpr instanceof AssrtIntVarFormula)  // CHECKME: dubious hacks, but cf. good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f/g
+						&& ((AssrtIntVarFormula) sexpr).name.equals(svar.toString())))
+					{
+						gcVR(Vself, Rself, svar);  // GC V , sexpr may be different than that removed
+						gcF(Fself, svar);
 				}
 				Vself.put(svar, sexpr);
 			}

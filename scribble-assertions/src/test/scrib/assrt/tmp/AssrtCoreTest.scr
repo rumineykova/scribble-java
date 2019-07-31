@@ -112,6 +112,9 @@
 // - standardise EFSM/model format -- should contain data type info (e.g., for STP) -- should make a decl language for FSM module members, share imports with protos
 
 
+// - tricky: state vars get "wildcarded" ("_" prefix), but "old" knowledge may remain (and be used) in F, e.g., good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f
+
+
 
 
 
@@ -142,12 +145,12 @@ type <dotnet> "System.UInt32" from "..." as int;
 //*
 global protocol Proto1(role A, role B) @<x:="3">
 {
-	1() from A to B; @"(x>2)"
-	do Proto2(A, B); @<"x">
+	1() from A to B; @"(x>2)"  // Testing, V update also needs to GC F -- TODO add test
+	do Proto1(A, B); @<"2">
 }
 
-// Not aux
-global protocol Proto2(role A, role B) @<y:="4">
+/*
+aux global protocol Proto2(role A, role B) @<y:="4">
 {
 	1() from A to B; @"(y>2)"
 	do Proto2(A, B); @<"y">
@@ -155,8 +158,26 @@ global protocol Proto2(role A, role B) @<y:="4">
 //*/
 
 
+/*
+global protocol Proto1(role A, role B) @<x:="3">
+{
+	1() from A to B; @"(x>2)"  // Testing ass in F, independent of pay 
+	do Proto2(A, B); @<"x">
+}
 
-// - tricky: state vars get "wildcarded" ("_" prefix), but "old" knowledge may remain (and be used) in F, e.g., good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f
+// Not aux
+global protocol Proto2(role A, role B) @<y:="4">
+{
+	1() from A to B; @"(y>2)"
+	do Proto1(A, B); @<"y">
+}
+//*/
+
+
+// TODO
+// - transitive V/R GC, also F
+// - batch mode
+// - fix expression parsing, e.g., parentheses
 
 
 
@@ -1014,7 +1035,7 @@ global protocol Proto1(role A, role B, role C)
 //*/
 
 
-/*  Simple Fib
+/*  Cf. Fib
 global protocol Proto1(role C, role S)  @<x := "0", y := "1"> "y>0 && x>=0"
 		//@"(x := 0, y := 1) y>0 && x>0"  // Bad initial Rass (and later unsat)
 		//@"(x := 0, y := 1) (y>0))"
