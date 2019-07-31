@@ -140,24 +140,35 @@ type <dotnet> "System.UInt32" from "..." as int;
 
 
 
+/* Test032 -- Test034 */
+
+/* // Testing rec assertion
+global protocol Proto1(role A, role B) @<x:="0"> "x>=0"
+{
+	1(y: int) from A to B; @"y>0"  // Comment annotation is bad
+	do Proto1(A, B); @<"y">
+}
+//*/
+
+
+/* // Testing rec assertion
+global protocol Proto1(role A, role B) @<x:="0"> "x>=0"
+{
+	1(y: int) from A to B; @"y>x"  // Comment annotation is bad
+	do Proto1(A, B); @<"y">
+}
+//*/
+
 
 /*
-global protocol Proto1(role A, role B) @<x:="0"> "x>=0"
+global protocol Proto1(role A, role B, role C)
 {
-	1(y: int) from A to B; @"y>0"
-	do Proto1(A, B); @<"y">
+	1(x: int) from A to B;  @"x>=0"
+	2(y: int) from B to C;  @"y=x && y>=0"  // Knowledge about x/y "told" to C
+	//2(y: int) from B to C;  @"y=x"  // (Intended) bad if replace above line -- fails assert-prog for C, C doesn't know x>=0
+	3(z: int) from C to A;  @"z=y && z>=0"
 }
 //*/
-
-
-//*
-global protocol Proto1(role A, role B) @<x:="0"> "x>=0"
-{
-	1(y: int) from A to B; @"y>x"
-	do Proto1(A, B); @<"y">
-}
-//*/
-
 
 
 
@@ -918,7 +929,7 @@ global protocol Proto1(role A, role B, role C)
 //*/
 
 
-/*
+/*  Simple Fib
 global protocol Proto1(role C, role S)  @<x := "0", y := "1"> "y>0 && x>=0"
 		//@"(x := 0, y := 1) y>0 && x>0"  // Bad initial Rass (and later unsat)
 		//@"(x := 0, y := 1) (y>0))"

@@ -229,3 +229,38 @@ global protocol Test029(role A, role B) @<x := "1">
 	1() from A to B;  // Testing removal of _dum1 : _Unit translation for empty payload -- reduces model size
 	do Test029(A, B);  @<"1">  // Testing .toTrueAssertion state exprs
 }
+
+
+
+
+
+
+
+
+
+
+
+// Testing rec assertion
+global protocol Test032(role A, role B) @<x:="0"> "x>=0"
+{
+	1(y: int) from A to B; @"y>0"  // Comment annotation is bad
+	do Test032(A, B); @<"y">
+}
+
+
+// Testing rec assertion
+global protocol Test033(role A, role B) @<x:="0"> "x>=0"
+{
+	1(y: int) from A to B; @"y>x"  // Comment annotation is bad
+	do Test033(A, B); @<"y">
+}
+
+
+global protocol Test034(role A, role B, role C)
+{
+	1(x: int) from A to B;  @"x>=0"
+	2(y: int) from B to C;  @"y=x && y>=0"  // Knowledge about x/y "told" to C
+	//2(y: int) from B to C;  @"y=x"  // (Intended) bad if replace above line -- fails assert-prog for C, C doesn't know x>=0
+	3(z: int) from C to A;  @"z=y && z>=0"
+}
+
