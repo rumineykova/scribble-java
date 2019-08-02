@@ -113,6 +113,9 @@
 
 
 // - tricky: state vars get "wildcarded" ("_" prefix), but "old" knowledge may remain (and be used) in F, e.g., good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f
+// - assertions specify "knowledge" communication, need to duplicate to multiple peers as necessary -- e.g., assertions on state vars without any payloads
+// - "static" assertions at scribble level (design time), vs. actual "dynamic" assertions at process level (run time) -- consider gradual-ness -- e.g., x>1, followed by x>0 or x>2 
+// - rec-continue state args on continue edge only, tricky for duality in MP situations (e.g., A->B.A->C.X<123>, consider A/B projections)
 
 
 
@@ -142,6 +145,31 @@ type <dotnet> "System.UInt32" from "..." as int;
 //type <dotnet> "System.String" from "..." as str;
 
 
+
+// TODO HERE
+// - transitive V/R GC, also F
+// - batch mode
+// - fix expression parsing, e.g., parentheses
+// - rec syntax
+//
+// done
+// - do rec assert check using FSM edges, not message -- difference is statevars
+//
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Test035 -- Test037 */
+
 /*
 global protocol Proto1(role A, role B) @<x:="3">
 {
@@ -168,10 +196,14 @@ global protocol Proto2(role A, role B) @<y:="4">
 //*/
 
 
-// TODO HERE
-// - transitive V/R GC, also F
-// - batch mode
-// - fix expression parsing, e.g., parentheses
+/*// Testing (removal of) state args from messages, cf. duality between A and B (w.r.t. <1>)
+global protocol Proto1(role A, role B, role C) @<x := "0">
+{
+	1() from A to B;
+	2() from A to C;
+	do Proto1(A, B, C); @<"1">  // TODO: add test
+}
+//*/
 
 
 
@@ -180,7 +212,13 @@ global protocol Proto2(role A, role B) @<y:="4">
 
 
 
-/*
+
+
+
+
+
+
+/*  // Fibs
 //global protocol Proto1(role A, role B) @<x:="0", y:="1"> "x>=0 && y>x"  // Bad (e.g., x=y=1)
 global protocol Proto1(role A, role B) @<x:="0", y:="1"> "x>=0 && y>=x"
 {
@@ -191,7 +229,7 @@ global protocol Proto1(role A, role B) @<x:="0", y:="1"> "x>=0 && y>=x"
 }
 //*/
 
-/*
+/* 
 global protocol Proto1(role A, role B) @<x:="1", y:="2"> "x>=1 && y>x"
 {
 	1(x1: int) from A to B;	 @"x1=x"
@@ -211,7 +249,7 @@ global protocol Proto1(role A, role B) @<x:="0", y:="1", z:="1"> "(x>=0 && y>=x)
 }
 //*/
 
-/*
+//*
 global protocol Proto1(role A, role B) @<x:="0", y:="1"> "x>=0 && y>=x"
 {
 	choice at A
@@ -1029,7 +1067,7 @@ global protocol Proto1(role A, role B, role C)
 //*/
 
 
-/*  Cf. Fib
+/*  Cf. Fib.scr
 global protocol Proto1(role C, role S)  @<x := "0", y := "1"> "y>0 && x>=0"
 		//@"(x := 0, y := 1) y>0 && x>0"  // Bad initial Rass (and later unsat)
 		//@"(x := 0, y := 1) (y>0))"

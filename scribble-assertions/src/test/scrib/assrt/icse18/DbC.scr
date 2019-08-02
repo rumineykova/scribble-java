@@ -20,7 +20,7 @@ global protocol Proto1(role B, role W, role S)
 	{
 		ok()            from B to S;  @"Available>0" 
 		ok()            from B to W; 
-		do Proto2(B, W, S);           @"<Quote>"
+		do Proto2(B, W, S);           @<"Quote">
 	}
 	or
 	{
@@ -29,14 +29,14 @@ global protocol Proto1(role B, role W, role S)
 	}
 }
 
-aux global protocol Proto2(role B, role W, role S)  @"(x:=0)"
+aux global protocol Proto2(role B, role W, role S)  @<x:="0">
 {
 	5(Offer:int) from B to S;	
 	choice at S
 	{
 		hag()      from S to B;       @"Offer>x"
 		hag()      from S to W;
-		do Proto2(B, W, S);           @"<Offer>"
+		do Proto2(B, W, S);           @<"Offer">
 	}
 	or
 	{

@@ -62,10 +62,10 @@ public class AssrtCoreEModelFactoryImpl extends AssrtEModelFactoryImpl
 	
 	@Override
 	public AssrtCoreEMsg AssrtCoreEMsg(Role peer, MsgId<?> mid, Payload pay,
-			AssrtBFormula ass, List<AssrtAFormula> sexprs)
+			AssrtBFormula ass)//, List<AssrtAFormula> sexprs)
 			//Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow)
 	{
-		return new AssrtCoreEMsg(this.mf, peer, mid, pay, ass, sexprs);//, shadow);
+		return new AssrtCoreEMsg(this.mf, peer, mid, pay, ass);//, sexprs);//, shadow);
 	}
 
 	@Override

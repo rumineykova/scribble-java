@@ -19,7 +19,7 @@ public class AssrtCoreERecv extends AssrtERecv implements AssrtCoreEAction
 	// Annot needed -- e.g. mu X(x:=..) . mu Y(y:=..) ... X<123> -- rec var X will be discarded, so edge action needs to record which var is being updated
 	/*public final AssrtDataTypeVar annot;  // Not null (by AssrtCoreGProtocolTranslator)
 	public final AssrtArithFormula expr;*/
-	public final List<AssrtAFormula> stateexprs;
+	public final List<AssrtAFormula> stateexprs;  // N.B. state args ignored for recv fireable and firing (msgs don't carry state args)
 	
 	public AssrtCoreERecv(ModelFactory mf, Role peer, MsgId<?> mid,
 			Payload payload, AssrtBFormula bf, List<AssrtAFormula> stateexprs)
@@ -28,6 +28,13 @@ public class AssrtCoreERecv extends AssrtERecv implements AssrtCoreEAction
 		//this.annot = annot;list)
 	
 		this.stateexprs = Collections.unmodifiableList(stateexprs);
+	}
+	
+	// msg does not carry state args -- recv getFireable and fire follows accordingly
+	public AssrtCoreERecv dropStateArgs()
+	{
+		return ((AssrtCoreEModelFactory) this.mf.local).AssrtCoreERecv(this.peer, this.mid,
+				this.payload, this.ass, Collections.emptyList());
 	}
 	
 	@Override

@@ -35,7 +35,7 @@ public interface AssrtCoreEModelFactory extends AssrtEModelFactory
 			AssrtBFormula ass, List<AssrtAFormula> sexprs);
 	
 	AssrtCoreEMsg AssrtCoreEMsg(Role peer, MsgId<?> mid, Payload pay,
-			AssrtBFormula ass, List<AssrtAFormula> sexprs);
+			AssrtBFormula ass);// List<AssrtAFormula> sexprs);
 			//Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow);
 
 	AssrtStpEState AssertStpEState(Set<RecVar> labs);

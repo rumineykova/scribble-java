@@ -33,7 +33,7 @@ global protocol Test005(role A, role B)
 	1(x: int) from A to B;  @"x > 0"  // Testing whitespace
 }
 
-/*
+/* // Bad
 global protocol Test006(role A, role B)
 {
 	1() from A to B;  @"x > 0"  // Testing unknown var error
@@ -45,14 +45,14 @@ global protocol Test007(role A, role B)
 	1(x: int) from A to B;  @"x > 0"
 }
 
-/*
+/* // Bad
 global protocol Test008(role A, role B)
 {
 	1() from A to B;  @"False"  // Testing assrt-prog
 }
 //*/
 
-/*
+/* // Bad
 global protocol Test009(role A, role B)
 {
 	choice at A
@@ -113,7 +113,7 @@ aux global protocol Test015Aux(role A, role B)  @<x := "1">
 }
 
 
-/*
+/* // Bad
 global protocol Test016(role A, role B)
 {
 	do Test016Aux(A, B);  // TODO FIXME? conversely, OK to not supply sexprs?  (o/w rec statevar decl exprs only for root?)
@@ -264,3 +264,42 @@ global protocol Test034(role A, role B, role C)
 	3(z: int) from C to A;  @"z=y && z>=0"
 }
 
+
+
+
+
+
+
+
+/* // Bad
+global protocol Test035(role A, role B) @<x:="3">
+{
+	1() from A to B; @"(x>2)"  // Testing, V update also needs to GC F -- TODO add test
+	do Test035(A, B); @<"2">
+}
+
+
+// Bad
+global protocol Test036(role A, role B) @<x:="3">
+{
+	1() from A to B; @"(x>2)"  // Testing ass in F, independent of pay 
+	do Test036Aux(A, B); @<"x">
+}
+
+// Not aux
+global protocol Test036Aux(role A, role B) @<y:="4">
+{
+	1() from A to B; @"(y>2)"
+	//do Test036(A, B); @<"y">
+	do Test036Aux(A, B); @<"y">
+}
+//*/
+
+
+// Testing (removal of) state args from messages, cf. duality between A and B (w.r.t. <1>)
+global protocol Proto37(role A, role B, role C) @<x := "0">
+{
+	1() from A to B;
+	2() from A to C;
+	do Proto37(A, B, C); @<"1">  // TODO: add test
+}

@@ -1,23 +1,21 @@
 package org.scribble.ext.assrt.core.model.global;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import org.scribble.core.model.ModelFactory;
 import org.scribble.core.type.name.MsgId;
 import org.scribble.core.type.name.Role;
 import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.model.endpoint.action.AssrtCoreESend;
-import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 
 // N.B. EMsg, but in global package because purpose is in SModel building (cf. SSingleBuffers, global view of local queues)
 // Enqueued message
-public class AssrtCoreEMsg extends AssrtCoreESend
+public class AssrtCoreEMsg extends AssrtCoreESend  
+		// CHECKME: this doesn't carry stateexprs, refactor? (change super)
+		// Otherwise duality mismatch re. startexprs, e.g., A->B.A->C.X<123> w.r.t. A/B (cf. DbC)
 {
-	public final Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow;  // N.B. not in equals/hash
+	//public final Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow;  // N.B. not in equals/hash
 	
 	/*public AssrtCoreEMsg(EModelFactory ef, AssrtCoreESend es)
 	{
@@ -25,24 +23,24 @@ public class AssrtCoreEMsg extends AssrtCoreESend
 	}*/
 
 	public AssrtCoreEMsg(ModelFactory mf, Role peer, MsgId<?> mid,
-			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs)
+			Payload pay, AssrtBFormula ass)//, List<AssrtAFormula> sexprs)
 	{
-		this(mf, peer, mid, pay, ass, sexprs, Collections.emptyMap());
+		//this(mf, peer, mid, pay, ass, sexprs, Collections.emptyMap());
+		super(mf, peer, mid, pay, ass, Collections.emptyList());  // TODO: empty state exprs, refactor
 	}
 
-	public AssrtCoreEMsg(ModelFactory mf, Role peer, MsgId<?> mid, Payload pay,
+	/*public AssrtCoreEMsg(ModelFactory mf, Role peer, MsgId<?> mid, Payload pay,
 			AssrtBFormula ass, List<AssrtAFormula> sexprs,
 			Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow)
 	{
 		super(mf, peer, mid, pay, ass, sexprs);
 		this.shadow = Collections.unmodifiableMap(shadow);
-	}
+	}*/
 
 	@Override
 	public String toString()
 	{
-		return super.toString()
-				+ (this.shadow.isEmpty() ? "" : this.shadow.toString());
+		return this.obj + getCommSymbol() + this.mid + this.payload + assertionToString();  // Bypass stateExprsToString(); 
 	} 
 
 	@Override

@@ -41,11 +41,9 @@ import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
 import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.core.type.formula.AssrtUnintPredicateFormula;
 import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
 import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.model.endpoint.AssrtEState;
-import org.scribble.ext.assrt.util.Z3Wrapper;
 import org.sosy_lab.java_smt.api.Formula;
 
 			
@@ -91,171 +89,6 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		//this.rename = Collections.unmodifiableMap(rename);
 		//this.scopes = Collections.unmodifiableMap(scopes);
 	}
-
-	/*// CHECKME: List<AssrtCoreEAction> -- after also doing assert-core request/accept
-	@Override
-	public Map<Role, Set<EAction>> getFireable()
-	{
-		Map<Role, Set<EAction>> res = new HashMap<>();
-		for (Entry<Role, EFsm> e : this.P.entrySet())
-		{
-			Role self = e.getKey();
-			EState s = e.getValue().curr;
-			res.put(self, new LinkedHashSet<>());
-			for (EAction a : s.getDetActions())
-			{
-				if (a.isSend())
-				{
-					AssrtCoreESend es = (AssrtCoreESend) a;
-					getSendFireable(res, self, es);
-				}
-				else if (a.isReceive())
-				{
-					AssrtCoreERecv er = (AssrtCoreERecv) a;
-					getReceiveFireable(res, self, er);
-				}
-				else if (a.isRequest())
-				{
-					AssrtCoreEReq ec = (AssrtCoreEReq) a;  // FIXME: core
-					getRequestFireable(res, self, ec);
-				}
-				else if (a.isAccept())
-				{
-					AssrtCoreEAcc ea = (AssrtCoreEAcc) a;  // FIXME: core
-					getAcceptFireable(res, self, ea);
-				}
-				else if (a.isDisconnect())
-				{
-					EDisconnect ld = (EDisconnect) a;
-					getDisconnectFireable(res, self, ld);
-				}
-				else
-				{
-					throw new RuntimeException("[assrt-core] [TODO]: " + a);
-				}
-			}
-		}
-		return res;
-	}*/
-
-	/*@Override
-	protected Set<EAction> getOutputFireable(Role self, EFsm fsm)
-	//private void getSendFireable(Map<Role, List<EAction>> res, Role self, AssrtCoreESend es)
-	{
-		if (hasPendingRequest(self) || !isInputQueueEstablished(self, es.peer)
-				|| hasMsg(es.peer, self))
-		{
-			return;
-		}
-
-		// Check assertion?
-		//boolean ok = JavaSmtWrapper.getInstance().isSat(es.assertion.getFormula(), context);
-	
-		//...can only send if true? (by API gen assertion failure means definitely not sending it) -- unsat as bad terminal state (safety error)?  no: won't catch all assert errors (branches)
-		// check assertion satisfiable?  i.e., satisfiability part of operational semantics for model construction? or just record constraints and check later?
-		// -- current assertions *imply* additional ones?
-				
-		// Or: assertion error as special queue token? for error preservation -- Cf. "decoupled" request/accept
-		
-		boolean ok = true;
-//		for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
-//				es.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>)::iterator)
-		for (PayElemType<?> pt : es.payload.elems)  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
-		{
-			if (pt instanceof AssrtAnnotDataName)
-			{
-				// OK -- currently not checking K-bound assertion vars (cf. isUnknownVarError) -- nor satisfiability (send ass implies receive ss)
-				// FIXME: currently fire requires send and receive assertions (and both hacked to True) to be syntactically equal, which is wrong
-			}
-			else
-			{
-				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + pt);  // "Encode" pay elem vars by fresh annot data elems for now
-			}
-		}
-		if (ok)
-		{	
-			res.get(self).add(es);
-		}
-	}*/
-
-	/*@Override
-	protected Set<ERecv> getRecvFireable(Role self, EFsm fsm)
-	//private void getReceiveFireable(Map<Role, List<EAction>> res, Role self, ERecv er)
-	{
-		if (hasPendingRequest(self) || !hasMsg(self, er.peer))
-		{
-			return;
-		}
-
-		AssrtCoreESend m = this.Q.get(self).get(er.peer);
-		//if (er.toDual(self).equals(m))  //&& !(m instanceof F17EBot)
-		if (((AssrtCoreESend) er.toDual(self)).toTrueAssertion()
-				.equals(m.toTrueAssertion()))
-				// HACK FIXME: check assertion implication (not just syntactic equals) -- cf. AssrtSConfig::fire
-		{
-			res.get(self).add(er);
-		}
-	}*/
-
-	/*private void getRequestFireable(Map<Role, List<EAction>> res, Role self,
-			AssrtCoreEReq es)
-	{
-		if (hasPendingRequest(self) ||
-				   // not ( Q(r, r') = Q(r', r) = \bot ) -- i.e., either of them are not \bot
-				   isInputQueueEstablished(self, es.peer) || isInputQueueEstablished(es.peer, self)
-				|| isPendingRequest(es.peer, self))  // self input queue from es.peer is <a>
-						// isPendingConnection(self, es.peer) subsumed by hasPendingConnect(self)
-		{
-			return;
-		}
-		
-		// FIXME: factor out with send?
-		boolean ok = true;
-		for (PayElemType<?> pt : es.payload.elems)  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
-		{
-			if (pt instanceof AssrtAnnotDataName)
-			{
-				// OK -- currently not checking K-bound assertion vars (cf. isUnknownVarError) -- nor satisfiability (send ass implies receive ss)
-				// FIXME: currently fire requires send and receive assertions (and both hacked to True) to be syntactically equal, which is wrong
-			}
-			else
-			{
-				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + pt);  // "Encode" pay elem vars by fresh annot data elems for now
-			}
-		}
-		if (ok)
-		{	
-			res.get(self).add(es);
-		}
-	}*/
-
-	/*// Based on getReceiveFireable
-	@Override
-	protected Set<EAcc> getAccFireable(Role self, EFsm fsm)
-	//private void getAcceptFireable(Map<Role, List<EAction>> res, Role self, AssrtCoreEAcc ea)
-	{
-		if (hasPendingRequest(self) || !isPendingRequest(ea.peer, self))
-		{
-			return;
-		}
-
-		AssrtCoreEReq ec = ((AssrtCoreEPendingRequest) this.Q.get(self).get(ea.peer)).getMsg();
-		//if (ea.toDual(self).equals(ec))
-		if (((AssrtCoreEReq) ea.toDual(self)).toTrueAssertion().equals(ec.toTrueAssertion()))  
-				// HACK FIXME: check assertion implication (not just syntactic equals) -- cf. getReceiveFireable
-		{
-			res.get(self).add(ea);
-		}
-	}*/
-
-	/*private void getDisconnectFireable(Map<Role, List<EAction>> res, Role self, EDisconnect ld)
-	{
-		if (!(this.Q.get(self).get(ld.peer) instanceof F17EBot)  // FIXME: isConnected
-				&& this.Q.get(self).get(ld.peer) == null)
-		{
-			res.get(self).add(ld);
-		}
-	}*/
 
 	@Override
 	protected Set<EServerWrap> getSWrapFireable(Role self, EFsm fsm)
@@ -362,7 +195,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				rename.get(self)));  // Now doing toTrueAssertion on message at receive side*/
 
 		AssrtCoreEMsg msg = ((AssrtCoreEModelFactory) this.mf.local).AssrtCoreEMsg(
-				a.peer, a.mid, a.payload, a.ass, a.sexprs);//, rename.get(self));
+				a.peer, a.mid, a.payload, a.ass);//, a.sexprs);//, rename.get(self));
 		SSingleBuffers Q = this.Q.send(self, msg);
 
 		updateOutput(self, a, succ, K, F, V, R); //rename, scopes);
@@ -561,7 +394,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		AssrtCoreEMsg msg = (AssrtCoreEMsg) this.Q.getQueue(self).get(a.peer);  // null is \epsilon
 		SSingleBuffers Q = this.Q.receive(self, a);
 
-		updateInput(self, a, msg, msg.shadow, succ, K, F, V, R//, rename, scopes
+		updateInput(self, a, msg, //msg.shadow, 
+				succ, K, F, V, R//, rename, scopes
 				);
 		//updateR(R, self, es);
 
@@ -573,7 +407,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	// "a" is the EFSM input action, which has (hacked) True ass; msg is the dequeued msg, which carries the (actual) ass from the output side
 	// CHECKME: factor better with updateOutput ?
 	private void updateInput(Role self, AssrtCoreEAction a,
-			AssrtCoreEMsg msg, Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow,
+			AssrtCoreEMsg msg, //Map<AssrtIntVarFormula, AssrtIntVarFormula> shadow,
 			EFsm succ,
 			Map<Role, Set<AssrtIntVar>> K, Map<Role, Set<AssrtBFormula>> F,
 			Map<Role, Map<AssrtIntVar, AssrtAFormula>> V,
@@ -690,6 +524,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		return this.Q.keySet().stream().anyMatch(acc -> isPendingRequest(req, acc));
 	}*/
 	
+
 	// Need to consider hasPendingRequest? -- no: the semantics blocks both sides until connected, so don't need to validate those "intermediate" states
 	//public boolean isReceptionError()
 	@Override
@@ -708,8 +543,10 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				{
 					AssrtCoreERecv dual = msg//.toTrueAssertion()
 							.toDual(peer);  // N.B. toTrueAssertion
-					if (!s.curr.hasAction(dual))  // CHECKME: ...map(a -> ((AssrtCoreESend) a.toDual(dst)).toTrueAssertion()) ?
+					//if (!s.curr.hasAction(dual))  // CHECKME: ...map(a -> ((AssrtCoreESend) a.toDual(dst)).toTrueAssertion()) ?
 								// FIXME: check assertion implication (not just syntactic equals) -- cf. AssrtSConfig::fire
+					if (s.curr.getActions().stream()
+							.noneMatch(x -> ((AssrtCoreERecv) x).dropStateArgs().equals(dual)))
 					{
 						res.put(self, msg.toDual(peer));  // "Original" message
 					}
@@ -1213,7 +1050,10 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				return b;
 			};
 			EStateKind kind = curr.getStateKind();
-			if (kind == EStateKind.OUTPUT)
+			if (kind == EStateKind.OUTPUT || 
+					kind == EStateKind.UNARY_RECEIVE
+					|| kind == EStateKind.POLY_RECIEVE
+					)
 			{
 				Set<AssrtCoreEAction> tmp = curr.getActions().stream()
 						.filter(x -> !isSat.test(x)).map(x -> (AssrtCoreEAction) x)
@@ -1223,7 +1063,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 					res.put(self, tmp);
 				}
 			}
-			else if (kind == EStateKind.UNARY_RECEIVE
+			/*else if (kind == EStateKind.UNARY_RECEIVE
 					|| kind == EStateKind.POLY_RECIEVE)
 			{
 				Role peer = curr.getActions().iterator().next().peer;
@@ -1234,12 +1074,15 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				}
 				AssrtCoreEMsg m = (AssrtCoreEMsg) this.Q.getQueue(self).get(peer);
 				EAction a = m.toDual(peer);  // Stuck messages already checked -- CHECKME: currently includes check between msg-assertion and action-assertion?
+				
+				System.out.println("1111: " + m + " ,, " + m.toDual(peer));
+				
 				if (!isSat.test(a))
 				{
 					res.put(self,
 							Stream.of((AssrtCoreEAction) a).collect(Collectors.toSet()));
 				}
-			}
+			}*/
 			else if (kind != EStateKind.TERMINAL)
 			{
 				throw new RuntimeException(
@@ -1411,6 +1254,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 	}
 	
+	
+	/* toString, hashCode, equals */
+	
 	@Override
 	public String toString()
 	{
@@ -1460,6 +1306,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		return o instanceof AssrtCoreSConfig;
 	}
 	
+	
 	// isActive(SState, Role) becomes isActive(EState)
 	public static boolean isActive(EState s, int init)
 	{
@@ -1473,6 +1320,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				// s.isTerminal means non-empty actions (i.e., edges) -- i.e., non-end (cf., fireable)
 	}
 	
+
+	
+	/* P/Q/K/F/V/R helpers */
 
 	// CHECKME: factor out into separate classes?  c.f., SingleBuffers for Q
 
@@ -1529,7 +1379,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
 	}
 
-	private static Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> copyRename(
+	/*private static Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> copyRename(
 			Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename)
 	{
 		return rename.entrySet().stream().collect(
@@ -1541,8 +1391,10 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	{
 		return scopes.entrySet().stream().collect(Collectors.toMap(Entry::getKey,
 				x -> new LinkedHashMap<>(x.getValue())));
-	}
+	}*/
 
+	
+	/* Formula building helpers */
 
 	private static AssrtIntVarFormula makeFreshIntVar(AssrtIntVar var)
 	{
@@ -1566,6 +1418,12 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		}
 		return bform;
 	}
+
+
+
+
+
+}
 
 
 
@@ -1683,6 +1541,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	}
 	//*/
 
+	/*
 	// Mutating 'F' and 'rename'
 	// Rename existing vars that have the same name as 'v' -- renaming is basically an implementation of exist-quant (final sat checks implicitly quant over free names)
 	// E.g., rec X . A->B: 1(x:int) . X -- loop renames existing x to some fresh name
@@ -1837,7 +1696,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		{
 			AssrtAFormula aexpr = iaexprs.next();
 
-			/*// CHECKME
+			/* // CHECKME
 			if (expr.getIntVars().contains(svar))  // CHECKME: what is the example?
 			{
 				// CHECKME: renaming like this OK? -- basically all V vars are being left open for top-level forall
@@ -1846,7 +1705,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 						//makeFreshIntVar(annot)  // Makes model construction non-terminating, e.g., mu X(x:=..) ... X<x> -- makes unbounded fresh in x = fresh(x)
 						AssrtFormulaFactory.AssrtIntVar("_" + svar.toString())  // CHECKME: is this OK?
 				);	
-			}*/
+			}* /
 
 			// Update V from action -- recursion back to a rec, via a continue
 			AssrtAFormula curr = Vself.get(svar);
@@ -1878,7 +1737,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 						.AssrtIntVar("__" + v.toString());
 				aform = aform.subs(AssrtFormulaFactory.AssrtIntVar(v.toString()),
 						fresh);
-			}*/
+			}* /
 		}
 
 		// Must come after initial F update (addAnnotBexprToF)
@@ -1890,7 +1749,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		AssrtIntVarFormula fresh = makeFreshIntVar(svar);
 		Set<AssrtBFormula> H = F.get(self);
 		H = H.stream().map(x -> x.subs(old, fresh)).collect(Collectors.toSet());
-		F.put(self, H);*/
+		F.put(self, H);
+		* /
 	}
 
 	private static void appendToF(AssrtBFormula bform, Set<AssrtBFormula> Fself)
@@ -1902,13 +1762,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	{
 		Rself.add(bform);
 	}
+*/
 
-
-
-
-
-
-}
 
 
 
@@ -1948,6 +1803,170 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
 
 
+	/*// CHECKME: List<AssrtCoreEAction> -- after also doing assert-core request/accept
+	@Override
+	public Map<Role, Set<EAction>> getFireable()
+	{
+		Map<Role, Set<EAction>> res = new HashMap<>();
+		for (Entry<Role, EFsm> e : this.P.entrySet())
+		{
+			Role self = e.getKey();
+			EState s = e.getValue().curr;
+			res.put(self, new LinkedHashSet<>());
+			for (EAction a : s.getDetActions())
+			{
+				if (a.isSend())
+				{
+					AssrtCoreESend es = (AssrtCoreESend) a;
+					getSendFireable(res, self, es);
+				}
+				else if (a.isReceive())
+				{
+					AssrtCoreERecv er = (AssrtCoreERecv) a;
+					getReceiveFireable(res, self, er);
+				}
+				else if (a.isRequest())
+				{
+					AssrtCoreEReq ec = (AssrtCoreEReq) a;  // FIXME: core
+					getRequestFireable(res, self, ec);
+				}
+				else if (a.isAccept())
+				{
+					AssrtCoreEAcc ea = (AssrtCoreEAcc) a;  // FIXME: core
+					getAcceptFireable(res, self, ea);
+				}
+				else if (a.isDisconnect())
+				{
+					EDisconnect ld = (EDisconnect) a;
+					getDisconnectFireable(res, self, ld);
+				}
+				else
+				{
+					throw new RuntimeException("[assrt-core] [TODO]: " + a);
+				}
+			}
+		}
+		return res;
+	}*/
+
+	/*@Override
+	protected Set<EAction> getOutputFireable(Role self, EFsm fsm)
+	//private void getSendFireable(Map<Role, List<EAction>> res, Role self, AssrtCoreESend es)
+	{
+		if (hasPendingRequest(self) || !isInputQueueEstablished(self, es.peer)
+				|| hasMsg(es.peer, self))
+		{
+			return;
+		}
+
+		// Check assertion?
+		//boolean ok = JavaSmtWrapper.getInstance().isSat(es.assertion.getFormula(), context);
+	
+		//...can only send if true? (by API gen assertion failure means definitely not sending it) -- unsat as bad terminal state (safety error)?  no: won't catch all assert errors (branches)
+		// check assertion satisfiable?  i.e., satisfiability part of operational semantics for model construction? or just record constraints and check later?
+		// -- current assertions *imply* additional ones?
+				
+		// Or: assertion error as special queue token? for error preservation -- Cf. "decoupled" request/accept
+		
+		boolean ok = true;
+//		for (PayloadElemType<?> pt : (Iterable<PayloadElemType<?>>) 
+//				es.payload.elems.stream().filter(x -> x instanceof AssrtPayloadElemType<?>)::iterator)
+		for (PayElemType<?> pt : es.payload.elems)  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
+		{
+			if (pt instanceof AssrtAnnotDataName)
+			{
+				// OK -- currently not checking K-bound assertion vars (cf. isUnknownVarError) -- nor satisfiability (send ass implies receive ss)
+				// FIXME: currently fire requires send and receive assertions (and both hacked to True) to be syntactically equal, which is wrong
+			}
+			else
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + pt);  // "Encode" pay elem vars by fresh annot data elems for now
+			}
+		}
+		if (ok)
+		{	
+			res.get(self).add(es);
+		}
+	}*/
+
+	/*@Override
+	protected Set<ERecv> getRecvFireable(Role self, EFsm fsm)
+	//private void getReceiveFireable(Map<Role, List<EAction>> res, Role self, ERecv er)
+	{
+		if (hasPendingRequest(self) || !hasMsg(self, er.peer))
+		{
+			return;
+		}
+
+		AssrtCoreESend m = this.Q.get(self).get(er.peer);
+		//if (er.toDual(self).equals(m))  //&& !(m instanceof F17EBot)
+		if (((AssrtCoreESend) er.toDual(self)).toTrueAssertion()
+				.equals(m.toTrueAssertion()))
+				// HACK FIXME: check assertion implication (not just syntactic equals) -- cf. AssrtSConfig::fire
+		{
+			res.get(self).add(er);
+		}
+	}*/
+
+	/*private void getRequestFireable(Map<Role, List<EAction>> res, Role self,
+			AssrtCoreEReq es)
+	{
+		if (hasPendingRequest(self) ||
+				   // not ( Q(r, r') = Q(r', r) = \bot ) -- i.e., either of them are not \bot
+				   isInputQueueEstablished(self, es.peer) || isInputQueueEstablished(es.peer, self)
+				|| isPendingRequest(es.peer, self))  // self input queue from es.peer is <a>
+						// isPendingConnection(self, es.peer) subsumed by hasPendingConnect(self)
+		{
+			return;
+		}
+		
+		// FIXME: factor out with send?
+		boolean ok = true;
+		for (PayElemType<?> pt : es.payload.elems)  // assrt-core is hardcoded to one payload elem (empty source payload is filled in)
+		{
+			if (pt instanceof AssrtAnnotDataName)
+			{
+				// OK -- currently not checking K-bound assertion vars (cf. isUnknownVarError) -- nor satisfiability (send ass implies receive ss)
+				// FIXME: currently fire requires send and receive assertions (and both hacked to True) to be syntactically equal, which is wrong
+			}
+			else
+			{
+				throw new RuntimeException("[assrt-core] Shouldn't get in here: " + pt);  // "Encode" pay elem vars by fresh annot data elems for now
+			}
+		}
+		if (ok)
+		{	
+			res.get(self).add(es);
+		}
+	}*/
+
+	/*// Based on getReceiveFireable
+	@Override
+	protected Set<EAcc> getAccFireable(Role self, EFsm fsm)
+	//private void getAcceptFireable(Map<Role, List<EAction>> res, Role self, AssrtCoreEAcc ea)
+	{
+		if (hasPendingRequest(self) || !isPendingRequest(ea.peer, self))
+		{
+			return;
+		}
+
+		AssrtCoreEReq ec = ((AssrtCoreEPendingRequest) this.Q.get(self).get(ea.peer)).getMsg();
+		//if (ea.toDual(self).equals(ec))
+		if (((AssrtCoreEReq) ea.toDual(self)).toTrueAssertion().equals(ec.toTrueAssertion()))  
+				// HACK FIXME: check assertion implication (not just syntactic equals) -- cf. getReceiveFireable
+		{
+			res.get(self).add(ea);
+		}
+	}*/
+
+	/*private void getDisconnectFireable(Map<Role, List<EAction>> res, Role self, EDisconnect ld)
+	{
+		if (!(this.Q.get(self).get(ld.peer) instanceof F17EBot)  // FIXME: isConnected
+				&& this.Q.get(self).get(ld.peer) == null)
+		{
+			res.get(self).add(ld);
+		}
+	}*/
 
 
 /*// \bot
