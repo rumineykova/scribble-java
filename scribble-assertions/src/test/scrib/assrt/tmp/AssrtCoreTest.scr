@@ -147,10 +147,10 @@ type <dotnet> "System.UInt32" from "..." as int;
 
 
 // TODO HERE
-// - transitive V/R GC, also F
 // - batch mode
 // - fix expression parsing, e.g., parentheses
-// - rec syntax
+// - rec syntax -- can then do all tests 
+// - transitive V/R GC, also F -- still needed?
 //
 // done
 // - do rec assert check using FSM edges, not message -- difference is statevars
