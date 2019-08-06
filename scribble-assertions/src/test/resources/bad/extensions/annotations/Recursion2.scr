@@ -6,7 +6,7 @@ type <java> "java.lang.integer" from "rt.jar" as int;
 // assrt-core version of bad.extensions.annotations.Recursion
 global protocol Proto1(role A, role B, role C)
 {
-rec Loop {
+//rec Loop {
 	choice at A {
 		ADD(x:int) from A to B;  
 		ADD(z:int) from B to C;
@@ -14,7 +14,8 @@ rec Loop {
 	} or {
 		RES(y:int) from A to B;
 		RES(z1:int) from B to C; 
-		continue Loop;
+		//continue Loop;
+		do Proto1(A, B, C);
 		}
-	}
+	//}
 }

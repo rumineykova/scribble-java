@@ -1,0 +1,18 @@
+module bad.extensions.assertions.SolverTimeout;
+
+type <java> "java.lang.int" from "rt.jar" as int;
+
+
+// Used to timeout the JavaSMT API, but now fine
+// Check the message flow
+global protocol Prot1(role A, role B, role C, role D)
+{
+	//[x<0]
+	MSG1(x:int, y:int) from A to B;  @"x<0"
+	
+	//MSG1(x, y) from B to C;
+	MSG1(x1:int, y1:int) from B to C; @"x1=x && y1=y"
+	
+	//[z<x]
+	MSG1(z:int) from C to D;  @"z<x1"
+}

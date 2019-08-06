@@ -13,6 +13,8 @@
  */
 package org.scribble.ext.assrt.core.job;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -35,11 +37,13 @@ import org.scribble.core.type.session.STypeFactory;
 import org.scribble.core.visit.STypeVisitorFactory;
 import org.scribble.core.visit.STypeVisitorFactoryImpl;
 import org.scribble.core.visit.global.GTypeVisitorFactoryImpl;
+import org.scribble.ext.assrt.core.lang.global.AssrtCoreGProtocol;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactoryImpl;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSGraph;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactory;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactoryImpl;
 import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 import org.scribble.ext.assrt.core.visit.local.AssrtCoreLTypeVisitorFactoryImpl;
 import org.scribble.ext.assrt.job.AssrtJob.Solver;
 import org.scribble.ext.assrt.util.Z3Wrapper;
@@ -93,7 +97,7 @@ public class AssrtCore extends Core
 	public void runPasses() throws ScribException
 	{
 		runSyntaxTransformPasses();
-		//runGlobalSyntaxWfPasses();
+		runGlobalSyntaxWfPasses();
 		runProjectionPasses();  // CHECKME: can try before validation (i.e., including syntactic WF), to promote greater tool feedback? (cf. CommandLine output "barrier")
 		//runProjectionSyntaxWfPasses();
 		runEfsmBuildingPasses();  // Currently, unfair-transform graph building must come after syntactic WF --- TODO fix graph building to prevent crash ?
@@ -113,6 +117,34 @@ public class AssrtCore extends Core
 		}
 				
 		// Skipping unfolding -- unnecessary with proper guarding
+	}
+
+	@Override
+	protected void runGlobalSyntaxWfPasses() throws ScribException
+	{
+		// super.runGlobalSyntaxWfPasses();
+		// ^TODO FIXME: base API currently not compatible
+		// E.g., `this.context.getInlined(fullname).def` is null
+		
+		// CHECKME: is below necessary? -- goes against unfolding, duplicates should be allowed in such contexts?
+		verbosePrintPass(
+				"Checking for distinct annot vars in each inlined global...");
+		for (ProtoName<Global> fullname : this.context.getParsedFullnames())
+		{
+			/*List<AssrtIntVar> vs = ((AssrtCoreGProtocol)
+				this.context.getInlined(fullname)).type
+					.assrtCoreGather(  // TODO: factor out with base gatherer
+							new AssrtCoreIntVarGatherer<Global, AssrtCoreGType>()::visit)
+					.collect(Collectors.toList());*/
+			List<AssrtIntVar> vs = ((AssrtCoreGProtocol) this.context
+					.getInlined(fullname)).type.collectAnnotDataVarDecls().stream()
+							.map(x -> x.var).collect(Collectors.toList());
+			Set<AssrtIntVar> distinct = new HashSet<>(vs);
+			if (vs.size() != distinct.size())
+			{
+				throw new ScribException("Duplicate annot var name(s): " + vs);
+			}
+		}
 	}
 	
 	@Override
@@ -136,6 +168,7 @@ public class AssrtCore extends Core
 		// Skipping imed projection
 	}
 
+	// Overriding only for a single line, the `validate` call
 	@Override
 	protected void validateByScribble(ProtoName<Global> fullname, boolean fair)
 			throws ScribException

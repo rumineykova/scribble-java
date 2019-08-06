@@ -6,7 +6,7 @@ type <java> "java.lang.integer" from "rt.jar" as int;
 // assert-core version of bad.extensions.annotations.ChoiceOutOfScopeVar
 global protocol Proto1(role A, role B, role C)
 {
-rec Loop {
+//rec Loop {
 	choice at A {
 		ADD(x:int) from A to B;  
 		ADD(z:int) from B to C;
@@ -15,7 +15,8 @@ rec Loop {
 		RES(y:int) from A to B;
 		RES(z1:int) from B to C; 
 		//RES(z3:int) from A to C;  @"(z3 = z2)"
-		continue Loop;
+		//continue Loop;
+		do Proto1(A, B, C);
 		}
-	}
+	//}
 }

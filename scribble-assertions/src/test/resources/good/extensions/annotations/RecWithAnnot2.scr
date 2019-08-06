@@ -4,7 +4,7 @@ module good.extensions.annotations.RecWithAnnot2;
 type <java> "java.lang.integer" from "rt.jar" as int;
 
 // assrt-core version of good.extensions.annotations.RecWithAnnot2
-global protocol Proto1(role C, role S)
+/*global protocol Proto1(role C, role S)
 {
 	rec Loop
 	{
@@ -12,11 +12,16 @@ global protocol Proto1(role C, role S)
 		continue Loop; 
 		//ADD(y:int) from C to S;
 	} 
+}*/
+global protocol ProtSimple(role C, role S)
+{
+	ADD(x:int) from C to S;
+	do ProtSimple(C, S); 
 }
 
 // FIXME: make separate test
 // Recursion with Annotations (complicated)
-global protocol Proto2(role A, role B, role C)  // FIXME: check model -- unexpected sat checking output
+/*global protocol Proto2(role A, role B, role C)  // FIXME: check model -- unexpected sat checking output
 {
 	rec Loop
 	{
@@ -32,5 +37,20 @@ global protocol Proto2(role A, role B, role C)  // FIXME: check model -- unexpec
 			RES(z2:int) from B to C; 
 			continue Loop;
 		}
+	}
+}*/
+global protocol Proto2(role A, role B, role C)  // FIXME: check model -- unexpected sat checking output
+{
+	choice at A
+	{
+		ADD(x:int) from A to B;  
+		ADD(z:int) from B to C;
+		RES(z1:int) from B to C; @"(z1 = z)"  // Weird, but based on original RecWithAnnot
+	}
+	or
+	{
+		RES(y:int) from A to B;
+		RES(z2:int) from B to C; 
+		do Proto2(A, B, C);
 	}
 }

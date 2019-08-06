@@ -52,7 +52,7 @@ import org.scribble.util.ScribException;
 public class AssrtCoreGProtocol extends GProtocol
 		implements AssrtCoreProtocol<Global, GProtoName, NoSeq<Global>>  // FIXME HACK: Grotocol has GSeq, but here NoSeq
 {
-	public final AssrtCoreGType type;  // N.B. super.def Seq set to null
+	public final AssrtCoreGType type;  // N.B. super.def Seq set to null -- here, body is a "type", not a "seq"
 	
 	// Cf. AssrtCoreRec
 	public final LinkedHashMap<AssrtIntVar, AssrtAFormula> statevars;

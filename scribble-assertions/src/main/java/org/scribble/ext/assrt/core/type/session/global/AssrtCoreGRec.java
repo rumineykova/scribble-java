@@ -52,7 +52,7 @@ public class AssrtCoreGRec extends AssrtCoreRec<Global, AssrtCoreGType>
 	public AssrtCoreGType pruneRecs(AssrtCore core)
 	{
 		Set<RecVar> rvs = this.body
-				.assrtCoreGather(
+				.assrtCoreGather(  // TODO: factor out with base gatherer
 						new AssrtCoreRecVarGatherer<Global, AssrtCoreGType>()::visit)
 				.collect(Collectors.toSet());
 		return rvs.contains(this.recvar) ? this : this.body;

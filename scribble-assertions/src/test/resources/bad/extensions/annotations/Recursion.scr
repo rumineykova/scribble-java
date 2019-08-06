@@ -6,7 +6,7 @@ type <java> "java.lang.Long" from "rt.jar" as Long;
 
 global protocol Prot(role A, role B, role C)
 {
-rec Loop {
+//rec Loop {
 	choice at A {
 		ADD(x:integer) from A to B;  
 		ADD(z:integer) from B to C;
@@ -14,9 +14,10 @@ rec Loop {
 	} or {
 		RES(y:integer) from A to B;
 		RES(z:integer) from B to C; 
-		continue Loop;
+		//continue Loop;
+		do Prot(A, B, C);
 		}
-	}
+	//}
 	
 	RES(y) from B to C; 
 }

@@ -37,7 +37,7 @@ global protocol HelloAnnot(role C, role S)
 		ADD(w:int) from C to S;  @"w > 0"
 		ADD(v:int) from C to S;  @"v > 0"
 		RES(f:int) from S to C;  @"f > 0"
-		do HelloNoAnnot(C, S);
+		do HelloAnnot(C, S);
 	}
 	or
 	{
