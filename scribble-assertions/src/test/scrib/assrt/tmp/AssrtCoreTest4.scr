@@ -22,16 +22,16 @@ global protocol Fib(role A, role B) @<x:="0", y:="1"> "x>=0 && y>=x"
 //*/
 
 //* 
-global protocol Fibygtx(role A, role B) @<x:="1", y:="2"> "x>=1 && y>x"
+global protocol Fib_ygtx(role A, role B) @<x:="1", y:="2"> "x>=1 && y>x"
 {
 	1(x1: int) from A to B;	 @"x1=x"
 	2(y1: int) from A to B;	 @"y1=y"
 	3(z1: int) from B to A;	 @"z1=x1+y1"
-	do Fibygtx(A, B);         @<"y", "z1">
+	do Fib_ygtx(A, B);        @<"y", "z1">
 }
 //*/
 
-//*
+/*
 global protocol Fibz(role A, role B) @<x:="0", y:="1", z:="1"> "(x>=0 && y>=x) && z=x+y"  // FIXME: parentheses
 {
 	1(x1: int) from A to B;	 @"x1=x"
@@ -41,7 +41,7 @@ global protocol Fibz(role A, role B) @<x:="0", y:="1", z:="1"> "(x>=0 && y>=x) &
 }
 //*/
 
-//*
+/*
 global protocol Fibchoice(role A, role B) @<x:="0", y:="1"> "x>=0 && y>=x"
 {
 	choice at A

@@ -8,17 +8,13 @@ import org.scribble.ext.assrt.job.AssrtJob.Solver;
 
 public class AssrtCoreArgs extends CoreArgs
 {
-	public final Solver solver;
-	public final boolean z3Batching;
+	public final Solver SOLVER;
+	public final boolean Z3_BATCH;
 	
-	public AssrtCoreArgs(Set<CoreFlags> flags, Solver solver, boolean z3Batching)  // TODO: refactor extension pattern
+	public AssrtCoreArgs(Set<CoreFlags> flags, Solver solver, boolean z3Batch)  // TODO: refactor extension pattern
 	{
 		super(flags);
-		this.solver = solver;
-		this.z3Batching = z3Batching;
-		if (z3Batching)
-		{
-			throw new RuntimeException("[assrt-core] [TODO] z3 batching : ");
-		}
+		this.SOLVER = solver;
+		this.Z3_BATCH = z3Batch;
 	}
 }

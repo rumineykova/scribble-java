@@ -801,13 +801,14 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		return forallQuantifyFreeVars(core, fullname, impli).squash();  // Finally, fa-quantify all free vars
 	}
 	
-	/* // For batching?
-	public Set<AssrtBFormula> getAssertionProgressChecks(Job job, GProtoName simpname)
+	// For batching?
+	protected Set<AssrtBFormula> getAssertProgressChecks(AssrtCore core,
+			GProtoName fullname)
 	{
 		return this.P.entrySet().stream().map(e ->  // anyMatch is on the endpoints (not actions)
-			getAssertionProgressCheck(job, simpname, e.getKey(), e.getValue())
+		getAssertProgressCheck(core, fullname, e.getKey(), e.getValue().curr)
 		).collect(Collectors.toSet());
-	}*/
+	}
 
 	// i.e., state has an action that is not satisfiable (deadcode)
 	public Map<Role, Set<AssrtCoreEAction>> getAssertUnsatErrors(AssrtCore core,
@@ -818,12 +819,12 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		{
 			Role self = e.getKey();
 			EState curr = e.getValue().curr;
-			if (curr.getStateKind() != EStateKind.OUTPUT)
+			if (curr.getStateKind() != EStateKind.OUTPUT) // CHECKME: ??? (inherited from ext-annot) -- FIXME: factor out with getAssertSatChecks
 			{
 				continue;
 			}
 			List<EAction> as = curr.getActions(); // N.B. getActions includes non-fireable
-			if (as.size() <= 1)  
+			if (as.size() <= 1)  // FIXME: out with getAssertSatChecks -- CHECKME: necessary? e.g., SH seems to break without this?
 					// Only doing on non-unary choices -- for unary, assrt-prog implies assrt-sat
 					// Note: this means "downstream" assrt-unsat errors for unary-choice continuations will not be caught (i.e., false => false for assrt-prog)
 			{
@@ -939,13 +940,21 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		return res.squash();
 	}
 	
-	/*public Set<AssrtBFormula> getSatisfiableChecks(Job job, GProtoName simpname)
+	// For batching
+	public Set<AssrtBFormula> getAssertSatChecks(AssrtCore core,
+			GProtoName fullname)
 	{
-		return this.P.entrySet().stream().flatMap(e ->  // anyMatch is on the endpoints (not actions)
-		e.getValue().getActions().stream().map(a -> getSatisfiableCheck(job,
-				simpname, e.getKey(), (AssrtCoreEAction) a))
+		return this.P.entrySet().stream()
+
+				// FIXME CHECKME to make consistent with getAssertUnsatErrors -- but why?
+				.filter(x -> x.getValue().curr.getStateKind() == EStateKind.OUTPUT
+						&& x.getValue().curr.getActions().size() > 1)
+
+				.flatMap(e ->  // anyMatch is on the endpoints (not actions)
+		e.getValue().curr.getActions().stream().map(a -> getAssertSatCheck(core,
+				fullname, e.getKey(), (AssrtCoreEAction) a))
 		).collect(Collectors.toSet());
-	}*/
+	}
 
   // Otherwise initial assertions not checked, since no incoming action (cf. below)
 	public Map<Role, AssrtEState> getInitRecAssertErrors(AssrtCore core,
@@ -977,7 +986,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	}
 
 	// formula: isNotRecursionAssertionSatisfied (i.e., true = OK)
-	private AssrtBFormula getInitRecAssertCheck(AssrtCore core,
+	protected AssrtBFormula getInitRecAssertCheck(AssrtCore core,
 			GProtoName fullname, Role self, AssrtEState curr)
 	{
 		AssrtBFormula toCheck = curr.getAssertion();
@@ -1004,21 +1013,26 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		return forallQuantifyFreeVars(core, fullname, toCheck).squash();
 	}			
 
-	/*public Set<AssrtBFormula> getRecursionAssertionChecks(Job job, GProtoName simpname, AssrtCoreSConfig init)
+	// For batching
+	public Set<AssrtBFormula> getRecAssertChecks(AssrtCore core,
+			GProtoName fullname, boolean isInit)
 	{
-		if (this.id == init.id)
+		if (isInit)
 		{
 			return this.P.entrySet().stream().map(e ->  // anyMatch is on the endpoints (not actions)
-					getInitRecursionAssertionCheck(job, simpname, e.getKey(), e.getValue())
+			getInitRecAssertCheck(core, fullname, e.getKey(),
+					(AssrtEState) e.getValue().curr)
 			).collect(Collectors.toSet());
 		}
 		else
 		{
 			return this.P.entrySet().stream().flatMap(e ->  // anyMatch is on the endpoints (not actions)
-					e.getValue().getActions().stream().map(a -> getNonInitRecursionAssertionCheck(job, simpname, e.getKey(), e.getValue(), a))
+			e.getValue().curr.getActions().stream()
+					.map(a -> getRecAssertCheck(core, fullname, e.getKey(),
+							(AssrtEState) e.getValue().curr, (AssrtCoreEAction) a))
 			).collect(Collectors.toSet());
 		}
-	}*/
+	}
 
 	// Pre: stuckMessages checked
 	// CHECKME: equivalent of assertion progress for rec-assertions?  unsat not needed for recs? (because for "unary-choice" they coincide?)
@@ -1094,7 +1108,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 
 	// Pre: 'curr/a' is output kind, or 'curr' is input kind and 'a' is toDual of enqueued message
 	// formula: isNotRecursionAssertionSatisfied (i.e., true = OK)
-	private AssrtBFormula getRecAssertCheck(AssrtCore core, GProtoName fullname,
+	protected AssrtBFormula getRecAssertCheck(AssrtCore core, GProtoName fullname,
 			Role self, AssrtEState curr, AssrtCoreEAction a)
 	{
 		//EStateKind kind = curr.getStateKind();

@@ -1,10 +1,18 @@
 package org.scribble.ext.assrt.core.model.global;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.scribble.core.model.global.SModel;
+import org.scribble.core.model.global.SState;
+import org.scribble.core.type.name.GProtoName;
 import org.scribble.ext.assrt.core.job.AssrtCore;
+import org.scribble.ext.assrt.core.job.AssrtCoreArgs;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 
 // 1-bounded LTS
 // Factor out with SGraph/SModel?
@@ -23,7 +31,48 @@ public class AssrtCoreSModel extends SModel
 	@Override
 	protected SortedMap<Integer, AssrtCoreSStateErrors> getSafetyErrors()  // s.id key lighter than full SConfig
 	{
+		boolean foo = false;
 		
+		if (((AssrtCoreArgs) this.core.config.args).Z3_BATCH)
+		{
+			GProtoName fullname = this.graph.proto;
+			Collection<SState> all = this.graph.states.values();
+
+			if (all.stream().allMatch(x -> ((AssrtCoreSConfig) x.config)
+					.getUnknownDataVarErrors(core, fullname).isEmpty()))
+			{
+				// Check for all errors in a single pass -- any errors can be categorised later
+				Set<AssrtBFormula> fs = new HashSet<>();
+				fs.addAll(
+						all.stream()
+								.flatMap(s -> ((AssrtCoreSConfig) s.config)
+										.getAssertProgressChecks(this.core, fullname)
+										.stream())
+								.collect(Collectors.toSet()));
+				fs.addAll(
+						all.stream()
+								.flatMap(s -> ((AssrtCoreSConfig) s.config)
+										.getAssertSatChecks(this.core, fullname).stream())
+								.collect(Collectors.toSet()));
+				fs.addAll(
+						all.stream().flatMap(s -> ((AssrtCoreSConfig) s.config)
+								.getRecAssertChecks(this.core, fullname,
+										s.id == this.graph.init.id)
+								.stream())
+								.collect(Collectors.toSet()));
+				/*String smt2 = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
+							.map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining(""))
+						+ "(check-sat)\n(exit)";
+				if (Z3Wrapper.checkSat(smt2))*/  // FIXME: won't work for unint-funs without using Z3Wrapper.toSmt2
+
+				foo = this.core.checkSat(fullname, fs);
+				if (foo)
+				{
+					return new TreeMap<>();
+				}
+			}
+		}
+
 		SortedMap<Integer, AssrtCoreSStateErrors> res = new TreeMap<>();
 		for (int id : this.graph.states.keySet())
 		{
@@ -36,6 +85,12 @@ public class AssrtCoreSModel extends SModel
 				res.put(id, errs);
 			}
 		}
+
+		if (res.isEmpty() && !foo)
+		{
+			throw new RuntimeException("FIXME: ");
+		}
+
 		return res;
 	}
 }

@@ -155,26 +155,26 @@ type <dotnet> "System.UInt32" from "..." as int;
 //
 // done
 // - do rec assert check using FSM edges, not message -- difference is statevars
-//
 
 
-
-global protocol HelloAnnot(role C, role S)
+//*
+global protocol Fib_ygtx(role A, role B) @<x:="1", y:="2"> "x>=1 && y>x"
 {
-	HELLO(u:int) from C to S;
-	choice at C
-	{
-		ADD(w:int) from C to S;  @"w > 0"
-		ADD(v:int) from C to S;  @"v > 0"
-		RES(f:int) from S to C;  @"f > 0"
-		do HelloAnnot(C, S);
-	}
-	or
-	{
-		BYE() from C to S;
-		BYE() from S to C;
-	}
+	3(z1: int) from A to B;	 @"z1=x+y"
+	do Fib_ygtx(A, B);       @<"y", "z1">
 }
+//*/
+
+
+
+
+
+
+
+
+
+
+
 
 
 

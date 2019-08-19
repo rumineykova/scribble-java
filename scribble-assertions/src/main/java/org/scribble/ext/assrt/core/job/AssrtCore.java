@@ -211,7 +211,7 @@ public class AssrtCore extends Core
   // Maybe record simpname as field (for core)
 	public boolean checkSat(GProtoName fullname, Set<AssrtBFormula> bforms)
 	{
-		Solver solver = ((AssrtCoreArgs) this.config.args).solver;
+		Solver solver = ((AssrtCoreArgs) this.config.args).SOLVER;
 		switch (solver)
 		{
 			case NATIVE_Z3:

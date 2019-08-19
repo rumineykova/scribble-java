@@ -13,7 +13,7 @@ public class AssrtCoreCLFlags extends CLFlags
 	public static final String ASSRT_CORE_MODEL_PNG_FLAG = "-assrt-modelpng";  // Unique because -assrt proto*/
 
 	public static final String ASSRT_CORE_NATIVE_Z3_FLAG = "-z3";
-	public static final String ASSRT_CORE_BATCHING_FLAG = "-batch";  // TODO: -z3-flag
+	public static final String ASSRT_CORE_BATCH_Z3_FLAG = "-batch";  // TODO: -z3-flag, subsume -z3
 	
 	// Non-unique flags
 	public static final String ASSRT_CORE_PROJECT_FLAG = "-assrt-project";  // TODO FIXME: return inlined projection (currently deprecated)
@@ -38,8 +38,8 @@ public class AssrtCoreCLFlags extends CLFlags
 				1, true, false, false, "Missing file arg: "));*/
 		flags.put(ASSRT_CORE_NATIVE_Z3_FLAG, 
 				new CLFlag(ASSRT_CORE_NATIVE_Z3_FLAG, 0, true, false, false, ""));
-		flags.put(ASSRT_CORE_BATCHING_FLAG, 
-				new CLFlag(ASSRT_CORE_BATCHING_FLAG, 0, true, false, false, ""));
+		flags.put(ASSRT_CORE_BATCH_Z3_FLAG, 
+				new CLFlag(ASSRT_CORE_BATCH_Z3_FLAG, 0, true, false, false, ""));
 
 		// Non-unique, no barrier
 		flags.put(ASSRT_CORE_PROJECT_FLAG, new CLFlag(ASSRT_CORE_PROJECT_FLAG, 1,

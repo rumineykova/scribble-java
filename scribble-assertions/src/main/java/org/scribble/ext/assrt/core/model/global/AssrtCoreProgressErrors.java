@@ -8,6 +8,7 @@ import org.scribble.core.type.name.Role;
 
 
 // TODO: refactor cf. SState.getProgressErrors, Map<Set<SState>, Pair<Set<Role>, Map<Role, Set<ESend>>>>
+@Deprecated
 public class AssrtCoreProgressErrors
 {
 	public final Map<Role, Set<Set<AssrtCoreSState>>> roleProgress;

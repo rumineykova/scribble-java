@@ -67,8 +67,8 @@ public class AssrtCoreSStateErrors extends SStateErrors
 		else
 		{
 			this.initrecass = Collections.emptyMap();
-			this.recass = Collections
-				.unmodifiableMap(cfg.getRecAssertErrors(core, fullname));
+			this.recass = Collections.
+					unmodifiableMap(cfg.getRecAssertErrors(core, fullname));
 		}
 	}
 	

@@ -59,9 +59,9 @@ public class AssrtCommandLine extends CommandLine
 		Solver solver = hasFlag(AssrtCoreCLFlags.ASSRT_CORE_NATIVE_Z3_FLAG)
 				? AssrtJob.Solver.NATIVE_Z3
 				: AssrtJob.Solver.NONE;  // FIXME: 
-		boolean z3Batching = hasFlag(AssrtCoreCLFlags.ASSRT_CORE_BATCHING_FLAG);
+		boolean z3Batch = hasFlag(AssrtCoreCLFlags.ASSRT_CORE_BATCH_Z3_FLAG);
 		Set<CoreFlags> flags = parseCoreFlags();
-		return new AssrtCoreArgs(flags, solver, z3Batching);
+		return new AssrtCoreArgs(flags, solver, z3Batch);
 	}
 
 	

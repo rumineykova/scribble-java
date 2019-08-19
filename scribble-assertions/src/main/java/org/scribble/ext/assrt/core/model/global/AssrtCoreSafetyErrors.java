@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 // Duplicated from F17LTSSafetyErrors
 // Wait-for errors?
+@Deprecated
 public class AssrtCoreSafetyErrors
 {
 	/*public final Set<AssrtCoreSState> reception;
