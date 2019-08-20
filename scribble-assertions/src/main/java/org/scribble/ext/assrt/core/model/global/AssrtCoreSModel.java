@@ -32,7 +32,7 @@ public class AssrtCoreSModel extends SModel
 	protected SortedMap<Integer, AssrtCoreSStateErrors> getSafetyErrors()  // s.id key lighter than full SConfig
 	{
 		boolean batch = ((AssrtCoreArgs) this.core.config.args).Z3_BATCH;
-		boolean foo = false;
+		boolean batchSat = false;
 		
 		if (batch)
 		{
@@ -44,30 +44,30 @@ public class AssrtCoreSModel extends SModel
 			{
 				// Check for all errors in a single pass -- any errors can be categorised later
 				Set<AssrtBFormula> fs = new HashSet<>();
-				/*fs.addAll(
+				fs.addAll(
 						all.stream()
 								.flatMap(s -> ((AssrtCoreSConfig) s.config)
 										.getAssertProgressChecks(this.core, fullname)
 										.stream())
-								.collect(Collectors.toSet()));*/
+								.collect(Collectors.toSet()));
 				fs.addAll(
 						all.stream()
 								.flatMap(s -> ((AssrtCoreSConfig) s.config)
 										.getAssertSatChecks(this.core, fullname).stream())
 								.collect(Collectors.toSet()));
-				/*fs.addAll(
+				fs.addAll(
 						all.stream().flatMap(s -> ((AssrtCoreSConfig) s.config)
 								.getRecAssertChecks(this.core, fullname,
 										s.id == this.graph.init.id)
 								.stream())
-								.collect(Collectors.toSet()));*/
+								.collect(Collectors.toSet()));
 				/*String smt2 = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
 							.map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining(""))
 						+ "(check-sat)\n(exit)";
 				if (Z3Wrapper.checkSat(smt2))*/  // FIXME: won't work for unint-funs without using Z3Wrapper.toSmt2
 
-				foo = this.core.checkSat(fullname, fs);
-				if (foo)
+				batchSat = this.core.checkSat(fullname, fs);
+				if (batchSat)
 				{
 					return new TreeMap<>();
 				}
@@ -87,7 +87,7 @@ public class AssrtCoreSModel extends SModel
 			}
 		}
 
-		if (res.isEmpty() && batch && !foo)  // Testing
+		if (res.isEmpty() && batch && !batchSat)  // Testing batch vs. base
 		{
 			throw new RuntimeException("FIXME: ");
 		}

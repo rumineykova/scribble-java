@@ -994,8 +994,8 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		return this.P.entrySet().stream()
 
 				// Consistent with getAssertUnsatErrors -- TODO refactor
-				//.filter(x -> x.getValue().curr.getStateKind() == EStateKind.OUTPUT  // Non-unary input actions can be unsat against the message-carried assertion of the specifically chosen action
-				//	&& x.getValue().curr.getActions().size() > 1)  // Optimisation
+				.filter(x -> x.getValue().curr.getStateKind() == EStateKind.OUTPUT  // Non-unary input actions can be unsat against the message-carried assertion of the specifically chosen action
+						&& x.getValue().curr.getActions().size() > 1)  // Optimisation
 
 				.flatMap(e ->  // anyMatch is on the endpoints (not actions)
 		e.getValue().curr.getActions().stream().map(a -> getAssertSatCheck(core,
