@@ -78,31 +78,39 @@ tokens
 @parser::members
 {
 	@Override    
-	public void displayRecognitionError(String[] tokenNames, RecognitionException e)
+	public void displayRecognitionError(String[] tokenNames, 
+			RecognitionException e)
 	{
 		super.displayRecognitionError(tokenNames, e);
   	System.exit(1);
 	}
   
-	public static AssrtBFormula parseAssertion(String source) throws RecognitionException
+	public static AssrtBFormula parseAssertion(String source) 
+			throws RecognitionException
 	{
 		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTID
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(
 				new CommonTokenStream(lexer));
-		AssrtBFormula res = (AssrtBFormula) AssrtAntlrToFormulaParser
-				.getInstance().parse((CommonTree) parser.bool_expr().getTree());  // Use `root` for EOF?
-		return res;
+		AssrtSmtFormula<?> res = AssrtAntlrToFormulaParser
+				.getInstance().parse((CommonTree) parser.bool_root().getTree());
+		if (!(res instanceof AssrtBFormula))
+		{
+			System.out.println("Invalid assertion syntax: " + source);
+			System.exit(1);
+		}
+		return (AssrtBFormula) res;
 	}
 
-	public static AssrtAFormula parseArithAnnotation(String source) throws RecognitionException
+	public static AssrtAFormula parseArithAnnotation(String source) 
+			throws RecognitionException
 	{
 		source = source.substring(1, source.length()-1);  // Remove enclosing quotes -- cf. AssrtScribble.g EXTID
 		AssertionsLexer lexer = new AssertionsLexer(new ANTLRStringStream(source));
 		AssertionsParser parser = new AssertionsParser(new CommonTokenStream(lexer));
 		//return (CommonTree) parser.arith_expr().getTree();
 		AssrtAFormula res = (AssrtAFormula) AssrtAntlrToFormulaParser
-				.getInstance().parse((CommonTree) parser.arith_expr().getTree());  // Use `root` for EOF?
+				.getInstance().parse((CommonTree) parser.arith_root().getTree());
 		return res;
 	}
 }
@@ -145,14 +153,18 @@ num:
 ; 
 
 	
-	
-// root	
-	
-/*root:  // Use for EOF?
-	expr EOF
-->
-	^(ROOT expr)
-;*/
+root:  // Seems mandatory?
+	bool_root -> bool_root
+;
+
+bool_root:  // EOF useful?
+	bool_expr EOF -> bool_expr
+;
+
+arith_root:  // EOF useful?
+	arith_expr EOF -> arith_expr
+;
+
 
 expr:
 	bool_expr
@@ -170,26 +182,13 @@ bool_or_expr:
 // ANTLR seems to engender a pattern where expr "kinds" are nested under a single expr
 // Cf. https://github.com/antlr/grammars-v3/blob/master/Java1.6/Java.g#L943
 // ^Expr categories are all "nested", bottoming out at primary which recursively contains `parExpression`
-// Precedence follows the nesting order, e.g., 1+2*3 -> 1+(2*3); o/w left-assoc
+// Precedence follows the nesting order, e.g., 1+2*3 -> 1+(2*3); o/w left-assoc (preserved by AssrtAntlr... routines)
 
 bool_and_expr:
-	bool_unary_expr (op=('&&') bool_unary_expr)*
+	comp_expr (op=('&&') comp_expr)*
 ->
-	^(BOOLEXPR bool_unary_expr ($op bool_unary_expr)*)
+	^(BOOLEXPR comp_expr ($op comp_expr)*)
 ;
-	
-bool_unary_expr:
-	TRUE_KW
-->
-	^(TRUE)
-|
-	FALSE_KW
-->
-	^(FALSE)
-|
-	comp_expr
-;
-// '¬' doesn't seem to work
 
 comp_expr:  // "relational" expr
 	arith_expr (op=('=' | '<' | '<=' | '>' | '>=') arith_expr)?
@@ -202,16 +201,15 @@ arith_expr:
 ;
 
 arith_add_expr:
-	arith_sub_expr (op=('+') arith_sub_expr)*
+	arith_mul_expr (arith_addsub_op arith_mul_expr)*
 ->
-	^(ARITHEXPR arith_sub_expr ($op arith_sub_expr)*)  // Cannot distinguish the ops args?  Always the last one?
+	^(ARITHEXPR arith_mul_expr (arith_addsub_op arith_mul_expr)*)  // Cannot distinguish the ops args?  Always the last one?
 ;
 
-arith_sub_expr:
-	arith_mul_expr (op=('-') arith_mul_expr)*
-->
-	^(ARITHEXPR arith_mul_expr ($op arith_mul_expr)*)
+arith_addsub_op:
+	'+' | '-'
 ;
+
 arith_mul_expr:
 	arith_unary_expr (op=('*') arith_unary_expr)*
 ->
@@ -219,15 +217,18 @@ arith_mul_expr:
 ;
 	
 arith_unary_expr:
-	variable
+	primary_expr
 |
-	num
-|
+	'!' bool_expr -> ^(NEGEXPR bool_expr)  // Highly binding, so nest deeply
+;
+// '¬' doesn't seem to work
+
+primary_expr:
 	paren_expr
 |
-	'!' paren_expr
-->
-	^(NEGEXPR paren_expr)
+	literal
+|
+	variable
 /*|
 	unint_fun*/
 ;
@@ -236,7 +237,14 @@ paren_expr:
 	'(' expr ')' -> expr
 ;
 
-	
+literal:
+	TRUE_KW -> ^(TRUE)
+|
+	FALSE_KW -> ^(FALSE)
+|
+	num
+;
+
 /*
 unint_fun:
 	IDENTIFIER unint_fun_arg_list
