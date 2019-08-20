@@ -88,7 +88,7 @@ public class AssrtCoreSModel extends SModel
 
 		if (res.isEmpty() && !foo)
 		{
-			throw new RuntimeException("FIXME: ");
+			//throw new RuntimeException("FIXME: ");
 		}
 
 		return res;

@@ -80,6 +80,7 @@
 // - refactor astfactoryimpl token constants to parser (and refactor ast/delfactoryimpl to scribble-ast) -- done: ScribAntlrTokens
 
 // merging TODO
+// - FIXME: when inlining f/w rec state args, inline constant vars directly (analogous to cont-rec constant inlining) -- cf. `y=x`, good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f
 // - factor out Protocol<K, N, Type> above existing (Seq)Protocol, AssrtCoreProtocol under the former -- or replace inheritance by deleg? (see later)
 // - CHECKME: GTypeTranslation syntax exception (JUnit harness)
 // - rename "new" factory methods? (easily confused with new expr)  centralise?
@@ -157,14 +158,25 @@ type <dotnet> "System.UInt32" from "..." as int;
 // - do rec assert check using FSM edges, not message -- difference is statevars
 
 
-//*
-global protocol Fib_ygtx(role A, role B) @<x:="1", y:="2"> "x>=1 && y>x"
+/*
+global protocol Proto1(role A, role B) @<x:="1", y:="2"> "x>=1 && y>x"
 {
 	3(z1: int) from A to B;	 @"z1=x+y"
-	do Fib_ygtx(A, B);       @<"y", "z1">
+	do Proto1(A, B);       @<"y", "z1">
 }
 //*/
+global protocol Proto1(role A, role B) @<x:="3">
+{
+	1() from A to B; @"(x>2)"  // Testing ass in F, independent of pay 
+	do Proto2(A, B); @<"x">
+}
 
+// Not aux
+global protocol Proto2(role A, role B) @<y:="4">
+{
+	1() from A to B; @"(y>2)"
+	do Proto2(A, B); @<"y">
+}
 
 
 

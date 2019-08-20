@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -38,6 +39,7 @@ import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtBinCompFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.core.type.formula.AssrtIntValFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtIntVarFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
@@ -286,6 +288,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		if (!svars.isEmpty() || !aexprs.isEmpty())
 		{
 			Map<AssrtIntVar, AssrtAFormula> Vself = V.get(self);
+			Map<AssrtIntVar, AssrtAFormula> Vself_orig = new HashMap<>(Vself);
 			Set<AssrtBFormula> Rself = R.get(self);  // Cf. Fself
 			//boolean isEntry = aexprs.isEmpty() && !svars.isEmpty();  
 			boolean isContinue = !aexprs.isEmpty();
@@ -295,7 +298,7 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			for (Entry<AssrtIntVar, AssrtAFormula> e : svars.entrySet())
 			{
 				AssrtIntVar svar = e.getKey();
-				AssrtAFormula sexpr;
+				AssrtAFormula sexpr = null;
 				if (aexprs.isEmpty())
 				{
 					sexpr = e.getValue();  // "Init" state var expr
@@ -303,10 +306,24 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 				else
 				{
 					AssrtAFormula next = i.next();
-					sexpr = (next instanceof AssrtIntVarFormula) && Vself.keySet().stream()
-								.anyMatch(x -> x.toString().equals(next.toString())) // CHECKME: dubious hacks, but cf. good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f/g
-							? next  // A "direct" equality to a state var can be left "unerased" without increasing the overall state space
-							: (AssrtAFormula) renameFormula(next);
+					/*sexpr = (next instanceof AssrtIntVarFormula)
+							&& Vself.keySet().stream()
+									.anyMatch(x -> x.toString().equals(next.toString())) // CHECKME: dubious hacks, but cf. good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f/g -- no: broken, get `y=y`
+							? next  // A "direct" equality to a state var can be left "unerased" without increasing the overall state space -- no: e.g., do Fib <y, z1>, `x=y` where (old) `y` unerased conflicts with `y=z1`
+											: (AssrtAFormula) renameFormula(next);*/
+					if (next instanceof AssrtIntVarFormula)
+					{
+						Optional<AssrtIntValFormula> con = isConst(Vself_orig,
+								(AssrtIntVarFormula) next, new HashSet<>());
+						if (con.isPresent())
+						{
+							sexpr = con.get();
+						}
+					}
+					if (sexpr == null)
+					{
+						sexpr = (AssrtAFormula) renameFormula(next);
+					}
 				}
 				if (isContinue   // CHECKME: "shadowing", e.g., forwards statevar has same name as a previous
 						&& !((sexpr instanceof AssrtIntVarFormula)  // CHECKME: dubious hacks, but cf. good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f/g
@@ -321,6 +338,33 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			//compactR(Rself);  // TODO? (see above)
 			compactF(Rself);
 		}
+	}
+
+	private Optional<AssrtIntValFormula> isConst(
+			Map<AssrtIntVar, AssrtAFormula> Vself_orig, AssrtIntVarFormula next,
+			Set<AssrtIntVarFormula> seen)
+	{
+		if (seen.contains(next))
+		{
+			return Optional.empty();
+		}
+		AssrtIntVar v_tmp = new AssrtIntVar(next.toString());  // CHECKME: do via typefact?
+		if (Vself_orig.containsKey(v_tmp))
+		{
+			AssrtAFormula f_tmp = Vself_orig.get(v_tmp);
+			//System.out.println("aaaa: " + v_tmp + " ,, " + f_tmp + " ,, " + f_tmp.getClass());
+			if (f_tmp instanceof AssrtIntValFormula)
+			{  // TODO: generalise to any constant expr?
+				return Optional.of((AssrtIntValFormula) f_tmp);
+			}
+			else if (f_tmp instanceof AssrtIntVarFormula)
+			{
+				Set<AssrtIntVarFormula> tmp = new HashSet<>(seen);
+				tmp.add(next);
+				return isConst(Vself_orig, (AssrtIntVarFormula) f_tmp, tmp);
+			}
+		}
+		return Optional.empty();
 	}
 	
 	private void gcF(Set<AssrtBFormula> Fself, AssrtIntVar v) 
@@ -947,8 +991,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		return this.P.entrySet().stream()
 
 				// FIXME CHECKME to make consistent with getAssertUnsatErrors -- but why?
-				.filter(x -> x.getValue().curr.getStateKind() == EStateKind.OUTPUT
-						&& x.getValue().curr.getActions().size() > 1)
+				.filter(x -> //x.getValue().curr.getStateKind() == EStateKind.OUTPUT
+				//&& 
+				true)//x.getValue().curr.getActions().size() > 1)
 
 				.flatMap(e ->  // anyMatch is on the endpoints (not actions)
 		e.getValue().curr.getActions().stream().map(a -> getAssertSatCheck(core,
