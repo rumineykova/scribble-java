@@ -80,6 +80,7 @@
 // - refactor astfactoryimpl token constants to parser (and refactor ast/delfactoryimpl to scribble-ast) -- done: ScribAntlrTokens
 
 // merging TODO
+// - FIXME TODO prune unsat recursive choice cases after selecting a case, good.extensions.assrtcore.safety.unsat.AssrtCoreTest36
 // - FIXME: when inlining f/w rec state args, inline constant vars directly (analogous to cont-rec constant inlining) -- cf. `y=x`, good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f
 // - factor out Protocol<K, N, Type> above existing (Seq)Protocol, AssrtCoreProtocol under the former -- or replace inheritance by deleg? (see later)
 // - CHECKME: GTypeTranslation syntax exception (JUnit harness)
@@ -184,12 +185,12 @@ global protocol Proto2(role A, role B) @<y:="4">
 //*
 global protocol Proto1(role A, role B)
 {
-	Res(b2:int) from A to B;
 	do Loop(A,B);
 }
 
 aux global protocol Loop(role A, role B)
 {
+	Res(b2:int) from A to B;
 	choice at A
 	{
 		SecOut() from A to B;  @"b2>0"

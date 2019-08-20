@@ -1,0 +1,29 @@
+module good.extensions.assrtcore.safety.unsat.AssrtCoreTest36;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
+
+
+//*
+global protocol Proto1(role A, role B)
+{
+	Res(b2:int) from A to B;  // Cf. SH
+	do Loop(A,B);
+}
+
+aux global protocol Loop(role A, role B)
+{
+	choice at A
+	{
+		SecOut() from A to B;  @"b2>0"
+	}
+	or
+	{
+		SecIn() from A to B;   @"b2<=0"
+		do Loop(A, B);  
+				// TODO: loop should be "locked into" `b2<=0`, subsequent contradictory `b2>0` should be "ignored"
+				// Maybe do by "pruning" the unsat recursive choice cases? cf. unfair transform
+				// Otherwise allowing this would require dropping unsat checks outright, including, e.g., non-recursive protos
+	}
+}
+//*/
