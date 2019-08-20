@@ -59,10 +59,10 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	private final Map<Role, EFsm> P;          
 	private final SSingleBuffers Q;  // null value means connected and empty -- dest -> src -> msg
 
-	public final Map<Role, Set<AssrtIntVar>> K;  // Conflict between having this in the state, and formula building?
-	public final Map<Role, Set<AssrtBFormula>> F;  // N.B. because F not in equals/hash, "final" receive in a recursion doesn't get built -- cf., unsat check only for send actions
-	public final Map<Role, Map<AssrtIntVar, AssrtAFormula>> V;  
-	public final Map<Role, Set<AssrtBFormula>> R;  // F is history for action ass's; R is history for rec ass's ?
+	private final Map<Role, Set<AssrtIntVar>> K;  // Conflict between having this in the state, and formula building?
+	private final Map<Role, Set<AssrtBFormula>> F;  // N.B. because F not in equals/hash, "final" receive in a recursion doesn't get built -- cf., unsat check only for send actions
+	private final Map<Role, Map<AssrtIntVar, AssrtAFormula>> V;
+	private final Map<Role, Set<AssrtBFormula>> R;  // F is history for action ass's; R is history for rec ass's ?
 	//private final Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename; // combine with K?  // CHECKME: unused?
 	
 	// *Past* scopes (in the sense of "preceding/outer scope"), so does not include "current" scope -- important to consider for "self-recursions"
