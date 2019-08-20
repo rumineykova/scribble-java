@@ -184,6 +184,26 @@ global protocol Proto2(role A, role B) @<y:="4">
 //*/
 
 //*
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A
+	{
+		Bes(b2:int) from B to A;
+		choice at A
+		{
+			SecOut() from A to C;  @"b2>0"
+			do Proto1(A, B, C);
+		}
+		or
+		{
+			SecIn() from A to C;   @"b2<=0"
+			do Proto1(A, B, C);
+		}
+	}
+}
+//*/
+
+/*
 global protocol Proto1(role A, role B)
 {
 	do Loop(A,B);

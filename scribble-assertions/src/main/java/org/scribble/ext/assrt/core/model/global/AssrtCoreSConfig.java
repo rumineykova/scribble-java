@@ -864,15 +864,18 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			Role self = e.getKey();
 			EState curr = e.getValue().curr;
 			if (curr.getStateKind() != EStateKind.OUTPUT)
-			// CHECKME: Non-unary input actions can be unsat against the message-carried assertion of the specifically chosen action == inherited from ext-annot
+			// Only check unsat on the output side, where the choice is being made, input side should "follow"
+			// Cannot actually check on input side, e.g., recursive choice of b>=0 || b<0, after one loop one action can be unsat w.r.t. F-knowledge of previously chosen action
+			// May need at least three parties (or some other asynchrony) to expose (need an "intermediate" state where input role is "passively waiting" with prev-K and new-actions)
+			// E.g., SH -- cf. good.extensions.assrtcore.safety.unsat.AssrtCoreTest35 
 			// FIXME: factor out with getAssertSatChecks
 			// N.B. this is the only "get errors" operation to impose "additional conditions" on top of the "get check", cf. assert-prog, rec-assert don't -- TODO refactor into "get check"?
 			{
 				continue;
 			}
 			List<EAction> as = curr.getActions(); // N.B. getActions includes non-fireable
-			if (as.size() <= 1)  // FIXME: out with getAssertSatChecks -- CHECKME: just an optimisation?
-					// Only doing on non-unary choices -- for unary, assrt-prog implies assrt-sat
+			if (as.size() <= 1)  // Optimisation // FIXME: out with getAssertSatChecks
+			// Can do only on non-unary choices -- for unary, assrt-prog implies assrt-sat
 					// Note: this means "downstream" assrt-unsat errors for unary-choice continuations will not be caught (i.e., false => false for assrt-prog)
 			{
 				continue;  // CHECKME -- No: for state-vars and state-assertions? Is it even definitely skippable without those?
@@ -936,11 +939,11 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 			res = AssrtFormulaFactory.AssrtExistsFormula(new LinkedList<>(varsA),
 					res);
 		}
-		
+
 		// Next, conjunction of F terms -- CHECKME: always non-empty?
 		res = this.F.get(self).stream().reduce(res, (b1, b2) -> AssrtFormulaFactory
 				.AssrtBinBool(AssrtBinBFormula.Op.And, b1, b2));
-		
+
 		// Next, conjunction of V eq-terms
 		// Include Vself and Rself, to check lhs(?) is sat for assrt-prog (o/w false => any)
 		Map<AssrtIntVar, AssrtAFormula> Vself = this.V.get(self);
@@ -994,12 +997,12 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		return this.P.entrySet().stream()
 
 				// Consistent with getAssertUnsatErrors -- TODO refactor
-				.filter(x -> x.getValue().curr.getStateKind() == EStateKind.OUTPUT  // Non-unary input actions can be unsat against the message-carried assertion of the specifically chosen action
+				.filter(x -> x.getValue().curr.getStateKind() == EStateKind.OUTPUT  // Cannot check on input side, see getAssertUnsatErrors
 						&& x.getValue().curr.getActions().size() > 1)  // Optimisation
 
 				.flatMap(e ->  // anyMatch is on the endpoints (not actions)
-		e.getValue().curr.getActions().stream().map(a -> getAssertSatCheck(core,
-				fullname, e.getKey(), (AssrtCoreEAction) a))
+				e.getValue().curr.getActions().stream().map(a ->
+				getAssertSatCheck(core, fullname, e.getKey(), (AssrtCoreEAction) a))
 		).collect(Collectors.toSet());
 	}
 
