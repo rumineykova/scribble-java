@@ -165,6 +165,8 @@ global protocol Proto1(role A, role B) @<x:="1", y:="2"> "x>=1 && y>x"
 	do Proto1(A, B);       @<"y", "z1">
 }
 //*/
+
+/*
 global protocol Proto1(role A, role B) @<x:="3">
 {
 	1() from A to B; @"(x>2)"  // Testing ass in F, independent of pay 
@@ -175,9 +177,26 @@ global protocol Proto1(role A, role B) @<x:="3">
 global protocol Proto2(role A, role B) @<y:="4">
 {
 	1() from A to B; @"(y>2)"
-	do Proto2(A, B); @<"y">
+	do Proto1(A, B); @<"y">
 }
+//*/
 
+global protocol HelloNoAnnot(role C, role S)
+{
+	HELLO(u:int) from C to S;
+	choice at C
+	{
+		ADD(w:int) from C to S; 
+		//ADD(v:int) from C to S; 
+		//RES(f:int) from S to C;
+		do HelloNoAnnot(C, S);
+	}
+	or
+	{
+		BYE() from C to S;
+		//BYE() from S to C;
+	}
+}
 
 
 

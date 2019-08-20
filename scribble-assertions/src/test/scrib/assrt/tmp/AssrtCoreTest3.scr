@@ -100,7 +100,7 @@ aux global protocol Loop1(role P, role R, role C)
 //*/
 
 
-//*
+/*
 global protocol SHAnnotVars(role P, role R, role C)
 {
 	Plane(x1:int, x2:int, x3:int, x4:int) from P to R;

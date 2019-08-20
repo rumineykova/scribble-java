@@ -31,9 +31,10 @@ public class AssrtCoreSModel extends SModel
 	@Override
 	protected SortedMap<Integer, AssrtCoreSStateErrors> getSafetyErrors()  // s.id key lighter than full SConfig
 	{
+		boolean batch = ((AssrtCoreArgs) this.core.config.args).Z3_BATCH;
 		boolean foo = false;
 		
-		if (((AssrtCoreArgs) this.core.config.args).Z3_BATCH)
+		if (batch)
 		{
 			GProtoName fullname = this.graph.proto;
 			Collection<SState> all = this.graph.states.values();
@@ -70,6 +71,11 @@ public class AssrtCoreSModel extends SModel
 				{
 					return new TreeMap<>();
 				}
+				else
+				{
+					System.out.println("bbbb: " + fs);
+					System.exit(1);
+				}
 			}
 		}
 
@@ -86,9 +92,9 @@ public class AssrtCoreSModel extends SModel
 			}
 		}
 
-		if (res.isEmpty() && !foo)
+		if (res.isEmpty() && batch && !foo)  // Testing
 		{
-			//throw new RuntimeException("FIXME: ");
+			throw new RuntimeException("FIXME: ");
 		}
 
 		return res;
