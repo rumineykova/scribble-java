@@ -1,0 +1,15 @@
+module good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest37;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
+
+
+//*
+global protocol Proto1(role A, role B) @<x:="1", y:="2"> "x>=1 && y>x"
+{
+	3(z1: int) from A to B;	 @"z1=x+y"
+	do Proto1(A, B);         @<"y", "z1">  
+			// Testing `y` vs `y1` state arg -- differentiating V update between general renaming (x=_y) and "constant propagation" (x=2) special case
+			// Cf. Fib -- also AssrtCoreTest08f/g
+}
+//*/

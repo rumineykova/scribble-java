@@ -159,16 +159,49 @@ type <dotnet> "System.UInt32" from "..." as int;
 // - do rec assert check using FSM edges, not message -- difference is statevars
 
 
-/*
+
+
+
+/* // CHECKME -- [assrt-core] Cannot project 
+global protocol Proto1(role A, role B, role R)
+{
+	() from A to R;
+	do Loop(A, B);
+}
+
+aux global protocol Loop(role A, role B)
+{
+	Res(b2:int) from A to B;
+	choice at A
+	{
+		SecOut() from A to B;  @"b2>0"
+	}
+	or
+	{
+		SecIn() from A to B;   @"b2<=0"
+		do Loop(A, B);
+	}
+}
+//onto R: cannot merge unguarded rec vars
+//*/
+
+
+
+
+
+
+//* // good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest37
 global protocol Proto1(role A, role B) @<x:="1", y:="2"> "x>=1 && y>x"
 {
 	3(z1: int) from A to B;	 @"z1=x+y"
-	do Proto1(A, B);       @<"y", "z1">
+	do Proto1(A, B);         @<"y", "z1">  
+			// Testing `y` vs `y1` state arg -- differentiating V update between general renaming (x=_y) and "constant propagation" (x=2) special case
+			// Cf. Fib -- also AssrtCoreTest08f/g
 }
 //*/
 
 
-/*
+/* // AssrtCoreTest08f
 global protocol Proto1(role A, role B) @<x:="3">
 {
 	1() from A to B; @"(x>2)"  // Testing ass in F, independent of pay 
@@ -179,11 +212,21 @@ global protocol Proto1(role A, role B) @<x:="3">
 global protocol Proto2(role A, role B) @<y:="4">
 {
 	1() from A to B; @"(y>2)"
-	do Proto1(A, B); @<"y">
+	do Proto2(A, B); @<"y">
 }
 //*/
 
-//*
+
+
+
+
+
+
+
+
+
+
+/* // good.extensions.assrtcore.safety.unsat.AssrtCoreTest35
 global protocol Proto1(role A, role B, role C)
 {
 	choice at A
@@ -203,30 +246,27 @@ global protocol Proto1(role A, role B, role C)
 }
 //*/
 
-/*
+
+/*  // TODO good.extensions.assrtcore.safety.unsat.AssrtCoreTest36
 global protocol Proto1(role A, role B)
 {
+	Res(b2:int) from A to B;
 	do Loop(A,B);
 }
 
 aux global protocol Loop(role A, role B)
 {
-	Res(b2:int) from A to B;
 	choice at A
 	{
 		SecOut() from A to B;  @"b2>0"
 	}
 	or
 	{
-		SecIn() from A to B;   @"b2<=0"
+		SecIn() from A to B;   @"b2<=0"  // TODO FIXME: "locked in" recursive choice, do by pruning unsat recursive choice cases?  Cf. unfair transform
 		do Loop(A, B);
 	}
 }
 //*/
-
-// CHECKME -- [assrt-core] Cannot project 
-//P->C{ Res(b2: int)((b2 = 0) || (b2 = 1)).P->C{ SecOut(r2: int)(b2 = 0).__assrt_tmp_AssrtCoreTest_Loop__P_C__<>, SecIn([r3: int, r4: int])(b2 = 1).__assrt_tmp_AssrtCoreTest_Loop__P_C__<> }, Close([])True.end }
-//onto R: cannot merge unguarded rec vars.
 
 
 
