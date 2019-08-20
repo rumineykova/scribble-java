@@ -63,6 +63,8 @@ import org.scribble.ast.name.simple.OpNode;
 import org.scribble.del.DelFactory;
 import org.scribble.parser.antlr.ScribbleParser;
 
+// A primary point of the Adaptor is it sets the AST (e.g., CommonTree) children implicitly
+// We use the adaptor to build the (Common)Tree -- children set implicitly, and accessed via getters -- and later translate to "types" API (cf. GTypeTranslator)
 // CHECKME: get/setType don't seem to be really used
 public class ScribTreeAdaptor extends CommonTreeAdaptor
 {

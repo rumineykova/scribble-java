@@ -81,7 +81,7 @@
 
 // merging TODO
 // - FIXME TODO prune unsat recursive choice cases after selecting a case, good.extensions.assrtcore.safety.unsat.AssrtCoreTest36
-// - FIXME: when inlining f/w rec state args, inline constant vars directly (analogous to cont-rec constant inlining) -- cf. `y=x`, good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f
+// - FIXME: when inlining f/w rec state args, inline constant vars directly (analogous to cont-rec constant inlining) -- make an isConstant method for types/Formula -- cf. `y=x`, good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f
 // - factor out Protocol<K, N, Type> above existing (Seq)Protocol, AssrtCoreProtocol under the former -- or replace inheritance by deleg? (see later)
 // - CHECKME: GTypeTranslation syntax exception (JUnit harness)
 // - rename "new" factory methods? (easily confused with new expr)  centralise?
@@ -150,16 +150,22 @@ type <dotnet> "System.UInt32" from "..." as int;
 
 
 // TODO HERE
-// - batch mode
 // - fix expression parsing, e.g., parentheses
 // - rec syntax -- can then do all tests 
-// - transitive V/R GC, also F -- still needed?
+// - transitive V/R GC, also F -- actually necessary?
+//done
+// - batch mode
 //
 // done
 // - do rec assert check using FSM edges, not message -- difference is statevars
 
 
 
+global protocol Proto1(role A, role B)
+{
+	(x: int) from A to B;  @"x = 1 - 3 * 4"  // TODO add syntax test
+	(y: int) from B to A;  @"y<0 || y > 1 && y>2" // TODO add syntax test
+}
 
 
 /* // CHECKME -- [assrt-core] Cannot project 
@@ -190,7 +196,7 @@ aux global protocol Loop(role A, role B)
 
 
 
-//* // good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest37
+/* // good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest37
 global protocol Proto1(role A, role B) @<x:="1", y:="2"> "x>=1 && y>x"
 {
 	3(z1: int) from A to B;	 @"z1=x+y"

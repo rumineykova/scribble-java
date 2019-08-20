@@ -12,7 +12,11 @@ import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrIntVar;
 import org.scribble.ext.assrt.parser.assertions.formula.AssrtAntlrNegExpr;
 import org.scribble.parser.ScribAntlrWrapper;
 
-// Embedded by AssrtAntlrToScribParser
+// "Manually" parsing instead of using an ANTLR Adaptor (cf. ScribTreeAdaptor),
+// because going directly to "types" API.
+// (i.e. no middleman AST, where the (CommonTree) children are set implicitly by
+// the Adaptor -- we directly return AssrtSmtFormula, not a Tree.)
+// Embedded by AssrtAntlrToScribParser.
 public class AssrtAntlrToFormulaParser
 {
 	private static AssrtAntlrToFormulaParser instance = null;
