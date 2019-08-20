@@ -181,22 +181,38 @@ global protocol Proto2(role A, role B) @<y:="4">
 }
 //*/
 
-global protocol HelloNoAnnot(role C, role S)
+//*
+global protocol Proto1(role A, role B)
 {
-	HELLO(u:int) from C to S;
-	choice at C
+	Res(b2:int) from A to B;
+	do Loop(A,B);
+}
+
+aux global protocol Loop(role A, role B)
+{
+	choice at A
 	{
-		ADD(w:int) from C to S; 
-		//ADD(v:int) from C to S; 
-		//RES(f:int) from S to C;
-		do HelloNoAnnot(C, S);
+		SecOut() from A to B;  @"b2>0"
 	}
 	or
 	{
-		BYE() from C to S;
-		//BYE() from S to C;
+		SecIn() from A to B;   @"b2<=0"
+		do Loop(A, B);
 	}
 }
+//*/
+
+// CHECKME -- [assrt-core] Cannot project 
+//P->C{ Res(b2: int)((b2 = 0) || (b2 = 1)).P->C{ SecOut(r2: int)(b2 = 0).__assrt_tmp_AssrtCoreTest_Loop__P_C__<>, SecIn([r3: int, r4: int])(b2 = 1).__assrt_tmp_AssrtCoreTest_Loop__P_C__<> }, Close([])True.end }
+//onto R: cannot merge unguarded rec vars.
+
+
+
+
+
+
+
+
 
 
 

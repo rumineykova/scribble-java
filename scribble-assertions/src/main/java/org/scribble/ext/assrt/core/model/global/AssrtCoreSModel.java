@@ -44,23 +44,23 @@ public class AssrtCoreSModel extends SModel
 			{
 				// Check for all errors in a single pass -- any errors can be categorised later
 				Set<AssrtBFormula> fs = new HashSet<>();
-				fs.addAll(
+				/*fs.addAll(
 						all.stream()
 								.flatMap(s -> ((AssrtCoreSConfig) s.config)
 										.getAssertProgressChecks(this.core, fullname)
 										.stream())
-								.collect(Collectors.toSet()));
+								.collect(Collectors.toSet()));*/
 				fs.addAll(
 						all.stream()
 								.flatMap(s -> ((AssrtCoreSConfig) s.config)
 										.getAssertSatChecks(this.core, fullname).stream())
 								.collect(Collectors.toSet()));
-				fs.addAll(
+				/*fs.addAll(
 						all.stream().flatMap(s -> ((AssrtCoreSConfig) s.config)
 								.getRecAssertChecks(this.core, fullname,
 										s.id == this.graph.init.id)
 								.stream())
-								.collect(Collectors.toSet()));
+								.collect(Collectors.toSet()));*/
 				/*String smt2 = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
 							.map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining(""))
 						+ "(check-sat)\n(exit)";
@@ -70,11 +70,6 @@ public class AssrtCoreSModel extends SModel
 				if (foo)
 				{
 					return new TreeMap<>();
-				}
-				else
-				{
-					System.out.println("bbbb: " + fs);
-					System.exit(1);
 				}
 			}
 		}

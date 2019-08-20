@@ -863,16 +863,19 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 		{
 			Role self = e.getKey();
 			EState curr = e.getValue().curr;
-			if (curr.getStateKind() != EStateKind.OUTPUT) // CHECKME: ??? (inherited from ext-annot) -- FIXME: factor out with getAssertSatChecks
+			if (curr.getStateKind() != EStateKind.OUTPUT)
+			// CHECKME: Non-unary input actions can be unsat against the message-carried assertion of the specifically chosen action == inherited from ext-annot
+			// FIXME: factor out with getAssertSatChecks
+			// N.B. this is the only "get errors" operation to impose "additional conditions" on top of the "get check", cf. assert-prog, rec-assert don't -- TODO refactor into "get check"?
 			{
 				continue;
 			}
 			List<EAction> as = curr.getActions(); // N.B. getActions includes non-fireable
-			if (as.size() <= 1)  // FIXME: out with getAssertSatChecks -- CHECKME: necessary? e.g., SH seems to break without this?
+			if (as.size() <= 1)  // FIXME: out with getAssertSatChecks -- CHECKME: just an optimisation?
 					// Only doing on non-unary choices -- for unary, assrt-prog implies assrt-sat
 					// Note: this means "downstream" assrt-unsat errors for unary-choice continuations will not be caught (i.e., false => false for assrt-prog)
 			{
-				continue;  // No: for state-vars and state-assertions? Is it even definitely skippable without those? -- CHECKME
+				continue;  // CHECKME -- No: for state-vars and state-assertions? Is it even definitely skippable without those?
 			}
 			if (as.stream().anyMatch(x -> x instanceof EDisconnect))
 			{
@@ -990,10 +993,9 @@ public class AssrtCoreSConfig extends SConfig  // TODO: not AssrtSConfig
 	{
 		return this.P.entrySet().stream()
 
-				// FIXME CHECKME to make consistent with getAssertUnsatErrors -- but why?
-				.filter(x -> //x.getValue().curr.getStateKind() == EStateKind.OUTPUT
-				//&& 
-				true)//x.getValue().curr.getActions().size() > 1)
+				// Consistent with getAssertUnsatErrors -- TODO refactor
+				.filter(x -> x.getValue().curr.getStateKind() == EStateKind.OUTPUT  // Non-unary input actions can be unsat against the message-carried assertion of the specifically chosen action
+						&& x.getValue().curr.getActions().size() > 1)  // Optimisation
 
 				.flatMap(e ->  // anyMatch is on the endpoints (not actions)
 		e.getValue().curr.getActions().stream().map(a -> getAssertSatCheck(core,
