@@ -160,18 +160,78 @@ type <dotnet> "System.UInt32" from "..." as int;
 // - do rec assert check using FSM edges, not message -- difference is statevars
 
 
+//- statevar/arg syntax
+//- startvar usages? parameterised protocols, loop counting
+//- conflict between unsat checking, state vars (init values, constants) and recursion -- "strict" vs. potential unsat
+//- theorem: no assertion prog error at run-time -- no unsat theorem?
+
+/*
+global protocol Proto1(role A, role B) //@<x:="0">  //"arithmetic/boolean expr"
+{
+	0(y:int) from A to B;
+	do Proto1Aux(A, B);
+}
+
+aux global protocol Proto1Aux(role A, role B)
+{
+	choice at A
+	{
+		1() from A to B;  @"y<=0"
+		do Proto1Aux(A, B);  //@<"x">
+	}
+	or
+	{
+		2() from A to B;  @"y>0"
+	}
+}
+//*/
+
+
+
+/* // CHECKME: pre vs. post assertions?  corresponds to static vs. dynamic?  cf. Eiffel
+global protocol Proto1(role A, role B) @<x:="0">
+{
+	choice at A
+	{
+		1() from A to B; @"x<3"
+		do Proto1(A, B); @<"x+1">
+	}
+	or
+	{
+		2() from A to B;	 @"x>=2"  // FIXME: unsat -- solely due to constant prop?
+	}
+}
+//*/
+
 
 /*
 global protocol Proto1(role A, role B) @<x:="0">
 {
 	choice at A
 	{
-		1() from A to B;	@"x<5"
+		1() from A to B;
 		do Proto1(A, B); @<"x+1">
 	}
 	or
 	{
-		2() from A to B;	 //@"x>=5"  // TODO: unsat recursive choice pruning
+		2() from A to B;	 @"x>=5"  // FIXME: unsat -- solely due to constant prop?
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x:="0">
+{
+	choice at A
+	{
+		1() from A to B;	@"x<5"  
+		do Proto1(A, B); @<"x+1">
+	}
+	or
+	{
+		2() from A to B;	 @"x>=5"  // FIXME: unsat on first loop -- solely due to constant prop?
+			 // this unsat is also "inconsistent" with the fact that having only x<=5 is also "potentially" unsat after some loops
 	}
 }
 //*/
@@ -289,6 +349,9 @@ aux global protocol Loop(role A, role B)
 	or
 	{
 		SecIn() from A to B;   @"b2<=0"  // TODO FIXME: "locked in" recursive choice, do by pruning unsat recursive choice cases?  Cf. unfair transform
+				// FIXME: b2>0 unsat after doing one b2<=0 (i.e., b2<=0&&b2>0 unsat)
+				// drop unsat?  or somehow only do unsat for payload vars? (not state vars) -- or "weaken" unsat to not use V and implicitly forall statevars
+				// or drop "constant propagation"?  or "init values"?
 		do Loop(A, B);
 	}
 }

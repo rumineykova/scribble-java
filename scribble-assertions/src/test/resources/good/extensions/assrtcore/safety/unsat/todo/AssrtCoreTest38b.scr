@@ -13,6 +13,6 @@ global protocol Proto1(role A, role B) @<x:="0">
 	}
 	or
 	{
-		2() from A to B;	 @"x>=5"  // TODO: unsat recursive choice pruning
+		2() from A to B;	 @"x>=5"  // TODO: drop constant prop
 	}
 }
