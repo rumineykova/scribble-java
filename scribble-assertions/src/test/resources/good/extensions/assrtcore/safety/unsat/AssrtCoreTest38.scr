@@ -1,0 +1,18 @@
+module good.extensions.assrtcore.safety.unsat.AssrtCoreTest38;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
+
+
+global protocol Proto1(role A, role B) @<x:="0">
+{
+	choice at A
+	{
+		1() from A to B;	@"x<5"
+		do Proto1(A, B); @<"x+1">
+	}
+	or
+	{
+		2() from A to B;	 //@"x>=5"  // TODO: unsat recursive choice pruning
+	}
+}
