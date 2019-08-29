@@ -1,7 +1,7 @@
 //Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
 //$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/sh/SH.scr -Z3 -ass SH -V 
 
-//$ bin/scribblec.bat scribble-assertions/src/test/scrib/assrt/sh/SH.scr -Z3 -ass SH -ass-fsm P -V 
+//$ bin/scribblec.bat scribble-assertions/src/test/scrib/assrt/sh/SHNoAsserts.scr -Z3 -ass SH
 
 module assrt.sh.SHNoAsserts;
 

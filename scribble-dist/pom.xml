@@ -29,6 +29,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.scribble</groupId>
+			<artifactId>scribble-ast</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.scribble</groupId>
 			<artifactId>scribble-parser</artifactId>
 		</dependency>
 		<dependency>
@@ -43,6 +47,10 @@
 			<!--Needed to include in jar-->
 			<groupId>org.scribble</groupId>
 			<artifactId>scribble-runtime</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.scribble</groupId>
+			<artifactId>scribble-assertions</artifactId>
 		</dependency>
 	</dependencies>
 

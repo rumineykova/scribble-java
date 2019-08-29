@@ -3,56 +3,59 @@ package org.scribble.ext.assrt.core.model.endpoint.action;
 import java.util.Collections;
 import java.util.List;
 
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
 import org.scribble.ext.assrt.core.model.endpoint.AssrtCoreEModelFactory;
 import org.scribble.ext.assrt.core.model.global.AssrtCoreSModelFactory;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.model.endpoint.EModelFactory;
-import org.scribble.model.global.SModelFactory;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
 
 public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 {
 	// Annot needed -- e.g. mu X(x:=..) . mu Y(y:=..) ... X<123> -- rec var X will be discarded, so edge action needs to record which var is being updated -- no: now relying on surface syntax to only allow subprotos with proper var scoping and annotvar arity checks, etc.
 	/*public final AssrtDataTypeVar annot;  // Not null (by AssrtCoreGProtocolTranslator)
 	public final AssrtArithFormula expr;*/
-	public final List<AssrtArithFormula> stateexprs;
+	public final List<AssrtAFormula> sexprs;  // State exprs
 
-	public AssrtCoreESend(EModelFactory ef, Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula ass,
-			//AssrtDataTypeVar annot, AssrtArithFormula expr)
-			List<AssrtArithFormula> stateexprs)
+	public AssrtCoreESend(ModelFactory mf, Role peer, MsgId<?> mid,
+			Payload payload, AssrtBFormula ass, List<AssrtAFormula> stateexprs)
 	{
-		super(ef, peer, mid, payload, ass);
+		super(mf, peer, mid, payload, ass);
 		//this.annot = annot;
-		this.stateexprs = Collections.unmodifiableList(stateexprs);
+		this.sexprs = Collections.unmodifiableList(stateexprs);
 	}
 	
-	// HACK: replace assertion by True
+	@Deprecated
+	public ModelFactory getModelFactory()
+	{
+		return this.mf;
+	}
+	
+	// Used by AssrtCoreSSingleBuffers.canReceive and AssrtCoreSConfig.getStuckMessages
 	@Override
 	public AssrtCoreESend toTrueAssertion()  // FIXME: for model building, currently need send assertion to match (syntactical equal) receive assertion (which is always True) to be fireable
 	{
-		return ((AssrtCoreEModelFactory) this.ef).newAssrtCoreESend(this.peer, this.mid, this.payload, AssrtTrueFormula.TRUE, 
-				//AssrtCoreEAction.DUMMY_VAR, AssrtIntValFormula.ZERO);  // HACK FIXME
-				Collections.emptyList());
+		return ((AssrtCoreEModelFactory) this.mf.local).AssrtCoreESend(this.peer,
+				this.mid, this.payload, AssrtTrueFormula.TRUE, this.sexprs);
 	}
 
 	@Override
-	public AssrtCoreEReceive toDual(Role self)
+	public AssrtCoreERecv toDual(Role self)
 	{
-		return ((AssrtCoreEModelFactory) this.ef).newAssrtCoreEReceive(self, this.mid, this.payload, this.ass, //this.annot,
-				this.stateexprs);
+		return ((AssrtCoreEModelFactory) this.mf.local).AssrtCoreERecv(self,
+				this.mid, this.payload, this.ass, this.sexprs);
 	}
 
 	@Override
-	public AssrtCoreSSend toGlobal(SModelFactory sf, Role self)
+	public AssrtCoreSSend toGlobal(Role self)
 	{
-		return ((AssrtCoreSModelFactory) sf).newAssrtCoreSSend(self, this.peer, this.mid, this.payload, this.ass, //this.annot,
-				this.stateexprs);
+		return ((AssrtCoreSModelFactory) this.mf.global).AssrtCoreSSend(self,
+				this.peer, this.mid, this.payload, this.ass, this.sexprs);
 	}
 
 	/*@Override
@@ -63,18 +66,20 @@ public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 
 	@Override
 	//public AssrtArithFormula getArithExpr()
-	public List<AssrtArithFormula> getStateExprs()
+	public List<AssrtAFormula> getStateExprs()
 	{
-		return this.stateexprs;
+		return this.sexprs;
 	}
 	
 	@Override
 	public String toString()
 	{
 		//return super.toString() + "@" + this.ass + ";";
-		return super.toString() + stateExprsToString();
+		return super.toString() + stateExprsToString();  // "First", assertion must hold; "second" pass sexprs
 				//+ ((this.annot.toString().startsWith("_dum")) ? "" : "<" + this.annot + " := " + this.annotexprs + ">");  // FIXME
 				//+ (this.stateexprs.isEmpty() ? "" : "<" + this.stateexprs.stream().map(Object::toString).collect(Collectors.joining(", ")) + ">");
+		/*return this.obj + getCommSymbol() + this.mid + this.payload
+				+ stateExprsToString() + assertionToString();*/
 	}
 	
 	@Override
@@ -83,7 +88,7 @@ public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 		int hash = 6779;
 		hash = 31 * hash + super.hashCode();
 		//hash = 31 * hash + this.annot.hashCode();
-		hash = 31 * hash + this.stateexprs.hashCode();
+		hash = 31 * hash + this.sexprs.hashCode();
 		return hash;
 	}
 
@@ -101,11 +106,11 @@ public class AssrtCoreESend extends AssrtESend implements AssrtCoreEAction
 		AssrtCoreESend as = (AssrtCoreESend) o;
 		return super.equals(o)  // Does canEquals
 				//&& this.annot.equals(as.annot) 
-				&& this.stateexprs.equals(as.stateexprs);
+				&& this.sexprs.equals(as.sexprs);
 	}
 
 	@Override
-	public boolean canEqual(Object o)
+	public boolean canEquals(Object o)
 	{
 		return o instanceof AssrtCoreESend;
 	}

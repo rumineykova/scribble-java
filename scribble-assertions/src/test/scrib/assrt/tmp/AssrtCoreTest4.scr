@@ -1,0 +1,71 @@
+//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rhu1-assrt/scribble-java
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest4.scr -fair -z3 -assrt
+
+
+
+module assrt.tmp.AssrtCoreTest4;
+
+
+type <dotnet> "System.UInt32" from "..." as int;
+
+
+
+//*  // Fibs
+//global protocol Proto1(role A, role B) @<x:="0", y:="1"> "x>=0 && y>x"  // Bad (e.g., x=y=1)
+global protocol Fib(role A, role B) @<x:="0", y:="1"> "x>=0 && y>=x"
+{
+	1(x1: int) from A to B;	 @"x1=x"
+	2(y1: int) from A to B;	 @"y1=y"
+	3(z1: int) from B to A;	 @"z1=x1+y1"
+	do Fib(A, B);            @<"y", "z1">  // -batch unsat check issue?
+	//do Fib(A, B);            @<"y1", "z1">
+}
+//*/
+
+//* 
+global protocol Fib_ygtx(role A, role B) @<x:="1", y:="2"> "x>=1 && y>x"
+{
+	1(x1: int) from A to B;	 @"x1=x"
+	2(y1: int) from A to B;	 @"y1=y"
+	3(z1: int) from B to A;	 @"z1=x1+y1"
+	do Fib_ygtx(A, B);        @<"y1", "z1">
+}
+//*/
+
+//*
+global protocol Fibz(role A, role B) @<x:="0", y:="1", z:="1"> "(x>=0 && y>=x) && z=x+y"  // FIXME: parentheses
+{
+	1(x1: int) from A to B;	 @"x1=x"
+	2(y1: int) from A to B;	 @"y1=y"
+	3(z1: int) from B to A;	 @"z1=z"
+	do Fibz(A, B);         @<"y1", "z1", "y1+z1">
+}
+//*/
+
+//*
+global protocol Fibchoice(role A, role B) @<x:="0", y:="1"> "x>=0 && y>=x"
+{
+	choice at A
+	{
+		1(x1: int) from A to B;	 @"x1=x"
+		2(y1: int) from A to B;	 @"y1=y"
+		3(z1: int) from B to A;	 @"z1=x1+y1"
+		do Fibchoice(A, B);         @<"y1", "z1">
+	}
+	or
+	{
+		4() from A to B;
+	}
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+

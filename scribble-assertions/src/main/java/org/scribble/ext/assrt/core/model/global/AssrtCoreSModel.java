@@ -1,172 +1,116 @@
 package org.scribble.ext.assrt.core.model.global;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.main.AssrtJob;
-import org.scribble.ext.assrt.model.endpoint.AssrtEState;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.main.Job;
-import org.scribble.model.endpoint.actions.ESend;
-import org.scribble.type.name.GProtocolName;
-import org.scribble.type.name.Role;
+import org.scribble.core.model.global.SModel;
+import org.scribble.core.model.global.SState;
+import org.scribble.core.type.name.GProtoName;
+import org.scribble.ext.assrt.core.job.AssrtCore;
+import org.scribble.ext.assrt.core.job.AssrtCoreArgs;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 
 // 1-bounded LTS
 // Factor out with SGraph/SModel?
-public class AssrtCoreSModel
+public class AssrtCoreSModel extends SModel
 {
-	public final Map<Role, AssrtEState> E0;
-	public final AssrtCoreSState init;
+	protected final AssrtCore core;
 	
-	public Map<Integer, AssrtCoreSState> allStates; // State ID -> GMState
-
-	private Map<Integer, Set<Integer>> reach; // State ID -> reachable states (not reflexive)
-	private Set<Set<Integer>> termSets;
-
-	protected AssrtCoreSModel(Map<Role, AssrtEState> E0, AssrtCoreSState init, Map<Integer, AssrtCoreSState> allStates)
+	protected AssrtCoreSModel(AssrtCore core, AssrtCoreSGraph graph)
 	{
-		this.E0 = Collections.unmodifiableMap(E0);
-		this.init = init;
-		this.allStates = Collections.unmodifiableMap(allStates);
-
-		this.reach = getReachabilityMap();
-		this.termSets = findTerminalSets();
+		super(graph);
+		this.core = core;
 	}
 	
-	public AssrtCoreSafetyErrors getSafetyErrors(Job job, GProtocolName simpname)  // Maybe refactor simpname (root proto) into the (AssrtCore)Job
+	//public AssrtCoreSafetyErrors getSafetyErrors(Job job, GProtoName simpname)
+			// Maybe refactor simpname (root proto) into the (AssrtCore)Job
+	@Override
+	protected SortedMap<Integer, AssrtCoreSStateErrors> getSafetyErrors()  // s.id key lighter than full SConfig
 	{
-		AssrtJob j = (AssrtJob) job;
+		boolean batch = ((AssrtCoreArgs) this.core.config.args).Z3_BATCH;
+		boolean batchSat = false;
 		
-		Collection<AssrtCoreSState> all = this.allStates.values();
-		
-		Set<AssrtCoreSState> recepts  = all.stream().filter(AssrtCoreSState::isReceptionError).collect(Collectors.toSet());
-		Set<AssrtCoreSState> orphans  = all.stream().filter(s -> s.isOrphanError(this.E0)).collect(Collectors.toSet());
-		Set<AssrtCoreSState> unfins   = all.stream().filter(s -> s.isUnfinishedRoleError(this.E0)).collect(Collectors.toSet());
-		Set<AssrtCoreSState> conns    = all.stream().filter(AssrtCoreSState::isConnectionError).collect(Collectors.toSet());
-		Set<AssrtCoreSState> unconns  = all.stream().filter(AssrtCoreSState::isUnconnectedError).collect(Collectors.toSet());
-		Set<AssrtCoreSState> syncs    = all.stream().filter(AssrtCoreSState::isSynchronisationError).collect(Collectors.toSet());
-		Set<AssrtCoreSState> disconns = Collections.emptySet();  // TODO
-				//this.allStates.values().stream().filter(AssrtCoreSState::isDisconnectedError).collect(Collectors.toSet());
-
-		Set<AssrtCoreSState> unknownVars = all.stream()
-				.filter(s -> s.isUnknownDataTypeVarError(job, simpname)).collect(Collectors.toSet());
-
-		Set<AssrtCoreSState> asserts = null;  
-		Set<AssrtCoreSState> unsats = null;   
-		Set<AssrtCoreSState> recasserts = null;
-
-		if (j.batching)
+		if (batch)
 		{
-			// Check for all errors in a single pass -- any errors can be categorised later
-			Set<AssrtBoolFormula> fs = new HashSet<>();
-			fs.addAll(
-					all.stream().flatMap(s -> s.getAssertionProgressChecks(job, simpname).stream())
-						.collect(Collectors.toSet())
-			);
-			fs.addAll(
-					all.stream().flatMap(s -> s.getSatisfiableChecks(job, simpname).stream())
-						.collect(Collectors.toSet())
-			);
-			fs.addAll(
-					all.stream().flatMap(s -> s.getRecursionAssertionChecks(job, simpname, this.init).stream())
-						.collect(Collectors.toSet())
-			);
-			/*String smt2 = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
-						.map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining(""))
-					+ "(check-sat)\n(exit)";
-			if (Z3Wrapper.checkSat(smt2))*/  // FIXME: won't work for unint-funs without using Z3Wrapper.toSmt2
-			if (j.checkSat(simpname, fs))
-			{	
-				asserts     = Collections.emptySet();
-				unsats      = Collections.emptySet();
-				recasserts  = Collections.emptySet();
-			}
-		}
-		
-		if (!j.batching || asserts == null)
-		{
-			asserts     = all.stream()
-				.filter(s -> s.isAssertionProgressError(job, simpname)).collect(Collectors.toSet());
-			unsats      = all.stream()
-				.filter(s -> s.isUnsatisfiableError(job, simpname)).collect(Collectors.toSet());
-			recasserts  = all.stream()
-				.filter(s -> s.isRecursionAssertionError(job, simpname, this.init)).collect(Collectors.toSet());
-		}
-		
-		/*Set<AssrtCoreSState> portOpens = this.allStates.values().stream().filter(AssrtCoreSState::isPortOpenError).collect(Collectors.toSet());
-		Set<AssrtCoreSState> portOwners = this.allStates.values().stream().filter(AssrtCoreSState::isPortOwnershipError).collect(Collectors.toSet());*/
+			GProtoName fullname = this.graph.proto;
+			Collection<SState> all = this.graph.states.values();
 
-		return new AssrtCoreSafetyErrors(recepts, orphans, unfins, conns, unconns, syncs, disconns,
-				unknownVars, asserts, unsats, recasserts);
-	}
-	
-	public boolean isActive(AssrtCoreSState s, Role r)
-	{
-		return AssrtCoreSState.isActive(s.getP().get(r), this.E0.get(r).id);
-	}
-	
-	public AssrtCoreProgressErrors getProgressErrors()
-	{
-		//return new AssrtCoreProgressErrors(Collections.emptyMap(), Collections.emptyMap());
-		Map<Role, Set<Set<AssrtCoreSState>>> roleProgress = new HashMap<>();
-				/*this.E0.keySet().stream().collect(Collectors.toMap((r) -> r, (r) ->
-					this.termSets.stream().map((ts) -> ts.stream().map((i) -> this.allStates.get(i)).collect(Collectors.toSet()))
-						.filter((ts) -> ts.stream().allMatch((s) -> !s.getSubjects().contains(r)))
-							.collect(Collectors.toSet())));*/
-		for (Role r : this.E0.keySet())
-		{
-			for (Set<Integer> ts : this.termSets)	
+			if (all.stream().allMatch(x -> ((AssrtCoreSConfig) x.config)
+					.getUnknownDataVarErrors(core, fullname).isEmpty()))
 			{
-				if (ts.stream().allMatch(i -> isActive(this.allStates.get(i), r)
-						&& !this.allStates.get(i).getSubjects().contains(r)))
-				{
-					Set<Set<AssrtCoreSState>> set = roleProgress.get(r);
-					if (set == null)
-					{
-						set = new HashSet<>();
-						roleProgress.put(r, set);
-					}
-					set.add(ts.stream().map((i) -> this.allStates.get(i)).collect(Collectors.toSet()));
-				}	
-			}
-		}
+				// Check for all errors in a single pass -- any errors can be categorised later
+				Set<AssrtBFormula> fs = new HashSet<>();
+				fs.addAll(
+						all.stream()
+								.flatMap(s -> ((AssrtCoreSConfig) s.config)
+										.getAssertProgressChecks(this.core, fullname)
+										.stream())
+								.collect(Collectors.toSet()));
+				fs.addAll(
+						all.stream()
+								.flatMap(s -> ((AssrtCoreSConfig) s.config)
+										.getAssertSatChecks(this.core, fullname).stream())
+								.collect(Collectors.toSet()));
+				fs.addAll(
+						all.stream().flatMap(s -> ((AssrtCoreSConfig) s.config)
+								.getRecAssertChecks(this.core, fullname,
+										s.id == this.graph.init.id)
+								.stream())
+								.collect(Collectors.toSet()));
+				/*String smt2 = fs.stream().filter(f -> !f.equals(AssrtTrueFormula.TRUE))
+							.map(f -> "(assert " + f.toSmt2Formula() + ")\n").collect(Collectors.joining(""))
+						+ "(check-sat)\n(exit)";
+				if (Z3Wrapper.checkSat(smt2))*/  // FIXME: won't work for unint-funs without using Z3Wrapper.toSmt2
 
-		Map<ESend, Set<Set<AssrtCoreSState>>> eventualReception = new HashMap<>();
-		for (Role r1 : this.E0.keySet())
-		{
-			for (Role r2 : this.E0.keySet())
-			{
-				if (!r1.equals(r2))
+				batchSat = this.core.checkSat(fullname, fs);
+				if (batchSat)
 				{
-					for (Set<Integer> ts : this.termSets)	
-					{
-						AssrtCoreSState s1 = this.allStates.get(ts.iterator().next());
-						ESend es = s1.getQ().get(r1).get(r2);
-
-						if (es != null && !(es instanceof AssrtCoreEBot)  // FIXME: hasMessage?
-								&& ts.stream().allMatch(i -> es.equals(this.allStates.get(i).getQ().get(r1).get(r2))))
-						{
-							Set<Set<AssrtCoreSState>> set = eventualReception.get(es);
-							if (set == null)
-							{
-								set = new HashSet<Set<AssrtCoreSState>>();
-								eventualReception.put(es,  set);
-							}
-							set.add(ts.stream().map(i -> this.allStates.get(i)).collect(Collectors.toSet()));
-						}
-					}
+					return new TreeMap<>();
 				}
 			}
 		}
-		
-		return new AssrtCoreProgressErrors(roleProgress, eventualReception);
+
+		SortedMap<Integer, AssrtCoreSStateErrors> res = new TreeMap<>();
+		for (int id : this.graph.states.keySet())
+		{
+			//SStateErrors errs = this.graph.states.get(id).getErrors();  // TODO: getErrors needs core/fullname args
+			AssrtCoreSStateErrors errs = new AssrtCoreSStateErrors(this.core,
+					this.graph.proto, (AssrtCoreSState) this.graph.init,
+					(AssrtCoreSState) this.graph.states.get(id));
+			if (!errs.isEmpty())
+			{
+				res.put(id, errs);
+			}
+		}
+
+		if (res.isEmpty() && batch && !batchSat)  // Testing batch vs. base
+		{
+			throw new RuntimeException("FIXME: ");
+		}
+
+		return res;
 	}
-	//*/
+}
+
+
+
+
+
+
+
+
+
+
+
+	
+	/*public boolean isActive(AssrtCoreSState s, Role r)
+	{
+		return AssrtCoreSConfig.isActive(s.getP().get(r), this.E0.get(r).id);
+	}
 	
 	// Revised "eventual reception" -- 1-bounded stable property with subject role side condition
 	// FIXME: refactor as actual eventual reception -- though original one may be better for error feedback
@@ -190,11 +134,13 @@ public class AssrtCoreSModel
 	private static boolean isStable(AssrtCoreSState s)  // FIXME: refactor to F17SState
 	{
 		return s.getQ().values().stream().flatMap(m -> m.values().stream())
-					.filter(v -> v != null && !(v instanceof AssrtCoreEBot)).count() == 0;  // FIXME: connections
+				.filter(v -> v != null && !(v instanceof AssrtCoreEBot)).count() == 0;
+				// FIXME: connections
 	}
 	
 	//private boolean canReachStable(Set<F17SState> seen, F17SState s, Role r)
-	private boolean canReachStable(Set<AssrtCoreSState> seen, AssrtCoreSState s)  // FIXME: subj role side condition for compatibility -- maybe integrate with this.reach -- currently no point to search this way, should just check stable on all reachable
+	private boolean canReachStable(Set<AssrtCoreSState> seen, AssrtCoreSState s)
+			// FIXME: subj role side condition for compatibility -- maybe integrate with this.reach -- currently no point to search this way, should just check stable on all reachable
 	{
 		if (AssrtCoreSModel.isStable(s))
 		{
@@ -204,14 +150,14 @@ public class AssrtCoreSModel
 		{
 			return false;
 		}
-		/*for (F17SState succ : s.getAllSuccessors())
-		{
-			if (isStable(succ))
-			{
-				return true;
-			}
-		}*/
-		for (AssrtCoreSState succ : s.getAllSuccessors())
+//		for (F17SState succ : s.getAllSuccessors())
+//		{
+//			if (isStable(succ))
+//			{
+//				return true;
+//			}
+//		}
+		for (AssrtCoreSState succ : s.getSuccs())
 		{
 			Set<AssrtCoreSState> tmp = new HashSet<>(seen);
 			tmp.add(s);
@@ -222,229 +168,4 @@ public class AssrtCoreSModel
 		}
 		return false;
 	}
-	
-	@Override
-	public String toString()
-	{
-		return this.init.toString();
-	}
-	
-	public String toDot()
-	{
-		return this.init.toDot();
-	}
-	
-	@Override
-	public final int hashCode()
-	{
-		int hash = 2887;
-		hash = 31 * hash + this.init.hashCode();
-		return hash;
-	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (!(o instanceof AssrtCoreSModel))
-		{
-			return false;
-		}
-		return this.init.id == ((AssrtCoreSModel) o).init.id;
-	}
-
-	
-	/**
-	 *  Duplicated from SGraph
-	 */
-
-	public Set<Set<Integer>> getTerminalSets()
-	{
-		return this.termSets;
-	}
-
-	public Set<Set<Integer>> findTerminalSets()
-	{
-		Set<Set<Integer>> termSets = new HashSet<>();
-		Set<Set<Integer>> checked = new HashSet<>();
-		for (Integer i : reach.keySet())
-		{
-			AssrtCoreSState s = this.allStates.get(i);
-			Set<Integer> rs = this.reach.get(s.id);
-			if (!checked.contains(rs) && rs.contains(s.id))
-			{
-				checked.add(rs);
-				if (isTerminalSetMember(s))
-				{
-					termSets.add(rs);
-				}
-			}
-		}
-		//this.termSets = Collections.unmodifiableSet(termSets);
-		return termSets;
-	}
-
-	private boolean isTerminalSetMember(AssrtCoreSState s)
-	{
-		Set<Integer> rs = this.reach.get(s.id);
-		Set<Integer> tmp = new HashSet<>(rs);
-		tmp.remove(s.id);
-		for (Integer r : tmp)
-		{
-			if (!this.reach.containsKey(r) || !this.reach.get(r).equals(rs))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/*// Pre: reach.get(start).contains(end) // FIXME: will return null if initial
-	// state is error
-	public List<SAction> getTrace(F17SState start, F17SState end)
-	{
-		SortedMap<Integer, Set<Integer>> candidates = new TreeMap<>();
-		Set<Integer> dis0 = new HashSet<Integer>();
-		dis0.add(start.id);
-		candidates.put(0, dis0);
-
-		Set<Integer> seen = new HashSet<>();
-		seen.add(start.id);
-
-		return getTraceAux(new LinkedList<>(), seen, candidates, end);
-	}
-
-	// Djikstra's
-	private List<SAction> getTraceAux(List<SAction> trace, Set<Integer> seen,
-			SortedMap<Integer, Set<Integer>> candidates, F17SState end)
-	{
-		Integer dis = candidates.keySet().iterator().next();
-		Set<Integer> cs = candidates.get(dis);
-		Iterator<Integer> it = cs.iterator();
-		Integer currid = it.next();
-		it.remove();
-		if (cs.isEmpty())
-		{
-			candidates.remove(dis);
-		}
-
-		F17SState curr = this.states.get(currid);
-		Iterator<SAction> as = curr.getAllActions().iterator();
-		Iterator<F17SState> ss = curr.getAllSuccessors().iterator();
-		while (as.hasNext())
-		{
-			SAction a = as.next();
-			F17SState s = ss.next();
-			if (s.id == end.id)
-			{
-				trace.add(a);
-				return trace;
-			}
-
-			if (!seen.contains(s.id) && this.reach.containsKey(s.id)
-					&& this.reach.get(s.id).contains(end.id))
-			{
-				seen.add(s.id);
-				Set<Integer> tmp1 = candidates.get(dis + 1);
-				if (tmp1 == null)
-				{
-					tmp1 = new HashSet<>();
-					candidates.put(dis + 1, tmp1);
-				}
-				tmp1.add(s.id);
-				List<SAction> tmp2 = new LinkedList<>(trace);
-				tmp2.add(a);
-				List<SAction> res = getTraceAux(tmp2, seen, candidates, end);
-				if (res != null)
-				{
-					return res;
-				}
-			}
-		}
-		return null;
-	}*/
-
-	// Not reflexive
-	public Map<Integer, Set<Integer>> getReachabilityMap()
-	{
-		if (this.reach != null)
-		{
-			return this.reach;
-		}
-
-		Map<Integer, Integer> idToIndex = new HashMap<>(); // state ID -> array
-																												// index
-		Map<Integer, Integer> indexToId = new HashMap<>(); // array index -> state
-																												// ID
-		int i = 0;
-		for (AssrtCoreSState s : this.allStates.values())
-		{
-			idToIndex.put(s.id, i);
-			indexToId.put(i, s.id);
-			i++;
-		}
-		this.reach = getReachabilityAux(idToIndex, indexToId);
-
-		return this.reach;
-	}
-
-	private Map<Integer, Set<Integer>> getReachabilityAux(
-			Map<Integer, Integer> idToIndex, Map<Integer, Integer> indexToId)
-	{
-		int size = idToIndex.keySet().size();
-		boolean[][] reach = new boolean[size][size];
-
-		for (Integer s1id : idToIndex.keySet())
-		{
-			for (AssrtCoreSState s2 : this.allStates.get(s1id).getAllSuccessors())
-			{
-				reach[idToIndex.get(s1id)][idToIndex.get(s2.id)] = true;
-			}
-		}
-
-		for (boolean again = true; again;)
-		{
-			again = false;
-			for (int i = 0; i < size; i++)
-			{
-				for (int j = 0; j < size; j++)
-				{
-					if (reach[i][j])
-					{
-						for (int k = 0; k < size; k++)
-						{
-							if (reach[j][k] && !reach[i][k])
-							{
-								reach[i][k] = true;
-								again = true;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		Map<Integer, Set<Integer>> res = new HashMap<>();
-		for (int i = 0; i < size; i++)
-		{
-			Set<Integer> tmp = res.get(indexToId.get(i));
-			for (int j = 0; j < size; j++)
-			{
-				if (reach[i][j])
-				{
-					if (tmp == null)
-					{
-						tmp = new HashSet<>();
-						res.put(indexToId.get(i), tmp);
-					}
-					tmp.add(indexToId.get(j));
-				}
-			}
-		}
-
-		return Collections.unmodifiableMap(res);
-	}
-}
+	*/

@@ -5,14 +5,22 @@ type <java> "java.lang.integer" from "rt.jar" as int;
 type <java> "java.lang.Long" from "rt.jar" as Long;
 
 // Recursion with Annotations (Simple)
-global protocol ProtSimple(role C, role S)
+/*global protocol ProtSimple(role C, role S)
 {
 rec Loop {
 	ADD(x:int) from C to S;
 	continue Loop; 
 	//ADD(y:integer) from C to S;
 	} 
+}*/
+global protocol ProtSimple(role C, role S)
+{
+	ADD(x:int) from C to S;
+	do ProtSimple(C, S); 
 }
+
+
+
 
 // FIXME: make separate test
 // Recursion with Annotations (Complicated)

@@ -1,16 +1,7 @@
 package org.scribble.ext.assrt.del.global;
 
-import java.util.Arrays;
-
-import org.scribble.ast.ConnectionAction;
-import org.scribble.ast.MessageSigNode;
-import org.scribble.ast.ScribNode;
 import org.scribble.del.global.GConnectDel;
 import org.scribble.ext.assrt.del.AssrtScribDel;
-import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
-import org.scribble.ext.assrt.visit.wf.env.AssrtAnnotationEnv;
-import org.scribble.main.ScribbleException;
-import org.scribble.type.name.Role;
 
 public class AssrtGConnectDel extends GConnectDel implements AssrtScribDel
 {
@@ -19,9 +10,11 @@ public class AssrtGConnectDel extends GConnectDel implements AssrtScribDel
 		
 	}
 
+	/*
 	// Duplicated from AssrtGMessageTransferDel
 	@Override
-	public ConnectionAction<?> leaveAnnotCheck(ScribNode parent, ScribNode child, AssrtAnnotationChecker checker, ScribNode visited) throws ScribbleException
+	public ConnectionAction<?> leaveAnnotCheck(ScribNode child,
+			AssrtAnnotationChecker checker, ScribNode visited) throws ScribException
 	{
 		ConnectionAction<?> ca = (ConnectionAction<?>) visited;
 		AssrtAnnotationEnv env = checker.popEnv();
@@ -44,7 +37,7 @@ public class AssrtGConnectDel extends GConnectDel implements AssrtScribDel
 						AssrtAnnotDataType adt = (AssrtAnnotDataType) apt;
 						if (env.isDataTypeVarBound(adt.var))
 						{
-							throw new ScribbleException("Payload var " + pe + " is already declared."); 
+							throw new ScribException("Payload var " + pe + " is already declared."); 
 						}
 						env = env.addAnnotDataType(src, adt); 
 						env = env.addDataTypeVarName(dest, adt.var);
@@ -54,12 +47,12 @@ public class AssrtGConnectDel extends GConnectDel implements AssrtScribDel
 						AssrtDataTypeVar v = (AssrtDataTypeVar) apt;
 						if (!env.isDataTypeVarKnown(src, v))
 						{
-							throw new ScribbleException("Payload var " + pe + " is not in scope for role: " + src);
+							throw new ScribException("Payload var " + pe + " is not in scope for role: " + src);
 						}
 						env = env.addDataTypeVarName(dest, v);
 					}
 				}
-			}*/
+			}* /
 		}
 		else
 		{
@@ -69,4 +62,5 @@ public class AssrtGConnectDel extends GConnectDel implements AssrtScribDel
 		checker.pushEnv(env);
 		return ca; 
 	}
+	*/
 }

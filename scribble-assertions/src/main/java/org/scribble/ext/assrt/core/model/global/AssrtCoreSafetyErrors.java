@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 // Duplicated from F17LTSSafetyErrors
 // Wait-for errors?
+@Deprecated
 public class AssrtCoreSafetyErrors
 {
 	/*public final Set<AssrtCoreSState> reception;
@@ -90,7 +91,6 @@ public class AssrtCoreSafetyErrors
 	
 	private static final String getNodeLabel(AssrtCoreSState s)
 	{
-		String m = s.getNodeLabel();
-		return m.substring("label=\"".length(), m.length() - 1);
+		return s.getLabels().toString();
 	}
 }

@@ -1,0 +1,21 @@
+module bad.extensions.assrtcore.safety.unsat.AssrtCoreTest20c;  // Prev name 20
+
+
+type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
+
+
+//*
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A
+	{
+		1() from A to B;  @"False"
+		1() from B to C;  @"False"  // Satisfies assrt-prog because preceding False makes implies true (i.e., no error here -- same in ext-annot)
+	}	
+	or
+	{
+		2() from A to B;
+		2() from B to C;
+	}
+}
+//*/

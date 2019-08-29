@@ -1,31 +1,58 @@
 package org.scribble.ext.assrt.core.model.global;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSAccept;
-import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSReceive;
-import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSRequest;
+import org.scribble.core.model.endpoint.EFsm;
+import org.scribble.core.model.global.SModelFactory;
+import org.scribble.core.model.global.SSingleBuffers;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.core.job.AssrtCore;
+import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSAcc;
+import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSRecv;
+import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSReq;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.model.global.SModelFactory;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 
 public interface AssrtCoreSModelFactory extends SModelFactory
 {
-	/*AssrtCoreSSend newAssrtCoreSSend(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf, AssrtDataTypeVar annot, AssrtArithFormula expr);
-	AssrtCoreSReceive newAssrtCoreSReceive(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf, AssrtDataTypeVar annot, AssrtArithFormula expr);
-	AssrtCoreSRequest newAssrtCoreSRequest(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf, AssrtDataTypeVar annot, AssrtArithFormula expr);
-	AssrtCoreSAccept newAssrtCoreSAccept(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf, AssrtDataTypeVar annot, AssrtArithFormula expr);*/
+	/*@Override
+	AssrtCoreSGraphBuilder SGraphBuilder();
 
-	//SConfig newAssrtSConfig(Map<Role, EFSM> state, SBuffers buffs, AssrtLogFormula formula, Map<Role, Set<String>> variablesInScope);
+	@Override
+	AssrtCoreSGraphBuilderUtil SGraphBuilderUtil();
 
-	//AssrtCoreSState newAssrtCoreSState(Map<Role, EFSM> state, SBuffers buffs, AssrtLogFormula formula, Map<Role, Set<String>> variablesInScope);
+	@Override
+	AssrtCoreSState SState(SConfig config);
 
-	AssrtCoreSSend newAssrtCoreSSend(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf, List<AssrtArithFormula> stateexprs);
-	AssrtCoreSReceive newAssrtCoreSReceive(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf, List<AssrtArithFormula> stateexprs);
-	AssrtCoreSRequest newAssrtCoreSRequest(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf, List<AssrtArithFormula> stateexprs);
-	AssrtCoreSAccept newAssrtCoreSAccept(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf, List<AssrtArithFormula> stateexprs);
+	@Override
+	AssrtCoreSGraph SGraph(GProtoName fullname, Map<Integer, SState> states, 
+			SState init);  // states: s.id -> s
+
+	@Override
+	AssrtCoreSModel SModel(SGraph graph);*/
+
+
+	AssrtCoreSConfig AssrtCoreSConfig(Map<Role, EFsm> P, SSingleBuffers Q,
+			Map<Role, Map<AssrtIntVar, AssrtAFormula>> R,
+			Map<Role, Set<AssrtBFormula>> Rass, Map<Role, Set<AssrtIntVar>> K,
+			Map<Role, Set<AssrtBFormula>> F
+			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename
+			//Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes
+			);
+	AssrtCoreSModel AssrtCoreSModel(AssrtCore core, AssrtCoreSGraph graph);
+	
+	AssrtCoreSSend AssrtCoreSSend(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs);
+	AssrtCoreSRecv AssrtCoreSRecv(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs);
+	AssrtCoreSReq AssrtCoreSReq(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs);
+	AssrtCoreSAcc AssrtCoreSAcc(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs);
 }

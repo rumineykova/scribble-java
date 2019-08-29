@@ -1,11 +1,11 @@
 package org.scribble.ext.assrt.parser.assertions.formula;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinCompFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
 import org.scribble.ext.assrt.parser.assertions.AssrtAntlrToFormulaParser;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBinCompFormula;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtSmtFormula;
 
 public class AssrtAntlrCompExpr
 {
@@ -22,8 +22,8 @@ public class AssrtAntlrCompExpr
 			return left;
 		}
 		AssrtBinCompFormula.Op op = parseOp(getOpChild(root)); 
-		AssrtArithFormula right = (AssrtArithFormula) parser.parse(getRightChild(root));
-		return AssrtFormulaFactory.AssrtBinComp(op, (AssrtArithFormula) left, right); 
+		AssrtAFormula right = (AssrtAFormula) parser.parse(getRightChild(root));
+		return AssrtFormulaFactory.AssrtBinComp(op, (AssrtAFormula) left, right); 
 	}
 	
 	public static CommonTree getOpChild(CommonTree root)

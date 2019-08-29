@@ -1,0 +1,21 @@
+module bad.extensions.assrtcore.safety.assrtprog.AssrtCoreTest22a;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
+
+
+//*
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B;
+	choice at A
+	/*{
+		2() from A to B;
+	}
+	//or { 3() from A to B; @"False" }  // Uncomment is unsat
+	or*/
+	{
+		4() from A to B; @"(x>3)"  // Sat assert-prog because of first case
+	}
+}
+//*/

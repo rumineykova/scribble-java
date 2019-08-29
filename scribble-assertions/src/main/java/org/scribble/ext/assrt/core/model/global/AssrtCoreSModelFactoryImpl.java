@@ -1,50 +1,114 @@
 package org.scribble.ext.assrt.core.model.global;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSAccept;
-import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSReceive;
-import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSRequest;
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.model.endpoint.EFsm;
+import org.scribble.core.model.global.SConfig;
+import org.scribble.core.model.global.SGraph;
+import org.scribble.core.model.global.SModelFactoryImpl;
+import org.scribble.core.model.global.SSingleBuffers;
+import org.scribble.core.model.global.SState;
+import org.scribble.core.type.name.GProtoName;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.core.job.AssrtCore;
+import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSAcc;
+import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSRecv;
+import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSReq;
 import org.scribble.ext.assrt.core.model.global.action.AssrtCoreSSend;
-import org.scribble.ext.assrt.model.global.AssrtSModelFactoryImpl;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.Role;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 
-public class AssrtCoreSModelFactoryImpl extends AssrtSModelFactoryImpl implements AssrtCoreSModelFactory
+public class AssrtCoreSModelFactoryImpl extends SModelFactoryImpl //AssrtSModelFactoryImpl
+		implements AssrtCoreSModelFactory
 {
 
-	@Override
-	public AssrtCoreSSend newAssrtCoreSSend(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf,
-			//AssrtDataTypeVar annot, AssrtArithFormula expr)
-			List<AssrtArithFormula> stateexprs)
+	public AssrtCoreSModelFactoryImpl(ModelFactory mf)
 	{
-		return new AssrtCoreSSend(subj, obj, mid, payload, bf, stateexprs);
+		super(mf);
 	}
 
 	@Override
-	public AssrtCoreSReceive newAssrtCoreSReceive(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf,
-			//AssrtDataTypeVar annot, AssrtArithFormula expr)
-			List<AssrtArithFormula> stateexprs)
+	public AssrtCoreSGraphBuilder SGraphBuilder()
 	{
-		return new AssrtCoreSReceive(subj, obj, mid, payload, bf, stateexprs);
+		return new AssrtCoreSGraphBuilder(this.mf);
 	}
 
 	@Override
-	public AssrtCoreSRequest newAssrtCoreSRequest(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf,
-			//AssrtDataTypeVar annot, AssrtArithFormula expr)
-			List<AssrtArithFormula> stateexprs)
+	public AssrtCoreSGraphBuilderUtil SGraphBuilderUtil()
 	{
-		return new AssrtCoreSRequest(subj, obj, mid, payload, bf, stateexprs);
+		return new AssrtCoreSGraphBuilderUtil(this.mf);
 	}
 
 	@Override
-	public AssrtCoreSAccept newAssrtCoreSAccept(Role subj, Role obj, MessageId<?> mid, Payload payload, AssrtBoolFormula bf,
-			//AssrtDataTypeVar annot, AssrtArithFormula expr)
-			List<AssrtArithFormula> stateexprs)
+	public AssrtCoreSState SState(SConfig config)
 	{
-		return new AssrtCoreSAccept(subj, obj, mid, payload, bf, stateexprs);
+		return new AssrtCoreSState((AssrtCoreSConfig) config);
+	}
+
+	@Override
+	public AssrtCoreSConfig AssrtCoreSConfig(Map<Role, EFsm> P, SSingleBuffers Q,
+			Map<Role, Map<AssrtIntVar, AssrtAFormula>> R,
+			Map<Role, Set<AssrtBFormula>> Rass, Map<Role, Set<AssrtIntVar>> K,
+			Map<Role, Set<AssrtBFormula>> F)
+			//Map<Role, Map<AssrtIntVarFormula, AssrtIntVarFormula>> rename
+			//Map<Role, LinkedHashMap<Integer, Set<AssrtIntVar>>> scopes)
+	{
+		return new AssrtCoreSConfig(this.mf, P, Q, K, F, R, Rass //rename, scopes
+				);
+	}
+
+	@Override
+	public AssrtCoreSGraph SGraph(GProtoName fullname, Map<Integer, SState> states, 
+			SState init)
+	{
+		return new AssrtCoreSGraph(fullname, states, init);
+	}
+
+	@Override
+	public AssrtCoreSModel SModel(SGraph graph)
+	{
+		//return new AssrtCoreSModel((AssrtCoreSGraph) graph);
+		throw new RuntimeException("Deprecated for " + getClass());
+	}
+
+	// FIXME: breaks super pattern, extra core arg -- cf. Core.validateByScribble -- CHECKME: core really needed?
+	@Override
+	public AssrtCoreSModel AssrtCoreSModel(AssrtCore core, AssrtCoreSGraph graph)
+	{
+		return new AssrtCoreSModel(core, graph);
+	}
+
+	@Override
+	public AssrtCoreSSend AssrtCoreSSend(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs)
+	{
+		return new AssrtCoreSSend(subj, obj, mid, pay, ass, sexprs);
+	}
+
+	@Override
+	public AssrtCoreSRecv AssrtCoreSRecv(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs)
+	{
+		return new AssrtCoreSRecv(subj, obj, mid, pay, ass, sexprs);
+	}
+
+	@Override
+	public AssrtCoreSReq AssrtCoreSReq(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs)
+	{
+		return new AssrtCoreSReq(subj, obj, mid, pay, ass, sexprs);
+	}
+
+	@Override
+	public AssrtCoreSAcc AssrtCoreSAcc(Role subj, Role obj, MsgId<?> mid,
+			Payload pay, AssrtBFormula ass, List<AssrtAFormula> sexprs)
+	{
+		return new AssrtCoreSAcc(subj, obj, mid, pay, ass, sexprs);
 	}
 }

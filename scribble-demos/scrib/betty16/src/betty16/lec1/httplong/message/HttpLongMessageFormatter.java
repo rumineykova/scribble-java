@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import org.scribble.runtime.net.ScribMessage;
-import org.scribble.runtime.net.ScribMessageFormatter;
+import org.scribble.runtime.message.ScribMessage;
+import org.scribble.runtime.message.ScribMessageFormatter;
 
 import betty16.lec1.httplong.message.client.Accept;
 import betty16.lec1.httplong.message.client.AcceptEncoding;
@@ -30,6 +30,7 @@ import betty16.lec1.httplong.message.client.DoNotTrack;
 import betty16.lec1.httplong.message.client.Host;
 import betty16.lec1.httplong.message.client.RequestLine;
 import betty16.lec1.httplong.message.client.UpgradeInsecureRequests;
+import betty16.lec1.httplong.message.client.Cookie;
 import betty16.lec1.httplong.message.client.UserAgent;
 import betty16.lec1.httplong.message.server.AcceptRanges;
 import betty16.lec1.httplong.message.server.ContentLength;
@@ -177,6 +178,7 @@ public class HttpLongMessageFormatter implements ScribMessageFormatter
 					case HttpLongMessage.DO_NOT_TRACK: return new DoNotTrack(Integer.parseInt(value));     
 					case HttpLongMessage.CONNECTION: return new Connection(value);
 					case HttpLongMessage.UPGRADE_INSECURE_REQUESTS: return new UpgradeInsecureRequests(Integer.parseInt(value));
+					case HttpLongMessage.COOKIE: return new Cookie(value);
 					
 					case HttpLongMessage.DATE: return new Date(value);
 					case HttpLongMessage.SERVER: return new Server(value);

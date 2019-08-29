@@ -13,22 +13,23 @@
  */
 package http.longvers;
 
-import org.scribble.runtime.net.Buf;
-import org.scribble.runtime.net.scribsock.ScribServerSocket;
-import org.scribble.runtime.net.scribsock.SocketChannelServer;
-import org.scribble.runtime.net.session.MPSTEndpoint;
+import org.scribble.runtime.net.ScribServerSocket;
+import org.scribble.runtime.net.SocketChannelServer;
+import org.scribble.runtime.session.MPSTEndpoint;
+import org.scribble.runtime.util.Buf;
 
 import http.longvers.HttpLong.Http.Http;
-import http.longvers.HttpLong.Http.channels.S.Http_S_1;
-import http.longvers.HttpLong.Http.channels.S.Http_S_2;
-import http.longvers.HttpLong.Http.channels.S.Http_S_2_Cases;
 import http.longvers.HttpLong.Http.roles.S;
+import http.longvers.HttpLong.Http.statechans.S.Http_S_1;
+import http.longvers.HttpLong.Http.statechans.S.Http_S_2;
+import http.longvers.HttpLong.Http.statechans.S.Http_S_2_Cases;
 import http.longvers.message.Body;
 import http.longvers.message.HttpLongMessageFormatter;
 import http.longvers.message.client.Accept;
 import http.longvers.message.client.AcceptEncoding;
 import http.longvers.message.client.AcceptLanguage;
 import http.longvers.message.client.Connection;
+import http.longvers.message.client.Cookie;
 import http.longvers.message.client.DoNotTrack;
 import http.longvers.message.client.Host;
 import http.longvers.message.client.RequestLine;
@@ -56,6 +57,7 @@ public class HttpLongS
 		Buf<DoNotTrack> b_dnt = new Buf<>();
 		Buf<Connection> b_conn = new Buf<>();
 		Buf<UpgradeInsecureRequests> b_upgradeir = new Buf<>();
+		Buf<Cookie> b_cookie = new Buf<>();
 		Buf<Body> b_body = new Buf<>();
 		
 		try (ScribServerSocket ss = new SocketChannelServer(8080))
@@ -116,6 +118,11 @@ public class HttpLongS
 							case UPGRADEIR:
 							{
 								s2 = s2cases.receive(Http.UPGRADEIR, b_upgradeir);
+								break;
+							}
+							case COOKIE:
+							{
+								s2 = s2cases.receive(Http.COOKIE, b_cookie);
 								break;
 							}
 							case HOST:

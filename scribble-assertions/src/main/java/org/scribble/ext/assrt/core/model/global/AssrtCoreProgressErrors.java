@@ -3,15 +3,20 @@ package org.scribble.ext.assrt.core.model.global;
 import java.util.Map;
 import java.util.Set;
 
-import org.scribble.model.endpoint.actions.ESend;
-import org.scribble.type.name.Role;
+import org.scribble.core.model.endpoint.actions.ESend;
+import org.scribble.core.type.name.Role;
 
+
+// TODO: refactor cf. SState.getProgressErrors, Map<Set<SState>, Pair<Set<Role>, Map<Role, Set<ESend>>>>
+@Deprecated
 public class AssrtCoreProgressErrors
 {
 	public final Map<Role, Set<Set<AssrtCoreSState>>> roleProgress;
 	public final Map<ESend, Set<Set<AssrtCoreSState>>> eventualReception;
 	
-	public AssrtCoreProgressErrors(Map<Role, Set<Set<AssrtCoreSState>>> roleProgress, Map<ESend, Set<Set<AssrtCoreSState>>> eventualReception)
+	public AssrtCoreProgressErrors(
+			Map<Role, Set<Set<AssrtCoreSState>>> roleProgress,
+			Map<ESend, Set<Set<AssrtCoreSState>>> eventualReception)
 	{
 		this.roleProgress = roleProgress;
 		this.eventualReception = eventualReception;
@@ -19,7 +24,8 @@ public class AssrtCoreProgressErrors
 	
 	public boolean satisfiesProgress()
 	{
-		return this.roleProgress.isEmpty() && this.eventualReception.isEmpty();  // FIXME: refactor eventual reception as 1-bounded stable property
+		return this.roleProgress.isEmpty() && this.eventualReception.isEmpty();
+				// FIXME: refactor eventual reception as 1-bounded stable property
 	}
 	
 	@Override

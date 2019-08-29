@@ -1,0 +1,25 @@
+module good.extensions.assrtcore.safety.unsat.AssrtCoreTest35;
+
+
+type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
+
+
+//*  // Cf. SH
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A
+	{
+		Bes(b2:int) from B to A;
+		choice at A
+		{
+			SecOut() from A to C;  @"b2>0"  // Testing unsat check on input side -- after one loop, e.g., C's F has b2<=0, but C has (unsat) b2>0 action while "waiting" for A (that is interacting with B) 
+			do Proto1(A, B, C);
+		}
+		or
+		{
+			SecIn() from A to C;   @"b2<=0"
+			do Proto1(A, B, C);
+		}
+	}
+}
+//*/

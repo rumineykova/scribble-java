@@ -1,5 +1,5 @@
-//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-java
-//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest.scr -Z3 -ass Proto1 -V 
+//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rhu1-assrt/scribble-java
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest.scr -fair -z3 -assrt -modelpng Proto1 Proto1.png -fsmpng Proto1 A Proto1_A.png -fsmpng Proto1 B Proto1_B.png
 
 
 // http://sandbox.kidstrythisathome.com/erdos/
@@ -73,11 +73,56 @@
 
 
 
-module assrt.tmp.AssrtCoreTest;
+// merging DONE
+// - coreconfig flags Map->Set -- done: refactored separate CoreArgs and CoreFlags
+// - make uniform orig/new assrt node parsing/astfactor (refactor parser mixed new ast types with old token types) -- refactor new ast types to fully subsume old ones (e.g., getChildren) -- done
+// - fix new parser reflection in tree adaptor (no common interface for "module" top-level method) -- done
+// - refactor astfactoryimpl token constants to parser (and refactor ast/delfactoryimpl to scribble-ast) -- done: ScribAntlrTokens
+
+// merging TODO
+// - FIXME TODO prune unsat recursive choice cases after selecting a case, good.extensions.assrtcore.safety.unsat.AssrtCoreTest36
+// - FIXME: when inlining f/w rec state args, inline constant vars directly (analogous to cont-rec constant inlining) -- make an isConstant method for types/Formula -- cf. `y=x`, good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f
+// - factor out Protocol<K, N, Type> above existing (Seq)Protocol, AssrtCoreProtocol under the former -- or replace inheritance by deleg? (see later)
+// - CHECKME: GTypeTranslation syntax exception (JUnit harness)
+// - rename "new" factory methods? (easily confused with new expr)  centralise?
+// - rename AssrtCore to Core? -- implement "strict" mode via translator?
+	// - proto params not supported -- CHECKME: mixing rec/continue with protodecl/do
+// - refactor exceptions to main packages
+// - refactor -inline via temporary directory/file
+// - check super.addScribChildren pattern
+// - consider del's over ast subclassing for ext's like assrt -- alternatively, extend base's, and subclass for G/L (instead of extending G/L)
+// - check genereal overrides, return super types where better -- @deprecate runtimeexception overrides? e.g, reconstruct
+// - check Assrt NameDisamb/checkAnnot passes
+// - rename Assertions.g related stuff with Annot prefix
+// - disamb annot statevars (etc?) to qualified names, avoid "rename" issues (cf. AssrtCoreSConfig)
+// - maybe move init config factory from util to builder?
+// - refactor model (safety) error checking operations into EFsm? (need to pass queues) 
+// - refactor common formula building for error checks in AssrtCoreSConfig
+
+// later:
+// - fix duplicate proto decl name check
+// - refactor modulecontext building, move dup vis name checks out (drop scribexception)
+// - try var type inference
+// - refactor namedisamb functionality
+// - annot var lin modifier?  etc?
+// - consider refactoring Core/Config/Context to be more neutral of G/LProtocol (use Protocol super)
+//		- consider refactoring base as an ext outside of core
+//		- separate core (seq) from "classic"? -- maybe add Seq as an "ext" of classic? (currently deprecating a lot of core for classic, but should be the other way round)
+//		- consider replacing some inheritance by delegation/nesting, e.g., LProjection/Protocol (cf. SModel/SGraph)
+//		- replace nullables by Optional
+// - refactor Kinds as types only?  or values needed for serialization?
+// - fix UnaryPayElem generic casts (and AssrtAnnotDataElem)
+// - standardise EFSM/model format -- should contain data type info (e.g., for STP) -- should make a decl language for FSM module members, share imports with protos
 
 
-type <dotnet> "System.UInt32" from "..." as int;
-type <dotnet> "System.String" from "..." as str;
+// - tricky: state vars get "wildcarded" ("_" prefix), but "old" knowledge may remain (and be used) in F, e.g., good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest08f
+// - assertions specify "knowledge" communication, need to duplicate to multiple peers as necessary -- e.g., assertions on state vars without any payloads
+// - "static" assertions at scribble level (design time), vs. actual "dynamic" assertions at process level (run time) -- consider gradual-ness -- e.g., x>1, followed by x>0 or x>2 
+// - rec-continue state args on continue edge only, tricky for duality in MP situations (e.g., A->B.A->C.X<123>, consider A/B projections)
+
+
+
+
 
 /*
 - model checking: uniform validation for integrating different MPST features
@@ -92,16 +137,1362 @@ type <dotnet> "System.String" from "..." as str;
 --- multiparty old actvar renaming based on message flow
 --- then compacting -- i.e., syntactic term GC hack
 -- then the "inductive" step, given by old statvar renaming becoming forall
---- very conserative -- restore "precision" by recursion assertions as "loop invariants"
+--- very conservative -- restore "precision" by recursion assertions as "loop invariants"
 - so model checked errors: unknownvar (HS), assert-prog (TS?), sat (TS?), recursion-assert
 */
 
+module assrt.tmp.AssrtCoreTest;
+
+
+type <dotnet> "System.UInt32" from "..." as int;
+//type <dotnet> "System.String" from "..." as str;
+
+
+
+// TODO HERE
+// - fix expression parsing, e.g., parentheses
+// - rec syntax -- can then do all tests 
+// - transitive V/R GC, also F -- actually necessary?
+//done
+// - batch mode
+//
+// done
+// - do rec assert check using FSM edges, not message -- difference is statevars
+
+
+//- statevar/arg syntax
+//- startvar usages? parameterised protocols, loop counting
+//- conflict between unsat checking, state vars (init values, constants) and recursion -- "strict" vs. potential unsat
+//- theorem: no assertion prog error at run-time -- no unsat theorem?
+
+/*
+global protocol Proto1(role A, role B) //@<x:="0">  //"arithmetic/boolean expr"
+{
+	0(y:int) from A to B;
+	do Proto1Aux(A, B);
+}
+
+aux global protocol Proto1Aux(role A, role B)
+{
+	choice at A
+	{
+		1() from A to B;  @"y<=0"
+		do Proto1Aux(A, B);  //@<"x">
+	}
+	or
+	{
+		2() from A to B;  @"y>0"
+	}
+}
+//*/
+
+
+
+/* // CHECKME: pre vs. post assertions?  corresponds to static vs. dynamic?  cf. Eiffel
+global protocol Proto1(role A, role B) @<x:="0">
+{
+	choice at A
+	{
+		1() from A to B; @"x<3"
+		do Proto1(A, B); @<"x+1">
+	}
+	or
+	{
+		2() from A to B;	 @"x>=2"  // FIXME: unsat -- solely due to constant prop?
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x:="0">
+{
+	choice at A
+	{
+		1() from A to B;
+		do Proto1(A, B); @<"x+1">
+	}
+	or
+	{
+		2() from A to B;	 @"x>=5"  // FIXME: unsat -- solely due to constant prop?
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x:="0">
+{
+	choice at A
+	{
+		1() from A to B;	@"x<5"  
+		do Proto1(A, B); @<"x+1">
+	}
+	or
+	{
+		2() from A to B;	 @"x>=5"  // FIXME: unsat on first loop -- solely due to constant prop?
+			 // this unsat is also "inconsistent" with the fact that having only x<=5 is also "potentially" unsat after some loops
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	(x: int) from A to B;  @"(!!True)" 
+	//2(y:int) from A to B; @"((y=2) && (y=(4+1)))"
+	//(x: int) from A to B;  @"x = 1 + 3 - 4 *5"  // TODO add syntax tests (op precedence and assoc)
+	//(y: int) from B to A;  @"y<0 || y > 1 && y>2"
+}
+//*/
+
+
+/* // CHECKME -- [assrt-core] Cannot project 
+global protocol Proto1(role A, role B, role R)
+{
+	() from A to R;
+	do Loop(A, B);
+}
+
+aux global protocol Loop(role A, role B)
+{
+	Res(b2:int) from A to B;
+	choice at A
+	{
+		SecOut() from A to B;  @"b2>0"
+	}
+	or
+	{
+		SecIn() from A to B;   @"b2<=0"
+		do Loop(A, B);
+	}
+}
+//onto R: cannot merge unguarded rec vars
+//*/
+
+
+
+
+
+
+/* // good.extensions.assrtcore.safety.assrtprog.statevar.AssrtCoreTest37
+global protocol Proto1(role A, role B) @<x:="1", y:="2"> "x>=1 && y>x"
+{
+	3(z1: int) from A to B;	 @"z1=x+y"
+	do Proto1(A, B);         @<"y", "z1">  
+			// Testing `y` vs `y1` state arg -- differentiating V update between general renaming (x=_y) and "constant propagation" (x=2) special case
+			// Cf. Fib -- also AssrtCoreTest08f/g
+}
+//*/
+
+
+/* // AssrtCoreTest08f
+global protocol Proto1(role A, role B) @<x:="3">
+{
+	1() from A to B; @"(x>2)"  // Testing ass in F, independent of pay 
+	do Proto2(A, B); @<"x">
+}
+
+// Not aux
+global protocol Proto2(role A, role B) @<y:="4">
+{
+	1() from A to B; @"(y>2)"
+	do Proto2(A, B); @<"y">
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+/* // good.extensions.assrtcore.safety.unsat.AssrtCoreTest35
+global protocol Proto1(role A, role B, role C)
+{
+	choice at A
+	{
+		Bes(b2:int) from B to A;
+		choice at A
+		{
+			SecOut() from A to C;  @"b2>0"
+			do Proto1(A, B, C);
+		}
+		or
+		{
+			SecIn() from A to C;   @"b2<=0"
+			do Proto1(A, B, C);
+		}
+	}
+}
+//*/
+
+
+/*  // TODO good.extensions.assrtcore.safety.unsat.AssrtCoreTest36
+global protocol Proto1(role A, role B)
+{
+	Res(b2:int) from A to B;
+	do Loop(A,B);
+}
+
+aux global protocol Loop(role A, role B)
+{
+	choice at A
+	{
+		SecOut() from A to B;  @"b2>0"
+	}
+	or
+	{
+		SecIn() from A to B;   @"b2<=0"  // TODO FIXME: "locked in" recursive choice, do by pruning unsat recursive choice cases?  Cf. unfair transform
+				// FIXME: b2>0 unsat after doing one b2<=0 (i.e., b2<=0&&b2>0 unsat)
+				// drop unsat?  or somehow only do unsat for payload vars? (not state vars) -- or "weaken" unsat to not use V and implicitly forall statevars
+				// or drop "constant propagation"?  or "init values"?
+		do Loop(A, B);
+	}
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Test035 -- Test037 */
+
+/*
+global protocol Proto1(role A, role B) @<x:="3">
+{
+	1() from A to B; @"(x>2)"  // Testing, V update also needs to GC F -- TODO add test
+	do Proto1(A, B); @<"2">
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x:="3">
+{
+	1() from A to B; @"(x>2)"  // Testing ass in F, independent of pay 
+	do Proto2(A, B); @<"x">
+}
+
+// Not aux
+global protocol Proto2(role A, role B) @<y:="4">
+{
+	1() from A to B; @"(y>2)"
+	//do Proto1(A, B); @<"y">
+	do Proto2(A, B); @<"y">
+}
+//*/
+
+
+/*// Testing (removal of) state args from messages, cf. duality between A and B (w.r.t. <1>)
+global protocol Proto1(role A, role B, role C) @<x := "0">
+{
+	1() from A to B;
+	2() from A to C;
+	do Proto1(A, B, C); @<"1">  // TODO: add test
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*  // Fibs -- AssrtCoreTest4.scr
+//global protocol Proto1(role A, role B) @<x:="0", y:="1"> "x>=0 && y>x"  // Bad (e.g., x=y=1)
+global protocol Proto1(role A, role B) @<x:="0", y:="1"> "x>=0 && y>=x"
+{
+	1(x1: int) from A to B;	 @"x1=x"
+	2(y1: int) from A to B;	 @"y1=y"
+	3(z1: int) from B to A;	 @"z1=x1+y1"
+	do Proto1(A, B);         @<"y", "z1">
+}
+//*/
+
+/* 
+global protocol Proto1(role A, role B) @<x:="1", y:="2"> "x>=1 && y>x"
+{
+	1(x1: int) from A to B;	 @"x1=x"
+	2(y1: int) from A to B;	 @"y1=y"
+	3(z1: int) from B to A;	 @"z1=x1+y1"
+	do Proto1(A, B);         @<"y", "z1">
+}
+//*/
+
+/*
+global protocol Proto1(role A, role B) @<x:="0", y:="1", z:="1"> "(x>=0 && y>=x) && z=x+y"  // FIXME: parentheses
+{
+	1(x1: int) from A to B;	 @"x1=x"
+	2(y1: int) from A to B;	 @"y1=y"
+	3(z1: int) from B to A;	 @"z1=z"
+	do Proto1(A, B);         @<"y1", "z1", "y1+z1">
+}
+//*/
+
+/*
+global protocol Proto1(role A, role B) @<x:="0", y:="1"> "x>=0 && y>=x"
+{
+	choice at A
+	{
+		1(x1: int) from A to B;	 @"x1=x"
+		2(y1: int) from A to B;	 @"y1=y"
+		3(z1: int) from B to A;	 @"z1=x1+y1"
+		do Proto1(A, B);         @<"y", "z1">
+	}
+	or
+	{
+		4() from A to B;
+	}
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Test032 -- Test034 */
+
+/* // Testing rec assertion
+global protocol Proto1(role A, role B) @<x:="0"> "x>=0"
+{
+	1(y: int) from A to B; @"y>0"  // Comment annotation is bad
+	do Proto1(A, B); @<"y">
+}
+//*/
+
+
+/* // Testing rec assertion
+global protocol Proto1(role A, role B) @<x:="0"> "x>=0"
+{
+	1(y: int) from A to B; @"y>x"  // Comment annotation is bad
+	do Proto1(A, B); @<"y">
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x: int) from A to B;  @"x>=0"
+	2(y: int) from B to C;  @"y=x && y>=0"  // Knowledge about x/y "told" to C
+	//2(y: int) from B to C;  @"y=x"  // (Intended) bad if replace above line -- fails assert-prog for C, C doesn't know x>=0
+	3(z: int) from C to A;  @"z=y && z>=0"
+}
+//*/
+
+
+
+
+
+/* // good.extensions.assrtcore.safety.unsat.AssrtCoreTest23
+global protocol Proto1(role B, role A) @<x:="0">  // @<x:"x=0"> "x<10"
+{
+	//1(x: int) from A to B;  @"x > 1"
+	5(Offer:int) from B to A;	 // Checking F updated properly (old Offer in F renamed)
+	choice at A
+	{
+		hag() from A to B; @"(Offer>x)"  // Unsat check -- no explicit assert-prog check (to z3 -- squashed)
+		do Proto1(B, A);   @<"Offer">
+		//do Proto1(A, B);   @<"Offer">  // TODO CHECKME/FIXME: Offer in scopes at B, "duplicate" annot  -- current -assrt (should) forbids role-arg premut.?
+	}
+	or
+	{
+		sell() from A to B;
+	}
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+/* // CHECKME: val forwarding, w.r.t. local K+F's
+global protocol Proto1(role A, role B)  @<x := "1"> "x > 0"
+{
+	choice at A
+	{
+		1(y: int) from A to B;  @"y > 1"
+		do Proto1(A, B);  @<"y">
+	}
+	or
+	{
+		2() from A to B;  // Testing rec-assrt check, input branch checks action based on enqueue message
+	}
+}
+//*/
+
+
+/*
+// CHECKME: val forwarding, w.r.t. local K+F's
+global protocol Proto1(role A, role B, role C)
+{
+	1(x: int) from A to B;  @"x > 1"
+	1(y: int) from B to C;  @"x = y"
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x: int) from A to B;
+	2(y: int) from A to C;
+	do Proto1(A, B, C);  // Testing updateScopes, records *past* scopes (i.e., excluding current) in order
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	0() from A to B;
+	do Loop(A, B, C);
+}
+
+aux global protocol Loop(role A, role B, role C)
+{
+	IsAbove(v1:int) from A to B;  
+	SecOut(r2:int) from A to C;  
+			// Testing updateScopes model construction -- v1 can be dropped and re-sent before first r2 is picked (async recursion) -- increases state space
+			// Tests updateScopes, non-initial self-recursion
+	do Loop(A, B, C);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	Plane(x1:int, x2:int, x3:int, x4:int) from A to B;
+	do Loop(A, B, C);
+}
+
+aux global protocol Loop(role P, role R, role C)
+{
+	choice at P
+	{
+		IsAbove(v1:int) from P to R;   
+		Res(b1:int) from R to P;
+		IsAbove(v2:int) from P to R;   
+		Res(b2:int) from R to P;
+		choice at P
+		{
+			BothIn() from P to R;
+			BothIn(r1:int) from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			BothOut() from P to R;
+			BothOut() from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			Intersct(y1:int, y2:int) from P to R;
+			Res(i:int) from R to P;
+			choice at P
+			{
+				SecOut(r2:int) from P to C;  // Testing tarjan -- updateScopes explodes state space, three-party-interleaves async recursion with K/F-GC
+				do Loop(P, R, C);
+			}
+			or
+			{
+				SecIn(r3:int, r4:int) from P to C;
+				do Loop(P, R, C);
+			}
+		}
+	}
+	or
+	{
+		Close() from P to R;   
+		Close() from P to C;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x: int) from A to B;  @"x>0"  // Testing updateScopes
+	2(y: int) from A to B;  @"y>x"
+	do Proto1(A, B);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x: int) from A to B;  @"x>0"  // Testing updateScopes (always empty scopes)
+	do Proto1(A, B);
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Test019 -- Test31, though a few bad tests omitted */
+
+/*
+global protocol Proto1(role A, role B) @"x>0"  // FIXME: unknown x -- also tested empty lhs for getRecAssertCheck
+{
+	1() from A to B;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;	
+	//do Proto1Aux(A, B);  // FIXME: do-sexpr WF -- CHECKME: or allow? (cf., below)
+	do Proto1Aux(A, B);  @<"1">
+}
+
+aux global protocol Proto1Aux(role A, role B)  @<x := "1"> "x>0"  // Testing getRecAssertCheck lhs building
+{
+	2() from B to A;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	1() from A to B;
+	do Proto1(A, B);  @<"2">  // Testing svar initial and update values
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;	
+	do Proto1Aux(A, B);  @<"2">  // Testing "inlining" of do-sexpr args as rec-svar exprs by proto inlining
+}
+
+aux global protocol Proto1Aux(role A, role B)  @<x := "1"> "x>0"
+{
+	2() from B to A;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;	
+	do Proto1Aux(A, B);  @<"2">  // FIXME: no target satate var
+}
+
+aux global protocol Proto1Aux(role A, role B)  //@"x>0"
+{
+	2() from B to A;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;	
+	do Proto1Aux(A, B);  // TODO CHECKME: allow? (omitted state args)
+}
+
+aux global protocol Proto1Aux(role A, role B)  @<x := "1">
+{
+	2() from B to A;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(y:int) from A to B;  @"y>1"  // TODO: testing F var renaming/compacting -- A async returns to rec-state while B still in "prev" iteration
+	do Proto1(A, B);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	1(y:int) from A to B;  @"y>1"
+	do Proto1(A, B);  @<"y">  // TODO: testing F var renaming/compacting and V/R renaming
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	1() from A to B;
+	2() from B to A;
+	do Proto1(A, B);  @<"2"> 
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	1() from A to B;  // Testing removal of _dum1 : _Unit translation for empty payload -- reduces model size
+	do Proto1(A, B);  @<"2">
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	1() from A to B;  // Testing removal of _dum1 : _Unit translation for empty payload -- reduces model size
+	do Proto1(A, B);  @<"1">  // Testing .toTrueAssertion state exprs
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	// FIXME: unused role decls
+
+	do Proto1(A, B);  @<"1">  // (But tested .toTrueAssertion state exprs)
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B) @<x := "1">
+{
+	1() from A to B;	
+	do Proto1(A, B);  // CHECKME: OK?
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Test001 -- Test018 */
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;  @"True"
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x: AssrtCoreTest.int) from A to B;  @"True"
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x: int) from A to B;  @"True"
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x: int) from A to B;  @"x>0"
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x: int) from A to B;  @"x > 0"  // Testing whitespace
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;  @"x > 0"  // Testing unknown var error
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x: int) from A to B;  @"x > 0"
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;  @"False"  // Testing assrt-prog
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	choice at A
+	{
+		1() from A to B;  @"False"  // Testing assrt-unsat
+	}
+	or
+	{
+		2() from A to B;  @"True"
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)  @"True"
+{
+	1() from A to B;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)  @<x := "1"> "True"
+{
+	1() from A to B;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)  @<x := "1">
+{
+	1() from A to B;
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1() from A to B;
+	do Proto1(A, B);  // Testing base recursive do, inlining
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	do Proto1Aux(A, B);  // Testing base f/w entry do, inlining
+}
+
+aux global protocol Proto1Aux(role A, role B)
+{
+	1() from A to B;
+	do Proto1Aux(A, B);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	do Proto1Aux(A, B);  // Testing base f/w entry do with recursive do, inlining
+}
+
+aux global protocol Proto1Aux(role A, role B)
+{
+	1() from A to B;
+	do Proto1Aux(A, B);
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	do Proto1Aux(A, B);  @<"0">  // TODO CHECKME: OK to f/w entry "override" default sexprs?  (depends if default sexprs are for "init" only or not)
+}
+
+aux global protocol Proto1Aux(role A, role B)  @<x := "1">
+{
+	1() from A to B;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	do Proto1Aux(A, B);  // TODO FIXME? conversely, OK to not supply sexprs?  (o/w rec statevar decl exprs only for root?)
+}
+
+aux global protocol Proto1Aux(role A, role B)  @<x := "1">
+{
+	1() from A to B;	
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)  @<x := "0">
+{
+	do Proto1(A, B);  @<"1">  // FIXME: A, B, not used
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B)  @<x := "0">
+{
+	1() from A to B;
+	do Proto1(A, B);  @<"1">
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* // AssrtCoreTest4.scr
+global protocol Proto1(role C, role S)
+{
+	HELLO(u:int) from C to S;
+	choice at C
+	{
+		ADD(w:int) from C to S; 
+		ADD(v:int) from C to S; 
+		RES(f:int) from S to C;
+		do Proto1(C, S);
+	}
+	or
+	{
+		BYE() from C to S;
+		BYE() from S to C;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role C, role S)
+{
+	HELLO(u:int) from C to S;
+	choice at C
+	{
+		ADD(w:int) from C to S;  @"w > 0"
+		ADD(v:int) from C to S;  @"v > 0"
+		RES(f:int) from S to C;  @"f > 0"
+		do Proto1(C, S);
+	}
+	or
+	{
+		BYE() from C to S;
+		BYE() from S to C;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role P, role R, role C)
+{
+	Plane(int, int, int, int) from P to R;  // Currently same state space as below, due to "_dum" var names (and K/scopes)
+	do Loop(P, R, C);
+}
+
+aux global protocol Loop(role P, role R, role C)
+{
+	choice at P
+	{
+		IsAbove(int) from P to R;   
+		Res(int) from R to P;
+		IsAbove(int) from P to R;   
+		Res(int) from R to P;
+		choice at P
+		{
+			BothIn() from P to R;
+			BothIn(int) from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			BothOut() from P to R;
+			BothOut() from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			Intersct(int, int) from P to R;
+			Res(int) from R to P;
+			choice at P
+			{
+				SecOut(int) from P to C;
+				do Loop(P, R, C);
+			}
+			or
+			{
+				SecIn(int, int) from P to C;
+				do Loop(P, R, C);
+			}
+		}
+	}
+	or
+	{
+		Close() from P to R;   
+		Close() from P to C;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role P, role R, role C)
+{
+	Plane(x1:int, x2:int, x3:int, x4:int) from P to R;
+	do Loop(P, R, C);
+}
+
+aux global protocol Loop(role P, role R, role C)
+{
+	choice at P
+	{
+		IsAbove(v1:int) from P to R;   
+		Res(b1:int) from R to P;
+		IsAbove(v2:int) from P to R;   
+		Res(b2:int) from R to P;
+		choice at P
+		{
+			BothIn() from P to R;
+			BothIn(r1:int) from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			BothOut() from P to R;
+			BothOut() from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			Intersct(y1:int, y2:int) from P to R;  // unfoldScopes state space increase (async recursion with scopes resetting)
+			Res(i:int) from R to P;
+			choice at P
+			{
+				SecOut(r2:int) from P to C;
+				do Loop(P, R, C);
+			}
+			or
+			{
+				SecIn(r3:int, r4:int) from P to C;
+				do Loop(P, R, C);
+			}
+		}
+	}
+	or
+	{
+		Close() from P to R;   
+		Close() from P to C;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role P, role R, role C)
+{
+	Plane(x1:int, x2:int, x3:int, x4:int) from P to R;
+	do Loop(P, R, C);
+}
+
+aux global protocol Loop(role P, role R, role C)
+{
+	choice at P
+	{
+		IsAbove(v1:int) from P to R;   
+		Res(b1:int) from R to P;  @"b1=0 || b1=1"
+		IsAbove(v2:int) from P to R;   
+		Res(b2:int) from R to P;  @"b2=0 || b2=1"
+		choice at P
+		{
+			BothIn() from P to R;  @"b1=1 && b2=1"
+			BothIn(r1:int) from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			BothOut() from P to R;  @"b1=0 && b2=0"
+			BothOut() from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			Intersct(y1:int, y2:int) from P to R;  @"(b1=1 && b2=0) || (b1=0 && b2=1)" // && y1=v1 && y2=v2
+			Res(i:int) from R to P;
+			choice at P
+			{
+				SecOut(r2:int) from P to C;  @"b2=0" // && r2=i
+				do Loop(P, R, C);
+			}
+			or
+			{
+				SecIn(r3:int, r4:int) from P to C;  @"b2=1" //  && (r3=i && r4=v2)
+				do Loop(P, R, C);
+			}
+		}
+	}
+	or
+	{
+		Close() from P to R;   
+		Close() from P to C;
+	}
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	NumberOne (x: int) from A to B;  //@"x > 3"
+	NumberTwo (y: int) from B to C; @ "x = y"
+	ReturnValueTwo (z: int) from C to B; @ "z = y + y"
+	ReturnValueOne (t: int) from B to A; @ "t = z"
+			// Testing what does A know about t -- A knows t=z, but not z = y+y   // CHECKME: OK for A to know "t" (K+F)?  should be sound
+			// In general y could be from anywhere, and A won't know y's value
+			// However, in this case y = x and x came from A -- CHECKME: refine?  or perhaps if z = x + x
+}
+//*/
+
+
+/*  Cf. Fib.scr
+global protocol Proto1(role C, role S)  @<x := "0", y := "1"> "y>0 && x>=0"
+		//@"(x := 0, y := 1) y>0 && x>0"  // Bad initial Rass (and later unsat)
+		//@"(x := 0, y := 1) (y>0))"
+{
+	choice at C
+	{
+		Val(x1:int) from C to S;  @"x1 = x"
+		Add(y1:int) from C to S;  @"y1 = y"
+		Sum(z:int) from S to C;   @"z = (x1+y1)"
+		do Proto1(C, S);          @<"y1", "z">  // FIXME
+	}
+	or
+	{
+		Bye() from C to S;
+	}
+}
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+global protocol Proto1(role A, role B)
+{
+	//1(x:int) from A to B;  @"x>1 || (x>2 && x>3)"  // Testing CNF
+
+	//1(x:int) from A to B;  @"(x>1 && x>2) || x>3"
+}
+//*/
+
+/*
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B;
+	//2(y:int) from A to B;  @"y=x+x && x=x"  // FIXME: combine multiple exprs into sigma conjunction
+	2(y:int) from A to B;  @"y=x+x"
+}
+//*/
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	1(x:int) from A to B;  @"x>3"
+	choice at A
+	{
+		2(int) from A to B;  @"x>5"
+
+		//3(int) from A to C;  @"x>6"  // Bad  // TODO add as unit test
+		3(int) from A to C;  @"x>4"  // OK
+	}
+	or
+	{
+		4(int) from A to B;
+		5(int) from A to C;
+	}
+}
+//*/
+
+
+
+/*
+global protocol P1(role A, role B, role C)
+{
+	1(x:int) from A to C;
+	2(y:int) from B to C;  @"y>x"
+
+	//2(y:int) from C to B;  @"y>x"  // FIXME: paper definition
+}
+
+global protocol P2(role A, role B)
+{
+	1(x:int) from A to B;  @"x>3"
+	choice at B
+	{
+		2() from B to A;
+	}
+	or
+	{
+		3(y:int) from B to A; @"((y > (x + 1)) && y < 4)"
+	}
+}
+
+global protocol P3(role A, role B, role C)
+{
+	1(x : int) from A to B; @"x > 3"
+	2(y : int) from C to B; //@"(y<3 || y=3)"//"!(y=3)"//@"True"
+	choice at B
+	{
+		3() from B to A; @"x < y"
+	}
+	or
+	{
+		4() from B to A; @"x > y"
+	}
+}
+//*/
+
+
+
+/*
+global protocol Proto1(role A, role B, role C)
+{
+	/*1(x : int) from A to B; @"x > 3"
+	choice at B
+	{
+		2() from B to A; @"True"
+	}
+	or
+	{
+		3(y : int) from B to A; @"((y > (x + 1)) && y < 4)"
+	}*/
+	
+	/*1(x : int) from A to B; @"x > 3"
+	2(y : int) from C to B; @"True"
+	choice at B
+	{
+		3() from B to A; @"x < y"
+	}
+	or
+	{
+		4() from B to A; @"y > x"
+	}* /
+	
+	1(x:int) from A to B;  @"x>3"
+	2(y:int) from A to C;  @"y>x"
+
+
+
+
+	/*0(z:int) from B to A;   @"(z>3)"
+	choice at A
+	{
+		1(x:int) from A to B;   @"(x>3)"
+	}
+	or
+	{
+		2(y:int) from A to B;   @"(y>3)"
+	}*/
+		
+	
+	
+	
+	/*choice at B
+	{
+		2(y:int) from B to A;   @"y=x && y>3"
+	}
+	or
+	{
+		3(z:int) from B to A;   @"z=x && z<3"
+	}* /
+}
+//*/
+
+
+/*
+assert f(x:int) bool = "x";  
+		// Cannot be recursive as an assertion -- so not so useful for "explicit" code gen?  (vs. basic expr capturing) -- mainly use as "assertion code gen"?
+		// Should only be for validation?
 
 global protocol Proto1(role A, role B)
 {
 	1(x:int) from A to B;
-	2(y:int) from B to A;  @"f(x)"
+	//2(y:int) from B to A;  @"y = f(x)"
+	2(y:int) from B to A;
 }
+*/
 
 
 /*
@@ -366,7 +1757,7 @@ global protocol Proto1(role A, role B) @"(x:=(1+(1-1)), y:=4)"
 
 
 
-// TOO try: mu X . ( A->B 1 . X + A->B 2 . mu Y . A->B 3 . Y ) with statevars and assertions
+// TODO try: mu X . ( A->B 1 . X + A->B 2 . mu Y . A->B 3 . Y ) with statevars and assertions
 
 /*
 global protocol Proto1(role A, role B)

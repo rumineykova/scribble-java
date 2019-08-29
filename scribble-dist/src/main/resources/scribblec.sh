@@ -52,9 +52,6 @@ Options:
 
   -ip <path>                 Scribble module import path$
 
-  -oldwf                     Use the simpler syntactic protocol well-formedness
-
-
   -project <simple global protocol name> <role>  Project protocol
 
   -fsm <simple global protocol name> <role>      Generate default Endpoint FSM
@@ -101,18 +98,22 @@ fixpath() {
 
 ARGS=
 
-CLASSPATH=$DIR'/scribble-cli/target/classes/'
-CLASSPATH=$CLASSPATH':'$DIR'/scribble-core/target/classes'
-CLASSPATH=$CLASSPATH':'$DIR'/scribble-parser/target/classes'
+CLASSPATH=$DIR'/scribble-ast/target/classes'
+CLASSPATH=$CLASSPATH':'$DIR'/scribble-cli/target/classes'
 CLASSPATH=$CLASSPATH':'$DIR'/scribble-codegen/target/classes'
+CLASSPATH=$CLASSPATH':'$DIR'/scribble-core/target/classes'
+CLASSPATH=$CLASSPATH':'$DIR'/scribble-main/target/classes'
+CLASSPATH=$CLASSPATH':'$DIR'/scribble-parser/target/classes'
 CLASSPATH=$CLASSPATH':'$ANTLR
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/antlr.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/antlr-runtime.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/commons-io.jar'
+CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-ast.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-cli.jar'
-CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-core.jar'
-CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-parser.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-codegen.jar'
+CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-core.jar'
+CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-main.jar'
+CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/scribble-parser.jar'
 CLASSPATH=$CLASSPATH':'$DIR'/'$LIB'/stringtemplate.jar'
 CLASSPATH="'"`fixpath "$CLASSPATH"`"'"
 

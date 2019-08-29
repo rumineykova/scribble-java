@@ -1,400 +1,393 @@
 package org.scribble.ext.assrt.ast;
 
+import java.util.Arrays;
 import java.util.List;
 
-import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.Token;
 import org.scribble.ast.AstFactoryImpl;
-import org.scribble.ast.MessageNode;
+import org.scribble.ast.ImportDecl;
+import org.scribble.ast.ModuleDecl;
+import org.scribble.ast.MsgNode;
+import org.scribble.ast.NonProtoDecl;
 import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.NonRoleParamDeclList;
-import org.scribble.ast.ProtocolDecl;
+import org.scribble.ast.ProtoDecl;
 import org.scribble.ast.RoleArgList;
 import org.scribble.ast.RoleDeclList;
-import org.scribble.ast.global.GChoice;
-import org.scribble.ast.global.GInteractionSeq;
-import org.scribble.ast.global.GProtocolBlock;
-import org.scribble.ast.global.GProtocolDecl;
-import org.scribble.ast.global.GProtocolDef;
-import org.scribble.ast.global.GProtocolHeader;
-import org.scribble.ast.global.GRecursion;
-import org.scribble.ast.local.LInteractionSeq;
-import org.scribble.ast.local.LProjectionDecl;
-import org.scribble.ast.local.LProtocolBlock;
-import org.scribble.ast.local.LProtocolDef;
-import org.scribble.ast.local.LProtocolHeader;
-import org.scribble.ast.local.LReceive;
-import org.scribble.ast.name.NameNode;
-import org.scribble.ast.name.qualified.DataTypeNode;
-import org.scribble.ast.name.qualified.GProtocolNameNode;
-import org.scribble.ast.name.qualified.LProtocolNameNode;
-import org.scribble.ast.name.simple.AmbigNameNode;
+import org.scribble.ast.global.GProtoBlock;
+import org.scribble.ast.local.LProtoBlock;
+import org.scribble.ast.name.qualified.DataNameNode;
+import org.scribble.ast.name.qualified.GProtoNameNode;
+import org.scribble.ast.name.qualified.LProtoNameNode;
 import org.scribble.ast.name.simple.RecVarNode;
 import org.scribble.ast.name.simple.RoleNode;
+import org.scribble.del.DelFactory;
 import org.scribble.ext.assrt.ast.global.AssrtGConnect;
 import org.scribble.ext.assrt.ast.global.AssrtGContinue;
 import org.scribble.ext.assrt.ast.global.AssrtGDo;
-import org.scribble.ext.assrt.ast.global.AssrtGDoDel;
-import org.scribble.ext.assrt.ast.global.AssrtGMessageTransfer;
-import org.scribble.ext.assrt.ast.global.AssrtGProtocolHeader;
+import org.scribble.ext.assrt.ast.global.AssrtGMsgTransfer;
+import org.scribble.ext.assrt.ast.global.AssrtGProtoHeader;
 import org.scribble.ext.assrt.ast.global.AssrtGRecursion;
-import org.scribble.ext.assrt.ast.local.AssrtLRequest;
 import org.scribble.ext.assrt.ast.local.AssrtLContinue;
 import org.scribble.ext.assrt.ast.local.AssrtLDo;
-import org.scribble.ext.assrt.ast.local.AssrtLProtocolHeader;
+import org.scribble.ext.assrt.ast.local.AssrtLProtoHeader;
 import org.scribble.ext.assrt.ast.local.AssrtLRecursion;
+import org.scribble.ext.assrt.ast.local.AssrtLReq;
 import org.scribble.ext.assrt.ast.local.AssrtLSend;
+import org.scribble.ext.assrt.ast.name.qualified.AssrtAssertNameNode;
 import org.scribble.ext.assrt.ast.name.simple.AssrtIntVarNameNode;
-import org.scribble.ext.assrt.del.AssrtAnnotDataTypeElemDel;
-import org.scribble.ext.assrt.del.global.AssrtGChoiceDel;
-import org.scribble.ext.assrt.del.global.AssrtGConnectDel;
-import org.scribble.ext.assrt.del.global.AssrtGContinueDel;
-import org.scribble.ext.assrt.del.global.AssrtGMessageTransferDel;
-import org.scribble.ext.assrt.del.global.AssrtGProtocolBlockDel;
-import org.scribble.ext.assrt.del.global.AssrtGProtocolDeclDel;
-import org.scribble.ext.assrt.del.global.AssrtGProtocolDefDel;
-import org.scribble.ext.assrt.del.global.AssrtGRecursionDel;
-import org.scribble.ext.assrt.del.local.AssrtLRequestDel;
-import org.scribble.ext.assrt.del.local.AssrtLContinueDel;
-import org.scribble.ext.assrt.del.local.AssrtLDoDel;
-import org.scribble.ext.assrt.del.local.AssrtLProjectionDeclDel;
-import org.scribble.ext.assrt.del.local.AssrtLProtocolBlockDel;
-import org.scribble.ext.assrt.del.local.AssrtLProtocolDefDel;
-import org.scribble.ext.assrt.del.local.AssrtLReceiveDel;
-import org.scribble.ext.assrt.del.local.AssrtLRecursionDel;
-import org.scribble.ext.assrt.del.local.AssrtLSendDel;
-import org.scribble.ext.assrt.del.name.AssrtAmbigNameNodeDel;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.kind.AssrtVarNameKind;
-import org.scribble.type.kind.Kind;
-import org.scribble.type.name.GProtocolName;
-import org.scribble.type.name.Role;
+import org.scribble.ext.assrt.ast.name.simple.AssrtSortNode;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtSmtFormula;
+import org.scribble.parser.ScribAntlrTokens;
 
 
-// FIXME: separate modified-del-only from new categories
-public class AssrtAstFactoryImpl extends AstFactoryImpl implements AssrtAstFactory
+// CHECKME: separate modified-del-only from new categories -- now: unify original and ext classes?  e.g., GMsgTransfer, AssrtGMsgTransfer
+// Token/class correspondence should match that of ScribTreeAdaptor.create Token cases (except SimpleNameNodes)
+public class AssrtAstFactoryImpl extends AstFactoryImpl
+		implements AssrtAstFactory
 {
 	
-	// Instantiating existing node classes with new dels
-
-	@Override
-	public GProtocolDecl GProtocolDecl(CommonTree source, List<GProtocolDecl.Modifiers> mods, GProtocolHeader header, GProtocolDef def)
+	public AssrtAstFactoryImpl(ScribAntlrTokens tokens,
+			DelFactory df)
 	{
-		GProtocolDecl gpd = new GProtocolDecl(source, mods, header, def);
-		gpd = del(gpd, new AssrtGProtocolDeclDel());
-		return gpd;
+		super(tokens, df);
 	}
 
-	@Override
-	public GProtocolDef GProtocolDef(CommonTree source, GProtocolBlock block)
-	{
-		GProtocolDef gpd = new GProtocolDef(source, block);
-		gpd = del(gpd, new AssrtGProtocolDefDel());  // Uses header annot to do AssrtAnnotationChecker Def enter/exit
-		return gpd;
-	}
+	/**
+	 *  Create ext node type in place of base
+	 *  Parser returns a base token type, we create an ext node type but keep the base token
+	 */
 	
-	@Override
-	public GProtocolBlock GProtocolBlock(CommonTree source, GInteractionSeq seq)
-	{
-		GProtocolBlock gpb = new GProtocolBlock(source, seq);
-		gpb = del(gpb, new AssrtGProtocolBlockDel());
-		return gpb;
-	}
-
-	@Override
-	public GChoice GChoice(CommonTree source, RoleNode subj, List<GProtocolBlock> blocks)
-	{
-		GChoice gc = new GChoice(source, subj, blocks);
-		gc = del(gc, new AssrtGChoiceDel());
-		return gc;
-	}
-
 	/*@Override
-	public GRecursion GRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block)
+	public Module Module(Token t, ModuleDecl moddecl, List<? extends ImportDecl<?>> imports,
+			List<? extends NonProtoDecl<?>> data, List<? extends ProtoDecl<?>> protos)
 	{
-		GRecursion gr = new GRecursion(source, recvar, block);
-		gr = del(gr, new AssrtGRecursionDel());
-		return gr;
+		t = newToken(t, AssrtScribbleParser.MODULE);  // CHECKME: token/class discrepancy OK?
+		AssrtModule n = new AssrtModule(t);
+		n.addScribChildren(moddecl, imports, data, protos);
+		n.decorateDel(this.df);
+		return n;
 	}*/
-
-	@Override
-	public AmbigNameNode AmbiguousNameNode(CommonTree source, String identifier)
-	{
-		AmbigNameNode ann = new AmbigNameNode(source, identifier); 
-		ann = (AmbigNameNode) ann.del(new AssrtAmbigNameNodeDel());
-		return ann;
-	}
-
-	@Override
-	public LProjectionDecl LProjectionDecl(CommonTree source, List<ProtocolDecl.Modifiers> mods, GProtocolName fullname, Role self, LProtocolHeader header, LProtocolDef def)
-	{
-		LProjectionDecl lpd = new LProjectionDecl(source, mods, header, def);
-		lpd = del(lpd, new AssrtLProjectionDeclDel(fullname, self));
-		return lpd;
-	}
-
-	@Override
-	public LProtocolDef LProtocolDef(CommonTree source, LProtocolBlock block)
-	{
-		LProtocolDef lpd = new LProtocolDef(source, block);
-		lpd = del(lpd, new AssrtLProtocolDefDel());
-		return lpd;
-	}
-
-	
-	@Override
-	public LReceive LReceive(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
-	{
-		LReceive ls = new LReceive(source, src, msg, dests);  // FIXME: AssrtLReceive with assertion?
-		ls = del(ls, new AssrtLReceiveDel());
-		return ls;
-	}
-
-	@Override
-	public LProtocolBlock LProtocolBlock(CommonTree source, LInteractionSeq seq)
-	{
-		LProtocolBlock lpb = new LProtocolBlock(source, seq);
-		lpb = del(lpb, new AssrtLProtocolBlockDel());
-		return lpb;
-	}
-
-	/* // Cf. GMessageTransfer -- empty-annotation sends still created as AssrtLSend, with null assertion -- but AssrtLSendDel still needed
-	 * // No: not needed, because all globals made as Assrts, so projections are always Assrts
-	@Override
-	public AssrtLSend LSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
-	{
-		//LSend ls = new LSend(source, src, msg, dests);
-		AssrtLSend ls = new AssrtLSend(source, src, msg, dests);
-		ls = del(ls, new AssrtLSendDel());
-		return ls;
-	}*/
-
-	/*@Override
-	public AssrtLConnect LConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dests)
-	{
-		AssrtLConnect ls = new AssrtLConnect(source, src, msg, dests);
-		ls = del(ls, new AssrtLConnectDel());
-		return ls;
-	}*/
-	
-	
-	// Returning new node classes in place of existing
 
 	// Still used by parsing for empty annotation/assertion nodes -- but we return an Assrt node
-	// Easier to make all global as Assrt nodes, to avoid cast checks in, e.g., AssrtGProtocolDeclDel::leaveProjection (for GProtocolHeader), and so all projections will be Assrt kinds only
+	// Easier to make all global as Assrt nodes, to avoid cast checks in, e.g., AssrtGProtoDeclDel::leaveProjection (for GProtoHeader), and so all projections will be Assrt kinds only
 
+	/*// Alternative is to make parsing return all as AssrtGProtoHeader directly
 	@Override
-	public AssrtGProtocolHeader GProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls)
+	public AssrtGProtoHeader GProtocolHeader(Token t, GProtoNameNode name,
+			RoleDeclList rs, NonRoleParamDeclList ps)
 	{
-		// Alternative is to make parsing return all as AssrtGProtocolHeader directly
-		AssrtGProtocolHeader gpb = new AssrtGProtocolHeader(source, name, roledecls, paramdecls);
-		gpb = del(gpb, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
-		return gpb;
-	}
+		t = newToken(t, this.tokens.getType("GPROTOHEADER"));
+		AssrtGProtoHeader n = new AssrtGProtoHeader(t);
+		n.addScribChildren(name, ps, rs);
+		n.decorateDel(this.df);  // Default, annots handled directly by AssrtAnnotationChecker Def enter/exit
+		return n;
+	}*/
 
-	// Same pattern as for GProtocolHeader
+	// Same pattern as for GProtoHeader
 	// Non-annotated message transfers still created as AssrtGMessageTransfer -- null assertion, but AssrtGMessageTransferDel is still needed (why?)
 	@Override
-	public AssrtGMessageTransfer GMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests)
+	public AssrtGMsgTransfer GMsgTransfer(Token t, MsgNode msg, RoleNode src,
+			List<RoleNode> dsts)
 	{
-		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests);
-		gmt = del(gmt, new AssrtGMessageTransferDel());
-		return gmt;
+		t = newToken(t, this.tokens.getType("GMSGTRANSFER"));
+		AssrtGMsgTransfer n = new AssrtGMsgTransfer(t);
+		n.addScribChildren(msg, src, dsts);
+		n.decorateDel(this.df);
+		return n;
 	}
 
 	@Override 
-	public AssrtGConnect GConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest)  // Cf. AssrtAstFactoryImpl::GMessageTransfer
+	public AssrtGConnect GConnect(Token t, MsgNode msg, RoleNode src, RoleNode dst)  // Cf. AssrtAstFactoryImpl::GMsgTransfer
 	{
-		AssrtGConnect gc = new AssrtGConnect(source, src, msg, dest);
-		gc = del(gc, new AssrtGConnectDel());
-		return gc;
+		t = newToken(t, this.tokens.getType("GCONNECT"));
+		AssrtGConnect n = new AssrtGConnect(t);
+		n.addScribChildren(msg, src, Arrays.asList(dst));
+		n.decorateDel(this.df);
+		return n;
+	}
+
+	/*@Override
+	public AssrtGContinue GContinue(Token t, RecVarNode rv)
+	{
+		t = newToken(t, this.tokens.getType("GCONTINUE"));
+		AssrtGContinue n = new AssrtGContinue(t);
+		n.addScribChildren(rv);
+		n.decorateDel(this.df);
+		return n;
+	}*/
+
+	@Override
+	public AssrtGDo GDo(Token t, GProtoNameNode proto, NonRoleArgList as,
+			RoleArgList rs)
+	{
+		t = newToken(t, this.tokens.getType("GDO"));
+		AssrtGDo n = new AssrtGDo(t);
+		n.addScribChildren(proto, as, rs);
+		n.decorateDel(this.df);
+		return n;
 	}
 	
-	@Override
-	public GRecursion GRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block)
+	/*@Override
+	public AssrtGRecursion GRecursion(Token t, RecVarNode rv, GProtoBlock block)
 	{
-		AssrtGRecursion gr = new AssrtGRecursion(source, recvar, block);
-		gr = del(gr, new AssrtGRecursionDel());
-		return gr;
-	}
-
-	@Override
-	public AssrtGContinue GContinue(CommonTree source, RecVarNode recvar)
-	{
-		AssrtGContinue gc = new AssrtGContinue(source, recvar);
-		gc = del(gc, new AssrtGContinueDel());
-		return gc;
-	}
-
-	@Override
-	public AssrtGDo GDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto)
-	{
-		AssrtGDo gd = new AssrtGDo(source, roleinstans, arginstans, proto);
-		gd = del(gd, new AssrtGDoDel());
-		return gd;
-	}
+		t = newToken(t, this.tokens.getType("GRECURSION"));
+		AssrtGRecursion n = new AssrtGRecursion(t);
+		n.addScribChildren(rv, block);
+		n.decorateDel(this.df);
+		return n;
+	}*/
 	
 
-	// Explicitly creating new Assrt nodes
+	/**
+	 *  Explicitly creating new Assrt nodes -- but reusing base Token types (CHECKME) 
+	 *  Cf. returning new node classes in place of existing
+	 */
 
 	@Override
-	public AssrtGProtocolHeader AssrtGProtocolHeader(CommonTree source, GProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
-			AssrtAssertion ass)
+	public AssrtIntVarNameNode AssrtIntVarNameNode(Token t, String text)
 	{
-		AssrtGProtocolHeader gpb = new AssrtGProtocolHeader(source, name, roledecls, paramdecls, //ass);
-				annotvars, annotexprs,
-				ass);
-		gpb = del(gpb, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
-		return gpb;
+		int type = this.tokens.getType("ID");
+		t = newIdToken(t, text);
+		AssrtIntVarNameNode n = new AssrtIntVarNameNode(type, t);  // Cf. Scribble.g, ID<...Node>[$ID]
+		n.decorateDel(this.df);
+		return n;
+	}
+
+
+	/**
+	 *  Explicitly creating new Assrt nodes -- new Token types
+	 */
+
+	@Override
+	public AssrtModule AssrtModule(Token t, ModuleDecl modd,
+			List<? extends ImportDecl<?>> impds,
+			List<? extends NonProtoDecl<?>> nprods,
+			List<AssrtAssertDecl> assds, List<? extends ProtoDecl<?>> prods)
+	{
+		t = newToken(t, this.tokens.getType("MODULE"));
+		AssrtModule n = new AssrtModule(t);
+		n.addScribChildren(modd, impds, nprods, assds, prods);
+		n.decorateDel(this.df);
+		return n;
 	}
 
 	@Override
-	public AssrtGMessageTransfer AssrtGMessageTransfer(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
+	public AssrtAExprNode AssrtAExprNode(Token t, AssrtAFormula aform)
 	{
-		AssrtGMessageTransfer gmt = new AssrtGMessageTransfer(source, src, msg, dests, assertion);
-		gmt = del(gmt, new AssrtGMessageTransferDel());
-		return gmt;
+		/*t = newToken(t, ...);
+		AssrtArithExpr n = new AssrtArithExpr(t, aexpr);
+		n.decorateDel(this.df);
+		return n;*/
+		throw new RuntimeException("[TODO] " + t);
+	}
+
+	// Cf., e.g., RoleNode
+	@Override
+	public AssrtBExprNode AssrtBExprNode(Token t, AssrtBFormula bform)
+	{
+		int type = this.tokens.getType("EXTID");  // Cf., e.g., RoleNode getType "ID", also (generated) AssrtScribbleParser
+		t = newExtIdToken(t, (t == null) ? bform.toString() : t.getText());  // CHECKME: toString consistent with parsed syntax?  (cf. toSmt2Formula?)
+		AssrtBExprNode n = new AssrtBExprNode(type, t, bform);
+		n.decorateDel(this.df);
+		return n;
 	}
 
 	@Override
-	public AssrtGConnect AssrtGConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion assertion)
+	public AssrtAssertDecl AssrtAssertDecl(Token t, AssrtAssertNameNode name,
+			List<AssrtSortNode> ps, AssrtSortNode ret, AssrtSmtFormula<?> expr)
 	{
-		AssrtGConnect gc = new AssrtGConnect(source, src, msg, dest, assertion);
-		gc = del(gc, new AssrtGConnectDel());
-		return gc;
+		/*t = newToken(t, ...);
+		AssrtAssertDecl n = new AssrtAssertDecl(t, expr);
+		n.decorateDel(this.df);
+		return n;*/
+		throw new RuntimeException("[TODO] : " + t);
 	}
 
 	@Override
-	public AssrtGRecursion AssrtGRecursion(CommonTree source, RecVarNode recvar, GProtocolBlock block, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
-			AssrtAssertion ass)
+	public AssrtGProtoHeader AssrtGProtoHeader(Token t, GProtoNameNode name,
+			RoleDeclList rs, NonRoleParamDeclList ps, 
+			AssrtStateVarDeclList svars,
+			//List<AssrtIntVarNameNode> svars, List<AssrtAExprNode> sexprs)  // FIXME: not actually how parsed
+			AssrtBExprNode ass) 
 	{
-		AssrtGRecursion gr = new AssrtGRecursion(source, recvar, block, //ass);
-				annotvars, annotexprs,
-				ass);
-		gr = del(gr, new AssrtGRecursionDel());
-		return gr;
+		t = newToken(t, this.tokens.getType("ASSRT_GLOBALPROTOCOLHEADER"));
+		AssrtGProtoHeader n = new AssrtGProtoHeader(t);
+		n.addScribChildren(name, ps, rs, svars, ass);//, sexprs);
+		n.decorateDel(this.df);
+		return n;
 	}
 
 	@Override
-	public AssrtGContinue AssrtGContinue(CommonTree source, RecVarNode recvar, //AssrtArithExpr annot)
-			List<AssrtArithExpr> annotexprs)
+	public AssrtStateVarDeclList AssrtStateVarDeclList(Token t, List<AssrtStateVarDecl> svars)
 	{
-		AssrtGContinue gc = new AssrtGContinue(source, recvar, //annot);
-				annotexprs);
-		gc = del(gc, new AssrtGContinueDel());
-		return gc;
+		t = newToken(t, this.tokens.getType("ASSRT_STATEVARDECLLIST"));
+		AssrtStateVarDeclList n = new AssrtStateVarDeclList(t);
+		n.addScribChildren(svars);
+		n.decorateDel(this.df);
+		return n;
 	}
 
 	@Override
-	public AssrtGDo AssrtGDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, GProtocolNameNode proto, //AssrtArithExpr annot)
-			List<AssrtArithExpr> annotexprs)
+	public AssrtStateVarDecl AssrtStateVarDecl(Token t, AssrtIntVarNameNode svar,
+			AssrtAExprNode sexpr)
 	{
-		AssrtGDo gd = new AssrtGDo(source, roleinstans, arginstans, proto, //annot);
-				annotexprs);
-		gd = del(gd, new AssrtGDoDel());
-		return gd;
-	}
-
-	@Override
-	public AssrtLProtocolHeader AssrtLProtocolHeader(CommonTree source, LProtocolNameNode name, RoleDeclList roledecls, NonRoleParamDeclList paramdecls, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
-			AssrtAssertion ass)
-	{
-		AssrtLProtocolHeader lph = new AssrtLProtocolHeader(source, name, roledecls, paramdecls, //ass);
-				annotvars, annotexprs,
-				ass);
-		lph = del(lph, createDefaultDelegate());  // Annots handled directly by AssrtAnnotationChecker Def enter/exit
-		return lph;
-	}
-
-	@Override
-	public AssrtLSend AssrtLSend(CommonTree source, RoleNode src, MessageNode msg, List<RoleNode> dests, AssrtAssertion assertion)
-	{
-		AssrtLSend ls = new AssrtLSend(source, src, msg, dests, assertion);
-		ls = del(ls, new AssrtLSendDel());
-		return ls;
-	}
-
-	@Override
-	public AssrtLRequest AssrtLConnect(CommonTree source, RoleNode src, MessageNode msg, RoleNode dest, AssrtAssertion ass)
-	{
-		AssrtLRequest ls = new AssrtLRequest(source, src, msg, dest, ass);
-		ls = del(ls, new AssrtLRequestDel());
-		return ls;
-	}
-
-	@Override
-	public AssrtLRecursion AssrtLRecursion(CommonTree source, RecVarNode recvar, LProtocolBlock block, //AssrtAssertion ass)
-			List<AssrtIntVarNameNode> annotvars, List<AssrtArithExpr> annotexprs,
-			AssrtAssertion ass)
-	{
-		AssrtLRecursion lr = new AssrtLRecursion(source, recvar, block, //ass);
-				annotvars, annotexprs,
-				ass);
-		lr = del(lr, new AssrtLRecursionDel());
-		return lr;
-	}
-
-	@Override
-	public AssrtLContinue AssrtLContinue(CommonTree source, RecVarNode recvar, //AssrtArithExpr annot)
-			List<AssrtArithExpr> annotexprs)
-	{
-		AssrtLContinue lc = new AssrtLContinue(source, recvar, //annot);
-				annotexprs);
-		lc = del(lc, new AssrtLContinueDel());
-		return lc;
-	}
-
-	@Override
-	public AssrtLDo AssrtLDo(CommonTree source, RoleArgList roleinstans, NonRoleArgList arginstans, LProtocolNameNode proto, //AssrtArithExpr annot)
-			List<AssrtArithExpr> annotexprs)
-	{
-		AssrtLDo gd = new AssrtLDo(source, roleinstans, arginstans, proto, //annot);
-				annotexprs);
-		gd = del(gd, new AssrtLDoDel());
-		return gd;
+		t = newToken(t, this.tokens.getType("ASSRT_STATEVARDECL"));
+		AssrtStateVarDecl n = new AssrtStateVarDecl(t);
+		n.addScribChildren(svar, sexpr);
+		n.decorateDel(this.df);
+		return n;
 	}
 	
 	// An "additional" category, does not "replace" an existing one -- cf. AssrtGMessageTransfer
 	@Override
-	public AssrtAnnotDataTypeElem AssrtAnnotDataTypeElem(CommonTree source, AssrtIntVarNameNode var, DataTypeNode data)
+	public AssrtAnnotDataElem AssrtAnnotDataTypeElem(Token t,
+			AssrtIntVarNameNode var, DataNameNode data)
 	{
-		AssrtAnnotDataTypeElem de = new AssrtAnnotDataTypeElem(source, var, data);
-		de = del(de, new AssrtAnnotDataTypeElemDel());
-		return de;
+		t = newToken(t, this.tokens.getType("ASSRT_ANNOTPAYLOADELEM"));
+		AssrtAnnotDataElem n = new AssrtAnnotDataElem(t);
+		n.addScribChildren(var, data);
+		n.decorateDel(this.df);
+		return n;
 	}
 
 	@Override
-	public <K extends Kind> NameNode<K> SimpleNameNode(CommonTree source, K kind, String identifier)
+	public AssrtGMsgTransfer AssrtGMsgTransfer(Token t, MsgNode msg, RoleNode src,
+			List<RoleNode> dsts, AssrtBExprNode ass)
 	{
-		if (kind.equals(AssrtVarNameKind.KIND))
+		t = newToken(t, this.tokens.getType("ASSRT_GLOBALMESSAGETRANSFER"));
+		AssrtGMsgTransfer n = new AssrtGMsgTransfer(t);
+		if (dsts.size() > 1)
 		{
-			NameNode<? extends Kind> snn = new AssrtIntVarNameNode(source, identifier);
-			snn = del(snn, createDefaultDelegate()); 
-			return castNameNode(kind, snn);
+			throw new RuntimeException(
+					"[TODO] Multiple dest roles for " + getClass() + ":\n\t" + dsts);
 		}
-
-		return super.SimpleNameNode(source, kind, identifier);
-	}
-
-
-	@Override
-	//public AssrtAssertionNode AssertionNode(CommonTree source, String assertion)
-	public AssrtAssertion AssrtAssertion(CommonTree source, AssrtBoolFormula f)
-	{
-		//AssrtAssertionNode node = new AssrtAssertionNode(source, assertion); 
-		AssrtAssertion node = new AssrtAssertion(source, f); 
-		node = del(node, createDefaultDelegate());
-		return node; 
+		n.addScribChildren(msg, src, dsts.get(0), ass);
+		n.decorateDel(this.df);
+		return n;
 	}
 
 	@Override
-	public AssrtArithExpr AssrtArithAnnotation(CommonTree source, AssrtArithFormula expr)
+	public AssrtGConnect AssrtGConnect(Token t, MsgNode msg, RoleNode src,
+			RoleNode dst, AssrtBExprNode ass)
 	{
-		AssrtArithExpr node = new AssrtArithExpr(source, expr); 
-		node = del(node, createDefaultDelegate());
-		return node; 
+		t = newToken(t, this.tokens.getType("ASSRT_GLOBALCONNECT"));
+		AssrtGConnect n = new AssrtGConnect(t);
+		n.addScribChildren(msg, src, dst, ass);
+		n.decorateDel(this.df);
+		return n;
+	}
+
+	@Override
+	public AssrtGContinue AssrtGContinue(Token t, RecVarNode rv,
+			List<AssrtAExprNode> aexprs)
+	{
+		/*t = newToken(t, ...);
+		AssrtGContinue n = new AssrtGContinue(t);
+		n.addScribChildren(rv, aexprs);
+		n.decorateDel(this.df);
+		return n;*/
+		throw new RuntimeException("[TODO] : " + t);
+	}
+
+	@Override
+	public AssrtGDo AssrtGDo(Token t, GProtoNameNode proto, NonRoleArgList as,
+			RoleArgList rs, List<AssrtAExprNode> aexprs)
+	{
+		t = newToken(t, this.tokens.getType("ASSRT_GLOBALDO"));
+		AssrtGDo n = new AssrtGDo(t);
+		n.addScribChildren(proto, as, rs, aexprs);
+		n.decorateDel(this.df);
+		return n;
+	}
+
+	@Override
+	public AssrtGRecursion AssrtGRecursion(Token t, RecVarNode rv,
+			GProtoBlock block, AssrtBExprNode ass, List<AssrtIntVarNameNode> avars,
+			List<AssrtAExprNode> aexprs)  // FIXME: not actually how parsed
+	{
+		/*t = newToken(t, ...);
+		AssrtGRecursion n = new AssrtGRecursion(t);
+		n.addScribChildren(rv, block, ass, avars, aexprs);
+		n.decorateDel(this.df);
+		return n;*/
+		throw new RuntimeException("[TODO] : " + t);
+	}
+
+	@Override
+	public AssrtLProtoHeader AssrtLProtoHeader(Token t, LProtoNameNode name,
+			RoleDeclList rs, NonRoleParamDeclList ps, AssrtStateVarDeclList svars,
+			AssrtBExprNode ass)
+	{
+		t = newToken(t, this.tokens.getType("ASSRT_LOCALPROTOCOLHEADER"));
+		AssrtLProtoHeader n = new AssrtLProtoHeader(t);
+		n.addScribChildren(name, ps, rs, svars, ass);
+		n.decorateDel(this.df);
+		return n;
+	}
+
+	@Override
+	public AssrtLSend AssrtLSend(Token t, MsgNode msg, RoleNode self,
+			List<RoleNode> dsts, AssrtBExprNode ass)
+	{
+		t = newToken(t, this.tokens.getType("ASSRT_LOCALSEND"));
+		AssrtLSend n = new AssrtLSend(t);
+		if (dsts.size() > 1)
+		{
+			throw new RuntimeException(
+					"[TODO] Multiple dest roles for " + getClass() + ":\n\t" + dsts);
+		}
+		n.addScribChildren(msg, self, Arrays.asList(dsts.get(0)));
+		n.decorateDel(this.df);
+		return n;
+	}
+
+	@Override
+	public AssrtLReq AssrtLReq(Token t, MsgNode msg, RoleNode self, RoleNode dst,
+			AssrtBExprNode ass)
+	{
+		t = newToken(t, this.tokens.getType("ASSRT_LOCALREQ"));
+		AssrtLReq n = new AssrtLReq(t);
+		n.addScribChildren(msg, self, Arrays.asList(dst));
+		n.decorateDel(this.df);
+		return n;
+	}
+
+	@Override
+	public AssrtLContinue AssrtLContinue(Token t, RecVarNode rv,
+			List<AssrtAExprNode> aexprs)
+	{
+		/*t = newToken(t, ...);
+		AssrtGContinue n = new AssrtGContinue(t);
+		n.addScribChildren(rv, aexprs);
+		n.decorateDel(this.df);
+		return n;*/
+		throw new RuntimeException("[TODO] : " + t);
+	}
+
+	@Override
+	public AssrtLDo AssrtLDo(Token t, RoleArgList rs, NonRoleArgList as,
+			LProtoNameNode proto, List<AssrtAExprNode> aexprs)
+	{
+		t = newToken(t, this.tokens.getType("ASSRT_LOCALDO"));
+		AssrtLDo n = new AssrtLDo(t);
+		n.addScribChildren(proto, as, rs, aexprs);
+		n.decorateDel(this.df);
+		return n;
+	}
+
+	@Override
+	public AssrtLRecursion AssrtLRecursion(Token t, RecVarNode rv, LProtoBlock block,
+			List<AssrtIntVarNameNode> avars, List<AssrtAExprNode> aexprs,
+			AssrtBExprNode ass)  // FIXME: not actually how parsed
+	{
+		/*t = newToken(t, ...);
+		AssrtLRecursion n = new AssrtLRecursion(t);
+		n.addScribChildren(rv, block, ass, avars, aexprs);
+		n.decorateDel(this.df);
+		return n;*/
+		throw new RuntimeException("[TODO] : " + t);
 	}
 }

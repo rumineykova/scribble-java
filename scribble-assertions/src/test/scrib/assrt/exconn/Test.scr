@@ -1,0 +1,57 @@
+//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rumineykova/scribble-javaHello
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/exconn/Test.scr -Z3 -ass Proto1
+
+
+// http://sandbox.kidstrythisathome.com/erdos/
+
+
+module assrt.exconn.Test;
+
+
+type <dotnet> "System.UInt32" from "..." as int;
+type <dotnet> "System.String" from "..." as str;
+
+global protocol Proto1(role A, role B)
+{
+	1(x:int) from A to B;
+	choice at A
+	{
+		2() from A to B;  @"x > 10"
+	}
+	or
+	{
+		3() from A to B;  @"x < 10"
+	}
+}
+
+
+/*
+// No "linear" treatment of values yet -- just code/API generation for message value dependent patterns (cf. actual dependent typing)
+explicit global protocol Proto1(role A, role B, role C)
+{
+	connect A to B;
+	Foo(p:int) from A to B;  @"open(p, C)"  // Main point is: p is "linear" -- also affine with connection establishment?
+			// CHECKME: port open while connection established?
+	connect B to C;
+	Bar(q:int) from B to C;  @"p=q"  // What is "linear" meaning of "="? -- need "q = f/w(p)"
+	connect C to A;          @"port(q, B)"
+			// FIXME: role arg of port not used (unnecessary?)
+}
+*/
+
+
+
+
+
+	/*connect A to B;
+	1(p:int) from A to B;  @"open(p, C)"  // Open fresh port at A (for C) -- send the port value to B
+	connect B to C;
+	2(q:int) from B to C;  @"(p=q)"       // Forward the (port) value from B to C;
+	connect C to A;        @"port(q, C)"     // Connect to port q
+	
+	// FIXME: open(p, C) needs to be processed by adding to K(C) (K(A) not needed?)
+	// -- adding open(p, C) for C only enough? simply by not adding to others?
+	
+	// FIXME: port should just assert there is an associated open
+	*/
+		

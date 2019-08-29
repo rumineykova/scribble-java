@@ -1,13 +1,8 @@
 package org.scribble.ext.assrt.model.global;
 
-import java.util.Map;
-
-import org.scribble.model.MState;
-import org.scribble.model.endpoint.EState;
-import org.scribble.model.global.SState;
-import org.scribble.model.global.SStateErrors;
-import org.scribble.model.global.actions.SAction;
-import org.scribble.type.name.Role;
+import org.scribble.core.model.MState;
+import org.scribble.core.model.global.SState;
+import org.scribble.core.model.global.actions.SAction;
 
 public class AssrtSState extends SState
 {
@@ -19,18 +14,14 @@ public class AssrtSState extends SState
 	@Override
 	public AssrtSStateErrors getErrors()
 	{
-		SStateErrors errs = super.getErrors();
-
-		Map<Role, EState> varsNotInScope = ((AssrtSConfig) this.config).checkHistorySensitivity();
-		Map<Role, EState> unsatAssertion = ((AssrtSConfig) this.config).getUnsatAssertions();   // FIXME: replace cast by something better?
-
-		return new AssrtSStateErrors(errs.stuck, errs.waitFor, errs.orphans, errs.unfinished, varsNotInScope, unsatAssertion);
+		return new AssrtSStateErrors(this);
 	}
 
 	@Override
 	protected String getEdgeLabel(SAction msg)
 	{
 		return "label=\"" + msg.toString().replaceAll("\\\"", "\\\\\"") + "\"";
+				// Because of @"..." syntax, need to escape the quotes
 	}
 	
 	@Override

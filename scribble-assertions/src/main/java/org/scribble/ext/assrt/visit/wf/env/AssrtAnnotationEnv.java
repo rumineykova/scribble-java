@@ -9,19 +9,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.type.name.AssrtAnnotDataType;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
-import org.scribble.type.name.Role;
-import org.scribble.visit.env.Env;
+import org.scribble.core.type.name.Role;
+import org.scribble.ext.assrt.core.type.name.AssrtAnnotDataName;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 
 // FIXME: check and refactor syntactic checks with AssrtNameDisambiguator
-public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
+public class AssrtAnnotationEnv //extends Env<AssrtAnnotationEnv>
 {
 	// "May" analysis -- context merge takes the union
-	private Map<Role, Set<AssrtAnnotDataType>> decls;  // Var declaration binding  // Role is the src role of the transfer -- not important?
+	private Map<Role, Set<AssrtAnnotDataName>> decls;  // Var declaration binding  // Role is the src role of the transfer -- not important?
 
 	// "Must" analysis -- context merge takes the intersection
-	private Map<Role, Set<AssrtDataTypeVar>> vars;  // "Knowledge" of var (according to message passing)
+	private Map<Role, Set<AssrtIntVar>> vars;  // "Knowledge" of var (according to message passing)
 			// Redundant for assrt-core (validated on model, rather than syntactically), but still used by base assrt
 	
 	public AssrtAnnotationEnv()
@@ -29,55 +28,55 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 		this(Collections.emptyMap(), Collections.emptyMap());
 	}
 	
-	protected AssrtAnnotationEnv(Map<Role, Set<AssrtAnnotDataType>> decls, Map<Role, Set<AssrtDataTypeVar>> vars)
+	protected AssrtAnnotationEnv(Map<Role, Set<AssrtAnnotDataName>> decls, Map<Role, Set<AssrtIntVar>> vars)
 	{
 		this.decls = new HashMap<>(decls);
 		this.vars = new HashMap<>(vars);
 	}
 
 	// "Global" syntactic scoping -- binding insensitive to roles (and DataType)
-	public boolean isDataTypeVarBound(AssrtDataTypeVar v)
+	public boolean isDataTypeVarBound(AssrtIntVar v)
 	{
 		return this.decls.values().stream().flatMap(s -> s.stream()).anyMatch(adt -> adt.var.equals(v));
 	}
 	
 	// Redundant for assrt-core (handled by model validation), but still used by base assrt
-	public boolean isDataTypeVarKnown(Role r, AssrtDataTypeVar avn)
+	public boolean isDataTypeVarKnown(Role r, AssrtIntVar avn)
 	{
-		Set<AssrtDataTypeVar> tmp = this.vars.get(r);
+		Set<AssrtIntVar> tmp = this.vars.get(r);
 		return tmp != null && tmp.stream().anyMatch(v -> v.equals(avn));
 	}
 
-	@Override
+	//@Override
 	public AssrtAnnotationEnv copy()
 	{
 		return new AssrtAnnotationEnv(new HashMap<>(this.decls), new HashMap<>(this.vars));
 	}
 
-	@Override
+	//@Override
 	public AssrtAnnotationEnv enterContext()
 	{
 		return copy();
 	}
 
-	@Override
+	//@Override
 	public AssrtAnnotationEnv mergeContext(AssrtAnnotationEnv child)
 	{
 		return mergeContexts(Arrays.asList(child));
 	}
 	
   // Cf. WFChoiceEnv merge pattern -- unlike WFChoiceEnv, no env "clearing" on choice enter -- child envs are originally direct copies of parent, so can merge for updated parent directly from children (cf. "running" merge parameterised on original parent)
-	@Override
+	//@Override
 	public AssrtAnnotationEnv mergeContexts(List<AssrtAnnotationEnv> children)
 	{
 		AssrtAnnotationEnv copy = copy();
 
 		// "Union"
-		Map<Role, Set<AssrtAnnotDataType>> decls = children.stream()
+		Map<Role, Set<AssrtAnnotDataName>> decls = children.stream()
 				.flatMap(c -> c.decls.entrySet().stream())
 				.collect(Collectors.toMap(
-						Map.Entry<Role, Set<AssrtAnnotDataType>>::getKey,
-						Map.Entry<Role, Set<AssrtAnnotDataType>>::getValue,
+						Map.Entry<Role, Set<AssrtAnnotDataName>>::getKey,
+						Map.Entry<Role, Set<AssrtAnnotDataName>>::getValue,
 						(v1, v2) -> { v1.addAll(v2); return v1; }
 				));
 		copy.decls = decls;
@@ -87,7 +86,7 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 				.flatMap(e -> e.vars.keySet().stream())
 				.filter(r -> children.stream().map(e -> e.vars.keySet()).allMatch(ks -> ks.contains(r)))
 				.collect(Collectors.toSet());
-		Map<Role, Set<AssrtDataTypeVar>> vars = new HashMap<>();
+		Map<Role, Set<AssrtIntVar>> vars = new HashMap<>();
 		for (Role r : varsRoles)
 		{
 			vars.put(r, children.stream().map(c -> c.vars.get(r))
@@ -100,7 +99,7 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 	}
 
 	// Also bootstraps src as "knowing" adt.var
-	public AssrtAnnotationEnv addAnnotDataType(Role src, AssrtAnnotDataType adt)
+	public AssrtAnnotationEnv addAnnotDataType(Role src, AssrtAnnotDataName adt)
 	{
 		AssrtAnnotationEnv copy = copy();
 		copy.addAnnotDataTypeAux(src, adt);
@@ -108,9 +107,9 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 		return copy;
 	}
 	
-	private void addAnnotDataTypeAux(Role role, AssrtAnnotDataType adt)
+	private void addAnnotDataTypeAux(Role role, AssrtAnnotDataName adt)
 	{
-		Set<AssrtAnnotDataType> tmp = this.decls.get(role);
+		Set<AssrtAnnotDataName> tmp = this.decls.get(role);
 		if (tmp == null)
 		{
 			tmp = new HashSet<>();
@@ -119,16 +118,16 @@ public class AssrtAnnotationEnv extends Env<AssrtAnnotationEnv>
 		tmp.add(adt);
 	}
 
-	public AssrtAnnotationEnv addDataTypeVarName(Role role, AssrtDataTypeVar v)
+	public AssrtAnnotationEnv addDataTypeVarName(Role role, AssrtIntVar v)
 	{
 		AssrtAnnotationEnv copy = copy();
 		copy.addDataTypeVarNameAux(role, v);
 		return copy;
 	}
 	
-	private void addDataTypeVarNameAux(Role role, AssrtDataTypeVar v)
+	private void addDataTypeVarNameAux(Role role, AssrtIntVar v)
 	{
-		Set<AssrtDataTypeVar> tmp = this.vars.get(role);
+		Set<AssrtIntVar> tmp = this.vars.get(role);
 		if (tmp == null)
 		{
 			tmp = new HashSet<>();

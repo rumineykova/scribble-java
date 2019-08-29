@@ -1,0 +1,240 @@
+//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rhu1-assrt/scribble-java
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest3.scr -fair -z3 -assrt
+
+
+module assrt.tmp.AssrtCoreTest3;
+
+
+type <dotnet> "System.UInt32" from "..." as int;
+
+
+//*
+global protocol HelloNoAnnot(role C, role S)
+{
+	HELLO(u:int) from C to S;
+	choice at C
+	{
+		ADD(w:int) from C to S; 
+		ADD(v:int) from C to S; 
+		RES(f:int) from S to C;
+		do HelloNoAnnot(C, S);
+	}
+	or
+	{
+		BYE() from C to S;
+		BYE() from S to C;
+	}
+}
+//*/
+
+
+//*
+global protocol HelloAnnot(role C, role S)
+{
+	HELLO(u:int) from C to S;
+	choice at C
+	{
+		ADD(w:int) from C to S;  @"w > 0"
+		ADD(v:int) from C to S;  @"v > 0"
+		RES(f:int) from S to C;  @"f > 0"
+		do HelloAnnot(C, S);
+	}
+	or
+	{
+		BYE() from C to S;
+		BYE() from S to C;
+	}
+}
+//*/
+
+
+//*
+global protocol SHNoAnnot(role P, role R, role C)
+{
+	Plane(int, int, int, int) from P to R;  // Currently same state space as below, due to "_dum" var names (and K/scopes)
+	do Loop1(P, R, C);
+}
+
+aux global protocol Loop1(role P, role R, role C)
+{
+	choice at P
+	{
+		IsAbove(int) from P to R;   
+		Res(int) from R to P;
+		IsAbove(int) from P to R;   
+		Res(int) from R to P;
+		choice at P
+		{
+			BothIn() from P to R;
+			BothIn(int) from P to C;
+			do Loop1(P, R, C);
+		}
+		or
+		{
+			BothOut() from P to R;
+			BothOut() from P to C;
+			do Loop1(P, R, C);
+		}
+		or
+		{
+			Intersct(int, int) from P to R;
+			Res(int) from R to P;
+			choice at P
+			{
+				SecOut(int) from P to C;
+				do Loop1(P, R, C);
+			}
+			or
+			{
+				SecIn(int, int) from P to C;
+				do Loop1(P, R, C);
+			}
+		}
+	}
+	or
+	{
+		Close() from P to R;   
+		Close() from P to C;
+	}
+}
+//*/
+
+
+/*
+global protocol SHAnnotVars(role P, role R, role C)
+{
+	Plane(x1:int, x2:int, x3:int, x4:int) from P to R;
+	do Loop(P, R, C);
+}
+
+aux global protocol Loop2(role P, role R, role C)
+{
+	choice at P
+	{
+		IsAbove(v1:int) from P to R;   
+		Res(b1:int) from R to P;
+		IsAbove(v2:int) from P to R;   
+		Res(b2:int) from R to P;
+		choice at P
+		{
+			BothIn() from P to R;
+			BothIn(r1:int) from P to C;
+			do Loop2(P, R, C);
+		}
+		or
+		{
+			BothOut() from P to R;
+			BothOut() from P to C;
+			do Loop2(P, R, C);
+		}
+		or
+		{
+			Intersct(y1:int, y2:int) from P to R;  // unfoldScopes state space increase (async recursion with scopes resetting)
+			Res(i:int) from R to P;
+			choice at P
+			{
+				SecOut(r2:int) from P to C;
+				do Loop2(P, R, C);
+			}
+			or
+			{
+				SecIn(r3:int, r4:int) from P to C;
+				do Loop2(P, R, C);
+			}
+		}
+	}
+	or
+	{
+		Close() from P to R;   
+		Close() from P to C;
+	}
+}
+//*/
+
+
+//*
+global protocol SH(role P, role R, role C)
+{
+	Plane(x1:int, x2:int, x3:int, x4:int) from P to R;
+	do Loop(P, R, C);
+}
+
+aux global protocol Loop(role P, role R, role C)
+{
+	choice at P
+	{
+		IsAbove(v1:int) from P to R;   
+		Res(b1:int) from R to P;  @"b1=0 || b1=1"
+		IsAbove(v2:int) from P to R;   
+		Res(b2:int) from R to P;  @"b2=0 || b2=1"
+		choice at P
+		{
+			BothIn() from P to R;  @"b1=1 && b2=1"
+			BothIn(r1:int) from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			BothOut() from P to R;  @"b1=0 && b2=0"
+			BothOut() from P to C;
+			do Loop(P, R, C);
+		}
+		or
+		{
+			Intersct(y1:int, y2:int) from P to R;  @"(b1=1 && b2=0) || (b1=0 && b2=1)" // && y1=v1 && y2=v2
+			Res(i:int) from R to P;
+			choice at P
+			{
+				SecOut(r2:int) from P to C;  @"b2=0" // && r2=i
+				do Loop(P, R, C);
+			}
+			or
+			{
+				SecIn(r3:int, r4:int) from P to C;  @"b2=1" //  && (r3=i && r4=v2)
+				do Loop(P, R, C);
+			}
+		}
+	}
+	or
+	{
+		Close() from P to R;   
+		Close() from P to C;
+	}
+}
+//*/
+
+
+//*
+global protocol Knowledge(role A, role B, role C)
+{
+	NumberOne (x: int) from A to B;  //@"x > 3"
+	NumberTwo (y: int) from B to C; @ "x = y"
+	ReturnValueTwo (z: int) from C to B; @ "z = y + y"
+	ReturnValueOne (t: int) from B to A; @ "t = z"
+			// Testing what does A know about t -- A knows t=z, but not z = y+y   // CHECKME: OK for A to know "t" (K+F)?  should be sound
+			// In general y could be from anywhere, and A won't know y's value
+			// However, in this case y = x and x came from A -- CHECKME: refine?  or perhaps if z = x + x
+}
+//*/
+
+
+//*  Cf. Fib.scr
+global protocol Fib(role C, role S)  @<x := "0", y := "1"> "y>0 && x>=0"
+		//@"(x := 0, y := 1) y>0 && x>0"  // Bad initial Rass (and later unsat)
+		//@"(x := 0, y := 1) (y>0))"
+{
+	choice at C
+	{
+		Val(x1:int) from C to S;  @"x1 = x"
+		Add(y1:int) from C to S;  @"y1 = y"
+		Sum(z:int) from S to C;   @"z = (x1+y1)"
+		do Fib(C, S);          @<"y1", "z">  // FIXME
+	}
+	or
+	{
+		Bye() from C to S;
+	}
+}
+//*/
+
+

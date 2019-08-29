@@ -5,11 +5,13 @@ type <java> "java.lang.integer" from "rt.jar" as int;
 
 
 // Check the message flow
-global protocol Prot1(role A, role B, role C, role D)
+global protocol Proto1(role A, role B, role C, role D)
 {	
 	MSG1(x:int, y:int) from A to B;  @"(x > 10)"
 	
-	MSG1(x, y) from B to C;
-	
-	MSG1(z:int) from C to D;  @"(z < x)"
+	/*MSG1(x, y) from B to C;
+	MSG1(z:int) from C to D;  @"(z < x)"*/
+
+	MSG1(x1:int, y1:int) from B to C;  @"(x1=x && y1=y)"
+	MSG1(z:int) from C to D;  @"(z < x1)"
 }

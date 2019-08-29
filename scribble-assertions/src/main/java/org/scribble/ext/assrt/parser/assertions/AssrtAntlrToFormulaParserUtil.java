@@ -3,13 +3,17 @@ package org.scribble.ext.assrt.parser.assertions;
 import org.antlr.runtime.tree.CommonTree;
 import org.scribble.ext.assrt.parser.assertions.AssrtAssertionsAntlrConstants.AssrtAntlrNodeType;
 
+@Deprecated
 public class AssrtAntlrToFormulaParserUtil
 {
+	@Deprecated
 	public static AssrtAntlrNodeType getAntlrNodeType(CommonTree ct)
 	{
 		String type = ct.getToken().getText();
 		switch (type)
 		{
+			case "ROOT": return AssrtAntlrNodeType.ROOT;
+
 			case AssrtAssertionsAntlrConstants.BOOLEXPR_NODE_TYPE:     return AssrtAntlrNodeType.BOOLEXPR;
 			case AssrtAssertionsAntlrConstants.COMPEXPR_NODE_TYPE:     return AssrtAntlrNodeType.COMPEXPR;
 			case AssrtAssertionsAntlrConstants.ARITHEXPR_NODE_TYPE:    return AssrtAntlrNodeType.ARITHEXPR;

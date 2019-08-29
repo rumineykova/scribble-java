@@ -5,7 +5,7 @@ type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 
 
 //*
-global protocol Proto2(role A, role B) @"(x:=3)"  // Unsat if validated as root 
+global protocol Proto2(role A, role B) @<x:="3">  // Unsat if validated as root 
 {
 	2(y:int) from B to A;  @"(x>3)"
 }

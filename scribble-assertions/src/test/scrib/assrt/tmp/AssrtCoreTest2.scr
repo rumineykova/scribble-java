@@ -1,0 +1,305 @@
+//Raymond@HZHL3 ~/code/eclipse/scribble/github.com/rhu1-assrt/scribble-java
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest2.scr -fair -z3 -assrt 
+//$ bin/scribblec-assrt.sh -ip scribble-assertions/src/test/scrib/ -d scribble-assertions/src/test/scrib/ scribble-assertions/src/test/scrib/assrt/tmp/AssrtCoreTest2.scr -fair -z3 -assrt -modelpng Test001 Test.png -fsmpng Test001 A Test_A.png -fsmpng Test001 B Test_B.png
+
+module assrt.tmp.AssrtCoreTest2;
+
+
+type <dotnet> "System.UInt32" from "..." as int;
+
+
+global protocol Test001(role A, role B)
+{
+	1() from A to B;  @"True"
+}
+
+global protocol Test002(role A, role B)
+{
+	1(x: AssrtCoreTest2.int) from A to B;  @"True"
+}
+
+global protocol Test003(role A, role B)
+{
+	1(x: int) from A to B;  @"True"
+}
+
+global protocol Test004(role A, role B)
+{
+	1(x: int) from A to B;  @"x>0"
+}
+
+global protocol Test005(role A, role B)
+{
+	1(x: int) from A to B;  @"x > 0"  // Testing whitespace
+}
+
+/* // Bad
+global protocol Test006(role A, role B)
+{
+	1() from A to B;  @"x > 0"  // Testing unknown var error
+}
+//*/
+
+global protocol Test007(role A, role B)
+{
+	1(x: int) from A to B;  @"x > 0"
+}
+
+/* // Bad
+global protocol Test008(role A, role B)
+{
+	1() from A to B;  @"False"  // Testing assrt-prog
+}
+//*/
+
+/* // Bad
+global protocol Test009(role A, role B)
+{
+	choice at A
+	{
+		1() from A to B;  @"False"  // Testing assrt-unsat
+	}
+	or
+	{
+		2() from A to B;  @"True"
+	}
+}
+//*/
+
+global protocol Test010(role A, role B)  @"True"
+{
+	1() from A to B;
+}
+
+global protocol Test011(role A, role B)  @<x := "1"> "True"
+{
+	1() from A to B;
+}
+
+global protocol Test012(role A, role B)  @<x := "1">
+{
+	1() from A to B;
+}
+
+
+global protocol Test013(role A, role B)
+{
+	1() from A to B;
+	do Test013(A, B);  // Testing base recursive do, inlining
+	// FIXME: do Proto1(A, B);  // Ambiguous name node not disambiguated: int ??
+}
+
+
+global protocol Test014(role A, role B)
+{
+	do Test014Aux(A, B);  // Testing base f/w entry do, inlining
+}
+
+aux global protocol Test014Aux(role A, role B)
+{
+	1() from A to B;
+	do Test014Aux(A, B);
+}
+
+
+global protocol Test015(role A, role B)
+{
+	do Test015Aux(A, B);  @<"0">  // TODO CHECKME: OK to f/w entry "override" default sexprs?  (depends if default sexprs are for "init" only or not)
+}
+
+aux global protocol Test015Aux(role A, role B)  @<x := "1">
+{
+	1() from A to B;	
+}
+
+
+/* // Bad
+global protocol Test016(role A, role B)
+{
+	do Test016Aux(A, B);  // TODO FIXME? conversely, OK to not supply sexprs?  (o/w rec statevar decl exprs only for root?)
+}
+
+aux global protocol Test016Aux(role A, role B)  @<x := "1">
+{
+	1() from A to B;	
+}
+//*/
+
+
+//*
+global protocol Test017(role A, role B)  @<x := "0">
+{
+	do Test017(A, B);  @<"1">  // FIXME: A, B, not used
+}
+//*/
+
+
+global protocol Test018(role A, role B)  @<x := "0">
+{
+	1() from A to B;
+	do Test018(A, B);  @<"1">
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+global protocol Test020(role A, role B)
+{
+	1() from A to B;	
+	do Test020Aux(A, B);  @<"1">
+}
+
+aux global protocol Test020Aux(role A, role B)  @<x := "1"> "x>0"  // Testing getRecAssertCheck lhs building
+{
+	2() from B to A;	
+}
+
+
+global protocol Test021(role A, role B) @<x := "1">
+{
+	1() from A to B;
+	do Test021(A, B);  @<"2">  // Testing svar initial and update values
+}
+
+
+global protocol Test022(role A, role B)
+{
+	1() from A to B;	
+	do Test022Aux(A, B);  @<"2">  // Testing "inlining" of do-sexpr args as rec-svar exprs by proto inlining
+}
+
+aux global protocol Test022Aux(role A, role B)  @<x := "1"> "x>0"
+{
+	2() from B to A;	
+}
+
+
+global protocol Test023(role A, role B)
+{
+	1() from A to B;	
+	do Test023Aux(A, B);  @<"2">  // FIXME: no target satate var
+}
+
+aux global protocol Test023Aux(role A, role B)  //@"x>0"
+{
+	2() from B to A;	
+}
+
+
+global protocol Test025(role A, role B)
+{
+	1(y:int) from A to B;  @"y>1"  // TODO: testing F var renaming/compacting -- A async returns to rec-state while B still in "prev" iteration
+	do Test025(A, B);
+}
+
+
+global protocol Test026(role A, role B) @<x := "1">
+{
+	1(y:int) from A to B;  @"y>1"
+	do Test026(A, B);  @<"y">  // TODO: testing F var renaming/compacting and V/R renaming
+}
+
+
+global protocol Test027(role A, role B) @<x := "1">
+{
+	1() from A to B;
+	2() from B to A;
+	do Test027(A, B);  @<"2">
+}
+
+
+global protocol Test028(role A, role B) @<x := "1">
+{
+	1() from A to B;  // Testing removal of _dum1 : _Unit translation for empty payload -- reduces model size
+	do Test028(A, B);  @<"2">
+}
+
+
+global protocol Test029(role A, role B) @<x := "1">
+{
+	1() from A to B;  // Testing removal of _dum1 : _Unit translation for empty payload -- reduces model size
+	do Test029(A, B);  @<"1">  // Testing .toTrueAssertion state exprs
+}
+
+
+
+
+
+
+
+
+
+
+
+// Testing rec assertion
+global protocol Test032(role A, role B) @<x:="0"> "x>=0"
+{
+	1(y: int) from A to B; @"y>0"  // Comment annotation is bad
+	do Test032(A, B); @<"y">
+}
+
+
+// Testing rec assertion
+global protocol Test033(role A, role B) @<x:="0"> "x>=0"
+{
+	1(y: int) from A to B; @"y>x"  // Comment annotation is bad
+	do Test033(A, B); @<"y">
+}
+
+
+global protocol Test034(role A, role B, role C)
+{
+	1(x: int) from A to B;  @"x>=0"
+	2(y: int) from B to C;  @"y=x && y>=0"  // Knowledge about x/y "told" to C
+	//2(y: int) from B to C;  @"y=x"  // (Intended) bad if replace above line -- fails assert-prog for C, C doesn't know x>=0
+	3(z: int) from C to A;  @"z=y && z>=0"
+}
+
+
+
+
+
+
+
+
+/* // Bad
+global protocol Test035(role A, role B) @<x:="3">
+{
+	1() from A to B; @"(x>2)"  // Testing, V update also needs to GC F -- TODO add test
+	do Test035(A, B); @<"2">
+}
+
+
+// Bad
+global protocol Test036(role A, role B) @<x:="3">
+{
+	1() from A to B; @"(x>2)"  // Testing ass in F, independent of pay 
+	do Test036Aux(A, B); @<"x">
+}
+
+// Not aux
+global protocol Test036Aux(role A, role B) @<y:="4">
+{
+	1() from A to B; @"(y>2)"
+	//do Test036(A, B); @<"y">
+	do Test036Aux(A, B); @<"y">
+}
+//*/
+
+
+// Testing (removal of) state args from messages, cf. duality between A and B (w.r.t. <1>)
+global protocol Proto37(role A, role B, role C) @<x := "0">
+{
+	1() from A to B;
+	2() from A to C;
+	do Proto37(A, B, C); @<"1">  // TODO: add test
+}

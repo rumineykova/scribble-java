@@ -3,51 +3,65 @@ package org.scribble.ext.assrt.model.endpoint;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import org.scribble.ext.assrt.model.endpoint.action.AssrtEAccept;
-import org.scribble.ext.assrt.model.endpoint.action.AssrtEReceive;
-import org.scribble.ext.assrt.model.endpoint.action.AssrtERequest;
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.model.endpoint.EModelFactoryImpl;
+import org.scribble.core.model.endpoint.EState;
+import org.scribble.core.model.endpoint.actions.EAcc;
+import org.scribble.core.model.endpoint.actions.ERecv;
+import org.scribble.core.model.endpoint.actions.EReq;
+import org.scribble.core.model.endpoint.actions.ESend;
+import org.scribble.core.type.name.MsgId;
+import org.scribble.core.type.name.RecVar;
+import org.scribble.core.type.name.Role;
+import org.scribble.core.type.session.Payload;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtEAcc;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtERecv;
+import org.scribble.ext.assrt.model.endpoint.action.AssrtEReq;
 import org.scribble.ext.assrt.model.endpoint.action.AssrtESend;
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
-import org.scribble.model.endpoint.EModelFactoryImpl;
-import org.scribble.model.endpoint.EState;
-import org.scribble.model.endpoint.actions.EAccept;
-import org.scribble.model.endpoint.actions.EReceive;
-import org.scribble.model.endpoint.actions.ERequest;
-import org.scribble.model.endpoint.actions.ESend;
-import org.scribble.type.Payload;
-import org.scribble.type.name.MessageId;
-import org.scribble.type.name.RecVar;
-import org.scribble.type.name.Role;
 
-public class AssrtEModelFactoryImpl extends EModelFactoryImpl implements AssrtEModelFactory
+public class AssrtEModelFactoryImpl extends EModelFactoryImpl
+		implements AssrtEModelFactory
 {
+
+	public AssrtEModelFactoryImpl(ModelFactory mf)
+	{
+		super(mf);
+	}
+
+	@Override
+	public AssrtEGraphBuilderUtil EGraphBuilderUtil()
+	{
+		return new AssrtEGraphBuilderUtil(this.mf);
+	}
+
 
 	// "Disable" old types 
 	// FIXME: also used from AutParser, need to make AssrtAutParser -- or just don't disable? or create with True? -- also for newEState
 
 	@Override
-	public ESend newESend(Role peer, MessageId<?> mid, Payload payload)
+	public ESend ESend(Role peer, MsgId<?> mid, Payload pay)
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: ");
 	}
 
 	@Override
-	public EReceive newEReceive(Role peer, MessageId<?> mid, Payload payload)
+	public ERecv ERecv(Role peer, MsgId<?> mid, Payload pay)
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: ");
 	}
 
 	@Override
-	public ERequest newERequest(Role peer, MessageId<?> mid, Payload payload)
+	public EReq EReq(Role peer, MsgId<?> mid, Payload pay)
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: ");
 	}
 
 	@Override
-	public EAccept newEAccept(Role peer, MessageId<?> mid, Payload payload)
+	public EAcc EAcc(Role peer, MsgId<?> mid, Payload pay)
 	{
 		throw new RuntimeException("[assrt] Shouldn't get in here: ");
 	}
@@ -56,7 +70,7 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl implements AssrtEM
 	// Override existing types
 	
 	@Override
-	public EState newEState(Set<RecVar> labs)  // Used in a more places than above "disabled" actions -- e.g., LInteractionSeqDel, to be uniform need to make an AssrtLInteractionSeqDel
+	public EState EState(Set<RecVar> labs)  // Used in a more places than above "disabled" actions -- e.g., LInteractionSeqDel, to be uniform need to make an AssrtLInteractionSeqDel
 	{
 		return newAssrtEState(labs, new LinkedHashMap<>(),
 				AssrtTrueFormula.TRUE);
@@ -66,35 +80,39 @@ public class AssrtEModelFactoryImpl extends EModelFactoryImpl implements AssrtEM
 	// "New" types
 
 	@Override
-	//public AssrtESend newAssrtESend(Role peer, MessageId<?> mid, Payload payload, AssrtAssertion assertion)
-	public AssrtESend newAssrtESend(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtEState newAssrtEState(Set<RecVar> labs,
+			LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,  // CHECKME: AssrtIntVar?
+			AssrtBFormula ass)
 	{
-		return new AssrtESend(this, peer, mid, payload, bf);
+		return new AssrtEState(labs, svars, ass);
 	}
 
 	@Override
-	public AssrtEReceive newAssrtEReceive(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
+	//public AssrtESend newAssrtESend(Role peer, MsgId<?> mid, Payload pay, AssrtAssertion assertion)
+	public AssrtESend newAssrtESend(Role peer, MsgId<?> mid, Payload pay,
+			AssrtBFormula ass)
 	{
-		return new AssrtEReceive(this, peer, mid, payload, bf);
+		return new AssrtESend(this.mf, peer, mid, pay, ass);
 	}
 
 	@Override
-	public AssrtERequest newAssrtERequest(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtERecv newAssrtEReceive(Role peer, MsgId<?> mid, Payload pay,
+			AssrtBFormula ass)
 	{
-		return new AssrtERequest(this, peer, mid, payload, bf);
+		return new AssrtERecv(this.mf, peer, mid, pay, ass);
 	}
 
 	@Override
-	public AssrtEAccept newAssrtEAccept(Role peer, MessageId<?> mid, Payload payload, AssrtBoolFormula bf)
+	public AssrtEReq newAssrtERequest(Role peer, MsgId<?> mid, Payload pay,
+			AssrtBFormula ass)
 	{
-		return new AssrtEAccept(this, peer, mid, payload, bf);
+		return new AssrtEReq(this.mf, peer, mid, pay, ass);
 	}
 
 	@Override
-	public AssrtEState newAssrtEState(Set<RecVar> labs, LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars,  // FIXME: AssrtIntVar?
-			AssrtBoolFormula ass) 
+	public AssrtEAcc newAssrtEAccept(Role peer, MsgId<?> mid, Payload pay,
+			AssrtBFormula ass)
 	{
-		return new AssrtEState(labs, vars,
-				ass);
+		return new AssrtEAcc(this.mf, peer, mid, pay, ass);
 	}
 }

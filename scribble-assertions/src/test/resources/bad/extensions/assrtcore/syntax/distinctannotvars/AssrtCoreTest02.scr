@@ -4,7 +4,7 @@ module bad.extensions.assrt.syntax.distinctannotvars.AssrtCoreTest02;
 type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 
 
-//*  // FIXME: will be skipped by assrt-core, non-core syntax -- but currently not supported by base assrt either
+//*  // CHECKME: will be skipped by assrt-core, non-core syntax -- but currently not supported by base assrt either
 global protocol Proto1(role A, role B)
 {
 	1(x:int) from A to B;
@@ -13,6 +13,6 @@ global protocol Proto1(role A, role B)
 
 aux global protocol Proto2(role A, role B)
 {
-	2(x:int) from B to A;  // FIXME: should actually be OK? (need var shadowing -- cf. rec vars?)
+	2(x:int) from B to A;  // CHECKME: should actually be OK? (need var shadowing -- cf. rec vars?)
 }
 //*/

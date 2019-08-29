@@ -6,8 +6,8 @@ type <java> "java.lang.integer" from "rt.jar" as int;
 // assrt-core version of bad.extensions.assertions.RecWithAssertions
 global protocol Proto1(role A, role B, role C)
 {
-	rec Loop
-	{
+	//rec Loop
+	//{
 		choice at A
 		{
 			MSG1(x:int) from A to B;  @"(x < 10)"
@@ -18,7 +18,8 @@ global protocol Proto1(role A, role B, role C)
 		{
 			MSG2(y:int) from A to B;  @"(y > 10)"
 			MSG4(z1:int) from B to C;  @"(z1 < y)"  // Artificial
-			continue Loop; 
-		}
+		//	continue Loop; 
+		//}
+		do Proto1(A, B, C);
 	}
 }

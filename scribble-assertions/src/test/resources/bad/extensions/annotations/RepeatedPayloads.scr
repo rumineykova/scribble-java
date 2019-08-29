@@ -1,15 +1,15 @@
 module bad.extensions.annotations.RepeatedPayloads;
 
 
-type <java> "java.lang.integer" from "rt.jar" as integer;
+type <java> "java.lang.int" from "rt.jar" as int;
 type <java> "java.lang.Long" from "rt.jar" as Long;
 
 
 // Repeated Payloads error
 global protocol Prot(role C, role S)
 {
-	ADD(x:integer) from C to S;
-	RES(x:integer) from C to S;   // (Original) idea is repeat var decl in "same scope" shouldn't be allowed (cf. same var decl in choice cases, e.g., good.extensions.annotations.ChoiceWithAnnot)
+	ADD(x:int) from C to S;
+	RES(x:int) from C to S;   // (Original) idea is repeat var decl in "same scope" shouldn't be allowed (cf. same var decl in choice cases, e.g., good.extensions.annotations.ChoiceWithAnnot)
 }
 
 /*
@@ -17,12 +17,12 @@ global protocol Prot(role A, role B, role C)
 {
 rec Loop {
 	choice at A {
-		ADD(x:integer) from A to B;  
-		ADD(z:integer) from B to C;
+		ADD(x:int) from A to B;  
+		ADD(z:int) from B to C;
 		 
 	} or {
-		RES(y:integer) from A to B;
-		RES(z:integer) from B to C; 
+		RES(y:int) from A to B;
+		RES(z:int) from B to C; 
 		continue Loop;
 		}
 	}
@@ -34,12 +34,12 @@ rec Loop {
 // Complicated Message flow
 global protocol Prot(role S, role B, role C, role D)
 {
-	ADD(x:integer) from C to S;
+	ADD(x:int) from C to S;
 	Add(x) from S to B; 
 	
 	ADD(x) from C to B;
 	
-	Add(y:integer) from C to D; 
+	Add(y:int) from C to D; 
 	
 	Add(x) from B to D; 
 	
@@ -50,11 +50,11 @@ global protocol Prot(role S, role B, role C, role D)
 global protocol Prot(role A, role B, role C)
 {
 	choice at A {
-		ADD(x:integer) from A to B;  
-		ADD(z:integer) from B to C;  
+		ADD(x:int) from A to B;  
+		ADD(z:int) from B to C;  
 	} or {
-		RES(y:integer) from A to B;
-		RES(z:integer) from B to C;
+		RES(y:int) from A to B;
+		RES(z:int) from B to C;
 	}
 
 	// RES(y) from B to C; - is not ok 
@@ -66,12 +66,12 @@ global protocol Prot(role A, role B, role C)
 {
 rec Loop {
 	choice at A {
-		ADD(x:integer) from A to B;  
-		ADD(z:integer) from B to C;
+		ADD(x:int) from A to B;  
+		ADD(z:int) from B to C;
 		 
 	} or {
-		RES(y:integer) from A to B;
-		RES(z:integer) from B to C; 
+		RES(y:int) from A to B;
+		RES(z:int) from B to C; 
 		continue Loop;
 		}
 	}

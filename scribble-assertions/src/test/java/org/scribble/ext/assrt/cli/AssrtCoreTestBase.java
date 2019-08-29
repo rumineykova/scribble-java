@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
-import org.scribble.cli.CLArgParser;
+import org.scribble.cli.CLFlags;
 import org.scribble.cli.CommandLineException;
-import org.scribble.cli.ScribTestBase;
-import org.scribble.ext.assrt.core.ast.AssrtCoreSyntaxException;
-import org.scribble.main.AntlrSourceException;
+import org.scribble.ext.assrt.core.type.session.AssrtCoreSyntaxException;
+import org.scribble.test.ScribTestBase;
+import org.scribble.util.AntlrSourceException;
 
 public abstract class AssrtCoreTestBase extends ScribTestBase
 {
@@ -45,17 +45,21 @@ public abstract class AssrtCoreTestBase extends ScribTestBase
 		new AssrtCommandLine(this.example, CLArgParser.JUNIT_FLAG, CLArgParser.IMPORT_PATH_FLAG, dir).run();
 	}*/
 	@Override
-	protected void runTest(String dir) throws CommandLineException, AntlrSourceException
+	protected void runTest(String dir) throws CommandLineException,
+			AntlrSourceException
 	{
-		new AssrtCommandLine(this.example, CLArgParser.JUNIT_FLAG, CLArgParser.IMPORT_PATH_FLAG, dir,
-						AssrtCoreCLArgParser.ASSRT_CORE_NATIVE_Z3_FLAG, AssrtCoreCLArgParser.ASSRT_CORE_BATCHING_FLAG,
-						AssrtCoreCLArgParser.ASSRT_CORE_FLAG, "[AssrtCoreAllTest]")  // HACK: for AssrtCommandLine (assrt-core mode)
-				.run();
+		new AssrtCommandLine(this.example, CLFlags.JUNIT_FLAG,
+				CLFlags.IMPORT_PATH_FLAG, dir, CLFlags.FAIR_FLAG,
+				AssrtCoreCLFlags.ASSRT_CORE_NATIVE_Z3_FLAG,
+				AssrtCoreCLFlags.ASSRT_CORE_BATCH_Z3_FLAG,
+				AssrtCoreCLFlags.ASSRT_CORE_FLAG)//, "[AssrtCoreAllTest]")  // HACK: for AssrtCommandLine (assrt-core mode)
+			.run();
 	}
 
 	@Override
 	@Test
-	public void tests() throws IOException, InterruptedException, ExecutionException
+	public void tests() throws IOException, InterruptedException,
+			ExecutionException
 	{
 		try
 		{
@@ -67,7 +71,8 @@ public abstract class AssrtCoreTestBase extends ScribTestBase
 			if (cause instanceof AssrtCoreSyntaxException)
 			{
 				ScribTestBase.NUM_SKIPPED++;
-				System.out.println("[assrt-core] Skipping (non-core syntax): " + this.example + "  (" + ScribTestBase.NUM_SKIPPED + " skipped)");
+				System.out.println("[assrt-core] Skipping (non-core syntax): "
+						+ this.example + "  (" + ScribTestBase.NUM_SKIPPED + " skipped)");
 			}
 			else
 			{

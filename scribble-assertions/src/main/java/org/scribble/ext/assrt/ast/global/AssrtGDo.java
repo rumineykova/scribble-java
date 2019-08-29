@@ -1,46 +1,126 @@
 package org.scribble.ext.assrt.ast.global;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.antlr.runtime.tree.CommonTree;
-import org.scribble.ast.AstFactory;
+import org.antlr.runtime.Token;
 import org.scribble.ast.NonRoleArgList;
 import org.scribble.ast.RoleArgList;
-import org.scribble.ast.ScribNodeBase;
+import org.scribble.ast.ScribNode;
 import org.scribble.ast.global.GDo;
-import org.scribble.ast.local.LDo;
-import org.scribble.ast.name.qualified.GProtocolNameNode;
-import org.scribble.ast.name.qualified.LProtocolNameNode;
-import org.scribble.ast.name.qualified.ProtocolNameNode;
-import org.scribble.del.ScribDel;
-import org.scribble.ext.assrt.ast.AssrtArithExpr;
-import org.scribble.ext.assrt.ast.AssrtAstFactory;
-import org.scribble.ext.assrt.ast.AssrtStateVarArgAnnotNode;
-import org.scribble.ext.assrt.ast.local.AssrtLDo;
-import org.scribble.main.ScribbleException;
-import org.scribble.type.kind.Global;
-import org.scribble.type.name.Role;
+import org.scribble.ast.name.qualified.GProtoNameNode;
+import org.scribble.ast.name.qualified.ProtoNameNode;
+import org.scribble.core.type.kind.Global;
+import org.scribble.del.DelFactory;
+import org.scribble.ext.assrt.ast.AssrtAExprNode;
+import org.scribble.ext.assrt.ast.AssrtStateVarArgNode;
+import org.scribble.ext.assrt.del.AssrtDelFactory;
+import org.scribble.util.ScribException;
 import org.scribble.visit.AstVisitor;
 
-public class AssrtGDo extends GDo implements AssrtStateVarArgAnnotNode
+// Cf. AssrtGContinue
+public class AssrtGDo extends GDo implements AssrtStateVarArgNode
 {
-	//public final AssrtArithExpr annot;
-	public final List<AssrtArithExpr> annotexprs;
+	public static final int STATEVAREXPR_CHILDREN_START_INDEX = 3;
+
+	// ScribTreeAdaptor#create constructor
+	public AssrtGDo(Token t)
+	{
+		super(t);
+	}
+
+	// Tree#dupNode constructor
+	public AssrtGDo(AssrtGDo node)
+	{
+		super(node);
+	}
+
+	@Override
+	public List<AssrtAExprNode> getAnnotExprChildren()
+	{
+		List<? extends ScribNode> cs = getChildren();
+		return cs.subList(STATEVAREXPR_CHILDREN_START_INDEX, cs.size()).stream()
+				.map(x -> (AssrtAExprNode) x).collect(Collectors.toList());
+	}
+
+	// "add", not "set"
+	public void addScribChildren(ProtoNameNode<Global> proto, NonRoleArgList as,
+			RoleArgList rs, List<AssrtAExprNode> sexprs)
+	{
+		// Cf. above getters and Scribble.g children order
+		super.addScribChildren(proto, as, rs);
+		addChildren(sexprs);
+	}
 	
-	public AssrtGDo(CommonTree source, RoleArgList roles, NonRoleArgList args, GProtocolNameNode proto)
+	@Override
+	public AssrtGDo dupNode()
+	{
+		return new AssrtGDo(this);
+	}
+	
+	@Override
+	public void decorateDel(DelFactory df)
+	{
+		((AssrtDelFactory) df).AssrtGDo(this);
+	}
+
+	public AssrtGDo reconstruct(ProtoNameNode<Global> proto, RoleArgList rs,
+			NonRoleArgList as, List<AssrtAExprNode> sexprs)
+	{
+		AssrtGDo dup = dupNode();
+		dup.addScribChildren(proto, as, rs, sexprs);
+		dup.setDel(del());  // No copy
+		return dup;
+	}
+
+	@Override
+	public AssrtGDo visitChildren(AstVisitor v) throws ScribException
+	{
+		GProtoNameNode proto = visitChildWithClassEqualityCheck(this,
+				getProtoNameChild(), v);
+		RoleArgList rs = (RoleArgList) visitChild(getRoleListChild(), v);
+		NonRoleArgList as = (NonRoleArgList) visitChild(getNonRoleListChild(), v);
+		List<AssrtAExprNode> sexprs = visitChildListWithClassEqualityCheck(this,
+				getAnnotExprChildren(), v);  // Supports empty list
+		return reconstruct(proto, rs, as, sexprs);
+	}
+
+	@Override
+	public String toString()
+	{
+		return super.toString() + annotToString();
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+	public final List<AssrtArithExpr> exprs;
+	
+	public AssrtGDo(CommonTree source, RoleArgList roles, NonRoleArgList args,
+			GProtoNameNode proto)
 	{
 		this(source, roles, args, proto, //null);
 				Collections.emptyList());
 	}
 
-	public AssrtGDo(CommonTree source, RoleArgList roles, NonRoleArgList args, GProtocolNameNode proto, //AssrtArithExpr annot)
-			List<AssrtArithExpr> annotexprs)
+	public AssrtGDo(CommonTree source, RoleArgList roles, NonRoleArgList args,
+			GProtoNameNode proto, List<AssrtArithExpr> exprs)
 	{
 		super(source, roles, args, proto);
 		//this.annot = annot;
-		this.annotexprs = Collections.unmodifiableList(annotexprs);
+		this.exprs = Collections.unmodifiableList(exprs);
 	}
 
 	public LDo project(AstFactory af, Role self, LProtocolNameNode fullname)
@@ -57,67 +137,4 @@ public class AssrtGDo extends GDo implements AssrtStateVarArgAnnotNode
 				annotexprs);
 		return ld;
 	}
-
-	@Override
-	protected ScribNodeBase copy()
-	{
-		return new AssrtGDo(this.source, this.roles, this.args, getProtocolNameNode(), //this.annot);
-				this.annotexprs);
-	}
-	
-	@Override
-	public AssrtGDo clone(AstFactory af)
-	{
-		RoleArgList roles = this.roles.clone(af);
-		NonRoleArgList args = this.args.clone(af);
-		GProtocolNameNode proto = this.getProtocolNameNode().clone(af);
-		//AssrtArithExpr annot = (this.annot == null) ? null : this.annot.clone(af);
-
-		List<AssrtArithExpr> annotexprs = this.annotexprs.stream().map(e -> e.clone(af)).collect(Collectors.toList());
-
-		return ((AssrtAstFactory) af).AssrtGDo(this.source, roles, args, proto, //annot);
-				annotexprs);
-	}
-
-	@Override
-	public AssrtGDo reconstruct(RoleArgList roles, NonRoleArgList args, ProtocolNameNode<Global> proto)
-	{
-		throw new RuntimeException("[assrt] Shouldn't get in here: " + this);
-	}
-
-	public AssrtGDo reconstruct(RoleArgList roles, NonRoleArgList args, ProtocolNameNode<Global> proto, //AssrtArithExpr annot)
-			List<AssrtArithExpr> annotexprs)
-	{
-		ScribDel del = del();
-		AssrtGDo gd = new AssrtGDo(this.source, roles, args, (GProtocolNameNode) proto, //annot);
-				annotexprs);
-		gd = (AssrtGDo) gd.del(del);
-		return gd;
-	}
-
-	@Override
-	public AssrtGDo visitChildren(AstVisitor nv) throws ScribbleException
-	{
-		RoleArgList ril = (RoleArgList) visitChild(this.roles, nv);
-		NonRoleArgList al = (NonRoleArgList) visitChild(this.args, nv);
-		GProtocolNameNode proto = visitChildWithClassEqualityCheck(this, getProtocolNameNode(), nv);
-		//AssrtArithExpr annot = (this.annot == null) ? null : (AssrtArithExpr) visitChild(this.annot, nv);  // FIXME: visitChildWithClassEqualityCheck
-
-		List<AssrtArithExpr> annotexprs = visitChildListWithClassEqualityCheck(this, this.annotexprs, nv);
-
-		return reconstruct(ril, al, proto, //annot);
-				annotexprs);
-	}
-
-	@Override
-	public List<AssrtArithExpr> getAnnotExprs()
-	{
-		return this.annotexprs;
-	}
-
-	@Override
-	public String toString()
-	{
-		return super.toString() + annotToString();
-	}
-}
+*/

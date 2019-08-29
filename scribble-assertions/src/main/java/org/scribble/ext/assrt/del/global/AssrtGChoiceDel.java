@@ -1,21 +1,15 @@
 package org.scribble.ext.assrt.del.global;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.scribble.ast.ScribNode;
-import org.scribble.ast.global.GChoice;
 import org.scribble.del.global.GChoiceDel;
 import org.scribble.ext.assrt.del.AssrtICompoundInteractionNodeDel;
-import org.scribble.ext.assrt.visit.wf.AssrtAnnotationChecker;
-import org.scribble.ext.assrt.visit.wf.env.AssrtAnnotationEnv;
-import org.scribble.main.ScribbleException;
 
-public class AssrtGChoiceDel extends GChoiceDel implements AssrtICompoundInteractionNodeDel
+public class AssrtGChoiceDel extends GChoiceDel
+		implements AssrtICompoundInteractionNodeDel
 {
 
-	@Override
-	public GChoice leaveAnnotCheck(ScribNode parent, ScribNode child,  AssrtAnnotationChecker checker, ScribNode visited) throws ScribbleException
+	/*@Override
+	public GChoice leaveAnnotCheck(ScribNode child,
+			AssrtAnnotationChecker checker, ScribNode visited) throws ScribException
 	{
 		// Cf. GChoiceDel.leaveInlinedWFChoiceCheck
 		GChoice cho = (GChoice) visited;
@@ -23,11 +17,34 @@ public class AssrtGChoiceDel extends GChoiceDel implements AssrtICompoundInterac
 				.map(b -> (AssrtAnnotationEnv) b.del().env()).collect(Collectors.toList());
 		AssrtAnnotationEnv merged = checker.popEnv().mergeContexts(benvs); 
 		checker.pushEnv(merged);
-		return (GChoice) AssrtICompoundInteractionNodeDel.super.leaveAnnotCheck(parent, child, checker, visited);  // Replaces base popAndSet to do pop, merge and set
-	}
+		return (GChoice) AssrtICompoundInteractionNodeDel.super.leaveAnnotCheck(
+				parent, child, checker, visited);
+				// Replaces base popAndSet to do pop, merge and set
+	}*/
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	/*@Override
-	public void enterAnnotCheck(ScribNode parent, ScribNode child, AssrtAnnotationChecker checker) throws ScribbleException
+	public void enterAnnotCheck(ScribNode parent, ScribNode child, AssrtAnnotationChecker checker) throws ScribException
 	{
 		AssrtAnnotationEnv env = checker.peekEnv().enterContext();
 		checker.pushEnv(env);
@@ -35,7 +52,7 @@ public class AssrtGChoiceDel extends GChoiceDel implements AssrtICompoundInterac
 	
 	/*// Cf. GChoiceDel.leaveInlinedWFChoiceCheck
 	@Override
-	public GChoice leaveAnnotCheck(ScribNode parent, ScribNode child,  AssrtAnnotationChecker checker, ScribNode visited) throws ScribbleException
+	public GChoice leaveAnnotCheck(ScribNode parent, ScribNode child,  AssrtAnnotationChecker checker, ScribNode visited) throws ScribException
 	{
 		GChoice cho = (GChoice) visited;
 		
@@ -55,4 +72,3 @@ public class AssrtGChoiceDel extends GChoiceDel implements AssrtICompoundInterac
 		
 		return cho;
 	}*/
-}

@@ -8,10 +8,10 @@ type <java> "java.lang.Integer" from "rt.jar" as int;  // FIXME: int keyword
 global protocol Proto1(role B, role S)
 {
 	ok() from B to S;
-	do Proto2(B, S); @"<Quote>"
+	do Proto2(B, S); @<"Quote">
 }
 
-aux global protocol Proto2(role B, role S) @"(x:=0)"
+aux global protocol Proto2(role B, role S) @<x:="0">
 {
 	5() from B to S;	@"(False)"
 }

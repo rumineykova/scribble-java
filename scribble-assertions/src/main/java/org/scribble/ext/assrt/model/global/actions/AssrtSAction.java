@@ -1,16 +1,16 @@
 package org.scribble.ext.assrt.model.global.actions;
 
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
 
 public interface AssrtSAction
 {
-	AssrtBoolFormula getAssertion();
+	AssrtBFormula getAssertion();
 	
 	default String assertionToString()
 	{
-		AssrtBoolFormula ass = getAssertion();
-		return ass.equals(AssrtTrueFormula.TRUE) ? "" : ("@\"" + ass + "\"");
-		//return ass.equals(AssrtTrueFormula.TRUE) ? "" : ("@" + ass + ";");
+		AssrtBFormula ass = getAssertion();
+		//return ass.equals(AssrtTrueFormula.TRUE) ? "" : ("@\"" + ass + "\"");
+		//return "\"" + ass + "\"";
+		return ass.toString();
 	}
 }

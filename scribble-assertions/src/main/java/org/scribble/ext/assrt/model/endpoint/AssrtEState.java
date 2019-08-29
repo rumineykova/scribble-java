@@ -15,62 +15,65 @@ package org.scribble.ext.assrt.model.endpoint;
 
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.scribble.ext.assrt.type.formula.AssrtArithFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBinBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtBoolFormula;
-import org.scribble.ext.assrt.type.formula.AssrtFormulaFactory;
-import org.scribble.ext.assrt.type.formula.AssrtTrueFormula;
-import org.scribble.ext.assrt.type.name.AssrtDataTypeVar;
-import org.scribble.model.MState;
-import org.scribble.model.endpoint.EModelFactory;
-import org.scribble.model.endpoint.EState;
-import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.type.name.RecVar;
+import org.scribble.core.model.MState;
+import org.scribble.core.model.ModelFactory;
+import org.scribble.core.model.endpoint.EState;
+import org.scribble.core.model.endpoint.actions.EAction;
+import org.scribble.core.type.name.RecVar;
+import org.scribble.ext.assrt.core.type.formula.AssrtAFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBinBFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtBFormula;
+import org.scribble.ext.assrt.core.type.formula.AssrtFormulaFactory;
+import org.scribble.ext.assrt.core.type.formula.AssrtTrueFormula;
+import org.scribble.ext.assrt.core.type.name.AssrtIntVar;
 
 public class AssrtEState extends EState
 {
-	private final LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> statevars; // Note: even with syntactic single var per rec, nested recs can lead to mulitple vars per state
+	private final LinkedHashMap<AssrtIntVar, AssrtAFormula> statevars; // Note: even with syntactic single var per rec, nested recs can lead to mulitple vars per state
+			// CHECKME: supported outside of assrt-core?
 	
 	private //final
-			AssrtBoolFormula ass;  // FIXME: make Set -- and eliminate placeholder True from various, use empty set instead
+			AssrtBFormula ass;  // TODO FIXME: make Set -- and eliminate placeholder True from various, use empty set instead
 
 	// FIXME: make AssrtIntTypeVar?
-	protected AssrtEState(Set<RecVar> labs, LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars,
-			AssrtBoolFormula ass)  // FIXME: currently syntactically restricted to one annot var
+	protected AssrtEState(Set<RecVar> labs, LinkedHashMap<AssrtIntVar, AssrtAFormula> vars,
+			AssrtBFormula ass)  // FIXME: currently syntactically restricted to one annot var
 	{
 		super(labs);
 		//this.vars = Collections.unmodifiableMap(vars);
-		this.statevars = new LinkedHashMap<>(vars);  // Side effected by addStateVars
+		this.statevars = new LinkedHashMap<>(vars);  // N.B. mutated by addStateVars
 		this.ass = ass;
 	}
 	
 	@Override
-	protected AssrtEState cloneNode(EModelFactory ef, Set<RecVar> labs)
+	protected AssrtEState cloneNode(ModelFactory mf, Set<RecVar> labs)
 	{
-		return ((AssrtEModelFactory) ef).newAssrtEState(labs, this.statevars,
+		return ((AssrtEModelFactory) mf.local).newAssrtEState(labs, this.statevars,
 				this.ass);
 	}
 	
-	public LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> getStateVars()
+	public LinkedHashMap<AssrtIntVar, AssrtAFormula> getStateVars()
 	{
 		return this.statevars;
 	}
 	
-	public AssrtBoolFormula getAssertion()
+	public AssrtBFormula getAssertion()
 	{
 		return this.ass;
 	}
 
 	// For public access, do via AssrtEGraphBuilderUtil
-	protected final void addStateVars(LinkedHashMap<AssrtDataTypeVar, AssrtArithFormula> vars,
-			AssrtBoolFormula ass)
+	protected final void addStateVars(LinkedHashMap<AssrtIntVar, AssrtAFormula> svars,
+			AssrtBFormula ass)
 	{
-		this.statevars.putAll(vars);  // FIXME: ordering w.r.t. nested recs (i.e., multiple calls to here)
-		
+		this.statevars.putAll(svars);  // FIXME: ordering w.r.t. nested recs (i.e., multiple calls to here)
 		this.ass = (this.ass.equals(AssrtTrueFormula.TRUE))
 				? ass
-				: AssrtFormulaFactory.AssrtBinBool(AssrtBinBoolFormula.Op.And, this.ass, ass);  // FIXME: make Set
+				: (ass.equals(AssrtTrueFormula.TRUE))   // E.g., addStateVars for the implicitly generated top-level rec, onto the actual entry
+						? this.ass
+						: AssrtFormulaFactory.AssrtBinBool(AssrtBinBFormula.Op.And, this.ass, ass);  // FIXME: make Set
 	}
 
 	@Override
@@ -78,8 +81,12 @@ public class AssrtEState extends EState
 	{
 		String labs = this.labs.toString();
 		return "label=\"" + this.id + ": " + labs.substring(1, labs.length() - 1)
-				+ (this.statevars.isEmpty() ? "" : ", " + this.statevars)
-				+ (this.ass.equals(AssrtTrueFormula.TRUE) ? "" : ", " + this.ass)
+				/*+ (this.statevars.isEmpty() ? "" : ", " + this.statevars)
+				+ (this.ass.equals(AssrtTrueFormula.TRUE) ? "" : ", " + this.ass)*/
+				+ " <" + this.statevars.entrySet().stream()
+						.map(x -> x.getKey() + ":=" + x.getValue())
+						.collect(Collectors.joining(", "))
+				+ "> " + this.ass
 				+ "\"";  // FIXME: would be more convenient for this method to return only the label body
 	}
 
@@ -87,12 +94,13 @@ public class AssrtEState extends EState
 	protected String getEdgeLabel(EAction msg)
 	{
 		return "label=\"" + msg.toString().replaceAll("\\\"", "\\\\\"") + "\"";
+				// Because of @"..." syntax, need to escape the quotes
 	}
 	
 	@Override
-	public AssrtEState getSuccessor(EAction a)
+	public AssrtEState getDetSucc(EAction a)
 	{
-		return (AssrtEState) super.getSuccessor(a);
+		return (AssrtEState) super.getDetSucc(a);
 	}
 	
 	@Override
