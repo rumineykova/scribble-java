@@ -37,6 +37,7 @@ public class CLArgParser
 	public static final String AUT_FLAG = "-aut";
 	public static final String NO_VALIDATION_FLAG = "-novalid";
 	public static final String INLINE_MAIN_MOD_FLAG = "-inline";
+	public static final String SPIN = "-spin";
 	
 	// Non-unique flags
 	public static final String PROJECT_FLAG = "-project";
@@ -53,6 +54,8 @@ public class CLArgParser
 	public static final String API_GEN_FLAG = "-api";
 	public static final String SESSION_API_GEN_FLAG = "-sessapi";
 	public static final String STATECHAN_API_GEN_FLAG = "-chanapi";
+
+	public static final String EVENTDRIVEN_API_GEN_FLAG = "-cbapi";
 	
 	private static final Map<String, CLArgFlag> UNIQUE_FLAGS = new HashMap<>();
 	{
@@ -70,6 +73,7 @@ public class CLArgParser
 		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.AUT_FLAG, CLArgFlag.AUT);
 		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.NO_VALIDATION_FLAG, CLArgFlag.NO_VALIDATION);
 		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.INLINE_MAIN_MOD_FLAG, CLArgFlag.INLINE_MAIN_MOD);
+		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.SPIN, CLArgFlag.SPIN);
 	}
 
 	private static final Map<String, CLArgFlag> NON_UNIQUE_FLAGS = new HashMap<>();
@@ -88,6 +92,7 @@ public class CLArgParser
 		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.API_GEN_FLAG, CLArgFlag.API_GEN);
 		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.SESSION_API_GEN_FLAG, CLArgFlag.SESS_API_GEN);
 		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.STATECHAN_API_GEN_FLAG, CLArgFlag.SCHAN_API_GEN);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.EVENTDRIVEN_API_GEN_FLAG, CLArgFlag.ED_API_GEN);
 	}
 
 	private static final Map<String, CLArgFlag> FLAGS = new HashMap<>();
@@ -186,6 +191,7 @@ public class CLArgParser
 			case CLArgParser.NO_LOCAL_CHOICE_SUBJECT_CHECK:
 			case CLArgParser.NO_ACCEPT_CORRELATION_CHECK:
 			case CLArgParser.NO_VALIDATION_FLAG:
+			case CLArgParser.SPIN:
 			{
 				checkAndAddNoArgUniqueFlag(flag);
 				return i;
@@ -226,6 +232,7 @@ public class CLArgParser
 			case CLArgParser.UNFAIR_EFSM_FLAG:
 			case CLArgParser.API_GEN_FLAG:
 			case CLArgParser.STATECHAN_API_GEN_FLAG:
+			case CLArgParser.EVENTDRIVEN_API_GEN_FLAG:
 			{
 				return parseProtoAndRoleArgs(flag, i);
 			}

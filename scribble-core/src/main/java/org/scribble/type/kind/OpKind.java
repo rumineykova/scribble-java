@@ -13,6 +13,7 @@
  */
 package org.scribble.type.kind;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 public class OpKind extends AbstractKind implements MessageIdKind, Serializable
@@ -21,15 +22,19 @@ public class OpKind extends AbstractKind implements MessageIdKind, Serializable
 
 	public static final OpKind KIND = new OpKind();
 	
-	protected OpKind()
+	public OpKind()
 	{
-
+		super("Op");
+	}
+	
+	private void writeObject(java.io.ObjectOutputStream stream) throws IOException
+	{
+		stream.writeObject(this.kind);
 	}
 
-	@Override
-	public int hashCode()
+	private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException
 	{
-		return super.hashCode();
+		this.kind = (String) stream.readObject();  // i.e. "Op"
 	}
 
 	@Override

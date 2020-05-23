@@ -31,6 +31,7 @@ public enum CLArgFlag
 	AUT,
 	NO_VALIDATION,
 	INLINE_MAIN_MOD,
+	SPIN,
 
 	// Non-unique flags
 	PROJECT,
@@ -48,4 +49,5 @@ public enum CLArgFlag
 	API_GEN,
 	SESS_API_GEN,
 	SCHAN_API_GEN,
+	ED_API_GEN
 }

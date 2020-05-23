@@ -27,6 +27,7 @@ import org.scribble.ast.Module;
 import org.scribble.ast.ProtocolDecl;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.codegen.java.JEndpointApiGenerator;
+import org.scribble.codegen.java.callbackapi.CBEndpointApiGenerator3;
 import org.scribble.main.AntlrSourceException;
 import org.scribble.main.Job;
 import org.scribble.main.JobContext;
@@ -75,6 +76,7 @@ public class CommandLine
 		boolean noLocalChoiceSubjectCheck = this.args.containsKey(CLArgFlag.NO_LOCAL_CHOICE_SUBJECT_CHECK);
 		boolean noAcceptCorrelationCheck = this.args.containsKey(CLArgFlag.NO_ACCEPT_CORRELATION_CHECK);
 		boolean noValidation = this.args.containsKey(CLArgFlag.NO_VALIDATION);
+		boolean spin = this.args.containsKey(CLArgFlag.SPIN);
 
 		List<Path> impaths = this.args.containsKey(CLArgFlag.IMPORT_PATH)
 				? CommandLine.parseImportPaths(this.args.get(CLArgFlag.IMPORT_PATH)[0])
@@ -83,14 +85,14 @@ public class CommandLine
 		if (this.args.containsKey(CLArgFlag.INLINE_MAIN_MOD))
 		{
 			return new MainContext(debug, locator, this.args.get(CLArgFlag.INLINE_MAIN_MOD)[0], useOldWF, noLiveness, minEfsm, fair,
-					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation);
+					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, spin);
 		}
 		else
 		{
 			Path mainpath = CommandLine.parseMainPath(this.args.get(CLArgFlag.MAIN_MOD)[0]);
 			//return new MainContext(jUnit, debug, locator, mainpath, useOldWF, noLiveness);
 			return new MainContext(debug, locator, mainpath, useOldWF, noLiveness, minEfsm, fair,
-					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation);
+					noLocalChoiceSubjectCheck, noAcceptCorrelationCheck, noValidation, spin);
 		}
 	}
 
@@ -261,6 +263,10 @@ public class CommandLine
 		{
 			outputEndpointApi(job);
 		}
+		if (this.args.containsKey(CLArgFlag.ED_API_GEN))
+		{
+			outputEventDrivenApi(job);
+		}
 	}
 
 	// FIXME: option to write to file, like classes
@@ -283,7 +289,8 @@ public class CommandLine
 	private void printEGraph(Job job, boolean forUser, boolean fair) throws ScribbleException, CommandLineException
 	{
 		JobContext jcontext = job.getContext();
-		String[] args = forUser ? this.args.get(CLArgFlag.EFSM) : (fair ? this.args.get(CLArgFlag.VALIDATION_EFSM) : this.args.get(CLArgFlag.UNFAIR_EFSM));
+		String[] args = forUser ? this.args.get(CLArgFlag.EFSM) :
+					(fair ? this.args.get(CLArgFlag.VALIDATION_EFSM) : this.args.get(CLArgFlag.UNFAIR_EFSM));
 		for (int i = 0; i < args.length; i += 2)
 		{
 			GProtocolName fullname = checkGlobalProtocolArg(jcontext, args[i]);
@@ -411,9 +418,33 @@ public class CommandLine
 		for (int i = 0; i < args.length; i += 2)
 		{
 			GProtocolName fullname = checkGlobalProtocolArg(jcontext, args[i]);
-			Role role = checkRoleArg(jcontext, fullname, args[i+1]);
-			Map<String, String> classes = jgen.generateStateChannelApi(fullname, role, this.args.containsKey(CLArgFlag.SCHAN_API_SUBTYPES));
+			Role self = checkRoleArg(jcontext, fullname, args[i+1]);
+			Map<String, String> classes = jgen.generateStateChannelApi(fullname, self, this.args.containsKey(CLArgFlag.SCHAN_API_SUBTYPES));
 			outputClasses(classes);
+		}
+	}
+
+	private void outputEventDrivenApi(Job job) throws ScribbleException, CommandLineException
+	{
+		JobContext jcontext = job.getContext();
+		String[] args = this.args.get(CLArgFlag.ED_API_GEN);
+		/*JEndpointApiGenerator jgen = new JEndpointApiGenerator(job);  // FIXME: refactor (generalise -- use new API)
+		for (int i = 0; i < args.length; i += 2)
+		{
+			GProtocolName fullname = checkGlobalProtocolArg(jcontext, args[i]);
+			Map<String, String> sessClasses = jgen.generateSessionApi(fullname);
+			outputClasses(sessClasses);
+			Role role = checkRoleArg(jcontext, fullname, args[i+1]);
+			Map<String, String> scClasses = jgen.generateStateChannelApi(fullname, role, this.args.containsKey(CLArgFlag.SCHAN_API_SUBTYPES));
+			outputClasses(scClasses);
+		}*/
+		for (int i = 0; i < args.length; i += 2)
+		{
+			GProtocolName fullname = checkGlobalProtocolArg(jcontext, args[i]);
+			Role self = checkRoleArg(jcontext, fullname, args[i+1]);
+			CBEndpointApiGenerator3 edgen = new CBEndpointApiGenerator3(job, fullname, self, this.args.containsKey(CLArgFlag.SCHAN_API_SUBTYPES));
+			Map<String, String> out = edgen.build();
+			outputClasses(out);
 		}
 	}
 

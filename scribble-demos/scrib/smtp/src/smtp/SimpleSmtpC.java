@@ -11,7 +11,8 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-//$ java -cp modules/cli/target/classes/';'modules/core/target/classes';'modules/demos/target/classes smtp.SimpleSmtpC
+
+//$ java -cp scribble-runtime/target/classes/';'scribble-core/target/classes';'scribble-demos/target/classes smtp.SimpleSmtpC
 
 
 package smtp;
@@ -19,6 +20,7 @@ package smtp;
 import static smtp.Smtp.Smtp.Smtp.C;
 import static smtp.Smtp.Smtp.Smtp.S;
 import static smtp.Smtp.Smtp.Smtp._220;
+import static smtp.Smtp.Smtp.Smtp._221;
 import static smtp.Smtp.Smtp.Smtp._235;
 import static smtp.Smtp.Smtp.Smtp._250;
 import static smtp.Smtp.Smtp.Smtp._250d;
@@ -31,24 +33,24 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Base64;
 
-import org.scribble.runtime.net.Buf;
-import org.scribble.runtime.net.scribsock.LinearSocket;
-import org.scribble.runtime.net.session.MPSTEndpoint;
-import org.scribble.runtime.net.session.SSLSocketChannelWrapper;
-import org.scribble.runtime.net.session.SocketChannelEndpoint;
+import org.scribble.runtime.net.SSLSocketChannelWrapper;
+import org.scribble.runtime.net.SocketChannelEndpoint;
+import org.scribble.runtime.session.MPSTEndpoint;
+import org.scribble.runtime.statechans.LinearSocket;
+import org.scribble.runtime.util.Buf;
 
 import smtp.Smtp.Smtp.Smtp;
-import smtp.Smtp.Smtp.channels.C.Smtp_C_1;
-import smtp.Smtp.Smtp.channels.C.Smtp_C_10;
-import smtp.Smtp.Smtp.channels.C.Smtp_C_11_Cases;
-import smtp.Smtp.Smtp.channels.C.Smtp_C_4;
-import smtp.Smtp.Smtp.channels.C.Smtp_C_6;
-import smtp.Smtp.Smtp.channels.C.Smtp_C_8;
-import smtp.Smtp.Smtp.channels.C.Smtp_C_9_Cases;
-import smtp.Smtp.Smtp.channels.C.ioifaces.Branch_C_S_250__S_250d;
-import smtp.Smtp.Smtp.channels.C.ioifaces.Case_C_S_250__S_250d;
-import smtp.Smtp.Smtp.channels.C.ioifaces.Select_C_S_Ehlo;
-import smtp.Smtp.Smtp.channels.C.ioifaces.Succ_In_S_250;
+import smtp.Smtp.Smtp.statechans.C.Smtp_C_1;
+import smtp.Smtp.Smtp.statechans.C.Smtp_C_10;
+import smtp.Smtp.Smtp.statechans.C.Smtp_C_11_Cases;
+import smtp.Smtp.Smtp.statechans.C.Smtp_C_4;
+import smtp.Smtp.Smtp.statechans.C.Smtp_C_6;
+import smtp.Smtp.Smtp.statechans.C.Smtp_C_8;
+import smtp.Smtp.Smtp.statechans.C.Smtp_C_9_Cases;
+import smtp.Smtp.Smtp.statechans.C.ioifaces.Branch_C_S_250__S_250d;
+import smtp.Smtp.Smtp.statechans.C.ioifaces.Case_C_S_250__S_250d;
+import smtp.Smtp.Smtp.statechans.C.ioifaces.Select_C_S_Ehlo;
+import smtp.Smtp.Smtp.statechans.C.ioifaces.Succ_In_S_250;
 import smtp.Smtp.Smtp.roles.C;
 import smtp.message.SmtpMessageFormatter;
 import smtp.message.client.Auth;
@@ -84,7 +86,7 @@ public class SimpleSmtpC
 		Smtp smtp = new Smtp();
 		try (MPSTEndpoint<Smtp, C> se = new MPSTEndpoint<>(smtp, C, new SmtpMessageFormatter()))
 		{
-			se.connect(S, SocketChannelEndpoint::new, host, port);
+			se.request(S, SocketChannelEndpoint::new, host, port);
 
 			Smtp_C_11_Cases cases =
 					doAuth(
@@ -106,12 +108,12 @@ public class SimpleSmtpC
 						.send(S, new DataLine(body))            
 						.send(S, new EndOfData())             
 						.receive(S, _250, new Buf<>())          
-						.send(S, new Quit());                   
+						.send(S, new Quit()).async(S, _221);                  
 					break;
 				}
 				case _501:
 				{
-					cases.receive(_501).send(S, new Quit());
+					cases.receive(_501).send(S, new Quit()).async(S, _221);
 				}
 			}
 		}
