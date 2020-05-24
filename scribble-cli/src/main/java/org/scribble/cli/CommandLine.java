@@ -27,6 +27,7 @@ import org.scribble.ast.Module;
 import org.scribble.ast.ProtocolDecl;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.codegen.java.JEndpointApiGenerator;
+import org.scribble.codegen.java.RustApiGenerator;
 import org.scribble.codegen.java.callbackapi.CBEndpointApiGenerator3;
 import org.scribble.main.AntlrSourceException;
 import org.scribble.main.Job;
@@ -267,6 +268,11 @@ public class CommandLine
 		{
 			outputEventDrivenApi(job);
 		}
+		
+		if (this.args.containsKey(CLArgFlag.RUST_GEN))
+		{
+			outputRustApi(job);
+		}
 	}
 
 	// FIXME: option to write to file, like classes
@@ -409,7 +415,7 @@ public class CommandLine
 			outputClasses(classes);
 		}
 	}
-
+		
 	private void outputStateChannelApi(Job job) throws ScribbleException, CommandLineException
 	{
 		JobContext jcontext = job.getContext();
@@ -448,6 +454,19 @@ public class CommandLine
 		}
 	}
 
+	private void outputRustApi(Job job) throws ScribbleException, CommandLineException
+	{
+		JobContext jcontext = job.getContext();
+		String[] args = this.args.get(CLArgFlag.RUST_GEN);
+		GProtocolName fullname = checkGlobalProtocolArg(jcontext, args[0]);
+		RustApiGenerator jgen = new RustApiGenerator(job, fullname);  // FIXME: refactor (generalise -- use new API)
+		Map<String, String> rustTypes = jgen.generateAll();
+		rustTypes.keySet().stream().forEach
+			(t -> System.out.print(t.toString() + "\n"));
+		
+		//soutputRustType(rustTypes);
+	}
+	
 	// filepath -> class source
 	protected void outputClasses(Map<String, String> classes) throws ScribbleException
 	{

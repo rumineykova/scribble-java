@@ -57,6 +57,8 @@ public class CLArgParser
 
 	public static final String EVENTDRIVEN_API_GEN_FLAG = "-cbapi";
 	
+	public static final String RUST_API_GEN_FLAG = "-rustapi";
+	
 	private static final Map<String, CLArgFlag> UNIQUE_FLAGS = new HashMap<>();
 	{
 		CLArgParser.UNIQUE_FLAGS.put(CLArgParser.JUNIT_FLAG, CLArgFlag.JUNIT);
@@ -93,6 +95,7 @@ public class CLArgParser
 		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.SESSION_API_GEN_FLAG, CLArgFlag.SESS_API_GEN);
 		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.STATECHAN_API_GEN_FLAG, CLArgFlag.SCHAN_API_GEN);
 		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.EVENTDRIVEN_API_GEN_FLAG, CLArgFlag.ED_API_GEN);
+		CLArgParser.NON_UNIQUE_FLAGS.put(CLArgParser.RUST_API_GEN_FLAG, CLArgFlag.RUST_GEN);
 	}
 
 	private static final Map<String, CLArgFlag> FLAGS = new HashMap<>();
@@ -231,6 +234,7 @@ public class CLArgParser
 			case CLArgParser.VALIDATION_EFSM_FLAG:
 			case CLArgParser.UNFAIR_EFSM_FLAG:
 			case CLArgParser.API_GEN_FLAG:
+			case CLArgParser.RUST_API_GEN_FLAG:	
 			case CLArgParser.STATECHAN_API_GEN_FLAG:
 			case CLArgParser.EVENTDRIVEN_API_GEN_FLAG:
 			{

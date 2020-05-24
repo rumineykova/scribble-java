@@ -49,5 +49,6 @@ public enum CLArgFlag
 	API_GEN,
 	SESS_API_GEN,
 	SCHAN_API_GEN,
-	ED_API_GEN
+	ED_API_GEN, 
+	RUST_GEN
 }
