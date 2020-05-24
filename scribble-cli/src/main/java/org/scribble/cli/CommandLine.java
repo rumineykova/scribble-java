@@ -461,12 +461,17 @@ public class CommandLine
 		GProtocolName fullname = checkGlobalProtocolArg(jcontext, args[0]);
 		RustApiGenerator jgen = new RustApiGenerator(job, fullname);  // FIXME: refactor (generalise -- use new API)
 		Map<String, String> rustTypes = jgen.generateAll();
-		rustTypes.keySet().stream().forEach
-			(t -> System.out.print(t.toString() + "\n"));
 		
-		//soutputRustType(rustTypes);
+		outputRustType(rustTypes);
 	}
 	
+	protected void outputRustType(Map<String, String> rustTypes) throws ScribbleException {
+		StringBuilder sb = new StringBuilder(); 
+		rustTypes.values().stream().forEach(t -> sb.append(t + "\n"));
+		String res = sb.toString();
+		System.out.print(res);
+		ScribUtil.writeToFile("RustGen.rust", res); 
+	} 
 	// filepath -> class source
 	protected void outputClasses(Map<String, String> classes) throws ScribbleException
 	{

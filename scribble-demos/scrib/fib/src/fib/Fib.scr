@@ -7,22 +7,24 @@ module fib.Fib;
 type <java> "java.lang.Integer" from "rt.jar" as Int;
 
 
-global protocol Adder(role C, role S)
+global protocol Adder(role C, role S, role P)
 {
 	/*[x+1<10 && x<9  && x<10]
 	ADD(x:Int) from C to S;*/
 
-	choice at C
-	{
-		ADD(Int, Int) from C to S;
+	//choice at C
+	//{
+		ADD(Int) from C to S;
+		ADD(Int) from C to P;
 		RES(Int) from S to C;
-		do Adder(C, S);
-	}
-	or
-	{
+	//	do Adder(C, S);
+	//}
+	//or
+	//{
 		BYE() from C to S;
+		BYE() from C to P;
 		BYE() from S to C;
-	}	
+	//}	
 }
 
 

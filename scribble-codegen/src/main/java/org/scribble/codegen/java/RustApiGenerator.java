@@ -50,14 +50,20 @@ public class RustApiGenerator {
 				.stream().map(r -> r.toString())
 				//.reduce("", String::concat)
 				.collect(Collectors.toList());
-
+		
+		// add all imports
 		sb.append(RustGenConstants.MPST_IMPORTS)
 		  .append(generateRoleImports(roleImports)); 
 		 genAll.put("all",sb.toString());
 		 
+		// add all types
 		 for (int i=0; i<roles.size(); i++) {
-			RoleTypesGenerator gen = new RoleTypesGenerator(this.job, this.gpn, roles.get(i));
-			genAll.putAll(gen.generateApi());	
+			Role curr = roles.get(i);
+			RoleTypesGenerator gen = new RoleTypesGenerator(this.job, this.gpn, curr, 
+					roles.stream().filter(r -> r!=curr).collect(Collectors.toList()));
+			
+			genAll.put(roles.get(i).toString(), 
+					gen.generateApi().values().stream().map(t -> t + "\n").reduce("", String::concat));	
 		}
 		 return genAll; 
 	}
