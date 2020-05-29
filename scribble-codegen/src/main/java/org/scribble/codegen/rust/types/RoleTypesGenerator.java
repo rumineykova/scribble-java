@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import org.scribble.codegen.java.ApiGen;
@@ -17,13 +18,9 @@ import org.scribble.type.name.GProtocolName;
 import org.scribble.type.name.Role;
 
 public class RoleTypesGenerator extends ApiGen {
-	private int counter = 1;  
 	private Role self; 
 	private EState init; 
 	private List<EState> visited = new ArrayList<EState>(); 
-	
-	private final Map<Role, List<EAction>> binTypes = new HashMap<>();
-	private final List<Role> execOrder = new ArrayList<Role>(); 
 	private final List<Role> otherRoles; 
 	
 	public RoleTypesGenerator(Job job, GProtocolName fullname, Role self, List<Role> otherRoles) throws ScribbleException  // FIXME: APIGenerationException?
@@ -32,7 +29,7 @@ public class RoleTypesGenerator extends ApiGen {
 		this.self = self;
 		JobContext jc = job.getContext();
 		this.init = job.minEfsm ? jc.getMinimisedEGraph(fullname, self).init : jc.getEGraph(fullname, self).init;
-		this.initBinTypesMap(otherRoles); 
+		//this.initBinTypesMap(otherRoles); 
 		this.otherRoles = otherRoles; 
 		//constructTypes(this.init);
 
@@ -44,36 +41,147 @@ public class RoleTypesGenerator extends ApiGen {
 		}*/
 	}
 	
-	private void initBinTypesMap(List<Role> roles) {
-		for (int i = 0; i<roles.size(); i++) {
-			this.binTypes.put(roles.get(i), new ArrayList<EAction>());		
-		}
-	}
-	
-	private void constructTypes(EState curr)  {
+	private void constructTypes(EState curr, Stack<IRustMpstBuilder> acc)  {
 		if (curr.isTerminal())
 		{
-			return;  // Generic EndType for terminal states
+			return; // Generic EndType for terminal states
 		}
 		if (this.visited.contains(curr))
 		{
+		
 			return;
 		}
+		//RustMpstSessionBuilder builder = acc.g
 		
-		updateBinTypes(curr);
-		this.visited.add(curr);
+		//processCurrent()
+		// if curr is normla then pop it the last one, change it, and push it again
+		// keep current
+		this.visited.add(curr);	
+		Boolean isChoice = false; 
+		Boolean isOffer = false; 
+		if (curr.getAllSuccessors().size()>1) {
+			
+			ArrayList<IRustMpstBuilder> paths = new ArrayList<>();
+			// Link the choice and the simple...
+			for (int j=0;j<curr.getActions().size(); j++) {
+				RustMpstSessionBuilder newSimpleType = 
+						new RustMpstSessionBuilder(this.otherRoles, this.self);
+				EAction a = curr.getActions().get(j);
+				newSimpleType.binTypes.get(a.peer).add(a);
+				newSimpleType.execOrder.add(a.peer);
+				paths.add(newSimpleType);
+				
+			}
+		  BuilderKind kind; 
+		  IRustMpstBuilder newType; 
+		  RustMpstSessionBuilder currType = (RustMpstSessionBuilder)acc.pop();
+		  EAction a = curr.getActions().get(0);
+		  if (this.isOffer(curr)) {
+			  isOffer = true;
+			  kind = BuilderKind.Offer; 
+			  newType = new OfferTypeBuilder(paths, kind, this.self, a.peer); 
+			  currType.continuations.put(a.peer, newType);
+		  } 
+		  else { 
+			isChoice = true; 
+			kind = BuilderKind.Choice;
+		  	newType = new ChoiceTypeBuilder(paths, kind, this.self, this.otherRoles); 
+		  	currType.continuations.put(this.self, newType);
+		  }	  
+		  acc.push(currType);
+		  acc.push(newType);
+		} else {updateBinTypes(curr, acc);}
+		
+		int i = 0; 
 		for (EState succ : curr.getAllSuccessors())
-		{
-			constructTypes(succ);
+		{   // start exploring one path 
+			//List<RustMpstSessionBuilder> accn = new ArrayList<>(); 
+			if (isChoice) {
+				ChoiceTypeBuilder bust = (ChoiceTypeBuilder)acc.get(acc.size()-1);
+				acc.push(bust.paths.get(i));
+				constructTypes(succ, acc);
+				acc.pop();
+			} else if (isOffer) {
+				OfferTypeBuilder bust = (OfferTypeBuilder)acc.get(acc.size()-1);
+				acc.push(bust.paths.get(i));
+				constructTypes(succ, acc);
+				acc.pop();
+			}
+			else {
+				constructTypes(succ, acc);
+			}
+			i++; 
+			// we are done exploring that path so get me the types res
+			// add them to a list
+			
 		}
+		if (isChoice||isOffer) {acc.pop();}
+		// pop from the one above, if it is a choice -- choice<all the list> ... construct
+		// if it is an offer, offer and construct the list...
+		// if not... then we are done 
+		return;
 	}
 	
-	public void updateBinTypes(EState curr) {
-		if (!curr.isTerminal()) {
-			EAction a = curr.getActions().get(0);
-			this.binTypes.get(a.peer).add(a);
-			execOrder.add(a.peer);
+	public Boolean isOffer(EState curr) {
+		switch (curr.getStateKind())
+		{ case POLY_INPUT: {return true; }
 		}
+		return false; 
+	}
+	public void updateBinTypes(EState curr, Stack<IRustMpstBuilder> currTypes) {
+		
+		if (!curr.isTerminal()) {
+			switch (curr.getStateKind())
+			{ 
+				case UNARY_INPUT: 
+				case OUTPUT:
+				case POLY_INPUT:
+				{
+					RustMpstSessionBuilder currType = (RustMpstSessionBuilder)currTypes.pop();
+					EAction a = curr.getActions().get(0);
+					currType.binTypes.get(a.peer).add(a);
+					currType.execOrder.add(a.peer);
+					currTypes.push(currType);
+				} 
+				/*
+				case OUTPUT: 
+				{ 
+					if (curr.getActions().size() == 1) {
+						RustMpstSessionBuilder currType = (RustMpstSessionBuilder)currTypes.pop();
+						EAction a = curr.getActions().get(0);
+						currType.binTypes.get(a.peer).add(a);
+						currType.execOrder.add(a.peer);
+						currTypes.push(currType);
+					}
+					else 
+					{ 
+						ArrayList<IRustMpstBuilder> paths = new ArrayList<>();
+						// Link the choice and the simple...
+						for (int i=0;i<curr.getActions().size(); i++) {
+							RustMpstSessionBuilder newSimpleType = 
+									new RustMpstSessionBuilder(this.otherRoles, this.self);
+							paths.add(newSimpleType);
+						}
+					  ChoiceTypeBuilder newType = new ChoiceTypeBuilder(paths, BuilderKind.Choice, this.self);
+					  currTypes.push(newType);
+					  return true; 
+					} 
+				}
+				case POLY_INPUT:
+				{
+					ArrayList<IRustMpstBuilder> paths = new ArrayList<>();
+					// Link the choice and the simple...
+					for (int i=0;i<curr.getActions().size(); i++) {
+						RustMpstSessionBuilder newSimpleType = 
+								new RustMpstSessionBuilder(this.otherRoles, this.self);
+						paths.add(newSimpleType);
+					}
+				  ChoiceTypeBuilder newType = new ChoiceTypeBuilder(paths, BuilderKind.Offer, this.self);
+				  currTypes.push(newType);
+				  return true; 
+				}*/
+				}
+			} 
 	}
 	
 	/*
@@ -108,105 +216,20 @@ public class RoleTypesGenerator extends ApiGen {
 		}
 	} */
 	
-	//example: //type [Label][self_role]to[receiver]<[PayloadType]> = Send<[PayloadType], End>; 
-	private String[] constructBinTypeDecl(List<EAction> binTypes, Role role) {		
-		Map<Role, String> roleToBinType = new HashMap<>(); 
-		if (binTypes.size()<1) { return new String[] {"", "End"};}
-		else {
-			EAction fst = binTypes.get(0);
-			StringBuilder sb = new StringBuilder();
-			
-			String typeName = String.format("%s%sto%s<%s>", 
-					fst.mid.toString(), this.self.toString().toUpperCase(), 
-					role.toString().toUpperCase(), getPayload(fst));
-	
-			sb.append("type ").append(typeName).append(" = ");
-			
-			for(int i=0; i< binTypes.size(); i++) {
-				EAction a = binTypes.get(i);
-				sb.append(String.format("%s<%s,", getKind(a), getPayload(a)));
-			}
-			
-			String[] brackets = new String[binTypes.size() + 2];
-			Arrays.fill(brackets, ">");
-			brackets[0] = "End";
-			brackets[brackets.length -1] = ";";
-			sb.append(Arrays.asList(brackets).stream().reduce("", String::concat));
-			String[] result = new String[] {sb.toString(), typeName};
-			return result;
-		}  
-	}
-	
-	//example: type QueueCRecurs = RoleCtoA<RoleCtoB<RoleEnd>>;
-	private String[] constructMpstStack(List<Role> executionStack) {
-		
-		StringBuilder sb = new StringBuilder(); 
-		String typeName = String.format("Ordering%s%d", this.self.toString(), getNextCount());
-		String prefix = String.format("type %s = ", typeName);
-		sb.append(prefix);
-		
-		for(int i=0; i< executionStack.size(); i++) {
-			sb.append(String.format("Role%sto%s<,", this.self.toString(), executionStack.get(i).toString()));
-		}
-		
-		String[] brackets = new String[executionStack.size() + 1];
-		Arrays.fill(brackets, ">");
-		brackets[0] = "RoleEnd";
-		brackets[brackets.length -1] = ";";
-		sb.append(Arrays.asList(brackets).stream().reduce("", String::concat));
-		return new String[] {sb.toString(), typeName};
-	}
-	
-	//type EndpointARecurs<N> = SessionMpst<End, RecursAtoC<N>, QueueARecurs>;
-	private String constructMpstSession(Map<Role, String> rolesToBinTypes, String mpstStackName) {
-		StringBuilder sb = new StringBuilder(); 
-		String prefix = String.format("type Endpoint%s%d = SessionMpst<", this.self.toString(), this.getNextCount());
-	    sb.append(prefix);
-	    
-		for (int i=0; i<this.otherRoles.size(); i++) {
-			sb.append(rolesToBinTypes.get(otherRoles.get(i)))
-			.append(",");
-		}
-		sb.append(mpstStackName);
-		sb.append(">;");
-		
-		return sb.toString();
-	}
-	
-	private int getNextCount() {
-		return this.counter++;
-	} 
-	
-	private String getPayload(EAction a) {
-		return "N";
-	}
-	private String getKind(EAction a) {
-		String kind; 
-		if (a.isSend()) {kind = "Send";}
-		else if (a.isReceive()) { kind = "Recv";}
-		else throw new RuntimeException("not implemented excetpion! for node type" + a.toString());
-		return kind;
-	}
-	
 	@Override
 	public Map<String, String> generateApi()  {
-		this.constructTypes(this.init);
-		
+		Stack<IRustMpstBuilder> types = new Stack<>(); 
+		RustMpstSessionBuilder type = new RustMpstSessionBuilder(this.otherRoles, this.self);
+		types.add(type);
+		this.constructTypes(this.init, types);
 		Map<String, String> resMap = new HashMap<>();
-		
-		String binaryPairs = 
-				this.binTypes.keySet().stream()
-				.map(r -> constructBinTypeDecl(binTypes.get(r), r)[0] + "\n")
-				.reduce("", String::concat);
-		
-		Map<Role, String> roleToNames = this.otherRoles.stream()
-				.collect(Collectors.toMap(r -> r, r -> constructBinTypeDecl(binTypes.get(r), r)[1] ));
-		
-		String[] ordering = constructMpstStack(this.execOrder);
-		String mpstSession = constructMpstSession(roleToNames, ordering[1]);
-		resMap.put(this.self.toString(), binaryPairs + "\n" + ordering[0] + "\n" + mpstSession);
-		
-		return resMap;
+		//String res = types.stream().map(t-> t.build()).reduce("", String::concat));
+		StringBuilder sb = new StringBuilder(); 
+		for (int i=0; i<types.size(); i++) {
+			sb.append(types.get(i).build());
+		}
+		resMap.put(this.self.toString(), sb.toString());
+		return resMap; 
 	}
 	
 }

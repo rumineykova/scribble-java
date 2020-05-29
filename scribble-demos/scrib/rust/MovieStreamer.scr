@@ -1,0 +1,17 @@
+module rust.MovieStreamer;
+type <rust> "Integer" from "cargo.io" as int;
+
+global protocol Video(role A, role B, role C) {
+	Declare(int) from C to A;
+	Accept(int) from A to C; 
+	choice at C {
+		RequestVideo(int) from C to A; 
+		RequestVideo(int) from A to B; 
+		SendVideo(int) from B to A; 
+		SendVideo(int) from A to C;
+	} or {
+		Close() from C to A; 
+		Close() from A to B;
+		Close() from A to C;
+	}
+}
