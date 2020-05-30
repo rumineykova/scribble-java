@@ -48,13 +48,12 @@ public class RoleTypesGenerator extends ApiGen {
 		}
 		if (this.visited.contains(curr))
 		{
-		
 			return;
 		}
 		//RustMpstSessionBuilder builder = acc.g
 		
 		//processCurrent()
-		// if curr is normla then pop it the last one, change it, and push it again
+		// if curr is normal then pop the last one, change it, and push it again
 		// keep current
 		this.visited.add(curr);	
 		Boolean isChoice = false; 

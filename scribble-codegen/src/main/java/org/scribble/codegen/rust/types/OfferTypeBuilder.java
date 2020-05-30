@@ -46,7 +46,7 @@ public class OfferTypeBuilder implements IRustMpstBuilder {
 			String simpleTypeString = simpleType.build();
 			String binaryTypes = simpleType.rolesToTypeNames
 					.values().stream().map(t -> t + ",").reduce("", String::concat);
-			sb.append(simpleTypeString + "\n");
+			 sb.append(simpleTypeString + "\n");
 			declBuilder.append(binaryTypes);
 			sbQ.append(simpleType.execOrderName + ",");
 		}
@@ -75,7 +75,7 @@ public class OfferTypeBuilder implements IRustMpstBuilder {
 					.stream()
 					.map(t -> t!="End"? "<" + t + " as Session>::Dual,":t + ",")
 					.reduce("", String::concat);
-			sb.append(simpleTypeString + "\n");
+			//sb.append(simpleTypeString + "\n");
 			declBuilder.append(binaryTypes);
 			sbQ.append(simpleType.execOrderName + "::Dual,");
 		}

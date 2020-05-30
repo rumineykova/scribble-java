@@ -7,15 +7,18 @@ type <java> "java.lang.Integer" from "rt.jar" as Int;
 global protocol Adder(role A, role B, role C)
 {	
 	Test(Int) from C to A;	
+	rec Loop {
 	choice at C
 	{
 		ADD(Int) from C to B;
 		ADD(Int) from B to A;
+		continue Loop;
 	}
 	or
 	{
 		BYE() from C to B;
 		BYE() from B to A;
+	}
 	}
 }
 
