@@ -84,7 +84,7 @@ public class ChoiceTypeBuilder implements IRustMpstBuilder {
 	
 	@Override
 	public String build() {
-		return this.buildMpstChoice();
+		return "";//this.buildMpstChoice();
 	}
 	
 	public int getNext() {

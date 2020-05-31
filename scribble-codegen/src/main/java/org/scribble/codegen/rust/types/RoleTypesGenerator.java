@@ -59,7 +59,7 @@ public class RoleTypesGenerator extends ApiGen {
 		Boolean isChoice = false; 
 		Boolean isOffer = false; 
 		if (curr.getAllSuccessors().size()>1) {
-			
+			ArrayList<String> labels = new ArrayList<>();
 			ArrayList<IRustMpstBuilder> paths = new ArrayList<>();
 			// Link the choice and the simple...
 			for (int j=0;j<curr.getActions().size(); j++) {
@@ -69,7 +69,7 @@ public class RoleTypesGenerator extends ApiGen {
 				newSimpleType.binTypes.get(a.peer).add(a);
 				newSimpleType.execOrder.add(a.peer);
 				paths.add(newSimpleType);
-				
+				labels.add(a.mid.toString());
 			}
 		  BuilderKind kind; 
 		  IRustMpstBuilder newType; 
@@ -78,13 +78,13 @@ public class RoleTypesGenerator extends ApiGen {
 		  if (this.isOffer(curr)) {
 			  isOffer = true;
 			  kind = BuilderKind.Offer; 
-			  newType = new OfferTypeBuilder(paths, kind, this.self, a.peer); 
+			  newType = new EnumOfferTypeBuilder(paths, labels, kind, this.self, a.peer); 
 			  currType.continuations.put(a.peer, newType);
 		  } 
 		  else { 
 			isChoice = true; 
 			kind = BuilderKind.Choice;
-		  	newType = new ChoiceTypeBuilder(paths, kind, this.self, this.otherRoles); 
+		  	newType = new EnumChoiceTypeBuilder(paths, kind, this.self, this.otherRoles); 
 		  	currType.continuations.put(this.self, newType);
 		  }	  
 		  acc.push(currType);
@@ -96,12 +96,12 @@ public class RoleTypesGenerator extends ApiGen {
 		{   // start exploring one path 
 			//List<RustMpstSessionBuilder> accn = new ArrayList<>(); 
 			if (isChoice) {
-				ChoiceTypeBuilder bust = (ChoiceTypeBuilder)acc.get(acc.size()-1);
+				EnumChoiceTypeBuilder bust = (EnumChoiceTypeBuilder)acc.get(acc.size()-1);
 				acc.push(bust.paths.get(i));
 				constructTypes(succ, acc);
 				acc.pop();
 			} else if (isOffer) {
-				OfferTypeBuilder bust = (OfferTypeBuilder)acc.get(acc.size()-1);
+				EnumOfferTypeBuilder bust = (EnumOfferTypeBuilder)acc.get(acc.size()-1);
 				acc.push(bust.paths.get(i));
 				constructTypes(succ, acc);
 				acc.pop();

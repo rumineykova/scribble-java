@@ -12,7 +12,7 @@ global protocol Adder(role A, role B, role C)
 	{
 		ADD(Int) from C to B;
 		ADD(Int) from B to A;
-		continue Loop;
+		//continue Loop;
 	}
 	or
 	{

@@ -51,7 +51,7 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 			if ((this.continuations!=null) && this.continuations.containsKey(role)) {
 				finalType = this.continuations.get(role).getFinalTypeName();
 			} else if ((this.continuations!=null) && this.continuations.containsKey(this.self)) {
-				finalType = ((ChoiceTypeBuilder)this.continuations.get(this.self)).getFinalTypeNameByRole(role);
+				finalType = ((EnumChoiceTypeBuilder)this.continuations.get(this.self)).getFinalTypeNameByRole(role);
 			}
 				return new String[] {"", finalType};
 			}
@@ -75,7 +75,7 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 			if ((this.continuations!=null) && (this.continuations.containsKey(role))) {
 				brackets[0] = this.continuations.get(role).getFinalTypeName();
 			} else if ((this.continuations!=null) && (this.continuations.containsKey(this.self))) {
-				brackets[0] = ((ChoiceTypeBuilder)this.continuations.get(this.self)).getFinalTypeNameByRole(role);
+				brackets[0] = ((EnumChoiceTypeBuilder)this.continuations.get(this.self)).getFinalTypeNameByRole(role);
 			}
 			
 			else { brackets[0] = "End";}
@@ -94,9 +94,13 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 		sb.append(prefix);
 		
 		// works only for offer for now
-		if (continuations!=null) {
+		if (continuations!=null){
 			 Role role =  continuations.keySet().iterator().next();
-			 sb.append(String.format("Role%sto%s<RoleEnd>;", this.self.toString(), role.toString()));
+			 if (continuations.get(role).getKind()== BuilderKind.Offer) {
+				 sb.append(String.format("Role%sto%s<RoleEnd>;", this.self.toString(), role.toString()));
+			 } else {
+				 sb.append("RoleEnd>"); // What should happen when the Continuation is Choice?
+			 } 
 			}
 		return new String[] {sb.toString(), typeName};
 	}
@@ -118,7 +122,7 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 		Arrays.fill(brackets, ">");
 		
 		if (this.continuations.containsKey(this.self)) {
-			brackets[0] = ((ChoiceTypeBuilder)this.continuations.get(this.self)).getExecuteOrderName();
+			brackets[0] = ((EnumChoiceTypeBuilder)this.continuations.get(this.self)).getExecuteOrderName();
 		}else { brackets[0] = "RoleEnd";}
 		
 		brackets[brackets.length -1] = ";";
@@ -176,13 +180,14 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 		String[] ordering = constructMpstStack(this.execOrder);
 		String[] mpstSession;
 		String res; 
-		if (continuations.size()==0) {
-			mpstSession = constructMpstSession(roleToNames, ordering[1]);
-			res = cont + binaryPairs + "\n" + ordering[0] + "\n" + mpstSession[0];
-		} else {
+		if ((continuations.size()!=0) && (continuations.values().iterator().next().getKind() == BuilderKind.Offer)) {
 			String[] orderingCont = constructMpstContStack();
 			mpstSession = constructMpstSession(roleToNames, orderingCont[1]);
 			res = cont + binaryPairs + "\n" + ordering[0] + "\n" + orderingCont[0] + "\n" + mpstSession[0];
+			
+		} else {
+			mpstSession = constructMpstSession(roleToNames, ordering[1]);
+			res = cont + binaryPairs + "\n" + ordering[0] + "\n" + mpstSession[0];
 		}
 		this.rolesToTypeNames = roleToNames; 
 		this.execOrderName =ordering[1];
