@@ -47,7 +47,7 @@ public class EnumChoiceTypeBuilder implements IRustMpstBuilder {
 	    //type QueueCChoice = RoleCtoAll<QueueCVideo, QueueCEnd>;
 	    String choiceQueue = 
 	    		String.format("type %s = Role%stoAll<%s, %s>;",
-	    		this.execOrderName, this.self.toString(), 
+	    		this.execOrderName, this.self, 
 	    		((RustMpstSessionBuilder)this.paths.get(0)).execOrderName, 
 	    		((RustMpstSessionBuilder)this.paths.get(1)).execOrderName);
 	    qb.append(choiceQueue);

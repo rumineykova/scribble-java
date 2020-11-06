@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Arrays;
 
 import org.scribble.ast.Module;
 import org.scribble.ast.global.GProtocolDecl;
@@ -35,10 +37,12 @@ public class RustApiGenerator {
 		GProtocolName simpname = this.gpn.getSimpleName();
 		GProtocolDecl gpd = (GProtocolDecl) mod.getProtocolDecl(simpname);
 		for (Role r : gpd.header.roledecls.getRoles())
-		{
+		{	
 			//constructRoleClass(this.cb.newClass(), r);
 			//constructRoleClass(new ClassBuilder(), getEndpointApiRootPackageName(this.gpn), r);
-			this.roles.add(r);	
+			if( !this.roles.contains(r) ) {
+				this.roles.add(r);	
+			}
 		}
 	}
 	
@@ -68,24 +72,24 @@ public class RustApiGenerator {
 		 return genAll; 
 	}
 
-	public String generateRoleImports(List<String> roles) {
-		StringBuilder sb = new StringBuilder(); 
-		for (int i= 0; i<roles.size(); i++) {
-			for (int j=0; j< roles.size(); j++) {
-				if (i!=j) {
-					sb.append(generateRoleImport(roles.get(i), roles.get(j)))
+	public String generateRoleImports(List<String> roleImports) {
+		StringBuilder sb = new StringBuilder();
+		List<Integer> roles = new ArrayList<>();
+		for (int i= 0; i<roleImports.size(); i++) {
+			for (int j=0; j< roleImports.size(); j++) {
+				if (i!=j && !roles.contains(j)) {
+					sb.append(generateRoleImport(roleImports.get(j)))
 					.append(System.getProperty("line.separator"));
+					roles.add(j);
 				}
 			}
 		}
 		return sb.toString();
 	}
 	
-	private String generateRoleImport(String fstRole, String sndRole) {
+	private String generateRoleImport(String sndRole) {
 		return String.format(
-				"use mpstthree::role::%s_%s::Role%sto%s;", 
-				fstRole.toLowerCase(), sndRole.toLowerCase(), 
-				fstRole.toUpperCase(), sndRole.toUpperCase()); 
+				"use mpstthree::role::%s::Role%s;",  sndRole.toLowerCase(), sndRole.toUpperCase()); 
 	}
 	
 }
