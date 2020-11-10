@@ -106,7 +106,7 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 	private String[] constructMpstStack(List<Role> executionStack) {
 
 		StringBuilder sb = new StringBuilder();
-		String typeName = String.format("Ordering%s%d", this.self.toString(), getNextCount());
+		String typeName = String.format("Ordering%s%d", this.self.toString(²), getNextCount());
 		String prefix = String.format("type %s = ", typeName);
 		sb.append(prefix);
 
@@ -135,7 +135,12 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 		String prefix = String.format("type %s = SessionMpst<", name);
 		sb.append(prefix);
 		for (int i = 0; i < this.otherRoles.size(); i++) {
-			sb.append(rolesToBinTypes.get(otherRoles.get(i))).append(",");
+			String binarySession = rolesToBinTypes.get(otherRoles.get(i));
+			if (binarySession.contains("Branche")) {
+				sb.append(String.format("Recv<%s, End>", binarySession)).append(",");
+			} else {
+				sb.append(binarySession).append(",");
+			}
 		}
 		sb.append(mpstStackName);
 		sb.append(",");
