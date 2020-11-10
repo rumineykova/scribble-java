@@ -106,7 +106,7 @@ public class EnumChoiceTypeBuilder implements IRustMpstBuilder {
 		return this.finalTypeNames.get(r);
 	}
 	
-	public String getExecuteOrderName() {
+	public String getExecuteOrderName() {		
 		return "RoleEnd";//this.execOrderName;
 	}
 

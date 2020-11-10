@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.scribble.model.endpoint.actions.EAction;
+import org.scribble.type.Payload;
 import org.scribble.type.name.Role;
 
 public class RustMpstSessionBuilder implements IRustMpstBuilder {
@@ -68,6 +69,9 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 
 			String[] brackets = new String[binTypes.size() + 2];
 			Arrays.fill(brackets, ">");
+			
+			////// ISSUE HERE : continuation should go straight up there as a payload, instead of being outside and given as a whole
+			
 			if ((this.continuations != null) && (this.continuations.containsKey(role))) {
 				brackets[0] = this.continuations.get(role).getFinalTypeName();
 			} else if ((this.continuations != null) && (this.continuations.containsKey(this.self))) {
@@ -96,17 +100,17 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 			if (continuations.get(role).getKind() == BuilderKind.Offer) {
 				sb.append(String.format("Role%s<RoleEnd>;", role.toString()));
 			} else {
-				sb.append("RoleEnd>"); // What should happen when the Continuation is Choice?
+				sb.append("RoleEnd"); // What should happen when the Continuation is Choice?
 			}
 		}
 		return new String[] { sb.toString(), typeName };
 	}
 
-	// example: type QueueCRecurs = RoleCtoA<RoleCtoB<RoleEnd>>;
-	private String[] constructMpstStack(List<Role> executionStack) {
+	// example: type QueueCRecurs = RoleA<RoleB<RoleEnd>>;
+	private String[] constructMpstStack(Map<Role, String> rolesToBinTypes, List<Role> executionStack) {
 
 		StringBuilder sb = new StringBuilder();
-		String typeName = String.format("Ordering%s%d", this.self.toString(²), getNextCount());
+		String typeName = String.format("Ordering%s%d", this.self.toString(), getNextCount());
 		String prefix = String.format("type %s = ", typeName);
 		sb.append(prefix);
 
@@ -118,7 +122,21 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 		Arrays.fill(brackets, ">");
 
 		if (this.continuations.containsKey(this.self)) {
-			brackets[0] = ((EnumChoiceTypeBuilder) this.continuations.get(this.self)).getExecuteOrderName();
+			// Adding RoleA<RoleB<RoleEnd>> (for RoleC) to send to everyone
+			StringBuilder sendingChoice = new StringBuilder();
+			// brackets[0] = ((EnumChoiceTypeBuilder)
+			// this.continuations.get(this.self)).getExecuteOrderName();
+			for (int i = 0; i < this.otherRoles.size(); i++) {
+				String role = otherRoles.get(i).toString().toUpperCase();
+				sendingChoice.append(String.format("Role%s<", role));
+			}
+
+			sendingChoice.append("RoleEnd");
+			String[] bracketsToClose = new String[this.otherRoles.size()];
+			Arrays.fill(bracketsToClose, ">");
+			sendingChoice.append(Arrays.asList(bracketsToClose).stream().reduce("", String::concat));
+
+			brackets[0] = sendingChoice.toString();
 		} else {
 			brackets[0] = "RoleEnd";
 		}
@@ -154,7 +172,11 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 	}
 
 	private String getPayload(EAction a) {
-		return "N";
+		if (a.payload == Payload.EMPTY_PAYLOAD) {
+			return "()";
+		} else {
+			return "N";
+		}
 	}
 
 	private String getKind(EAction a) {
@@ -180,7 +202,7 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 		Map<Role, String> roleToNames = this.otherRoles.stream()
 				.collect(Collectors.toMap(r -> r, r -> constructBinTypeDecl(binTypes.get(r), r)[1]));
 
-		String[] ordering = constructMpstStack(this.execOrder);
+		String[] ordering = constructMpstStack(roleToNames, this.execOrder);
 		String[] mpstSession;
 		String res;
 		if ((continuations.size() != 0) && (continuations.values().iterator().next().getKind() == BuilderKind.Offer)) {
