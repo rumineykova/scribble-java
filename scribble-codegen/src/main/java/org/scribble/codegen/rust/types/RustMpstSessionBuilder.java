@@ -47,11 +47,13 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 		Map<Role, String> roleToBinType = new HashMap<>();
 		if (binTypes.size() < 1) {
 			String finalType = "End";
+
 			if ((this.continuations != null) && this.continuations.containsKey(role)) {
 				finalType = this.continuations.get(role).getFinalTypeName();
 			} else if ((this.continuations != null) && this.continuations.containsKey(this.self)) {
 				finalType = ((EnumChoiceTypeBuilder) this.continuations.get(this.self)).getFinalTypeNameByRole(role);
 			}
+
 			return new String[] { "", finalType };
 		} else {
 			EAction fst = binTypes.get(0);
@@ -69,28 +71,32 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 
 			String[] brackets = new String[binTypes.size() + 2];
 			Arrays.fill(brackets, ">");
-			
-			////// ISSUE HERE : continuation should go straight up there as a payload, instead of being outside and given as a whole
-			
+
+			////// ISSUE HERE : continuation should go straight up there as a payload,
+			////// instead of being outside and given as a whole
+
 			if ((this.continuations != null) && (this.continuations.containsKey(role))) {
-				brackets[0] = this.continuations.get(role).getFinalTypeName();
+				brackets[0] = String.format("Recv<" + this.continuations.get(role).getFinalTypeName() + ", End>");
 			} else if ((this.continuations != null) && (this.continuations.containsKey(this.self))) {
 				brackets[0] = ((EnumChoiceTypeBuilder) this.continuations.get(this.self)).getFinalTypeNameByRole(role);
-			}
-
-			else {
+			} else {
 				brackets[0] = "End";
 			}
+
 			brackets[brackets.length - 1] = ";";
 			sb.append(Arrays.asList(brackets).stream().reduce("", String::concat));
 			String[] result = new String[] { sb.toString(), typeName };
+
 			return result;
 		}
 	}
 
 	private String[] constructMpstContStack() {
 		StringBuilder sb = new StringBuilder();
-		String typeName = String.format("Ordering%s%dFull", this.self, getNextCount());
+
+		Integer index = getNextCount();
+
+		String typeName = String.format("Ordering%s%dFull", this.self, index);
 		String prefix = String.format("type %s = ", typeName);
 		sb.append(prefix);
 
@@ -98,7 +104,7 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 		if (continuations != null) {
 			Role role = continuations.keySet().iterator().next();
 			if (continuations.get(role).getKind() == BuilderKind.Offer) {
-				sb.append(String.format("Role%s<RoleEnd>;", role.toString()));
+				sb.append(String.format("Role%s<Ordering%s%d>;", role.toString(), this.self.toString(), index - 1));
 			} else {
 				sb.append("RoleEnd"); // What should happen when the Continuation is Choice?
 			}
@@ -185,8 +191,9 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 			kind = "Send";
 		} else if (a.isReceive()) {
 			kind = "Recv";
-		} else
+		} else {
 			throw new RuntimeException("not implemented excetpion! for node type" + a.toString());
+		}
 		return kind;
 	}
 
@@ -205,6 +212,7 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 		String[] ordering = constructMpstStack(roleToNames, this.execOrder);
 		String[] mpstSession;
 		String res;
+
 		if ((continuations.size() != 0) && (continuations.values().iterator().next().getKind() == BuilderKind.Offer)) {
 			String[] orderingCont = constructMpstContStack();
 			mpstSession = constructMpstSession(roleToNames, orderingCont[1]);
@@ -217,6 +225,7 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 		this.rolesToTypeNames = roleToNames;
 		this.execOrderName = ordering[1];
 		this.finalTypeName = mpstSession[1];
+
 		return res;
 	}
 

@@ -10,7 +10,7 @@ import org.scribble.type.name.Role;
 public class EnumOfferTypeBuilder implements IRustMpstBuilder {
 	private String finalTypeName;
 	public ArrayList<IRustMpstBuilder> paths = new ArrayList<>();
-	public ArrayList<String> lables = new ArrayList<>();
+	public ArrayList<String> labels = new ArrayList<>();
 	BuilderKind kind;
 	int counter;
 	public Map<Role, String> rolesToNames = new HashMap<>();
@@ -22,7 +22,7 @@ public class EnumOfferTypeBuilder implements IRustMpstBuilder {
 		this.paths = paths;
 		this.kind = kind;
 		this.self = self;
-		this.lables = labels;
+		this.labels = labels;
 		this.controlRole = controlRole;
 	}
 
@@ -42,14 +42,14 @@ public class EnumOfferTypeBuilder implements IRustMpstBuilder {
 	 */
 	private String buildMpstOffer() {
 		StringBuilder sb = new StringBuilder();
-		String name = String.format("CBranches%stoC", this.self);
+		String name = String.format("Branches%sto%s", this.self, this.controlRole);
 		this.finalTypeName = name + "<N>";
 		String decl = String.format("enum %s<N: marker::Send> { \n", name);
 		StringBuilder declBuilder = new StringBuilder();
 		declBuilder.append(decl);
 
 		for (int i = 0; i < this.paths.size(); i++) {
-			declBuilder.append(this.lables.get(i) + "(SessionMpst<");
+			declBuilder.append(this.labels.get(i) + "(SessionMpst<");
 			RustMpstSessionBuilder simpleType = (RustMpstSessionBuilder) this.paths.get(i);
 			String simpleTypeString = simpleType.build();
 			String binaryTypes = simpleType.rolesToTypeNames.values().stream().map(t -> t + ",").reduce("",
@@ -64,7 +64,8 @@ public class EnumOfferTypeBuilder implements IRustMpstBuilder {
 
 		// String.format("", this.self, otherRoles.get(i), this.self);
 
-		sb.append(String.format("type ChooseCfor%stoC<N> = Send<%s, End>; \n", this.self, this.finalTypeName));
+		sb.append(String.format("type ChooseCfor%sto%s<N> = Send<%s, End>; \n", this.self, this.controlRole,
+				this.finalTypeName));
 		return sb.toString();
 	}
 

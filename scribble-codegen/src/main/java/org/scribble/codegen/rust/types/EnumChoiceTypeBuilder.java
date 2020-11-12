@@ -25,7 +25,7 @@ public class EnumChoiceTypeBuilder implements IRustMpstBuilder {
 		this.self = self; 
 		this.otherRoles = otherRoles; 
 		for (int i=0; i< otherRoles.size(); i++) {
-		this.finalTypeNames.put(otherRoles.get(i),
+			this.finalTypeNames.put(otherRoles.get(i),
 				String.format("Choose%sfor%sto%s<N>", this.self, 
 						otherRoles.get(i), this.self)); 
 		}

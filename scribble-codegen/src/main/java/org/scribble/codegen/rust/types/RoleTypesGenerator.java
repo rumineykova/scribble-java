@@ -1,12 +1,10 @@
 package org.scribble.codegen.rust.types;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 import org.scribble.codegen.java.ApiGen;
 import org.scribble.main.Job;
@@ -21,10 +19,13 @@ public class RoleTypesGenerator extends ApiGen {
 	private Role self;
 	private EState init;
 	private List<EState> visited = new ArrayList<EState>();
+	private Map<Integer, Role> activeRoles;
+	private boolean createActiveRoles;
 	private final List<Role> otherRoles;
 
-	public RoleTypesGenerator(Job job, GProtocolName fullname, Role self, List<Role> otherRoles)
-			throws ScribbleException // FIXME: APIGenerationException?
+	public RoleTypesGenerator(Job job, GProtocolName fullname, Role self, List<Role> otherRoles,
+			Map<Integer, Role> activeRoles, boolean createActiveRoles) throws ScribbleException // FIXME:
+																								// APIGenerationException?
 	{
 		super(job, fullname);
 		this.self = self;
@@ -32,6 +33,8 @@ public class RoleTypesGenerator extends ApiGen {
 		this.init = job.minEfsm ? jc.getMinimisedEGraph(fullname, self).init : jc.getEGraph(fullname, self).init;
 		// this.initBinTypesMap(otherRoles);
 		this.otherRoles = otherRoles;
+		this.activeRoles = activeRoles;
+		this.createActiveRoles = createActiveRoles;
 		// constructTypes(this.init);
 
 		// EndpointState term = EndpointState.findTerminalState(new HashSet<>(),
@@ -42,7 +45,11 @@ public class RoleTypesGenerator extends ApiGen {
 		 */
 	}
 
-	private void constructTypes(EState curr, Stack<IRustMpstBuilder> acc) {
+	public Map<Integer, Role> getActiveRoles() {
+		return this.activeRoles;
+	}
+
+	private void constructTypes(EState curr, Stack<IRustMpstBuilder> acc, Integer indexingChoice) {
 		if (curr.isTerminal()) {
 			return; // Generic EndType for terminal states
 		}
@@ -60,6 +67,7 @@ public class RoleTypesGenerator extends ApiGen {
 		if (curr.getAllSuccessors().size() > 1) {
 			ArrayList<String> labels = new ArrayList<>();
 			ArrayList<IRustMpstBuilder> paths = new ArrayList<>();
+
 			// Link the choice and the simple...
 			for (int j = 0; j < curr.getActions().size(); j++) {
 				RustMpstSessionBuilder newSimpleType = new RustMpstSessionBuilder(this.otherRoles, this.self);
@@ -69,21 +77,33 @@ public class RoleTypesGenerator extends ApiGen {
 				paths.add(newSimpleType);
 				labels.add(a.mid.toString());
 			}
+
 			BuilderKind kind;
 			IRustMpstBuilder newType;
 			RustMpstSessionBuilder currType = (RustMpstSessionBuilder) acc.pop();
 			EAction a = curr.getActions().get(0);
+
 			if (this.isOffer(curr)) {
 				isOffer = true;
 				kind = BuilderKind.Offer;
-				newType = new EnumOfferTypeBuilder(paths, labels, kind, this.self, a.peer);
-				currType.continuations.put(a.peer, newType);
+				if (createActiveRoles) {
+					newType = new EnumOfferTypeBuilder(paths, labels, kind, this.self, a.peer);
+					currType.continuations.put(a.peer, newType);
+				} else {
+					newType = new EnumOfferTypeBuilder(paths, labels, kind, this.self, this.activeRoles.get(indexingChoice));
+					currType.continuations.put(this.activeRoles.get(indexingChoice), newType);
+				}
 			} else {
 				isChoice = true;
 				kind = BuilderKind.Choice;
 				newType = new EnumChoiceTypeBuilder(paths, kind, this.self, this.otherRoles);
+				if (createActiveRoles) {
+					this.activeRoles.put(indexingChoice, this.self);
+				}
 				currType.continuations.put(this.self, newType);
 			}
+			indexingChoice += 1;
+
 			acc.push(currType);
 			acc.push(newType);
 		} else {
@@ -96,21 +116,23 @@ public class RoleTypesGenerator extends ApiGen {
 			if (isChoice) {
 				EnumChoiceTypeBuilder bust = (EnumChoiceTypeBuilder) acc.get(acc.size() - 1);
 				acc.push(bust.paths.get(i));
-				constructTypes(succ, acc);
+				constructTypes(succ, acc, indexingChoice);
 				acc.pop();
 			} else if (isOffer) {
 				EnumOfferTypeBuilder bust = (EnumOfferTypeBuilder) acc.get(acc.size() - 1);
 				acc.push(bust.paths.get(i));
-				constructTypes(succ, acc);
+				constructTypes(succ, acc, indexingChoice);
 				acc.pop();
 			} else {
-				constructTypes(succ, acc);
+				constructTypes(succ, acc, indexingChoice);
 			}
+
 			i++;
 			// we are done exploring that path so get me the types res
 			// add them to a list
 
 		}
+
 		if (isChoice || isOffer) {
 			acc.pop();
 		}
@@ -182,7 +204,7 @@ public class RoleTypesGenerator extends ApiGen {
 		Stack<IRustMpstBuilder> types = new Stack<>();
 		RustMpstSessionBuilder type = new RustMpstSessionBuilder(this.otherRoles, this.self);
 		types.add(type);
-		this.constructTypes(this.init, types);
+		this.constructTypes(this.init, types, 0);
 		Map<String, String> resMap = new HashMap<>();
 		// String res = types.stream().map(t-> t.build()).reduce("", String::concat));
 		StringBuilder sb = new StringBuilder();
@@ -190,6 +212,7 @@ public class RoleTypesGenerator extends ApiGen {
 			sb.append(types.get(i).build());
 		}
 		resMap.put(this.self.toString(), sb.toString());
+		
 		return resMap;
 	}
 
