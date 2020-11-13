@@ -16,14 +16,16 @@ public class EnumOfferTypeBuilder implements IRustMpstBuilder {
 	public Map<Role, String> rolesToNames = new HashMap<>();
 	Role self;
 	Role controlRole;
+	int indexBranche;
 
 	public EnumOfferTypeBuilder(ArrayList<IRustMpstBuilder> paths, ArrayList<String> labels, BuilderKind kind,
-			Role self, Role controlRole) {
+			Role self, Role controlRole, int indexBranche) {
 		this.paths = paths;
 		this.kind = kind;
 		this.self = self;
 		this.labels = labels;
 		this.controlRole = controlRole;
+		this.indexBranche = indexBranche;
 	}
 
 	@Override
@@ -41,8 +43,9 @@ public class EnumOfferTypeBuilder implements IRustMpstBuilder {
 	 * Send<CBranchesBtoC<N>, End>;
 	 */
 	private String buildMpstOffer() {
+
 		StringBuilder sb = new StringBuilder();
-		String name = String.format("Branches%sto%s", this.self, this.controlRole);
+		String name = String.format("Branches%s%sto%s", this.indexBranche, this.self, this.controlRole);
 		this.finalTypeName = name + "<N>";
 		String decl = String.format("enum %s<N: marker::Send> { \n", name);
 		StringBuilder declBuilder = new StringBuilder();
@@ -52,8 +55,13 @@ public class EnumOfferTypeBuilder implements IRustMpstBuilder {
 			declBuilder.append(this.labels.get(i) + "(SessionMpst<");
 			RustMpstSessionBuilder simpleType = (RustMpstSessionBuilder) this.paths.get(i);
 			String simpleTypeString = simpleType.build();
-			String binaryTypes = simpleType.rolesToTypeNames.values().stream().map(t -> t + ",").reduce("",
-					String::concat);
+			String binaryTypes = simpleType.rolesToTypeNames.values().stream().map(t -> {
+				if (t.contains("Branche")) {
+					return "Recv<" + t + ", End>,";
+				} else {
+					return t + ",";
+				}
+			}).reduce("", String::concat);
 			sb.append(simpleTypeString + "\n");
 			declBuilder.append(binaryTypes);
 			declBuilder.append(simpleType.execOrderName);
@@ -64,8 +72,8 @@ public class EnumOfferTypeBuilder implements IRustMpstBuilder {
 
 		// String.format("", this.self, otherRoles.get(i), this.self);
 
-		sb.append(String.format("type ChooseCfor%sto%s<N> = Send<%s, End>; \n", this.self, this.controlRole,
-				this.finalTypeName));
+		sb.append(String.format("type Choose%sfor%sto%s<N> = Send<%s, End>; \n", this.indexBranche, this.self,
+				this.controlRole, this.finalTypeName));
 		return sb.toString();
 	}
 

@@ -11,6 +11,8 @@ import org.scribble.model.endpoint.actions.EAction;
 import org.scribble.type.Payload;
 import org.scribble.type.name.Role;
 
+import antlr.StringUtils;
+
 public class RustMpstSessionBuilder implements IRustMpstBuilder {
 	private String finalTypeName;
 	private BuilderKind kind;
@@ -86,6 +88,13 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 			brackets[brackets.length - 1] = ";";
 			sb.append(Arrays.asList(brackets).stream().reduce("", String::concat));
 			String[] result = new String[] { sb.toString(), typeName };
+
+			if ((result[0].length() - result[0].replace("<N,", "").length()) / 3 == 0) {
+				result[0] = result[0].replace("<N>", "");
+				result[1] = result[1].replace("<N>", "");
+				result[0] = result[0].replace("<()>", "");
+				result[1] = result[1].replace("<()>", "");
+			}
 
 			return result;
 		}
@@ -170,7 +179,14 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 		sb.append(",");
 		sb.append(String.format("Role%s<RoleEnd>>;", this.self));
 
-		return new String[] { sb.toString(), name };
+		String[] result = new String[] { sb.toString(), name };
+
+		if ((result[0].length() - result[0].replace("<N>", "").length()) / 3 == 1) {
+			result[0] = result[0].replace("<N>", "");
+			result[1] = result[1].replace("<N>", "");
+		}
+
+		return result;
 	}
 
 	private int getNextCount() {
@@ -178,7 +194,7 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 	}
 
 	private String getPayload(EAction a) {
-		if (a.payload == Payload.EMPTY_PAYLOAD) {
+		if (a.payload.toString() == "()") {
 			return "()";
 		} else {
 			return "N";

@@ -18,15 +18,17 @@ public class EnumChoiceTypeBuilder implements IRustMpstBuilder {
 	public Map<Role, String> rolesToNames = new HashMap<>(); 
 	Role self; 
 	List<Role> otherRoles = new ArrayList<Role>();
+	int indexBranche;
 	
-	public EnumChoiceTypeBuilder(ArrayList<IRustMpstBuilder> paths, BuilderKind kind, Role self, List<Role> otherRoles) {
+	public EnumChoiceTypeBuilder(ArrayList<IRustMpstBuilder> paths, BuilderKind kind, Role self, List<Role> otherRoles, int indexBranche) {
 		this.paths = paths;
 		this.kind = kind; 
 		this.self = self; 
 		this.otherRoles = otherRoles; 
+		this.indexBranche = indexBranche;
 		for (int i=0; i< otherRoles.size(); i++) {
 			this.finalTypeNames.put(otherRoles.get(i),
-				String.format("Choose%sfor%sto%s<N>", this.self, 
+				String.format("Choose%sfor%sto%s<N>", this.indexBranche, 
 						otherRoles.get(i), this.self)); 
 		}
 	}

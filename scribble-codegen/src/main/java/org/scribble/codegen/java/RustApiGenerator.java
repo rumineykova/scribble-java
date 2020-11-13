@@ -58,6 +58,8 @@ public class RustApiGenerator {
 		genAll.put("all", sb.toString());
 
 		Map<Integer, Role> actualActiveRoles = new HashMap<>();
+		
+		System.out.println("\nFirst pass\n");
 
 		// Create the new map of actual senders of Choice
 		for (int i = 0; i < roles.size(); i++) {
@@ -75,6 +77,8 @@ public class RustApiGenerator {
 					.concat(actualActiveRoles.entrySet().stream(), gen.getActiveRoles().entrySet().stream())
 					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (value1, value2) -> curr));
 		}
+		
+		System.out.println("\nSecond pass\n");
 
 		// add all types
 		for (int i = 0; i < roles.size(); i++) {
