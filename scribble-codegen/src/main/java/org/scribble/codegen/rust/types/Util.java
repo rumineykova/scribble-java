@@ -16,4 +16,8 @@ public class Util {
 		counterMap.put(r, count+1);
 		return count;
 	}
+	
+	public static void resetCounter() {
+		Util.counterMap = new HashMap<>();
+	}
 }

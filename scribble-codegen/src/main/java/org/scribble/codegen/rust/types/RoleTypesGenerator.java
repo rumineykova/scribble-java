@@ -51,7 +51,8 @@ public class RoleTypesGenerator extends ApiGen {
 	}
 
 	private void constructTypes(EState curr, Stack<IRustMpstBuilder> acc, Integer indexingChoice,
-			Map<EState, Integer> previousOffers) {
+			Map<EState, Integer> previousOffers, Map<String, Map<String, String>> endpointOfBranchesInEnum,
+			List<String> isInOffer, List<String> currentLabel) {
 
 		System.out.println("Current state: " + curr + " Kind " + curr.getStateKind() + " for " + this.self + " with "
 				+ curr.getAllSuccessors().size());
@@ -62,34 +63,28 @@ public class RoleTypesGenerator extends ApiGen {
 		// If loop
 //		if (this.visited.contains(curr)) {
 		if (Collections.frequency(this.visited, curr) == 1) {
-			// TODO add a new action to receive as a payload the linked (previousOffers) offer
-			
+			// TODO add a new action to receive as a payload the linked (previousOffers)
+			// offer
+
 			/*
-			if (this.isOffer(curr)) {
-				ArrayList<String> labels = new ArrayList<>();
-				ArrayList<IRustMpstBuilder> paths = new ArrayList<>();
-
-				BuilderKind kind;
-				IRustMpstBuilder newType;
-				RustMpstSessionBuilder currType = (RustMpstSessionBuilder) acc.pop();
-				EAction a = curr.getActions().get(0);
-
-				Integer newIndex = previousOffers.get(curr);
-
-				kind = BuilderKind.Offer;
-				if (createActiveRoles) { // If we are in the first pass to create the list of senders of choices, add a
-											// "pawn"
-					newType = new EnumOfferTypeBuilder(paths, labels, kind, this.self, a.peer, newIndex);
-					currType.continuations.put(a.peer, newType);
-				} else { // else, we are actually trying to make the types
-					newType = new EnumOfferTypeBuilder(paths, labels, kind, this.self, this.activeRoles.get(newIndex),
-							newIndex);
-					currType.continuations.put(this.activeRoles.get(newIndex), newType);
-				}
-
-				acc.push(currType);
-			}
-			*/
+			 * if (this.isOffer(curr)) { ArrayList<String> labels = new ArrayList<>();
+			 * ArrayList<IRustMpstBuilder> paths = new ArrayList<>();
+			 * 
+			 * BuilderKind kind; IRustMpstBuilder newType; RustMpstSessionBuilder currType =
+			 * (RustMpstSessionBuilder) acc.pop(); EAction a = curr.getActions().get(0);
+			 * 
+			 * Integer newIndex = previousOffers.get(curr);
+			 * 
+			 * kind = BuilderKind.Offer; if (createActiveRoles) { // If we are in the first
+			 * pass to create the list of senders of choices, add a // "pawn" newType = new
+			 * EnumOfferTypeBuilder(paths, labels, kind, this.self, a.peer, newIndex);
+			 * currType.continuations.put(a.peer, newType); } else { // else, we are
+			 * actually trying to make the types newType = new EnumOfferTypeBuilder(paths,
+			 * labels, kind, this.self, this.activeRoles.get(newIndex), newIndex);
+			 * currType.continuations.put(this.activeRoles.get(newIndex), newType); }
+			 * 
+			 * acc.push(currType); }
+			 */
 
 			return;
 		} else if (Collections.frequency(this.visited, curr) > 1) {
@@ -138,6 +133,19 @@ public class RoleTypesGenerator extends ApiGen {
 											// "pawn"
 					newType = new EnumOfferTypeBuilder(paths, labels, kind, this.self, a.peer, indexingChoice);
 					currType.continuations.put(a.peer, newType);
+
+					Map<String, String> hasmapOfLabels = new HashMap<String, String>();
+
+					for (String temp : labels) {
+						hasmapOfLabels.put(temp, "");
+					}
+					
+					newType.build();
+
+					endpointOfBranchesInEnum.put(newType.getFinalTypeName(), hasmapOfLabels);
+					
+					isInOffer.add(0, newType.getFinalTypeName());
+
 				} else { // else, we are actually trying to make the types
 					newType = new EnumOfferTypeBuilder(paths, labels, kind, this.self,
 							this.activeRoles.get(indexingChoice), indexingChoice);
@@ -160,6 +168,7 @@ public class RoleTypesGenerator extends ApiGen {
 			System.out.println("newType: " + newType);
 			System.out.println("getFinalTypeName: " + newType.getFinalTypeName());
 			System.out.println("toString: " + newType.getKind());
+			System.out.println("build newType: " + newType.build() + " ////////////// END");
 
 			acc.push(currType);
 			acc.push(newType);
@@ -173,15 +182,18 @@ public class RoleTypesGenerator extends ApiGen {
 			if (isChoice) {
 				EnumChoiceTypeBuilder bust = (EnumChoiceTypeBuilder) acc.get(acc.size() - 1);
 				acc.push(bust.paths.get(i));
-				constructTypes(succ, acc, indexingChoice, previousOffers);
+				constructTypes(succ, acc, indexingChoice, previousOffers, endpointOfBranchesInEnum, isInOffer,
+						currentLabel);
 				acc.pop();
 			} else if (isOffer) {
 				EnumOfferTypeBuilder bust = (EnumOfferTypeBuilder) acc.get(acc.size() - 1);
 				acc.push(bust.paths.get(i));
-				constructTypes(succ, acc, indexingChoice, previousOffers);
+				constructTypes(succ, acc, indexingChoice, previousOffers, endpointOfBranchesInEnum, isInOffer,
+						currentLabel);
 				acc.pop();
 			} else {
-				constructTypes(succ, acc, indexingChoice, previousOffers);
+				constructTypes(succ, acc, indexingChoice, previousOffers, endpointOfBranchesInEnum, isInOffer,
+						currentLabel);
 			}
 
 			i++;
@@ -221,6 +233,8 @@ public class RoleTypesGenerator extends ApiGen {
 				currType.binTypes.get(a.peer).add(a);
 				currType.execOrder.add(a.peer);
 				currTypes.push(currType);
+				
+				System.out.println("Buidling bin type: " + currType.build() + " ///////// END");
 			}
 			/*
 			 * case OUTPUT: { if (curr.getActions().size() == 1) { RustMpstSessionBuilder
@@ -261,7 +275,8 @@ public class RoleTypesGenerator extends ApiGen {
 		Stack<IRustMpstBuilder> types = new Stack<>();
 		RustMpstSessionBuilder type = new RustMpstSessionBuilder(this.otherRoles, this.self);
 		types.add(type);
-		this.constructTypes(this.init, types, 0, new HashMap<>());
+		this.constructTypes(this.init, types, 0, new HashMap<>(), new HashMap<>(), new ArrayList<>(),
+				new ArrayList<>());
 		Map<String, String> resMap = new HashMap<>();
 		// String res = types.stream().map(t-> t.build()).reduce("", String::concat));
 		StringBuilder sb = new StringBuilder();

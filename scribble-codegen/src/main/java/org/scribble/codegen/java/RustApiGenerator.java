@@ -13,6 +13,7 @@ import org.scribble.ast.Module;
 import org.scribble.ast.global.GProtocolDecl;
 import org.scribble.codegen.rust.types.RoleTypesGenerator;
 import org.scribble.codegen.rust.types.RustGenConstants;
+import org.scribble.codegen.rust.types.Util;
 import org.scribble.main.Job;
 import org.scribble.main.ScribbleException;
 import org.scribble.type.name.GProtocolName;
@@ -57,6 +58,7 @@ public class RustApiGenerator {
 		sb.append(RustGenConstants.MPST_IMPORTS).append(generateRoleImports(roleImports));
 		genAll.put("all", sb.toString());
 
+		// Get the actual active roles for each Choice At (that are indexed by an Integer
 		Map<Integer, Role> actualActiveRoles = new HashMap<>();
 		
 		System.out.println("\nFirst pass\n");
@@ -70,15 +72,24 @@ public class RustApiGenerator {
 					roles.stream().filter(r -> r != curr).collect(Collectors.toList()), new HashMap<>(), true);
 
 			// Running the new RoleTypesGenerator
-			gen.generateApi().values().stream().map(t -> t + "\n").reduce("", String::concat);
+//			String temp = gen.generateApi().values().stream().map(t -> t + "\n").reduce("", String::concat);
 
+			gen.generateApi().entrySet().forEach(entry->{
+			    System.out.println("Values for gen.generateApi: " + entry.getKey() + " -> " + entry.getValue() + "    ////// END");  
+			 });
+			
 			// Merging the new map with actualActiveRoles
 			actualActiveRoles = Stream
 					.concat(actualActiveRoles.entrySet().stream(), gen.getActiveRoles().entrySet().stream())
 					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (value1, value2) -> curr));
+
+//			System.out.println("curr role" + curr);
+//			System.out.println("temp: " + temp);
 		}
 		
 		System.out.println("\nSecond pass\n");
+		
+		Util.resetCounter();
 
 		// add all types
 		for (int i = 0; i < roles.size(); i++) {
@@ -86,6 +97,7 @@ public class RustApiGenerator {
 			RoleTypesGenerator gen = new RoleTypesGenerator(this.job, this.gpn, curr,
 					roles.stream().filter(r -> r != curr).collect(Collectors.toList()), actualActiveRoles, false);
 
+			// Running the new RoleTypesGenerator and adding the result to genAll
 			genAll.put(roles.get(i).toString(),
 					gen.generateApi().values().stream().map(t -> t + "\n").reduce("", String::concat));
 		}
