@@ -112,7 +112,7 @@ public class RoleTypesGenerator extends ApiGen {
 				paths.add(newSimpleType);
 				labels.add(a.mid.toString());
 
-				System.out.println("action: " + curr.getActions().get(j) + " on label " + a.mid.toString());
+				System.out.println("action: " + a + " on label " + a.mid.toString());
 
 				// Add a ("Recv<Branches%sto%s<N>, End>", this.self, this.controlRole) to the
 				// path if recursion
@@ -139,11 +139,11 @@ public class RoleTypesGenerator extends ApiGen {
 					for (String temp : labels) {
 						hasmapOfLabels.put(temp, "");
 					}
-					
+
 					newType.build();
 
 					endpointOfBranchesInEnum.put(newType.getFinalTypeName(), hasmapOfLabels);
-					
+
 					isInOffer.add(0, newType.getFinalTypeName());
 
 				} else { // else, we are actually trying to make the types
@@ -233,7 +233,7 @@ public class RoleTypesGenerator extends ApiGen {
 				currType.binTypes.get(a.peer).add(a);
 				currType.execOrder.add(a.peer);
 				currTypes.push(currType);
-				
+
 				System.out.println("Buidling bin type: " + currType.build() + " ///////// END");
 			}
 			/*

@@ -52,29 +52,13 @@ public class EnumOfferTypeBuilder implements IRustMpstBuilder {
 		declBuilder.append(decl);
 
 		for (int i = 0; i < this.paths.size(); i++) {
-//			declBuilder.append(this.labels.get(i) + "(SessionMpst<");
-//			RustMpstSessionBuilder simpleType = (RustMpstSessionBuilder) this.paths.get(i);
-//			String simpleTypeString = simpleType.build();
-//			String binaryTypes = simpleType.rolesToTypeNames.values().stream().map(t -> {
-//				if (t.contains("Branche")) {
-//					return "Recv<" + t + ", End>,";
-//				} else {
-//					return t + ",";
-//				}
-//			}).reduce("", String::concat);
-//			sb.append(simpleTypeString + "\n");
-//			declBuilder.append(binaryTypes);
-//			declBuilder.append(simpleType.execOrderName);
-//			declBuilder.append(String.format(", Role%s<RoleEnd>>), \n", this.self));
-			
-			
 			RustMpstSessionBuilder simpleType = (RustMpstSessionBuilder) this.paths.get(i);
 			String simpleTypeString = simpleType.build();
 
 			sb.append(simpleTypeString + "\n");
-			
-			declBuilder.append(this.labels.get(i)  + "(" + simpleType.getFinalTypeName() + "), \n");
-			
+
+			declBuilder.append("\t" + this.labels.get(i) + "(" + simpleType.getFinalTypeName() + "), \n");
+
 		}
 		sb.append("\n").append(declBuilder.toString());
 		sb.append("}").append("\n");

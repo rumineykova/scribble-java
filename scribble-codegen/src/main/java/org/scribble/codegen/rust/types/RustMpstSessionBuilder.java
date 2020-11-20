@@ -233,7 +233,6 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 			String[] orderingCont = constructMpstContStack();
 			mpstSession = constructMpstSession(roleToNames, orderingCont[1]);
 			res = cont + binaryPairs + "\n" + ordering[0] + "\n" + orderingCont[0] + "\n" + mpstSession[0];
-
 		} else {
 			mpstSession = constructMpstSession(roleToNames, ordering[1]);
 			res = cont + binaryPairs + "\n" + ordering[0] + "\n" + mpstSession[0];

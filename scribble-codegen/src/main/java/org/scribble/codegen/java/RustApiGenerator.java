@@ -58,9 +58,10 @@ public class RustApiGenerator {
 		sb.append(RustGenConstants.MPST_IMPORTS).append(generateRoleImports(roleImports));
 		genAll.put("all", sb.toString());
 
-		// Get the actual active roles for each Choice At (that are indexed by an Integer
+		// Get the actual active roles for each Choice At (that are indexed by an
+		// Integer
 		Map<Integer, Role> actualActiveRoles = new HashMap<>();
-		
+
 		System.out.println("\nFirst pass\n");
 
 		// Create the new map of actual senders of Choice
@@ -74,10 +75,11 @@ public class RustApiGenerator {
 			// Running the new RoleTypesGenerator
 //			String temp = gen.generateApi().values().stream().map(t -> t + "\n").reduce("", String::concat);
 
-			gen.generateApi().entrySet().forEach(entry->{
-			    System.out.println("Values for gen.generateApi: " + entry.getKey() + " -> " + entry.getValue() + "    ////// END");  
-			 });
-			
+			gen.generateApi().entrySet().forEach(entry -> {
+				System.out.println(
+						"Values for gen.generateApi: " + entry.getKey() + " -> " + entry.getValue() + "    ////// END");
+			});
+
 			// Merging the new map with actualActiveRoles
 			actualActiveRoles = Stream
 					.concat(actualActiveRoles.entrySet().stream(), gen.getActiveRoles().entrySet().stream())
@@ -86,9 +88,9 @@ public class RustApiGenerator {
 //			System.out.println("curr role" + curr);
 //			System.out.println("temp: " + temp);
 		}
-		
+
 		System.out.println("\nSecond pass\n");
-		
+
 		Util.resetCounter();
 
 		// add all types
