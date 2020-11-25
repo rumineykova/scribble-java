@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.scribble.type.name.Role;
 
 public class EnumChoiceTypeBuilder implements IRustMpstBuilder {

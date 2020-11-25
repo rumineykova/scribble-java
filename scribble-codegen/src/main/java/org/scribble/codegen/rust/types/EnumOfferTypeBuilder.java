@@ -2,7 +2,6 @@ package org.scribble.codegen.rust.types;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.scribble.type.name.Role;
@@ -17,15 +16,17 @@ public class EnumOfferTypeBuilder implements IRustMpstBuilder {
 	Role self;
 	Role controlRole;
 	int indexBranche;
+	boolean removeExcess;
 
 	public EnumOfferTypeBuilder(ArrayList<IRustMpstBuilder> paths, ArrayList<String> labels, BuilderKind kind,
-			Role self, Role controlRole, int indexBranche) {
+			Role self, Role controlRole, int indexBranche, boolean removeExcess) {
 		this.paths = paths;
 		this.kind = kind;
 		this.self = self;
 		this.labels = labels;
 		this.controlRole = controlRole;
 		this.indexBranche = indexBranche;
+		this.removeExcess = removeExcess;
 	}
 
 	@Override
@@ -67,7 +68,12 @@ public class EnumOfferTypeBuilder implements IRustMpstBuilder {
 
 		sb.append(String.format("type Choose%sfor%sto%s<N> = Send<%s, End>; \n", this.indexBranche, this.self,
 				this.controlRole, this.finalTypeName));
-		return sb.toString();
+		
+		if (!removeExcess) {
+			return sb.toString();
+		} else {
+			return new StringBuilder().toString();
+		}
 	}
 
 	private String buildMpstChoice() {
@@ -80,7 +86,6 @@ public class EnumOfferTypeBuilder implements IRustMpstBuilder {
 		StringBuilder sbQ = new StringBuilder();
 		for (int i = 0; i < this.paths.size(); i++) {
 			RustMpstSessionBuilder simpleType = (RustMpstSessionBuilder) this.paths.get(i);
-			String simpleTypeString = simpleType.build();
 			String binaryTypes = simpleType.rolesToTypeNames.values().stream()
 					.map(t -> t != "End" ? "<" + t + " as Session>::Dual," : t + ",").reduce("", String::concat);
 			// sb.append(simpleTypeString + "\n");

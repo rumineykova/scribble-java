@@ -8,10 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.scribble.model.endpoint.actions.EAction;
-import org.scribble.type.Payload;
 import org.scribble.type.name.Role;
-
-import antlr.StringUtils;
 
 public class RustMpstSessionBuilder implements IRustMpstBuilder {
 	private String finalTypeName;
@@ -23,8 +20,6 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 	public String execOrderName;
 	private List<Role> otherRoles = new ArrayList<>();
 	public Role self;
-	private int counter = 0;
-
 	public RustMpstSessionBuilder(List<Role> otherRoles, Role self) {
 		this.otherRoles = otherRoles;
 		this.self = self;
@@ -46,7 +41,6 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 	}
 
 	private String[] constructBinTypeDecl(List<EAction> binTypes, Role role) {
-		Map<Role, String> roleToBinType = new HashMap<>();
 		if (binTypes.size() < 1) {
 			String finalType = "End";
 
@@ -105,7 +99,7 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 
 		Integer index = getNextCount();
 
-		String typeName = String.format("Ordering%s%dFull", this.self, index);
+		String typeName = String.format("Ordering%s%d", this.self, index);
 		String prefix = String.format("type %s = ", typeName);
 		sb.append(prefix);
 
@@ -113,19 +107,23 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 		if (continuations != null) {
 			Role role = continuations.keySet().iterator().next();
 			if (continuations.get(role).getKind() == BuilderKind.Offer) {
-				sb.append(String.format("Role%s<Ordering%s%d>;", role.toString(), this.self.toString(), index - 1));
+//				sb.append(String.format("Role%s<Ordering%s%d>;", role.toString(), this.self.toString(), index - 1));
+				sb.append(String.format("Role%s<RoleEnd>;", role.toString()));
 			} else {
 				sb.append("RoleEnd"); // What should happen when the Continuation is Choice?
 			}
 		}
+		
 		return new String[] { sb.toString(), typeName };
 	}
 
 	// example: type QueueCRecurs = RoleA<RoleB<RoleEnd>>;
-	private String[] constructMpstStack(Map<Role, String> rolesToBinTypes, List<Role> executionStack) {
+	private String[] constructMpstStack(Map<Role, String> rolesToBinTypes, List<Role> executionStack, String continuation) {
 
 		StringBuilder sb = new StringBuilder();
-		String typeName = String.format("Ordering%s%d", this.self.toString(), getNextCount());
+		Integer index = getNextCount();
+		
+		String typeName = String.format("Ordering%s%dFull", this.self.toString(), index);
 		String prefix = String.format("type %s = ", typeName);
 		sb.append(prefix);
 
@@ -146,18 +144,19 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 				sendingChoice.append(String.format("Role%s<", role));
 			}
 
-			sendingChoice.append("RoleEnd");
+			sendingChoice.append(continuation);
 			String[] bracketsToClose = new String[this.otherRoles.size()];
 			Arrays.fill(bracketsToClose, ">");
 			sendingChoice.append(Arrays.asList(bracketsToClose).stream().reduce("", String::concat));
 
 			brackets[0] = sendingChoice.toString();
 		} else {
-			brackets[0] = "RoleEnd";
+			brackets[0] = continuation;
 		}
 
 		brackets[brackets.length - 1] = ";";
 		sb.append(Arrays.asList(brackets).stream().reduce("", String::concat));
+		
 		return new String[] { sb.toString(), typeName };
 	}
 
@@ -225,18 +224,22 @@ public class RustMpstSessionBuilder implements IRustMpstBuilder {
 		Map<Role, String> roleToNames = this.otherRoles.stream()
 				.collect(Collectors.toMap(r -> r, r -> constructBinTypeDecl(binTypes.get(r), r)[1]));
 
-		String[] ordering = constructMpstStack(roleToNames, this.execOrder);
+		String[] ordering = constructMpstStack(roleToNames, this.execOrder, "RoleEnd");
 		String[] mpstSession;
 		String res;
 
 		if ((continuations.size() != 0) && (continuations.values().iterator().next().getKind() == BuilderKind.Offer)) {
 			String[] orderingCont = constructMpstContStack();
-			mpstSession = constructMpstSession(roleToNames, orderingCont[1]);
-			res = cont + binaryPairs + "\n" + ordering[0] + "\n" + orderingCont[0] + "\n" + mpstSession[0];
+			
+			ordering = constructMpstStack(roleToNames, this.execOrder, orderingCont[1]);
+			
+			mpstSession = constructMpstSession(roleToNames, ordering[1]);
+			res = cont + binaryPairs+ "\n" + orderingCont[0]  + "\n" + ordering[0] + "\n" + mpstSession[0];
 		} else {
 			mpstSession = constructMpstSession(roleToNames, ordering[1]);
 			res = cont + binaryPairs + "\n" + ordering[0] + "\n" + mpstSession[0];
 		}
+		
 		this.rolesToTypeNames = roleToNames;
 		this.execOrderName = ordering[1];
 		this.finalTypeName = mpstSession[1];

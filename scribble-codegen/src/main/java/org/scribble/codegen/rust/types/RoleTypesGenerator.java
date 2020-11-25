@@ -24,6 +24,26 @@ public class RoleTypesGenerator extends ApiGen {
 	private boolean createActiveRoles;
 	private final List<Role> otherRoles;
 
+//	static void reverseStack(Stack<IRustMpstBuilder> s) 
+//    {
+//		IRustMpstBuilder curr = s.pop();
+//        
+//        if (s.size() != 1)
+//            reverseStack (s);
+//        
+//        placeCurrAtBottomOfStack (s, curr);
+//    }
+// 
+//    static void placeCurrAtBottomOfStack(Stack<IRustMpstBuilder> s, IRustMpstBuilder curr) 
+//    {
+//    	IRustMpstBuilder top = s.pop();
+//        if (s.size() == 0)
+//            s.push(curr);
+//        else
+//            placeCurrAtBottomOfStack(s, curr);
+//        s.push(top);
+//    }
+
 	public RoleTypesGenerator(Job job, GProtocolName fullname, Role self, List<Role> otherRoles,
 			Map<Integer, Role> activeRoles, boolean createActiveRoles) throws ScribbleException // FIXME:
 																								// APIGenerationException?
@@ -51,7 +71,7 @@ public class RoleTypesGenerator extends ApiGen {
 	}
 
 	private void constructTypes(EState curr, Stack<IRustMpstBuilder> acc, Integer indexingChoice,
-			Map<EState, Integer> previousOffers, Map<String, Map<String, String>> endpointOfBranchesInEnum,
+			Map<EState, Integer> previousOffers, Map<String, Map<String, IRustMpstBuilder>> endpointOfBranchesInEnum,
 			List<String> isInOffer, List<String> currentLabel) {
 
 		System.out.println("Current state: " + curr + " Kind " + curr.getStateKind() + " for " + this.self + " with "
@@ -66,25 +86,37 @@ public class RoleTypesGenerator extends ApiGen {
 			// TODO add a new action to receive as a payload the linked (previousOffers)
 			// offer
 
-			/*
-			 * if (this.isOffer(curr)) { ArrayList<String> labels = new ArrayList<>();
-			 * ArrayList<IRustMpstBuilder> paths = new ArrayList<>();
-			 * 
-			 * BuilderKind kind; IRustMpstBuilder newType; RustMpstSessionBuilder currType =
-			 * (RustMpstSessionBuilder) acc.pop(); EAction a = curr.getActions().get(0);
-			 * 
-			 * Integer newIndex = previousOffers.get(curr);
-			 * 
-			 * kind = BuilderKind.Offer; if (createActiveRoles) { // If we are in the first
-			 * pass to create the list of senders of choices, add a // "pawn" newType = new
-			 * EnumOfferTypeBuilder(paths, labels, kind, this.self, a.peer, newIndex);
-			 * currType.continuations.put(a.peer, newType); } else { // else, we are
-			 * actually trying to make the types newType = new EnumOfferTypeBuilder(paths,
-			 * labels, kind, this.self, this.activeRoles.get(newIndex), newIndex);
-			 * currType.continuations.put(this.activeRoles.get(newIndex), newType); }
-			 * 
-			 * acc.push(currType); }
-			 */
+			if (this.isOffer(curr)) {
+				ArrayList<String> labels = new ArrayList<>();
+				ArrayList<IRustMpstBuilder> paths = new ArrayList<>();
+
+				BuilderKind kind;
+				IRustMpstBuilder newOffer;
+				RustMpstSessionBuilder currType = (RustMpstSessionBuilder) acc.pop();
+				EAction a = curr.getActions().get(0);
+
+				System.out.println("Recursion: " + a + " size " + curr.getActions());
+				
+				System.out.println("Recursion currType: " + currType.build().toString() + " / " + currType.execOrder);
+
+				Integer newIndex = previousOffers.get(curr);
+
+				kind = BuilderKind.Offer;
+
+				if (createActiveRoles) { // If we are in the first pass to create the list of senders of choices, add a
+											// "pawn"
+					newOffer = new EnumOfferTypeBuilder(paths, labels, kind, this.self, a.peer, newIndex, true);
+					currType.continuations.put(a.peer, newOffer);
+				} else { // else, we are actually trying to make the types
+					newOffer = new EnumOfferTypeBuilder(paths, labels, kind, this.self, this.activeRoles.get(newIndex),
+							newIndex, true);
+					currType.continuations.put(this.activeRoles.get(newIndex), newOffer);
+				}
+				
+				System.out.println("Recursion currType modified: " + currType.build().toString() + " / " + currType.execOrder);
+
+				acc.push(currType);
+			}
 
 			return;
 		} else if (Collections.frequency(this.visited, curr) > 1) {
@@ -131,13 +163,14 @@ public class RoleTypesGenerator extends ApiGen {
 				kind = BuilderKind.Offer;
 				if (createActiveRoles) { // If we are in the first pass to create the list of senders of choices, add a
 											// "pawn"
-					newType = new EnumOfferTypeBuilder(paths, labels, kind, this.self, a.peer, indexingChoice);
+					newType = new EnumOfferTypeBuilder(paths, labels, kind, this.self, a.peer, indexingChoice,
+							createActiveRoles);
 					currType.continuations.put(a.peer, newType);
 
-					Map<String, String> hasmapOfLabels = new HashMap<String, String>();
+					Map<String, IRustMpstBuilder> hasmapOfLabels = new HashMap<String, IRustMpstBuilder>();
 
-					for (String temp : labels) {
-						hasmapOfLabels.put(temp, "");
+					for (int i = 0; i < labels.size(); i++) {
+						hasmapOfLabels.put(labels.get(i), paths.get(i));
 					}
 
 					newType.build();
@@ -148,7 +181,7 @@ public class RoleTypesGenerator extends ApiGen {
 
 				} else { // else, we are actually trying to make the types
 					newType = new EnumOfferTypeBuilder(paths, labels, kind, this.self,
-							this.activeRoles.get(indexingChoice), indexingChoice);
+							this.activeRoles.get(indexingChoice), indexingChoice, createActiveRoles);
 					currType.continuations.put(this.activeRoles.get(indexingChoice), newType);
 				}
 
@@ -217,6 +250,8 @@ public class RoleTypesGenerator extends ApiGen {
 		case POLY_INPUT: {
 			return true;
 		}
+		default:
+			break;
 		}
 		return false;
 	}
@@ -254,6 +289,8 @@ public class RoleTypesGenerator extends ApiGen {
 			 * } ChoiceTypeBuilder newType = new ChoiceTypeBuilder(paths, BuilderKind.Offer,
 			 * this.self); currTypes.push(newType); return true; }
 			 */
+			default:
+				break;
 			}
 		}
 	}
